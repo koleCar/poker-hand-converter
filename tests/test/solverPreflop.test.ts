@@ -12,37 +12,49 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { flopLinesFor } from "../../web/src/lib/analysis/index.js";
-import { loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
+import { CHART_SETS, loadCharts, uncapturedLine, type ChartSet } from "../../web/src/lib/charts/index.js";
 import { canonicalBoard, flopKey, pickedFlop } from "../../web/src/lib/solver/index.js";
 import { preflopState } from "../../web/src/components/solver/preflop.js";
+import { fileOf as chartFile, fixtureSet } from "./charts/support.js";
 
 const charts = (id: string): ChartSet =>
-  loadCharts(JSON.parse(readFileSync(join(import.meta.dirname, `../../web/src/lib/charts/data/${id}.json`), "utf8")));
+  loadCharts(JSON.parse(readFileSync(chartFile(`${id}`), "utf8")));
+/** Full ring waits for its transcription (charts/11); 6-max and heads-up read the fixtures and the ante set. */
+const NINE_SHIPPED = CHART_SETS.some((spec) => spec.id === "nlhe-cash-9max-100bb");
 
 describe("the preflop line", () => {
-  for (const id of ["nlhe-cash-6max-100bb", "nlhe-cash-9max-100bb", "nlhe-cash-hu-100bb"]) {
+  for (const id of ["nlhe-cash-6max-100bb", "nlhe-cash-6max-100bb-ante", "nlhe-cash-hu-100bb", ...(NINE_SHIPPED ? ["nlhe-cash-9max-100bb"] : [])]) {
     const set = charts(id);
     const lines = flopLinesFor(set.game.players);
+    // An ante is dead money: in the pot, off every stack.
+    const ante = set.game.ante ?? 0;
 
     it(`${id}: starts at the first seat with the blinds posted`, () => {
       const state = preflopState(set, "", lines);
       expect(state.node?.actor).toBe(set.game.positions[0]);
       expect(state.end).toBeNull();
-      expect(state.potBb).toBeCloseTo(1.5, 9);
+      expect(state.potBb).toBeCloseTo(1.5 + ante * set.game.players, 9);
       const bb = state.seats.find((s) => s.position === "BB")!;
-      expect(bb.stackBb).toBeCloseTo(set.game.stackBb - 1, 9);
+      expect(bb.stackBb).toBeCloseTo(set.game.stackBb - ante - 1, 9);
     });
 
     it(`${id}: every library line walks to its own heads-up flop`, () => {
-      for (const line of lines) {
+      // A partial capture's gap (the 6-max 100bb set's blind vs blind, `model.missing`) ends there, not on a flop.
+      const gapped = lines.filter((line) => uncapturedLine(set, line.key) !== null);
+      for (const line of gapped) expect(preflopState(set, line.key, lines).end).toEqual({ kind: "uncaptured" });
+      const captured = lines.filter((line) => !gapped.includes(line));
+      // The ante solution has no cold calls: a line with a small blind's flat is not in it (walked lines only).
+      const own = ante ? captured.filter((line) => preflopState(set, line.key, lines).line === line.key) : captured;
+      expect(own.length).toBeGreaterThan(ante ? 3 : captured.length - 1);
+      for (const line of own) {
         const state = preflopState(set, line.key, lines);
         expect(state.line).toBe(line.key);
         expect(state.node).toBeNull();
         expect(state.end).toMatchObject({ kind: "flop", line: { id: line.id } });
         // The pot is what the chunks were solved at: the two players' money and the folded blinds'.
-        const inPot = state.seats.reduce((sum, seat) => sum + seat.inBb, 0);
+        const inPot = state.seats.reduce((sum, seat) => sum + seat.inBb, ante * set.game.players);
         expect(state.potBb).toBeCloseTo(inPot, 9);
-        for (const seat of state.seats) expect(seat.stackBb + seat.inBb).toBeCloseTo(set.game.stackBb, 9);
+        for (const seat of state.seats) expect(seat.stackBb + seat.inBb).toBeCloseTo(set.game.stackBb - ante, 9);
       }
     });
 
@@ -58,14 +70,16 @@ describe("the preflop line", () => {
   }
 
   it("ends a line where everyone folds to one player", () => {
-    const set = charts("nlhe-cash-6max-100bb");
+    // The NL500 fixture: the shipped set's blind vs blind (after folds to the small blind) is still to capture.
+    const set = fixtureSet("nlhe-cash-6max-100bb");
     const state = preflopState(set, "fffff", flopLinesFor(6));
     expect(state.end).toEqual({ kind: "folded", winner: "BB" });
   });
 });
 
 describe("a later seat's options (everyone before it folds)", () => {
-  const set = charts("nlhe-cash-6max-100bb");
+  // The NL500 fixture: these walk through the small blind's decisions, which the shipped set has not captured yet.
+  const set = fixtureSet("nlhe-cash-6max-100bb");
   const lines = flopLinesFor(6);
   const ahead = (line: string) =>
     Object.fromEntries(preflopState(set, line, lines).seats.map((seat) => [seat.position, seat.ahead?.line ?? null]));
@@ -102,14 +116,14 @@ describe("a later seat's options (everyone before it folds)", () => {
 });
 
 describe("a later seat's options on full ring and heads-up", () => {
-  const sets = Object.fromEntries(["nlhe-cash-9max-100bb", "nlhe-cash-hu-100bb"].map((id) => [id, charts(id)]));
+  const sets = Object.fromEntries([...(NINE_SHIPPED ? ["nlhe-cash-9max-100bb"] : []), "nlhe-cash-hu-100bb"].map((id) => [id, charts(id)]));
   const ahead = (id: string, line: string) => {
     const set = sets[id];
     const state = preflopState(set, line, flopLinesFor(set.game.players));
     return Object.fromEntries(state.seats.map((seat) => [seat.position, seat.ahead?.line ?? null]));
   };
 
-  it("9-max: folds the seats in between, up to the big blind's walk", () => {
+  it.runIf(NINE_SHIPPED)("9-max: folds the seats in between, up to the big blind's walk", () => {
     const id = "nlhe-cash-9max-100bb";
     expect(ahead(id, "")).toEqual({
       UTG: null, "UTG+1": "f", "UTG+2": "ff", LJ: "fff", HJ: "ffff", CO: "fffff", BTN: "ffffff", SB: "fffffff", BB: null,
@@ -119,7 +133,7 @@ describe("a later seat's options on full ring and heads-up", () => {
     });
   });
 
-  it("9-max: stops at a seat that has acted", () => {
+  it.runIf(NINE_SHIPPED)("9-max: stops at a seat that has acted", () => {
     const id = "nlhe-cash-9max-100bb";
     // UTG opens, UTG+1 3-bets, UTG+2 to act: the folds stop at UTG.
     expect(ahead(id, "rr")).toEqual({

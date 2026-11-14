@@ -113,7 +113,8 @@ export const STRADDLE_TABLE_ORDER: readonly ChartPosition[] = ["HJ", "CO", "BTN"
  */
 export function seatsOfSet(id: string | null | undefined): readonly ChartPosition[] {
   const spec = id ? CHART_SETS.find((s) => s.id === id) : undefined;
-  if (spec?.straddle) return STRADDLE_TABLE_ORDER;
+  // By the id too: a stored grade may name a set no longer listed (Rail's straddle set before charts/11).
+  if (spec?.straddle || (!!id && /-straddle$/.test(id))) return STRADDLE_TABLE_ORDER;
   if (spec?.players === 2 || (!!id && /-hu-/.test(id))) return HEADS_UP_TABLE_ORDER;
   return spec?.players === 9 || (!!id && /-9max-/.test(id)) ? NINE_TABLE_ORDER : TABLE_ORDER;
 }

@@ -30,6 +30,8 @@ const REFRESH_MS = 60_000;
  */
 export const ROUTE_FEATURE: Partial<Record<Route, PlanFeature>> = {
   analysis: "analysis",
+  // The Trainer is part of the analysis (the web's `/analysis/train`): Pro.
+  trainer: "analysis",
   players: "reportsFull",
 };
 

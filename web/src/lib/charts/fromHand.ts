@@ -120,7 +120,7 @@ export function preflopSpotFromHand(hand: PhfHand, nth = 0, heroSeat?: number): 
             hero: position.get(heroPlayer.seat) as Position,
             actions,
             stacksBb,
-            ante: hand.actions.some((a) => a.type === "ante"),
+            ...anteOf(hand, position, bb),
             straddle: straddled,
             ...(straddled ? { straddles } : {}),
             ...(live ? { deadButton: true } : {}),
@@ -136,6 +136,32 @@ export function preflopSpotFromHand(hand: PhfHand, nth = 0, heroSeat?: number): 
     actions.push(input);
   }
   return { ok: false, reason: "no-decision", detail: `the hero has no preflop decision #${nth}` };
+}
+
+/**
+ * The hand's ante as a chart set models one (`PreflopSpot.ante`,
+ * `anteBb`): whether anybody posted an ante, and - when every seat dealt in
+ * posted the same one - its size in big blinds. A big-blind ante (one
+ * poster for the table) or uneven antes leave `anteBb` out: no ante set
+ * answers them. A poster with no position (a "ghost" ante from a seat not
+ * dealt in) adds dead money but is not a seat; a seat whose ante put it
+ * all-in for less still counts as posting it.
+ */
+export function anteOf(hand: PhfHand, position: ReadonlyMap<number, Position>, bigBlind: number): Pick<PreflopSpot, "ante" | "anteBb"> {
+  const posted = new Map<number, { chips: number; allIn: boolean }>();
+  for (const action of hand.actions) {
+    if (action.type !== "ante" || action.seat === null) continue;
+    const prior = posted.get(action.seat);
+    posted.set(action.seat, { chips: (prior?.chips ?? 0) + action.amount, allIn: (prior?.allIn ?? false) || action.allIn === true });
+  }
+  if (!posted.size) return { ante: false };
+  if (bigBlind <= 0) return { ante: true };
+  const seats = [...position.keys()];
+  const own = seats.map((seat) => posted.get(seat));
+  if (own.some((x) => x === undefined)) return { ante: true };
+  const full = Math.max(...own.map((x) => x!.chips));
+  if (!(full > 0) || own.some((x) => Math.abs(x!.chips - full) > 1e-9 && !x!.allIn)) return { ante: true };
+  return { ante: true, anteBb: full / bigBlind };
 }
 
 /**
@@ -175,7 +201,8 @@ export function postedLimp(action: PhfAction, position: Position, postedChips: n
  * The ids of the library sets a hand needs: one per table and depth its
  * players' preflop decisions are looked up at - the hero's, graded, and every
  * opponent's, whose chart ranges the postflop analysis starts from; a
- * straddled hand's is the straddle set, when one fits (A2e). A caller
+ * straddled hand's is the straddle set, when one fits (A2e), a hand with an
+ * ante from every seat an ante set of that ante (`charts/11`). A caller
  * loads these (`ensureChartSets`) before analysing the hand, since the lookup
  * itself is synchronous.
  */
@@ -185,7 +212,6 @@ export function requiredChartSets(hand: PhfHand, specs: readonly ChartSetSpec[] 
     for (let nth = 0; ; nth += 1) {
       const found = preflopSpotFromHand(hand, nth, player.seat);
       if (!found.ok) break;
-      if (found.spot.ante) return [];
       const pick = pickChartSet(specs, found.spot);
       if (pick.ok) out.add(pick.spec.id);
     }

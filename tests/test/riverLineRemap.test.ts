@@ -14,8 +14,9 @@ import { followLine, MIN_LINE_REACH, solveRiverSpot, type RiverAct, type RiverSo
 import { loadCharts } from "../../web/src/lib/charts/index.js";
 import type { PhfHand } from "../../web/src/lib/phf/types.js";
 import { parseCards, parseRange, type SolvedNode, type SolveResult } from "../../web/src/lib/solver/index.js";
+import { fileOf as chartFile } from "./charts/support.js";
 
-const CHARTS = loadCharts(JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")));
+const CHARTS = loadCharts(JSON.parse(readFileSync(chartFile("nlhe-cash-6max-100bb"), "utf8")));
 
 /* ---------------------------------------------- a tree built by hand - */
 

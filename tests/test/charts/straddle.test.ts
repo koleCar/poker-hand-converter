@@ -1,37 +1,31 @@
 /**
- * The straddle set (`charts/5`, A2e; docs/CHARTS.md §1.4, §6.5): a 6-max
- * 100bb tree with a 2bb straddle from UTG - the tree itself, the set's
- * sanity bands, which straddled spots the library reads on it (and which it
- * still refuses, by name), and a straddled hand graded end to end.
+ * Straddles: Rail's generator tree with a 2bb straddle from UTG (docs/CHARTS.md
+ * §1.4), which straddled spots the library reads on the straddle set (GTO
+ * Wizard's 6-max "Straddle + Ante" since `charts/11`, read with or without an
+ * ante) and which it refuses, by name. Reading the set's own nodes waits for
+ * its transcription (skipped below).
  */
 
-import { statSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { analyzeHand, ANALYSIS_VERSION } from "../../../web/src/lib/analysis/index.js";
 import {
-  CHART_SETS,
-  chartTree,
-  DEFAULT_CHART_SET,
-  IN_RANGE,
+  chartLibrary,
   lookupPreflop,
-  MAX_SELF_LOSS,
   pickChartSet,
   requiredChartSets,
   type ChartLookup,
-  type ChartSet,
+  type ChartSetSpec,
   type PreflopActionInput,
   type PreflopSpot,
 } from "../../../web/src/lib/charts/index.js";
 import { positionRing, type Position } from "../../../web/src/lib/phf/types.js";
 import { buildPreflopTree, SIX_MAX } from "../../../web/src/lib/solver/preflopTree.js";
-import { CLASS_COMBOS, classByName, NUM_CLASSES } from "../../../web/src/lib/solver/index.js";
 import { dealPreflop, preflopAnswer } from "../../../web/src/lib/training/preflop.js";
 import { gradeAnswer } from "../../../web/src/lib/training/grade.js";
 import { scriptHand } from "../../../web/src/lib/training/handText.js";
-import { chartSet, fileOf, fullLibrary } from "./support.js";
+import { chartSet, SIX_MAX_100, TEST_CHART_SETS } from "./support.js";
 
-const H = NUM_CLASSES;
 const ID = "nlhe-cash-6max-100bb-straddle";
 const STRADDLE_SIZING = { open: 5, sbOpen: 6, isoVsLimp: 8, isoPerLimper: 2, isoOop: 2, allInAbove: 0.4 };
 
@@ -64,29 +58,23 @@ function straddled(
   };
 }
 
+/**
+ * The test library's specs and the planned straddle set (not transcribed yet,
+ * so not loadable): which set a straddled spot picks reads only the specs.
+ */
+const SPECS: readonly ChartSetSpec[] = [
+  ...TEST_CHART_SETS,
+  { id: ID, players: 6, stackBb: 100, straddle: { position: "UTG", bb: 2 }, ante: 0.166, load: () => Promise.reject(new Error("not transcribed")) },
+];
+
 const pickId = (spot: PreflopSpot) => {
-  const pick = pickChartSet(CHART_SETS, spot);
+  const pick = pickChartSet(SPECS, spot);
   return pick.ok ? pick.spec.id : `${pick.reason}: ${pick.detail}`;
 };
 
 function ok(result: ChartLookup) {
   if (!result.ok) throw new Error(`expected a node, got ${result.reason}: ${result.detail}`);
   return result;
-}
-
-/** Share of the actor's range (combo- and reach-weighted) that does not fold. */
-function continues(set: ChartSet, line: string): number {
-  const node = set.nodes.get(line);
-  if (!node) throw new Error(`${set.id}: no node ${JSON.stringify(line)}`);
-  const fold = node.options.findIndex((o) => o.action === "fold");
-  let sum = 0;
-  let total = 0;
-  for (let i = 0; i < H; i += 1) {
-    const w = CLASS_COMBOS[i] * node.range[i];
-    sum += w * (fold < 0 ? 1 : 1 - node.freq[fold * H + i]);
-    total += w;
-  }
-  return sum / total;
 }
 
 describe("the straddled tree", () => {
@@ -130,99 +118,8 @@ describe("the straddled tree", () => {
   });
 });
 
-describe("the straddle set", () => {
-  const set = chartSet(ID);
-  const model = set.model as Record<string, any>;
-  const spec = CHART_SETS.find((s) => s.id === ID);
-
-  it("is listed and loads: charts/5, 6-max 100bb, a 2bb UTG straddle, seats in action order", () => {
-    expect(spec).toMatchObject({ players: 6, stackBb: 100, straddle: { position: "UTG", bb: 2 } });
-    expect(set.version).toBe("charts/5");
-    expect(set.game).toMatchObject({ players: 6, stackBb: 100, straddle: { position: "UTG", bb: 2 } });
-    expect(set.game.positions).toEqual(["HJ", "CO", "BTN", "SB", "BB", "UTG"]);
-    expect(model.tree.straddle).toEqual({ position: "UTG", bb: 2 });
-    expect(model.tree.sizing).toMatchObject(STRADDLE_SIZING);
-    expect(model.tree.maxLimpers).toBe(3);
-    expect(model.realisation.name).toBe("charts/5-solver-fit-6max-100bb-straddle");
-    expect(model.realisationFit.rounds).toHaveLength(2);
-    expect(model.solver.iterations).toBeGreaterThanOrEqual(3000);
-    expect(statSync(fileOf(ID)).size).toBeLessThan(3_000_000);
-    // The lookup rebuilds the set's own tree from the file.
-    expect(chartTree(set).players).toEqual(set.game.positions);
-    expect(chartTree(set).straddle).toEqual({ position: "UTG", bb: 2 });
-    const root = set.nodes.get("");
-    expect(root?.actor).toBe("HJ");
-    expect(root?.options.map((o) => [o.action, o.toBb])).toEqual([
-      ["fold", 0],
-      ["call", 2],
-      ["raise", 5],
-    ]);
-  });
-
-  it("recorded good convergence", () => {
-    expect(model.convergence.nashConvMbb).toBeLessThan(1);
-    const history = model.convergence.history as { nashConvMbb: number }[];
-    expect(history[history.length - 1].nashConvMbb).toBeLessThan(history[0].nashConvMbb);
-  });
-
-  it("has frequencies that sum to 1, and EVs consistent with them", () => {
-    let checked = 0;
-    for (const n of set.nodes.values()) {
-      const count = n.options.length;
-      const tolerance = MAX_SELF_LOSS * n.potBb + 0.02;
-      for (let i = 0; i < H; i += 1) {
-        let sum = 0;
-        let best = -Infinity;
-        for (let a = 0; a < count; a += 1) {
-          sum += n.freq[a * H + i];
-          best = Math.max(best, n.ev[a * H + i]);
-        }
-        expect(sum, `${n.line} class ${i}`).toBeCloseTo(1, 9);
-        if (n.range[i] >= IN_RANGE) {
-          let loss = 0;
-          for (let a = 0; a < count; a += 1) loss += n.freq[a * H + i] * (best - n.ev[a * H + i]);
-          expect(loss, `${JSON.stringify(n.line)} class ${i}`).toBeLessThanOrEqual(tolerance);
-          checked += 1;
-        }
-      }
-    }
-    expect(checked).toBeGreaterThan(2000);
-  });
-
-  it("never folds AA, never opens 72o, and opens wider in later position", () => {
-    const aa = classByName("AA");
-    for (const n of set.nodes.values()) {
-      const fold = n.options.findIndex((o) => o.action === "fold");
-      if (fold >= 0) expect(n.freq[fold * H + aa], `AA folds at ${JSON.stringify(n.line)}`).toBe(0);
-    }
-    for (const line of ["", "f", "ff"]) {
-      const node = set.nodes.get(line);
-      const open = node?.options.findIndex((o) => o.action === "raise") ?? -1;
-      expect(node?.freq[open * H + classByName("72o")], line).toBe(0);
-    }
-    const hj = continues(set, "");
-    const co = continues(set, "f");
-    const btn = continues(set, "ff");
-    expect(hj).toBeGreaterThan(0.08);
-    expect(hj).toBeLessThan(co);
-    expect(co).toBeLessThan(btn);
-    expect(btn).toBeLessThan(0.6);
-  });
-
-  it("defends the straddle wider against later opens, and wider than the big blind does", () => {
-    // The straddler facing an open, everyone else folding: HJ, CO, BTN.
-    const vsHj = continues(set, "rffff");
-    const vsCo = continues(set, "frfff");
-    const vsBtn = continues(set, "ffrff");
-    expect(vsHj).toBeLessThan(vsCo);
-    expect(vsCo).toBeLessThan(vsBtn);
-    // Closing the action with 2bb in, it defends more than the big blind in front of it.
-    expect(vsBtn).toBeGreaterThan(continues(set, "ffrf"));
-  });
-});
-
 describe("straddled spots in the library", () => {
-  const library = fullLibrary();
+  const library = chartLibrary([chartSet(SIX_MAX_100)], SPECS);
 
   it("reads a single 2bb straddle from the seat left of the big blind, 4-6 handed, near 100bb, on the straddle set", () => {
     expect(pickId(straddled(6, "HJ"))).toBe(ID);
@@ -230,10 +127,13 @@ describe("straddled spots in the library", () => {
     expect(pickId(straddled(4, "BTN"))).toBe(ID);
     expect(pickId(straddled(6, "BTN", { stack: 115 }))).toBe(ID);
     // An unstraddled spot never lands on it.
-    expect(pickChartSet(CHART_SETS, { ...straddled(6, "BTN"), straddle: false, straddles: undefined })).toMatchObject({
+    expect(pickChartSet(SPECS, { ...straddled(6, "BTN"), straddle: false, straddles: undefined })).toMatchObject({
       ok: true,
-      spec: { id: DEFAULT_CHART_SET },
+      spec: { id: SIX_MAX_100 },
     });
+    // The straddle set is GTO Wizard's "Straddle + Ante": a straddled hand reads it with or without an ante.
+    expect(pickId(straddled(6, "BTN", { extra: { ante: true, anteBb: 0.16 } }))).toBe(ID);
+    expect(pickId(straddled(6, "BTN", { extra: { ante: true } }))).toBe(ID);
   });
 
   it("refuses every other straddle by name, with what it was", () => {
@@ -252,18 +152,15 @@ describe("straddled spots in the library", () => {
       reason: "straddle",
       detail: expect.stringMatching(/re-straddle/),
     });
-    // A straddle the set could read, with antes: the antes are what is refused.
-    expect(refused(straddled(6, "BTN", { extra: { ante: true } }))).toMatchObject({ reason: "ante" });
   });
 
   it("refuses across kinds when given one set: no straddle on a plain set, none missing on the straddle set", () => {
-    expect(lookupPreflop(chartSet(DEFAULT_CHART_SET), straddled(6, "BTN"), "AA")).toMatchObject({ ok: false, reason: "straddle" });
-    const plain = { ...straddled(6, "BTN"), straddle: false, straddles: undefined };
-    expect(lookupPreflop(chartSet(ID), plain, "AA")).toMatchObject({ ok: false, reason: "straddle" });
-    expect(ok(lookupPreflop(chartSet(ID), straddled(6, "BTN"), "AA")).set.id).toBe(ID);
+    expect(lookupPreflop(chartSet(SIX_MAX_100), straddled(6, "BTN"), "AA")).toMatchObject({ ok: false, reason: "straddle" });
+    // The straddle set's own side needs its data: below, skipped until it is transcribed.
   });
 
-  it("walks a straddled line onto the set: the first seat, the blinds, the straddler's option", () => {
+  // Needs the straddle set's data; none transcribed yet (and its sizes will be GTO Wizard's, not these).
+  it.skip("walks a straddled line onto the set: the first seat, the blinds, the straddler's option", () => {
     const first = ok(lookupPreflop(library, straddled(6, "HJ"), "AKs", act("HJ", "raise", 5)));
     expect(first.set.id).toBe(ID);
     expect(first.node.line).toBe("");
@@ -287,7 +184,8 @@ describe("straddled spots in the library", () => {
     expect(check.chosen).toBe(0);
   });
 
-  it("reads a smaller table with the seats left of the straddler folded", () => {
+  // Needs the straddle set's data; none transcribed yet.
+  it.skip("reads a smaller table with the seats left of the straddler folded", () => {
     // Five-handed: UTG straddles, the CO acts first - the set's HJ folded.
     const five = ok(lookupPreflop(library, straddled(5, "CO"), "AA"));
     expect(five.node.line).toBe("f");
@@ -311,7 +209,7 @@ describe("straddled spots in the library", () => {
 });
 
 describe("a straddled hand, end to end", () => {
-  const library = fullLibrary();
+  const library = chartLibrary([chartSet(SIX_MAX_100)], SPECS);
   // A 6-max $0.5/$1 hand: UTG straddles $2, the hero opens the button to $5,
   // the straddler calls; a flop is checked through.
   const hand = scriptHand({
@@ -339,7 +237,8 @@ describe("a straddled hand, end to end", () => {
     expect(requiredChartSets(hand, library.specs)).toEqual([ID]);
   });
 
-  it("grades the straddled open from the straddle set, and counts the straddle in the pot", () => {
+  // Needs the straddle set's data; none transcribed yet.
+  it.skip("grades the straddled open from the straddle set, and counts the straddle in the pot", () => {
     const analysis = analyzeHand(structuredClone(hand), { charts: library, turn: false });
     expect(analysis.version).toBe(ANALYSIS_VERSION);
     const preflop = analysis.decisions.find((d) => d.street === "preflop");
@@ -376,7 +275,8 @@ describe("a straddled hand, end to end", () => {
     expect(preflop?.approximations).toContain("straddle");
   });
 
-  it("deals and grades a trainer spot from the straddle set", () => {
+  // Needs the straddle set's data; none transcribed yet.
+  it.skip("deals and grades a trainer spot from the straddle set", () => {
     const spot = dealPreflop(library, { family: "rfi", set: ID, seat: "BTN" }, 7);
     expect(spot?.set).toBe(ID);
     expect(spot?.hand.actions.some((a) => a.type === "straddle")).toBe(true);

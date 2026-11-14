@@ -2058,7 +2058,7 @@ export type Database = {
           origin: Database["public"]["Enums"]["hand_origin"]
           owner_id: string
           parser_version: string | null
-          phf: Json
+          phf: Json | null
           played_at: string | null
           player_count: number | null
           player_names: string[]
@@ -2076,6 +2076,7 @@ export type Database = {
           standard_text: string | null
           street_reached: string | null
           table_name: string | null
+          table_set: string | null
           total_pot: number | null
           tournament_id: string | null
           variant: string | null
@@ -2106,7 +2107,7 @@ export type Database = {
           origin?: Database["public"]["Enums"]["hand_origin"]
           owner_id: string
           parser_version?: string | null
-          phf: Json
+          phf?: Json | null
           played_at?: string | null
           player_count?: number | null
           player_names?: string[]
@@ -2124,6 +2125,7 @@ export type Database = {
           standard_text?: string | null
           street_reached?: string | null
           table_name?: string | null
+          table_set?: string | null
           total_pot?: number | null
           tournament_id?: string | null
           variant?: string | null
@@ -2154,7 +2156,7 @@ export type Database = {
           origin?: Database["public"]["Enums"]["hand_origin"]
           owner_id?: string
           parser_version?: string | null
-          phf?: Json
+          phf?: Json | null
           played_at?: string | null
           player_count?: number | null
           player_names?: string[]
@@ -2172,6 +2174,7 @@ export type Database = {
           standard_text?: string | null
           street_reached?: string | null
           table_name?: string | null
+          table_set?: string | null
           total_pot?: number | null
           tournament_id?: string | null
           variant?: string | null
@@ -4635,6 +4638,7 @@ export type Database = {
         }
         Returns: Json
       }
+      analysis_trimmed_phf: { Args: { p_phf: Json }; Returns: Json }
       analysis_version_of: { Args: { p_filters: Json }; Returns: string }
       begin_account_deletion: { Args: { p_confirm: string }; Returns: Json }
       billing_account: {
@@ -4927,6 +4931,13 @@ export type Database = {
         Args: { p_post_public_id: string; p_seq?: number }
         Returns: Json
       }
+      hand_phf_matches: {
+        Args: {
+          p_hand: Database["public"]["Tables"]["hands"]["Row"]
+          p_phf: Json
+        }
+        Returns: boolean
+      }
       hand_row_from_phf: {
         Args: { p_phf: Json }
         Returns: {
@@ -4952,7 +4963,7 @@ export type Database = {
           origin: Database["public"]["Enums"]["hand_origin"]
           owner_id: string
           parser_version: string | null
-          phf: Json
+          phf: Json | null
           played_at: string | null
           player_count: number | null
           player_names: string[]
@@ -4970,6 +4981,7 @@ export type Database = {
           standard_text: string | null
           street_reached: string | null
           table_name: string | null
+          table_set: string | null
           total_pot: number | null
           tournament_id: string | null
           variant: string | null
@@ -4995,8 +5007,14 @@ export type Database = {
       hands_needing_analysis: {
         Args: { p_after?: string; p_limit?: number; p_version: string }
         Returns: {
+          created_at: string
+          hand_key: string
           id: string
+          parser_version: string
           phf: Json
+          site: string
+          source_filename: string
+          standard_text: string
         }[]
       }
       hands_needing_analysis_recent: {
@@ -5007,9 +5025,15 @@ export type Database = {
           p_version: string
         }
         Returns: {
+          created_at: string
+          hand_key: string
           id: string
+          parser_version: string
           phf: Json
           played_at: string
+          site: string
+          source_filename: string
+          standard_text: string
         }[]
       }
       hands_needing_analysis_recent_scan: {
@@ -5020,9 +5044,15 @@ export type Database = {
           p_version: string
         }
         Returns: {
+          created_at: string
+          hand_key: string
           id: string
+          parser_version: string
           phf: Json
           played_at: string
+          site: string
+          source_filename: string
+          standard_text: string
         }[]
       }
       hands_needing_stats: {
@@ -5034,8 +5064,14 @@ export type Database = {
           p_villains?: boolean
         }
         Returns: {
+          created_at: string
+          hand_key: string
           id: string
+          parser_version: string
           phf: Json
+          site: string
+          source_filename: string
+          standard_text: string
         }[]
       }
       hands_since: {
@@ -5051,6 +5087,7 @@ export type Database = {
           origin: Database["public"]["Enums"]["hand_origin"]
         }[]
       }
+      hands_store_text: { Args: { p_rows: Json }; Returns: Json }
       has_entitlement: {
         Args: { p_feature: string; p_owner: string }
         Returns: boolean
@@ -5369,6 +5406,7 @@ export type Database = {
         Args: {
           p_hand_id: string
           p_mode?: Database["public"]["Enums"]["publish_mode"]
+          p_phf?: Json
           p_title?: string
         }
         Returns: Json

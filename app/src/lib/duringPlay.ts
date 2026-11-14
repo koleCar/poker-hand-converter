@@ -31,6 +31,8 @@ export const SCREEN_HELP: Readonly<Record<Route, PlayHelp | null>> = {
   analysis: "analysis",
   // The Solver library: every spot's solved strategy.
   solver: "solver",
+  // The Trainer: spots graded against the reference, with the strategy shown.
+  trainer: "solver",
   hud: null,
   tables: null,
   import: null,

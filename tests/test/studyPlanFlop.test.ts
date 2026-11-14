@@ -69,13 +69,17 @@ const flop = (scenario: string, hero: string, family = scenario.replace(/^(pfr|c
 });
 
 /** `save_study_plan`'s check on a train task's reference. */
-const REF = /^(preflop|river)(\/[A-Za-z0-9+-]{1,20}){0,5}$|^flop(\/[A-Za-z0-9+-]{1,20}){6,7}$/;
+const REF = /^(preflop|river)(\/[A-Za-z0-9+-]{1,30}){0,5}$|^flop(\/[A-Za-z0-9+-]{1,30}){6,7}$/;
 /** `save_study_plan`'s check on a trainer filter's spots. */
 const MATCH_SPOT = /^[a-z0-9][a-z0-9-]{0,39}:[A-Z0-9+]{1,8}$/;
 
 /* --------------------------------------------------------- the mapping - */
 
-describe("a flop area's trainer", () => {
+// Skipped since analysis/41: a flop trainer target names a flop-library table (6-max 100bb, full ring,
+// heads-up), and no flop library is published on the GTO Wizard ranges - nor are those classic sets
+// transcribed yet (the default set is the 6-max 100bb ante set, whose id is too long for a trainer
+// reference's 20-character part). Re-enable when a library on the current ranges ships.
+describe.skip("a flop area's trainer", () => {
   it("is the flop trainer on the library lines of the hero's seat, role and side", () => {
     // The big blind defending a single-raised pot, facing the c-bet: four openers, one task.
     const bb = trainerTarget(flop("caller-oop-vs-bet", "BB"));
@@ -197,7 +201,11 @@ describe("a flop area's trainer", () => {
 
 /* ------------------------------------------------------------ the task - */
 
-describe("a flop area's task", () => {
+// Skipped since analysis/41: a flop trainer target names a flop-library table (6-max 100bb, full ring,
+// heads-up), and no flop library is published on the GTO Wizard ranges - nor are those classic sets
+// transcribed yet (the default set is the 6-max 100bb ante set, whose id is too long for a trainer
+// reference's 20-character part). Re-enable when a library on the current ranges ships.
+describe.skip("a flop area's task", () => {
   const targets: TrainerTarget[] = [
     trainerTarget(flop("caller-oop-vs-bet", "BB"))!,
     trainerTarget(flop("limped-oop-first", "SB"))!,
@@ -276,7 +284,11 @@ describe("a flop area's task", () => {
 
 /* --------------------------------------------------------- the address - */
 
-describe("a flop task's link", () => {
+// Skipped since analysis/41: a flop trainer target names a flop-library table (6-max 100bb, full ring,
+// heads-up), and no flop library is published on the GTO Wizard ranges - nor are those classic sets
+// transcribed yet (the default set is the 6-max 100bb ante set, whose id is too long for a trainer
+// reference's 20-character part). Re-enable when a library on the current ranges ships.
+describe.skip("a flop task's link", () => {
   it("opens the flop mode with the table, seat, role, side, facing and line", () => {
     const query = targetQuery(trainerTarget(flop("caller-oop-vs-bet", "BB"))!);
     expect(query).toBe("mode=flop&pot=srp&side=oop&role=caller&seat=BB&facing=bet");
@@ -348,6 +360,11 @@ const counts = (match: ReturnType<typeof trainerMatch>, row: { mode: string; fam
   (match.spots === null || match.spots.includes(`${row.spot}:${row.position ?? ""}`));
 
 describe.runIf(sameCharts)("a flop answer dealt from the task's link", () => {
+  // needs the flop-library pilot chunks, deleted with Rail's own ranges (analysis/41): none are solved on the GTO Wizard ranges yet.
+  if (!sameCharts) {
+    it.skip("waits for a flop library on the GTO Wizard ranges", () => {});
+    return;
+  }
   const flops = memoryLibrary(manifest!.entries.map((entry) => decodeChunk(readFileSync(join(PILOT, entry.path)))));
   const loader = { ...flops, ready: async () => true, load: async (set: string, line: string, at: string) => flops.get(set, line, at) };
 

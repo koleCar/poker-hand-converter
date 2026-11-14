@@ -23,7 +23,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { analyzeHand, FLOP_LINES_HU, FLOP_PROFILE, memoryLibrary, type FlopProfile } from "../../web/src/lib/analysis/index.js";
 import { atLevel, leakId, parseLeakId, spotAttrs, type SpotRow } from "../../web/src/lib/analysis/leaks.js";
-import { loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
+import { CHART_SETS, loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
 import { decodeChunk, type FlopChunk } from "../../web/src/lib/solver/index.js";
 import { flopAnswer, generateFlopSpot } from "../../web/src/lib/training/flop.js";
 import {
@@ -45,11 +45,20 @@ import { focusAreas, parseFocus, parseTrainerRef, trainerRef, trainerTarget } fr
 import { parseTrainState, riverSetOf, targetQuery, trainQuery, DEFAULT_TRAIN_STATE } from "../../web/src/components/analysis/train/trainState.js";
 import { solveJob, type Job } from "../scripts/flop-library/job.js";
 import { lineSpot } from "../scripts/flop-library/spots.js";
-import { fullLibrary } from "./charts/support.js";
+import { fixtureSet, fullLibrary } from "./charts/support.js";
+import { fileOf as chartFile } from "./charts/support.js";
 
 const HU100 = "nlhe-cash-hu-100bb";
 const HU150 = "nlhe-cash-hu-150bb";
 const library = fullLibrary();
+/**
+ * Since charts/11 the heads-up sets are GTO Wizard transcriptions not
+ * shipped yet: the heads-up 100bb set is a test fixture here, the 150bb set
+ * waits. What reads the shipped list (the study plan's targets, the
+ * trainer's address) waits for both to ship.
+ */
+const HU_SHIPPED = [HU100, HU150].every((id) => CHART_SETS.some((spec) => spec.id === id));
+const HU_SETS = [HU100, HU150].filter((id) => library.sets.has(id));
 const set = (id: string): ChartSet => library.sets.get(id)!;
 
 /* ------------------------------------------------------------ preflop - */
@@ -58,7 +67,7 @@ describe("heads-up preflop spots", () => {
   it("are dealt in every family a two-handed table has, as two-handed hands graded from the same set", () => {
     expect(trainerSeats(2)).toEqual(["SB", "BB"]);
     expect(trainerFamilies(2)).not.toContain("squeeze");
-    for (const id of [HU100, HU150]) {
+    for (const id of HU_SETS) {
       for (const family of trainerFamilies(2)) {
         const spot = dealPreflop(library, { set: id, family, bias: "borderline" }, 5);
         if (!spot) throw new Error(`no ${family} spot on ${id}`);
@@ -88,8 +97,8 @@ describe("heads-up preflop spots", () => {
     expect(families.c).toEqual(["vs-limp", "bvb"]);
     expect(families.rr).toEqual(["vs-3bet", "bvb"]);
     expect(families.rrr).toEqual(["vs-4bet", "bvb"]);
-    // The 6-max blinds keep theirs.
-    const sixMax = library.nodes.get("ffffr")!;
+    // The 6-max blinds keep theirs (the NL500 fixture's: the shipped 6-max set has not captured blind vs blind yet).
+    const sixMax = fixtureSet("nlhe-cash-6max-100bb").nodes.get("ffffr")!;
     expect(familiesOf(sixMax)).toEqual(["bvb"]);
     // Against the raiser asked for.
     for (const node of trainerNodes(set(HU100), "vs-3bet", "SB", "BB")) expect(node.line).toBe("rr");
@@ -135,7 +144,7 @@ describe("heads-up leaks", () => {
   });
 });
 
-describe("a heads-up leak in the study plan", () => {
+describe.runIf(HU_SHIPPED)("a heads-up leak in the study plan", () => {
   // The small blind folding too much first in, and the big blind folding to the open, on the heads-up sets.
   const rows = [
     row("unopened", "", "SB", "fold", "raise", 14, HU100, 6),
@@ -196,7 +205,7 @@ describe("a heads-up leak in the study plan", () => {
 
 /* ------------------------------------------------------ the address - */
 
-describe("the trainer's address", () => {
+describe.runIf(HU_SHIPPED)("the trainer's address", () => {
   it("keeps a heads-up table for the preflop and the river trainer, and a 9-max one for preflop only", () => {
     const hu = { ...DEFAULT_TRAIN_STATE, mode: "river" as const, set: HU150 };
     expect(trainQuery(hu)).toBe(`mode=river&set=${HU150}`);
@@ -218,7 +227,7 @@ describe("heads-up river spots", () => {
   it("come from the heads-up lines, as two-handed hands, and grade exactly as the analysis grades them", () => {
     expect(riverLines(set(HU100)).map((line) => line.id)).toEqual(["hu-sb-bb", "hu-sb-limp-raise", "hu-sb-bb-3bet", "hu-sb-limp"]);
     let checked = 0;
-    for (const id of [HU100, HU150]) {
+    for (const id of HU_SETS) {
       for (let seed = 1; seed < 12 && checked < (id === HU100 ? 2 : 3); seed += 1) {
         const spot = generateRiverSpot(library, { set: id, bias: "range" }, seed);
         if (!spot) continue;
@@ -239,7 +248,7 @@ describe("heads-up river spots", () => {
         checked += 1;
       }
     }
-    expect(checked).toBe(3);
+    expect(checked).toBe(HU_SETS.length === 2 ? 3 : 2);
     // The pot and the seat asked for.
     const spot = generateRiverSpot(library, { set: HU100, pot: "3bp", seat: "ip" }, 3);
     expect(spot?.lineId).toBe("hu-sb-bb-3bet");
@@ -286,7 +295,7 @@ const SMALL: FlopProfile = {
 };
 
 describe("heads-up flop spots", () => {
-  const charts = loadCharts(JSON.parse(readFileSync(join(import.meta.dirname, `../../web/src/lib/charts/data/${HU100}.json`), "utf8")));
+  const charts = loadCharts(JSON.parse(readFileSync(chartFile(`${HU100}`), "utf8")));
   const line = FLOP_LINES_HU.find((l) => l.id === "sb-bb-4bet")!;
   let chunk: FlopChunk;
 
@@ -329,6 +338,6 @@ describe("heads-up flop spots", () => {
     expect(dealt).toBeGreaterThan(4);
     // The 6-max default deals none of these chunks, and a set with no chunk here (heads-up 150bb) deals nothing.
     expect(generateFlopSpot(library, flops, {}, 1)).toBeNull();
-    expect(generateFlopSpot(library, flops, { set: HU150 }, 1)).toBeNull();
+    if (library.sets.has(HU150)) expect(generateFlopSpot(library, flops, { set: HU150 }, 1)).toBeNull();
   });
 });

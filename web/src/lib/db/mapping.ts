@@ -36,6 +36,12 @@ export interface HandInsert {
   hand_key: string;
   phf: PhfHand;
   standard_text: string;
+  /**
+   * (20271114090000) The caller checked that `standard_text` reads back as
+   * `phf` (`storableText`): the server then stores the text and no PHF. Not
+   * a column; without it the text is not stored and the PHF is.
+   */
+  text_verified?: boolean;
   source_text: string | null;
   schema_version: string;
   parser_version: string | null;

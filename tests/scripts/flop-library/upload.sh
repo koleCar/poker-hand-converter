@@ -15,7 +15,7 @@ set -euo pipefail
 setopt nullglob
 
 OUT=${1:?out dir}; SET=${2:?chart set id}; TREE=${3:-flop-m1}
-REF=${SUPABASE_PROJECT_REF:-riybwcfnclphacnfawiq}
+REF=${SUPABASE_PROJECT_REF:-tlprpfebsuerqqktklrx}
 URL="https://$REF.supabase.co/storage/v1/object/flop-library"
 DIR="$OUT/$SET/$TREE"
 [[ -f "$DIR/manifest.json" ]] || { echo "no manifest at $DIR" >&2; exit 1; }

@@ -28,7 +28,7 @@
 import type { GameKind } from "@rail/ui/hands/gameKind";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { ANALYSIS_VERSION } from "../../../lib/analysis";
 import { comparePeriods, drillsOn, handsTable, leakKind, type SpotDrills } from "../../../lib/analysis/leaks";
 import { DATABASE_NOT_CONFIGURED_MESSAGE, isDatabaseConfigured, isMissingSchemaError } from "../../../lib/db";
@@ -237,16 +237,8 @@ export function PlanTab({ refreshToken = 0 }: { refreshToken?: number }) {
   );
 }
 
-function Header() {
-  const t = useDict().analysis.plan;
-  return (
-    <>
-      <header className="stats__head">
-        <h2>{t.heading}</h2>
-      </header>
-      <AnalysisNav current="plan" />
-    </>
-  );
+function Header({ tools }: { tools?: ReactNode }) {
+  return <AnalysisNav current="plan">{tools}</AnalysisNav>;
 }
 
 function SignedOut() {

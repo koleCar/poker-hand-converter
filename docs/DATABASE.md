@@ -35,6 +35,7 @@ document refers to most:
 | `20271103090000_leak_hands_table.sql` | The hands behind a leak, on its table: `analysis_leak_table_of(set)` (immutable, no table; executable by `authenticated`, not `anon`) tags a chart set `hu`, `9max` or `other` as the leak finder does (`tableOfSet`), and `analysis_leak_hands` / `analysis_leak_hands_scan` take an optional `leakTable` filter key (`hu`, `9max`, `other`; absent: every table, as before; anything else 22023) - the fast path by the row's `chart_set`, the scan by the set the leak scan reads. Both re-created from `20270825090000` with the same signatures, grants and invoker security; the R6.2 gate put back. Nothing written. See [The analysis screens' summaries](#the-analysis-screens-summaries). Not applied to production. |
 | `20271104120000_drills_by_table.sql` | Drills and top-leak examples on a leak's table: new `drill_due_by_spot_tables(version, until)` (`drill_due_by_spot`'s rows with a per-table split, `tables`) and `drill_queue_on_table(version, table, keys, due_only, limit)` (`drill_queue` on one table, `hu` / `9max` / `other`), both invoker, empty search_path, `authenticated` only, added to `entitlement_gates` and gated; `analysis_leak_examples` takes an optional `table` per leak (absent or null: every table, as before; anything else 22023), re-created from `20270818090000` with the same signature and grants, the gate put back. A decision's table is its leak row's `chart_set` (`analysis_leak_table_of`). `drill_due_by_spot` and `drill_queue` unchanged. Nothing written. See [The analysis screens' summaries](#the-analysis-screens-summaries). Not applied to production. |
 | `20271105090000_leak_pot_type.sql` | A postflop leak area per pot type: `analysis_leak_pot_of(pot_type)` (immutable, no table; `authenticated` only) tags a pot `3bp` / `4bp` / `other`; `analysis_leaks`, `analysis_leaks_scan` and `analysis_leak_sample` return a postflop row per spot, set and pot (`pot` on a 3-bet or 4-bet+ row only; under a room or stake those rows are read from the leak rows beside the room and stake sums, partial index `analysis_leak_rows_pot_idx`); `analysis_leak_hands` (+ scan) take `filters.leakPot`, `analysis_leak_examples` a leak's `pot`; new `drill_due_by_spot_pots` and `drill_queue_on_area` (invoker, empty search_path, `authenticated` only, gated). Re-created functions keep signatures and grants; the R6.2 gate put back. No column, no backfill, nothing written. See [The analysis screens' summaries](#the-analysis-screens-summaries). Not applied to production. |
+| `20271114090000_text_storage.sql` | A hand may be stored as its standard text instead of its PHF: `hands.phf` nullable, CHECK `hands_has_payload` (PHF or a non-empty text), `hands_text_by_origin` relaxed (desktop/upload rows may carry a text), `standard_text` `storage main`; new column `hands.table_set` (filled by `hands_normalize`, backfilled from the PHF; the leak readers and `analysis_leak_rows_table_set` / `_backfill` read it, the PHF only when it is null); `hands_normalize` drops the PHF of a row whose writer vouches for its text (`rail.hands_text_verified`, set around their insert by `ingest_hands` - new optional `standard_text` per row - and `save_hands` - a row's `text_verified`); `hands_needing_stats`, `hands_needing_analysis`, `_recent`, `_recent_scan` re-created returning `standard_text` and the restore columns (`hand_key`, `site`, `parser_version`, `source_filename`, `created_at`); `publish_hand(.., p_phf)` and `create_share` take the client's parse of a text-only row when `hand_phf_matches` (internal) says it is that hand (a share keeps a redacted snapshot); `export_my_hands` adds `site`; `hands_store_text(p_rows)` (service role) applies the backfill. See [The phf / standard_text contract](#the-phf--standard_text-contract). Not applied to production. |
 
 The migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`, the statistics, analysis, Learn, report,
@@ -364,8 +365,11 @@ every PR against a fresh Postgres with every migration applied.
 ## Publishing a hand
 
 `20261012090000_forum_publishing.sql`. A published hand is a **copy**, made by
-`publish_hand(hand_id, mode, title)` from the caller's own stored row and run
-through `scrub_phf()` in SQL. The client never sends the document.
+`publish_hand(hand_id, mode, title, phf)` from the caller's own stored row and run
+through `scrub_phf()` in SQL. The client sends the document only for a row
+stored as its text (`20271114090000`), whose PHF the server no longer has; it
+is published only when `hand_phf_matches` shows it is that stored hand, and a
+row with a PHF ignores it.
 
 | Property | How it holds |
 | --- | --- |
@@ -622,7 +626,7 @@ calls `POST /api/stats/rebuild`, a route handler that runs **as the user** (anon
 key + their cookie, no service role) and loops:
 
 1. `hands_needing_stats(version, after, limit)`: invoker, a keyset page of the
-   caller's hands that have a hero and no row at `version`, with their `phf`;
+   caller's hands that have a hero and no row at `version`, with their `phf` (or, for a row stored as text, its `standard_text` and restore columns: `20271114090000`);
 2. derive with `lib/stats` next to the database;
 3. `save_hand_stats(rows)`: invoker, resolves `hand_key` under RLS;
 4. on the last slice, `prune_hand_stats(version)` drops older generations.
@@ -910,7 +914,7 @@ Rate limit: per account, `analysis_insert:<uid>`, 60 000 rows / 10 min.
 
 **Where it runs.** In the browser: `runAnalysis` (`lib/db/analysis.ts`) pages
 through `hands_needing_analysis` (invoker; every hand, hero or not, with the
-`phf` trimmed of `meta.rawText` and the per-action `rawLine`/`label`), runs
+`phf` trimmed of `meta.rawText` and the per-action `rawLine`/`label`, or a text-only row's `standard_text`, parsed in the tab), runs
 `analyzeHand` in `workers/analysis.worker.ts`, writes 50 hands per call, and
 prunes older versions on the last page. "Missing" is computed, so it resumes
 by being run again. `/analysis` runs it on its own only for up to 300 new hands
@@ -1297,7 +1301,9 @@ desktop app keeps every hand in its local store and syncs it here; this is
 the server side of that.
 
 **What a desktop row is (Q4, 2026-10-13).** The PHF and nothing else:
-`standard_text` and `source_text` are null and `meta.rawText` is empty. The
+`source_text` is null and `meta.rawText` is empty. Since `20271114090000` a row
+may instead be its verified `standard_text`, PHF dropped (see [The phf /
+standard_text contract](#the-phf--standard_text-contract)). The
 originals stay on the user's disk; the standard text is rendered from the
 PHF wherever the web needs it (`storedStandardText` in `lib/db/mapping.ts`:
 `getHand`, `read_share` on both the page and the client). A row is ~3.6 KB
@@ -1325,7 +1331,10 @@ point at their source (16 bytes a hand for a link nothing reads yet);
 (22023 otherwise); the source must be the caller's (23503, the same for
 "unknown" and "not yours"); the budget is spent before anything is written
 (53400; per account, see [Rate limiting](#rate-limiting)). Each row is
-`{hand_key, phf}`. **The server derives every search column** from the PHF
+`{hand_key, phf}`, plus (`20271114090000`) an optional `standard_text`: a
+string of at most 200 000 characters (`shape` / `too-large` otherwise) that
+the client verified reads back as the PHF; the row then keeps the text and
+not the PHF. **The server derives every search column** from the PHF
 with `hand_row_from_phf()`, the SQL twin of `handInsertFromPhf`
 (`lib/db/mapping.ts`) - so a desktop row's columns are a function of its PHF
 whoever sent it, as `fast_fold` already was - and checks the derived row
@@ -1338,7 +1347,7 @@ input order:
 | --- | --- |
 | `inserted` | New in the caller's library. |
 | `duplicate` | Already there (sent before, uploaded on the web, or earlier in the same batch). Nothing rewritten. |
-| `rejected` | With `reason`: `shape` (not an object, or the PHF lacks what the mapping reads), `schema` (not `phf/1`), `hand-key` (not `site:id`, or not the PHF's own key), `raw-text` (Q4), `too-large` (over 256 KiB), `invalid` (plus `field`: the column whose rule the derived row breaks). |
+| `rejected` | With `reason`: `shape` (not an object, the PHF lacks what the mapping reads, or a `standard_text` that is not a string), `schema` (not `phf/1`), `hand-key` (not `site:id`, or not the PHF's own key), `raw-text` (Q4), `too-large` (a PHF over 256 KiB or a text over 200 000 characters), `invalid` (plus `field`: the column whose rule the derived row breaks). |
 
 **The mapping is held to the TypeScript by a test.** `npm run
 desktop-ingest:parity` (tests/, needs `RAIL_PARITY_PSQL` pointing at a local
@@ -1420,8 +1429,8 @@ Which device sent a row is not recorded per hand, so the pull walks every
 row of the account, **keys first**: `hands_since(p_after_created,
 p_after_id, p_limit)` returns a keyset page (`(created_at, id)` ascending,
 at most 1 000) of `id, created_at, hand_key, origin` - ~150 bytes a row -
-and the app fetches the PHF (`GET /rest/v1/hands?select=hand_key,phf&id=in.
-(...)`, plain RLS) only for the keys its store lacks. A device's own uploads
+and the app fetches the hands (`GET /rest/v1/hands?select=hand_key,phf,standard_text,site,parser_version,source_filename,source_text,created_at&id=in.
+(...)`, plain RLS; a text-only row is parsed and restored in Rust, `20271114090000`) only for the keys its store lacks. A device's own uploads
 cost it ~150 bytes each to recognise.
 
 **Why rows younger than a minute are left out.** `created_at` is set to
@@ -1873,7 +1882,7 @@ No copy is stored on the server, temporarily or otherwise.
 | --- | --- | --- |
 | `export_my_manifest()` | definer | The format version, the account id, a row count per exported section (derived rows are not counted: they ride with the hands), the original files' total size, the inventory. **Charged 10 a day** (`account_export:<uid>`). |
 | `export_my_profile()` | definer | `profile.json`: the account (email, sign-up, last sign-in, confirmation), the profile by named keys (never the unsubscribe token or the shadowban flag), the plan and the payment provider's ids, boards moderated, usernames reserved for the account. |
-| `export_my_hands(after, n ≤ 2000, derived)` | invoker | A page of hands by keyset on `(created_at, id)` (`hands_owner_created_idx`): id, key, origin, times, stored texts, the PHF as stored; with `derived`, the same hands' `hand_stats`, `hand_stats_ev`, `hand_analysis`, `decision_analysis` rows (every version) by hand id (their primary keys start with it). |
+| `export_my_hands(after, n ≤ 2000, derived)` | invoker | A page of hands by keyset on `(created_at, id)` (`hands_owner_created_idx`): id, key, origin, times, stored texts, the PHF as stored; with `derived`, the same hands' `hand_stats`, `hand_stats_ev`, `hand_analysis`, `decision_analysis` rows (every version) by hand id (their primary keys start with it). Since `20271114090000` also `site`; `phf` is null on a row stored as its text. |
 | `export_my_rows(section, after, n ≤ 5000)` | invoker | A page of an inventory table RLS already lets the owner read, keyset on the inventory's key columns; `hand_uploads`: the kept original files' names and sizes (the files are downloaded through Storage under the owner-folder policy). |
 | `export_my_sealed(section, after, n ≤ 5000)` | **definer** | The same for tables clients cannot select, or not all of their own rows: `shares`, `hud_layouts` (its select policy needs `desktop_sync`), `published_hands` (+ `published_hand_sources`), `posts` and `comments` (removed and deleted ones too), `content_revisions`, the three vote tables, `reports`. |
 
@@ -2043,8 +2052,8 @@ Three representations are stored on purpose:
 
 | Column | What it is | Why it exists |
 | --- | --- | --- |
-| `phf jsonb` | The canonical PHF v1 document (`web/src/lib/phf/types.ts`) | Source of truth. The replayer reads this. |
-| `standard_text text` | GG-style rendering, derived from `phf`. **Null on desktop rows** (R1.8, Q4): readers render it from `phf` (`storedStandardText` in `lib/db/mapping.ts`) | Holdem Manager import is byte-sensitive; storing the render means we never re-serialize, and never risk a serializer change silently altering an old export. |
+| `phf jsonb` | The canonical PHF v1 document (`web/src/lib/phf/types.ts`), **or null** when the row is its `standard_text` (`20271114090000`) | Source of truth when present. A text-only row is parsed back on read: see [The phf / standard_text contract](#the-phf--standard_text-contract). |
+| `standard_text text` | GG-style rendering. With `phf` null it **is** the hand (verified to read back as the PHF it came from); with `phf` present a display copy (older web rows) or null - readers then render it from `phf` (`storedStandardText` in `lib/db/mapping.ts`) | Holdem Manager import is byte-sensitive; storing the render means we never re-serialize, and never risk a serializer change silently altering an old export. Since `20271114090000` it is also the compact form of the hand (~1.2 KB against ~2.75 KB of compressed PHF). |
 | `source_text text` | The original site text. Null on desktop rows: the originals stay on the user's disk (Q4) | So a hand can be **re-converted** after a parser bug is fixed, without asking the user for the file again. |
 
 Everything after those three is a **denormalized search layer**: derivable from
@@ -2057,7 +2066,8 @@ Everything after those three is a **denormalized search layer**: derivable from
 | `hand_key` | text, unique **with `owner_id`** | `"<meta.siteId>:<meta.handKey>"` | Dedupe within one library. Re-uploading the same file is a no-op; uploading a hand another account already has is a new row. PHF's own `handKey` is only unique *within* a site, so the site prefix is what makes it safe to compare at all. |
 | `schema_version` | text | `hand.schema` | Which PHF version wrote the row; lets a future `phf/2` coexist. |
 | `parser_version` | text | `meta.parserVersion` | Tells you which hands to re-convert after a parser fix. |
-| `site` | text | `meta.siteId` (lowercased) | Primary facet. |
+| `site` | text | `meta.siteId` (lowercased) | Primary facet. Also restores `meta.siteId` (and, when the text reads as another room, `siteName` and `parserId`) of a text-only row. |
+| `table_set` | text | `analysis_hand_table_set(phf)` | The preflop chart set of a NLHE cash hand (`''` when none fits), filled at insert before a PHF is dropped (`20271114090000`); the postflop leak readers' table. Null only on a row not yet backfilled, which the readers then read through its PHF. |
 | `site_hand_id` | text | `meta.handId` | Cross-referencing against the site's own records. |
 | `variant` | text | `game.variant` | Free text, not an enum: new variants should be a parser change, not a migration. |
 | `limit_type` | text | `game.limit` | `nl` / `pl` / `fl`. |
@@ -2110,13 +2120,88 @@ Everything after those three is a **denormalized search layer**: derivable from
 | `hands_hero_cards_ok`, `hands_board_cards_ok` | Structurally valid card codes; ≤ 6 hole cards, ≤ 10 board cards. |
 | `hands_players_ok`, `hands_winners_ok` | ≤ 24 entries. |
 | `hands_pot_ok`, `hands_rake_ok`, `hands_blinds_ok` | Non-negative money. |
-| `hands_phf_object`, `hands_phf_schema`, `hands_phf_size` | `phf` is a JSON object whose `schema` (if present) starts with `phf/`, under 1 MiB. |
+| `hands_phf_object`, `hands_phf_schema`, `hands_phf_size` | `phf` (when present) is a JSON object whose `schema` (if present) starts with `phf/`, under 1 MiB. |
+| `hands_has_payload` | A row has its `phf` or a non-empty `standard_text` - never neither (`20271114090000`). |
 | `hands_hand_class_ok` | `hero_hand_class` matches `^[2-9TJQKA]{2}[so]?$`. |
 | `hands_hero_position_ok` | `hero_position` is in the PHF `Position` vocabulary. |
 | `hands_player_positions_ok`, `hands_showdown_positions_ok`, `hands_winner_positions_ok` | Same vocabulary, ≤ 24 entries each. |
 | `hands_positional_anonymity` | A `positional` hand carries **no** `player_names` and **no** `winners`. See [Player identity](#player-identity-and-anonymized-rooms). |
-| `hands_text_by_origin` | A web row has `standard_text`; a desktop row has no `standard_text`, no `source_text` and an empty `phf.meta.rawText` (Q4). |
+| `hands_text_by_origin` | A desktop or upload row has no `source_text` and an empty `phf.meta.rawText` (Q4). Since `20271114090000` any row may carry a `standard_text`, and a web row may have none. |
 | `hands_desktop_phf_size` | A desktop row's `phf` is at most 256 KiB. |
+
+#### The phf / standard_text contract
+
+`20271114090000_text_storage.sql`. `hands.phf` was most of the table (~2.75 KB
+a hand after TOAST compression). A row now holds **either** its PHF **or** its
+standard text alone, `phf` null:
+
+* **Writers send a text only when it reads back as the hand.** The check
+  (`verifiedStandardText` in `web/src/lib/phf/storedText.ts`; the Rust twin
+  `verified_standard_text` in `core/rail-sync/src/stored_text.rs`): render the
+  text, parse it back with `rail-core` (the web's engine: the WebAssembly core,
+  else the TypeScript parsers), restore the provenance from the columns the
+  server will store (below), and compare with the PHF field by field. Only
+  these may differ (`COSMETIC_PATHS`): `actions[].sourceLine`,
+  `actions[].rawLine` (the text is laid out differently from the room's),
+  `meta.textStyle.dealtLinesForAllPlayers` (WePlay prints every player's dealt
+  line, the text the hero's) and `meta.parsedAt`. A hand that fails keeps its
+  PHF and is sent without a text. On the corpus: every WePlay hand and 644 of
+  645 GG hands verify; CoinPoker, Full Tilt, most PokerStars and a few others
+  lose something in the text (an action's street or amount, a sitting-out
+  flag, a currency code, a warning) and keep their PHF.
+* **The server keeps the text and drops the PHF** - in `hands_normalize`,
+  after every column (`fast_fold`, `table_set` included) is derived from the
+  PHF - only for a writer that vouches for the text: `ingest_hands` (a row's
+  optional `standard_text`; sent by the desktop and the web's bulk upload) and
+  `save_hands` (a row's `text_verified: true`; an older client's unverified
+  display copy is not stored and the row keeps its PHF). They set the
+  transaction-local `rail.hands_text_verified` around their own insert; a
+  direct insert, a test fixture or a data copy that carries a text keeps its
+  PHF. **A data copy must still run with triggers off** (`hands_normalize`
+  also rewrites `created_at` and `owner_id`).
+* **Readers parse the text and restore the provenance** from the row
+  (`handOfStoredRow` / `hand_of_stored_row`, `restoreMeta` /
+  `restore_meta`): `meta.siteId` from `site` (and `siteName` / `parserId`
+  when the text reads as another room - WePlay's text is GG-format - from
+  `SITE_NAMES`, held to both parser registries by tests), `meta.handKey` from
+  `hand_key` when the text reads another key, `parserVersion` from
+  `parser_version`, `originalFilename` from `source_filename`, `rawText` from
+  `source_text` (or empty), `parsedAt` from `created_at`. **Action indices are
+  identical**, so stored analyses keyed by `actionIndex` stay valid. What is
+  lost: the conversion time (`created_at` stands in) and the cosmetic paths
+  above.
+
+| Reader | How it gets the hand |
+| --- | --- |
+| `get_hand` → `getHand` (web) | The row; `handOfRow` parses a text-only one with the page's engine. |
+| `hands_needing_stats` → `/api/stats/rebuild` | `phf`, or `standard_text` + `hand_key`, `site`, `parser_version`, `source_filename`, `created_at`; parsed on the server with the TypeScript parsers (`typescriptParser`: no `.wasm` to fetch). |
+| `hands_needing_analysis` (+ `_recent`, `_recent_scan`) → `runAnalysis` (`lib/db/analysis.ts`) | The same columns; the PHF still trimmed in SQL (`analysis_trimmed_phf`), a text parsed in the tab before the pool sees it. |
+| The desktop pull (`GET /rest/v1/hands?select=hand_key,phf,standard_text,site,parser_version,source_filename,source_text,created_at`) | `RemoteHand::into_phf` in Rust; the local store keeps a PHF as before. |
+| `publish_hand`, `create_share` | The client sends its parse as `p_phf`; `hand_phf_matches` (internal) derives the row from it and compares key, site, time, players, winners, cards, hero seat, pot, profit and showdown with the stored row before the usual scrub. A share of a text-only hand keeps `phf_redact_private(p_phf)` in `shares.phf`, which `read_share` (unchanged) falls back to. |
+| `read_share`, `read_published_hand`, `read_poll`, `get_post`, `create_poll_post` | Unchanged: a share's live PHF or its snapshot; published hands and polls read `published_hands`, a snapshot already. |
+| `export_my_hands` | Every row with `standardText`, `site`, `phf` (null on a text-only row) and the provenance columns. |
+| `erase_account_content` | Unchanged: it re-scrubs the `published_hands` snapshot, never `hands`. |
+| `move_gg_cash_hands` | Unchanged: a null PHF stays null; the moved `site` / `hand_key` are what a reader restores from. |
+
+**The backfill** (`tests/scripts/text-storage/backfill.mjs`) reads JSON lines
+of rows (`{id, phf, site, parser_version, source_filename}`, optionally
+`hand_key`, `source_text`, `standard_text`), verifies each with the committed
+WebAssembly core as above - a row's existing text first, else a fresh render
+- and writes `{id, ok, standard_text, source, diffs}`. The `ok` rows go to
+`hands_store_text(p_rows)` (service role, up to 1 000 `{id, standard_text}`
+a call): table set, then a redacted snapshot for each of the hand's share
+links, then the text in and the PHF out; a row already without a PHF is
+skipped.
+
+**Storage.** A text-only row is ~1.2 KB of text in a heap row of ~1.5 KB,
+**stored uncompressed**: Postgres starts toasting a row only above the
+compiled-in `TOAST_TUPLE_THRESHOLD` (~2 KB) - `toast_tuple_target` moves the
+target once toasting has started, not that threshold (measured on
+PostgreSQL 17.6: a ~1.2 KB text in a ~1.5 KB row is stored as is with
+`toast_tuple_target = 256`, with `storage main`, and with neither). Rows
+over the threshold (long hands) are compressed. `standard_text` has
+`storage main`, so in such a row the toaster compresses it in place and
+moves `phf` / `source_text` out of line first.
 
 ### `unparsed_hands` — the failure corpus
 
@@ -2285,13 +2370,13 @@ if (!hasUsablePlayerNames(row.anonymization)) {
 
 | Function | Callable by | Returns | What it does |
 | --- | --- | --- | --- |
-| `save_hands(p_hands jsonb)` | `authenticated` | `{received, inserted, duplicates}` | Batch-inserts hands **into the caller's library**, deduping on `(owner_id, hand_key)` with `ON CONFLICT DO NOTHING`. Returns exact counts, which is what removes the old "probe which of these already exist" round trips. Ignores any `owner_id` in the payload. Max 500 per call. |
+| `save_hands(p_hands jsonb)` | `authenticated` | `{received, inserted, duplicates}` | Batch-inserts hands **into the caller's library**, deduping on `(owner_id, hand_key)` with `ON CONFLICT DO NOTHING`. Returns exact counts, which is what removes the old "probe which of these already exist" round trips. Ignores any `owner_id` in the payload. Max 500 per call. Since `20271114090000` a row's `standard_text` is stored only with `"text_verified": true`, and then replaces its PHF; otherwise the PHF stays and no text is stored. |
 | `search_hands(p_filters jsonb, p_limit int, p_offset int)` | `authenticated` | `{total, limit, offset, rows}` | The whole browse filter set, sorted, paginated, **with the total count**, in one call. Scoped to the caller by RLS and, since `20270804090000`, by an explicit bound owner as well ([Owner first](#owner-first-a-readers-work-is-the-callers-rows)) — there is no filter key that could ask for anyone else's hands. Sort keys are whitelisted, so the query stays on an index. Heavy columns (`phf`, `standard_text`, `source_text`) are excluded: a page of 50 hands should be kilobytes. |
 | `get_hand(p_id uuid)` | `authenticated` | full row as jsonb | The payload, fetched only when a hand is actually opened. `null` for an unknown id *and* for another account's id — indistinguishable by design. |
 | `library_count()` | `authenticated` | bigint | How many hands the caller has stored (the web's header badge). From `library_hand_counts`, not a pass over the hands (`20270818090000`). It replaced the badge's read of `hands_facets()` - every distinct filter value of the library, computed to show one number - which was retired with it (the browse UI's counts are `library_facets` since R4.5b). |
 | `record_conversion_failures(p_failures jsonb)` | `authenticated` | `{received, created, updated, skipped}` | Upserts `ConversionFailure` records by fingerprint, incrementing `occurrences` atomically and recording the first submitter. Truncates over-long fields and skips malformed records rather than failing the batch: losing a sample we cannot reproduce is worse than storing a lossy one. Never writes `status` or `notes`. Max 200 per call. Optional keys since R0.11: `origin` (`web` when absent; an unknown value skips the record), `os`, `clientVersion`, `consentedAt`, `anonymiserVersion`, `guessedSite`, `guessConfidence`. A `desktop` record without a valid `consentedAt`, `anonymiserVersion`, `os` and `clientVersion`, or over 64 KiB, is skipped. |
 | `unparsed_summary(p_limit int)` | `anon`, `authenticated` | jsonb | `unparsed_gaps` ordered by impact, plus totals and a `byStatus` breakdown. `security invoker`, so a client sees only its own submissions; the cross-corpus answer to "which converter next" is a service-role query. |
-| `create_share(p_hand_id, p_phf, p_standard_text, p_title)` | `authenticated` | `{id, slug}` | Allocates a slug (retrying on collision) and inserts one row owned by the caller. **Refuses a `p_hand_id` the caller does not own** — it is `security definer`, so this check is not optional. |
+| `create_share(p_hand_id, p_phf, p_standard_text, p_title)` | `authenticated` | `{id, slug}` | Allocates a slug (retrying on collision) and inserts one row owned by the caller. **Refuses a `p_hand_id` the caller does not own** — it is `security definer`, so this check is not optional. For a stored hand without a PHF (`20271114090000`) `p_phf` is required and must be that hand (`hand_phf_matches`); the share then keeps `phf_redact_private(p_phf)`. |
 | `read_share(p_slug text)` | `anon`, `authenticated` | jsonb or `null` | Resolves a slug to `{slug, title, views, createdAt, handId, phf, standardText}` and nothing else, ignoring ownership entirely — a link works for anyone, which is the point. `stable`, no side effects. `null` for unknown *or* malformed slugs, deliberately indistinguishable, so probing tells an attacker nothing. |
 | `record_share_view(p_slug text)` | `anon`, `authenticated` | boolean | Increments `views` / `last_viewed_at` for one slug. Returns `false` instead of raising when throttled, unknown or malformed. |
 | `resolve_share(p_slug text)` | `anon`, `authenticated` | jsonb or `null` | **Deprecated — remove on or after 2026-11-27.** Thin wrapper over the two above, kept only for clients built before the projection fix. No longer returns the `hand` key. |
@@ -2299,7 +2384,7 @@ if (!hasUsablePlayerNames(row.anonymization)) {
 | `generate_share_slug(int)` | `service_role` | text | Internal. |
 | `phf_redact_private(jsonb)` | `service_role` | jsonb | Internal. Strips the private keys from a PHF document's `meta`. |
 | `register_hand_source(p_device_id, p_local_id, p_device_name, p_label, p_site)` | `authenticated` | uuid | Registers (or renames) a folder the desktop app watches; idempotent per account + device + local id. No paths: a label with `/` or `\` is 22023. R1.8. |
-| `ingest_hands(p_source uuid, p_rows jsonb)` | `authenticated` | `{received, inserted, duplicates, rejected, rows}` | Desktop sync: `{hand_key, phf}` rows into the caller's library from one of their sources, every search column derived from the PHF. See [Desktop ingest](#desktop-ingest-hand_sources-and-ingest_hands). R1.8. |
+| `ingest_hands(p_source uuid, p_rows jsonb)` | `authenticated` | `{received, inserted, duplicates, rejected, rows}` | Desktop sync: `{hand_key, phf}` rows into the caller's library from one of their sources, every search column derived from the PHF. See [Desktop ingest](#desktop-ingest-hand_sources-and-ingest_hands). R1.8. Since `20271114090000` a row may carry a verified `standard_text`, which the row keeps instead of the PHF. |
 | `register_web_hand_source()` | `authenticated` | uuid | The caller's web hand source, created on first use; the converter's bulk save sends `ingest_hands` from it. R4.2. |
 | `hands_since(p_after_created timestamptz, p_after_id uuid, p_limit int)` | `authenticated` | `setof (id, created_at, hand_key, origin)` | The desktop pull: a keyset page of the caller's hands, oldest first, rows at least a minute old, at most 1 000. See [The desktop pull](#the-desktop-pull-hands_since). R1.9. |
 | `put_hud_layouts(p_rows jsonb)` | `authenticated` | jsonb `[{kind, key, applied}]` | The desktop HUD's layout rows `{kind, key, body, updatedAt}` (at most 500), each kept only when newer than the stored one. See [The HUD's layouts](#the-huds-layouts-hud_layouts). R3.9. |
@@ -2820,12 +2905,16 @@ two filters plus a sort", not by reflexively indexing every column.
 | `hands_owner_library_idx` (`(owner_id)` including the library's group columns) | `library_facets`' counts read the owner's hands index-only instead of every column (`20270804090000`). |
 | `hand_stats_owner_hero_cover_idx` (`(owner_id, stats_version, hand_id) include (seat, net_bb_milli, pot_type, starting_stack_bb_tenths) where is_hero`) | The hero's row by hand within the owner's range: the library's counts (index only) and pages, `hands_needing_stats` (`20270804090000`). |
 | `hands_owner_created_idx` (`(owner_id, created_at, id)`) | The desktop pull's keyset, `hands_since` (R1.9): one range scan per page, the row comparison `(created_at, id) > cursor` included. |
-| `hands_site_played_idx`, `hands_hero_played_idx`, `hands_class_played_idx`, `hands_stakes_played_idx`, `hands_format_played_idx`, `hands_tournament_idx` | Composite `(filter column, played_at desc)`. Every one of these is "filter by a low-cardinality column, then sort by time". A single-column index would force a sort of the whole matching set; the composite serves filter and order in one scan. The hero / class / stakes / tournament ones are partial (`WHERE … IS NOT NULL`) because the null side is never filtered on. |
-| `hands_showdown_idx` | `showdownOnly`. Partial on the selective side, so it is far smaller than indexing a skewed boolean. |
 | `hands_owner_table_idx` (`(owner_id, table_name) where table_name is not null`) | The library's table-name search: the caller's distinct table names by a skip scan, then the hands by name (`20270818090000`). Replaced `hands_table_trgm`, a global trigram index no reader could use under RLS ([rule 6](#owner-first-a-readers-work-is-the-callers-rows)). |
 | `library_hand_counts_key`, `library_hero_counts_key` (unique, owner first) | `library_facets` and `library_count` read an owner's (version's) counts by range. |
-| `hands_hero_position_played_idx` | "Hero was on the button", the most common position filter, plus the default sort. Partial on `hero_position IS NOT NULL`. |
 | `hands_showdown_positions_gin`, `hands_winner_positions_gin` | Overlap (`&&`) filters. Selective: a showdown involves 0–2 seats and a pot usually has one winner. |
+
+Dropped in `20271113100000`: the baseline's global `(filter column, played_at desc)`
+indexes (`hands_site_played_idx`, `hands_hero_played_idx`, `hands_hero_position_played_idx`,
+`hands_class_played_idx`, `hands_stakes_played_idx`, `hands_format_played_idx`,
+`hands_tournament_idx`, `hands_fast_fold_idx`, `hands_showdown_idx`). Readers filter on the owner
+first, so they never used them. Also dropped: `hand_stats_hero_idx` and
+`hand_stats_owner_hand_key_idx`, which were superseded.
 
 Deliberately **not** indexed:
 

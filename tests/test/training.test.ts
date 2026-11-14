@@ -20,7 +20,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { analyzeHand, grade, opponentRanges, removalFactors, type DecisionAnalysis } from "../../web/src/lib/analysis/index.js";
-import { handClassOf, loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
+import { CHART_SETS, handClassOf, loadCharts, uncapturedLine, type ChartSet } from "../../web/src/lib/charts/index.js";
 import { fullLibrary } from "./charts/support.js";
 import { comboHi, comboLo, HAND_CLASSES, rangesAt } from "../../web/src/lib/solver/index.js";
 import { cardCode, cardIndex } from "../../web/src/lib/equity/evaluator.js";
@@ -62,9 +62,10 @@ import {
   type HandScript,
   type RiverTrainerSpot,
 } from "../../web/src/lib/training/index.js";
+import { fileOf as chartFile } from "./charts/support.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(chartFile("nlhe-cash-6max-100bb"), "utf8")),
 );
 
 /** The analysis' own verdict on one decision of a hand, from a full run. */
@@ -183,8 +184,12 @@ describe("trainer hands", () => {
 });
 
 describe("preflop dealing", () => {
-  it("has spots in every family", () => {
-    for (const family of PREFLOP_FAMILIES) {
+  it("has spots in every family but limped pots (the GTO Wizard solutions limp only from the small blind: blind versus blind)", () => {
+    expect(trainerNodes(CHARTS, "vs-limp")).toEqual([]);
+    // Blind vs blind waits for its capture (the 6-max 100bb set's `ffff`, `model.missing`): nothing to deal, no other set's.
+    const noBlindVsBlind = uncapturedLine(CHARTS, "ffff") !== null;
+    if (noBlindVsBlind) expect(trainerNodes(CHARTS, "bvb")).toEqual([]);
+    for (const family of PREFLOP_FAMILIES.filter((f) => f !== "vs-limp" && !(noBlindVsBlind && f === "bvb"))) {
       expect(trainerNodes(CHARTS, family).length, family).toBeGreaterThan(0);
     }
     expect(trainerNodes(CHARTS, "rfi", "BTN").map((n) => n.line)).toEqual(["fff"]);
@@ -267,9 +272,12 @@ describe("preflop dealing", () => {
 describe("preflop dealing from other tables and depths (A2c)", () => {
   const library = fullLibrary();
 
-  it("deals a 9-max spot as a nine-handed hand and grades it from the same set", () => {
+  it("deals another depth's spots as their own hands and grades them from the same set", () => {
     let graded = 0;
-    for (const set of ["nlhe-cash-9max-100bb", "nlhe-cash-9max-200bb", "nlhe-cash-6max-40bb"]) {
+    // The sets transcribed or kept as fixtures (charts/11); 9-max waits for its transcription.
+    // The ante set's hands post its ante, so they are graded on it.
+    const NINE_SHIPPED = CHART_SETS.some((spec) => spec.id === "nlhe-cash-9max-100bb");
+    for (const set of ["nlhe-cash-6max-150bb", "nlhe-cash-6max-100bb-ante", ...(NINE_SHIPPED ? ["nlhe-cash-9max-100bb"] : [])]) {
       for (let seed = 1; seed <= 6; seed += 1) {
         const spot = dealPreflop(library, { set, family: "random", bias: "borderline" }, seed);
         if (!spot) throw new Error(`no spot for ${set} seed ${seed}`);
@@ -288,8 +296,9 @@ describe("preflop dealing from other tables and depths (A2c)", () => {
         });
       }
     }
-    expect(graded).toBeGreaterThan(30);
+    expect(graded).toBeGreaterThan(15);
     // A 9-max seat and raiser are dealt as asked.
+    if (!NINE_SHIPPED) return;
     const lj = dealPreflop(library, { set: "nlhe-cash-9max-100bb", family: "vs-open", seat: "BB", vs: "UTG+1" }, 3);
     expect(lj?.hero).toBe("BB");
     expect(lj?.line).toMatch(/^fr/);

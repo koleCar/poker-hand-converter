@@ -285,11 +285,12 @@ export const courseHr = {
     } as Record<string, string>,
     waits: {
       widget: "Ova vježba treba alat koji još nije napravljen.",
-      "flop-library": "Čeka rješenja flopova na ovoj dubini: Railova knjižnica flopova pokriva samo heads-up linije za 6-max na 100bb i 150bb, 9-max na 100bb te heads-up stolove na 100bb i 150bb.",
+      "flop-library": "Čeka rješenja flopova na ovoj dubini na GTO Wizard preflop rangeovima, kojih Rail još nema.",
       "villain-stats": "Čeka statistiku protivnika u analizi.",
       "straddle-charts": "Čeka chartove za straddle, kojih Rail još nema.",
     } as Record<string, string>,
-    flopOff: "Situacije na flopu trebaju Railovu knjižnicu flopova, koja još nije uključena. Vježba se otvara kad bude.",
+    flopOff: "Situacije na flopu trebaju knjižnicu flopova solvanu na GTO Wizard preflop rangeovima, koju Rail još nema. Vježba se otvara kad je bude.",
+    chartsMissing: "Ova vježba dijeli iz preflop chartova koji još nisu preneseni iz GTO Wizarda. Otvara se kad budu.",
     flopUnavailable:
       "Situacije na flopu dijele se iz Railove knjižnice flopova, do koje ova kopija Raila ne može doći (nema postavljenu bazu). Vježba radi na objavljenoj stranici.",
   },
@@ -317,6 +318,7 @@ export const courseHr = {
     } as Record<string, string>,
     source:
       "Railova vlastita knjižnica flopova: rasponi iz chartova za 6-max i 100bb za tu liniju, riješeni na svakom flopu s betovima od 33 % i 75 % pota. „Beta“ je udio cijelog raspona koji beta; „beta veliko“ udio koji beta 75 % ili all-in. Svaki riješeni flop broji se jednom, pa je broj za skupinu obični prosjek njezinih flopova.",
+    none: "Ovi brojevi dolaze iz knjižnice flopova solvane na trenutnim preflop rangeovima (GTO Wizardovim), koju Rail još nema. Prikazat će se ovdje kad je bude.",
   },
 
   split: {

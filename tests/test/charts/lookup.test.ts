@@ -26,8 +26,11 @@ import { convertAny } from "../../../web/src/lib/parsers/index.js";
 import { positionRing, type PhfHand, type Position } from "../../../web/src/lib/phf/types.js";
 import { HAND_CLASSES } from "../../../web/src/lib/solver/index.js";
 import { ggFiles } from "../support/corpus.js";
+import { fixtureFile, SIX_MAX_100 } from "./support.js";
 
-const FILE = join(import.meta.dirname, "../../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json");
+// The lookup's mechanics are pinned to one transcription's sizes and lines: the NL500 6-max 100bb fixture
+// (the shipped NL100 set opens 2.5x everywhere and its blind vs blind is still to capture).
+const FILE = fixtureFile(SIX_MAX_100);
 const charts = loadCharts(JSON.parse(readFileSync(FILE, "utf8")));
 const SIX: Position[] = ["UTG", "HJ", "CO", "BTN", "SB", "BB"];
 
@@ -43,19 +46,23 @@ function ok(result: ChartLookup) {
   return result;
 }
 
+// The NL500 6-max 100bb fixture (a GTO Wizard transcription kept as test data, `support.ts`):
+// UTG and HJ open to 2bb, the CO to 2.3, the button to 2.5, the small blind to 3 (or limps); no limps elsewhere.
 describe("synthetic lines", () => {
   it("finds RFI, vs-open, squeeze, vs-3bet and vs-4bet nodes", () => {
     const rfi = ok(lookupPreflop(charts, spot("UTG", []), ["Ah", "Ad"]));
     expect(rfi.node.line).toBe("");
     expect(rfi.handClass).toBe("AA");
-    // charts/4: an open limp is an option, played rarely (the 0.5% tremble, and AA's occasional trap).
-    expect(rfi.options.map((o) => o.action)).toEqual(["fold", "call", "raise"]);
-    expect(rfi.options[1].sizeBb).toBe(1);
-    expect(rfi.options[1].freq).toBeLessThan(0.05);
-    expect(rfi.options[2].sizeBb).toBe(2.5);
-    expect(rfi.options[2].freq).toBeGreaterThan(0.95);
+    // No open limp outside the small blind: fold, the open, all-in.
+    expect(rfi.options.map((o) => [o.action, o.sizeBb])).toEqual([
+      ["fold", 0],
+      ["raise", 2],
+      ["allin", 100],
+    ]);
+    expect(rfi.options[1].freq).toBeGreaterThan(0.95);
     expect(rfi.options[0].ev).toBe(0);
     expect(rfi.approximations).toEqual([]);
+    expect(rfi.unmodelled).toEqual(["limp"]);
 
     const bb = ok(
       lookupPreflop(
@@ -70,12 +77,13 @@ describe("synthetic lines", () => {
     expect(bb.options.map((o) => [o.action, o.sizeBb])).toEqual([
       ["fold", 1],
       ["call", 2.5],
-      ["raise", 10],
+      ["raise", 13],
+      ["allin", 100],
     ]);
     expect(bb.options[0].ev).toBe(-1);
 
     const squeeze = ok(
-      lookupPreflop(charts, spot("BB", [act("UTG", "raise", 2.5), act("HJ", "fold"), act("CO", "fold"), act("BTN", "fold"), act("SB", "call", 2.5)]), "KQo"),
+      lookupPreflop(charts, spot("BB", [act("UTG", "raise", 2), act("HJ", "fold"), act("CO", "fold"), act("BTN", "fold"), act("SB", "call", 2)]), "KQo"),
     );
     expect(squeeze.node.scenario).toBe("squeeze");
     expect(squeeze.node.line).toBe("rfffc");
@@ -83,40 +91,45 @@ describe("synthetic lines", () => {
     const vs3 = ok(
       lookupPreflop(
         charts,
-        spot("UTG", [act("UTG", "raise", 2.5), act("HJ", "fold"), act("CO", "fold"), act("BTN", "raise", 7.5), act("SB", "fold"), act("BB", "fold")]),
+        spot("UTG", [act("UTG", "raise", 2), act("HJ", "fold"), act("CO", "fold"), act("BTN", "raise", 7.5), act("SB", "fold"), act("BB", "fold")]),
         "QQ",
       ),
     );
     expect(vs3.node.scenario).toBe("vs-3bet");
-    expect(vs3.options.map((o) => o.sizeBb)).toEqual([2.5, 7.5, 19]);
+    expect(vs3.node.line).toBe("rffrff");
+    expect(vs3.options.map((o) => o.sizeBb)).toEqual([2, 7.5, 20, 100]);
     expect(vs3.inRange).toBeGreaterThan(0.9);
 
     const vs4 = ok(
       lookupPreflop(
         charts,
         spot("BTN", [
-          act("UTG", "raise", 2.5),
+          act("UTG", "raise", 2),
           act("HJ", "fold"),
           act("CO", "fold"),
           act("BTN", "raise", 7.5),
           act("SB", "fold"),
           act("BB", "fold"),
-          act("UTG", "raise", 19),
+          act("UTG", "raise", 20),
         ]),
         "AKs",
       ),
     );
     expect(vs4.node.scenario).toBe("vs-4bet");
-    expect(vs4.options.map((o) => o.action)).toEqual(["fold", "call", "allin"]);
+    expect(vs4.options.map((o) => o.action)).toEqual(["fold", "call", "raise", "allin"]);
   });
 
   it("maps the hero's own action and its size", () => {
-    const r = ok(lookupPreflop(charts, spot("CO", [act("UTG", "fold"), act("HJ", "fold")]), "A5s", act("CO", "raise", 3)));
+    const r = ok(lookupPreflop(charts, spot("CO", [act("UTG", "fold"), act("HJ", "fold")]), "A5s", act("CO", "raise", 2.5)));
     expect(r.options[r.chosen as number].action).toBe("raise");
     const sizing = r.approximations.find((a) => a.kind === "sizing");
-    expect(sizing).toMatchObject({ position: "CO", realBb: 3, chartBb: 2.5, offTree: false });
+    expect(sizing).toMatchObject({ position: "CO", realBb: 2.5, chartBb: 2.3, offTree: false });
     const fold = ok(lookupPreflop(charts, spot("CO", [act("UTG", "fold"), act("HJ", "fold")]), "72o", act("CO", "fold")));
     expect(fold.chosen).toBe(0);
+    // A real all-in reads the set's all-in.
+    const jam = ok(lookupPreflop(charts, spot("CO", [act("UTG", "fold"), act("HJ", "fold")]), "AA", { ...act("CO", "raise", 100), allIn: true }));
+    expect(jam.options[jam.chosen as number].action).toBe("allin");
+    expect(jam.approximations).toEqual([]);
   });
 
   it("reads hands as cards, combo text or class names", () => {
@@ -132,27 +145,25 @@ describe("action translation", () => {
     ok(lookupPreflop(charts, spot("HJ", [act("UTG", "raise", to)]), "AKo")).approximations.find((a) => a.kind === "sizing");
 
   it("measures the distance in pot fractions", () => {
-    // Chart: UTG to 2.5 = 1.5 into a 2.5 pot after calling = 0.6 pot.
-    expect(open(2.5)).toBeUndefined();
-    // 2.2: 1.2 / 2.5 = 0.48 pot, 0.12 from the chart's 0.6.
-    expect(open(2.2)?.distance).toBeCloseTo(0.12, 3);
+    // Chart: UTG to 2 = 1 into a 2.5 pot after calling = 0.4 pot.
+    expect(open(2)).toBeUndefined();
+    // 2.2: 1.2 / 2.5 = 0.48 pot, 0.08 from the chart's 0.4.
+    expect(open(2.2)?.distance).toBeCloseTo(0.08, 3);
     expect(open(2.2)?.offTree).toBe(false);
-    // 3.0: 0.8 pot.
-    expect(open(3)?.distance).toBeCloseTo(0.2, 3);
-    expect(open(3)?.offTree).toBe(false);
+    // 2.5: 0.6 pot.
+    expect(open(2.5)?.distance).toBeCloseTo(0.2, 3);
+    expect(open(2.5)?.offTree).toBe(false);
   });
 
   it("flags sizes far from the chart's as off-tree but still finds the node", () => {
     const big = open(4);
     expect(big?.offTree).toBe(true);
-    expect(big?.distance).toBeCloseTo(0.6, 3);
+    expect(big?.distance).toBeCloseTo(0.8, 3);
     // The 3-bet over a 4bb open is measured against the real pot.
-    const r = ok(
-      lookupPreflop(charts, spot("CO", [act("UTG", "raise", 4), act("HJ", "fold")]), "AKo", act("CO", "raise", 12)),
-    );
+    const r = ok(lookupPreflop(charts, spot("CO", [act("UTG", "raise", 4), act("HJ", "fold")]), "AKo", act("CO", "raise", 12)));
     const threeBet = r.approximations.filter((a) => a.kind === "sizing" && a.position === "CO");
-    // Real: 8 more into 1.5 + 4 + 4 = 9.5 -> 0.84 pot. Chart: 5 into 6.5 -> 0.77 pot.
-    expect(threeBet[0].distance).toBeCloseTo(0.073, 2);
+    // Real: 8 more into 1.5 + 4 + 4 = 9.5 -> 0.842 pot. Chart: 4.5 into 3.5 + 2 = 5.5 -> 0.818 pot.
+    expect(threeBet[0].distance).toBeCloseTo(0.024, 2);
     expect(threeBet[0].offTree).toBe(false);
   });
 });
@@ -164,6 +175,7 @@ describe("refusals", () => {
   it("refuses straddles, antes, wrong table sizes and stack depths", () => {
     expect(reason(lookupPreflop(charts, spot("BTN", folds, { straddle: true }), "AA"))).toBe("straddle");
     expect(reason(lookupPreflop(charts, spot("BTN", folds, { ante: true }), "AA"))).toBe("ante");
+    expect(reason(lookupPreflop(charts, spot("BTN", folds, { ante: true, anteBb: 0.166 }), "AA"))).toBe("ante");
     // Heads-up (the small blind is the button) and more seats than the set has.
     expect(reason(lookupPreflop(charts, { positions: ["SB", "BB"], hero: "SB", actions: [] }, "AA"))).toBe("players");
     const nine: Position[] = ["SB", "BB", "UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN"];
@@ -179,9 +191,7 @@ describe("refusals", () => {
   });
 
   it("reads a 5-handed table as 6-max with UTG folded", () => {
-    const r = ok(
-      lookupPreflop(charts, { positions: ["SB", "BB", "UTG", "CO", "BTN"], hero: "UTG", actions: [] }, "AJo"),
-    );
+    const r = ok(lookupPreflop(charts, { positions: ["SB", "BB", "UTG", "CO", "BTN"], hero: "UTG", actions: [] }, "AJo"));
     expect(r.node.line).toBe("f");
     expect(r.node.actor).toBe("HJ");
     expect(r.approximations.map((a) => a.kind)).toEqual(["short-handed"]);
@@ -189,9 +199,7 @@ describe("refusals", () => {
   });
 
   it("reads 4- and 3-handed tables as 6-max with the earliest seats folded (A2c)", () => {
-    const four = ok(
-      lookupPreflop(charts, { positions: ["SB", "BB", "CO", "BTN"], hero: "BTN", actions: [act("CO", "fold")] }, "A5s"),
-    );
+    const four = ok(lookupPreflop(charts, { positions: ["SB", "BB", "CO", "BTN"], hero: "BTN", actions: [act("CO", "fold")] }, "A5s"));
     expect(four.node.line).toBe("fff");
     expect(four.node.actor).toBe("BTN");
     expect(four.approximations[0].detail).toBe("4 players dealt in: read as 6-max with UTG, HJ folded");
@@ -203,89 +211,38 @@ describe("refusals", () => {
     expect(three.approximations.map((a) => a.kind)).toEqual(["short-handed"]);
   });
 
-  it("finds the spots behind limpers (charts/4), and refuses a fourth limper", () => {
-    // UTG and HJ fold, the CO limps: the button may fold, over-limp or isolate to 4bb.
-    const vsLimp = ok(lookupPreflop(charts, spot("BTN", [act("UTG", "fold"), act("HJ", "fold"), act("CO", "call", 1)]), "AA"));
-    expect(vsLimp.node.line).toBe("ffc");
-    expect(vsLimp.node.scenario).toBe("vs-limp");
-    expect(vsLimp.node.limpers).toEqual(["CO"]);
-    expect(vsLimp.node.options.map((o) => [o.action, o.toBb])).toEqual([["fold", 0], ["call", 1], ["raise", 4]]);
-    expect(vsLimp.options[2].freq).toBeGreaterThan(0.9);
-    // The button isolates to 4.5bb (off the chart's 4bb by half a big blind: a sizing note, not off-tree).
-    const iso = ok(
-      lookupPreflop(charts, spot("BTN", [act("UTG", "fold"), act("HJ", "fold"), act("CO", "call", 1)]), "AKo", act("BTN", "raise", 4.5)),
-    );
-    expect(iso.options[iso.chosen as number].action).toBe("raise");
-    expect(iso.approximations).toMatchObject([{ kind: "sizing", offTree: false }]);
-    // The CO limped and faces the button's isolation: the limper's own answer.
-    const limper = ok(
-      lookupPreflop(
-        charts,
-        spot("CO", [act("UTG", "fold"), act("HJ", "fold"), act("CO", "call", 1), act("BTN", "raise", 4), act("SB", "fold"), act("BB", "fold")]),
-        "QQ",
-        act("CO", "raise", 12),
-      ),
-    );
-    expect(limper.node.scenario).toBe("vs-iso");
-    expect(limper.options[limper.chosen as number].action).toBe("raise");
-    // The big blind behind a limp checks or isolates.
-    const option = ok(
-      lookupPreflop(
-        charts,
-        spot("BB", [act("UTG", "call", 1), act("HJ", "fold"), act("CO", "fold"), act("BTN", "fold"), act("SB", "fold")]),
-        "72o",
-        act("BB", "check"),
-      ),
-    );
-    expect(option.node.options.map((o) => o.action)).toEqual(["check", "raise"]);
+  it("reads the small blind's completion and the big blind's option; refuses any other limp", () => {
+    // Folded to the small blind: it may fold, complete, raise to 3 or shove.
+    const sb = ok(lookupPreflop(charts, spot("SB", [...folds, act("BTN", "fold")]), "A5s", act("SB", "call", 1)));
+    expect(sb.node.line).toBe("ffff");
+    expect(sb.options[sb.chosen as number].action).toBe("call");
+    // The big blind after the completion checks or raises (two sizes merged into one raise).
+    const option = ok(lookupPreflop(charts, spot("BB", [...folds, act("BTN", "fold"), act("SB", "call", 1)]), "72o", act("BB", "check")));
+    expect(option.node.scenario).toBe("vs-limp");
+    expect(option.node.limpers).toEqual(["SB"]);
+    expect(option.node.options.map((o) => o.action)).toEqual(["check", "raise", "allin"]);
     expect(option.options[option.chosen as number].action).toBe("check");
-    // UTG, HJ and CO limp: a fourth limper is past the tree's three.
-    const fourth = lookupPreflop(
-      charts,
-      spot("SB", [act("UTG", "call", 1), act("HJ", "call", 1), act("CO", "call", 1), act("BTN", "call", 1)]),
-      "AA",
-    );
-    expect(reason(fourth)).toBe("multiway");
+    // A limp from any other seat is not in the solution.
+    expect(reason(lookupPreflop(charts, spot("BTN", [act("UTG", "fold"), act("HJ", "fold"), act("CO", "call", 1)]), "AA"))).toBe("limp");
+    expect(reason(lookupPreflop(charts, spot("UTG", []), "AA", act("UTG", "call", 1)))).toBe("action-not-modelled");
   });
 
-  it("refuses fourth players, cold calls and rare lines", () => {
-    // UTG opens, HJ and CO call: the BTN may not make it four-way. The charts
-    // never flat an UTG open twice, so the node is too rare to keep; a call
-    // from the BTN would be refused either way.
-    const fourth = lookupPreflop(
-      charts,
-      spot("BTN", [act("UTG", "raise", 2.5), act("HJ", "call", 2.5), act("CO", "call", 2.5)]),
-      "99",
-      act("BTN", "call", 2.5),
-    );
-    expect(["rare-line", "action-not-modelled"]).toContain(reason(fourth));
+  it("refuses calls the solution does not offer, and lines it does not hold", () => {
+    // UTG opens: the HJ has no flat call here.
+    const flat = lookupPreflop(charts, spot("CO", [act("UTG", "raise", 2), act("HJ", "call", 2)]), "99");
+    expect(reason(flat)).toBe("off-tree");
     // The BB facing an UTG open and a CO 3-bet has no cold call.
-    const cold = [act("UTG", "raise", 2.5), act("HJ", "fold"), act("CO", "raise", 7.5), act("BTN", "fold"), act("SB", "fold")];
+    const cold = [act("UTG", "raise", 2), act("HJ", "fold"), act("CO", "raise", 6.5), act("BTN", "fold"), act("SB", "fold")];
     const node = ok(lookupPreflop(charts, spot("BB", cold), "QQ"));
     expect(node.unmodelled).toEqual(["call"]);
     expect(node.node.cold).toBe(true);
-    expect(reason(lookupPreflop(charts, spot("BB", cold), "QQ", act("BB", "call", 7.5)))).toBe("action-not-modelled");
-    // The BB cold-calls a 3-bet.
-    expect(
-      reason(
-        lookupPreflop(
-          charts,
-          spot("UTG", [
-            act("UTG", "raise", 2.5),
-            act("HJ", "fold"),
-            act("CO", "raise", 7.5),
-            act("BTN", "fold"),
-            act("SB", "fold"),
-            act("BB", "call", 7.5),
-          ]),
-          "AA",
-        ),
-      ),
-    ).toBe("cold-call");
-    // UTG open, HJ cold 4-bet... a line the charts never take.
+    expect(reason(lookupPreflop(charts, spot("BB", cold), "QQ", act("BB", "call", 6.5)))).toBe("action-not-modelled");
+    // ... so a later decision behind that cold call is refused as one.
+    expect(reason(lookupPreflop(charts, spot("UTG", [...cold, act("BB", "call", 6.5)]), "AA"))).toBe("cold-call");
+    // A line past the transcribed solution: a rare line.
     const rare = lookupPreflop(
       charts,
-      spot("CO", [act("UTG", "raise", 2.5), act("HJ", "raise", 7.5), act("CO", "raise", 19), act("BTN", "fold"), act("SB", "fold"), act("BB", "fold"), act("UTG", "raise", 100), act("HJ", "fold")]),
+      spot("CO", [act("UTG", "raise", 2), act("HJ", "raise", 6.5), act("CO", "raise", 14), act("BTN", "fold"), act("SB", "fold"), act("BB", "fold"), act("UTG", "raise", 100), act("HJ", "fold")]),
       "AA",
     );
     expect(["rare-line", "ok"]).toContain(reason(rare));
@@ -336,11 +293,11 @@ describe("real hands from the GG corpus", () => {
   it("refuses what the charts do not cover, with the reason", () => {
     const deep = preflopSpotFromHand(find("HD2735958902"), 0);
     expect(deep.ok && lookupPreflop(charts, deep.spot)).toMatchObject({ ok: false, reason: "stack-depth" });
-    // A limped pot was refused before charts/4; it is on the tree now.
+    // An open limp outside the small blind: the GTO Wizard solution has none.
     const limp = preflopSpotFromHand(find("HD2735958351"), 0);
     if (!limp.ok) throw new Error(limp.detail);
     const limped = lookupPreflop(charts, limp.spot);
-    expect(limped.ok ? "ok" : limped.reason).not.toBe("limp");
+    expect(limped.ok ? "ok" : limped.reason).toBe("limp");
     // Four-handed was refused before A2c; it is read as 6-max with UTG and HJ folded.
     const fourHanded = preflopSpotFromHand(find("HD2735958714"), 0);
     if (!fourHanded.ok) throw new Error(fourHanded.detail);

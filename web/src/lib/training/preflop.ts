@@ -241,7 +241,8 @@ export interface PreflopTrainerSpot {
 
 /** The chart's line as script actions: who did what, with the tree's sizes. */
 export function lineActs(charts: ChartSet, line: string): ScriptAct[] {
-  const tree = chartTree(charts);
+  // The sizes are the nodes' own (a transcribed set has no Rail tree); a generated set's tree fills a silent fold's gap.
+  let tree: ReturnType<typeof chartTree> | null = null;
   const { steps } = walkLine(line, charts.game.positions);
   const acts: ScriptAct[] = [];
   steps.forEach((step, k) => {
@@ -252,6 +253,12 @@ export function lineActs(charts: ChartSet, line: string): ScriptAct[] {
     } else if (step.code === "c") {
       acts.push({ position: step.position, type: "call" });
     } else {
+      const own = charts.nodes.get(line.slice(0, k))?.options.find((o) => o.code === step.code);
+      if (own) {
+        acts.push({ position: step.position, type: "raise", to: own.toBb });
+        return;
+      }
+      tree ??= chartTree(charts);
       const at = tree.lineIndex.get(line.slice(0, k));
       if (at === undefined) throw new RangeError(`no tree node for ${JSON.stringify(line.slice(0, k))}`);
       let to = -1;
@@ -304,6 +311,8 @@ export function dealPreflop(library: ChartSet, options: PreflopSpotOptions, seed
     heroCards: cards,
     seats: charts.game.positions,
     ...(charts.game.straddle ? { straddle: { ...charts.game.straddle } } : {}),
+    // An ante set's hand posts its ante, so the answer is graded on that set.
+    ...(charts.game.ante ? { ante: charts.game.ante } : {}),
     stackBb: charts.game.stackBb,
     preflop: lineActs(charts, node.line),
   };

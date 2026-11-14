@@ -331,7 +331,7 @@ const known = (part: string) => part !== ANY && part !== NONE;
 const seatOf = (part: string): ChartPosition | null =>
   known(part) && (ALL_PREFLOP_SEATS as readonly string[]).includes(part) ? (part as ChartPosition) : null;
 /** A chart set id as the trainer takes it (`nlhe-cash-9max-100bb`, `nlhe-cash-hu-100bb`). */
-const SET_ID = /^nlhe-cash-([0-9]max|hu)-[0-9]{2,3}bb$/;
+const SET_ID = /^nlhe-cash-([0-9]max|hu)-[0-9]{2,3}bb(-ante)?$/;
 /** The heads-up set an area tagged heads-up deals from when its leaks name none. */
 const HEADS_UP_SET = "nlhe-cash-hu-100bb";
 
@@ -423,6 +423,8 @@ export function flopTargetSeatings(target: Pick<FlopTarget, "set" | "pot" | "sid
  * pot's lines.
  */
 function flopTarget(where: AreaWhere, set: string | null): FlopTarget | null {
+  // No flop library is published (analysis/41): no flop drill to send the learner to.
+  if (!FLOP_LIBRARY_SETS.length) return null;
   if (where.scenario.includes("-mw-")) return null;
   const match = FLOP_SCENARIO.exec(where.scenario);
   const family = match ? match[3] : FLOP_AREA_FAMILIES.includes(where.family) ? where.family : null;
@@ -518,8 +520,10 @@ export function trainerTarget(where: AreaWhere, set: string | null = null): Trai
     const facing = where.family === "vs-bet" || where.family === "vs-raise" || /-vs-(bet|raise)$/.test(where.scenario);
     const match = /^(pfr|caller|limped)-(ip|oop)-/.exec(where.scenario);
     const side: RiverSeat | "any" = facing ? "ip" : match ? (match[2] as RiverSeat) : "any";
-    // Played heads-up (the area's set, §10 2026-11-02): the heads-up lines at the nearest depth.
-    const own = tableSets(set, RIVER_HEADS_UP_SETS)[0];
+    // Played heads-up (the area's set, §10 2026-11-02): the heads-up lines at the nearest depth. With no
+    // heads-up set transcribed yet, the heads-up set it names (absent: the trainer says so), never 6-max lines.
+    const headsUp = where.table === HEADS_UP_TABLE || (set !== null && /-hu-/.test(set));
+    const own = tableSets(set, RIVER_HEADS_UP_SETS)[0] ?? (headsUp ? (set && SET_ID.test(set) && /-hu-/.test(set) ? set : HEADS_UP_SET) : undefined);
     const deal = own ? { set: own } : {};
     // The area's pot (§10, 2026-11-05): a 3-bet pot area the 3-bet pot lines, an untagged one the
     // single-raised ones; the river trainer has no 4-bet pot line, so a 4-bet+ area gets no trainer.

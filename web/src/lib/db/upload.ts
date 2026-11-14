@@ -43,6 +43,11 @@ export const UPLOAD_BUCKET = "hand-uploads";
 export interface IngestRow {
   hand_key: string;
   phf: unknown;
+  /**
+   * (20271114090000) The hand's standard text, sent only when it reads back
+   * as `phf` (`storableText`): the server keeps it instead of the PHF.
+   */
+  standard_text?: string;
 }
 
 /** Per-row outcome, in input order. */

@@ -65,7 +65,7 @@ import { potTypeOf } from "../stats/derive";
 import { gradeRank, meanScore, sensitivityGrade, SENSITIVE_FROM, worstGrade, worstSeverity, type SensitivityResult } from "./grading";
 import { heuristicFlags } from "./heuristics";
 import { halved, heuristicModel, weightedCombos, type NarrowingModel } from "./narrowing";
-import { chartsModelStraddle, gradePreflop } from "./preflop";
+import { chartsModelAnte, chartsModelStraddle, gradePreflop } from "./preflop";
 import {
   flopSeats,
   preflopClassRange,
@@ -1306,7 +1306,8 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
   // and stacks as dealt; what is approximate is the any-two-cards start
   // narrowed by the multiway heuristic (`bomb-pot`).
   if (context.isBombPot) handApprox.add("bomb-pot");
-  else if (context.anteModel !== "none") handApprox.add("antes");
+  // An ante the charts model (an ante set, `charts/11`) is in the reference; any other is not.
+  else if (context.anteModel !== "none" && !chartsModelAnte(hand, hero, resolved.charts)) handApprox.add("antes");
   // A straddle the charts model (A2e) is in the reference; any other is not.
   if (context.hasStraddle && !chartsModelStraddle(hand, hero, resolved.charts)) handApprox.add("straddle");
   if (hand.table.maxSeats !== SIX_MAX) handApprox.add("table-size");

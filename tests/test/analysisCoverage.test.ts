@@ -163,7 +163,8 @@ describe("a poster's check", () => {
     expect(postedLimp(action("fold", 0), "CO", 100, 100)).toBe(false);
   });
 
-  it("grades the small blind as against a limp, with posted-blind, no worse than Inaccurate", () => {
+  // Needs a set with an open limp from the cutoff (Rail's limp tree had one); the GTO Wizard sets have none.
+  it.skip("grades the small blind as against a limp, with posted-blind, no worse than Inaccurate", () => {
     for (const [cards, action] of [
       ["Ah Kd", "Sb: raises $4 to $5"],
       ["7h 2d", "Sb: folds"],
@@ -228,7 +229,7 @@ describe("a flop pair across depths", () => {
 
   it("places a shorter pair on the shorter player's own set", () => {
     // The shorter player's own lookup is at the pair's stack, so its set is always within 20% of it.
-    const h = pair(70);
-    expect(chartLineOf(h, seatsOf(h), CHARTS)?.set.id).toBe("nlhe-cash-6max-60bb");
+    const h = pair(130);
+    expect(chartLineOf(h, seatsOf(h), CHARTS)?.set.id).toBe("nlhe-cash-6max-150bb");
   });
 });

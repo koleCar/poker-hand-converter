@@ -66,7 +66,7 @@ describe("the app's analysis and the web's library", () => {
     }
   });
 
-  it("only the doors import the web's library (and its Solver library); no app file copies it", () => {
+  it("only the doors import the web's library (and its Solver library and Trainer); no app file copies it", () => {
     const files: string[] = [];
     const walk = (dir: string) => {
       for (const name of readdirSync(dir)) {
@@ -76,13 +76,16 @@ describe("the app's analysis and the web's library", () => {
       }
     };
     walk(APP);
-    const imports = /(?:from|import)\s*\(?\s*"(?:@rail\/web-(?:lib|solver)[^"]*|[^"]*web\/src\/[^"]*)"/;
+    const imports = /(?:from|import)\s*\(?\s*"(?:@rail\/web-(?:lib|solver|trainer)[^"]*|[^"]*web\/src\/[^"]*)"/;
     const importers = files.filter((path) => imports.test(readFileSync(path, "utf8")));
     expect(importers.map((path) => relative(ROOT, path)).sort()).toEqual([
       "app/src/analysis/leakWords.ts",
       "app/src/analysis/library.ts",
       // The web's Solver library, in place (the Solver tab, the analysis' split view).
       "app/src/solver/door.ts",
+      // The web's Trainer, in place (the Trainer screen), and its worker's pure jobs.
+      "app/src/trainer/door.ts",
+      "app/src/trainer/jobs.ts",
     ]);
     // The analysis is not copied: no app file defines the library's entry points.
     for (const path of files) {

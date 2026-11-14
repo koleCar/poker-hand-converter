@@ -15,6 +15,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
+import { FLOP_LIBRARY_SETS } from "../../web/src/lib/analysis/flopLibrary.js";
 import { periodWindows, rateZ, type SpotRow } from "../../web/src/lib/analysis/leaks.js";
 import { loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
 import { CONCEPT_IDS } from "../../web/src/lib/learn/concepts.js";
@@ -51,9 +52,10 @@ import {
   withReviews,
   type PreviousPlan,
 } from "../../web/src/lib/training/index.js";
+import { fileOf as chartFile } from "./charts/support.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(chartFile("nlhe-cash-6max-100bb"), "utf8")),
 );
 
 /** A finest row; the key is built the way `analysis_spot_key` builds it. */
@@ -200,18 +202,9 @@ describe("trainer targets", () => {
       role: "any",
     });
     expect(trainerTarget(where("turn", "pfr-oop-first"))).toBeNull();
-    // §10 2026-10-31: the button calling a 3-bet in position, facing a bet: the flop library's two such lines -
-    // since 2026-11-05 only for the 3-bet pot area; single-raised, the button never calls in position there.
-    expect(trainerTarget({ ...where("flop", "caller-ip-vs-bet"), pot: "3bp" })).toEqual({
-      mode: "flop",
-      set: "nlhe-cash-6max-100bb",
-      pot: "3bp",
-      side: "ip",
-      role: "caller",
-      seat: "BTN",
-      facing: "bet",
-      line: null,
-    });
+    // A flop area has no trainer while no flop library is published (analysis/41: none is solved on the GTO Wizard ranges).
+    expect(FLOP_LIBRARY_SETS).toEqual([]);
+    expect(trainerTarget({ ...where("flop", "caller-ip-vs-bet"), pot: "3bp" })).toBeNull();
     expect(trainerTarget(where("flop", "caller-ip-vs-bet"))).toBeNull();
   });
 
@@ -233,7 +226,7 @@ describe("trainer targets", () => {
 
   it("writes references the database accepts", () => {
     // `save_study_plan`'s check (`20271031090000_study_plan_flop_target.sql`).
-    const shape = /^(preflop|river)(\/[A-Za-z0-9+-]{1,20}){0,5}$|^flop(\/[A-Za-z0-9+-]{1,20}){6,7}$/;
+    const shape = /^(preflop|river)(\/[A-Za-z0-9+-]{1,30}){0,5}$|^flop(\/[A-Za-z0-9+-]{1,30}){6,7}$/;
     expect(trainerRef({ mode: "preflop", family: "vs-open", seat: "BTN", vs: "CO" })).toBe("preflop/vs-open/BTN/vs-CO");
     expect(trainerRef({ mode: "preflop", family: "rfi", seat: null, vs: null })).toBe("preflop/rfi/any");
     expect(trainerRef({ mode: "river", pot: "any", side: "oop", role: "pfr" })).toBe("river/any/oop/pfr");
@@ -266,7 +259,7 @@ describe("trainer targets", () => {
     const target = trainerTarget(where, "nlhe-cash-9max-150bb");
     expect(target).toEqual({ mode: "preflop", family: "rfi", seat: "UTG+1", vs: null, set: "nlhe-cash-9max-150bb" });
     expect(trainerRef(target!)).toBe("preflop/rfi/UTG+1/nlhe-cash-9max-150bb");
-    expect(trainerRef(target!)).toMatch(/^(preflop|river)(\/[A-Za-z0-9+-]{1,20}){0,5}$/);
+    expect(trainerRef(target!)).toMatch(/^(preflop|river)(\/[A-Za-z0-9+-]{1,30}){0,5}$/);
     expect(parseTrainerRef(trainerRef(target!))).toEqual(target);
     const vs = { mode: "preflop", family: "vs-open", seat: "LJ", vs: "UTG+2", set: "nlhe-cash-9max-100bb" } as const;
     expect(parseTrainerRef(trainerRef(vs))).toEqual(vs);

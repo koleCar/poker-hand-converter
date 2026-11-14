@@ -41,6 +41,7 @@ import {
   type TrainerSpot,
 } from "../../../lib/training";
 import type { TrainerResultInput } from "../../../lib/db/training";
+import { trainerResultRow } from "../../trainer/results";
 import type { TrainerTarget } from "../../../lib/training/plan";
 
 /**
@@ -261,25 +262,9 @@ export function spotOptions(mode: SpotMode, state: TrainState): PreflopSpotOptio
   };
 }
 
-/**
- * The `trainer_results` row a graded answer is kept as: the mode is the
- * spot's street; the family the preflop family, else the pot type; the spot
- * the chart line, else the line id (a flop's library line). Null for a turn
- * spot, which no trainer mode deals (Learn's own).
- */
+/** The `trainer_results` row a graded answer is kept as (`components/trainer/results.ts`, shared with the app). */
 export function trainerResultOf(spot: TrainerSpot, answer: TrainerAnswer, handClass: string | null): TrainerResultInput | null {
-  if (spot.kind === "turn") return null;
-  return {
-    mode: spot.kind,
-    family: spot.kind === "preflop" ? spot.family : spot.pot,
-    spot: spot.kind === "preflop" ? spot.line : spot.lineId,
-    position: spot.hero,
-    handClass,
-    grade: answer.grade,
-    evLossBb: answer.evLoss,
-    evLossPot: answer.evLossPot,
-    score: answer.score,
-  };
+  return trainerResultRow(spot, answer, handClass);
 }
 
 /**

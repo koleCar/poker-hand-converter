@@ -2,13 +2,17 @@
  * Publishing a hand — the client half of
  * `supabase/migrations/20261012090000_forum_publishing.sql`.
  *
- * Note what is *not* sent: the document. `publish_hand` takes the id of a hand
- * already in the caller's library, reads that row itself, and scrubs it in
- * SQL. A client that could send the document it wanted published could publish
- * anything — including the raw room text the scrubber exists to remove.
+ * `publish_hand` takes the id of a hand already in the caller's library, reads
+ * that row itself, and scrubs it in SQL. The document goes along only for a
+ * hand stored as its standard text (20271114090000), whose PHF the server no
+ * longer has: the server publishes it only when it is that stored hand
+ * (`hand_phf_matches`), through the same scrubber - so a client still cannot
+ * publish a document of its choosing.
  */
 
+import type { PhfHand } from "../phf/types";
 import { rpc } from "./client";
+import { getHand } from "./hands";
 
 export type PublishMode = "pseudonyms" | "positions" | "as-imported";
 
@@ -22,11 +26,15 @@ export async function publishHand(
   handId: string,
   mode: PublishMode = "pseudonyms",
   title?: string | null,
+  /** The stored hand as the caller has it; read with `getHand` when omitted. */
+  phf?: PhfHand | null,
 ): Promise<PublishResult> {
+  const document = phf ?? (await getHand(handId))?.phf ?? null;
   return rpc<PublishResult>("publish_hand", {
     p_hand_id: handId,
     p_mode: mode,
     p_title: title?.trim() || null,
+    p_phf: document,
   });
 }
 

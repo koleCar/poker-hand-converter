@@ -43,6 +43,13 @@ pub const MAX_BYTES: usize = 32 << 20;
 const TIMEOUT: Duration = Duration::from_secs(60);
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(10);
 
+/// The chart sets whose library may be read (the web's
+/// `PUBLISHED_FLOP_LIBRARY`, `web/src/lib/analysis/flopLibrary.ts`). Empty
+/// since `analysis/41`: the library in the bucket was solved on Rail's own
+/// preflop ranges, which are gone, so no file of it is read or fetched -
+/// every path is [`FileOutcome::Absent`], whatever is on disk.
+pub const PUBLISHED_SETS: &[&str] = &[];
+
 /// The bucket's path under a Supabase project's URL.
 pub const BUCKET_PATH: &str = "storage/v1/object/public/flop-library";
 
@@ -114,6 +121,8 @@ pub struct FlopLibraryCache {
     dir: PathBuf,
     base: Option<Url>,
     http: reqwest::Client,
+    /// The sets read ([`PUBLISHED_SETS`] unless a test names its own).
+    sets: Vec<String>,
 }
 
 impl FlopLibraryCache {
@@ -133,7 +142,21 @@ impl FlopLibraryCache {
             dir: dir.into(),
             base,
             http,
+            sets: PUBLISHED_SETS.iter().map(|set| (*set).to_owned()).collect(),
         })
+    }
+
+    /// The same cache reading these sets instead of [`PUBLISHED_SETS`].
+    #[must_use]
+    pub fn with_sets(mut self, sets: &[&str]) -> Self {
+        self.sets = sets.iter().map(|set| (*set).to_owned()).collect();
+        self
+    }
+
+    /// Whether a checked path is of a set that is read.
+    fn published(&self, path: &str) -> bool {
+        let set = path.split('/').next().unwrap_or_default();
+        self.sets.iter().any(|known| known == set)
     }
 
     /// The folder the files are kept in.
@@ -149,6 +172,10 @@ impl FlopLibraryCache {
     /// One file of the library (see the module's notes).
     pub async fn file(&self, path: &str) -> Result<FileOutcome, String> {
         let kind = check_path(path)?;
+        // A set not published is no library at all: neither the disk nor the bucket is asked.
+        if !self.published(path) {
+            return Ok(FileOutcome::Absent);
+        }
         let local = self.local(path);
         let on_disk = std::fs::read(&local).ok();
         let fresh = match kind {
@@ -242,6 +269,10 @@ impl FlopLibraryCache {
     pub async fn reachable(&self, manifest: &str) -> bool {
         if check_path(manifest) != Ok(FileKind::Manifest) {
             return false;
+        }
+        // Nothing of an unpublished set is fetched: there is nothing to be offline from.
+        if !self.published(manifest) {
+            return true;
         }
         match self.fetch(manifest).await {
             FileOutcome::Bytes { bytes, .. } => {

@@ -9,7 +9,7 @@
  * ranges) with the small tree of `flopLibrary.test.ts`, so it takes seconds.
  */
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 
@@ -38,21 +38,33 @@ import { lineActs } from "../../web/src/lib/training/preflop.js";
 import { solveJob, type Job } from "../scripts/flop-library/job.js";
 import { lineSpot } from "../scripts/flop-library/spots.js";
 import { fullLibrary } from "./charts/support.js";
+import { fileOf as chartFile } from "./charts/support.js";
 
 const load = (id: string): ChartSet =>
-  loadCharts(JSON.parse(readFileSync(join(import.meta.dirname, `../../web/src/lib/charts/data/${id}.json`), "utf8")));
+  loadCharts(JSON.parse(readFileSync(chartFile(`${id}`), "utf8")));
 const HU100 = load("nlhe-cash-hu-100bb");
-const HU150 = load("nlhe-cash-hu-150bb");
+/** The heads-up 150bb set: not transcribed from GTO Wizard yet (charts/11), so what needs it waits. */
+const HU150 = existsSync(chartFile("nlhe-cash-hu-150bb")) ? load("nlhe-cash-hu-150bb") : null;
 const SEATS = HEADS_UP_SCRIPT_POSITIONS;
 
-/** The pot at the flop and the stack behind, bb, on each line at 100bb (the heads-up tree's sizes: 2.5 / 10 / 22 opens and raises, 4 over a limp). */
-const MONEY: Record<string, [number, number]> = {
-  "sb-bb": [5, 97.5],
-  "sb-limp": [2, 99],
-  "sb-bb-3bet": [20, 90],
-  "sb-limp-raise": [8, 96],
-  "sb-bb-4bet": [44, 78],
-};
+/**
+ * The pot at the flop and the stack behind, bb, on a line: the chart set's own
+ * sizes, walked node by node (a transcribed set has no Rail tree; its nodes
+ * carry what each option puts in).
+ */
+function money(charts: ChartSet, key: string): [number, number] {
+  const inBb = new Map<string, number>([
+    ["SB", 0.5],
+    ["BB", 1],
+  ]);
+  for (let k = 0; k < key.length; k += 1) {
+    const node = charts.nodes.get(key.slice(0, k))!;
+    const option = node.options.find((o) => o.code === key[k])!;
+    inBb.set(node.actor, option.toBb);
+  }
+  const pot = [...inBb.values()].reduce((sum, v) => sum + v, 0);
+  return [pot, charts.game.stackBb - Math.max(...inBb.values())];
+}
 
 describe("the heads-up lines", () => {
   it("are the heads-up sets' lines, with the big blind out of position on every one", () => {
@@ -66,13 +78,13 @@ describe("the heads-up lines", () => {
   });
 
   it("play on both heads-up sets: chart ranges both sides, the line's pot and stack", () => {
-    for (const charts of [HU100, HU150]) {
+    for (const charts of [HU100, HU150].filter((c): c is ChartSet => c !== null)) {
       for (const line of FLOP_LINES_HU) {
         const spot = lineSpot(charts, line);
         expect(spot.players).toEqual(["BB", "SB"]);
-        const [pot, stack] = MONEY[line.id];
-        expect(spot.pot).toBeCloseTo(pot, 6);
-        expect(spot.stack).toBeCloseTo(stack + charts.game.stackBb - 100, 6);
+        const [pot, stack] = money(charts, line.key);
+        expect(spot.pot, line.id).toBeCloseTo(pot, 6);
+        expect(spot.stack, line.id).toBeCloseTo(stack, 6);
         for (const range of spot.ranges) {
           const combos = range.reduce((s, w) => s + w, 0);
           expect(combos).toBeGreaterThan(20);
@@ -221,7 +233,8 @@ describe("a heads-up hand reading the library", () => {
     const library = fullLibrary();
     const lead100 = { position: "BB" as const, type: "bet" as const, to: lead().to };
     expect(flopDecision(handOn("SB", [lead100, { position: "SB", type: "call" }]), library)?.source).toBe("solver");
-    // 150bb: the 150bb heads-up set answers; this library has nothing solved from it.
+    // 150bb: the 150bb heads-up set answers; this library has nothing solved from it (waits for that set).
+    if (!HU150) return;
     const deep = handOn("SB", [lead100, { position: "SB", type: "call" }], 150, HU150);
     expect(chunkFor(deep, buildContext(deep), library, { has: () => true })?.set).toBe("nlhe-cash-hu-150bb");
     expect(flopDecision(deep, library)?.source).toBe("heuristic");

@@ -11,7 +11,7 @@
  * `tests/scripts/flop-library` (`pilot.test.ts`).
  */
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 
@@ -21,6 +21,7 @@ import {
   flopReadingBucket,
   readingChain,
   FLOP_LIBRARY_ENABLED,
+  FLOP_LIBRARY_SETS,
   chunkFor,
   sameLine,
   FLOP_LINES,
@@ -68,9 +69,10 @@ import { lineActs } from "../../web/src/lib/training/preflop.js";
 import { jobHeader, solveJob, type Job } from "../scripts/flop-library/job.js";
 import { lineSpot } from "../scripts/flop-library/spots.js";
 import { fullLibrary } from "./charts/support.js";
+import { fileOf as chartFile } from "./charts/support.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(chartFile("nlhe-cash-6max-100bb"), "utf8")),
 );
 
 /* ------------------------------------------------------------ the set - */
@@ -273,6 +275,8 @@ describe("the chunk format", () => {
         };
       },
       "flop-test",
+      // Published for this loader only: no set is since analysis/41 (`FLOP_LIBRARY_SETS`).
+      { sets: [CHARTS.id] },
     );
     const hand = handOn(["Th", "7d", "4c"], [{ position: "BB", type: "check" }]);
     expect(loader.get(CHARTS.id, LINE.id, FLOP)).toBeNull();
@@ -285,6 +289,19 @@ describe("the chunk format", () => {
     // A hand on a line the library has not solved fetches no chunk.
     await loader.prefetch(handOn(["Th", "7d", "4c"], [{ position: "BB", type: "check" }], "fffrfc"), CHARTS);
     expect(fetched).toHaveLength(2);
+  });
+
+  it("fetches nothing of a set no library is published for (none since analysis/41)", async () => {
+    const fetched: string[] = [];
+    const loader = new FlopLibraryLoader("https://example.test/floplib", async (url) => {
+      fetched.push(url);
+      return { ok: true, arrayBuffer: async () => new ArrayBuffer(0), json: async () => ({ entries: [{ line: LINE.id, flop: FLOP }] }) };
+    }, "flop-test");
+    expect(FLOP_LIBRARY_SETS).toEqual([]);
+    expect(await loader.ready(CHARTS.id)).toBe(false);
+    await loader.prefetch(handOn(["Th", "7d", "4c"], [{ position: "BB", type: "check" }]), CHARTS);
+    expect(await loader.load(CHARTS.id, LINE.id, FLOP)).toBeNull();
+    expect(fetched).toEqual([]);
   });
 
   describe("against a rate-limited bucket (2026-10-18)", () => {
@@ -331,6 +348,7 @@ describe("the chunk format", () => {
         }
       };
       const loader = new FlopLibraryLoader(base, fetcher, "flop-test", {
+        sets: [CHARTS.id, "s1", "s2", "s3", "s4", "s5", "s6"],
         concurrency: options.concurrency,
         sleep: async (ms) => {
           slept.push(ms);
@@ -600,8 +618,13 @@ describe("the analysis reading the library", () => {
 });
 
 describe("the library's lines on every table", () => {
+  // Needs a full-ring chart set: none is transcribed from GTO Wizard yet (charts/11).
+  if (!existsSync(chartFile("nlhe-cash-9max-100bb"))) {
+    it.skip("waits for the 9-max 100bb set", () => {});
+    return;
+  }
   const CHARTS9: ChartSet = loadCharts(
-    JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-9max-100bb.json"), "utf8")),
+    JSON.parse(readFileSync(chartFile("nlhe-cash-9max-100bb"), "utf8")),
   );
 
   it("plays every 6-max and full-ring line on its own set, heads-up to the flop", () => {

@@ -137,6 +137,9 @@ export function ShareHandButton({
     try {
       const result = await createShare({
         storedHandId,
+        // A stored hand's document goes along: the server needs it when the
+        // row is stored as text (20271114090000).
+        phf: storedHandId ? hand : undefined,
         handKey: hand.meta.handKey,
         handText: toStandardText(hand),
         preview: buildSharePreview(hand),

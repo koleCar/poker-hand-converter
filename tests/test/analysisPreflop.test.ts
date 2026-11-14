@@ -10,7 +10,6 @@
  * than naming one.
  */
 
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -35,27 +34,27 @@ import {
   nodesIn,
 } from "../../web/src/components/analysis/chartSpots.js";
 import {
-  CHART_SETS,
   chartLibrary,
-  DEFAULT_CHART_SET,
   handClassOf,
-  loadCharts,
+  PLANNED_CHART_SETS,
   lookupPreflop,
   preflopSpotFromHand,
   rareLineChartSets,
   rareLineDepthSets,
   type ChartSet,
+  type ChartSetSpec,
 } from "../../web/src/lib/charts/index.js";
 import { en } from "../../web/src/lib/i18n/en.js";
 import { hr } from "../../web/src/lib/i18n/hr.js";
 import { conceptsForDecision } from "../../web/src/lib/learn/links.js";
 import { parseStandardHand } from "../../web/src/lib/phf/serialize.js";
-import { chartSet, fullLibrary } from "./charts/support.js";
+import { fixtureLibrary, fixtureSet, SIX_MAX_100 } from "./charts/support.js";
 import type { PhfHand } from "../../web/src/lib/phf/types.js";
-
-const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
-);
+// The NL500 6-max 100bb fixture (`charts/support.ts`): the clear-cut cases here are pinned to its sizes (UTG opens
+// to 2bb), its blind vs blind and its rare lines; the shipped NL100 set opens 2.5x and has not captured blind vs blind yet.
+const CHARTS: ChartSet = fixtureSet(SIX_MAX_100);
+const FIXTURES = fixtureLibrary();
+const fullLibrary = () => FIXTURES;
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };
 const FEES = "| Rake $0 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0";
 
@@ -305,7 +304,7 @@ describe("what the charts refuse, by name", () => {
     expect(decision.reason).toBe("chart-stack-depth");
   });
 
-  it("grades a line behind an open limp (charts/4), saying the limper may hold anything", () => {
+  it("refuses a line behind an open limp: the GTO Wizard sets limp only from the small blind", () => {
     const decision = pre(
       analyse(
         hand({
@@ -318,10 +317,25 @@ describe("what the charts refuse, by name", () => {
         }),
       ),
     );
+    expect(decision).toMatchObject({ status: "not-analysed", reason: "chart-limp" });
+  });
+
+  it("grades the big blind behind the small blind's completion, without the limp tremble", () => {
+    const decision = pre(
+      analyse(
+        hand({
+          hero: "Bb",
+          cards: "Ah Kd",
+          lines: ["Utg: folds", "Hj: folds", "Co: folds", "Btn: folds", "Sb: calls $0.5", "Bb: raises $2 to $3", "Sb: folds"],
+          winner: "Bb",
+          pot: 2,
+          returned: 2,
+        }),
+      ),
+    );
     expect(decision).toMatchObject({ status: "analysed", source: "chart", action: "raise" });
-    expect(decision.facts.chart).toMatchObject({ line: "cf", scenario: "vs-limp" });
-    expect(decision.approximations).toContain("limp-tremble");
-    // AKo isolates a limp from the cutoff: the reference's move.
+    expect(decision.facts.chart).toMatchObject({ line: "ffffc", scenario: "vs-limp" });
+    expect(decision.approximations).not.toContain("limp-tremble");
     expect(referenceMix(decision)[0].option.action).toBe("raise");
   });
 
@@ -414,17 +428,17 @@ describe("explanation templates (§4)", () => {
   it("says the grade, the reference's play and what the move cost, in both languages", () => {
     const fold = pre(analyse(rfi("Utg", "Ah Ad", "fold")));
     const english = en.analysis.explain(fold).join(" ");
-    expect(english).toContain("Blunder: the reference plays raise to 2.5 bb");
-    expect(english).toMatch(/Fold costs \d+(\.\d)? bb \(\d+% of the pot\) against raise to 2\.5 bb\./);
+    expect(english).toContain("Blunder: the reference plays raise to 2 bb");
+    expect(english).toMatch(/Fold costs \d+(\.\d)? bb \(\d+% of the pot\) against raise to 2 bb\./);
     const croatian = hr.analysis.explain(fold).join(" ");
-    expect(croatian).toContain("Gruba greška: referenca igra raise na 2,5 bb");
-    expect(croatian).toContain("u odnosu na raise na 2,5 bb");
+    expect(croatian).toContain("Gruba greška: referenca igra raise na 2 bb");
+    expect(croatian).toContain("u odnosu na raise na 2 bb");
   });
 
   it("names a Perfect move as the reference's play", () => {
-    const open = pre(analyse(rfi("Utg", "Ah Ad", "raise")));
-    // AA limps as a trap now and then (charts/4), opening the rest.
-    expect(en.analysis.explain(open).join(" ")).toMatch(/Perfect: you played raise to 2\.5 bb; the reference plays raise to 2\.5 bb 9\d% here\./);
+    const open = pre(analyse(rfi("Utg", "Ah Ad", "raise", 2)));
+    // AA opens to 2bb (the solution's UTG size) nearly always; the rest is its all-in.
+    expect(en.analysis.explain(open).join(" ")).toMatch(/Perfect: you played raise to 2 bb; the reference plays raise to 2 bb (9\d|100)% here\./);
   });
 
   it("says when the hand is outside the reference range at the node", () => {
@@ -522,9 +536,10 @@ describe("the chart viewer's reading of a chart set", () => {
     }
   });
 
-  it("files every node under at least one scenario, and every scenario has nodes", () => {
+  it("files every node under at least one scenario, and every scenario but vs-limp has nodes", () => {
     for (const node of CHARTS.nodes.values()) expect(categoriesOf(node).length).toBeGreaterThan(0);
-    for (const category of SPOT_CATEGORIES) expect(nodesIn(CHARTS, category).length).toBeGreaterThan(0);
+    // Every scenario but play behind an open limp: the GTO Wizard sets limp only from the small blind (blind versus blind).
+    expect(SPOT_CATEGORIES.filter((category) => nodesIn(CHARTS, category).length === 0)).toEqual(["vs-limp"]);
     expect(nodesIn(CHARTS, "rfi").map((node) => node.actor)).toEqual(["UTG", "HJ", "CO", "BTN", "SB"]);
   });
 
@@ -545,59 +560,69 @@ describe("the chart viewer's reading of a chart set", () => {
   });
 });
 
+/** Every planned set as a spec, no data (which sets neighbour a set reads only the specs). */
+const PLANNED: ChartSetSpec[] = PLANNED_CHART_SETS.map((id) => {
+  const m = /^nlhe-cash-(hu|\d)(?:max)?-(\d+)bb(-ante|-straddle)?$/.exec(id)!;
+  return {
+    id,
+    players: m[1] === "hu" ? 2 : Number(m[1]),
+    stackBb: Number(m[2]),
+    ...(m[3] === "-ante" ? { ante: 0.166 } : {}),
+    ...(m[3] === "-straddle" ? { straddle: { position: "UTG" as const, bb: 2 }, ante: 0.166 } : {}),
+    load: () => Promise.reject(new Error("not loaded")),
+  };
+});
+
 /* ------------------------------------------- rare lines (analysis/13) - */
 
 describe("a line too rare for its set, read on a neighbouring depth (analysis/13)", () => {
-  /** UTG opens, the cutoff flats, the hero folds 72o in the small blind; checked down. */
-  const flatted = () =>
+  /** UTG moves all in, the hero folds 72o in the hijack: the 100bb solution stops at the jam, the 150bb one charts the answer. */
+  const jammed = () =>
     hand({
-      hero: "Sb",
+      hero: "Hj",
       cards: "7c 2d",
-      lines: ["Utg: raises $1.5 to $2.5", "Hj: folds", "Co: calls $2.5", "Btn: folds", "Sb: folds", "Bb: folds"],
-      more: [
-        "*** FLOP *** [Kd 7h 2s]",
-        "Utg: checks",
-        "Co: checks",
-        "*** TURN *** [Kd 7h 2s] [9h]",
-        "Utg: checks",
-        "Co: checks",
-        "*** RIVER *** [Kd 7h 2s 9h] [3d]",
-        "Utg: checks",
-        "Co: checks",
-      ],
+      lines: ["Utg: raises $99 to $100 and is all-in", "Hj: folds", "Co: folds", "Btn: folds", "Sb: folds", "Bb: folds"],
       winner: "Utg",
-      pot: 6.5,
+      pot: 2.5,
+      returned: 99,
     });
 
   it("grades it from the nearest depth that charts it, flagged and capped", () => {
-    const decision = pre(analyzeHand(flatted(), { charts: fullLibrary(), turn: false }));
+    const decision = pre(analyzeHand(jammed(), { charts: fullLibrary(), turn: false }));
     expect(decision).toMatchObject({ status: "analysed", source: "chart", action: "fold" });
-    // At 100bb the cutoff never flats an UTG open; the 150bb set charts the spot.
+    // At 100bb the solution has no answer to an UTG jam; the 150bb set charts it.
     expect(decision.facts.chart?.set).toBe("nlhe-cash-6max-150bb");
     expect(decision.approximations).toContain("rare-line-depth");
     expect(gradeRank(decision.grade!)).toBeLessThanOrEqual(gradeRank("inaccurate"));
   });
 
   it("stays refused while the neighbouring sets are not loaded, and names them", () => {
-    const only = chartLibrary([chartSet(DEFAULT_CHART_SET)]);
-    const h = flatted();
+    const only = chartLibrary([fixtureSet(SIX_MAX_100)], FIXTURES.specs);
+    const h = jammed();
     expect(pre(analyzeHand(structuredClone(h), { charts: only, turn: false })).reason).toBe("chart-rare-line");
-    expect(rareLineChartSets(h, only)).toEqual(["nlhe-cash-6max-150bb", "nlhe-cash-6max-60bb"]);
+    expect(rareLineChartSets(h, only)).toEqual(["nlhe-cash-6max-150bb"]);
     // The lookup alone (opponents' ranges, the flop library) never reads another depth.
     const found = preflopSpotFromHand(h, 0);
     expect(found.ok && lookupPreflop(fullLibrary(), found.spot, null, null)).toMatchObject({ ok: false, reason: "rare-line" });
   });
 
-  it("reads only the adjacent depths of the same table, nearest first", () => {
-    const spec = (id: string) => CHART_SETS.find((s) => s.id === id)!;
-    const depths = (id: string, bb?: number) => rareLineDepthSets(CHART_SETS, spec(id), bb).map((s) => s.stackBb);
+  it("reads only the adjacent depths of the same table and kind, nearest first", () => {
+    // Over the owner's planned list (which sets neighbour reads only the specs).
+    const spec = (id: string) => PLANNED.find((s) => s.id === id)!;
+    const depths = (id: string, bb?: number) => rareLineDepthSets(PLANNED, spec(id), bb).map((s) => s.stackBb);
     expect(depths("nlhe-cash-6max-100bb")).toEqual([150, 60]);
     expect(depths("nlhe-cash-6max-100bb", 85)).toEqual([60, 150]);
-    // charts/10: the 9-max 60bb set is the 100bb set's neighbour below, tried after 150bb.
-    expect(depths("nlhe-cash-9max-100bb")).toEqual([150, 60]);
+    // 9-max has no 60bb set without an ante.
+    expect(depths("nlhe-cash-9max-100bb")).toEqual([150]);
     expect(depths("nlhe-cash-9max-200bb")).toEqual([150]);
     expect(depths("nlhe-cash-6max-40bb")).toEqual([60]);
     expect(depths("nlhe-cash-6max-100bb-straddle")).toEqual([]);
+    // An ante set reads only the ante sets.
+    expect(rareLineDepthSets(PLANNED, spec("nlhe-cash-6max-100bb-ante")).map((s) => s.id)).toEqual([
+      "nlhe-cash-6max-150bb-ante",
+      "nlhe-cash-6max-60bb-ante",
+    ]);
+    expect(depths("nlhe-cash-9max-100bb-ante")).toEqual([150, 60]);
     // Heads-up reads only heads-up: the other heads-up depth, never a 6-max set.
     expect(depths("nlhe-cash-hu-100bb")).toEqual([150]);
     expect(depths("nlhe-cash-hu-150bb")).toEqual([100]);
@@ -629,11 +654,12 @@ describe("a depth no set of the table covers, graded on the nearest charted one 
           returned: 1.5,
         });
 
-  it("grades a 6-max 76bb open on the 60bb set, flagged", () => {
+  // The test sets have 100 and 150bb at 6-max (no 60bb yet): 76bb reads 100bb, the nearest charted depth above.
+  it("grades a 6-max 76bb open on the 100bb set, flagged", () => {
     const decision = pre(analyzeHand(cutoff("Ah Kd", "raise", 76), { charts: fullLibrary(), turn: false }));
     expect(decision).toMatchObject({ status: "analysed", source: "chart", action: "raise", grade: "perfect" });
-    // 76bb is 20% from neither 60 nor 100; 60 is the nearer by ratio.
-    expect(decision.facts.chart?.set).toBe("nlhe-cash-6max-60bb");
+    // 76bb is not within 20% of 100.
+    expect(decision.facts.chart?.set).toBe("nlhe-cash-6max-100bb");
     expect(decision.approximations).toContain("uncovered-depth");
     expect(decision.approximations).not.toContain("rare-line-depth");
   });
@@ -646,21 +672,21 @@ describe("a depth no set of the table covers, graded on the nearest charted one 
     expect(pre(analyzeHand(cutoff("Ah Ad", "fold", 100), { charts: fullLibrary(), turn: false })).grade).toBe("blunder");
   });
 
-  it("reads at most 5/3 of a depth away: 26bb on the 40bb set, 22bb refused", () => {
-    const near = pre(analyzeHand(cutoff("Ah Kd", "raise", 26), { charts: fullLibrary(), turn: false }));
+  it("reads at most 5/3 of a depth away: 62bb on the 100bb set, 58bb refused", () => {
+    const near = pre(analyzeHand(cutoff("Ah Kd", "raise", 62), { charts: fullLibrary(), turn: false }));
     expect(near).toMatchObject({ status: "analysed", source: "chart" });
-    expect(near.facts.chart?.set).toBe("nlhe-cash-6max-40bb");
+    expect(near.facts.chart?.set).toBe("nlhe-cash-6max-100bb");
     expect(near.approximations).toContain("uncovered-depth");
-    const far = pre(analyzeHand(cutoff("Ah Kd", "raise", 22), { charts: fullLibrary(), turn: false }));
+    const far = pre(analyzeHand(cutoff("Ah Kd", "raise", 58), { charts: fullLibrary(), turn: false }));
     expect(far).toMatchObject({ status: "not-analysed", reason: "chart-stack-depth" });
   });
 
   it("stays refused while the neighbouring sets are not loaded, and names them", () => {
-    // Only the 150bb set: neither neighbour of 76bb (60, 100) is loaded.
-    const only = chartLibrary([chartSet("nlhe-cash-6max-150bb")]);
+    // Only the 150bb set: 76bb's neighbour (100bb; no 60bb among the test sets) is not loaded.
+    const only = chartLibrary([fixtureSet("nlhe-cash-6max-150bb")], FIXTURES.specs);
     const h = cutoff("Ah Kd", "raise", 76);
     expect(pre(analyzeHand(structuredClone(h), { charts: only, turn: false })).reason).toBe("chart-stack-depth");
-    expect([...rareLineChartSets(h, only)].sort()).toEqual(["nlhe-cash-6max-100bb", "nlhe-cash-6max-60bb"]);
+    expect([...rareLineChartSets(h, only)].sort()).toEqual(["nlhe-cash-6max-100bb"]);
     // The lookup alone (the flop library's placement) still refuses the depth.
     const found = preflopSpotFromHand(h, 0);
     expect(found.ok && lookupPreflop(fullLibrary(), found.spot, null, null)).toMatchObject({ ok: false, reason: "stack-depth" });

@@ -31,7 +31,7 @@ import {
   analyzeHand,
   flopLibraryBase,
   flopStudy,
-  FLOP_LIBRARY_ENABLED,
+  FLOP_LIBRARY_LIVE,
   FlopLibraryLoader,
   riverStudy,
   turnStudy,
@@ -105,7 +105,7 @@ let flopLibrary: FlopLibraryLoader | null = null;
 /** The library holding every chunk these hands read, or null while the flag is off. */
 async function libraryFor(set: ChartLibrary, hands: readonly PhfHand[]): Promise<FlopLibraryLoader | null> {
   const base = flopLibraryBase(SUPABASE_URL);
-  if (!FLOP_LIBRARY_ENABLED || !base) return null;
+  if (!FLOP_LIBRARY_LIVE || !base) return null;
   flopLibrary ??= new FlopLibraryLoader(base, (url) => fetch(url));
   for (const hand of hands) await flopLibrary.prefetch(hand, set);
   return flopLibrary;

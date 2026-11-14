@@ -26,7 +26,7 @@ import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
 import { AnswerBar, type AnswerOption } from "../../analysis/train/AnswerBar";
 import { AnswerResult } from "../../analysis/train/AnswerResult";
-import { SpotWords } from "../../analysis/train/SpotTrainer";
+import { SpotWords } from "../../analysis/train/SpotWords";
 import { lastAction } from "../../analysis/train/spotPosition";
 import own from "../../analysis/train/train.module.css";
 import { useFormats } from "../controls";

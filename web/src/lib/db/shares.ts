@@ -28,6 +28,7 @@
 
 import type { PhfHand } from "../phf/types";
 import { currentUserId, isDatabaseConfigured, requireUserId, rpc } from "./client";
+import { getHand } from "./hands";
 import { storedStandardText } from "./mapping";
 import type { CreateShareInput, ResolvedShare, ShareRef } from "./types";
 
@@ -57,11 +58,14 @@ export async function createShare(input: CreateShareInput): Promise<ShareRef> {
     "Sign in to create a share link. Anyone you send the link to can open it without an account.",
   );
 
+  // A stored hand goes with its document too: the server ignores it for a row
+  // that has its PHF, and for a row stored as text (20271114090000) keeps a
+  // redacted copy once it is shown to be that hand.
+  const phf = input.phf ?? (handId ? ((await getHand(handId))?.phf ?? null) : null);
+
   const payload = await rpc<{ id: string; slug: string }>("create_share", {
     p_hand_id: handId,
-    // Embedding is pointless when the share references a stored hand, and the
-    // server ignores it in that case; sending null keeps the row small.
-    p_phf: handId ? null : (input.phf ?? null),
+    p_phf: phf,
     p_standard_text: handId ? null : standardText,
     p_title: input.title ?? null,
     // Absent is the same as false server-side; sent explicitly so the wire call

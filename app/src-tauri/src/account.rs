@@ -38,7 +38,7 @@ use crate::{strings, tray};
 /// differently.
 pub const CHANGED_EVENT: &str = "account-changed";
 
-const DEFAULT_SUPABASE_URL: &str = "https://riybwcfnclphacnfawiq.supabase.co";
+const DEFAULT_SUPABASE_URL: &str = "https://tlprpfebsuerqqktklrx.supabase.co";
 const DEFAULT_WEB_URL: &str = "https://poker-hand-converter.vercel.app";
 
 /// The account, as app state. `None`: this build has no Supabase
@@ -358,7 +358,7 @@ mod tests {
     fn the_production_defaults_are_valid() {
         let config = AuthConfig::new(DEFAULT_SUPABASE_URL, "public-anon-key", DEFAULT_WEB_URL)
             .expect("defaults");
-        assert_eq!(config.project_host(), "riybwcfnclphacnfawiq.supabase.co");
+        assert_eq!(config.project_host(), "tlprpfebsuerqqktklrx.supabase.co");
         assert_eq!(
             config.web_url.as_str(),
             "https://poker-hand-converter.vercel.app/"

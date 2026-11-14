@@ -5,8 +5,10 @@
 //!    the account's hands by `(created_at, id)`: ids and keys only (~150 B a
 //!    hand), so the hands this computer uploaded itself cost almost nothing
 //!    to recognise;
-//! 2. `GET /rest/v1/hands?select=hand_key,phf&id=in.(...)` - the PHF of the
-//!    hands the store does not have.
+//! 2. `GET /rest/v1/hands?select=hand_key,phf,standard_text,...&id=in.(...)` -
+//!    the hands the store does not have: the PHF, or - on a text-only row
+//!    (`20271114090000_text_storage.sql`) - the standard text and the columns
+//!    its provenance is restored from ([`RemoteHand::into_phf`]).
 
 use serde::Deserialize;
 use serde_json::Value;
@@ -29,11 +31,47 @@ pub struct RemoteKey {
     pub origin: String,
 }
 
-/// One hand's PHF from the server.
+/// The columns [`IngestClient::hands_phf`] reads.
+pub const HAND_COLUMNS: &str =
+    "hand_key,phf,standard_text,site,parser_version,source_filename,source_text,created_at";
+
+/// One hand from the server: its PHF, or its standard text and the columns
+/// a text-only row is restored from.
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct RemoteHand {
     pub hand_key: String,
-    pub phf: Value,
+    /// Null on a text-only row.
+    #[serde(default)]
+    pub phf: Option<Value>,
+    #[serde(default)]
+    pub standard_text: Option<String>,
+    #[serde(default)]
+    pub site: String,
+    #[serde(default)]
+    pub parser_version: Option<String>,
+    #[serde(default)]
+    pub source_filename: Option<String>,
+    #[serde(default)]
+    pub source_text: Option<String>,
+    #[serde(default)]
+    pub created_at: Option<String>,
+}
+
+impl RemoteHand {
+    /// The hand's PHF: the stored one, or its text parsed and restored
+    /// ([`crate::stored_text::hand_of_stored_row`]). `None` when the text no
+    /// longer parses with this build.
+    pub fn into_phf(self) -> Option<Value> {
+        let row = crate::stored_text::StoredColumns {
+            hand_key: self.hand_key,
+            site: self.site,
+            parser_version: self.parser_version,
+            source_filename: self.source_filename,
+            source_text: self.source_text,
+            created_at: self.created_at,
+        };
+        crate::stored_text::hand_of_stored_row(self.phf, self.standard_text.as_deref(), &row)
+    }
 }
 
 impl IngestClient {
@@ -56,7 +94,8 @@ impl IngestClient {
             .map_err(|_| IngestError::Transient("unreadable hands_since page".into()))
     }
 
-    /// The PHF of these hands (at most [`PHF_IDS_PER_CALL`] ids, UUIDs only).
+    /// These hands (at most [`PHF_IDS_PER_CALL`] ids, UUIDs only), as
+    /// stored: read each with [`RemoteHand::into_phf`].
     pub async fn hands_phf(
         &self,
         token: &Secret,
@@ -76,7 +115,7 @@ impl IngestClient {
             .join("hands")
             .unwrap_or_else(|_| self.rest_base.clone());
         url.query_pairs_mut()
-            .append_pair("select", "hand_key,phf")
+            .append_pair("select", HAND_COLUMNS)
             .append_pair("id", &format!("in.({})", ids.join(",")));
         let bytes = self.send(token, self.http.get(url)).await?;
         serde_json::from_slice(&bytes)
