@@ -73,7 +73,7 @@ export const trainerHr = {
   off: "Isključeno",
 
   rangePanel: "Range dok odgovaraš",
-  ranges: { off: "Isključeno", range: "Samo range", strategy: "Range i strategija" } as Record<string, string>,
+  ranges: { range: "Samo range", strategy: "Range i strategija" } as Record<string, string>,
   rangeHeading: "Tvoj range ovdje",
   rangeLoading: "Čitam range…",
   rangeNone: "Za ovaj spot nema rangea.",

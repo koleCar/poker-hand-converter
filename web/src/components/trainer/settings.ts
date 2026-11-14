@@ -49,8 +49,11 @@ export const PAUSES = ["always", "mistakes"] as const;
 export const PLAYS = ["spot", "hand"] as const;
 export type Play = (typeof PLAYS)[number];
 /** The modes a whole hand starts from: preflop, the flop, or a leak's spot (at its street, a river's from the flop). */
-/** The range panel while answering: none, the range's shape only, or how the reference plays it (gives the answer away). */
-export const RANGES = ["off", "range", "strategy"] as const;
+/**
+ * The range panel while answering: the range's shape only, or how the reference plays it (gives the answer away).
+ * The panel itself folds open and shut on the spot (`RangePanel`); an old "off" reads as the default.
+ */
+export const RANGES = ["range", "strategy"] as const;
 export type RangePanel = (typeof RANGES)[number];
 /** Seconds to answer; "0": no clock. Out of time: a check where there is one, else a fold. */
 export const TIMEBANKS = ["0", "7", "15", "25"] as const;
@@ -120,7 +123,7 @@ export const DEFAULT_SETTINGS: TrainerSettings = {
   pause: "always",
   strategy: true,
   facts: true,
-  range: "off",
+  range: "range",
   timebank: "0",
   buttons: "all",
   input: "action",

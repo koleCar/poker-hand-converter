@@ -16,12 +16,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DecisionAnalysis, OptionAnalysis } from "../../lib/analysis/types";
 import { nextSeed, STREAK_GRADES, type GradedAnswer, type TrainerAnswer, type TrainerSpot } from "../../lib/training";
 import { gradeMix, normalised, type MixResult } from "../../lib/training/frequency";
-import type { RangeView } from "../../lib/training/rangeView";
 import { ActionButtons, groupChoices, groupForKey, MixInput, TimebankBar, useTimebank, type Choice } from "./Decision";
 import { feltOf } from "./felt";
 import { Feedback, Verdict } from "./Feedback";
 import { useTrainerHost } from "./host";
-import { RangeGrid } from "./RangeGrid";
+import { RangePanel } from "./RangePanel";
 import type { SpotRequest, StreetMode, TrainerSettings } from "./settings";
 import { ActionStrip, SpotFelt } from "./SpotFelt";
 import styles from "./trainer.module.css";
@@ -79,7 +78,6 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
   const [error, setError] = useState<string | null>(null);
   const [answered, setAnswered] = useState<Answered | null>(null);
   const [holding, setHolding] = useState(false);
-  const [range, setRange] = useState<{ view: RangeView | null } | null>(null);
   const [open, setOpen] = useState(!compact);
   const requestJson = JSON.stringify(request);
 
@@ -109,19 +107,6 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
     };
   }, [requestJson, host]);
 
-  // The range panel, read once the spot is there (when asked for).
-  const wantsRange = settings.range !== "off" && Boolean(host.range);
-  useEffect(() => {
-    if (!spot || !wantsRange || !host.range) return;
-    let live = true;
-    host
-      .range(spot)
-      .then((view) => live && setRange({ view }))
-      .catch(() => live && setRange({ view: null }));
-    return () => {
-      live = false;
-    };
-  }, [spot, wantsRange, host]);
 
   const status: TableStatus = !dealt ? "dealing" : answered || !spot ? "answered" : "waiting";
   useEffect(() => {
@@ -329,17 +314,8 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
       )}
       {!answered ? <TimebankBar left={left} seconds={seconds} /> : null}
 
-      {wantsRange && !compact ? (
-        <section className={styles.block} aria-label={t.rangeHeading}>
-          <h3 className={styles.blockHead}>{t.rangeHeading}</h3>
-          {range === null ? (
-            <RailLoader size="inline" label={t.rangeLoading} showLabel />
-          ) : range.view ? (
-            <RangeGrid view={range.view} strategy={settings.range === "strategy" || Boolean(answered)} />
-          ) : (
-            <p className={styles.muted}>{t.rangeNone}</p>
-          )}
-        </section>
+      {host.range && !compact ? (
+        <RangePanel target={spot} read={host.range} strategy={settings.range === "strategy" || Boolean(answered)} />
       ) : null}
 
       {answered && !graded && !answered.error ? (

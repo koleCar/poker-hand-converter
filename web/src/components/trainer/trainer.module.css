@@ -945,6 +945,48 @@
 
 /* ------------------------------------------------------------- range (T3) */
 
+.foldHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  inline-size: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-tertiary);
+  font: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  text-align: start;
+  cursor: pointer;
+}
+
+.foldHead:hover {
+  color: var(--text-secondary);
+}
+
+.foldHead:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.foldChevron {
+  inline-size: 0.4rem;
+  block-size: 0.4rem;
+  border-inline-end: 1.5px solid currentColor;
+  border-block-end: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 120ms ease;
+}
+
+.foldHead[aria-expanded="true"] .foldChevron {
+  transform: rotate(45deg);
+}
+
 .range {
   display: grid;
   gap: var(--space-2);
