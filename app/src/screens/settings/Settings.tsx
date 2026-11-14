@@ -11,7 +11,6 @@ import { DangerZone } from "./DangerZone";
 import { Folders } from "./Folders";
 import { Preferences } from "./Preferences";
 import styles from "./Settings.module.css";
-import { Updates } from "./Updates";
 
 // Debug builds only: in a production bundle `import.meta.env.DEV` is `false`
 // and the import is dropped, so the panel is not shipped.
@@ -42,8 +41,9 @@ function Group({ id, label, children }: { id: string; label?: string; children: 
   );
 }
 
-/** The app's version, small, under everything. */
-function Version() {
+/** About: only this copy's version. Looking for, downloading and installing
+ * a newer one is the sidebar's (`SidebarUpdate`). */
+function About() {
   const t = useT();
   const [version, setVersion] = useState<string | null>(null);
   useEffect(() => {
@@ -52,13 +52,20 @@ function Version() {
       .then((info) => setVersion(info.version))
       .catch(() => setVersion(null));
   }, []);
-  return version ? <p className={styles.version}>{t.settings.version(version)}</p> : null;
+  return (
+    <div className={styles.card}>
+      <div className={`${styles.row} ${styles.rowWide}`}>
+        <span>{t.settings.about.version}</span>
+        <span className={styles.muted}>{version ?? "…"}</span>
+      </div>
+    </div>
+  );
 }
 
 /**
  * Settings, top to bottom: the account (plan, sync), the hand-history
- * folders, the user's own statistics, appearance and startup, updates, the
- * danger zone and the version. Each group is a small label over a card of
+ * folders, the user's own statistics, appearance and startup, the version
+ * and the danger zone. Each group is a small label over a card of
  * rows: the information on the left, the action on the right.
  */
 export function Settings() {
@@ -98,11 +105,10 @@ export function Settings() {
           <Group id="appearance" label={g.appearance}>
             <Preferences />
           </Group>
-          <Group id="updates" label={g.updates}>
-            <Updates />
+          <Group id="about" label={g.about}>
+            <About />
           </Group>
           {configured && <DangerZone />}
-          <Version />
           {DevStats && (
             <Suspense fallback={null}>
               <DevStats />

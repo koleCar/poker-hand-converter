@@ -50,7 +50,7 @@ const RECENT_MAX = 5;
 const RECENT_KEY = "rail.palette.recent";
 
 /** The Settings sections the palette opens (`#/settings/<section>`; ids in `Settings.tsx`). */
-export const SETTINGS_SECTIONS = ["account", "folders", "statistics", "appearance", "startup", "updates"] as const;
+export const SETTINGS_SECTIONS = ["account", "folders", "statistics", "appearance", "startup", "about"] as const;
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
 
 /** Listed as "Settings: ..." too, but on screens of their own: the refused hands, the HUD at the tables. */

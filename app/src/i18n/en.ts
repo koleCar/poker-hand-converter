@@ -56,8 +56,39 @@ export const en = {
     signIn: "Sign in",
     signingIn: "Signing in…",
     offline: "offline",
-    updateAvailable: (version: string) => `Update: Rail ${version}`,
-    updateReady: (version: string) => `Install Rail ${version}`,
+    /** The update card above the account (`updates.rs`): shown whenever a
+     * newer Rail is found, with its steps - download, install and restart. */
+    update: {
+      available: (version: string) => `Rail ${version} is available`,
+      whatsNew: "What's new",
+      download: "Update",
+      downloading: (version: string) => `Downloading Rail ${version}…`,
+      progress: (done: string, total: string, percent: number) => `${done} of ${total} MB (${percent} %)`,
+      progressUnknown: (done: string) => `${done} MB`,
+      ready: (version: string) => `Rail ${version} is ready to install`,
+      install: "Install and restart",
+      tablesOpen: "A poker table is open: the HUD goes away while Rail restarts.",
+      installing: (version: string) => `Installing Rail ${version}…`,
+      failed: {
+        check: "Could not check for updates.",
+        download: "The download did not finish.",
+        install: "The update could not be installed.",
+      },
+      kinds: {
+        network: "Rail could not reach the update server; check the connection and try again.",
+        noRelease: "No update information has been published yet.",
+        noBuild: "The newest release has no package for this computer.",
+        signature: "The package's signature did not match, so Rail did not use it.",
+        other: (reason: string) => reason,
+      },
+      tryAgain: "Try again",
+      downloadPage: "Download from the website",
+      blockers: {
+        devBuild: "A development build: only a release build installs updates.",
+        readOnlyLocation:
+          "Rail is running from the disk image or another read-only place. Move it to Applications to update it here, or download the new version from the website.",
+      },
+    },
   },
 
   placeholder: "Not built yet.",
@@ -485,7 +516,7 @@ export const en = {
       folders: "Hand histories",
       statistics: "Your statistics",
       appearance: "Appearance",
-      updates: "Updates",
+      about: "About",
       danger: "Danger zone",
     },
     /** The app's version, under everything. */
@@ -751,57 +782,6 @@ export const en = {
       heading: "Startup",
       startAtLogin: "Start Rail when you log in",
       startAtLoginHint: "Rail starts in the tray, ready to import, without opening this window.",
-    },
-
-    /** Settings, Updates (`updates.rs`). */
-    updates: {
-      heading: "Updates",
-      current: (version: string) => `You have Rail ${version}.`,
-      lastChecked: (time: string) => `Last checked ${time}.`,
-      notChecked: "Not checked yet since Rail started.",
-      check: "Check for updates",
-      checking: "Checking…",
-      upToDate: "Rail is up to date.",
-      available: (version: string) => `Rail ${version} is available.`,
-      published: (date: string) => `Published ${date}`,
-      whatsNew: "What's new",
-      download: "Download update",
-      downloadShort: "Download",
-      checkNow: "Check now",
-      automaticShort: "Check automatically",
-      upToDateShort: "Up to date",
-      downloadHint: "Rail keeps working while it downloads. It installs only when you say so.",
-      downloading: (version: string) => `Downloading Rail ${version}…`,
-      progress: (done: string, total: string, percent: number) => `${done} of ${total} MB (${percent} %)`,
-      progressUnknown: (done: string) => `${done} MB`,
-      ready: (version: string) => `Rail ${version} is downloaded and verified.`,
-      install: "Install and restart",
-      installHint:
-        "Rail closes for a moment and opens again on the new version. Your hands, folders and settings stay as they are.",
-      tablesOpen: "A poker table is open: the HUD goes away while Rail restarts. Better between sessions.",
-      installing: (version: string) => `Installing Rail ${version}…`,
-      automatic: "Check for updates automatically",
-      automaticHint:
-        "Shortly after Rail starts, then every few hours. Rail only looks: it downloads and installs only when you click.",
-      failed: {
-        check: "Could not check for updates.",
-        download: "The download did not finish.",
-        install: "The update could not be installed.",
-      },
-      kinds: {
-        network: "Rail could not reach the update server; check the connection and try again.",
-        noRelease: "No update information has been published yet.",
-        noBuild: "The newest release has no package for this computer.",
-        signature: "The package's signature did not match, so Rail did not use it.",
-        other: (reason: string) => reason,
-      },
-      tryAgain: "Try again",
-      downloadPage: "Download from the website",
-      blockers: {
-        devBuild: "A development build: it can check and download, but only a release build installs updates.",
-        readOnlyLocation:
-          "Rail is running from the disk image or another read-only place. Move Rail to the Applications folder and open it from there to update it here, or download the new version from the website.",
-      },
     },
 
     about: {
@@ -1127,7 +1107,6 @@ export const en = {
       hud: "HUD",
       appearance: "Appearance and language",
       startup: "Startup",
-      updates: "Updates",
       about: "About",
     },
     commands: "Commands",
