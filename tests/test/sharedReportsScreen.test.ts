@@ -29,6 +29,7 @@ import type { Shown } from "@rail/ui/model/stats";
 import { Breakdown } from "@rail/ui/reports/Breakdown";
 import { HandMatrix } from "@rail/ui/reports/HandMatrix";
 import { BREAKDOWN_COLUMNS, type Report, type ReportSource, type StatGroup } from "@rail/ui/reports/model";
+import { ReportStats } from "@rail/ui/reports/ReportStats";
 import { ReportsScreen } from "@rail/ui/reports/ReportsScreen";
 import { hasBothKinds } from "@rail/ui/hands/gameKind";
 import { handsUiEn } from "@rail/ui/strings/hands.en";
@@ -200,6 +201,23 @@ describe("the web's ReportSource over the summaries", () => {
     expect(btn.stats[BREAKDOWN_COLUMNS.indexOf("vpip")]?.text).toBe("25.0");
     expect(report.bySite.map((row) => row.label)).toEqual(["PokerStars", "Winamax"]);
     expect(report.byPosition[1]?.key).toBe("");
+  });
+
+  it("each position with every shipped definition, for the statistics matrix", async () => {
+    rpc.mockImplementation((name: string) => Promise.resolve(name === "report_open" ? OPEN : GRAPH));
+    const report = await webReportSource("Standard format").report({}, 150);
+    const ids = STANDARD_STATS.map((stat) => stat.def.id);
+    expect(report.positionColumns).toEqual(ids);
+    expect(report.positionStats?.map((row) => [row.key, row.hands])).toEqual([
+      ["BTN", 40],
+      ["", 2],
+    ]);
+    const btn = report.positionStats?.[0];
+    expect(btn?.stats).toHaveLength(ids.length);
+    expect(btn?.stats[ids.indexOf("pfr")]?.text).toBe("20.0");
+    expect(btn?.stats[ids.indexOf("bb_per_100")]).toEqual(
+      showStat(statById(STANDARD_STATS, "bb_per_100"), sumsOf(sumsRow("BTN", 40)), 100),
+    );
   });
 
   it("the graph: every line, in big blinds and in money", async () => {
@@ -382,6 +400,54 @@ const FACETS: HandFacets = {
   tags: [],
   noted: 0,
 };
+
+/** Every shipped definition over a few counters: the summary and a position's row as both surfaces send them. */
+function everyStat(hands: number): Shown[] {
+  const sums = {
+    counters: { ...emptyCounters(), hands, vpip_opp: hands, vpip: Math.round(hands / 4), pfr_opp: hands, pfr: Math.round(hands / 5) },
+    money: { ...emptyMoney(), net_bb_milli: hands * 50 },
+    moneyHands: hands,
+  };
+  return STANDARD_STATS.map((stat) => showStat(stat, sums, null));
+}
+
+describe("the statistics matrices, rendered", () => {
+  const ids = STANDARD_STATS.map((stat) => stat.def.id);
+  const report: Report = {
+    ...APP_REPORT,
+    summary: { ...APP_REPORT.summary, stats: everyStat(300), ids },
+    positionColumns: ids,
+    positionStats: [
+      { key: "SB", hands: 50, stats: everyStat(50) },
+      { key: "BTN", hands: 60, stats: everyStat(60) },
+      { key: "", hands: 2, stats: everyStat(2) },
+    ],
+  };
+  for (const locale of ["en", "hr"] as const) {
+    it(`short names, the full one on hover; positions in a player's order, ${locale}`, () => {
+      const html = render(locale, createElement(ReportStats, { report, definitions: DEFINITIONS }));
+      const r = locale === "en" ? reportsUiEn : reportsUiHr;
+      const threeBet = statById(STANDARD_STATS, "three_bet").def;
+      expect(html).toContain(`>${threeBet.label[locale]}</abbr>`);
+      expect(html).toContain(`title="${threeBet.name[locale]}`);
+      expect(html).toContain(`>${r.stats.streetRows.cbet.short}</abbr>`);
+      expect(html).toContain(r.stats.sections.steal);
+      expect(html.indexOf(">BTN<")).toBeLessThan(html.indexOf(">SB<"));
+      // The position with no name stays out of the columns.
+      expect(html).not.toContain("<th scope=\"col\"></th>");
+      expect(html).toMatch(/>25[.,]0%</);
+    });
+  }
+
+  it("the total column only when the surface sends no position rows", () => {
+    const html = render(
+      "en",
+      createElement(ReportStats, { report: { ...report, positionStats: undefined }, definitions: DEFINITIONS }),
+    );
+    expect(html).not.toContain(">BTN<");
+    expect(html).toContain(">Total<");
+  });
+});
 
 describe("the breakdown table and the grid, rendered", () => {
   for (const locale of ["en", "hr"] as const) {

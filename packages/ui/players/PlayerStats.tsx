@@ -17,7 +17,7 @@ import { shownOf, textLocale } from "../reports/definitions";
 import { countIn } from "../stats/format";
 import { decimalMark, shownText, shownTitle } from "../stats/StatValue";
 import { POSITION_CLASSES, type PlayerProfile as Profile } from "./model";
-import styles from "./Players.module.css";
+import styles from "../stats/StatMatrix.module.css";
 
 type RowKey = keyof ReturnType<typeof useUiStrings>["players"]["profile"]["rows"];
 type Position = (typeof POSITION_CLASSES)[number];

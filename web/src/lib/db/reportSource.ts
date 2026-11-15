@@ -198,6 +198,12 @@ export function webReportSource(standardFormat: string): ReportSource {
         graph: graphOf(graph),
         columns: [...BREAKDOWN_COLUMNS],
         byPosition: groupsOf(groups.position, minorUnits),
+        positionColumns: IDS,
+        positionStats: (Array.isArray(groups.position) ? (groups.position as Row[]) : []).map((row) => ({
+          key: str(row.key) ?? "",
+          hands: num(row.hands),
+          stats: show(STANDARD_STATS, sumsOf(row), minorUnits),
+        })),
         byStake: groupsOf(groups.stake, minorUnits),
         bySite: groupsOf(groups.site, minorUnits, (key) => siteName(key, standardFormat)),
         bySize: groupsOf(groups.size, minorUnits),

@@ -159,13 +159,6 @@
   white-space: nowrap;
 }
 
-.statGroups {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--space-4) var(--space-6);
-  align-items: start;
-}
-
 /* The report and its breakdowns: dimmed together while another filter's
    report is on its way (`.rail-dims`). */
 .results {
