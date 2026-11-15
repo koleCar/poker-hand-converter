@@ -5,6 +5,10 @@
    the window. */
 
 .trainer {
+  /* The table's one height (every spot, every state) and the strip's above it. */
+  --trainer-table-block: clamp(17rem, 50svh, 31rem);
+  --strip-block: 1.75rem;
+
   display: grid;
   gap: var(--space-3);
   min-inline-size: 0;
@@ -145,7 +149,7 @@
 .loading {
   display: grid;
   place-items: center;
-  min-block-size: 22rem;
+  block-size: 100%;
 }
 
 .spot {
@@ -156,19 +160,33 @@
 
 /* --------------------------------------------------------- action strip */
 
+/* One line, whatever the hand's length: it scrolls (to its end, the newest
+   action) rather than wrapping, so the table under it never moves. */
 .strip {
   display: flex;
-  flex-wrap: wrap;
   gap: var(--space-1);
+  block-size: var(--strip-block);
   margin: 0;
   padding: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
   list-style: none;
   font-size: var(--font-size-xs);
+}
+
+.strip::-webkit-scrollbar {
+  display: none;
+}
+
+.stripSpace {
+  block-size: var(--strip-block);
 }
 
 .stripAct,
 .stripStreet,
 .stripNow {
+  flex: none;
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -226,120 +244,6 @@
   border-color: var(--accent-border);
   color: var(--accent-fg);
   font-weight: var(--font-weight-semibold);
-}
-
-/* ----------------------------------------------------------------- felt */
-
-.felt {
-  position: relative;
-  inline-size: 100%;
-  aspect-ratio: 2 / 1;
-  min-block-size: 16rem;
-  margin-block-end: var(--space-6);
-  max-block-size: 26rem;
-}
-
-.feltOval {
-  position: absolute;
-  inset: 9% 8%;
-  border: 6px solid var(--felt-rail);
-  border-radius: 999px;
-  background: radial-gradient(ellipse at center, var(--felt-center), var(--felt-edge));
-  box-shadow: var(--shadow-1);
-}
-
-.middle {
-  position: absolute;
-  inset-block-start: 50%;
-  inset-inline-start: 50%;
-  display: grid;
-  justify-items: center;
-  gap: var(--space-1);
-  translate: -50% -50%;
-}
-
-.pot {
-  color: var(--felt-text);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-}
-
-.board {
-  display: inline-flex;
-  gap: var(--space-1);
-}
-
-.seat {
-  position: absolute;
-  inset-block-start: var(--top);
-  inset-inline-start: var(--left);
-  display: grid;
-  justify-items: center;
-  gap: var(--space-0-5);
-  translate: -50% -50%;
-}
-
-.seatDisc {
-  display: grid;
-  place-items: center;
-  min-inline-size: 3.6rem;
-  padding: var(--space-1) var(--space-2);
-  border: 2px solid var(--border-default);
-  border-radius: var(--radius-pill);
-  background: var(--surface-raised-2);
-  line-height: 1.15;
-}
-
-.seatPos {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-}
-
-.seatStack {
-  color: var(--text-secondary);
-  font-size: var(--font-size-2xs);
-  font-variant-numeric: tabular-nums;
-}
-
-.seat[data-folded] .seatDisc {
-  opacity: 0.4;
-}
-
-.seat[data-acting] .seatDisc {
-  border-color: var(--chart-raise);
-}
-
-.seat[data-hero] .seatDisc {
-  border-color: var(--accent);
-}
-
-.heroCards {
-  display: inline-flex;
-  gap: var(--space-0-5);
-}
-
-.button {
-  position: absolute;
-  inset-block-end: -0.4rem;
-  inset-inline-end: -0.9rem;
-  display: grid;
-  place-items: center;
-  inline-size: 1.2rem;
-  block-size: 1.2rem;
-  border-radius: 50%;
-  background: var(--text-primary);
-  color: var(--surface-base);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-bold);
-}
-
-.bet {
-  padding: 0 var(--space-1);
-  border-radius: var(--radius-pill);
-  background: var(--surface-overlay);
-  color: var(--felt-money, var(--text-primary));
-  font-size: var(--font-size-xs);
-  font-variant-numeric: tabular-nums;
 }
 
 /* -------------------------------------------------------------- verdict */
@@ -403,11 +307,6 @@
 }
 
 /* -------------------------------------------------------------- buttons */
-
-.toCall {
-  color: var(--felt-text-muted);
-  font-size: var(--font-size-xs);
-}
 
 .buttons {
   display: grid;
@@ -474,10 +373,6 @@
 
 /* ------------------------------------------------------------- feedback */
 
-.status {
-  margin: 0;
-}
-
 .after {
   display: grid;
   gap: var(--space-3);
@@ -514,21 +409,6 @@
   border-radius: var(--radius-1);
   background: rgb(0 0 0 / 20%);
   font-size: var(--font-size-2xs);
-}
-
-.feedback {
-  display: grid;
-  gap: var(--space-3);
-}
-
-@container (min-width: 760px) {
-  .feedback {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  }
-
-  .feedback > :last-child {
-    grid-column: 1 / -1;
-  }
 }
 
 .block {
@@ -710,7 +590,7 @@
 
 .history {
   display: flex;
-  gap: 2px;
+  gap: 0;
   block-size: 0.5rem;
   margin: 0;
   padding: 0;
@@ -1167,17 +1047,9 @@
   border-color: var(--accent-border);
 }
 
-.spot[data-compact] .felt {
-  min-block-size: 11rem;
-}
-
 .spot[data-compact] .verdict {
   padding: 0 var(--space-2);
   font-size: var(--font-size-xs);
-}
-
-.loading[data-compact] {
-  min-block-size: 12rem;
 }
 
 /* ------------------------------------------------------- drills (T4) */
@@ -1239,4 +1111,329 @@
   display: flex;
   justify-content: space-between;
   gap: var(--space-2);
+}
+
+/* ------------------------------------------------------ table (replayer) */
+
+/* The replayer's felt in a fixed box (`TrainerTable`): `.rp` sizes itself
+   from `--rp-block`, which the box sets to the trainer's one height. */
+.table {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+}
+
+.table[data-compact] {
+  --trainer-table-block: clamp(11rem, 30svh, 17rem);
+}
+
+/* Positions name the seats; the trainer's screen names are left empty. */
+.table [class~="pseat__nick"]:empty {
+  display: none;
+}
+
+/* ----------------------------------------------------------- status row */
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 2.5rem;
+  font-size: var(--font-size-sm);
+}
+
+.statusRow[data-compact] {
+  min-block-size: 2rem;
+}
+
+.statusRow .verdict {
+  margin: 0;
+}
+
+.statusMove {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  animation: rail-trainer-pop 160ms ease-out;
+}
+
+.statusMove strong {
+  color: var(--accent-fg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.statusError {
+  color: var(--loss-fg);
+}
+
+/* Under the buttons: the clock while answering, then "next" in the same row. */
+.afterRow {
+  display: grid;
+  gap: var(--space-2);
+  min-block-size: 2.5rem;
+  align-content: center;
+}
+
+.clock[data-done] {
+  display: none;
+}
+
+/* ---------------------------------------------------------- info tabs */
+
+.info {
+  display: grid;
+  gap: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: var(--space-1);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.tab .foldChevron {
+  transform: rotate(45deg);
+  opacity: 0.6;
+}
+
+.tab:hover:not(:disabled) {
+  color: var(--text-primary);
+  background: var(--surface-hover);
+}
+
+.tab[aria-selected="true"] {
+  background: var(--accent-bg);
+  color: var(--text-on-accent);
+}
+
+.tab[aria-selected="true"] .foldChevron {
+  transform: rotate(-135deg);
+  opacity: 1;
+}
+
+.tab:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Open and close by height: a grid row from 0fr to 1fr, so nothing is measured. */
+.tabFold {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 220ms var(--ease-standard, ease);
+}
+
+.tabFold[data-open] {
+  grid-template-rows: 1fr;
+}
+
+.tabPanel {
+  min-block-size: 0;
+  overflow: hidden;
+}
+
+.info .tabBody {
+  padding: var(--space-2) var(--space-3) var(--space-3);
+  border-block-start: 1px solid var(--border-subtle);
+  animation: rail-trainer-rise 200ms ease-out;
+}
+
+@keyframes rail-trainer-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* --------------------------------------------------------- range extras */
+
+.rangeSummary {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.rangeOption {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-0-5) var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+
+.rangeOption:hover {
+  background: var(--surface-hover);
+}
+
+.rangeOption[aria-pressed="true"] {
+  border-color: var(--accent-border);
+  background: var(--accent-bg-subtle, var(--surface-hover));
+}
+
+.rangeCell {
+  transition:
+    opacity 180ms ease,
+    background 180ms ease;
+}
+
+/* ------------------------------------------------- session column motion */
+
+.side {
+  animation: rail-trainer-slide 260ms var(--ease-standard, ease-out);
+}
+
+@keyframes rail-trainer-slide {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+}
+
+.tick {
+  display: inline-block;
+}
+
+.tick[data-changed] {
+  animation: rail-trainer-tick 360ms ease-out;
+}
+
+@keyframes rail-trainer-tick {
+  0% {
+    opacity: 0.2;
+    transform: translateY(-5px) scale(1.12);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateY(0) scale(1.04);
+  }
+}
+
+.history li {
+  transition: flex-grow 420ms var(--ease-standard, ease);
+}
+
+.history[data-empty] {
+  background: var(--surface-inset);
+}
+
+.sideFold {
+  display: grid;
+  gap: var(--space-1);
+  padding-block-start: var(--space-2);
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.recentEmpty {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.recent li {
+  align-items: baseline;
+  padding: var(--space-0-5) 0;
+}
+
+.recent li[data-new] {
+  animation: rail-trainer-in 320ms var(--ease-standard, ease-out);
+}
+
+@keyframes rail-trainer-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.recentHand {
+  display: inline-flex;
+  gap: var(--space-1);
+  min-inline-size: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.recentCards {
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.recentGrade {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.recent li[data-grade="perfect"] .recentGrade {
+  color: var(--grade-perfect);
+}
+
+.recent li[data-grade="good"] .recentGrade {
+  color: var(--grade-good);
+}
+
+.recent li[data-grade="inaccurate"] .recentGrade {
+  color: var(--grade-inaccurate);
+}
+
+.recent li[data-grade="mistake"] .recentGrade {
+  color: var(--grade-mistake);
+}
+
+.recent li[data-grade="blunder"] .recentGrade {
+  color: var(--grade-blunder);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .side,
+  .tick[data-changed],
+  .recent li[data-new],
+  .info .tabBody,
+  .statusMove {
+    animation: none;
+  }
+
+  .tabFold,
+  .history li,
+  .rangeCell {
+    transition: none;
+  }
 }

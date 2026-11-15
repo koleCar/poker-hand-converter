@@ -26,7 +26,9 @@ import { useTrainerHost, type FocusState } from "./host";
 import { SettingsSheet } from "./SettingsSheet";
 import { HandPlayer } from "./HandPlayer";
 import { HAND_MODES, PLAYS, playOptions, spotOptions, targetSettings, TRAINER_MODES, unavailable, type StreetMode, type TrainerSettings } from "./settings";
+import { Fold, Tick } from "./Session";
 import { SpotPlayer, type TableStatus } from "./SpotPlayer";
+import { TableBox } from "./TrainerTable";
 import styles from "./trainer.module.css";
 
 export function Trainer({ initial }: { initial: TrainerSettings }) {
@@ -198,8 +200,13 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
       <div className={styles.layout} data-tables={tables > 1 ? tables : undefined}>
         <div className={styles.play}>
           {plan === null ? (
-            <div className={styles.loading}>
-              <RailLoader label={t.focus.loading} showLabel centered />
+            <div className={styles.spot}>
+              <div className={styles.stripSpace} aria-hidden="true" />
+              <TableBox>
+                <div className={styles.loading}>
+                  <RailLoader label={t.focus.loading} showLabel centered />
+                </div>
+              </TableBox>
             </div>
           ) : null}
           {blocked ? (
@@ -232,38 +239,42 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
           <dl className={styles.stats}>
             <div>
               <dt>{t.session.answers}</dt>
-              <dd>{session.answers.toLocaleString(host.locale)}</dd>
+              <dd>
+                <Tick value={session.answers.toLocaleString(host.locale)} />
+              </dd>
             </div>
             <div>
               <dt>{t.session.accuracy}</dt>
-              <dd>{accuracy === null ? "—" : `${Math.round(accuracy * 100).toLocaleString(host.locale)}%`}</dd>
+              <dd>
+                <Tick value={accuracy === null ? "—" : `${Math.round(accuracy * 100).toLocaleString(host.locale)}%`} />
+              </dd>
             </div>
             <div>
               <dt>{t.session.streak}</dt>
               <dd>
-                {session.streak.toLocaleString(host.locale)}
+                <Tick value={session.streak.toLocaleString(host.locale)} />
                 <span className={styles.muted}> / {session.bestStreak.toLocaleString(host.locale)}</span>
               </dd>
             </div>
             <div>
               <dt>{t.session.evLost}</dt>
-              <dd data-loss={session.evLoss > 0 || undefined}>{t.lostBb(session.evLoss)}</dd>
+              <dd data-loss={session.evLoss > 0 || undefined}>
+                <Tick value={t.lostBb(session.evLoss)} />
+              </dd>
             </div>
           </dl>
-          {session.answers > 0 ? (
-            <ol className={styles.history} aria-hidden="true">
-              {(["perfect", "good", "inaccurate", "mistake", "blunder"] as const).map((grade) =>
-                session.counts[grade] > 0 ? (
-                  <li key={grade} data-grade={grade} style={{ flexGrow: session.counts[grade] }} title={`${t.words.grades[grade]}: ${session.counts[grade]}`} />
-                ) : null,
-              )}
-            </ol>
-          ) : null}
+          <ol className={styles.history} aria-hidden="true" data-empty={session.answers === 0 || undefined}>
+            {(["perfect", "good", "inaccurate", "mistake", "blunder"] as const).map((grade) => (
+              <li key={grade} data-grade={grade} style={{ flexGrow: session.counts[grade] }} title={`${t.words.grades[grade]}: ${session.counts[grade]}`} />
+            ))}
+          </ol>
           <button type="button" className={styles.linkButton} onClick={() => setSession(emptySession())} disabled={session.answers === 0}>
             {t.session.reset}
           </button>
-          <p className={styles.keys}>{t.keys}</p>
           {host.aside}
+          <Fold id="keys" label={t.keysHeading}>
+            <p className={styles.keys}>{t.keys}</p>
+          </Fold>
         </aside>
       </div>
 

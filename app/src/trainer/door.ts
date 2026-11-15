@@ -9,6 +9,7 @@
  * keeps every other app file away from both aliases.
  */
 export { Trainer } from "@rail/web-trainer/Trainer";
+export { Fold, RecentAnswers } from "@rail/web-trainer/Session";
 export { TrainerHostProvider, type FocusState, type KeptAnswer, type TrainerDict, type TrainerHost } from "@rail/web-trainer/host";
 export { parseSettings, settingsFields, type SpotRequest, type TrainerSettings } from "@rail/web-trainer/settings";
 export { trainerEn } from "@rail/web-lib/i18n/ns/trainer.en";

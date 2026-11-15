@@ -84,6 +84,18 @@ export const trainerEn = {
   rangeHeading: "Your range here",
   rangeLoading: "Reading the range…",
   rangeNone: "No range for this spot.",
+  /** How much of all two-card hands the range (or one action of it) holds. */
+  rangeCombos: (combos: number, share: number) => `${num(Math.round(combos))} combos · ${pct(share)} of all hands`,
+  rangeAll: "Whole range",
+  rangeShow: "Show the hands that",
+  tabs: {
+    label: "More about this spot",
+    range: "Range",
+    strategy: "Strategy",
+    facts: "Your hand",
+    why: "Why",
+    afterAnswer: "After you answer",
+  },
   timebankLabel: "Time to answer",
   timebanks: { "0": "No clock", "7": "7 s", "15": "15 s", "25": "25 s" } as Record<string, string>,
   timeLeft: (seconds: number) => `${num(seconds)} s`,
@@ -222,7 +234,8 @@ export const trainerEn = {
     evLost: "EV lost",
     reset: "Reset",
   },
-  keys: "Keys: 1–6 answer · F fold · C call / check · A all-in · N next · S settings",
+  keysHeading: "Shortcuts",
+  keys: "1–6 answer · F fold · C call / check · A all-in · N next · S settings",
 
   /** The analysis' own words, so a trainer answer reads like a graded decision of a real hand. */
   words: {

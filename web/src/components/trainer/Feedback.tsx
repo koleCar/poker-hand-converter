@@ -10,13 +10,18 @@
  * 4. *why*: the analysis' own sentences for this decision (`explain`), built
  *    only from facts the engine computed, so they cannot invent a reason;
  * 5. the host's deeper study (the web's whole chart or range, Learn links).
+ *
+ * The verdict sits in the row under the table; 2-5 are tabs that fold
+ * (`InfoTabs`), with the hero's whole range beside them.
  */
 
 "use client";
 
+import type { ReactNode } from "react";
 import type { DecisionAnalysis, OptionAnalysis } from "../../lib/analysis/types";
 import type { TrainerSpot } from "../../lib/training";
 import { useTrainerHost } from "./host";
+import type { InfoTab } from "./InfoTabs";
 import { principleOf } from "./principles";
 import type { TrainerSettings } from "./settings";
 import styles from "./trainer.module.css";
@@ -70,28 +75,12 @@ function bestIndex(decision: DecisionAnalysis): number | null {
   return best;
 }
 
-export function Feedback({
-  decision,
-  spot,
-  settings,
-  mix = null,
-}: {
-  decision: DecisionAnalysis;
-  spot: TrainerSpot | null;
-  settings: TrainerSettings;
-  /** A mix answer: the player's share per option, beside the reference's. */
-  mix?: number[] | null;
-}) {
-  const { t, locale } = useTrainerHost();
-  const label = useOptionText();
+type Words = ReturnType<typeof useTrainerHost>["t"];
+
+/** The hand's facts at the decision: the numbers the reason is made of. */
+export function factsOf(decision: DecisionAnalysis, t: Words, locale: string): Array<[string, string]> {
   const pct = (value: number) => `${Math.round(value * 100).toLocaleString(locale)}%`;
-  const ev = (value: number) => `${value > 0 ? "+" : value < 0 ? "−" : ""}${Math.abs(value).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const graded = decision.grade !== null && decision.options.length > 0;
-  if (!graded) {
-    return <p className={styles.notice}>{t.notGraded(decision.reason ? (t.words.reasons[decision.reason] ?? decision.reason) : "—")}</p>;
-  }
   const f = decision.facts;
-  const best = bestIndex(decision);
   const facts: Array<[string, string]> = [];
   if (f.handClass || f.made) facts.push([t.fact.made, t.words.handFacts.hand(f)]);
   if (f.equity) facts.push([t.fact.equity, pct(f.equity.value)]);
@@ -100,72 +89,121 @@ export function Feedback({
   if (f.spr !== null && f.street !== "preflop") facts.push([t.fact.spr, f.spr.toLocaleString(locale, { maximumFractionDigits: 1 })]);
   if (f.draws.length > 0) facts.push([t.fact.draws, f.draws.map((d) => t.words.handFacts.draws[d] ?? d).join(", ")]);
   if (f.blockers.length > 0) facts.push([t.fact.blockers, f.blockers.map((b) => t.words.handFacts.blockers[b] ?? b).join(", ")]);
+  return facts;
+}
+
+const isGraded = (decision: DecisionAnalysis) => decision.grade !== null && decision.options.length > 0;
+
+/** What the reference does with this hand: every option's frequency and EV, the answer marked. */
+export function StrategyPanel({ decision, mix = null }: { decision: DecisionAnalysis; mix?: number[] | null }) {
+  const { t, locale } = useTrainerHost();
+  const label = useOptionText();
+  const pct = (value: number) => `${Math.round(value * 100).toLocaleString(locale)}%`;
+  const ev = (value: number) => `${value > 0 ? "+" : value < 0 ? "−" : ""}${Math.abs(value).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  if (!isGraded(decision)) return <NotGraded decision={decision} />;
+  const best = bestIndex(decision);
+  return (
+    <ul className={styles.options} data-mix={mix ? true : undefined} aria-label={t.strategyHeading}>
+      {decision.options.map((option, index) => (
+        <li
+          key={index}
+          className={styles.option}
+          data-action={toneOf(option)}
+          data-chosen={decision.chosen === index || undefined}
+          data-best={best === index || undefined}
+        >
+          <span className={styles.optionLabel}>{label(option)}</span>
+          <span className={styles.optionBar} aria-hidden="true">
+            <span style={{ inlineSize: `${Math.max(0, Math.min(1, option.freq)) * 100}%` }} />
+          </span>
+          <span className={styles.optionFreq}>{pct(option.freq)}</span>
+          {mix ? (
+            <span className={styles.optionMix} title={t.mixYours}>
+              {pct(mix[index] ?? 0)}
+            </span>
+          ) : null}
+          <span className={styles.optionEv} title={t.evHeading}>
+            {ev(option.ev)}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** The hand's facts at the decision. */
+export function FactsPanel({ decision }: { decision: DecisionAnalysis }) {
+  const { t, locale } = useTrainerHost();
+  const facts = factsOf(decision, t, locale);
+  return (
+    <dl className={styles.facts} aria-label={t.factsHeading}>
+      {facts.map(([name, value]) => (
+        <div key={name} className={styles.fact}>
+          <dt>{name}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+/** Why: the analysis' own sentences, the rule of thumb, and the host's deeper study. */
+export function WhyPanel({ decision, spot, extra = null }: { decision: DecisionAnalysis; spot: TrainerSpot | null; extra?: ReactNode }) {
+  const { t } = useTrainerHost();
+  if (!isGraded(decision)) return <NotGraded decision={decision} />;
   const why = t.words.explain(decision);
   const principleKey = principleOf(spot, decision);
   const principle = principleKey ? t.principles[principleKey] : undefined;
-
   return (
-    <div className={styles.feedback}>
-      {settings.strategy ? (
-        <section className={styles.block} aria-label={t.strategyHeading}>
-          <h3 className={styles.blockHead}>{t.strategyHeading}</h3>
-          <ul className={styles.options} data-mix={mix ? true : undefined}>
-            {decision.options.map((option, index) => (
-              <li
-                key={index}
-                className={styles.option}
-                data-action={toneOf(option)}
-                data-chosen={decision.chosen === index || undefined}
-                data-best={best === index || undefined}
-              >
-                <span className={styles.optionLabel}>{label(option)}</span>
-                <span className={styles.optionBar} aria-hidden="true">
-                  <span style={{ inlineSize: `${Math.max(0, Math.min(1, option.freq)) * 100}%` }} />
-                </span>
-                <span className={styles.optionFreq}>{pct(option.freq)}</span>
-                {mix ? (
-                  <span className={styles.optionMix} title={t.mixYours}>
-                    {pct(mix[index] ?? 0)}
-                  </span>
-                ) : null}
-                <span className={styles.optionEv} title={t.evHeading}>
-                  {ev(option.ev)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
+    <div className={styles.why} aria-label={t.whyHeading}>
+      {why.map((sentence) => (
+        <p key={sentence}>{sentence}</p>
+      ))}
+      {principle ? (
+        <p className={styles.principle}>
+          <strong>{t.ruleOfThumb}</strong> {principle}
+        </p>
       ) : null}
-
-      {settings.facts && facts.length > 0 ? (
-        <section className={styles.block} aria-label={t.factsHeading}>
-          <h3 className={styles.blockHead}>{t.factsHeading}</h3>
-          <dl className={styles.facts}>
-            {facts.map(([name, value]) => (
-              <div key={name} className={styles.fact}>
-                <dt>{name}</dt>
-                <dd>{value}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      ) : null}
-
-      {why.length > 0 || principle ? (
-        <section className={styles.block} aria-label={t.whyHeading}>
-          <h3 className={styles.blockHead}>{t.whyHeading}</h3>
-          <div className={styles.why}>
-            {why.map((sentence) => (
-              <p key={sentence}>{sentence}</p>
-            ))}
-            {principle ? (
-              <p className={styles.principle}>
-                <strong>{t.ruleOfThumb}</strong> {principle}
-              </p>
-            ) : null}
-          </div>
-        </section>
-      ) : null}
+      {extra}
     </div>
   );
+}
+
+function NotGraded({ decision }: { decision: DecisionAnalysis }) {
+  const { t } = useTrainerHost();
+  return <p className={styles.notice}>{t.notGraded(decision.reason ? (t.words.reasons[decision.reason] ?? decision.reason) : "—")}</p>;
+}
+
+/**
+ * The tabs under a decision: the range always (read when opened), the rest
+ * once the answer is graded. The settings' strategy and facts switches still
+ * leave their tab out.
+ */
+export function useDecisionTabs({
+  decision,
+  spot,
+  settings,
+  mix = null,
+  range,
+  study = null,
+}: {
+  decision: DecisionAnalysis | null;
+  spot: TrainerSpot | null;
+  settings: TrainerSettings;
+  mix?: number[] | null;
+  /** The range panel; absent: no range tab (the host reads none). */
+  range?: ReactNode;
+  /** The host's deeper study, under the why. */
+  study?: ReactNode;
+}): InfoTab[] {
+  const { t, locale } = useTrainerHost();
+  const tabs: InfoTab[] = [];
+  if (range !== undefined) tabs.push({ id: "range", label: t.tabs.range, content: range });
+  if (settings.strategy) tabs.push({ id: "strategy", label: t.tabs.strategy, content: decision ? <StrategyPanel decision={decision} mix={mix} /> : null });
+  if (settings.facts) {
+    const has = decision !== null && isGraded(decision) && factsOf(decision, t, locale).length > 0;
+    tabs.push({ id: "facts", label: t.tabs.facts, content: has && decision ? <FactsPanel decision={decision} /> : null });
+  }
+  tabs.push({ id: "why", label: t.tabs.why, content: decision ? <WhyPanel decision={decision} spot={spot} extra={study} /> : null });
+  return tabs;
 }

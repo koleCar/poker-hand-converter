@@ -77,6 +77,17 @@ export const trainerHr = {
   rangeHeading: "Tvoj range ovdje",
   rangeLoading: "Čitam range…",
   rangeNone: "Za ovaj spot nema rangea.",
+  rangeCombos: (combos: number, share: number) => `${num(Math.round(combos))} kombinacija · ${pct(share)} svih ruku`,
+  rangeAll: "Cijeli range",
+  rangeShow: "Prikaži ruke koje",
+  tabs: {
+    label: "Više o ovom spotu",
+    range: "Range",
+    strategy: "Strategija",
+    facts: "Tvoja ruka",
+    why: "Zašto",
+    afterAnswer: "Nakon odgovora",
+  },
   timebankLabel: "Vrijeme za odgovor",
   timebanks: { "0": "Bez sata", "7": "7 s", "15": "15 s", "25": "25 s" } as Record<string, string>,
   timeLeft: (seconds: number) => `${num(seconds)} s`,
@@ -215,7 +226,8 @@ export const trainerHr = {
     evLost: "Izgubljeni EV",
     reset: "Ispočetka",
   },
-  keys: "Tipke: 1–6 odgovor · F fold · C call / check · A all-in · N sljedeća · S postavke",
+  keysHeading: "Prečaci",
+  keys: "1–6 odgovor · F fold · C call / check · A all-in · N sljedeća · S postavke",
 
   words: {
     grades: analysisHr.grades,
