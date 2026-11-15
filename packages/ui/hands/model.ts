@@ -90,6 +90,16 @@ export interface HandFilter {
   buyInMax?: number;
   bounty?: boolean | null;
   levels?: string[];
+  /** The hero's first bet or raise per street: from, to, percent of the pot. */
+  flopPctMin?: number;
+  flopPctMax?: number;
+  turnPctMin?: number;
+  turnPctMax?: number;
+  riverPctMin?: number;
+  riverPctMax?: number;
+  /** Caught bluffing on any of these streets (`flop`, `turn`, `river`): the hero, an opponent (schema 23). */
+  heroBluffs?: string[];
+  vsBluffs?: string[];
   playerName?: string | null;
   /** Only hands that went to showdown (`true`), or only the others. */
   showdown?: boolean | null;
