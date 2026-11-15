@@ -81,6 +81,7 @@ describe("the app's analysis and the web's library", () => {
     expect(importers.map((path) => relative(ROOT, path)).sort()).toEqual([
       "app/src/analysis/leakWords.ts",
       "app/src/analysis/library.ts",
+      "app/src/analysis/sheetWords.ts",
       // The web's Solver library, in place (the Solver tab, the analysis' split view).
       "app/src/solver/door.ts",
       // The web's Trainer, in place (the Trainer screen), and its worker's pure jobs.

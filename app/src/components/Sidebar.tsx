@@ -5,9 +5,9 @@ import { useT } from "../i18n";
 import { offeredScreens } from "../lib/duringPlay";
 import { SCREENS, screenHref, type Screen } from "../lib/router";
 import { useAccount } from "../lib/useAccount";
-import { useUpdates } from "../lib/useUpdates";
 import { MOD_KEY, openPalette } from "./Palette";
 import styles from "./Sidebar.module.css";
+import { SidebarUpdate } from "./SidebarUpdate";
 
 /** One icon per screen: all a collapsed sidebar shows of it. */
 const SCREEN_ICONS: Record<Screen, IconName> = {
@@ -69,8 +69,8 @@ function useCollapsed(): [boolean, () => void] {
 const shortcut = (key: string) => `${MOD_KEY}${MOD_KEY === "⌘" ? "" : "+"}${key.toUpperCase()}`;
 
 /** The screens; (A10, R3.10) while a poker table is open, without those that
- * help with play. At the foot, a newer Rail when there is one, and who is
- * signed in (R1.7). Collapsed, it keeps only the icons: every label is still
+ * help with play. At the foot, a newer Rail whenever there is one, with its
+ * download and install, and who is signed in (R1.7). Collapsed, it keeps only the icons: every label is still
  * there, clipped, so a screen reader names each link the same in both states,
  * and the pointer gets a tooltip. */
 export function Sidebar({ current, tablesOpen }: { current: Screen; tablesOpen: boolean }) {
@@ -133,32 +133,9 @@ export function Sidebar({ current, tablesOpen }: { current: Screen; tablesOpen: 
           </li>
         ))}
       </ul>
-      <UpdateFoot />
+      <SidebarUpdate collapsed={collapsed} tablesOpen={tablesOpen} />
       <AccountFoot />
     </nav>
-  );
-}
-
-/** A newer Rail found (or downloaded): a quiet link to Settings, Updates. */
-function UpdateFoot() {
-  const t = useT();
-  const { status } = useUpdates();
-  const phase = status?.phase;
-  if (!phase || (phase.state !== "available" && phase.state !== "ready")) {
-    return null;
-  }
-  // "Install" only where this copy can install it (Settings says why not).
-  const installable = phase.state === "ready" && status?.installBlocker === null;
-  const text = installable ? t.nav.updateReady(phase.version) : t.nav.updateAvailable(phase.version);
-  return (
-    <a
-      className={styles.update}
-      href={screenHref("settings", "updates")}
-      title={phase.state === "ready" ? t.settings.updates.ready(phase.version) : t.settings.updates.available(phase.version)}
-    >
-      <span className={styles.updateDot} aria-hidden="true" />
-      <span className={styles.email}>{text}</span>
-    </a>
   );
 }
 

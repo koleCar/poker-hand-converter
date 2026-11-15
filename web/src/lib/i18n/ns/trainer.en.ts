@@ -80,7 +80,7 @@ export const trainerEn = {
   off: "Off",
 
   rangePanel: "Range while answering",
-  ranges: { off: "Off", range: "Range only", strategy: "Range and strategy" } as Record<string, string>,
+  ranges: { range: "Range only", strategy: "Range and strategy" } as Record<string, string>,
   rangeHeading: "Your range here",
   rangeLoading: "Reading the range…",
   rangeNone: "No range for this spot.",

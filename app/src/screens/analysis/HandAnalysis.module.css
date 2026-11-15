@@ -1,0 +1,545 @@
+/* One hand's analysis (R5.4, redesigned 2026-11-14): the hand at a glance,
+   the decisions street by street, then the decision picked in full beside
+   the Solver at it. Semantic tokens only: grades in `--grade-*`, money in
+   `--profit-fg` / `--loss-fg`, actions in the charts' `--chart-*`. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--text-tertiary);
+}
+
+.profit {
+  color: var(--profit-fg);
+}
+
+.loss {
+  color: var(--loss-fg);
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+  white-space: nowrap;
+}
+
+.links {
+  display: flex;
+  gap: var(--space-4);
+  margin-inline-start: auto;
+  font-size: var(--font-size-sm);
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-secondary);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.link:hover {
+  color: var(--accent-fg);
+}
+
+.note {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius-2);
+  background: var(--info-bg);
+  color: var(--info-fg);
+  font-size: var(--font-size-sm);
+}
+
+.hint {
+  margin-block-start: var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+/* A section's small label: no headings, just where one block ends. */
+.label {
+  display: block;
+  margin-block-end: var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------ the hand */
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-6);
+}
+
+.headHand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.seat {
+  padding: 2px var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-1);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.board {
+  padding-inline-start: var(--space-3);
+  border-inline-start: 1px solid var(--border-subtle);
+}
+
+.headStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  margin: 0;
+}
+
+.headStats div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.headStats dt {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.headStats dd {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.grade {
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.grade-perfect { color: var(--grade-perfect); }
+.grade-good { color: var(--grade-good); }
+.grade-inaccurate { color: var(--grade-inaccurate); }
+.grade-mistake { color: var(--grade-mistake); }
+.grade-blunder { color: var(--grade-blunder); }
+
+/* ------------------------------------------------------- the decisions */
+
+.timeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin: 0;
+  padding: var(--space-3) 0;
+  border-block: 1px solid var(--border-subtle);
+  list-style: none;
+}
+
+.streetCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.streetName {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.chips {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* One decision: its grade's colour along the left edge, the action, what it cost. */
+.chip {
+  --tone: var(--border-strong);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-inline-size: 7.5rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  box-shadow: inset 3px 0 0 var(--tone);
+  color: var(--text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.chip:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+}
+
+.chip[aria-pressed="true"] {
+  border-color: var(--accent-fg);
+  background: color-mix(in srgb, var(--accent-fg) 12%, var(--surface-raised));
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* The decision the list named: marked until another is picked. */
+.opened:not([aria-pressed="true"]) {
+  border-style: dashed;
+}
+
+.tone-perfect { --tone: var(--grade-perfect); }
+.tone-good { --tone: var(--grade-good); }
+.tone-inaccurate { --tone: var(--grade-inaccurate); }
+.tone-mistake { --tone: var(--grade-mistake); }
+.tone-blunder { --tone: var(--grade-blunder); }
+.tone-skipped { --tone: transparent; }
+
+.chipTop {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-weight: var(--font-weight-semibold);
+}
+
+.chipGlyph {
+  color: var(--tone);
+  font-size: var(--font-size-sm);
+}
+
+.tone-skipped .chipGlyph,
+.tone-neutral .chipGlyph {
+  color: var(--text-tertiary);
+}
+
+.chipAction {
+  white-space: nowrap;
+}
+
+.chipSub {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.chipBetter {
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------- the decision and the Solver */
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(22rem, 30rem) minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+/* No Solver spot: the decision alone, its one line about the Solver under it. */
+.single {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 46rem;
+}
+
+@media (width < 94rem) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.detailHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.detailTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.verdict {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-4);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Every option against the best. */
+.options {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.options th,
+.options td {
+  padding: var(--space-2) var(--space-2);
+  border-block-end: 1px solid var(--border-subtle);
+  text-align: start;
+  vertical-align: middle;
+}
+
+.options th:first-child,
+.options td:first-child {
+  padding-inline-start: var(--space-2);
+}
+
+.options thead th {
+  padding-block: 0 var(--space-1);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+}
+
+.options thead th.num {
+  text-align: end;
+}
+
+.options tbody th {
+  font-weight: 500;
+}
+
+.options .num {
+  text-align: end;
+}
+
+.mine {
+  background: color-mix(in srgb, var(--accent-fg) 9%, transparent);
+}
+
+.mine th:first-child {
+  box-shadow: inset 2px 0 0 var(--accent-fg);
+}
+
+.optionName {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+.swatch {
+  flex: none;
+  inline-size: 0.625rem;
+  block-size: 0.625rem;
+  border-radius: 2px;
+}
+
+.act-fold { background: color-mix(in srgb, var(--text-secondary) 55%, transparent); }
+.act-check { background: var(--chart-check); }
+.act-call { background: var(--chart-call); }
+.act-raise { background: var(--chart-raise); }
+.act-allin { background: var(--chart-allin); }
+
+.tag {
+  margin-inline-start: var(--space-2);
+  padding: 1px var(--space-1);
+  border-radius: var(--radius-1);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.tagYou {
+  background: var(--accent-subtle);
+  color: var(--accent-on-subtle);
+}
+
+.tagBest {
+  background: color-mix(in srgb, var(--grade-perfect) 18%, transparent);
+  color: var(--grade-perfect);
+}
+
+.freq {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.freqBar {
+  flex: 1 1 3rem;
+  min-inline-size: 2.5rem;
+  block-size: 0.375rem;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+}
+
+.freqBar > span {
+  display: block;
+  block-size: 100%;
+  border-radius: var(--radius-pill);
+}
+
+.freq .num {
+  min-inline-size: 3.25rem;
+}
+
+/* What an option gives up against the best: a red bar scaled to the worst option. */
+.gap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.gapBar {
+  inline-size: 2.5rem;
+  block-size: 0.375rem;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+  direction: rtl;
+}
+
+.gapBar > span {
+  display: block;
+  block-size: 100%;
+  background: color-mix(in srgb, var(--loss-fg) 70%, transparent);
+}
+
+/* The spot in words: a note from a coach, first sentence first. */
+.why {
+  padding: var(--space-3) var(--space-4);
+  border-inline-start: 3px solid var(--accent-fg);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.55;
+}
+
+.why p + p {
+  margin-block-start: var(--space-2);
+}
+
+.whyLead {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--space-3) var(--space-4);
+  margin: 0;
+}
+
+.facts div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.facts dt {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.facts dd {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.flags {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+}
+
+.flags li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.severity {
+  flex: none;
+  padding: 1px var(--space-1);
+  border-radius: var(--radius-1);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+}
+
+.severity-inaccurate {
+  background: color-mix(in srgb, var(--grade-inaccurate) 18%, transparent);
+  color: var(--grade-inaccurate);
+}
+
+.approx {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.approx summary {
+  cursor: pointer;
+}
+
+.approx summary:hover {
+  color: var(--text-secondary);
+}
+
+.approx ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-block-start: var(--space-2);
+  padding-inline-start: var(--space-4);
+}

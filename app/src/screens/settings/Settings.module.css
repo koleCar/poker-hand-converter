@@ -455,42 +455,7 @@ button.pill:hover {
   text-decoration: underline;
 }
 
-/* ------------------------------------------------------------------ updates */
-
-.banner {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--space-4);
-  min-height: 60px;
-  padding: 14px 18px;
-  overflow: hidden;
-  background: var(--accent-subtle);
-  border: 1px solid var(--accent-border);
-  border-radius: var(--radius-3);
-}
-
-.bannerIcon {
-  display: inline-flex;
-  color: var(--accent-on-subtle);
-}
-
-.bannerIcon :global(.icon) {
-  inline-size: 20px;
-  block-size: 20px;
-}
-
-.notesText {
-  max-height: 200px;
-  margin: var(--space-2) 0 0;
-  overflow-y: auto;
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  white-space: pre-wrap;
-}
-
-/* ----------------------------------------------------------- danger, version */
+/* -------------------------------------------------------------------- danger */
 
 .dangerIcon {
   display: inline-flex;
@@ -506,13 +471,6 @@ button.pill:hover {
 .dangerIcon :global(.icon) {
   inline-size: 18px;
   block-size: 18px;
-}
-
-.version {
-  margin: 0;
-  color: var(--text-tertiary);
-  font-size: var(--font-size-xs);
-  text-align: center;
 }
 
 /* ----------------------------------------------- the developer panels (DEV) */

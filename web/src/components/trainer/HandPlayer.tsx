@@ -18,13 +18,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DecisionAnalysis, OptionAnalysis } from "../../lib/analysis/types";
 import { nextSeed, STREAK_GRADES, type GradedAnswer, type TrainerAnswer } from "../../lib/training";
 import type { PlayOptions, PlayStep } from "../../lib/training/play";
-import type { RangeView } from "../../lib/training/rangeView";
 import { ActionButtons, groupChoices, groupForKey, TimebankBar, useTimebank, type Choice } from "./Decision";
 import { feltOf } from "./felt";
 import { Feedback, Verdict } from "./Feedback";
 import { useTrainerHost } from "./host";
 import type { TrainerSettings } from "./settings";
-import { RangeGrid } from "./RangeGrid";
+import { RangePanel } from "./RangePanel";
 import { ActionStrip, SpotFelt } from "./SpotFelt";
 import styles from "./trainer.module.css";
 
@@ -121,21 +120,6 @@ function OneHand({ request, settings, onScored, onHandDone, newHand }: HandPlaye
     [decision, t],
   );
   const groups = useMemo(() => groupChoices(buttons, settings.buttons), [buttons, settings.buttons]);
-  // The range panel (T3), read for each decision when asked for.
-  const [range, setRange] = useState<{ step: PlayStep; view: RangeView | null } | null>(null);
-  const wantsRange = settings.range !== "off" && Boolean(host.playRange);
-  useEffect(() => {
-    if (!step?.decision || !wantsRange || !host.playRange) return;
-    let live = true;
-    const at = step;
-    host
-      .playRange(at)
-      .then((view) => live && setRange({ step: at, view }))
-      .catch(() => live && setRange({ step: at, view: null }));
-    return () => {
-      live = false;
-    };
-  }, [step, wantsRange, host]);
 
   const graded = answered?.graded ?? null;
   const verdict = graded?.decision ?? null;
@@ -281,17 +265,8 @@ function OneHand({ request, settings, onScored, onHandDone, newHand }: HandPlaye
         <ActionButtons choices={buttons} groups={groups} picked={answered?.picked ?? null} disabled={Boolean(answered)} onPick={pickGroup} />
       ) : null}
       {decision && !answered ? <TimebankBar left={left} seconds={seconds} /> : null}
-      {decision && wantsRange ? (
-        <section className={styles.block} aria-label={t.rangeHeading}>
-          <h3 className={styles.blockHead}>{t.rangeHeading}</h3>
-          {range === null || range.step !== step ? (
-            <RailLoader size="inline" label={t.rangeLoading} showLabel />
-          ) : range.view ? (
-            <RangeGrid view={range.view} strategy={settings.range === "strategy" || Boolean(answered)} />
-          ) : (
-            <p className={styles.muted}>{t.rangeNone}</p>
-          )}
-        </section>
+      {decision && host.playRange ? (
+        <RangePanel target={step} read={host.playRange} strategy={settings.range === "strategy" || Boolean(answered)} />
       ) : null}
 
       {answered && !graded && !answered.error ? (

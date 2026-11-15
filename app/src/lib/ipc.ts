@@ -1659,7 +1659,7 @@ export function onEntitlementsChanged(onChange: () => void): () => void {
   return onAppEvent("entitlements-changed", onChange);
 }
 
-/** Settings, Updates: the update's status, on every change (download progress at most a few times a second). */
+/** The sidebar's update card: the update's status, on every change (download progress at most a few times a second). */
 export function onUpdatesChanged(onChange: (status: UpdateStatus) => void): () => void {
   return onAppEvent<UpdateStatus>("updates-changed", onChange);
 }

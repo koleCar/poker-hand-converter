@@ -144,9 +144,13 @@ describe("one hand's grades", () => {
       expect(html.match(/data-action-index=/g)?.length).toBe(analysis.decisions.length);
       if (graded?.grade) expect(html).toContain(dict.analysis.hand.grades[graded.grade]);
       expect(html).toContain(dict.analysis.hand.options);
-      // The decision the list named is open; the stored row needs no note.
-      expect(html).toMatch(/<details[^>]*open/);
+      // Every option against the best, and the spot in words.
+      expect(html).toContain(dict.analysis.hand.delta);
+      expect(html).toContain(dict.analysis.hand.why);
+      // The decision the list named is the one shown in full; the stored row needs no note.
+      expect(html).toMatch(new RegExp(`data-action-index="${graded?.actionIndex}"><button[^>]*aria-pressed="true"`));
       expect(html).not.toContain(dict.analysis.hand.notStored);
+      expect(html).not.toMatch(/undefined|NaN|\[object/);
     }
     expect(render("en", { status: "ready", analysis, stored: false })).toContain(en.analysis.hand.notStored);
   });
