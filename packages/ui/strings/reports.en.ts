@@ -38,6 +38,7 @@ export const reportsUiEn = {
     unit: "Show in",
     bigBlinds: "Big blinds",
     money: "Money",
+    chips: "Chips",
   },
   stats: {
     heading: "Statistics",

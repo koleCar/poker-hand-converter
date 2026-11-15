@@ -35,6 +35,7 @@ export const reportsUiHr: typeof reportsUiEn = {
     unit: "Prikaži u",
     bigBlinds: "Big blindovi",
     money: "Novac",
+    chips: "Čipovi",
   },
   stats: {
     heading: "Statistika",

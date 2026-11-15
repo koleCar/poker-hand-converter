@@ -332,7 +332,7 @@ function ReportBody({
               disabled={money === null}
               onClick={() => onUnit("money")}
             >
-              {r.graph.money}
+              {units.minorUnits !== null && units.minorUnits <= 1 ? r.graph.chips : r.graph.money}
             </button>
           </div>
         </div>

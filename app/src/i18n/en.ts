@@ -188,6 +188,7 @@ export const en = {
     perHundred: {
       bb: "bb/100",
       money: (symbol: string) => `${symbol}/100`,
+      chips: "chips/100",
     },
     rateTitle: "Won per 100 hands over the session so far",
     mixedKind: "This session mixes tournament chips with cash, so it has no result to add up.",
@@ -198,6 +199,7 @@ export const en = {
       lines: "Lines on the graph: click one to hide or show it",
       bigBlinds: "bb",
       money: "Money",
+      chips: "chips",
       loading: "Drawing the graph…",
       error: (reason: string) => `The graph did not load: ${reason}`,
     },

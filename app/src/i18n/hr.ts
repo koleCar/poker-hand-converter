@@ -200,6 +200,7 @@ export const hr: Dict = {
     perHundred: {
       bb: "bb/100",
       money: (symbol) => `${symbol}/100`,
+      chips: "čipova/100",
     },
     rateTitle: "Dobiveno na 100 ruku kroz dosadašnju sesiju",
     mixedKind: "Ova sesija miješa turnirske žetone i cash, pa nema rezultata koji bi se mogao zbrojiti.",
@@ -210,6 +211,7 @@ export const hr: Dict = {
       lines: "Linije na grafu: klikni jednu da je sakriješ ili prikažeš",
       bigBlinds: "bb",
       money: "Novac",
+      chips: "čipovi",
       loading: "Crtam graf…",
       error: (reason) => `Graf se nije učitao: ${reason}`,
     },

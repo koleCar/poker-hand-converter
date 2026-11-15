@@ -21,6 +21,11 @@ export function hasMoney(session: Session): boolean {
   return !units.mixedKind && !units.mixedCurrency && units.currency !== null && units.minorUnits !== null;
 }
 
+/** Whether the session's money is tournament chips (one minor unit, no symbol). */
+export function isChips(session: Session): boolean {
+  return session.units.minorUnits !== null && session.units.minorUnits <= 1;
+}
+
 /** The session's money unit, when it has one. */
 export function moneyUnitOf(session: Session) {
   const units = session.units;
@@ -49,7 +54,7 @@ export function useRate(session: Session, unit: LiveUnit): Rate | null {
   if (unit === "money" && hasMoney(session) && money !== null && session.net !== null) {
     const rate = perHundred(session.net, session.hands);
     if (rate === null) return null;
-    return { value: signedMoney(money, Math.round(rate)), unit: d.perHundred.money(money.symbol || money.code || ""), sign: Math.sign(rate) };
+    return { value: signedMoney(money, Math.round(rate)), unit: isChips(session) ? d.perHundred.chips : d.perHundred.money(money.symbol || money.code || ""), sign: Math.sign(rate) };
   }
   if (definitions === null) return null;
   const index = definitions.findIndex((definition) => definition.id === "bb_per_100");
