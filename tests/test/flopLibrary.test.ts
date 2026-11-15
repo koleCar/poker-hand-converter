@@ -291,16 +291,16 @@ describe("the chunk format", () => {
     expect(fetched).toHaveLength(2);
   });
 
-  it("fetches nothing of a set no library is published for (none since analysis/41)", async () => {
+  it("fetches nothing of a set no library is published for", async () => {
     const fetched: string[] = [];
     const loader = new FlopLibraryLoader("https://example.test/floplib", async (url) => {
       fetched.push(url);
       return { ok: true, arrayBuffer: async () => new ArrayBuffer(0), json: async () => ({ entries: [{ line: LINE.id, flop: FLOP }] }) };
     }, "flop-test");
-    expect(FLOP_LIBRARY_SETS).toEqual([]);
-    expect(await loader.ready(CHARTS.id)).toBe(false);
-    await loader.prefetch(handOn(["Th", "7d", "4c"], [{ position: "BB", type: "check" }]), CHARTS);
-    expect(await loader.load(CHARTS.id, LINE.id, FLOP)).toBeNull();
+    const unpublished = "nlhe-cash-6max-40bb";
+    expect(FLOP_LIBRARY_SETS).not.toContain(unpublished);
+    expect(await loader.ready(unpublished)).toBe(false);
+    expect(await loader.load(unpublished, LINE.id, FLOP)).toBeNull();
     expect(fetched).toEqual([]);
   });
 

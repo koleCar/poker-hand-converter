@@ -44,11 +44,13 @@ const TIMEOUT: Duration = Duration::from_secs(60);
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(10);
 
 /// The chart sets whose library may be read (the web's
-/// `PUBLISHED_FLOP_LIBRARY`, `web/src/lib/analysis/flopLibrary.ts`). Empty
-/// since `analysis/41`: the library in the bucket was solved on Rail's own
-/// preflop ranges, which are gone, so no file of it is read or fetched -
-/// every path is [`FileOutcome::Absent`], whatever is on disk.
-pub const PUBLISHED_SETS: &[&str] = &[];
+/// `PUBLISHED_FLOP_LIBRARY`, `web/src/lib/analysis/flopLibrary.ts`): the GTO
+/// Wizard 6-max 100bb sets, solved flop by flop every night since
+/// `analysis/43` (`tests/scripts/flop-library/nightly.sh`). A path of any
+/// other set is [`FileOutcome::Absent`], whatever is on disk: the library
+/// solved on Rail's own preflop ranges (empty since `analysis/41`) is never
+/// read again.
+pub const PUBLISHED_SETS: &[&str] = &["nlhe-cash-6max-100bb", "nlhe-cash-6max-100bb-ante"];
 
 /// The bucket's path under a Supabase project's URL.
 pub const BUCKET_PATH: &str = "storage/v1/object/public/flop-library";

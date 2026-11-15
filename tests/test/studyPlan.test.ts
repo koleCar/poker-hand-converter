@@ -202,9 +202,20 @@ describe("trainer targets", () => {
       role: "any",
     });
     expect(trainerTarget(where("turn", "pfr-oop-first"))).toBeNull();
-    // A flop area has no trainer while no flop library is published (analysis/41: none is solved on the GTO Wizard ranges).
-    expect(FLOP_LIBRARY_SETS).toEqual([]);
-    expect(trainerTarget({ ...where("flop", "caller-ip-vs-bet"), pot: "3bp" })).toBeNull();
+    // §10 2026-10-31: the button calling a 3-bet in position, facing a bet: the flop library's two such lines -
+    // since 2026-11-05 only for the 3-bet pot area; single-raised, the button never calls in position there.
+    // Published again since analysis/43, on the GTO Wizard 6-max 100bb set.
+    expect(FLOP_LIBRARY_SETS).toContain("nlhe-cash-6max-100bb");
+    expect(trainerTarget({ ...where("flop", "caller-ip-vs-bet"), pot: "3bp" })).toEqual({
+      mode: "flop",
+      set: "nlhe-cash-6max-100bb",
+      pot: "3bp",
+      side: "ip",
+      role: "caller",
+      seat: "BTN",
+      facing: "bet",
+      line: null,
+    });
     expect(trainerTarget(where("flop", "caller-ip-vs-bet"))).toBeNull();
   });
 

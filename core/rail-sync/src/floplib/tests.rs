@@ -248,13 +248,14 @@ async fn reachable_keeps_the_manifest() {
 #[tokio::test]
 async fn an_unpublished_set_is_neither_read_nor_fetched() {
     assert!(
-        PUBLISHED_SETS.is_empty(),
-        "no library is read since analysis/41"
+        PUBLISHED_SETS.contains(&"nlhe-cash-6max-100bb"),
+        "the GTO Wizard 6-max 100bb set is read since analysis/43"
     );
     let (origin, seen) = server(vec![(200, vec![1, 2, 3])]).await;
     let dir = temp_dir("unpublished");
-    let cache =
-        FlopLibraryCache::new(&dir, Some(bucket_url(&origin).expect("url"))).expect("cache");
+    let cache = FlopLibraryCache::new(&dir, Some(bucket_url(&origin).expect("url")))
+        .expect("cache")
+        .with_sets(&["nlhe-cash-9max-100bb"]);
     assert_eq!(cache.file(CHUNK).await, Ok(FileOutcome::Absent));
     assert_eq!(cache.file(MANIFEST).await, Ok(FileOutcome::Absent));
     assert!(cache.reachable(MANIFEST).await);

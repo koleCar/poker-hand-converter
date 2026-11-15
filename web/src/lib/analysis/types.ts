@@ -315,8 +315,15 @@ import type { Position, Street } from "../phf/types";
  *               (`model.missing`: blind vs blind after folds to the small
  *               blind, and five rare lines); a hand reaching one gets no
  *               chart (`rare-line`) and is never read on another set.
+ *   analysis/43 The flop library is read again, solved on the GTO Wizard
+ *               6-max 100bb sets (classic and ante) flop by flop every night
+ *               (`PUBLISHED_FLOP_LIBRARY`); besides the fixed lines, any
+ *               heads-up line the charts play to the flop is a library line
+ *               (`libraryLine`, `x-<key>`: cold calls, squeezes, blind
+ *               3-bets). A chunk is read while its line's chart nodes are
+ *               unchanged (`chartLineHash`), not only while the whole set is.
  */
-export const ANALYSIS_VERSION = "analysis/42" as const;
+export const ANALYSIS_VERSION = "analysis/43" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
