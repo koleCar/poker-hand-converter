@@ -1503,6 +1503,7 @@ export const hr: Dict = {
       `Koristi do ${n(threads)} od ${n(cores)} jezgri i oko ${memoryMb >= 1000 ? `${n(Math.round(memoryMb / 100) / 10)} GB` : `${n(Math.round(memoryMb / 10) * 10)} MB`}. Ništa ne napušta ovo računalo.`,
     noEngine: "Ova verzija Raila još ne može solvati nodelockove.",
     busy: "Drugi nodelock se solva. Pričekaj ga ili ga prekini.",
+    startError: "Solve se nije mogao pokrenuti. Pokušaj ponovno.",
     nothingLocked: "Prvo zaključaj barem jednu ruku.",
     progress: (iteration: number, accuracy: number | null, elapsedS: number, etaS: number | null) =>
       `Iteracija ${n(iteration)}${accuracy === null ? "" : ` · ${n(Math.round(accuracy * 100) / 100)}% pota`} · ${clock(elapsedS)}${etaS === null ? "" : ` · još oko ${clock(etaS)}`}`,
@@ -1559,7 +1560,8 @@ export const hr: Dict = {
     delete: "Obriši",
     deleteSelected: (count: number) => `Obriši ${n(count)} ${plural(count, "nodelock", "nodelocka", "nodelockova")}`,
     deleteTitle: (count: number) => (count === 1 ? "Obrisati ovaj nodelock?" : `Obrisati ${n(count)} ${plural(count, "nodelock", "nodelocka", "nodelockova")}?`),
-    deleteBody: "Lock i njegov solve brišu se s ovog računala. Ovo se ne može poništiti.",
+    deleteBody: (count: number) =>
+      `${count === 1 ? "Lock i njegov solve brišu" : "Lockovi i njihovi solveovi brišu"} se s ovog računala. Ovo se ne može poništiti.`,
     deleting: "Brišem…",
     keep: "Zadrži",
     loadError: "Nodelockovi se nisu mogli pročitati.",

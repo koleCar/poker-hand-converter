@@ -1549,6 +1549,7 @@ export const en = {
       `Uses up to ${n(threads)} of ${n(cores)} cores and about ${memoryMb >= 1000 ? `${n(Math.round(memoryMb / 100) / 10)} GB` : `${n(Math.round(memoryMb / 10) * 10)} MB`}. Nothing leaves this computer.`,
     noEngine: "This build of Rail cannot solve nodelocks yet.",
     busy: "Another nodelock is solving. Wait for it, or cancel it.",
+    startError: "The solve could not start. Try again.",
     nothingLocked: "Lock at least one hand first.",
     progress: (iteration: number, accuracy: number | null, elapsedS: number, etaS: number | null) =>
       `Iteration ${n(iteration)}${accuracy === null ? "" : ` · ${n(Math.round(accuracy * 100) / 100)}% of the pot`} · ${clock(elapsedS)}${etaS === null ? "" : ` · about ${clock(etaS)} left`}`,
@@ -1605,7 +1606,8 @@ export const en = {
     delete: "Delete",
     deleteSelected: (count: number) => `Delete ${count === 1 ? "1 nodelock" : `${n(count)} nodelocks`}`,
     deleteTitle: (count: number) => (count === 1 ? "Delete this nodelock?" : `Delete ${n(count)} nodelocks?`),
-    deleteBody: "Its lock and its solve are removed from this computer. This cannot be undone.",
+    deleteBody: (count: number) =>
+      `${count === 1 ? "Its lock and solve are" : "Their locks and solves are"} removed from this computer. This cannot be undone.`,
     deleting: "Deleting…",
     keep: "Keep",
     loadError: "Nodelocks could not be read.",

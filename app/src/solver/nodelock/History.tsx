@@ -270,7 +270,7 @@ export function History({ libraryParam }: { libraryParam: string | null }) {
 
       {deleting ? (
         <Dialog title={t.deleteTitle(deleting.length)} onClose={() => setDeleting(null)}>
-          <p className={styles.dialogBody}>{t.deleteBody}</p>
+          <p className={styles.dialogBody}>{t.deleteBody(deleting.length)}</p>
           <div className={styles.dialogActions}>
             <button type="button" className="btn" disabled={busy} onClick={() => setDeleting(null)}>
               {t.keep}

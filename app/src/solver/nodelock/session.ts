@@ -13,6 +13,7 @@
  */
 import { useSyncExternalStore } from "react";
 
+import { ipc } from "../../lib/ipc";
 import { go } from "../../lib/router";
 import { decodeChunk, liveTurnId, type NodelockAt, type NodelockOverride } from "../door";
 import { solverParam } from "../param";
@@ -117,11 +118,11 @@ export interface SolveRequest {
   summary: NodelockSummary;
 }
 
-/** Starts a solve on this computer; false when one is running already or there is no engine. */
-export async function startSolve(request: SolveRequest): Promise<boolean> {
-  if (state.running) return false;
+/** Starts a solve on this computer: true, or why not. */
+export async function startSolve(request: SolveRequest): Promise<true | "busy" | "noEngine" | "failed"> {
+  if (state.running) return "busy";
   const engine = await pickEngine();
-  if (!engine) return false;
+  if (!engine) return "noEngine";
   const now = Date.now();
   const { lockSet, at } = request;
   const node = lockSet.nodes[0];
@@ -147,10 +148,13 @@ export async function startSolve(request: SolveRequest): Promise<boolean> {
     summary_json: request.summary,
   };
   let id: string;
+  let baseline: Uint8Array;
   try {
+    // The library chunk the lock is made on, as served (the engine checks its ranges against it).
+    baseline = new Uint8Array(await ipc.flopLibraryFile(`${at.set}/${at.library.header.tree}/${at.line}/${at.flop}.bin`));
     id = await nodelockData.save(row);
   } catch {
-    return false;
+    return "failed";
   }
   const saved = { ...row, id };
   controller = new AbortController();
@@ -159,7 +163,7 @@ export async function startSolve(request: SolveRequest): Promise<boolean> {
 
   void engine
     .solve(
-      { lockSet },
+      { lockSet, baseline },
       (progress) => {
         if (state.running?.id === id) set({ running: { ...state.running, progress } });
       },

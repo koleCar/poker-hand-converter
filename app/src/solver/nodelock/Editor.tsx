@@ -206,7 +206,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
     const who = state.preset ? `${suggestDict.names[state.preset as Archetype] ?? state.preset} ${target.position}` : target.position;
     const name = open.from?.name ?? t.name(who, boardText(at.board), target.players[1], target.players[0]);
     const started = await startSolve({ at, lockSet, name, preset: state.preset, summary });
-    if (!started) setMessage(session.running ? t.busy : t.noEngine);
+    if (started !== true) setMessage(started === "busy" ? t.busy : started === "noEngine" ? t.noEngine : t.startError);
   };
 
   /* ------------------------------------------------------------- pieces - */

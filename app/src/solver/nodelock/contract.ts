@@ -56,7 +56,8 @@ export interface NodelockEngine {
   kind: "workers" | "native";
   threads: number;
   solve(
-    req: { lockSet: LockSet; maxIterations?: number },
+    /** `baseline`: the library chunk of the lock's spot, its bytes as served. */
+    req: { lockSet: LockSet; baseline: Uint8Array; maxIterations?: number },
     onProgress: (p: NodelockProgress) => void,
     signal: AbortSignal,
   ): Promise<{ chunk: Uint8Array; stats: NodelockStats }>;
