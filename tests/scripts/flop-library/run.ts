@@ -20,7 +20,7 @@
  */
 
 import { fork, type ChildProcess } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, writeFileSync } from "node:fs";
 import { availableParallelism, cpus, totalmem } from "node:os";
 import { dirname, join, resolve } from "node:path";
 
@@ -146,7 +146,8 @@ function readStats(dir: string): StatsFile[] {
   if (!existsSync(dir)) return out;
   for (const line of readdirSync(dir)) {
     const sub = join(dir, line);
-    if (!existsSync(sub) || line.endsWith(".json")) continue;
+    // Only the line folders: `upload.sh` keeps its `.uploaded` list beside them.
+    if (!existsSync(sub) || !statSync(sub).isDirectory()) continue;
     for (const file of readdirSync(sub)) {
       if (file.endsWith(".json")) out.push(JSON.parse(readFileSync(join(sub, file), "utf8")) as StatsFile);
     }

@@ -39,6 +39,8 @@ export function lineSpot(charts: ChartSet, line: FlopLine): LineSpot {
     hero: oop,
     heroCards: null,
     stackBb: charts.game.stackBb,
+    // An ante set's charts are read only for a hand that posts its ante.
+    ante: charts.game.ante,
     preflop,
     board: ["2c", "3d", "4h"],
     flop: [{ position: oop, type: "check" }],
