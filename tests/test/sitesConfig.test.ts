@@ -114,7 +114,7 @@ describe("config/sites.json", () => {
     );
     expect(policies).toEqual({
       pokerstars: [true, null],
-      ggpoker: [false, false],
+      ggpoker: [true, false],
       winamax: [false, false],
       "888poker": [null, false],
       partypoker: [false, false],
@@ -124,7 +124,7 @@ describe("config/sites.json", () => {
       unibet: [false, false],
       chico: [null, null],
       ignition: [null, null],
-      weplay: [null, null],
+      weplay: [true, null],
       pokerbros: [false, false],
       microgaming: [false, false],
       fulltilt: [false, false],

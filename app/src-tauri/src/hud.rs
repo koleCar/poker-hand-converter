@@ -527,14 +527,14 @@ impl HudState {
         }
     }
 
-    /// (T3) The plan holds the HUD back, it has not started, and tiling or
-    /// the RNG is on: start it for them alone (no panels).
+    /// (T3) The plan holds the HUD back, it has not started, and tiling is
+    /// on: start it for that alone (no panels).
     fn start_for_tiling(&self) {
         if self.supervisor().is_none()
             && self.locked.load(Ordering::SeqCst)
             && self.shared.table_settings().wanted()
         {
-            log::info!("hud: starting for table tiling and the RNG only (no panels)");
+            log::info!("hud: starting for table tiling only (no panels)");
             self.start_pending(true);
         }
     }
@@ -669,16 +669,12 @@ impl HudState {
         self.wake_sync();
     }
 
-    /// (T3) The user saved RNG settings (stored already): the HUD keeps
-    /// them, and the sync worker sends them now.
+    /// (T3) The user saved RNG settings (stored already): kept for the RNG
+    /// box (`crate::rng_box`), and the sync worker sends them now. Not sent
+    /// to the HUD since 2026-11-16: the RNG is no longer drawn over the
+    /// tables, so the HUD never has an `rng` and draws none.
     pub fn rng_written(&self, settings: RngSettings) {
-        self.shared.table_settings().rng = settings.clone();
-        match self.supervisor() {
-            Some(supervisor) => {
-                supervisor.send(AppMessage::RngChanged { settings });
-            }
-            None => self.start_for_tiling(),
-        }
+        self.shared.table_settings().rng = settings;
         self.wake_sync();
     }
 
@@ -695,9 +691,6 @@ impl HudState {
                     supervisor.send(AppMessage::TilingChanged {
                         settings: now.tiling,
                     });
-                }
-                if before.rng != now.rng {
-                    supervisor.send(AppMessage::RngChanged { settings: now.rng });
                 }
             }
             None => self.start_for_tiling(),
@@ -757,9 +750,6 @@ impl HudState {
         let settings = self.table_settings();
         supervisor.send(AppMessage::TilingChanged {
             settings: settings.tiling,
-        });
-        supervisor.send(AppMessage::RngChanged {
-            settings: settings.rng,
         });
     }
 

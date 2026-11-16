@@ -511,15 +511,13 @@ mod tests {
     #[test]
     fn unknown_tiling_and_rng_are_no() {
         let compliance = Compliance::shipped().expect("shipped");
-        // 888poker: tiling `null`; WePlay: both `null`.
+        // 888poker: tiling `null`; WePlay: the RNG `null` (its tiling is
+        // the owner's yes of 2026-11-16).
         assert_eq!(
             compliance.tiling_permit("888poker"),
             Err(RefusalReason::Unknown)
         );
-        assert_eq!(
-            compliance.tiling_permit("weplay"),
-            Err(RefusalReason::Unknown)
-        );
+        assert!(compliance.tiling_permit("weplay").is_ok());
         assert_eq!(compliance.rng_permit("weplay"), Err(RefusalReason::Unknown));
         // PokerStars: tiling yes, the RNG `null`.
         assert_eq!(
@@ -681,14 +679,14 @@ mod tests {
                 "checkedAt": "2026-11-12",
                 "notes": null
             });
-            site_mut(v, "ggpoker")["tiling"] = allowance.clone();
+            site_mut(v, "partypoker")["tiling"] = allowance.clone();
             site_mut(v, "888poker")["tiling"] = allowance.clone();
             site_mut(v, "pokerstars")["rng"] = allowance;
             site_mut(v, "pokerstars")["hud"]["allowed"] = serde_json::Value::Bool(false);
         });
         let notes = compliance.apply_remote(Some(&on)).expect("merged");
         for (id, feature) in [
-            ("ggpoker", Feature::Tiling),
+            ("partypoker", Feature::Tiling),
             ("888poker", Feature::Tiling),
             ("pokerstars", Feature::Rng),
         ] {
@@ -702,7 +700,7 @@ mod tests {
             );
         }
         assert_eq!(
-            compliance.tiling_permit("ggpoker"),
+            compliance.tiling_permit("partypoker"),
             Err(RefusalReason::Prohibited)
         );
         assert_eq!(

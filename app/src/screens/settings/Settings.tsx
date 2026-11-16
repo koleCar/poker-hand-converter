@@ -10,6 +10,7 @@ import { CustomStats } from "./CustomStats";
 import { DangerZone } from "./DangerZone";
 import { Folders } from "./Folders";
 import { Preferences } from "./Preferences";
+import { Rng } from "./Rng";
 import styles from "./Settings.module.css";
 
 // Debug builds only: in a production bundle `import.meta.env.DEV` is `false`
@@ -64,8 +65,8 @@ function About() {
 
 /**
  * Settings, top to bottom: the account (plan, sync), the hand-history
- * folders, the user's own statistics, appearance and startup, the version
- * and the danger zone. Each group is a small label over a card of
+ * folders, the user's own statistics, appearance and startup, the RNG, the
+ * version and the danger zone. Each group is a small label over a card of
  * rows: the information on the left, the action on the right.
  */
 export function Settings() {
@@ -104,6 +105,9 @@ export function Settings() {
           </Group>
           <Group id="appearance" label={g.appearance}>
             <Preferences />
+          </Group>
+          <Group id="rng" label={g.rng}>
+            <Rng />
           </Group>
           <Group id="about" label={g.about}>
             <About />

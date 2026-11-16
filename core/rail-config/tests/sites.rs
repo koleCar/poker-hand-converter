@@ -302,10 +302,12 @@ fn hud_restrictions_are_the_policies() {
 
 /// T0: the table manager and RNG policy of every entry, as proposed in
 /// `docs/research/TILING-POLICIES.md` for the owner's sign-off: (id, tiling,
-/// rng). A change to any of them has to change this list too.
+/// rng). A change to any of them has to change this list too. GGPoker's
+/// and WePlay's tiling are the owner's decision of 2026-11-16, not the
+/// rooms' word.
 const TOOL_POLICIES: &[(&str, Option<bool>, Option<bool>)] = &[
     ("pokerstars", Some(true), None),
-    ("ggpoker", Some(false), Some(false)),
+    ("ggpoker", Some(true), Some(false)),
     ("winamax", Some(false), Some(false)),
     ("888poker", None, Some(false)),
     ("partypoker", Some(false), Some(false)),
@@ -315,7 +317,7 @@ const TOOL_POLICIES: &[(&str, Option<bool>, Option<bool>)] = &[
     ("unibet", Some(false), Some(false)),
     ("chico", None, None),
     ("ignition", None, None),
-    ("weplay", None, None),
+    ("weplay", Some(true), None),
     ("pokerbros", Some(false), Some(false)),
     ("microgaming", Some(false), Some(false)),
     ("fulltilt", Some(false), Some(false)),
@@ -388,7 +390,14 @@ fn tiling_and_rng_policies_are_the_proposed_list() {
     };
     assert_eq!(
         permitted(Feature::Tiling),
-        ["pokerstars", "acr", "coinpoker", "wpt-global"]
+        [
+            "pokerstars",
+            "ggpoker",
+            "acr",
+            "coinpoker",
+            "weplay",
+            "wpt-global"
+        ]
     );
     assert!(permitted(Feature::Rng).is_empty());
     // (T7) The Action Required slot: unknown everywhere, no signal - turning
@@ -411,8 +420,8 @@ fn tiling_and_rng_policies_are_the_proposed_list() {
     };
     assert_eq!(approval(Feature::Tiling), ["winamax"]);
     assert_eq!(approval(Feature::Rng), ["winamax"]);
-    // Independent of the HUD: two rooms refuse a HUD and allow tiling.
-    for id in ["coinpoker", "wpt-global"] {
+    // Independent of the HUD: rooms that refuse a HUD and allow tiling.
+    for id in ["ggpoker", "coinpoker", "wpt-global"] {
         let site = config.site(id).expect(id);
         assert!(!site.hud_permitted() && site.tiling_permitted(), "{id}");
     }
@@ -575,9 +584,9 @@ fn the_action_slot_block() {
         },
         "without a signal",
     );
-    // GGPoker refuses tiling: no slot either.
+    // partypoker refuses tiling: no slot either.
     refused(
-        &|v| site_mut(v, "ggpoker")["actionSlot"] = allowed(flash.clone()),
+        &|v| site_mut(v, "partypoker")["actionSlot"] = allowed(flash.clone()),
         "actionSlot.allowed is true without tiling",
     );
     refused(

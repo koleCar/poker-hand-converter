@@ -993,6 +993,24 @@ impl Reader {
             .next())
     }
 
+    /// When the hero's newest hand was played (`played_at`, ISO), any kind
+    /// of game; `None` without one. A session is live while this is within
+    /// [`SESSION_GAP_MINUTES`] of now - what the desktop's RNG box asks
+    /// every few seconds, so it reads one row of `hand_list`'s
+    /// `(played_at, hand_key)` order, not the session.
+    pub fn newest_hand_at(&self) -> Result<Option<String>> {
+        self.with(|conn| {
+            Ok(conn
+                .prepare_cached(
+                    "SELECT played_at FROM hand_list
+                     WHERE hero_net IS NOT NULL AND played_at > ''
+                     ORDER BY played_at DESC, hand_key DESC LIMIT 1",
+                )?
+                .query_row([], |row| row.get::<_, String>(0))
+                .optional()?)
+        })
+    }
+
     /// What opening Reports reads: the hero's totals of `filter`
     /// ([`Reader::hero_totals`]) and its graph ([`Reader::report_graph`]),
     /// the two at once on two connections (R2.9: at a million hands each

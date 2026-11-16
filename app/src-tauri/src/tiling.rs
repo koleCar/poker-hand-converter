@@ -1,7 +1,10 @@
 //! (T3, docs/research/TABLE-TILING.md §4.1, §4.5) Table tiling and the RNG
 //! from the app's side: the user's settings kept in the store, synced, and
-//! sent to the HUD process, which does the tiling (and, from T4, draws the
-//! RNG). The Tables screen (T5) calls the commands.
+//! (tiling's) sent to the HUD process, which does the tiling. The Tables
+//! screen (T5) calls the tiling commands, Settings the RNG's. Since
+//! 2026-11-16 the RNG is the app's own box in the monitor's corner
+//! (`crate::rng_box`), not drawn over the tables: only its switch is used,
+//! and the HUD is no longer sent it.
 //!
 //! - **The model** is `rail_hud_ipc::settings` ([`TilingSettings`],
 //!   [`RngSettings`]), shared with the HUD. Every write is validated first
@@ -13,9 +16,8 @@
 //!   brought new settings reaches the HUD and the window
 //!   ([`SETTINGS_EVENT`]). Rows that do not parse or validate read as the
 //!   defaults (tiling and the RNG off).
-//! - **To the HUD** (`crate::hud::HudState`): `tiling_changed` /
-//!   `rng_changed` on every write, and both again after every handshake, so
-//!   a restarted HUD has them; `retile` from [`retile_tables`] and the
+//! - **To the HUD** (`crate::hud::HudState`): `tiling_changed` on every
+//!   write, and again after every handshake, so a restarted HUD has it; `retile` from [`retile_tables`] and the
 //!   tray's "Re-tile tables".
 //! - (T7) **Hotkeys**: the bindings in the tiling settings are bound with
 //!   the system after every save and pull (`crate::hotkeys`).
@@ -49,10 +51,11 @@ pub struct TableSettings {
 }
 
 impl TableSettings {
-    /// Either is on: the HUD process is wanted for them even when the plan
-    /// holds its panels back.
+    /// Tiling is on: the HUD process is wanted for it even when the plan
+    /// holds its panels back. (The RNG is the app's own box since
+    /// 2026-11-16, `crate::rng_box`: it needs no HUD.)
     pub fn wanted(&self) -> bool {
-        self.tiling.enabled || self.rng.enabled
+        self.tiling.enabled
     }
 }
 
@@ -169,16 +172,19 @@ pub fn get_rng_settings(store: State<'_, StoreState>) -> RngSettings {
     read_store(&store).rng
 }
 
-/// Save the RNG settings (refused when they do not validate), then the HUD
-/// keeps them and the sync worker sends them.
+/// Save the RNG settings (refused when they do not validate), then the
+/// sync worker sends them and the RNG box shows or goes at once
+/// (`crate::rng_box`).
 #[tauri::command]
-pub async fn set_rng_settings(
+pub async fn set_rng_settings<R: Runtime>(
+    app: AppHandle<R>,
     store: State<'_, StoreState>,
     hud: State<'_, HudState>,
     settings: RngSettings,
 ) -> Result<(), String> {
     write_rng(&writer(&store)?, &settings)?;
     hud.rng_written(settings);
+    crate::rng_box::refresh(&app);
     Ok(())
 }
 

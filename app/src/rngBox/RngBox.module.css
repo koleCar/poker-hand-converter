@@ -1,0 +1,29 @@
+/* The RNG box: the whole window is one button with one number. */
+
+.box {
+  display: grid;
+  place-items: center;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-2xl);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  user-select: none;
+}
+
+.box:hover {
+  background: var(--surface-hover);
+}
+
+.box:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
