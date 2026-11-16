@@ -1,8 +1,9 @@
 /**
  * The user's own preflop charts (R5.3): their chart sets, an editor per set
  * and the comparison with the hands they played. Shared so the desktop app
- * can render it once it has the analysis (R5.4); today the web does, at
- * `/analysis/my-charts`.
+ * can render it once it has the analysis (R5.4). Neither renders it since
+ * 2026-11-16: it was taken out of the UI (node locks will replace it), and
+ * `/analysis/my-charts` redirects to Rail's charts.
  *
  * What is the surface's: the data (`PreflopChartsSource`), where the screen
  * is (`selected`, `view`, `onNavigate` - the web keeps them in the address),

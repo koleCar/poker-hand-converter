@@ -1121,7 +1121,7 @@ export const hr: Dict = {
 
   analysis: {
     tabsLabel: "Dijelovi analize",
-    tabs: { session: "Pregled sessiona", leaks: "Najveći leakovi", charts: "Moji chartovi" },
+    tabs: { session: "Pregled sessiona", leaks: "Najveći leakovi" },
     unavailable: "Analiza je dostupna samo u aplikaciji Rail.",
     loading: "Otvaram analizu…",
     status: {

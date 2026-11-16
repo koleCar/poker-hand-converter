@@ -70,7 +70,6 @@ export const uiEn = {
     empty: "No hands here",
   },
   empty: { upload: "Upload hands" },
-  charts: { label: "Whose charts", rail: "Rail", mine: "Mine" },
   side: {
     topLeaks: "Top leaks",
     allTime: "all time",

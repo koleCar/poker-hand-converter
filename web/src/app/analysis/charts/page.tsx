@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { ChartsSource } from "../../../components/analysis/ChartsSource";
 import { AnalysisNav } from "../../../components/analysis/AnalysisNav";
 import { ChartBrowser } from "../../../components/analysis/ChartBrowser";
 import { ServerFrame } from "../../../components/shell/ServerFrame";
@@ -54,9 +53,7 @@ export default async function ChartsPage({ searchParams }: PageProps) {
     <ServerFrame tab="analysis">
       <div className={an.page}>
         <h1 className={an.srOnly}>{t.heading}</h1>
-        <AnalysisNav current="charts">
-          <ChartsSource current="rail" />
-        </AnalysisNav>
+        <AnalysisNav current="charts" />
         <ChartBrowser
           initialSet={set && SET_RE.test(set) ? set : null}
           initialLine={line && LINE_RE.test(line) ? line : null}

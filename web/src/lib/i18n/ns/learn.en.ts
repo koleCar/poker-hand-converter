@@ -52,7 +52,6 @@ export const learnEn = {
     progress: "Progress",
     reports: "Reports",
     charts: "Charts",
-    myCharts: "Your charts",
     learn: "Concepts",
     more: "More",
   },

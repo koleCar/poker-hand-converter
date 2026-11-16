@@ -43,8 +43,7 @@ describe("the analysis' views in the address", () => {
     const views: AnalysisView[] = [
       { kind: "session", at: null, gap: 30 },
       { kind: "session", at: "2026-02-20T21:15:00.000Z", gap: 60 },
-      { kind: "charts", set: null, view: "edit", situation: null, period: null },
-      { kind: "charts", set: "c-0123", view: "compare", situation: "vs-open:BB:BTN", period: "365d" },
+      { kind: "leaks", period: "all" },
       { kind: "hand", key: "pokerstars:123/4?x=1", actionIndex: 7, back: "session?at=2026-02-20T21%3A15%3A00.000Z" },
       { kind: "hand", key: "k", actionIndex: null, back: null },
     ];
@@ -53,9 +52,10 @@ describe("the analysis' views in the address", () => {
     expect(parseView(null)).toEqual({ kind: "session", at: null, gap: 30 });
     expect(parseView("nonsense?gap=7")).toEqual({ kind: "session", at: null, gap: 30 });
     expect(parseView("hand")).toEqual({ kind: "session", at: null, gap: 30 });
-    expect(parseView("charts?period=10y").kind === "charts" && parseView("charts?period=10y")).toMatchObject({ period: null });
+    // My charts was removed (2026-11-16): its old address opens the session review.
+    expect(parseView("charts?view=compare")).toEqual({ kind: "session", at: null, gap: 30 });
     // A hand belongs to the tab it was opened from.
-    expect(tabOf(parseView(viewParam({ kind: "hand", key: "k", actionIndex: 1, back: "charts?view=compare" })))).toBe("charts");
+    expect(tabOf(parseView(viewParam({ kind: "hand", key: "k", actionIndex: 1, back: "leaks" })))).toBe("leaks");
     expect(tabOf(parseView(viewParam({ kind: "hand", key: "k", actionIndex: 1, back: null })))).toBe("session");
   });
 });

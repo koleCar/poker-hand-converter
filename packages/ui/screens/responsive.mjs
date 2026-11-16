@@ -1,9 +1,7 @@
 // The phone check of R4.5 (docs/RAIL-PLAN.md R4.5b, R4.5d): the web's Hands,
 // Reports (`/stats`, the opponents panel in it), Players (`/players`, R4.5c),
 // the session review (`/analysis/session`, R5.1), the overview's three
-// biggest leaks (`/analysis`, R5.2), your own charts (`/analysis/my-charts`,
-// R5.3: the list, a set's editor and its tools, the comparison, a hand opened
-// from it), a shared hand and its
+// biggest leaks (`/analysis`, R5.2), a shared hand and its
 // embed, a tournament hand's push/fold panel and its settings form (R5.5,
 // `RAIL_CHECK_ICM=<hand id>:<action index>` - a decision the push/fold game
 // graded), Settings' Your data and Delete account (R6.5), and the replayer, at 375 x 812 as a touch phone (coarse pointer), in
@@ -257,40 +255,6 @@ for (const locale of ["en", "hr"]) {
     await example.first().click();
     await page.locator(".rp").first().waitFor({ timeout: 60000 });
     await report("/analysis/h/<id> from the top three");
-  }
-
-  // Your own charts (R5.3): the list, the first set's editor with every tool
-  // open, its comparison (all time) and a deviation's example hand opened at
-  // the decision. The account needs a saved chart set for all but the first.
-  await page.goto(`${BASE}/analysis/my-charts`);
-  const library = "main section[aria-labelledby=charts-library]";
-  await page.locator(library).waitFor({ timeout: 60000 });
-  await report("/analysis/my-charts");
-  const firstSet = page.locator(`${library} li button`).first();
-  if ((await firstSet.count()) > 0) {
-    await firstSet.click();
-    await page.locator("main [role=grid]").first().waitFor({ timeout: 30000 });
-    await report("/analysis/my-charts, a set's editor");
-    for (const summary of await page.locator("main section details > summary").all()) await summary.click();
-    await report("/analysis/my-charts, the editor's tools open");
-    await page.locator("main [role=tablist] button[role=tab]").nth(1).click();
-    const compare = "main section[aria-labelledby=charts-compare]";
-    await page.locator(compare).waitFor({ timeout: 30000 });
-    await page.locator(`${compare} button[aria-pressed]`).last().click();
-    await page.waitForFunction((card) => !document.querySelector(`${card}[aria-busy=true]`), compare, { timeout: 60000 });
-    await report("/analysis/my-charts, the comparison (all time)");
-    const deviation = page.locator("main section[aria-labelledby=charts-detail] ul button").first();
-    if ((await deviation.count()) > 0) {
-      await deviation.click();
-      const example = page.locator("main a[href^='/analysis/h/']").first();
-      await example.waitFor({ timeout: 30000 }).catch(() => {});
-      await report("/analysis/my-charts, a deviation's examples");
-      if ((await example.count()) > 0) {
-        await example.click();
-        await page.locator(".rp").first().waitFor({ timeout: 60000 });
-        await report("/analysis/h/<id> from your charts");
-      }
-    }
   }
 
   // R6.5: Settings -> Your data (the export) and Delete account. Only their

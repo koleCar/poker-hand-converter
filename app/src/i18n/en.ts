@@ -1149,7 +1149,7 @@ export const en = {
   /** The analysis (R5.4): its screen, the background run's status, a hand's grades. */
   analysis: {
     tabsLabel: "Analysis sections",
-    tabs: { session: "Session review", leaks: "Top leaks", charts: "My charts" },
+    tabs: { session: "Session review", leaks: "Top leaks" },
     unavailable: "The analysis is only available inside the Rail app.",
     loading: "Opening the analysis…",
     status: {
