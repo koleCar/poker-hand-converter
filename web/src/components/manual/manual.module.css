@@ -89,11 +89,127 @@
   border-color: var(--danger-fg);
 }
 
-/* ------------------------------------------------------------ players - */
+/* ------------------------------------------------- hero and seat names - */
 
-.effective {
-  margin: 0;
+/* "You are UTG HJ CO BTN SB BB": the hero keeps their seat at the bottom of
+   the felt and the button moves round to give them the picked position. */
+.heroRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.heroLabel {
   font-size: 13px;
+  font-weight: 600;
+}
+
+.heroSeg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev);
+  border: 1px solid var(--line-soft);
+}
+
+.heroSeg button {
+  min-width: 52px;
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--fg-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition:
+    background var(--dur-2) var(--ease-standard),
+    color var(--dur-2) var(--ease-standard);
+}
+
+.heroSeg button:hover {
+  color: var(--fg);
+  background: var(--bg-elev-2);
+}
+
+.heroSeg button:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.heroSeg button.heroOn {
+  background: var(--accent-bg);
+  color: var(--text-on-accent);
+}
+
+/* A seat's name on the felt is its own button: click it to rename in place.
+   Sized off the felt's unit like the label it replaces. */
+.seatName {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  min-inline-size: min(100%, 4ch);
+  max-inline-size: 100%;
+  padding: 0 0.3em;
+  border: 0;
+  border-radius: var(--radius-1);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: text;
+}
+
+.seatName:hover,
+.seatName:focus-visible {
+  background: rgb(255 255 255 / 9%);
+}
+
+.seatName:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.seatNameDefault {
+  color: var(--fg-dim);
+  font-weight: 500;
+}
+
+.seatNameText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seatNamePen {
+  flex: none;
+  opacity: 0;
+  color: var(--fg-dim);
+  transition: opacity var(--dur-2) var(--ease-standard);
+}
+
+.seatName:hover .seatNamePen,
+.seatName:focus-visible .seatNamePen {
+  opacity: 1;
+}
+
+.seatNameInput {
+  inline-size: min(100%, 14ch);
+  min-inline-size: 8ch;
+  padding: 0.1em 0.4em;
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-1);
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  text-align: center;
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-fg) 22%, transparent);
 }
 
 .setAll {
@@ -101,55 +217,6 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-}
-
-.seatTable {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--line-soft);
-  border-radius: var(--radius-sm);
-  overflow-x: auto;
-}
-
-.seatRow {
-  display: grid;
-  grid-template-columns: 96px minmax(130px, 1fr) 140px 60px 50px minmax(110px, auto);
-  gap: 10px;
-  align-items: center;
-  min-width: 620px;
-  padding: 7px 12px;
-  border-top: 1px solid var(--line-soft);
-  font-size: 13px;
-}
-
-.seatRow input[type="text"] {
-  width: 100%;
-}
-
-.seatHead {
-  border-top: 0;
-  background: var(--bg-elev-2);
-  font-size: 10.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--fg-dim);
-  font-weight: 650;
-}
-
-.seatEmpty {
-  opacity: 0.55;
-}
-
-.seatNo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-variant-numeric: tabular-nums;
-}
-
-.center {
-  display: flex;
-  justify-content: center;
 }
 
 .pos {

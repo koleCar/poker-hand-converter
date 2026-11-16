@@ -2,12 +2,10 @@
 
 import { useState } from "react";
 import { useDict } from "../../lib/i18n/client";
-import { MANUAL_UNITS, type EngineState, type ManualCurrency } from "../../lib/manual";
+import { MANUAL_UNITS, type ManualCurrency } from "../../lib/manual";
 import type { Amount, CurrencyUnit } from "../../lib/phf/types";
-import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { AmountInput } from "./AmountInput";
-import type { CardTarget } from "./CardDialog";
-import { TABLE_SIZES, formatFor, unitOf, withTableSize, type AmountMode, type EditorState } from "./editorState";
+import { TABLE_SIZES, unitOf, withTableSize, type EditorState } from "./editorState";
 import styles from "./manual.module.css";
 
 type Update = (patch: Partial<EditorState> | ((current: EditorState) => EditorState)) => void;
@@ -33,6 +31,7 @@ export function GamePanel({ state, update }: { state: EditorState; update: Updat
   const players = useDict().manual.players;
   const money = { mode: "money" as const, unit: unitOf(state), bigBlind: state.bigBlind };
   const tournament = state.format === "tournament";
+  const [all, setAll] = useState<Amount>(100 * state.bigBlind);
   const setTournament = (patch: Partial<EditorState["tournament"]>) =>
     update((current) => ({ ...current, tournament: { ...current.tournament, ...patch } }));
 
@@ -140,6 +139,26 @@ export function GamePanel({ state, update }: { state: EditorState; update: Updat
         ) : null}
       </div>
 
+      <div className={styles.setAll}>
+        <span className="field__label">{players.setAll}</span>
+        <AmountInput
+          value={all}
+          onChange={setAll}
+          mode={state.amountMode}
+          unit={unitOf(state)}
+          bigBlind={state.bigBlind}
+          label={players.setAll}
+        />
+        <button
+          type="button"
+          className="btn btn--sm"
+          disabled={!(all > 0)}
+          onClick={() => update((current) => ({ ...current, seats: current.seats.map((seat) => ({ ...seat, stack: all })) }))}
+        >
+          {players.apply}
+        </button>
+      </div>
+
       <div className={styles.fields}>
         {!tournament ? (
           <label className="field">
@@ -225,144 +244,6 @@ export function GamePanel({ state, update }: { state: EditorState; update: Updat
           </label>
         </div>
       ) : null}
-    </section>
-  );
-}
-
-/* --------------------------------------------------------------- players - */
-
-interface PlayersPanelProps {
-  state: EditorState;
-  update: Update;
-  engine: EngineState;
-  onPickCards: (target: CardTarget) => void;
-  mode: AmountMode;
-  unit: CurrencyUnit;
-  bigBlind: Amount;
-}
-
-export function PlayersPanel({ state, update, engine, onPickCards, mode, unit, bigBlind }: PlayersPanelProps) {
-  const t = useDict().manual.players;
-  const [all, setAll] = useState<Amount>(100 * bigBlind);
-  const fmt = { mode, unit, bigBlind };
-  const positionOf = new Map(engine.players.map((player) => [player.seat, player.position]));
-
-  const taken = state.seats.filter((seat) => seat.taken);
-  const hero = taken.find((seat) => seat.seat === state.heroSeat);
-  const deepest = Math.max(0, ...taken.filter((seat) => seat.seat !== state.heroSeat).map((seat) => seat.stack));
-  const effective = hero ? Math.min(hero.stack, deepest) : 0;
-
-  const setSeat = (seat: number, patch: Partial<EditorState["seats"][number]>) =>
-    update((current) => ({
-      ...current,
-      seats: current.seats.map((entry) => (entry.seat === seat ? { ...entry, ...patch } : entry)),
-    }));
-
-  return (
-    <section className={styles.dialogBody}>
-      <div className={styles.headRow}>
-        <p className={styles.effective}>
-          <span className="field__label">{t.effective}</span>{" "}
-          <strong>{formatFor(effective, mode, unit, bigBlind)}</strong>
-          <span className={styles.dim}> · {t.effectiveHint}</span>
-        </p>
-      </div>
-
-      <div className={styles.setAll}>
-        <span className="field__label">{t.setAll}</span>
-        <AmountInput value={all} onChange={setAll} {...fmt} label={t.setAll} />
-        <button
-          type="button"
-          className="btn btn--sm"
-          disabled={!(all > 0)}
-          onClick={() =>
-            update((current) => ({
-              ...current,
-              seats: current.seats.map((seat) => ({ ...seat, stack: all })),
-            }))
-          }
-        >
-          {t.apply}
-        </button>
-      </div>
-
-      <div className={styles.seatTable} role="table">
-        <div className={`${styles.seatRow} ${styles.seatHead}`} role="row">
-          <span role="columnheader">#</span>
-          <span role="columnheader">{t.name}</span>
-          <span role="columnheader">{t.stack}</span>
-          <span role="columnheader">{t.button}</span>
-          <span role="columnheader">{t.hero}</span>
-          <span role="columnheader">{t.cards}</span>
-        </div>
-        {state.seats.map((seat) => {
-          const position = positionOf.get(seat.seat);
-          return (
-            <div key={seat.seat} className={`${styles.seatRow} ${seat.taken ? "" : styles.seatEmpty}`} role="row">
-              <span role="cell" className={styles.seatNo}>
-                <input
-                  type="checkbox"
-                  checked={seat.taken}
-                  aria-label={`${t.seat(seat.seat)} · ${t.taken}`}
-                  onChange={(event) => setSeat(seat.seat, { taken: event.target.checked })}
-                />
-                <span>{seat.seat}</span>
-                {seat.taken && position ? <span className={styles.pos}>{position}</span> : null}
-              </span>
-              <span role="cell">
-                <input
-                  type="text"
-                  value={seat.name}
-                  maxLength={40}
-                  disabled={!seat.taken}
-                  aria-label={`${t.seat(seat.seat)} · ${t.name}`}
-                  onChange={(event) => setSeat(seat.seat, { name: event.target.value })}
-                />
-              </span>
-              <span role="cell">
-                <AmountInput
-                  value={seat.stack}
-                  onChange={(stack) => setSeat(seat.seat, { stack })}
-                  disabled={!seat.taken}
-                  label={`${t.seat(seat.seat)} · ${t.stack}`}
-                  {...fmt}
-                />
-              </span>
-              <span role="cell" className={styles.center}>
-                <input
-                  type="radio"
-                  name="manual-button"
-                  checked={state.buttonSeat === seat.seat}
-                  disabled={!seat.taken}
-                  aria-label={`${t.seat(seat.seat)} · ${t.button}`}
-                  onChange={() => update({ buttonSeat: seat.seat })}
-                />
-              </span>
-              <span role="cell" className={styles.center}>
-                <input
-                  type="radio"
-                  name="manual-hero"
-                  checked={state.heroSeat === seat.seat}
-                  disabled={!seat.taken}
-                  aria-label={`${t.seat(seat.seat)} · ${t.hero}`}
-                  onChange={() => update({ heroSeat: seat.seat })}
-                />
-              </span>
-              <span role="cell">
-                <button
-                  type="button"
-                  className={styles.cardsBtn}
-                  disabled={!seat.taken}
-                  onClick={() => onPickCards({ kind: "seat", seat: seat.seat })}
-                  aria-label={t.pickCards(seat.name || t.seat(seat.seat))}
-                >
-                  {seat.cards.length > 0 ? <CardRow cards={seat.cards} size="xs" /> : <span className={styles.dim}>{t.setCards}</span>}
-                </button>
-              </span>
-            </div>
-          );
-        })}
-      </div>
     </section>
   );
 }

@@ -45,16 +45,21 @@ import { tableFrame, tableHand } from "./tableFrame";
 import { CardDialog, type CardTarget } from "./CardDialog";
 import {
   cardsBySeat,
+  cleanName,
   clearStored,
+  defaultNameFor,
   defaultState,
   formatFor,
+  heroPositions,
   loadStored,
+  neighbourSeat,
   setupOf,
   store,
   unitOf,
   type EditorState,
 } from "./editorState";
-import { GamePanel, PlayersPanel } from "./SetupPanels";
+import { GamePanel } from "./SetupPanels";
+import { SeatName } from "./SeatName";
 import { OutputPanel } from "./OutputPanel";
 import { ResultPanel } from "./ResultPanel";
 import styles from "./manual.module.css";
@@ -71,7 +76,14 @@ export function ManualHandEditor({ onSaved }: ManualHandEditorProps) {
   const [cardTarget, setCardTarget] = useState<CardTarget | null>(null);
   /** Seat picked on the felt; null follows the player to act. */
   const [selected, setSelected] = useState<number | null>(null);
-  const [settings, setSettings] = useState<"game" | "players" | null>(null);
+  const [settings, setSettings] = useState<"game" | null>(null);
+  /** The seat whose name is being typed on the felt, and what is typed so far. */
+  const [renaming, setRenamingState] = useState<{ seat: number; draft: string } | null>(null);
+  const renamingRef = useRef(renaming);
+  const setRenaming = (next: { seat: number; draft: string } | null) => {
+    renamingRef.current = next;
+    setRenamingState(next);
+  };
   /** How many entered actions the table is showing; null is the end of the hand. */
   const [cursor, setCursor] = useState<number | null>(null);
 
@@ -138,6 +150,30 @@ export function ManualHandEditor({ onSaved }: ManualHandEditorProps) {
     storedHandIdRef.current = null;
     setState(defaultState(t.players.defaultName));
   };
+
+  const nameOf = (seat: number) => state.seats.find((entry) => entry.seat === seat)?.name ?? "";
+  const defaultNameOf = (seat: number) => defaultNameFor(state, seat, t.players.defaultName);
+  const startRename = (seat: number) => setRenaming({ seat, draft: nameOf(seat) });
+  /** Saves the typed name; an empty one goes back to the seat's default. */
+  const commitRename = (seat: number, move: 0 | 1 | -1) => {
+    const current = renamingRef.current;
+    // A blur arriving after Tab already moved on belongs to a seat that is done.
+    if (!current || current.seat !== seat) return;
+    const name = cleanName(current.draft) || defaultNameOf(seat);
+    if (name !== nameOf(seat)) {
+      update((now) => ({
+        ...now,
+        seats: now.seats.map((entry) => (entry.seat === seat ? { ...entry, name } : entry)),
+      }));
+    }
+    if (move === 0) {
+      setRenaming(null);
+    } else {
+      const next = neighbourSeat(state, seat, move);
+      setRenaming({ seat: next, draft: next === seat ? name : nameOf(next) });
+    }
+  };
+  const heroOptions = heroPositions(state);
 
   const fmtProps = { mode: state.amountMode, unit, bigBlind: state.bigBlind };
   const fmt = (amount: number) => formatFor(amount, state.amountMode, unit, state.bigBlind);
@@ -241,9 +277,6 @@ export function ManualHandEditor({ onSaved }: ManualHandEditorProps) {
           <button type="button" className="btn btn--sm" onClick={() => setSettings("game")}>
             ⚙ {t.bar.game}
           </button>
-          <button type="button" className="btn btn--sm" onClick={() => setSettings("players")}>
-            {t.bar.players}
-          </button>
           <div className={styles.modeSwitch} role="group" aria-label={t.amounts.label}>
             {(["bb", "money"] as const).map((mode) => (
               <button
@@ -265,6 +298,30 @@ export function ManualHandEditor({ onSaved }: ManualHandEditorProps) {
 
       <div className={styles.workspace}>
         <div className={styles.tableCol}>
+          {heroOptions.length > 0 ? (
+            <div className={styles.heroRow}>
+              <span className={styles.heroLabel} id="manual-hero-position">
+                {t.hero.label}
+              </span>
+              <div className={styles.heroSeg} role="radiogroup" aria-labelledby="manual-hero-position">
+                {heroOptions.map((option) => {
+                  const on = option.buttonSeat === state.buttonSeat;
+                  return (
+                    <button
+                      key={option.buttonSeat}
+                      type="button"
+                      role="radio"
+                      aria-checked={on}
+                      className={on ? styles.heroOn : undefined}
+                      onClick={() => update({ buttonSeat: option.buttonSeat })}
+                    >
+                      {option.position}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
           <div ref={tableRef}>
             <ManualTable
               hand={tableHand(state, unit)}
@@ -277,6 +334,23 @@ export function ManualHandEditor({ onSaved }: ManualHandEditorProps) {
               }}
               onSeatCardsClick={(seat) => setCardTarget({ kind: "seat", seat })}
               onBoardClick={() => setCardTarget({ kind: "board" })}
+              renderSeatName={(seat, label) => {
+                const editing = renaming !== null && renaming.seat === seat.seatNo;
+                return (
+                  <SeatName
+                    label={editing ? renaming.draft : label}
+                    isDefault={label === defaultNameOf(seat.seatNo)}
+                    editing={editing}
+                    draft={editing ? renaming.draft : ""}
+                    placeholder={defaultNameOf(seat.seatNo)}
+                    renameLabel={t.hero.rename(label)}
+                    onStart={() => startRename(seat.seatNo)}
+                    onDraft={(draft) => setRenaming({ seat: seat.seatNo, draft })}
+                    onCommit={(move) => commitRename(seat.seatNo, move)}
+                    onCancel={() => setRenaming(null)}
+                  />
+                );
+              }}
             />
           </div>
           <div className={styles.nav} role="group" aria-label={t.nav.label}>
@@ -337,8 +411,8 @@ export function ManualHandEditor({ onSaved }: ManualHandEditorProps) {
             ) : problems.length > 0 ? (
               <>
                 <span className="notice notice--warn">{t.setupProblems[problems[0]]}</span>
-                <button type="button" className="btn btn--sm" onClick={() => setSettings("players")}>
-                  {t.bar.players}
+                <button type="button" className="btn btn--sm" onClick={() => setSettings("game")}>
+                  {t.bar.game}
                 </button>
               </>
             ) : bubbleStatus?.kind === "betting" && actor ? (
@@ -395,14 +469,6 @@ export function ManualHandEditor({ onSaved }: ManualHandEditorProps) {
 
       <Overlay open={settings === "game"} onClose={() => setSettings(null)} title={t.game.heading} className={styles.settingsDialog}>
         <GamePanel state={state} update={update} />
-      </Overlay>
-      <Overlay
-        open={settings === "players"}
-        onClose={() => setSettings(null)}
-        title={t.players.heading}
-        className={styles.settingsDialog}
-      >
-        <PlayersPanel state={state} update={update} engine={engine} onPickCards={setCardTarget} {...fmtProps} />
       </Overlay>
 
       <CardDialog target={cardTarget} state={state} update={update} engine={engine} onClose={() => setCardTarget(null)} />
