@@ -1,0 +1,43 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": false,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          0
+        ],
+        "openTenths": 22,
+        "playersFlop": 2,
+        "vsPositions": " BB HJ CO BTN ",
+        "vsSeats": " 1 3 4 5 "
+      },
+      "handId": "HD91876609",
+      "index": 0
+    }
+  ],
+  "input": "tests/test/fixtures/weplay/dead-small-blind.txt"
+}

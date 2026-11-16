@@ -100,7 +100,7 @@ pub struct Rollup {
 }
 
 /// Which hero rows [`Reader::hero_totals`] sums. `None` is "all".
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct HeroFilter {
     /// `segments.id`s.
     pub segments: Option<Vec<i64>>,
@@ -115,6 +115,10 @@ pub struct HeroFilter {
     pub to: Option<String>,
     /// `aggregate`'s options; the default is its default.
     pub exclusions: Exclusions,
+    /// The Hands screen's filter, when a report sets a group the rollups do
+    /// not sum by ([`crate::ReportFilter::hands`]): the totals are then
+    /// read from the hero's rows of exactly the hands it lists.
+    pub hands: Option<crate::hand_list::HandFilter>,
 }
 
 /// The all-in EV adjustment of a set of hero hands: EV net = net + `net`,
@@ -757,7 +761,13 @@ impl Reader {
     /// The hero's totals per (segment, position) over `filter`, with the
     /// all-in EV adjustment. Sorted by segment, then position.
     pub fn hero_totals(&self, filter: &HeroFilter) -> Result<Vec<HeroTotal>> {
-        let ranges = day_ranges(filter.from.as_deref(), filter.to.as_deref())?;
+        let mut ranges = day_ranges(filter.from.as_deref(), filter.to.as_deref())?;
+        if filter.hands.is_some() {
+            // The hands one by one: no whole days from the rollups; the
+            // range's own bounds are in the hands' subquery.
+            ranges.no_days = true;
+            ranges.edges.clear();
+        }
         let exclusions = filter.exclusions;
         let segments = || {
             filter
@@ -825,17 +835,30 @@ impl Reader {
                 }
                 sql += &in_list("d.segment_id", segments(), &mut params);
                 sql += &in_list("coalesce(s.position, '')", positions(), &mut params);
-                (sql, params)
+                if let Some(hands) = &filter.hands {
+                    sql += &crate::hand_list::hand_keys_in(conn, hands, "d.hand_key", &mut params)?;
+                }
+                Ok::<_, Error>((sql, params))
             };
 
-            // The partial days at the ends, from the rows.
-            for (lo, hi) in &ranges.edges {
-                let (sql, params) = hero_rows(
-                    "hand_stats d INDEXED BY hand_stats_played_idx",
-                    Some(lo),
-                    Some(hi),
-                    "",
-                );
+            // The partial days at the ends, from the rows; with the Hands
+            // screen's filter, every row of its hands.
+            let mut edges: Vec<(Option<&str>, Option<&str>, &str)> = ranges
+                .edges
+                .iter()
+                .map(|(lo, hi)| {
+                    (
+                        Some(lo.as_str()),
+                        Some(hi.as_str()),
+                        "hand_stats d INDEXED BY hand_stats_played_idx",
+                    )
+                })
+                .collect();
+            if filter.hands.is_some() {
+                edges.push((None, None, "hand_stats d"));
+            }
+            for (lo, hi, from) in edges {
+                let (sql, params) = hero_rows(from, lo, hi, "")?;
                 let mut stmt = conn.prepare_cached(&sql)?;
                 let mut rows = stmt.query(params_from_iter(params))?;
                 while let Some(row) = rows.next()? {
@@ -858,7 +881,7 @@ impl Reader {
                 from,
                 to,
                 ", e.seat, s.seat, e.ev_net, e.ev_net_bb_milli",
-            );
+            )?;
             let mut stmt = conn.prepare_cached(&sql)?;
             let mut rows = stmt.query(params_from_iter(params))?;
             while let Some(row) = rows.next()? {
@@ -880,7 +903,7 @@ impl Reader {
                 from,
                 to,
                 "",
-            );
+            )?;
             let mut stmt = conn.prepare_cached(&sql)?;
             let mut rows = stmt.query(params_from_iter(params))?;
             while let Some(row) = rows.next()? {

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Feed, parseFeedParams } from "../../components/forum/Feed";
+import { ForumLayout } from "../../components/forum/ForumLayout";
 import { ServerFrame } from "../../components/shell/ServerFrame";
 import { getDict } from "../../lib/i18n/server";
 import { paths } from "../../lib/routes";
-import { readBoards, readFeed } from "../../lib/server/forum";
+import { readBoardCounts, readBoards, readFeed } from "../../lib/server/forum";
 
 /**
  * `/` — the forum, every board.
@@ -32,13 +33,28 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
 export default async function HomePage({ searchParams }: { searchParams: SearchParams }) {
   const en = await getDict();
   const params = await searchParams;
-  const { sort, after, page } = parseFeedParams(params);
-  const [boards, data] = await Promise.all([readBoards(), readFeed(null, sort, after)]);
+  const { sort, filters, after, page } = parseFeedParams(params);
+  const [boards, counts, data, top, waiting] = await Promise.all([
+    readBoards(),
+    readBoardCounts(),
+    readFeed(null, sort, after, filters.kind, filters.unanswered),
+    readFeed(null, "top", null, null, false, 5),
+    readFeed(null, "new", null, null, true, 5),
+  ]);
 
   return (
     <ServerFrame tab="forum">
       {params.auth === "failed" ? <p className="notice notice--warn">{en.auth.callbackFailed}</p> : null}
-      <Feed t={en} board={null} boards={boards} sort={sort} page={page} data={data} heading={en.forum.allBoards} />
+      <ForumLayout
+        t={en}
+        boards={boards}
+        counts={counts}
+        current={null}
+        nav={filters.unanswered ? "unanswered" : "everything"}
+        rail={{ top: top?.posts ?? [], waiting: waiting?.posts ?? [] }}
+      >
+        <Feed t={en} board={null} sort={sort} filters={filters} page={page} data={data} heading={en.forum.allBoards} />
+      </ForumLayout>
     </ServerFrame>
   );
 }

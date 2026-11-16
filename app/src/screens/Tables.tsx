@@ -3,18 +3,18 @@
  * design A of 2026-11-11). One header row - tiling's state as a pill, then
  * the layout in force, "+ Layout", "Re-tile" and the switch - over the
  * displays drawn to scale with the tiled tables on them, and two cards:
- * the rooms (tiling allowed or not, the user's tiling and RNG switches per
- * room) with the rules that switch the layout by table count, and the RNG
- * (its switch, colour bands, when it rolls, size and opacity) with (T7) the
- * global hotkeys. The slot editor ("Draw slots", a layout's
- * "Edit slots") takes the displays' place while it is open.
+ * the rooms (tiling allowed or not, the user's tiling switch per room) with
+ * the rules that switch the layout by table count, and (T7) the global
+ * hotkeys. The slot editor ("Draw slots", a layout's "Edit slots") takes
+ * the displays' place while it is open. The RNG moved to Settings on
+ * 2026-11-16 (one box on the screen, `rng_box.rs`).
  *
- * Free: table tiling and the RNG need no plan (`entitlements.rs`), so no
- * lock here. Whether a room may be tiled or show the RNG is the Rust side's
- * (`hud_policy`'s `tiling` / `rng`); a switch never allows a room the
- * policy does not. The HUD process does the tiling; this screen stores the
- * settings (`set_tiling_settings`, `set_rng_settings`) and shows what the
- * HUD reports (`hud_status().tiling`).
+ * Free: table tiling needs no plan (`entitlements.rs`), so no lock here.
+ * Whether a room may be tiled is the Rust side's (`hud_policy`'s
+ * `tiling`); a switch never allows a room the policy does not. The HUD
+ * process does the tiling; this screen stores the settings
+ * (`set_tiling_settings`) and shows what the HUD reports
+ * (`hud_status().tiling`).
  */
 import { useState } from "react";
 
@@ -29,7 +29,6 @@ import { AutoSwitchCard } from "./tables/AutoSwitchCard";
 import { HotkeysCard } from "./tables/HotkeysCard";
 import { LayoutAdd, LayoutMenu } from "./tables/LayoutControls";
 import { Monitors } from "./tables/Monitors";
-import { RngCard } from "./tables/RngCard";
 import { RoomsCard } from "./tables/RoomsCard";
 import { SlotEditor, type EditorTarget } from "./tables/SlotEditor";
 import { activeId, chooseLayout } from "./tables/model";
@@ -43,7 +42,7 @@ export function Tables() {
   const settings = useTableSettings();
   const [retileError, setRetileError] = useState<string | null>(null);
   const [editing, setEditing] = useState<EditorTarget | null>(null);
-  const { tiling, rng } = settings;
+  const { tiling } = settings;
   const { status, policy } = compliance;
 
   if (!inApp) {
@@ -62,7 +61,7 @@ export function Tables() {
       </>
     );
   }
-  if (tiling === null || rng === null || policy === null) {
+  if (tiling === null || policy === null) {
     return (
       <>
         <HeaderRow title={t.screens.tables.title} />
@@ -115,19 +114,11 @@ export function Tables() {
         )}
         <div className={styles.cards}>
           <div className={styles.column}>
-            <RoomsCard
-              policy={policy}
-              settings={tiling}
-              rng={rng}
-              status={status}
-              onSave={save}
-              onSaveRng={(next) => void settings.saveRng(next)}
-            />
+            <RoomsCard policy={policy} settings={tiling} status={status} onSave={save} />
             <AutoSwitchCard settings={tiling} status={status} onSave={save} />
           </div>
           <div className={styles.column}>
-            <RngCard policy={policy} rng={rng} onSave={settings.saveRng} />
-            <HotkeysCard settings={tiling} policy={policy} onSave={settings.saveTiling} />
+            <HotkeysCard settings={tiling} onSave={settings.saveTiling} />
           </div>
         </div>
       </div>

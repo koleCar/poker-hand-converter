@@ -1,0 +1,43 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [
+    {
+      "facts": {
+        "betPct": [
+          48,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": true,
+        "buyInCents": 140,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": false,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": 15,
+        "made": [
+          9,
+          9,
+          9
+        ],
+        "openTenths": 30,
+        "playersFlop": 2,
+        "vsPositions": " HJ ",
+        "vsSeats": " 3 "
+      },
+      "handId": "47658722448",
+      "index": 0
+    }
+  ],
+  "input": "fixtures/samples/pokerstars/42-tour-mtt-bounty-knockout-finish-place-excerpt.txt"
+}

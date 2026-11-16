@@ -19,5 +19,7 @@ export const storeReportSource: ReportSource = {
   facets: (filter) => ipc.handsFacets(filter),
   onChanged: (listener) => onStatsDataChanged(listener),
   graphPoints: GRAPH_POINTS,
+  // The Hands screen's filter: the store reads a report over any of it.
+  filters: storeHandsSource.features,
   savedFilters: storeHandsSource.savedFilters,
 };

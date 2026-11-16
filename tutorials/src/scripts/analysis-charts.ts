@@ -1,4 +1,4 @@
-// analysis-charts: Rail's preflop charts, your own, and the trainer.
+// analysis-charts: Rail's preflop charts and the trainer.
 // Shots: capture/web/analysis-charts.ts.
 
 import type { Tutorial } from './types.ts';
@@ -6,8 +6,8 @@ import type { Tutorial } from './types.ts';
 export const script: Tutorial = {
   slug: 'analysis-charts',
   title: 'Charts and training',
-  subtitle: 'Rail’s preflop charts, charts of your own, and practising against them',
-  where: 'Analysis → Charts, Your charts, Train',
+  subtitle: 'Rail’s preflop charts, and practising against them',
+  where: 'Analysis → Charts, Train',
   next: 'learn',
   chapters: [
     {
@@ -29,27 +29,6 @@ export const script: Tutorial = {
           highlight: ['grid', 'legend'],
           caption: 'Every hand’s mix of actions, in the colours of the legend. Point at a hand for its numbers.',
           seconds: 6,
-        },
-      ],
-    },
-    {
-      title: 'Your charts',
-      steps: [
-        {
-          shot: 'my-charts',
-          focus: 'grid',
-          fill: 0.75,
-          highlight: ['brush', 'grid'],
-          caption: 'Build your own charts situation by situation: choose a mix and paint it on the grid.',
-          seconds: 6,
-        },
-        {
-          shot: 'my-charts',
-          focus: 'fromRail',
-          fill: 0.6,
-          highlight: ['fromRail', 'save'],
-          caption: 'Start from Rail’s chart, paste ranges or copy them out, then save. Compare with your hands shows where you differ.',
-          seconds: 6.5,
         },
       ],
     },

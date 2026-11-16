@@ -1,0 +1,91 @@
+/*
+ * Statistics as cards (`StatCards.tsx`), the Live screen's tiles
+ * (`app/src/screens/live/Live.module.css`, "the statistics") for a shared
+ * screen: label over value, the target band and the value's mark under it.
+ */
+
+/* The frame's width picks the rows: every card in one from 80px each, else
+ * two rows, else three (the counts are set on `.cards` by `StatCards.tsx`). */
+.frame {
+  container-type: inline-size;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(var(--cards-third), minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@container (min-width: 400px) {
+  .cards {
+    grid-template-columns: repeat(var(--cards-half), minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 780px) {
+  .cards {
+    grid-template-columns: repeat(var(--cards-all), minmax(0, 1fr));
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  min-width: 0;
+  padding: var(--space-3);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-3);
+  cursor: default;
+}
+
+.card:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
+}
+
+.label {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.value {
+  color: var(--text-primary);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* The target band and the value's mark. */
+.rangeBar {
+  position: relative;
+  display: block;
+  height: 6px;
+  margin-top: var(--space-1-5, 6px);
+  border-radius: 3px;
+  background: var(--border-subtle);
+}
+
+.rangeBand {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--profit-fg) 30%, transparent);
+}
+
+.rangeMark {
+  position: absolute;
+  top: -3px;
+  width: 4px;
+  height: 12px;
+  margin-inline-start: -2px;
+  border-radius: 2px;
+}

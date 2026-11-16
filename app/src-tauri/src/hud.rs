@@ -30,9 +30,8 @@
 //!   (`crate::popup`), and the window hears [`TABLES_OPEN_EVENT`] on the
 //!   edges of `tables_open` - while tables are open it hides its analysis
 //!   (A10), and the popup closes when the last table does;
-//!   `seat_position_changed` (R3.6: the user dragged a panel) and (T4)
-//!   `rng_position_changed` (the RNG widget dragged) are written to the
-//!   store by a thread of its own ([`LayoutWrites`]) - the HUD's
+//!   `seat_position_changed` (R3.6: the user dragged a panel) is written
+//!   to the store by a thread of its own ([`LayoutWrites`]) - the HUD's
 //!   connection is read-only, and the supervisor's callback never waits for
 //!   a commit.
 //! - **The user's HUD settings** (R3.6): [`hud_set_preferred_seat`] (their
@@ -61,12 +60,12 @@
 //!   `--policy <the cached remote sites.json>` (read before its first look
 //!   for tables), and hears `policy {remote}` on every connection and every
 //!   change - stricter only, merged by the HUD itself.
-//! - **Table tiling and the RNG** (T3, `crate::tiling`): the user's
-//!   settings are kept here ([`HudState::table_settings`]) and sent as
-//!   `tiling_changed` / `rng_changed` on every change and after every
+//! - **Table tiling** (T3, `crate::tiling`): the user's settings are kept
+//!   here ([`HudState::table_settings`], the RNG box's switch beside them)
+//!   and tiling's sent as `tiling_changed` on every change and after every
 //!   handshake, with `panels {allowed}`; `retile` from the tray and the
-//!   window; the HUD's `tiling_status` is in [`hud_status`]. They are free:
-//!   when the plan holds the HUD back (R6.4) and tiling or the RNG is on,
+//!   window; the HUD's `tiling_status` is in [`hud_status`]. It is free:
+//!   when the plan holds the HUD back (R6.4) and tiling is on,
 //!   the HUD still starts, with `--panels off` - it attaches no panel, the
 //!   status stays `locked` - and a plan that includes the HUD later turns
 //!   the panels on (`panels {allowed: true}`) without a restart.
@@ -238,7 +237,8 @@ const CAPTURE_WAIT: Duration = Duration::from_secs(3);
 struct Shared {
     tables_open: AtomicU32,
     windows: Mutex<Windows>,
-    /// (T3) The user's tiling and RNG settings, sent after every handshake.
+    /// (T3) The user's tiling settings (sent after every handshake) and
+    /// the RNG box's switch.
     table_settings: Mutex<TableSettings>,
     /// (T3) The HUD's last `tiling_status` (`None`: none since it
     /// connected).
@@ -322,9 +322,8 @@ impl HudFeed {
 struct SeatWrite {
     site: String,
     size: u32,
-    /// The seat's slot; (T4) `None`: the RNG widget (`hud_settings` kind
-    /// `rng`, per room and size).
-    slot: Option<u32>,
+    /// The seat's slot.
+    slot: u32,
     x: u32,
     y: u32,
 }
@@ -345,27 +344,20 @@ impl LayoutWrites {
             .name("rail-hud-layouts".to_owned())
             .spawn(move || {
                 while let Ok(write) = rx.recv() {
-                    let written = match write.slot {
-                        Some(slot) => writer.set_hud_seat_position(
-                            &write.site,
-                            write.size,
-                            slot,
-                            write.x,
-                            write.y,
-                        ),
-                        None => {
-                            writer.set_hud_rng_position(&write.site, write.size, write.x, write.y)
-                        }
-                    };
+                    let written = writer.set_hud_seat_position(
+                        &write.site,
+                        write.size,
+                        write.slot,
+                        write.x,
+                        write.y,
+                    );
                     match written {
                         Ok(()) => {
                             log::info!(
-                                "hud: {} {}-seat {} now at ({}, {})",
+                                "hud: {} {}-seat panel {} now at ({}, {})",
                                 write.site,
                                 write.size,
-                                write
-                                    .slot
-                                    .map_or_else(|| "RNG".to_owned(), |s| format!("panel {s}")),
+                                write.slot,
                                 write.x,
                                 write.y
                             );
@@ -470,7 +462,7 @@ impl HudState {
             Some(Ok(writer)) => LayoutWrites::start(writer, Arc::clone(&sync)),
             _ => LayoutWrites::default(),
         };
-        // (T3) The user's tiling and RNG settings, for every handshake.
+        // (T3) The user's tiling settings, for every handshake.
         *shared.table_settings() = crate::tiling::read_store(store);
 
         let on_event = {
@@ -527,14 +519,14 @@ impl HudState {
         }
     }
 
-    /// (T3) The plan holds the HUD back, it has not started, and tiling or
-    /// the RNG is on: start it for them alone (no panels).
+    /// (T3) The plan holds the HUD back, it has not started, and tiling is
+    /// on: start it for that alone (no panels).
     fn start_for_tiling(&self) {
         if self.supervisor().is_none()
             && self.locked.load(Ordering::SeqCst)
             && self.shared.table_settings().wanted()
         {
-            log::info!("hud: starting for table tiling and the RNG only (no panels)");
+            log::info!("hud: starting for table tiling only (no panels)");
             self.start_pending(true);
         }
     }
@@ -669,16 +661,11 @@ impl HudState {
         self.wake_sync();
     }
 
-    /// (T3) The user saved RNG settings (stored already): the HUD keeps
-    /// them, and the sync worker sends them now.
+    /// (T3) The user saved RNG settings (stored already): kept for the RNG
+    /// box (`crate::rng_box`), and the sync worker sends them now. Not sent
+    /// to the HUD: since 2026-11-16 the HUD draws no RNG.
     pub fn rng_written(&self, settings: RngSettings) {
-        self.shared.table_settings().rng = settings.clone();
-        match self.supervisor() {
-            Some(supervisor) => {
-                supervisor.send(AppMessage::RngChanged { settings });
-            }
-            None => self.start_for_tiling(),
-        }
+        self.shared.table_settings().rng = settings;
         self.wake_sync();
     }
 
@@ -695,9 +682,6 @@ impl HudState {
                     supervisor.send(AppMessage::TilingChanged {
                         settings: now.tiling,
                     });
-                }
-                if before.rng != now.rng {
-                    supervisor.send(AppMessage::RngChanged { settings: now.rng });
                 }
             }
             None => self.start_for_tiling(),
@@ -737,7 +721,7 @@ impl HudState {
         self.send(AppMessage::Retile)
     }
 
-    /// (T7) A message for the HUD (a hotkey's `retile` / `roll_rng`).
+    /// (T7) A message for the HUD (a hotkey's `retile`).
     /// Whether it was sent (no HUD running: not).
     pub fn send(&self, message: AppMessage) -> bool {
         self.supervisor()
@@ -746,7 +730,7 @@ impl HudState {
 
     /// What a HUD that just connected needs besides the policy: whether it
     /// draws panels (R6.4: a restarted HUD may have been started without
-    /// them) and (T3) the user's tiling and RNG settings.
+    /// them) and (T3) the user's tiling settings.
     fn send_state(&self) {
         let Some(supervisor) = self.supervisor() else {
             return;
@@ -757,9 +741,6 @@ impl HudState {
         let settings = self.table_settings();
         supervisor.send(AppMessage::TilingChanged {
             settings: settings.tiling,
-        });
-        supervisor.send(AppMessage::RngChanged {
-            settings: settings.rng,
         });
     }
 
@@ -783,7 +764,7 @@ impl HudState {
         let tables_open = self.shared.tables_open.load(Ordering::SeqCst);
         let tiling = self.shared.tiling().clone();
         let locked = self.locked.load(Ordering::SeqCst);
-        // (T3) Running for tiling and the RNG only: the HUD itself is still
+        // (T3) Running for tiling only: the HUD itself is still
         // held by the plan.
         let tiling_only = locked && self.supervisor().is_some();
         let Some(supervisor) = self.supervisor().filter(|_| !locked) else {
@@ -968,7 +949,7 @@ fn on_event<R: Runtime>(
             // file the process read at start).
             if let Some(hud) = app.try_state::<HudState>() {
                 hud.policy_changed(crate::policy::remote());
-                // (T3) Panels or not, and the tiling and RNG settings.
+                // (T3) Panels or not, and the tiling settings.
                 hud.send_state();
             }
             refresh_tray(app);
@@ -1070,15 +1051,7 @@ fn on_event<R: Runtime>(
             } => layouts.queue(SeatWrite {
                 site,
                 size,
-                slot: Some(slot),
-                x,
-                y,
-            }),
-            // (T4) The RNG widget dragged: its room and size's position.
-            HudMessage::RngPositionChanged { site, size, x, y } => layouts.queue(SeatWrite {
-                site,
-                size,
-                slot: None,
+                slot,
                 x,
                 y,
             }),
@@ -1441,17 +1414,9 @@ mod tests {
         layouts.queue(SeatWrite {
             site: "acr".into(),
             size: 6,
-            slot: Some(2),
+            slot: 2,
             x: 300,
             y: 640,
-        });
-        // (T4) The RNG widget's, as `rng_position_changed` brings it.
-        layouts.queue(SeatWrite {
-            site: "acr".into(),
-            size: 9,
-            slot: None,
-            x: 950,
-            y: 40,
         });
         let deadline = std::time::Instant::now() + Duration::from_secs(10);
         let reader = rail_store::Reader::open(&store.path, 1).expect("reader");
@@ -1467,20 +1432,11 @@ mod tests {
             assert!(std::time::Instant::now() < deadline, "not written");
             std::thread::sleep(Duration::from_millis(20));
         }
-        loop {
-            let found = reader.hud_rng_positions().expect("read");
-            if let [p] = found.as_slice() {
-                assert_eq!((p.site.as_str(), p.size, p.x, p.y), ("acr", 9, 950, 40));
-                break;
-            }
-            assert!(std::time::Instant::now() < deadline, "not written");
-            std::thread::sleep(Duration::from_millis(20));
-        }
         // A position out of range is refused, quietly (logged).
         layouts.queue(SeatWrite {
             site: "acr".into(),
             size: 6,
-            slot: Some(9),
+            slot: 9,
             x: 0,
             y: 0,
         });

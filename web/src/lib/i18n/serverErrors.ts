@@ -26,6 +26,7 @@ const HR: Record<string, string> = {
   "That username is not allowed.": "To korisničko ime nije dopušteno.",
   "That username is taken.": "To korisničko ime je zauzeto.",
   "That username is not available.": "To korisničko ime nije dostupno.",
+  "Your username is already set. It cannot be changed.": "Korisničko ime je već postavljeno i ne može se mijenjati.",
   "Usernames are at least 3 characters.": "Korisničko ime ima najmanje 3 znaka.",
   "Usernames are at most 24 characters.": "Korisničko ime ima najviše 24 znaka.",
   "Usernames can use only letters, numbers and underscores.": "Korisničko ime smije sadržavati samo slova, brojke i podvlake.",

@@ -404,6 +404,12 @@ export interface SyncStatus {
 /** (R6.5) The web pages the app opens (`account::web_page_path`). */
 export type WebPage = "your-data" | "delete-account" | "privacy";
 
+/** The account's public name (`my_profile()`): chosen once; `provisional` until then. */
+export interface AccountProfile {
+  username: string;
+  provisional: boolean;
+}
+
 /** `rail_sync::auth::AccountStatus`: the desktop account (R1.7). */
 export type AccountStatus =
   /** This build has no account service: Rail works on this computer only. */
@@ -1012,8 +1018,6 @@ export interface RoomPolicy {
   closed: boolean;
   /** (T0, T5) Table tiling's policy, separate from the HUD's. */
   tiling: ToolPolicy;
-  /** (T0, T5) The RNG's policy. */
-  rng: ToolPolicy;
   /** (T7) The Action Required slot's: `permitted` only with tiling allowed and a turn signal for this system. */
   actionSlot: ToolPolicy;
 }
@@ -1411,6 +1415,16 @@ export const ipc = {
   accountSignOut: () => invoke<AccountStatus>("account_sign_out"),
   /** (R6.5) The web's data export, account deletion or privacy policy, in the default browser. */
   accountOpenWebPage: (page: WebPage) => invoke<null>("account_open_web_page", { page }),
+  /**
+   * The signed-in account's public name; `null` when the server has none.
+   * Errors: `signedOut`, `unavailable`, `unreachable`.
+   */
+  accountProfile: () => invoke<AccountProfile | null>("account_profile"),
+  /**
+   * Choose the public name, once. Errors: the codes above, or the server's
+   * sentence (taken, not available, already chosen, ...).
+   */
+  accountSetUsername: (username: string) => invoke<string>("account_set_username", { username }),
   /** Sync with the web (R1.9). `null`: sync is off in this build. */
   syncStatus: () => invoke<SyncStatus | null>("sync_status"),
   syncNow: () => invoke<SyncStatus>("sync_now"),
@@ -1458,6 +1472,10 @@ export const ipc = {
   trainerResultsRecord: (rows: TrainerResultDto[]) => invoke<number>("trainer_results_record", { rows }),
   /** Open a share link made here in the default browser. */
   shareOpen: (slug: string) => invoke<null>("share_open", { slug }),
+  /** The owner's names switch on a link made here; the state the server kept. */
+  shareSetNames: (slug: string, show: boolean) => invoke<boolean>("share_set_names", { slug, show }),
+  /** The web's post preview for a hand in the store, in the default browser (`share.rs`). */
+  forumPreviewOpen: (handKey: string) => invoke<null>("forum_preview_open", { handKey }),
   handAnnotations: (handKey: string) => invoke<HandAnnotations>("hand_annotations", { handKey }),
   handSetNote: (handKey: string, note: string) => invoke<HandAnnotations>("hand_set_note", { handKey, note }),
   handAddTag: (handKey: string, tag: string) => invoke<HandAnnotations>("hand_add_tag", { handKey, tag }),
@@ -1516,6 +1534,9 @@ export const ipc = {
   setTilingSettings: (settings: TilingSettings) => invoke<null>("set_tiling_settings", { settings }),
   getRngSettings: () => invoke<RngSettings>("get_rng_settings"),
   setRngSettings: (settings: RngSettings) => invoke<null>("set_rng_settings", { settings }),
+  /** The RNG box (`rng_box.rs`): the number it shows, and a new one (a click). */
+  rngBoxNumber: () => invoke<number>("rng_box_number"),
+  rngBoxRoll: () => invoke<number>("rng_box_roll"),
   retileTables: () => invoke<boolean>("retile_tables"),
   captureTilingLayout: () => invoke<TilingSlot[]>("capture_tiling_layout"),
   /** (T7) The global hotkeys: how each binding stands, and letting every key go while one is recorded. */
@@ -1659,7 +1680,7 @@ export function onEntitlementsChanged(onChange: () => void): () => void {
   return onAppEvent("entitlements-changed", onChange);
 }
 
-/** Settings, Updates: the update's status, on every change (download progress at most a few times a second). */
+/** The sidebar's update card: the update's status, on every change (download progress at most a few times a second). */
 export function onUpdatesChanged(onChange: (status: UpdateStatus) => void): () => void {
   return onAppEvent<UpdateStatus>("updates-changed", onChange);
 }
@@ -1682,6 +1703,11 @@ export function onHudStatusChanged(onChange: () => void): () => void {
 /** (T3) A sync brought another computer's tiling or RNG settings. */
 export function onTilingSettingsChanged(onChange: () => void): () => void {
   return onAppEvent("tiling-settings-changed", onChange);
+}
+
+/** The RNG box's number changed outside it (the "Roll the RNG" hotkey). */
+export function onRngBoxRolled(onRoll: (n: number) => void): () => void {
+  return onAppEvent<number>("rng-box-rolled", onRoll);
 }
 
 /** (T7) A hotkey was bound, found taken, or paused: ask `hotkeyStatus` again. */

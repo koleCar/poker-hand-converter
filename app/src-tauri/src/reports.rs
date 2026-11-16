@@ -446,10 +446,26 @@ pub struct ReportDto {
     /// [`BREAKDOWN_COLUMNS`]: the statistics of every group row.
     columns: Vec<&'static str>,
     by_position: Vec<GroupDto>,
+    /// Every shipped definition's id, in [`stat_definitions`]' order: the
+    /// statistics of each of `position_stats`.
+    position_columns: Vec<String>,
+    /// The hero's positions with every shipped definition each (the
+    /// statistics matrix's columns; `by_position` keeps the breakdown's).
+    position_stats: Vec<PositionStatsDto>,
     by_stake: Vec<GroupDto>,
     by_site: Vec<GroupDto>,
     by_size: Vec<GroupDto>,
     by_format: Vec<GroupDto>,
+}
+
+/// One of the hero's positions with every shipped definition.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PositionStatsDto {
+    key: String,
+    hands: i64,
+    /// [`ReportDto`]'s `position_columns`, in that order.
+    stats: Vec<ShownDto>,
 }
 
 /// The breakdowns by situation.
@@ -597,17 +613,23 @@ pub fn build_report(
         ids,
     };
     let none = |_: &str| None;
+    let positions = grouped(&totals, |t| Some(t.position.clone()));
+    let position_stats = positions
+        .iter()
+        .map(|(key, group)| PositionStatsDto {
+            key: key.clone(),
+            hands: group.sum.totals.hands(),
+            stats: show_all(display, &group.sums(), units, None),
+        })
+        .collect();
     Ok(ReportDto {
         units: units.into(),
         summary,
         graph: graph.as_ref().into(),
         columns: BREAKDOWN_COLUMNS.to_vec(),
-        by_position: rows(
-            grouped(&totals, |t| Some(t.position.clone())),
-            display,
-            units,
-            none,
-        ),
+        by_position: rows(positions, display, units, none),
+        position_columns: display.stats.iter().map(|s| s.id().to_owned()).collect(),
+        position_stats,
         by_stake: rows(
             grouped(&totals, |t| segment(t).map(|s| s.stake.key())),
             display,

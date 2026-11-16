@@ -118,7 +118,7 @@ export default async function PublishedHandPage({ params, searchParams }: PagePr
     <div className="sharepage">
       <header className="sharepage__bar">
         <div className="sharepage__bar-inner">
-          <BrandMark showTagline={false} />
+          <BrandMark />
           <div className="sharepage__bar-actions">
             <Link href={paths.convert()} className="btn btn--primary btn--sm">
               {en.published.convertCta}

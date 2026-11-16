@@ -8,5 +8,9 @@
 .main {
   min-width: 0;
   overflow-y: auto;
+  /* The scrollbar's room is kept when the page is short too: a screen that
+     grows past the window (the Trainer's feedback) must not narrow, and
+     rescale, everything in it. */
+  scrollbar-gutter: stable;
   padding: var(--density-page-block) var(--density-page-inline);
 }

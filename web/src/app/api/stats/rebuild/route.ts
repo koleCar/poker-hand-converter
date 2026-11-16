@@ -1,15 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server";
 import {
+  handDerivation,
   handEvRow,
-  handStatsRows,
   type HandEvInsert,
+  type HandFactsInsert,
   type HandStatsInsert,
 } from "../../../../lib/db/statsRows";
 import { EV_VERSION } from "../../../../lib/equity";
 import type { PhfHand } from "../../../../lib/phf/types";
 import { saveRowsByHand } from "../../../../lib/db/statsSave";
 import { handOfRow, typescriptParser, type StoredHandRow } from "../../../../lib/db/storedHand";
-import { STATS_VERSION } from "../../../../lib/stats";
+import { FACTS_VERSION, STATS_VERSION } from "../../../../lib/stats";
 import { getWritableServerSupabase } from "../../../../lib/supabase/server";
 
 /**
@@ -131,6 +132,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         // A hand with statistics but no all-in-EV row is also work: that is
         // how a library that predates EV catches up (#50).
         p_ev_version: EV_VERSION,
+        // And a hand without the filter builder's facts (20271116130000): how
+        // every stored hand gets them.
+        p_facts_version: FACTS_VERSION,
       });
       if (error) {
         throw error;
@@ -139,6 +143,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       const rows: HandStatsInsert[] = [];
       const evRows: HandEvInsert[] = [];
+      const factRows: HandFactsInsert[] = [];
       for (const row of page) {
         // A text-only row (20271114090000) is parsed here, with the
         // TypeScript parsers: no `.wasm` to fetch on the server.
@@ -154,7 +159,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         }
         let derived: HandStatsInsert[];
         try {
-          derived = handStatsRows(phf, { includeVillains });
+          const derivation = handDerivation(phf, { includeVillains });
+          derived = derivation.stats;
+          if (derivation.facts) factRows.push(derivation.facts);
         } catch {
           slice.failed += 1;
           continue;
@@ -185,7 +192,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         MAX_ROWS_PER_WRITE,
         saved.refused,
       );
-      slice.failed += new Set([...saved.refused, ...evSaved.refused]).size;
+      const factsSaved = await saveRowsByHand(
+        factRows,
+        (chunk) => supabase.rpc("save_hand_facts", { p_rows: chunk }),
+        MAX_ROWS_PER_WRITE,
+        saved.refused,
+      );
+      slice.failed += new Set([...saved.refused, ...evSaved.refused, ...factsSaved.refused]).size;
 
       slice.processed += page.length;
       if (page.length > 0) {

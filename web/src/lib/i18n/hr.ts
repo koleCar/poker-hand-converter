@@ -123,11 +123,6 @@ export const hr: Dict = {
       description:
         "Nakon sesije: tvoje najlošije ocijenjene odluke, preflop odluke izvan tvojih chartova i najveći potovi, uz rezultat sesije.",
     },
-    analysisMyCharts: {
-      title: "Tvoji preflop chartovi | Rail",
-      description:
-        "Napravi ili uvezi svoje preflop rangeove i usporedi ih s rukama koje si odigrao: koliko si ih pratio, gdje si od njih odstupio, s rukama.",
-    },
     analysisHand: {
       title: "Analiza ruke | Rail",
       description: "Jedna tvoja ruka, odluku po odluku, u replayeru.",
@@ -250,8 +245,8 @@ export const hr: Dict = {
   },
 
   account: {
-    menuProfile: "Tvoj profil",
-    menuSettings: "Postavke",
+    menuProfile: "Postavke profila",
+    opening: "Otvaram…",
   },
 
   profile: {
@@ -389,6 +384,27 @@ export const hr: Dict = {
     anchorAfter: (where: string, what: string) => `${where}, nakon: ${what}`,
     handBadge: "Ruka",
     postDate: (date: string) => date,
+
+    nav: {
+      label: "Forum",
+      menu: "Boardovi i filteri",
+      everything: "Sve",
+      unanswered: "Bez odgovora",
+      saved: "Spremljeno",
+      boards: "Boardovi",
+    },
+    filters: {
+      label: "Poredak i filteri",
+      kinds: { all: "Sve", hand: "Ruke", poll: "Ankete", text: "Rasprave" },
+      unanswered: "Bez odgovora",
+      clear: "Očisti",
+      empty: "Nijedan post ne odgovara ovim filterima.",
+    },
+    rail: {
+      top: "Najbolji postovi",
+      waiting: "Čekaju odgovor",
+      none: "Još ništa.",
+    },
 
     poll: {
       badge: (votes: number) => `Anketa · ${votes} ${plural(votes, "odgovor", "odgovora", "odgovora")}`,
@@ -642,52 +658,78 @@ export const hr: Dict = {
   },
 
   settings: {
-    metaTitle: "Postavke | Rail",
-    metaDescription: "Tvoje korisničko ime i račun na Railu.",
-    heading: "Postavke",
-    signedOut: "Prijavi se da promijeniš korisničko ime i postavke računa.",
+    metaTitle: "Postavke profila | Rail",
+    metaDescription: "Tvoje ime, račun, plan i podaci na Railu.",
+    heading: "Postavke profila",
+    signedOut: "Prijavi se da promijeniš profil",
+    signedOutHint: "Ime, lozinka, plan i podaci.",
     signInCta: "Prijava",
     loading: "Učitavam tvoj račun…",
     unavailable: "Postavke računa još nisu postavljene na ovoj bazi. Sve ostalo i dalje radi.",
-    loadFailed: "Tvoj račun nije se mogao učitati. Osvježi stranicu i pokušaj ponovno.",
+    loadFailed: "Tvoj profil se nije mogao učitati.",
+    loadFailedHint: "Ime i objavljivanje pojavit će se čim se učita.",
+    retry: "Pokušaj ponovno",
+    sections: {
+      account: "Račun",
+      plan: "Plan",
+      language: "Jezik",
+      data: "Tvoji podaci",
+      danger: "Opasna zona",
+    },
+    publicProfile: "Javni profil",
+    signOut: "Odjava",
+    signingOut: "Odjavljujem…",
+    cancel: "Odustani",
+    change: "Promijeni",
 
     username: {
-      heading: "Korisničko ime",
       label: "Korisničko ime",
-      hint: "3–24 znaka: slova, brojke i podvlake. To je tvoje javno ime i adresa tvog profila.",
-      provisional: "Koristiš ime dobiveno pri registraciji. Odaberi svoje — prva promjena je besplatna.",
-      rules:
-        "Možeš ga mijenjati jednom u 30 dana. Staro ime ostaje rezervirano za tebe godinu dana, a linkovi na njega i dalje rade.",
-      nextChange: (date: string) => `Sljedeća promjena moguća je ${date}.`,
-      save: "Spremi korisničko ime",
+      hint: "3–24 znaka: slova, brojke i podvlake.",
+      choose: "Odaberi ime",
+      chooseLong:
+        "Drugi vide ovo ime umjesto tvog e-maila. Biraš ga jednom: kasnije se ne može mijenjati.",
+      provisional: "Još nije odabrano",
+      locked: "Tvoje javno ime i adresa profila. Ne može se mijenjati.",
+      confirm: (username: string) => `Tvoje ime bit će ${username}, zauvijek.`,
+      save: "Spremi ime",
       saving: "Spremam…",
-      saved: (username: string) => `Spremljeno. Sada si ${username}.`,
-      unchanged: "To je već tvoje korisničko ime.",
+      saved: (username: string) => `Spremljeno. Ti si ${username}.`,
       tooShort: "Korisničko ime ima najmanje 3 znaka.",
       tooLong: "Korisničko ime ima najviše 24 znaka.",
       badCharacters: "Korisničko ime smije sadržavati samo slova, brojke i podvlake.",
       badStart: "Korisničko ime počinje slovom ili brojkom.",
-      viewProfile: "Pogledaj svoj profil",
+    },
+
+    email: {
+      label: "E-mail",
+      confirmed: "Potvrđen",
+      unconfirmed: "Nije potvrđen",
+      private: "Vidiš ga samo ti.",
     },
 
     posting: {
-      heading: "Objavljivanje",
-      ok: "Tvoj račun može objavljivati.",
-      blocked: "Tvoj račun još ne može objavljivati.",
-      resend: "Ponovno pošalji e-mail za potvrdu",
+      label: "Objavljivanje",
+      ok: "Dopušteno",
+      blocked: "Blokirano",
+      resend: "Ponovno pošalji",
       resending: "Šaljem…",
       resent: (email: string) => `Novi link za potvrdu stiže na ${email}.`,
     },
     password: {
-      heading: "Lozinka",
+      label: "Lozinka",
       hint: "Najmanje šest znakova.",
       newLabel: "Nova lozinka",
       confirmLabel: "Ponovi novu lozinku",
       tooShort: "Upiši najmanje šest znakova.",
       mismatch: "Lozinke se ne podudaraju.",
-      save: "Promijeni lozinku",
+      save: "Spremi lozinku",
       saving: "Spremam…",
       saved: "Lozinka je promijenjena. Sljedeći put se prijavi novom.",
+    },
+    danger: {
+      title: "Obriši moj račun",
+      hint: "Tvoje ruke, statistika i objave. Ne može se poništiti.",
+      open: "Obriši…",
     },
   },
 };

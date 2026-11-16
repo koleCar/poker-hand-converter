@@ -11,8 +11,9 @@
 
 "use client";
 
-import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import Link, { useLinkStatus } from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useAuth } from "../../lib/auth";
 import { useDict } from "../../lib/i18n/client";
 import { useMyProfile } from "../../lib/profile/context";
@@ -24,7 +25,14 @@ export function UserMenu() {
   const en = useDict();
   const auth = useAuth();
   const { profile } = useMyProfile();
-  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  // The address the menu was opened on: it is open only while that is still
+  // the address, so it closes by itself when a menu link's page arrives. Until
+  // then it stays open and the item shows that it is opening.
+  const [openOn, setOpenOn] = useState<string | null>(null);
+  const open = openOn !== null && openOn === pathname;
+  const setOpen = (value: boolean | ((was: boolean) => boolean)) =>
+    setOpenOn(() => ((typeof value === "function" ? value(open) : value) ? pathname : null));
   const [busy, setBusy] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -34,12 +42,12 @@ export function UserMenu() {
     }
     function onPointer(event: PointerEvent) {
       if (!rootRef.current?.contains(event.target as Node)) {
-        setOpen(false);
+        setOpenOn(null);
       }
     }
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        setOpen(false);
+        setOpenOn(null);
       }
     }
     window.addEventListener("pointerdown", onPointer);
@@ -49,6 +57,11 @@ export function UserMenu() {
       window.removeEventListener("keydown", onKey);
     };
   }, [open]);
+
+  // A link to the page already shown navigates nowhere: close the menu.
+  const closeIfHere = (href: string) => {
+    if (href === pathname) setOpen(false);
+  };
 
   if (!auth.configured) {
     return null;
@@ -108,32 +121,17 @@ export function UserMenu() {
               <small className="muted">{user.email}</small>
             ) : null}
           </div>
-          {profile ? (
-            <Link
-              href={paths.profile(profile.username)}
-              className="usermenu__item"
-              role="menuitem"
-              onClick={() => setOpen(false)}
-            >
-              {en.account.menuProfile}
-            </Link>
-          ) : null}
-          <Link href={paths.saved()} className="usermenu__item" role="menuitem" onClick={() => setOpen(false)}>
-            {en.social.menuSaved}
+          <Link href={paths.settings()} className="usermenu__item" role="menuitem" onClick={() => closeIfHere(paths.settings())}>
+            <PendingLabel busyLabel={en.account.opening}>{en.account.menuProfile}</PendingLabel>
+          </Link>
+          <Link href={paths.saved()} className="usermenu__item" role="menuitem" onClick={() => closeIfHere(paths.saved())}>
+            <PendingLabel busyLabel={en.account.opening}>{en.social.menuSaved}</PendingLabel>
           </Link>
           {profile && profile.role !== "member" ? (
-            <Link href={paths.mod()} className="usermenu__item" role="menuitem" onClick={() => setOpen(false)}>
-              {en.moderation.menuMod}
+            <Link href={paths.mod()} className="usermenu__item" role="menuitem" onClick={() => closeIfHere(paths.mod())}>
+              <PendingLabel busyLabel={en.account.opening}>{en.moderation.menuMod}</PendingLabel>
             </Link>
           ) : null}
-          <Link
-            href={paths.settings()}
-            className="usermenu__item"
-            role="menuitem"
-            onClick={() => setOpen(false)}
-          >
-            {en.account.menuSettings}
-          </Link>
           <button
             type="button"
             className="usermenu__item"
@@ -156,5 +154,21 @@ export function UserMenu() {
         </div>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * A menu item's words, or a spinner and "Opening…" while its page loads
+ * (`useLinkStatus` answers only inside a `<Link>`). Without it a click on a
+ * slow page looked like nothing happened.
+ */
+function PendingLabel({ busyLabel, children }: { busyLabel: string; children: ReactNode }) {
+  const { pending } = useLinkStatus();
+  if (!pending) return <>{children}</>;
+  return (
+    <span className="usermenu__pending" role="status">
+      <RailLoader size="inline" label={busyLabel} />
+      {busyLabel}
+    </span>
   );
 }

@@ -238,6 +238,16 @@ fn place(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError>; //
 
 ### 4.4 RNG overlay
 
+> **Superseded 2026-11-16 (owner's brief).** The RNG is no longer drawn
+> over each table. It is one small window of the app's in the primary
+> monitor's top-right corner, showing one number from 1 to 100, shown
+> while the RNG switch (now in Settings) is on and a session is live (the
+> hero's newest hand within the 30-minute session gap) or the HUD has a
+> table open. A click shows a new number; so does the "Roll the RNG"
+> hotkey. `app/src-tauri/src/rng_box.rs`. The per-table overlay described
+> below was removed from the HUD the same day (its messages, widget,
+> permit and stored positions); this section is history.
+
 - **Look:**
   - A small, borderless widget. The default spot is the table's top-right
     corner.

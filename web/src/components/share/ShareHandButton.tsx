@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "../../lib/auth";
 import { useDict } from "../../lib/i18n/client";
 import { SignInRequiredError } from "../../lib/db";
@@ -10,7 +11,6 @@ import { AnalysisShareToggle } from "../analysis/AnalysisShareToggle";
 import { ShareNamesToggle } from "./ShareNamesToggle";
 import { ShareToForum } from "./ShareToForum";
 import { Icon } from "@rail/ui/icon/Icon";
-import { RailLoader } from "@rail/ui/loader/RailLoader";
 
 interface ShareHandButtonProps {
   hand: PhfHand;
@@ -79,6 +79,9 @@ export function ShareHandButton({
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const popRef = useRef<HTMLDivElement>(null);
+  /** The popover lives in a portal, placed under the trigger: a replayer pane's overflow cannot clip it. */
+  const [place, setPlace] = useState<CSSProperties | null>(null);
   const auth = useAuth();
 
   // A new hand invalidates the previous link.
@@ -108,7 +111,8 @@ export function ShareHandButton({
       }
     }
     function onPointer(event: PointerEvent) {
-      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (panelRef.current && !panelRef.current.contains(target) && !popRef.current?.contains(target)) {
         setOpen(false);
       }
     }
@@ -120,12 +124,34 @@ export function ShareHandButton({
     };
   }, [open]);
 
+  useLayoutEffect(() => {
+    if (!open) return;
+    function measure() {
+      const rect = panelRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const width = Math.min(344, window.innerWidth - 28);
+      // Right-aligned to the trigger, kept on screen.
+      const left = Math.max(14, Math.min(rect.right - width, window.innerWidth - width - 14));
+      setPlace({ top: rect.bottom + 8, left, width });
+    }
+    measure();
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", measure, true);
+    return () => {
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure, true);
+    };
+  }, [open]);
+
   async function handleShare() {
     setOpen(true);
     setError(null);
 
     if (url) {
       setCopyState((await copyToClipboard(url, inputRef.current)) ? "copied" : "failed");
+      return;
+    }
+    if (auth.configured && !auth.isSignedIn) {
       return;
     }
     if (!isShareBackendReady) {
@@ -161,6 +187,13 @@ export function ShareHandButton({
   }
 
   const canWebShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
+  // Making a link stores the hand, so it needs an account; say so in the
+  // popover instead of opening it on an error.
+  const needsSignIn = auth.configured && !auth.isSignedIn && !presetUrl && !url;
+
+  async function copy(link: string) {
+    setCopyState((await copyToClipboard(link, inputRef.current)) ? "copied" : "failed");
+  }
 
   return (
     <div className={`share ${className ?? ""}`} ref={panelRef}>
@@ -185,90 +218,88 @@ export function ShareHandButton({
         {iconOnly ? null : busy ? t.creating : label}
       </button>
 
-      {open ? (
-        <div className="share__panel" role="dialog" aria-label={t.heading}>
-          <div className="share__panel-head">
-            <strong>{t.heading}</strong>
-            <button
-              type="button"
-              className="share__close"
-              onClick={() => setOpen(false)}
-              aria-label={dict.chrome.close}
-            >
-              ✕
-            </button>
-          </div>
-
-          {error ? <p className="share__msg share__msg--error">{error}</p> : null}
-
-          {url ? (
+      {open && place ? createPortal(
+        <div ref={popRef} className="share__panel" role="dialog" aria-label={t.heading} style={place}>
+          {needsSignIn ? (
             <>
-              <p className="share__hint">
-                {t.hint}
-              </p>
-              <div className="share__row">
-                <input
-                  ref={inputRef}
-                  className="share__url"
-                  value={url}
-                  readOnly
-                  spellCheck={false}
-                  onFocus={(event) => event.currentTarget.select()}
-                  aria-label={t.linkLabel}
-                />
-                <button
-                  type="button"
-                  className="btn btn--sm"
-                  onClick={async () =>
-                    setCopyState((await copyToClipboard(url, inputRef.current)) ? "copied" : "failed")
-                  }
-                >
-                  {t.copy}
+              <p className="share__hint">{t.signInLine}</p>
+              <div>
+                <button type="button" className="btn btn--primary btn--sm" onClick={() => auth.requestSignIn(t.signIn)}>
+                  {t.signInButton}
                 </button>
               </div>
+            </>
+          ) : (
+            <>
+              {error ? <p className="share__msg share__msg--error">{error}</p> : null}
 
-              <div className="share__actions">
-                <a className="btn btn--ghost btn--sm" href={url} target="_blank" rel="noreferrer">
-                  {t.open}
-                </a>
-                {canWebShare ? (
+              {url || busy ? (
+                <div className="share__link">
+                  {url ? (
+                    <input
+                      ref={inputRef}
+                      className="share__url"
+                      value={url}
+                      readOnly
+                      spellCheck={false}
+                      onFocus={(event) => event.currentTarget.select()}
+                      aria-label={t.linkLabel}
+                    />
+                  ) : (
+                    <span className="share__shim" role="status" aria-label={t.creating} />
+                  )}
+                  {url ? (
+                    <a className="share__icon" href={url} target="_blank" rel="noreferrer" aria-label={t.open} title={t.open}>
+                      <Icon name="external" />
+                    </a>
+                  ) : null}
+                  {url && canWebShare ? (
+                    <button
+                      type="button"
+                      className="share__icon"
+                      aria-label={t.via}
+                      title={t.via}
+                      onClick={() => {
+                        void navigator.share({ title: t.webShareTitle, url }).catch(() => undefined);
+                      }}
+                    >
+                      <Icon name="shareOut" />
+                    </button>
+                  ) : null}
                   <button
                     type="button"
-                    className="btn btn--ghost btn--sm"
-                    onClick={() => {
-                      void navigator
-                        .share({ title: t.webShareTitle, url })
-                        .catch(() => undefined);
-                    }}
+                    className={`share__copy${copyState === "copied" ? " is-ok" : ""}`}
+                    disabled={!url}
+                    onClick={() => (url ? void copy(url) : undefined)}
                   >
-                    {t.via}
+                    {copyState === "copied" ? <Icon name="check" /> : null}
+                    <span role="status">{copyState === "copied" ? t.copiedShort : t.copy}</span>
                   </button>
-                ) : null}
-              </div>
-
-              {copyState === "copied" ? (
-                <p className="share__msg share__msg--ok" role="status">
-                  {t.copied}
-                </p>
+                </div>
               ) : null}
+
               {copyState === "failed" ? (
                 <p className="share__msg share__msg--warn" role="status">
                   {t.copyBlocked}
                 </p>
               ) : null}
 
-              {/* R4.5: the link hides the players' names unless this is ticked. */}
-              {slug ? <ShareNamesToggle slug={slug} /> : null}
-              {/* A7.1: a stored hand's analysis stays private unless this is ticked. */}
-              {storedHandId && !presetUrl ? <AnalysisShareToggle surface="hand" id={storedHandId} /> : null}
-            </>
-          ) : busy ? (
-            <RailLoader size="small" showLabel label={t.creating} className="share__hint" />
-          ) : null}
+              {/* R4.5: the link hides the players' names unless this is on. */}
+              {slug ? <ShareNamesToggle slug={slug} compact /> : null}
+              {/* A7.1: a stored hand's analysis stays private unless this is on. */}
+              {storedHandId && !presetUrl ? <AnalysisShareToggle surface="hand" id={storedHandId} compact /> : null}
 
-          {/* The hand as a forum thread with the author's comment. */}
-          {!presetUrl ? <ShareToForum hand={hand} storedHandId={storedHandId} /> : null}
-        </div>
+              {/* The post's settings and a preview of it, in a new tab. */}
+              {!presetUrl ? (
+                <>
+                  <div className="share__sep" />
+                  <ShareToForum hand={hand} storedHandId={storedHandId} />
+                </>
+              ) : null}
+            </>
+          )}
+        </div>,
+        document.body,
       ) : null}
     </div>
   );

@@ -859,6 +859,41 @@ fn every_order_lists_the_same_hands_in_its_order() {
             assert!(ok, "{sort}: {} then {}", a.hand_key, b.hand_key);
         }
     }
+    // In money (2026-11-16): each hand's amount over its minor units, as
+    // the list's `$` shows it, which is not the big blinds' order across stakes.
+    // Compared without division, as the pots above: a/m >= c/n as a*n >= c*m.
+    let money_cmp = |x: i64, a: &HandRow, y: i64, b: &HandRow| {
+        (i128::from(x) * i128::from(b.minor_units.max(1)))
+            .cmp(&(i128::from(y) * i128::from(a.minor_units.max(1))))
+    };
+    for (sort, _) in hand_list::MONEY_SORTS {
+        let filter = HandFilter {
+            sort: Some((*sort).to_owned()),
+            sort_in_money: true,
+            ..HandFilter::default()
+        };
+        let rows = all_pages(&store, &filter, 377);
+        assert_eq!(keys(&rows), keys(&all), "{sort} in money: the same hands");
+        for pair in rows.windows(2) {
+            let (a, b) = (&pair[0], &pair[1]);
+            let (x, y) = match *sort {
+                "pot" | "potAsc" => (Some(a.total_pot), Some(b.total_pot)),
+                _ => (a.hero_net, b.hero_net),
+            };
+            let ok = match (x, y) {
+                (Some(x), Some(y)) => {
+                    let order = money_cmp(x, a, y, b);
+                    match *sort {
+                        "pot" | "won" => order != std::cmp::Ordering::Less,
+                        _ => order != std::cmp::Ordering::Greater,
+                    }
+                }
+                (Some(_), None) | (None, None) => true,
+                (None, Some(_)) => false,
+            };
+            assert!(ok, "{sort} in money: {} then {}", a.hand_key, b.hand_key);
+        }
+    }
     // An unknown order is the newest first.
     let unknown = HandFilter {
         sort: Some("sideways".to_owned()),
@@ -1362,6 +1397,7 @@ struct Facts {
     buy_in: Option<i64>,
     bounty: bool,
     level: Option<i64>,
+    bluff: [i64; 2],
 }
 
 fn list_facts(conn: &Connection) -> BTreeMap<String, Facts> {
@@ -1369,7 +1405,7 @@ fn list_facts(conn: &Connection) -> BTreeMap<String, Facts> {
         .prepare(
             "SELECT hand_key, open_tenths, flop_bet_pct, turn_bet_pct, river_bet_pct, flop_made, turn_made,
                     river_made, flop_kicker, turn_kicker, river_kicker, flop_draws, turn_draws, players_flop,
-                    hero_ip, vs_seats, vs_positions, buy_in_cents, bounty, tour_level FROM hand_list",
+                    hero_ip, vs_seats, vs_positions, buy_in_cents, bounty, tour_level, hero_bluff, vs_bluff FROM hand_list",
         )
         .expect("prepare");
     stmt.query_map([], |row| {
@@ -1388,6 +1424,7 @@ fn list_facts(conn: &Connection) -> BTreeMap<String, Facts> {
                 buy_in: row.get(17)?,
                 bounty: row.get(18)?,
                 level: row.get(19)?,
+                bluff: [row.get(20)?, row.get(21)?],
             },
         ))
     })
@@ -1426,6 +1463,7 @@ fn the_builder_facts_are_the_phf_s_and_filter_as_a_scan_does() {
             buy_in: derived.buy_in_cents,
             bounty: derived.bounty,
             level: derived.level,
+            bluff: derived.bluff,
         };
         assert_eq!(stored, &want, "{}", row.hand_key);
     }
@@ -1481,6 +1519,45 @@ fn the_builder_facts_are_the_phf_s_and_filter_as_a_scan_does() {
         },
         &|row| f(row).bet[0].is_some_and(|p| p <= 33 || p > 125),
         "a small or overbet flop bet",
+        true,
+    );
+    expect(
+        &HandFilter {
+            bet_pct: [(Some(40.0), Some(80.0)), (None, None), (None, Some(40.0))],
+            ..HandFilter::default()
+        },
+        &|row| {
+            let x = f(row);
+            x.bet[0].is_some_and(|p| (40..=80).contains(&p)) && x.bet[2].is_some_and(|p| p <= 40)
+        },
+        "a 40-80 % flop bet and a river bet up to 40 %",
+        false,
+    );
+    expect(
+        &HandFilter {
+            bet_pct: [(None, Some(40.0)), (None, None), (None, None)],
+            ..HandFilter::default()
+        },
+        &|row| f(row).bet[0].is_some_and(|p| p <= 40),
+        "a flop bet up to 40 %",
+        true,
+    );
+    expect(
+        &HandFilter {
+            bluffs: [vec![], strings(&["turn", "river"])],
+            ..HandFilter::default()
+        },
+        &|row| f(row).bluff[1] & 6 != 0,
+        "an opponent caught bluffing on the turn or river",
+        true,
+    );
+    expect(
+        &HandFilter {
+            bluffs: [strings(&["flop"]), vec![]],
+            ..HandFilter::default()
+        },
+        &|row| f(row).bluff[0] & 1 != 0,
+        "the hero caught bluffing on the flop",
         true,
     );
     expect(
@@ -1640,4 +1717,38 @@ fn the_builder_facts_are_the_phf_s_and_filter_as_a_scan_does() {
         "against a fish",
         false,
     );
+    // A store from before version 23: the migration fills the columns from
+    // the PHF as the import writes them, with no statistics rebuild.
+    let bluffs = |conn: &Connection| {
+        list_facts(conn)
+            .into_iter()
+            .map(|(key, facts)| (key, facts.bluff))
+            .collect::<BTreeMap<_, _>>()
+    };
+    let imported = bluffs(&conn);
+    assert!(
+        imported.values().any(|b| *b != [0, 0]),
+        "the corpus has bluffs"
+    );
+    store.close();
+    conn.execute_batch(
+        "ALTER TABLE hand_list DROP COLUMN hero_bluff; ALTER TABLE hand_list DROP COLUMN vs_bluff;
+         ALTER TABLE recompute_list DROP COLUMN hero_bluff; ALTER TABLE recompute_list DROP COLUMN vs_bluff;",
+    )
+    .expect("back to 22");
+    conn.pragma_update(None, "user_version", 22)
+        .expect("version 22");
+    let stats_version = |conn: &Connection| -> Option<String> {
+        conn.query_row(
+            "SELECT value FROM kv WHERE key = 'stats.version'",
+            [],
+            |r| r.get(0),
+        )
+        .ok()
+    };
+    let kept = stats_version(&conn);
+    assert!(kept.is_some(), "the statistics were built");
+    Store::open(&path).expect("migrated").close();
+    assert_eq!(bluffs(&conn), imported);
+    assert_eq!(stats_version(&conn), kept, "no statistics rebuild");
 }

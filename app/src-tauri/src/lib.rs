@@ -96,10 +96,13 @@ pub mod manual_import;
 pub mod players;
 pub mod policy;
 pub mod popup;
+pub mod profile;
 pub mod quarantine;
 pub mod replayer;
 pub mod reports;
 pub mod review;
+pub mod rng;
+pub mod rng_box;
 pub mod settings;
 pub mod share;
 pub mod stats;
@@ -264,6 +267,8 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     let stats = stats::StatsState::start(&store);
     // The HUD popup (R3.8), before the HUD: a click on a panel opens it.
     app.manage(popup::PopupState::default());
+    // The RNG box (2026-11-16): its number.
+    app.manage(rng_box::RngBoxState::default());
     app.manage(replayer::ReplayerState::default());
     // (R3.10) The HUD policy: the shipped sites.json and the cached remote
     // copy over it, before the HUD (which reads the same cache at start).
@@ -334,6 +339,8 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     // (R3.10) The remote sites.json: a look shortly after start, then every
     // few hours; a new copy reaches the HUD, the popup and the window.
     policy::spawn(app);
+    // The RNG box in the monitor's corner while a table is in play.
+    rng_box::spawn(app);
     // Updates: the automatic check, shortly after start and every few hours.
     app.manage(updates::UpdatesState::default());
     updates::spawn(app);
@@ -419,6 +426,8 @@ pub fn run() {
         account::account_cancel_sign_in,
         account::account_sign_out,
         account::account_open_web_page,
+        profile::account_profile,
+        profile::account_set_username,
         sync::sync_status,
         sync::sync_now,
         sync::sync_set_paused,
@@ -443,6 +452,8 @@ pub fn run() {
         replayer::replayer_open_in_main,
         share::hand_share,
         share::share_open,
+        share::share_set_names,
+        share::forum_preview_open,
         trainer::trainer_results_record,
         hands::hand_annotations,
         hands::hand_set_note,
@@ -478,6 +489,8 @@ pub fn run() {
         tiling::set_tiling_settings,
         tiling::get_rng_settings,
         tiling::set_rng_settings,
+        rng_box::rng_box_number,
+        rng_box::rng_box_roll,
         tiling::retile_tables,
         tiling::capture_tiling_layout,
         hotkeys::hotkey_status,
@@ -569,6 +582,8 @@ pub fn run() {
         account::account_cancel_sign_in,
         account::account_sign_out,
         account::account_open_web_page,
+        profile::account_profile,
+        profile::account_set_username,
         sync::sync_status,
         sync::sync_now,
         sync::sync_set_paused,
@@ -593,6 +608,8 @@ pub fn run() {
         replayer::replayer_open_in_main,
         share::hand_share,
         share::share_open,
+        share::share_set_names,
+        share::forum_preview_open,
         trainer::trainer_results_record,
         hands::hand_annotations,
         hands::hand_set_note,
@@ -628,6 +645,8 @@ pub fn run() {
         tiling::set_tiling_settings,
         tiling::get_rng_settings,
         tiling::set_rng_settings,
+        rng_box::rng_box_number,
+        rng_box::rng_box_roll,
         tiling::retile_tables,
         tiling::capture_tiling_layout,
         hotkeys::hotkey_status,

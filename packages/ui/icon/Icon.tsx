@@ -188,6 +188,36 @@ const PATHS = {
       <path d="M19 12h.01" />
     </>
   ),
+  /** Opens in a new tab. */
+  external: (
+    <>
+      <path d="M14 4h6v6" />
+      <path d="M20 4 10 14" />
+      <path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5" />
+    </>
+  ),
+  /** The system share sheet ("Share via…"). */
+  shareOut: (
+    <>
+      <path d="M12 3v12" />
+      <path d="m7 8 5-5 5 5" />
+      <path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" />
+    </>
+  ),
+  user: (
+    <>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21a8 8 0 0 1 16 0" />
+    </>
+  ),
+  bars: (
+    <>
+      <path d="M4 20V11" />
+      <path d="M10 20V5" />
+      <path d="M16 20v-6" />
+      <path d="M21 20H3" />
+    </>
+  ),
   chevronLeft: <path d="m15 18-6-6 6-6" />,
   chevronRight: <path d="m9 18 6-6-6-6" />,
 } as const;

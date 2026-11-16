@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { anchorLabel } from "../../web/src/lib/forum/anchor.js";
+import { NEUTRAL_HUE, boardHue, faceHue } from "../../web/src/lib/forum/boards.js";
 import { jsonLdScript } from "../../web/src/lib/forum/jsonLd.js";
 import { excerpt, linkify, toParagraphs } from "../../web/src/lib/forum/text.js";
 import type { PhfHand } from "../../web/src/lib/phf/types.js";
@@ -94,5 +95,17 @@ describe("pollSpots (#51)", () => {
       }
     }
     expect(spots).toBeGreaterThan(20);
+  });
+});
+
+describe("forum v2 colours", () => {
+  it("gives each known board its own colour and an unknown one the neutral", () => {
+    const known = ["nlhe", "mtt", "plo", "general"].map(boardHue);
+    expect(new Set(known).size).toBe(4);
+    expect(boardHue("no-such-board")).toBe(NEUTRAL_HUE);
+  });
+  it("keeps a username's avatar colour stable", () => {
+    expect(faceHue("gto_gremlin")).toBe(faceHue("gto_gremlin"));
+    expect(faceHue("")).toMatch(/^#[0-9a-f]{6}$/);
   });
 });

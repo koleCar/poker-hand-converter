@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { paths } from "../../lib/routes";
 import { useDict } from "../../lib/i18n/client";
 import type { Dict } from "../../lib/i18n/types";
@@ -33,8 +33,8 @@ export type ShellTab = "forum" | "convert" | "library" | "stats" | "analysis" | 
  * last and took Learn's place in the bar; the course's pages (`/learn/**`)
  * still work from a link and keep the `learn` tab id, but the bar no longer
  * offers them. A signed-out visitor sees three tabs (forum, convert, solver)
- * and a signed-in player with hands six; on a phone the strip already scrolls
- * sideways and keeps the current tab in view (see the effect below).
+ * and a signed-in player with hands six. The strip never scrolls: on a
+ * narrow window the tabs wrap onto a second line (`.shell__tabs`).
  *
  * "Get the app" (`/download`, the desktop app's page) is the strip's last
  * entry, for everyone, marked with the download arrow. It used to be a pill
@@ -71,7 +71,6 @@ interface AppShellProps {
    */
   showHistoryTab: boolean;
   dbConfigured: boolean;
-  storedCount: number | null;
   /** Tabs whose feature the account's plan lacks (R6.2): marked Pro. Empty while enforcement is off. */
   lockedTabs?: readonly ShellTab[];
   /** The content runs edge to edge with a small margin (the Solver library), not in the centred column. */
@@ -83,7 +82,6 @@ export function AppShell({
   tab,
   showHistoryTab,
   dbConfigured,
-  storedCount,
   lockedTabs = [],
   wide = false,
   children,
@@ -92,19 +90,8 @@ export function AppShell({
   // The forum, the converter and the Solver library are for everyone; the
   // library and statistics wait until there is something in them.
   const tabs = TABS.filter((entry) => OPEN_TABS.includes(entry.id) || showHistoryTab);
-  const navRef = useRef<HTMLElement | null>(null);
   // A press on a tab (or the logo) waits for the server; the bar says so.
   const navPending = useNavPendingState();
-
-  // On a phone the tab strip scrolls sideways (five tabs do not fit 375px);
-  // keep the current screen's tab in view rather than leaving it off the edge.
-  useEffect(() => {
-    const nav = navRef.current;
-    const active = nav?.querySelector<HTMLElement>(".shell__tab.is-active");
-    if (active && nav && nav.scrollWidth > nav.clientWidth) {
-      nav.scrollLeft = active.offsetLeft - (nav.clientWidth - active.offsetWidth) / 2;
-    }
-  }, [tab, tabs.length]);
 
   return (
     <NavPendingProvider report={navPending.report}>
@@ -116,7 +103,7 @@ export function AppShell({
             {/* One tab is not a choice — rendering it would be a permanently
                 selected label next to the logo. */}
             {tabs.length > 1 ? (
-              <nav ref={navRef} className="shell__tabs" role="tablist" aria-label={en.nav.sections}>
+              <nav className="shell__tabs" role="tablist" aria-label={en.nav.sections}>
                 {tabs.map((entry) => (
                   <Link
                     key={entry.id}
@@ -143,7 +130,7 @@ export function AppShell({
             ) : null}
 
             <div className="shell__bar-end">
-              <DbStatusChip configured={dbConfigured} storedCount={storedCount} />
+              <DbStatusChip configured={dbConfigured} />
               <NotificationsBell />
               <LanguageSwitch />
               <UserMenu />

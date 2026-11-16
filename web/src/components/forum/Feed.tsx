@@ -1,14 +1,18 @@
 /**
- * A feed page: board chips, sort, search, the posts, and crawlable paging.
+ * A feed page (forum v2): the board header, one sort-and-filter bar, the posts
+ * and crawlable paging. The board list lives in `ForumLayout`'s sidebar.
  *
  * Paging is keyset (`?after=<cursor>`), exposed as real `<a href>` links with a
  * `<link rel="next">`, so a crawler walks it like a person would. Crawlable
  * depth is capped at ten pages — past that the page is `noindex, follow`
- * (decided by the route's metadata from `?page=`).
+ * (decided by the route's metadata from `?page=`). Filters are plain query
+ * parameters too (`?kind=hand&unanswered=1`), so a filtered feed is a link.
  */
 
 import Link from "next/link";
-import type { Board, FeedPage, FeedSort } from "../../lib/forum/types";
+import type { CSSProperties } from "react";
+import { boardHue } from "../../lib/forum/boards";
+import type { Board, FeedFilters, FeedKind, FeedPage, FeedSort } from "../../lib/forum/types";
 import type { Dict } from "../../lib/i18n/types";
 import { paths } from "../../lib/routes";
 import { MyVotesProvider } from "./MyVotes";
@@ -17,11 +21,21 @@ import { NavPending, PendingDims, PendingLoader, PendingScope } from "../shell/N
 import styles from "./forum.module.css";
 
 const SORTS: FeedSort[] = ["hot", "new", "top"];
+const KINDS: Array<FeedKind | null> = [null, "hand", "poll", "text"];
+const NO_FILTERS: FeedFilters = { kind: null, unanswered: false };
 
-export function feedHref(board: string | null, sort: FeedSort, after?: string | null, page?: number): string {
+export function feedHref(
+  board: string | null,
+  sort: FeedSort,
+  after?: string | null,
+  page?: number,
+  filters: FeedFilters = NO_FILTERS,
+): string {
   const base = board ? paths.board(board) : paths.home();
   const params = new URLSearchParams();
   if (sort !== "hot") params.set("sort", sort);
+  if (filters.kind) params.set("kind", filters.kind);
+  if (filters.unanswered) params.set("unanswered", "1");
   if (after) params.set("after", after);
   if (after && page && page > 1) params.set("page", String(page));
   const query = params.toString();
@@ -30,16 +44,16 @@ export function feedHref(board: string | null, sort: FeedSort, after?: string | 
 
 export function Feed({
   board,
-  boards,
   sort,
+  filters,
   page,
   data,
   heading,
   t: en,
 }: {
   board: Board | null;
-  boards: Board[];
   sort: FeedSort;
+  filters: FeedFilters;
   page: number;
   data: FeedPage | null;
   heading: string;
@@ -47,70 +61,84 @@ export function Feed({
 }) {
   const slug = board?.slug ?? null;
   const posts = data?.posts ?? [];
-  const nextHref = data?.next ? feedHref(slug, sort, data.next, page + 1) : null;
+  const nextHref = data?.next ? feedHref(slug, sort, data.next, page + 1, filters) : null;
+  const filtered = filters.kind !== null || filters.unanswered;
 
   return (
-    <div className="stack">
+    <div className={styles.feedPage}>
       {nextHref ? <link rel="next" href={nextHref} /> : null}
+      <h1 className={styles.visuallyHidden}>{heading}</h1>
 
-      <div className={styles.toolbar}>
-        <h1 className={styles.postTitle}>{heading}</h1>
-        <div className={styles.row}>
-          <form action={paths.search()} method="get" className={styles.searchForm} role="search">
-            <input name="q" type="search" placeholder={en.forum.searchPlaceholder} aria-label={en.forum.search} />
-          </form>
-          <Link href={paths.submit()} className="btn btn--primary btn--sm">
-            {en.forum.newPost}
-          </Link>
-        </div>
-      </div>
+      {board ? (
+        <header className={styles.boardHead} style={{ "--hue": boardHue(board.slug) } as CSSProperties}>
+          <span className={styles.navDot} aria-hidden="true" />
+          <span className={styles.boardName}>{board.name}</span>
+          {board.description ? <span className={styles.boardDesc}>{board.description}</span> : null}
+        </header>
+      ) : null}
 
-      {board?.description ? <p className="muted">{board.description}</p> : null}
-
-      {/* A board, a sort or a page is a navigation: the list dims while it is on its way. */}
+      {/* A sort, a filter or a page is a navigation: the list dims while it is on its way. */}
       <PendingScope>
-        <nav className={styles.chips} aria-label={en.forum.allBoards}>
-          <Link href={feedHref(null, sort)} className={styles.chipLink} aria-current={slug === null ? "page" : undefined}>
-            {en.forum.allBoards}
-            <NavPending mark={false} />
-          </Link>
-          {boards.map((entry) => (
+        <div className={styles.filterBar} role="toolbar" aria-label={en.forum.filters.label}>
+          <nav className={styles.seg} aria-label={en.forum.sorts.hot}>
+            {SORTS.map((value) => (
+              <Link key={value} href={feedHref(slug, value, null, 1, filters)} aria-current={sort === value ? "page" : undefined}>
+                {en.forum.sorts[value]}
+                <NavPending mark={false} />
+              </Link>
+            ))}
+          </nav>
+          <span className={styles.barRule} aria-hidden="true" />
+          <nav className={styles.kinds} aria-label={en.forum.filters.label}>
+            {KINDS.map((kind) => (
+              <Link
+                key={kind ?? "all"}
+                href={feedHref(slug, sort, null, 1, { ...filters, kind })}
+                className={styles.filterChip}
+                aria-current={filters.kind === kind ? "page" : undefined}
+              >
+                {en.forum.filters.kinds[kind ?? "all"]}
+                <NavPending mark={false} />
+              </Link>
+            ))}
             <Link
-              key={entry.slug}
-              href={feedHref(entry.slug, sort)}
-              className={styles.chipLink}
-              aria-current={slug === entry.slug ? "page" : undefined}
+              href={feedHref(slug, sort, null, 1, { ...filters, unanswered: !filters.unanswered })}
+              className={styles.filterChip}
+              aria-current={filters.unanswered ? "page" : undefined}
             >
-              {entry.name}
+              {en.forum.filters.unanswered}
               <NavPending mark={false} />
             </Link>
-          ))}
-        </nav>
-
-        <nav className={styles.chips} aria-label={en.forum.sorts.hot}>
-          {SORTS.map((value) => (
-            <Link
-              key={value}
-              href={feedHref(slug, value)}
-              className={styles.chipLink}
-              aria-current={sort === value ? "page" : undefined}
-            >
-              {en.forum.sorts[value]}
-              <NavPending mark={false} />
+          </nav>
+          <span className={styles.barSpacer} />
+          {filtered ? (
+            <Link href={feedHref(slug, sort, null, 1, NO_FILTERS)} className={styles.clearLink}>
+              {en.forum.filters.clear}
             </Link>
-          ))}
+          ) : null}
           <PendingLoader label={en.loading.route.feed} />
-        </nav>
+        </div>
 
         <MyVotesProvider postIds={posts.map((post) => post.publicId)}>
           <PendingDims className={styles.feed}>
-            {posts.length ? posts.map((post) => <PostCard key={post.publicId} post={post} t={en} />) : <p className="muted">{en.forum.empty}</p>}
+            {posts.length ? (
+              posts.map((post, index) => <PostCard key={post.publicId} post={post} t={en} index={index} />)
+            ) : (
+              <div className={styles.emptyPanel}>
+                <p>{filtered ? en.forum.filters.empty : en.forum.empty}</p>
+                {filtered ? (
+                  <Link href={feedHref(slug, sort, null, 1, NO_FILTERS)} className="btn btn--sm">
+                    {en.forum.filters.clear}
+                  </Link>
+                ) : null}
+              </div>
+            )}
           </PendingDims>
         </MyVotesProvider>
 
         <div className={styles.pager}>
           {page > 1 ? (
-            <Link href={feedHref(slug, sort)} className="btn btn--ghost btn--sm">
+            <Link href={feedHref(slug, sort, null, 1, filters)} className="btn btn--ghost btn--sm">
               {en.forum.first}
               <NavPending mark={false} />
             </Link>
@@ -131,7 +159,11 @@ export function parseFeedParams(params: Record<string, string | string[] | undef
   const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
   const rawSort = first(params.sort);
   const sort: FeedSort = rawSort === "new" || rawSort === "top" ? rawSort : "hot";
+  const rawKind = first(params.kind);
+  const kind: FeedKind | null = rawKind === "hand" || rawKind === "poll" || rawKind === "text" ? rawKind : null;
+  const unanswered = first(params.unanswered) === "1";
   const after = first(params.after) ?? null;
   const page = Math.max(1, Math.min(10_000, Number.parseInt(first(params.page) ?? "1", 10) || 1));
-  return { sort, after: after && after.length < 120 ? after : null, page };
+  const filters: FeedFilters = { kind, unanswered };
+  return { sort, filters, after: after && after.length < 120 ? after : null, page };
 }

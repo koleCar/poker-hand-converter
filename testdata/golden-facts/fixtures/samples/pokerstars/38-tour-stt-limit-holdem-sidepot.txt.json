@@ -1,0 +1,43 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [
+    {
+      "facts": {
+        "betPct": [
+          10,
+          16,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": 550,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": false,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": 3,
+        "made": [
+          3,
+          3,
+          3
+        ],
+        "openTenths": 10,
+        "playersFlop": 4,
+        "vsPositions": " CO SB UTG+1 ",
+        "vsSeats": " 1 3 6 "
+      },
+      "handId": "45201040897",
+      "index": 0
+    }
+  ],
+  "input": "fixtures/samples/pokerstars/38-tour-stt-limit-holdem-sidepot.txt"
+}

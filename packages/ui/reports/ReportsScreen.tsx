@@ -9,9 +9,9 @@
  * - the win-rate graph (`stats/WinrateGraph`): total, showdown,
  *   non-showdown and all-in EV, cumulative over hands, in big blinds or in
  *   money;
- * - every displayed statistic (R2.4 definitions) by group, each with its
- *   reliability (R2.5), the user's own (R2.10, the desktop's) among them,
- *   marked;
+ * - the statistics as matrices (`ReportStats.tsx`, as an opponent's
+ *   profile shows them): by position, postflop by street, each with its
+ *   reliability (R2.5), the user's own (R2.10, the desktop's) after them;
  * - the breakdowns (`Breakdown.tsx`).
  *
  * Every number is the surface's `ReportSource`'s (the desktop's store, the
@@ -29,7 +29,7 @@
  */
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { FilterBar, REPORT_GROUPS } from "../hands/FilterBar";
+import { FilterBar } from "../hands/FilterBar";
 import { EMPTY_FILTER, activeGroups, toQuery, type FilterState } from "../hands/filter";
 import { bigBlindsIn, countIn, signedMoney, unitOf } from "../hands/format";
 import { pinKind } from "../hands/gameKind";
@@ -37,19 +37,16 @@ import { KindToggle } from "../hands/KindToggle";
 import type { HandFacets, HandFilter } from "../hands/model";
 import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
-import type { StatGroup as DefinitionGroup } from "../model/stats";
-import { StatTable } from "../stats/StatTable";
 import { StatValue } from "../stats/StatValue";
 import { WinrateGraph, type WinrateGraphMoney } from "../stats/WinrateGraph";
 import { Breakdown, isTab, needsBreakdowns, type Tab } from "./Breakdown";
-import { shownOf, statRows, textLocale } from "./definitions";
+import { shownOf, textLocale } from "./definitions";
 import type { Definition, Report, ReportSource, Units } from "./model";
 import styles from "./Reports.module.css";
+import { ReportStats } from "./ReportStats";
 import { useReport } from "./useReport";
 
 export { isTab, type Tab };
-
-const DEFINITION_GROUPS: DefinitionGroup[] = ["results", "preflop", "postflop", "showdown"];
 
 /** The money view's currency, when the sample has one. */
 function moneyOf(units: Units): WinrateGraphMoney | null {
@@ -185,7 +182,7 @@ export function ReportsScreen({
         filter={filter}
         facets={facets}
         onChange={onChoose}
-        groups={REPORT_GROUPS}
+        features={source.filters}
         screen="reports"
         saved={source.savedFilters}
         loadFacets={loadFacets}
@@ -256,16 +253,6 @@ function ReportBody({
       : null;
   const tone = (value: number | null) =>
     value === null || value === 0 ? "" : value > 0 ? styles.up : styles.down;
-  // The user's own statistics (R2.10) are listed with the shipped ones of
-  // their group, their names marked.
-  const marked = definitions.map((definition) =>
-    definition.custom
-      ? {
-          ...definition,
-          name: { en: r.stats.yours(definition.name.en), hr: r.stats.yours(definition.name.hr) },
-        }
-      : definition,
-  );
   const bb100 = shownOf(definitions, summary.stats, "bb_per_100", summary.ids);
   const ev100 = shownOf(definitions, summary.stats, "allin_ev_bb_per_100", summary.ids);
 
@@ -332,35 +319,15 @@ function ReportBody({
               disabled={money === null}
               onClick={() => onUnit("money")}
             >
-              {r.graph.money}
+              {units.minorUnits !== null && units.minorUnits <= 1 ? r.graph.chips : r.graph.money}
             </button>
           </div>
         </div>
         <WinrateGraph graph={report.graph} unit={unit} money={money} />
       </section>
 
-      <section className={styles.card} aria-labelledby="reports-stats">
-        <div className={styles.cardHead}>
-          <h2 id="reports-stats" className={styles.cardTitle}>
-            {r.stats.heading}
-          </h2>
-        </div>
-        <div className={styles.statGroups}>
-          {DEFINITION_GROUPS.map((group) => (
-            <StatTable
-              key={group}
-              caption={r.stats.groups[group]}
-              showCaption
-              rows={statRows(
-                marked,
-                summary.stats,
-                locale,
-                (definition) => definition.group === group,
-                summary.ids,
-              )}
-            />
-          ))}
-        </div>
+      <section className={styles.card} aria-label={r.stats.heading}>
+        <ReportStats report={report} definitions={definitions} />
         <p className={styles.muted}>{r.stats.note}</p>
       </section>
     </>

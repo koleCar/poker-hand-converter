@@ -1,0 +1,5 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_ValidHandTests_InValidHand.txt"
+}

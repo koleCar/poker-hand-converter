@@ -30,8 +30,9 @@ import type { Entitlements } from "../../lib/db/entitlements";
 import { useEntitlements } from "../../lib/entitlements/context";
 import { useDict, useLocale } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
-import { ProBadge } from "./ProLock";
 import styles from "./plan.module.css";
+import rows from "../account/rows.module.css";
+import { Icon } from "@rail/ui/icon/Icon";
 import { BusyLabel } from "../shell/BusyLabel";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 
@@ -73,143 +74,183 @@ export function PlanPanel() {
   }
 
   return (
-    <section id="plan" className={`card ${styles.panel}`} aria-labelledby="settings-plan">
-      <h2 id="settings-plan" className={styles.heading}>
+    <section id="plan" className={rows.group} aria-labelledby="settings-plan">
+      <h2 id="settings-plan" className={rows.groupLabel}>
         {t.heading}
       </h2>
-      {status === "loading" ? (
-        <RailLoader size="small" centered label={t.loading} />
-      ) : status !== "ready" || !entitlements ? (
-        <p className="notice notice--warn">{status === "unavailable" ? t.unavailable : t.loadFailed}</p>
-      ) : (
-        <PlanDetails entitlements={entitlements} offer={offer} />
-      )}
+      <div className={rows.card}>
+        {status === "loading" ? (
+          <div className={`${rows.row} ${rows.rowWide}`}>
+            <RailLoader size="inline" showLabel label={t.loading} />
+          </div>
+        ) : status !== "ready" || !entitlements ? (
+          <div className={`${rows.row} ${rows.rowWide}`}>
+            <span className={rows.error}>{status === "unavailable" ? t.unavailable : t.loadFailed}</span>
+          </div>
+        ) : (
+          <PlanDetails entitlements={entitlements} offer={offer} />
+        )}
+      </div>
     </section>
   );
 }
 
 /**
- * The panel's body for one answer of `my_entitlements()`, and what is on sale
- * (`offer`: null = not known yet or not on sale).
+ * The plan's rows for one answer of `my_entitlements()` (the plan, the
+ * library, the early-user discount) and, behind "Upgrade to Pro", what is on
+ * sale (`offer`: null = not known yet or not on sale). `upgradeOpen` starts
+ * with the chooser open (the tests).
  */
-export function PlanDetails({ entitlements: e, offer = null }: { entitlements: Entitlements; offer?: BillingOffer | null }) {
+export function PlanDetails({
+  entitlements: e,
+  offer = null,
+  upgradeOpen = false,
+}: {
+  entitlements: Entitlements;
+  offer?: BillingOffer | null;
+  upgradeOpen?: boolean;
+}) {
   const en = useDict();
   const t = en.plan;
+  const b = t.billing;
   const count = (value: number) => value.toLocaleString(en.chrome.intl);
   const day = (iso: string) => formatDay(iso, en.chrome.intl);
   const sub = e.subscription;
   const cap = e.features.hand_cap;
   const stored = e.usage.handsStored;
   const full = cap !== null && stored >= cap;
+  const view = billingView(e);
+  const end = sub.currentPeriodEnd;
+  const onSale = offer !== null && offer.available;
+  const [open, setOpen] = useState(upgradeOpen);
+
+  const tone = e.plan === "pro" ? rows.gold : !e.enforced ? rows.blue : rows.grey;
+  const subLine =
+    sub.plan === "pro"
+      ? [
+          sub.status ? t.status[sub.status] : t.granted,
+          sub.period === "month" ? t.billedMonthly : sub.period === "year" ? t.billedYearly : null,
+          // Past due and canceled have their own line below.
+          sub.status === "past_due" || sub.status === "canceled"
+            ? null
+            : e.graceUntil
+              ? t.graceUntil(day(e.graceUntil))
+              : end
+                ? sub.status === null
+                  ? t.endsOn(day(end))
+                  : t.renews(day(end))
+                : null,
+        ]
+          .filter(Boolean)
+          .join(" · ")
+      : null;
 
   return (
     <>
-      <p className={styles.current}>
-        <strong>{t.current(t.name[e.plan])}</strong>
-        {e.plan === "pro" && e.enforced ? <ProBadge /> : null}
-      </p>
-      {!e.enforced ? (
-        <p className="notice notice--info">{offer?.available ? t.billing.notEnforcedOnSale : t.notEnforced}</p>
-      ) : null}
+      <div className={rows.row}>
+        <span className={rows.rowLabel}>{t.heading}</span>
+        <span className={rows.value}>
+          <span className={rows.inline}>
+            <span className={`${rows.badge} ${tone}`} title={t.current(t.name[e.plan])}>
+              {e.plan === "pro" ? <Icon name="star" /> : null}
+              {t.name[e.plan]}
+            </span>
+            {!e.enforced ? <span className={`${rows.badge} ${rows.blue}`}>{t.earlyAccess}</span> : null}
+          </span>
+          {subLine ? <span className={rows.muted}>{subLine}</span> : null}
+          {!e.enforced ? (
+            <span className={rows.muted}>{onSale ? b.notEnforcedOnSale : t.notEnforced}</span>
+          ) : null}
+          {view.notice === "past_due" ? (
+            <span className={rows.error}>{e.graceUntil ? b.pastDueUntil(day(e.graceUntil)) : b.pastDue}</span>
+          ) : null}
+          {view.notice === "canceled_until" && end ? <span className={rows.muted}>{b.canceledUntil(day(end))}</span> : null}
+          {view.notice === "ended" && end ? <span className={rows.muted}>{b.ended(day(end))}</span> : null}
+          {view.manage ? <span className={rows.muted}>{b.manageHint}</span> : null}
+          {view.upgrade && !onSale && e.enforced && e.plan !== "pro" ? (
+            <span id="settings-plan-soon" className={rows.muted}>
+              {t.upgradeSoon}
+            </span>
+          ) : null}
+        </span>
+        <span className={rows.actions}>
+          {view.manage ? <ManageButton /> : null}
+          {view.upgrade && onSale ? (
+            <button
+              type="button"
+              className={`btn btn--sm${e.enforced ? " btn--primary" : ""}`}
+              aria-expanded={open}
+              aria-controls="settings-plan-upgrade"
+              onClick={() => setOpen((value) => !value)}
+            >
+              {t.upgrade}
+            </button>
+          ) : view.upgrade && e.enforced && e.plan !== "pro" ? (
+            <button type="button" className="btn btn--primary btn--sm" disabled aria-describedby="settings-plan-soon">
+              {t.upgrade}
+            </button>
+          ) : null}
+        </span>
+      </div>
 
-      {sub.plan === "pro" ? (
-        <p className="muted">
-          {[
-            sub.status ? t.status[sub.status] : t.granted,
-            sub.period === "month" ? t.billedMonthly : sub.period === "year" ? t.billedYearly : null,
-            // Past due and canceled have their own notice below (`Billing`).
-            sub.status === "past_due" || sub.status === "canceled"
-              ? null
-              : e.graceUntil
-                ? t.graceUntil(day(e.graceUntil))
-                : sub.currentPeriodEnd
-                  ? sub.status === null
-                    ? t.endsOn(day(sub.currentPeriodEnd))
-                    : t.renews(day(sub.currentPeriodEnd))
-                  : null,
-          ]
-            .filter(Boolean)
-            .join(" · ")}
-        </p>
-      ) : null}
-
-      <h3 className={styles.subheading}>{t.usageHeading}</h3>
-      {cap !== null ? (
-        <>
-          <div
-            className={styles.meter}
-            role="meter"
-            aria-valuemin={0}
-            aria-valuemax={cap}
-            aria-valuenow={Math.min(stored, cap)}
-            aria-label={t.usageHeading}
-          >
-            <div
-              className={`${styles.meterFill} ${full ? styles.meterFull : ""}`}
-              style={{ width: `${cap > 0 ? Math.min(100, (stored / cap) * 100) : 100}%` }}
-            />
+      {view.upgrade && onSale && open ? (
+        <div id="settings-plan-upgrade" className={`${rows.row} ${rows.rowStack} ${rows.inset}`}>
+          <span className={rows.rowLabel}>{t.upgrade}</span>
+          <div className={rows.fields}>
+            <ul className={rows.list}>
+              <li>{t.freeIncludes}</li>
+              <li>{t.proIncludes}</li>
+            </ul>
+            <UpgradeChooser offer={offer} earlyUser={e.earlyUser.is} enforced={e.enforced} />
           </div>
-          <p className={styles.small}>{t.usage(count(stored), count(cap))}</p>
-          {full ? <p className="notice notice--warn">{t.full}</p> : null}
-        </>
-      ) : (
-        <p className={styles.small}>
-          {t.usageUnlimited(count(stored))}
-          {e.limits.freeHandCap !== null && !e.enforced ? ` ${t.freeHolds(count(e.limits.freeHandCap))}` : null}
-        </p>
-      )}
+        </div>
+      ) : null}
+
+      <div className={rows.row}>
+        <span className={rows.rowLabel}>{t.usageHeading}</span>
+        <span className={rows.value}>
+          {cap !== null ? (
+            <>
+              <span className={rows.text}>{t.usage(count(stored), count(cap))}</span>
+              <div
+                className={rows.meter}
+                role="meter"
+                aria-valuemin={0}
+                aria-valuemax={cap}
+                aria-valuenow={Math.min(stored, cap)}
+                aria-label={t.usageHeading}
+              >
+                <div
+                  className={`${rows.meterFill} ${full ? rows.meterFull : ""}`}
+                  style={{ width: `${cap > 0 ? Math.min(100, (stored / cap) * 100) : 100}%` }}
+                />
+              </div>
+              {full ? <span className={rows.error}>{t.full}</span> : null}
+            </>
+          ) : (
+            <>
+              <span className={rows.text}>{t.usageUnlimited(count(stored))}</span>
+              {e.limits.freeHandCap !== null && !e.enforced ? (
+                <span className={rows.muted}>{t.freeHolds(count(e.limits.freeHandCap))}</span>
+              ) : null}
+            </>
+          )}
+        </span>
+        <span className={rows.actions}>
+          <Link href={paths.library()} className="btn btn--ghost btn--sm">
+            {t.open}
+          </Link>
+        </span>
+      </div>
 
       {e.earlyUser.is && e.earlyUser.discountPercent > 0 ? (
-        <p className="notice notice--info">{t.early(e.earlyUser.discountPercent)}</p>
-      ) : null}
-
-      <h3 className={styles.subheading}>{t.includedHeading}</h3>
-      <ul className={styles.list}>
-        <li>{t.freeIncludes}</li>
-        <li>{t.proIncludes}</li>
-      </ul>
-
-      <Billing entitlements={e} offer={offer} />
-    </>
-  );
-}
-
-/**
- * Paying (R6.3): the subscription's notices, "Manage subscription" (the
- * Stripe portal) for an account with a subscription, and "Upgrade to Pro"
- * (monthly or yearly, prices from Stripe) for one without. With checkout
- * not configured, the upgrade stays disabled - "paid plans open soon" - and
- * only where R6.2 showed it (enforcement on, the plan without Pro).
- */
-function Billing({ entitlements: e, offer }: { entitlements: Entitlements; offer: BillingOffer | null }) {
-  const en = useDict();
-  const t = en.plan;
-  const b = t.billing;
-  const view = billingView(e);
-  const day = (iso: string) => formatDay(iso, en.chrome.intl);
-  const end = e.subscription.currentPeriodEnd;
-  const onSale = offer !== null && offer.available;
-
-  return (
-    <>
-      {view.notice === "past_due" ? (
-        <p className="notice notice--warn">{e.graceUntil ? b.pastDueUntil(day(e.graceUntil)) : b.pastDue}</p>
-      ) : null}
-      {view.notice === "canceled_until" && end ? <p className="notice notice--info">{b.canceledUntil(day(end))}</p> : null}
-      {view.notice === "ended" && end ? <p className="muted">{b.ended(day(end))}</p> : null}
-
-      {view.manage ? <ManageButton /> : null}
-
-      {view.upgrade && onSale ? (
-        <UpgradeChooser offer={offer} earlyUser={e.earlyUser.is} enforced={e.enforced} />
-      ) : view.upgrade && e.enforced && e.plan !== "pro" ? (
-        <div className={styles.actions}>
-          <button type="button" className="btn btn--primary" disabled aria-describedby="settings-plan-soon">
-            {t.upgrade}
-          </button>
-          <span id="settings-plan-soon" className="muted">
-            {t.upgradeSoon}
+        <div className={rows.row}>
+          <span className={rows.rowLabel}>{t.discountLabel}</span>
+          <span className={rows.value}>
+            <span className={`${rows.badge} ${rows.blue}`}>{t.discount(e.earlyUser.discountPercent)}</span>
+            <span className={rows.muted}>{t.early(e.earlyUser.discountPercent)}</span>
           </span>
+          <span />
         </div>
       ) : null}
     </>
@@ -236,23 +277,18 @@ function ManageButton() {
   };
 
   return (
-    <div className={styles.billing}>
-      <div className={styles.actions}>
-        <button type="button" className="btn btn--ghost" onClick={open} disabled={busy} aria-describedby="plan-manage-hint">
-          <BusyLabel busy={busy} busyLabel={b.opening}>
-            {b.manage}
-          </BusyLabel>
-        </button>
-      </div>
-      <p id="plan-manage-hint" className={styles.small}>
-        {b.manageHint}
-      </p>
+    <>
+      <button type="button" className="btn btn--sm" onClick={open} disabled={busy}>
+        <BusyLabel busy={busy} busyLabel={b.opening}>
+          {b.manage}
+        </BusyLabel>
+      </button>
       {error ? (
-        <p className="notice notice--error" role="alert">
+        <span className={rows.error} role="alert">
           {b.errors[error]}
-        </p>
+        </span>
       ) : null}
-    </div>
+    </>
   );
 }
 

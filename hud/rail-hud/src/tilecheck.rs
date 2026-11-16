@@ -15,7 +15,7 @@
 //!   [`TilingPermit`] - the room of its `tables` block, or, for a room with
 //!   no block yet, the one named with `--room` (its windows taken by a
 //!   candidate `--try-title` regex). A room whose `tiling.allowed` is
-//!   `false` (GGPoker, partypoker, Unibet, Winamax, ...) or `null` gives
+//!   `false` (partypoker, Unibet, Winamax, ...) or `null` gives
 //!   no permit, so its windows are listed and **never moved**;
 //! - `--room` itself must have the permit, or the check refuses to start;
 //! - a window whose program's name looks like a room whose tiling is not
@@ -75,7 +75,7 @@ tiling engine, read them back, print what each client accepted, and exit
   --restore            put the windows of the last check back
 
 Never moves a window of a room whose tiling policy is false or unknown
-(GGPoker, partypoker, Unibet, Winamax, ...): those are listed, untouched.
+(partypoker, Unibet, Winamax, ...): those are listed, untouched.
 Nothing moves while a mouse button is down. Titles are redacted as in
 --list-windows; read the output before you share it.
 ";
@@ -204,8 +204,7 @@ fn squash(name: &str) -> String {
 
 /// The room whose tiling is **not** permitted that the program `process`
 /// looks like - its `sites.json` id (or a known alias) in the program's
-/// name, without case or punctuation: `GGnet.exe` is GGPoker's,
-/// `Winamax.exe` Winamax's. `None`: it looks like no such room. A belt
+/// name, without case or punctuation: `Winamax.exe` is Winamax's. `None`: it looks like no such room. A belt
 /// and braces next to the policy, for a regex tried under the wrong
 /// `--room`: it can only refuse.
 pub fn lookalike(compliance: &Compliance, process: &str) -> Option<String> {
@@ -1158,11 +1157,17 @@ mod tests {
     #[test]
     fn permits_decide() {
         let compliance = Compliance::shipped().expect("shipped");
-        for room in ["pokerstars", "acr", "wpt-global", "coinpoker"] {
+        for room in [
+            "pokerstars",
+            "acr",
+            "wpt-global",
+            "coinpoker",
+            "ggpoker",
+            "weplay",
+        ] {
             assert_eq!(admit_room(&compliance, room), Ok(()), "{room}");
         }
         for room in [
-            "ggpoker",
             "partypoker",
             "unibet",
             "winamax",
@@ -1189,9 +1194,8 @@ mod tests {
         };
         assert!(admit(&compliance, &window("PokerStars.exe", "pokerstars")).is_ok());
         assert!(admit(&compliance, &window("rail-hud-sim", "acr")).is_ok());
-        let refused = admit(&compliance, &window("GGnet.exe", "pokerstars")).expect_err("gg");
-        assert!(refused.contains("ggpoker"), "{refused}");
-        assert!(admit(&compliance, &window("Winamax.exe", "acr")).is_err());
+        let refused = admit(&compliance, &window("Winamax.exe", "acr")).expect_err("winamax");
+        assert!(refused.contains("winamax"), "{refused}");
         assert!(admit(&compliance, &window("partypoker.exe", "coinpoker")).is_err());
         assert!(admit(&compliance, &window("Unibet Poker.exe", "pokerstars")).is_err());
         assert!(admit(&compliance, &window("PokerStars.exe", "winamax")).is_err());
@@ -1200,9 +1204,12 @@ mod tests {
         assert_eq!(lookalike(&compliance, "CoinPoker.exe"), None);
         assert_eq!(lookalike(&compliance, "WPTGlobal.exe"), None);
         assert_eq!(lookalike(&compliance, "rail-hud-sim"), None);
+        // GGPoker's tiling is the owner's yes (2026-11-16): its programs are
+        // no longer lookalikes of a refused room.
+        assert_eq!(lookalike(&compliance, "Natural8.exe"), None);
         assert_eq!(
-            lookalike(&compliance, "Natural8.exe").as_deref(),
-            Some("ggpoker")
+            lookalike(&compliance, "Winamax.exe").as_deref(),
+            Some("winamax")
         );
     }
 
@@ -1308,7 +1315,7 @@ mod tests {
     #[test]
     fn refused_rooms_are_never_moved() {
         let compliance = Compliance::shipped().expect("shipped");
-        for site in ["ggpoker", "winamax", "partypoker", "unibet", "888poker"] {
+        for site in ["winamax", "partypoker", "unibet", "888poker"] {
             let mut backend = sim(site, 3);
             let control = backend.control();
             let (report, state) = check(&mut backend, &compliance, &request()).expect(site);
@@ -1342,12 +1349,12 @@ mod tests {
             })
         );
         // A refused room named with --room: nothing starts.
-        let mut backend = sim("ggpoker", 1);
+        let mut backend = sim("partypoker", 1);
         let control = backend.control();
         let mut refused = request();
-        refused.candidate = Some(("ggpoker".to_owned(), Regex::new(REGEX).expect("re")));
+        refused.candidate = Some(("partypoker".to_owned(), Regex::new(REGEX).expect("re")));
         let error = check(&mut backend, &compliance, &refused).expect_err("refused room");
-        assert!(error.contains("ggpoker: tiling refused"), "{error}");
+        assert!(error.contains("partypoker: tiling refused"), "{error}");
         assert!(control.placements().is_empty());
     }
 

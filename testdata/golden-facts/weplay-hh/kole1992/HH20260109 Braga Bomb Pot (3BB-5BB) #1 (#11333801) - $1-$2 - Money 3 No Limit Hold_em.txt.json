@@ -1,0 +1,80 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          null,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 2,
+        "vsPositions": " CO UTG+1 ",
+        "vsSeats": " 3 8 "
+      },
+      "handId": "HD72101852",
+      "index": 0
+    },
+    {
+      "facts": {
+        "betPct": [
+          20,
+          28,
+          55
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": false,
+        "kicker": [
+          1,
+          1,
+          1
+        ],
+        "level": null,
+        "made": [
+          4,
+          4,
+          4
+        ],
+        "openTenths": null,
+        "playersFlop": 2,
+        "vsPositions": " LJ HJ ",
+        "vsSeats": " 2 3 "
+      },
+      "handId": "HD72101874",
+      "index": 1
+    }
+  ],
+  "input": "weplay-hh/kole1992/HH20260109 Braga Bomb Pot (3BB-5BB) #1 (#11333801) - $1-$2 - Money 3 No Limit Hold_em.txt"
+}

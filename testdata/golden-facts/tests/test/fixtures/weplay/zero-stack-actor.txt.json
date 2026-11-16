@@ -1,0 +1,5 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [],
+  "input": "tests/test/fixtures/weplay/zero-stack-actor.txt"
+}

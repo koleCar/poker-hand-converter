@@ -713,11 +713,13 @@ fn is_uuid(text: &str) -> bool {
 
 mod hud;
 mod plan;
+mod profile;
 mod pull;
 mod share;
 mod trainer;
 
 pub use hud::{HUD_ROWS_PER_PAGE, HUD_ROWS_PER_PUT, PutOutcome};
+pub use profile::{AccountProfile, SetUsernameError};
 pub use pull::{PHF_IDS_PER_CALL, RemoteHand, RemoteKey};
 pub use share::{ShareRequest, is_share_slug};
 pub use trainer::{TRAINER_ROWS_PER_CALL, TrainerResultRow};

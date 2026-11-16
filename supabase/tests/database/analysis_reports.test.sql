@@ -20,7 +20,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
 
-select plan(42);
+select plan(47);
 
 -- ------------------------------------------------------------------ setup --
 
@@ -275,6 +275,22 @@ select is(
   (public.analysis_node_hands('{"analysisVersion":"analysis/2"}',
      array['nlhe-cash-6max-100bb:', 'nlhe-cash-6max-100bb:fffrf'], null, false) ->> 'total')::int, 1,
   '... and B''s list holds B''s hand only, even at A''s nodes');
+
+-- The Hands list's filter (`hands`, 2026-11-16): the list's own keys narrow
+-- the report to the hands the list shows.
+select pg_temp.act_as('00000000-0000-0000-0000-0000000a3aa1');
+select is((public.analysis_node_actions('{"analysisVersion":"analysis/2","hands":{"positions":["BB"]}}') ->> 'decisions')::int, 2,
+  'hands: the BB through the Hands list''s filter = the seat filter');
+select is(public.analysis_node_actions('{"analysisVersion":"analysis/2","hands":{"positions":["BB"]}}') -> 'actions',
+          public.analysis_node_actions('{"analysisVersion":"analysis/2","position":"BB"}') -> 'actions',
+  '... the same actions');
+select is((public.analysis_node_actions('{"analysisVersion":"analysis/2","hands":{"sites":["pokerstars"]}}') ->> 'decisions')::int, 1,
+  'hands: a room through the Hands list''s filter');
+select is((public.analysis_node_actions('{"analysisVersion":"analysis/2","hands":{"positions":["BB"],"sites":["pokerstars"],"from":"1990-01-01T00:00:00Z"}}') ->> 'decisions')::int,
+          (public.analysis_node_actions('{"analysisVersion":"analysis/2","position":"BB","site":"pokerstars"}') ->> 'decisions')::int,
+  'hands: several groups at once, the scan path');
+select is((public.analysis_node_actions('{"analysisVersion":"analysis/2","hands":{"stacks":["no-such-depth"]}}') ->> 'decisions')::int, 0,
+  'hands: a filter nothing matches reads no decision, not every one');
 
 select pg_temp.act_as_anon();
 select throws_ok($$ select public.analysis_node_actions('{}') $$, '42501', null, 'anon reads no report');

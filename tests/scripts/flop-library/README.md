@@ -23,6 +23,7 @@ npm run floplib                                     # the full run: 12 lines x 1
 | `--set ID` | `nlhe-cash-6max-100bb` | the chart set (`web/src/lib/charts/data/<ID>.json`) the ranges come from |
 | `--lines a,b` | every line of the set's table (`flopLinesFor`: 12 for 6-max, 13 for the 9-max sets, 5 for the heads-up sets) | line ids |
 | `--flops a,b` | the 100 representatives, most-covering first | any flops (any suits; canonicalised) |
+| `--queue FILE` | | the jobs as a JSON list of `{ line, flop }` in order, instead of flops x lines; a line may be an extra `x-<key>` line, and one the set cannot play is skipped |
 | `--only N` | all | the first N jobs of the queue (flops in order, each with every line) |
 | `--threads N` | half the cores | solves at a time, one process each |
 | `--mem GB` | half the RAM | no new solve starts while the predicted memory of those running would pass it |
@@ -66,6 +67,28 @@ the turn and the river (`components/solver/fullSolve.ts`).
 
 ```bash
 ln -s ~/Projects/rail-fullsolve-out web/public/full-solve
+```
+
+**The nightly solves on the GTO Wizard sets (`analysis/43`).** Rail's own
+library is gone with Rail's ranges; the GTO Wizard 6-max 100bb sets
+(classic and ante) are solved flop by flop on the owner's machine, every
+night, by `nightly.sh` (launchd: `rail-floplib-out/bin/start.sh` execs it
+Mon-Fri 16:00 and Sat/Sun 00:00, `stop.sh` kills it Mon-Fri 08:00). Each
+round it rebuilds the queue from the desktop app's store
+(`nightlyQueue.test.ts`: the hands marked Review on their exact flop first,
+then the representative flops of the hero's heads-up flops, most played
+first), solves the next batch with `--queue` (the spots of one set, in
+order) and uploads what is new with the manifest (`upload.sh`, incremental
+through `.uploaded`). A set's manifest grows night by night; the analysis
+and the Solver read a flop once it is listed, and the Solver solves its turn
+and river live. Besides the fixed lines, any heads-up line the charts play to
+the flop is solved as an extra line `x-<key>` (`libraryLine`: cold calls,
+squeezes, blind 3-bets). Each chunk carries its line's `chartLineHash`, so a
+set re-transcribed later keeps the solves of the lines it did not change.
+
+```bash
+tests/scripts/flop-library/nightly.sh     # NIGHTLY_THREADS, NIGHTLY_MEM, NIGHTLY_BATCH, NIGHTLY_OUT, NIGHTLY_STORE
+cd tests && npm run floplib -- --set nlhe-cash-6max-100bb --queue batch.json   # [{ "line": "btn-bb", "flop": "Ts7h4d" }, ...]
 ```
 
 **Resumable.** Each solve runs in its own process and writes its chunk and a

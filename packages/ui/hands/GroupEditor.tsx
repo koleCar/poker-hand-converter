@@ -141,6 +141,14 @@ export function GroupEditor({ group, filter, facets, onChange, variant, titled =
     );
   } else if (group === "potSize") {
     body = <PotSizeField filter={filter} live={variant === "builder"} onChange={onChange} />;
+  } else if (group === "flopPct" || group === "turnPct" || group === "riverPct") {
+    body = (
+      <PctRangeField
+        value={filter[group]}
+        live={variant === "builder"}
+        onChange={(value) => onChange({ ...filter, [group]: value })}
+      />
+    );
   } else if (text) {
     const hints: Record<typeof text, { label: string; hint: string; numeric?: boolean }> = {
       board: { label: t.search.board, hint: t.search.boardHint },
@@ -442,6 +450,68 @@ function PotSizeField({
         ) : null}
       </div>
       <p className={styles.hint}>{draft.unit === "money" ? p.hintMoney : p.hintBb}</p>
+      {live ? null : (
+        <div>
+          <button type="submit" className="btn btn--primary btn--sm" disabled={!pending}>
+            {t.apply}
+          </button>
+        </div>
+      )}
+    </form>
+  );
+}
+
+/**
+ * A bet's size as a share of the pot, compared as the pot is: greater than,
+ * less than, between (percent, bounds included).
+ */
+function PctRangeField({ value, live, onChange }: { value: string; live: boolean; onChange: (value: string) => void }) {
+  const t = useUiStrings().hands.filters;
+  const p = t.builder.pot;
+  const [draft, setDraft] = useState(() => potParts(value));
+  // Changed from outside (cleared from the row): the field follows, unless
+  // it is what the draft already says (a "between" with one amount typed).
+  const [seen, setSeen] = useState(value);
+  if (seen !== value) {
+    setSeen(value);
+    if (potText(draft.op, draft.a, draft.b) !== value) setDraft(potParts(value));
+  }
+  const update = (patch: Partial<typeof draft>) => {
+    const d = { ...draft, ...patch };
+    setDraft(d);
+    const next = potText(d.op, d.a, d.b);
+    if (live && next !== value) onChange(next);
+  };
+  const next = potText(draft.op, draft.a, draft.b);
+  const pending = next !== value;
+  return (
+    <form
+      className={styles.editorStack}
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (pending) onChange(next);
+      }}
+    >
+      <Pills
+        label={p.op}
+        single
+        options={POT_OPS.map((op) => ({ value: op, label: p.ops[op] }))}
+        selected={[draft.op]}
+        onChange={(picked) => update({ op: (POT_OPS as string[]).includes(picked[0] ?? "") ? (picked[0] as PotOp) : "gt" })}
+      />
+      <div className={styles.range}>
+        <label>
+          {draft.op === "between" ? p.ops.between : t.builder.pctAmount}
+          <input value={draft.a} inputMode="decimal" spellCheck={false} onChange={(event) => update({ a: event.target.value })} />
+        </label>
+        {draft.op === "between" ? (
+          <label>
+            {p.and}
+            <input value={draft.b} inputMode="decimal" spellCheck={false} onChange={(event) => update({ b: event.target.value })} />
+          </label>
+        ) : null}
+      </div>
+      <p className={styles.hint}>{t.builder.pctHint}</p>
       {live ? null : (
         <div>
           <button type="submit" className="btn btn--primary btn--sm" disabled={!pending}>

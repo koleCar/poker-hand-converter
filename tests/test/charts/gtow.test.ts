@@ -100,9 +100,12 @@ describe("the registry since charts/11", () => {
     expect(PLANNED_CHART_SETS).toHaveLength(20);
   });
 
-  it("reads no flop library: none is solved on these ranges yet", () => {
-    expect(PUBLISHED_FLOP_LIBRARY).toEqual([]);
-    expect(FLOP_LIBRARY_SETS).toEqual([]);
+  it("reads the flop library of the 6-max 100bb sets, solved nightly on these ranges (analysis/43)", () => {
+    expect(FLOP_LIBRARY_SETS).toEqual(["nlhe-cash-6max-100bb", "nlhe-cash-6max-100bb-ante"]);
+    for (const { set, hash } of PUBLISHED_FLOP_LIBRARY) {
+      expect(CHART_SETS.map((spec) => spec.id), set).toContain(set);
+      expect(hash, set).toMatch(/^[0-9a-f]{8}$/);
+    }
   });
 });
 

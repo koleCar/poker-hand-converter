@@ -90,6 +90,16 @@ export interface HandFilter {
   buyInMax?: number;
   bounty?: boolean | null;
   levels?: string[];
+  /** The hero's first bet or raise per street: from, to, percent of the pot. */
+  flopPctMin?: number;
+  flopPctMax?: number;
+  turnPctMin?: number;
+  turnPctMax?: number;
+  riverPctMin?: number;
+  riverPctMax?: number;
+  /** Caught bluffing on any of these streets (`flop`, `turn`, `river`): the hero, an opponent (schema 23). */
+  heroBluffs?: string[];
+  vsBluffs?: string[];
   playerName?: string | null;
   /** Only hands that went to showdown (`true`), or only the others. */
   showdown?: boolean | null;
@@ -107,6 +117,8 @@ export interface HandFilter {
   anonymizations?: string[];
   /** `HandsSource.features.sorts`; newest first when absent. */
   sort?: HandSort;
+  /** The pot's and the result's orders in each hand's money, as the list shows them (`$`); big blinds when absent. */
+  sortUnit?: "bb" | "money";
 }
 
 /**
@@ -278,11 +290,23 @@ export interface HandsFeatures {
   /** The filter builder's groups (V1): the hero's actions, the texture, ... (the desktop store). */
   builder?: boolean;
   /**
+   * Some of the builder's groups (`GroupId`s), where a source reads only those
+   * (the web, 2026-11-16: the groups a hand's columns answer). Ignored with
+   * `builder`.
+   */
+  builderGroups?: readonly string[];
+  /**
    * The other filters it has; the screen hides the rest. The position lists,
    * the table and the minimum pot narrow the counts and have none of their
    * own; the names group is counted.
    */
   more: MoreFilter[];
+  /**
+   * Sums by the rollups only - the dates, the room, the stake, the hero's
+   * position and the game - and cannot read the hands one by one: the web's
+   * report summaries, for now. Every other group is then not offered.
+   */
+  rollupsOnly?: boolean;
 }
 
 /** The text a surface reports for a failed call. */

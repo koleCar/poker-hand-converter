@@ -48,7 +48,7 @@
  */
 
 import type { ChartPosition, ChartSet } from "../charts";
-import { isChartLibrary, lookupPreflop, preflopSpotFromHand, type PreflopActionInput, type PreflopSpot } from "../charts";
+import { fnv1a, isChartLibrary, lookupPreflop, preflopSpotFromHand, type PreflopActionInput, type PreflopSpot } from "../charts";
 import { cardCode, categoryOf, evaluate } from "../equity/evaluator";
 import type { PhfHand } from "../phf/types";
 import {
@@ -67,6 +67,7 @@ import {
   rangesAt,
   type BetMenu,
   type FlopChunk,
+  type FlopChunkHeader,
   type FlopManifest,
   type SolvedNode,
   type SolveResult,
@@ -194,18 +195,96 @@ export function sameLine(libraryKey: string, placedKey: string): boolean {
 }
 
 /**
+ * A fingerprint of what a line's flop ranges are made of under a chart set:
+ * the table (`game`) and every chart node the line passes through (each
+ * proper prefix of its key: actor, options, cuts, frequencies). Null when the
+ * set has no node for one of them (the line cannot be played on it).
+ *
+ * A chunk carries it (`FlopChunkHeader.lineHash`) so it stays readable when
+ * its set is re-transcribed elsewhere: a GTO Wizard set filled in later (a
+ * subtree that was `model.missing`) gets a new `model.hash`, yet the lines
+ * it did not touch keep their ranges, and so their solves.
+ */
+export function chartLineHash(charts: ChartSet, key: string): string | null {
+  const nodes: unknown[] = [];
+  for (let at = 0; at < key.length; at += 1) {
+    const node = charts.nodes.get(key.slice(0, at));
+    if (!node) return null;
+    nodes.push([node.line, node.actor, node.options, node.cut, Array.from(node.freq)]);
+  }
+  return fnv1a(JSON.stringify({ game: charts.game, nodes }));
+}
+
+/**
+ * Whether a chunk was solved from the ranges this chart set gives its line:
+ * the same set id and either the same model hash, or (a chunk that carries
+ * one) the same `chartLineHash` of its line.
+ */
+export function chunkFromCharts(header: Pick<FlopChunkHeader, "charts" | "lineKey" | "lineHash">, charts: ChartSet): boolean {
+  if (header.charts.id !== charts.id) return false;
+  if (header.charts.hash === charts.model.hash) return true;
+  return header.lineHash !== undefined && header.lineHash === chartLineHash(charts, header.lineKey);
+}
+
+/** The prefix of a line id the library gives a heads-up line outside its fixed lists (`libraryLine`). */
+export const EXTRA_LINE_PREFIX = "x-";
+
+/**
+ * The library line of a heads-up preflop line under a chart set: one of the
+ * fixed lines of its table (`flopLinesFor`, `sameLine`) or, since the GTO
+ * Wizard sets (cold calls, squeezes, blind 3-bets the fixed lines lack), any
+ * other line the charts play to a two-handed flop, as an extra line
+ * `x-<key>`. The key is folded out to the end of preflop (the seats still to
+ * act after the later flop player's last decision fold), so a hand, the
+ * Solver's preflop walk and the nightly runner name the same line. Null when
+ * the charts leave the line before the flop (a node missing, an all-in, a
+ * fifth bet).
+ */
+export function libraryLine(charts: ChartSet, key: string): FlopLine | null {
+  const fixed = flopLinesFor(charts.game.players);
+  const known = fixed.find((line) => sameLine(line.key, key));
+  if (known) return known;
+  let full = key;
+  for (let guard = 0; guard < 12 && charts.nodes.has(full); guard += 1) {
+    if (!charts.nodes.get(full)?.options.some((o) => o.code === "f")) return null;
+    full += "f";
+  }
+  if (charts.nodes.has(full) || /a/.test(full)) return null;
+  const raises = (full.match(/r/g) ?? []).length;
+  if (raises > 3) return null;
+  const pot = raises === 0 ? "limped" : raises === 1 ? "srp" : raises === 2 ? "3bp" : "4bp";
+  return { id: `${EXTRA_LINE_PREFIX}${full}`, pot, key: full, players: fixed[0].players };
+}
+
+/** A library line by id under a chart set: a fixed line of its table, or an extra `x-<key>` line it plays. */
+export function libraryLineById(charts: ChartSet, id: string): FlopLine | null {
+  const fixed = flopLinesFor(charts.game.players).find((line) => line.id === id);
+  if (fixed) return fixed;
+  if (!id.startsWith(EXTRA_LINE_PREFIX)) return null;
+  const line = libraryLine(charts, id.slice(EXTRA_LINE_PREFIX.length));
+  return line && line.id === id ? line : null;
+}
+
+/**
  * The chart sets the library is solved for, most common first (the Solver
  * library's tables, the flop trainer's), each with the chart set's
  * `model.hash` its chunks were solved from. Only these sets' manifests are
  * fetched (`FlopLibraryLoader`): a set not listed is an empty library.
  *
- * **Empty since `analysis/41`.** The library in the bucket was solved on
- * Rail's own preflop ranges (`ecad38d0` and the other `charts/10` hashes);
- * the ranges are GTO Wizard's now, so none of it is read - grading takes its
- * "no library" path, the Solver shows preflop only, the flop drills wait.
- * A set solved on a GTO Wizard set goes here with that set's hash.
+ * **Empty in `analysis/41` and `/42`**: the old library was solved on Rail's
+ * own preflop ranges. **Since `analysis/43`** the GTO Wizard 6-max 100bb
+ * sets are read, solved flop by flop every night on the owner's machine
+ * (`tests/scripts/flop-library/nightly.sh`: the hands marked Review first,
+ * then the flops most played) and uploaded as they finish, so a set's
+ * manifest grows night by night; a flop not solved yet keeps the heuristic.
+ * Chunks carry their line's `chartLineHash`, so a set re-transcribed later
+ * (a `model.missing` subtree filled in) keeps the solves of the lines it did
+ * not touch. The hash here is the one the set was published with.
  */
-export const PUBLISHED_FLOP_LIBRARY: readonly { set: string; hash: string }[] = [];
+export const PUBLISHED_FLOP_LIBRARY: readonly { set: string; hash: string }[] = [
+  { set: "nlhe-cash-6max-100bb", hash: "421ae9d1" },
+  { set: "nlhe-cash-6max-100bb-ante", hash: "044afe9a" },
+];
 
 /** The ids of `PUBLISHED_FLOP_LIBRARY`, in its order. */
 export const FLOP_LIBRARY_SETS: readonly string[] = PUBLISHED_FLOP_LIBRARY.map((entry) => entry.set);
@@ -669,7 +748,7 @@ export function chunkFor(
     return null;
   }
   const placed = chartLineOf(hand, pair, charts);
-  const line = placed ? flopLinesFor(placed.set.game.players).find((l) => sameLine(l.key, placed.line)) : undefined;
+  const line = placed ? libraryLine(placed.set, placed.line) : null;
   if (!placed || !line) return null;
   const set = placed.set.id;
   const key = flopKey(cards);
@@ -1050,9 +1129,9 @@ export function libraryEntry(
   const chunk = library.get(want.set, want.line.id, want.flop);
   if (!chunk) return { ok: false, reason: "no-chunk" };
   const { header } = chunk;
-  // The ranges the chunk was solved from must be the ones this hand's set gives (its model hash).
+  // The ranges the chunk was solved from must be the ones this hand's set gives (its model hash, or the line's).
   const answered = chartLineOf(hand, pair, charts)?.set;
-  if (!answered || header.charts.id !== answered.id || header.charts.hash !== answered.model.hash) {
+  if (!answered || !chunkFromCharts(header, answered)) {
     return { ok: false, reason: "charts-differ" };
   }
 

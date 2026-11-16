@@ -187,3 +187,12 @@ export function actionTotals(node: ChartNode): Array<{ share: number; combos: nu
   }
   return totals.map((combos) => ({ share: all > 0 ? combos / all : 0, combos }));
 }
+
+/**
+ * Whether each option is one the range plays: an option no hand takes (an
+ * all-in the solution never picks, under half a combo across the range) is
+ * not offered as a choice.
+ */
+export function playedOptions(node: ChartNode): boolean[] {
+  return actionTotals(node).map((total) => total.combos >= 0.5);
+}

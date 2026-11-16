@@ -1,0 +1,5 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/ipoker/07-invalid-truncated-currency-mismatch.xml"
+}

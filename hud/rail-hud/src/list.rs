@@ -28,7 +28,7 @@
 //! can be resized, its minimum and maximum size where the system says so
 //! without asking the client ([`crate::platform::WindowDetails`]), and for
 //! a window a room takes (its `tables` block, or `--try-title` with
-//! `--room`) whether that room permits the HUD, tiling and the RNG. Still
+//! `--room`) whether that room permits the HUD and tiling. Still
 //! read-only.
 
 #![forbid(unsafe_code)]
@@ -68,12 +68,12 @@ table titles of real poker clients (docs/research/CAPTURING-TABLES.md).
   --try-title <regex> a candidate title regex: what its `table` and `seats`
                       groups read from each title
   --room <id>         the room --try-title is for (pokerstars, acr, ...):
-                      its HUD, tiling and RNG policy is shown with each
+                      its HUD and tiling policy is shown with each
                       window the regex takes
 
 Each window also shows its outer frame and the insets around the client
 area (what table tiling lays edge to edge), whether it can be resized, and
-for a room's window whether its policy permits the HUD, tiling and the RNG.
+for a room's window whether its policy permits the HUD and tiling.
 
 Titles are redacted: anything after \"Logged in as\" and your screen names
 become <you>. Read the output before you share it.
@@ -280,17 +280,14 @@ pub fn verdict(answer: Result<(), RefusalReason>) -> &'static str {
     }
 }
 
-/// (T6) Room `site`'s three answers: the HUD, tiling ([`TilingPermit`]) and
-/// the RNG ([`RngPermit`]).
+/// (T6) Room `site`'s two answers: the HUD and tiling ([`TilingPermit`]).
 ///
 /// [`TilingPermit`]: crate::compliance::TilingPermit
-/// [`RngPermit`]: crate::compliance::RngPermit
 pub fn permits(compliance: &Compliance, site: &str) -> String {
     format!(
-        "HUD {}; tiling {}; RNG {}",
+        "HUD {}; tiling {}",
         verdict(compliance.decide(site)),
         verdict(compliance.tiling_permit(site).map(|_| ())),
-        verdict(compliance.rng_permit(site).map(|_| ())),
     )
 }
 
@@ -696,12 +693,9 @@ mod tests {
             ),
             "{listing}"
         );
-        // (T6) Tiling and the RNG: GGPoker's own `false`s.
+        // (T6) Tiling: the owner's yes of 2026-11-16.
         assert!(
-            listing.contains(
-                "permits: HUD refused (the room prohibits it); tiling refused (the room \
-                 prohibits it); RNG refused (the room prohibits it)"
-            ),
+            listing.contains("permits: HUD refused (the room prohibits it); tiling permitted\n"),
             "{listing}"
         );
         assert!(listing.contains("frame:   not read"), "{listing}");
@@ -781,8 +775,7 @@ mod tests {
         assert!(listing.contains("size:    resizable no, movable yes"));
         assert!(
             listing.contains(
-                "         as wpt-global: HUD refused (the room prohibits it); tiling permitted; \
-                 RNG refused (the room prohibits it)"
+                "         as wpt-global: HUD refused (the room prohibits it); tiling permitted\n"
             ),
             "{listing}"
         );

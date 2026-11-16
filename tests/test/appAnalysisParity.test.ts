@@ -406,12 +406,13 @@ describe("web/app analysis parity", () => {
         fromLibrary += a.decisions.filter((d) => d.street === "flop" && d.source === "solver").length;
       }
       // The comparison covered every decision. Since analysis/41 the shipped charts are the GTO Wizard sets
-      // transcribed so far (the 6-max 100bb ante set; the corpus has no antes), so few decisions are graded,
-      // and no flop library is published: neither path fetches a file, no flop is graded from a library.
+      // transcribed so far (the 6-max 100bb sets), so few decisions are graded. The flop library of those sets
+      // is published since analysis/43, but the served pilot holds none of it: a manifest may be asked for
+      // (a 404), no chunk is fetched, no flop is graded from a library.
       expect(decisions).toBeGreaterThan(HANDS.length);
       expect(graded).toBeGreaterThan(0);
       expect(fromLibrary).toBe(0);
-      expect(app.fetched).toEqual([]);
+      expect(app.fetched.filter((path) => path.endsWith(".bin"))).toEqual([]);
       console.log(
         `app/web analysis parity: ${HANDS.length} hands (${corpusHands} from the corpus${ALL ? ", all of it" : `, every ${STRIDE}th`}), ${decisions} decisions, ${graded} graded, ${fromLibrary} flop decisions from the library: identical; web path ${((t1 - t0) / 1000).toFixed(1)} s, app path ${((t2 - t1) / 1000).toFixed(1)} s`,
       );
@@ -453,7 +454,7 @@ describe("web/app analysis parity", () => {
         expect(appRow(a), hand.key).toEqual(webRow(web.get(hand.key)!));
         expect(a.flop_library).toBe(false);
       }
-      // Online grades the same since analysis/41: no flop library is published, so nothing answers a flop.
+      // Online grades the same since analysis/41: the served files hold no chunk of a published set, so nothing answers a flop.
       const online = await appWorker().analyse(hands, null, true);
       for (const hand of hands) expect(appRow(online.get(hand.key)!), hand.key).toEqual(appRow(mine.get(hand.key)!));
       // Sanity: the engine on the trimmed PHF is the same engine.

@@ -129,7 +129,7 @@ export default async function SharedHandPage({ params, searchParams }: PageProps
     <div className="sharepage">
       <header className="sharepage__bar">
         <div className="sharepage__bar-inner">
-          <BrandMark showTagline={false} />
+          <BrandMark />
           <div className="sharepage__bar-actions">
             <Link href={paths.library()} className="sharepage__bar-link">
               {en.share.ownHandsLink}

@@ -3725,6 +3725,9 @@ checksum = "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf"
 name = "rail-app"
 version = "0.0.0"
 dependencies = [
+ "base64 0.22.1",
+ "flate2",
+ "getrandom 0.3.4",
  "keyring",
  "log",
  "open",
@@ -3807,7 +3810,6 @@ version = "0.0.0"
 dependencies = [
  "block2 0.6.2",
  "dispatch2",
- "getrandom 0.3.4",
  "libc",
  "objc2 0.6.5",
  "objc2-app-kit 0.3.2",

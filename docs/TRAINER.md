@@ -65,10 +65,13 @@ all-in, `N`/`Enter` next hand, `S` settings.
 web/src/components/trainer/      host-neutral (no Next, no web i18n, no Supabase)
   host.tsx       TrainerHost: words, deal, grade, focus, record, onSettings, study, extraModes
   settings.ts    TrainerSettings; parse / fields; spotOptions(mode); targetSettings(target)
+  sessions.ts    sessions: SessionStore, spotKey, pickRepeat, figures, defaultName, localSessionStore
   focus.ts       "For you": trainable areas, rotation, the general list
   felt.ts        the table read off the replayer's frames; the action strip
   principles.ts  which rule of thumb explains a spot
-  Trainer.tsx    the screen; SpotFelt.tsx, Feedback.tsx, SettingsSheet.tsx
+  Trainer.tsx    the session list and the switch to a session's training and history;
+                 SessionTrainer.tsx, SessionReview.tsx, SeenBefore.tsx, SettingsSheet.tsx (a new session),
+                 SpotFelt.tsx, Feedback.tsx
 web/src/lib/i18n/ns/trainer.{en,hr}.ts   its words (plain data; the analysis' words re-used)
 
 web:  components/analysis/train/WebTrainer.tsx   host: lib/trainer.ts worker, fetchLeaks,
@@ -169,7 +172,62 @@ answer, the next opening of the Trainer or the next sign-in; a refusal
 drops that batch. Turn answers and whole-hand answers are not kept, as on
 the web (the table has no turn mode).
 
-## 6. Not in this version
+## 6. Sessions (2026-11-16)
 
+The owner's rule: **a session's settings are fixed.** The player picks what to
+train once - every choice, the modes (For you, Preflop, Flop, Turn, River) and
+One spot | Whole hand included, lives in the settings - names it, and trains
+it without changing anything. Changing a setting starts a new session with a
+new name; the old one stays as it was. Designed on the map canvas (Ideas,
+"Trainer — sesije": TR-Sessions, TR-New, TR-Train, TR-Review).
+
+- **The list** (`Trainer.tsx`): every session with its settings in one line,
+  hands (and today's), the mean move score, the grade bar, EV lost and when it
+  was last played; Continue, and a menu (review history, rename, a new session
+  from these settings, archive / restore). Sorted by recent, hands or score.
+- **A new session** (`SettingsSheet.tsx`): the name (built from the settings by
+  `defaultName` - "BB vs BTN open" - until the player types their own; Auto
+  goes back to it) and the settings. Settings another session already trains
+  (`sameTraining`: every field but the panels shown) offer to continue it.
+  Opened from a running session ("Change settings", `S`) it says that a change
+  starts a new session; with nothing changed, Start stays off.
+- **Training** (`SessionTrainer.tsx`): the session's name (its menu) and its
+  settings, locked, on the top row; no mode or play switch. Beside the table,
+  the session's figures from its answers, today's or all: hands, score, streak,
+  EV lost, the grade bar, and "Played again" (spots answered more than once,
+  how many are right now).
+- **Repeat played spots** (settings → Training; off / sometimes ≈ 1 in 6 /
+  often ≈ 1 in 3, spots only): a spot the session has dealt before comes back,
+  the worst latest answers first, never one answered in the last 12 deals
+  (`pickRepeat`). It is dealt again exactly from its deal (`SpotRef`: the
+  request and the seed - the generators are pure in their seed); a reference
+  that changed since (the key differs) is dealt anew. Nothing marks it before
+  the answer; after it, "You have played this spot before" lists every earlier
+  answer and says whether this one is better (`SeenBefore.tsx`). A spot's
+  identity is `spotKey`: the node (chart line; library line and path; the
+  turn's or river's line and what was faced), the hero's seat, the cards in
+  any order and the board.
+- **History** (`SessionReview.tsx`): the figures, the score per 20 hands, the
+  answers grouped by what the settings leave open (kind of hand preflop, best
+  move, seat, street, day; a row filters the hands), every answer newest first
+  with grade filters and "Played more than once"; an answer opens to every time
+  its spot was played and "Play it again", which deals that spot next.
+- **Where sessions live** (`SessionStore`, `host.sessions`): on the web in the
+  account (`lib/db/trainerSessions.ts`; `20271116090000_trainer_sessions.sql`:
+  `trainer_sessions`, `trainer_session_answers`, written by
+  `save_trainer_session` and `record_trainer_session_answers`, read by
+  `trainer_session_list`; Pro-gated like the Trainer, exported and deleted
+  with the account); in the app and a web build without a database on this
+  device (`localSessionStore`, 1 500 answers a session kept). The app opens the
+  last session again; the web keeps the open one in the address
+  (`?session=<id>`). A link with settings (a leak's, the study plan's) opens a
+  new session on them. Every answer still goes to `trainer_results` too.
+- The saved drills of T4 became sessions on the first opening (`drills.ts`
+  is read once and emptied).
+
+## 7. Not in this version
+
+- The app's sessions are per computer, not in the account.
+- Whole-hand decisions are kept in a session but never dealt again (a hand's
+  opponent draws its moves; there is no deal to repeat).
 - A whole hand has no mix input and no multi-table.
-- Saved drills are per device, not per account.

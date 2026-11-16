@@ -1,7 +1,7 @@
 //! (T3, docs/research/TABLE-TILING.md §4.3 - §4.5) The user's table tiling
 //! and RNG settings: the one model the app stores (`hud_layouts` kinds
-//! `tiling` and `rng`, key [`SETTINGS_KEY`], synced last writer wins), sends
-//! (`tiling_changed`, `rng_changed`) and the HUD applies. Serde camelCase;
+//! `tiling` and `rng`, key [`SETTINGS_KEY`], synced last writer wins);
+//! tiling's it sends (`tiling_changed`) and the HUD applies. Serde camelCase;
 //! every field has a default, so an older or newer peer's object still
 //! reads.
 //!
@@ -11,8 +11,8 @@
 //!   turned a room off) and (T7) the global hotkeys
 //!   ([`crate::hotkeys`]). Whether a room may be tiled at all is the
 //!   policy's (T0's `TilingPermit`), never this.
-//! - [`RngSettings`]: off by default; the range (1 - 100), colour bands,
-//!   when it rolls, per room, the widget's size and opacity.
+//! - [`RngSettings`]: the switch of the app's RNG box (2026-11-16), off by
+//!   default. It never reaches the HUD.
 //!
 //! [`TilingSettings::validate`] and [`RngSettings::validate`] are what the
 //! app checks before it stores or sends, and what the HUD checks again on
@@ -52,23 +52,6 @@ pub const MAX_NAME: usize = 80;
 pub const MAX_ROOMS: usize = 64;
 /// A slot's monitor (its place in the monitor order) is below this.
 pub const MAX_MONITORS: u32 = 16;
-
-/// The RNG's largest number.
-pub const RNG_LIMIT: u32 = 10_000;
-/// Colour bands at most.
-pub const MAX_BANDS: usize = 10;
-/// The longest band label, characters.
-pub const MAX_LABEL: usize = 24;
-/// The longest timer, seconds.
-pub const MAX_TIMER_SECS: u32 = 3600;
-/// The RNG widget's size, percent of its size at the table's scale.
-pub const RNG_SCALE_MIN: u32 = 50;
-pub const RNG_SCALE_MAX: u32 = 200;
-/// The RNG widget's opacity, percent (never so faint it cannot be read).
-pub const RNG_OPACITY_MIN: u32 = 30;
-pub const RNG_OPACITY_MAX: u32 = 100;
-/// The default of both: as T4 drew it.
-pub const RNG_DEFAULT_PCT: u32 = 100;
 
 /// Why a settings object was refused: the field and what is wrong with it.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -352,168 +335,21 @@ impl TilingSettings {
 // ---------------------------------------------------------------------
 // RNG.
 
-/// A colour band: the numbers up to `up_to` (from the band before's, or
-/// the range's start) are drawn in `colour`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct RngBand {
-    pub up_to: u32,
-    /// `#rrggbb`.
-    pub colour: String,
-    /// What the user calls it (`None`: unnamed, the default).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub label: Option<String>,
-}
-
-/// When a table's RNG rolls.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", default)]
-pub struct RngTriggers {
-    /// On every new hand at that table (when its last hand is imported).
-    pub new_hand: bool,
-    /// On a click on the widget.
-    pub click: bool,
-    /// Every this many seconds (`None`: no timer).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub timer_secs: Option<u32>,
-}
-
-impl Default for RngTriggers {
-    fn default() -> Self {
-        Self {
-            new_hand: true,
-            click: true,
-            timer_secs: None,
-        }
-    }
-}
-
-/// The user's RNG settings (`hud_layouts` kind `rng`; T4 draws it).
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+/// The user's RNG switch (`hud_layouts` kind `rng`): whether the app shows
+/// its RNG box (2026-11-16, `app/src-tauri/src/rng_box.rs`). Rows an older
+/// Rail wrote also carry the per-table overlay's range, bands, triggers,
+/// rooms, size and opacity: they are read past. An older Rail reads this
+/// object with its own defaults for the rest.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
 pub struct RngSettings {
-    /// Off by default.
     pub enabled: bool,
-    /// The range, both ends included: 1 - 100 by default (0 - 99 is the
-    /// other common choice).
-    pub min: u32,
-    pub max: u32,
-    /// Ascending; the last one ends at `max`.
-    pub bands: Vec<RngBand>,
-    pub triggers: RngTriggers,
-    /// The user's switch per room (`sites.json` id); a room not listed is
-    /// on. The room's RNG policy (T0's `RngPermit`) decides first.
-    pub per_room: BTreeMap<String, bool>,
-    /// (T5 follow-up) The widget's size, percent ([`RNG_SCALE_MIN`] -
-    /// [`RNG_SCALE_MAX`]) of the size it has at the table's scale. Missing
-    /// (an older peer's settings): 100.
-    pub scale: u32,
-    /// (T5 follow-up) The widget's opacity, percent ([`RNG_OPACITY_MIN`] -
-    /// [`RNG_OPACITY_MAX`]), the plate and the number alike. Missing: 100.
-    pub opacity: u32,
-}
-
-/// The default bands: three, unnamed, in neutral greys.
-fn default_bands() -> Vec<RngBand> {
-    [(33, "#5c6370"), (66, "#8b929e"), (100, "#c5cad3")]
-        .into_iter()
-        .map(|(up_to, colour)| RngBand {
-            up_to,
-            colour: colour.to_owned(),
-            label: None,
-        })
-        .collect()
-}
-
-impl Default for RngSettings {
-    fn default() -> Self {
-        Self {
-            enabled: false,
-            min: 1,
-            max: 100,
-            bands: default_bands(),
-            triggers: RngTriggers::default(),
-            per_room: BTreeMap::new(),
-            scale: RNG_DEFAULT_PCT,
-            opacity: RNG_DEFAULT_PCT,
-        }
-    }
-}
-
-fn is_hex_colour(text: &str) -> bool {
-    let bytes = text.as_bytes();
-    bytes.len() == 7 && bytes[0] == b'#' && bytes[1..].iter().all(u8::is_ascii_hexdigit)
 }
 
 impl RngSettings {
-    /// Whether the user wants the RNG on this room's tables (on unless
-    /// switched off).
-    pub fn room_enabled(&self, site: &str) -> bool {
-        self.per_room.get(site).copied().unwrap_or(true)
-    }
-
-    /// The band `n` is drawn in (`None` outside the range).
-    pub fn band_for(&self, n: u32) -> Option<&RngBand> {
-        if n < self.min || n > self.max {
-            return None;
-        }
-        self.bands.iter().find(|band| n <= band.up_to)
-    }
-
-    /// A range of at least one number up to [`RNG_LIMIT`]; one to
-    /// [`MAX_BANDS`] bands, strictly ascending inside the range, the last
-    /// ending at `max`; `#rrggbb` colours; labels of 1 - [`MAX_LABEL`]
-    /// characters or none; a timer of 1 s - 1 h or none; a size of 50 -
-    /// 200 % and an opacity of 30 - 100 %.
+    /// What the app checks before it stores it: the size every settings
+    /// object is held to.
     pub fn validate(&self) -> Result<(), Invalid> {
-        if self.max > RNG_LIMIT {
-            return invalid(format!("the RNG's largest number is {RNG_LIMIT}"));
-        }
-        if self.max < self.min {
-            return invalid("the RNG's range ends before it starts");
-        }
-        if self.bands.is_empty() || self.bands.len() > MAX_BANDS {
-            return invalid(format!("1 - {MAX_BANDS} colour bands"));
-        }
-        let mut floor: Option<u32> = None;
-        for band in &self.bands {
-            if band.up_to < self.min || band.up_to > self.max {
-                return invalid(format!("a band ends at {}, outside the range", band.up_to));
-            }
-            if floor.is_some_and(|f| band.up_to <= f) {
-                return invalid("the bands must be in ascending order");
-            }
-            floor = Some(band.up_to);
-            if !is_hex_colour(&band.colour) {
-                return invalid(format!("a band's colour {:?} is not #rrggbb", band.colour));
-            }
-            if let Some(label) = &band.label
-                && (label.trim().is_empty() || label.chars().count() > MAX_LABEL)
-            {
-                return invalid(format!(
-                    "a band's label: 1 - {MAX_LABEL} characters, or none"
-                ));
-            }
-        }
-        if floor != Some(self.max) {
-            return invalid("the last band must end at the range's end");
-        }
-        if let Some(secs) = self.triggers.timer_secs
-            && !(1..=MAX_TIMER_SECS).contains(&secs)
-        {
-            return invalid(format!("the timer: 1 - {MAX_TIMER_SECS} seconds"));
-        }
-        if !(RNG_SCALE_MIN..=RNG_SCALE_MAX).contains(&self.scale) {
-            return invalid(format!(
-                "the RNG's size: {RNG_SCALE_MIN} - {RNG_SCALE_MAX} %"
-            ));
-        }
-        if !(RNG_OPACITY_MIN..=RNG_OPACITY_MAX).contains(&self.opacity) {
-            return invalid(format!(
-                "the RNG's opacity: {RNG_OPACITY_MIN} - {RNG_OPACITY_MAX} %"
-            ));
-        }
-        check_rooms(self.per_room.keys(), "a room")?;
         check_size(self, "the RNG settings")
     }
 }
@@ -568,8 +404,7 @@ mod tests {
     }
 
     /// The defaults are the plan's: tiling off on the auto grid, every
-    /// room on; the RNG off, 1 - 100, three unnamed bands, rolling on a new
-    /// hand and a click, no timer. Both are valid.
+    /// room on; the RNG off. Both are valid.
     #[test]
     fn defaults() {
         let t = TilingSettings::default();
@@ -578,24 +413,7 @@ mod tests {
         assert_eq!(t.validate(), Ok(()));
         let r = RngSettings::default();
         assert!(!r.enabled);
-        assert_eq!((r.min, r.max), (1, 100));
-        assert_eq!(r.bands.len(), 3);
-        assert!(r.bands.iter().all(|b| b.label.is_none()));
-        assert_eq!(r.bands.last().map(|b| b.up_to), Some(100));
-        assert_eq!(
-            r.triggers,
-            RngTriggers {
-                new_hand: true,
-                click: true,
-                timer_secs: None
-            }
-        );
         assert_eq!(r.validate(), Ok(()));
-        assert_eq!(r.band_for(1).map(|b| b.up_to), Some(33));
-        assert_eq!(r.band_for(34).map(|b| b.up_to), Some(66));
-        assert_eq!(r.band_for(100).map(|b| b.up_to), Some(100));
-        assert_eq!(r.band_for(0), None);
-        assert_eq!(r.band_for(101), None);
     }
 
     /// The wire and storage form: camelCase, the layout reference tagged,
@@ -625,70 +443,6 @@ mod tests {
             TilingSettings::default()
         );
         assert!(!t.room_enabled("winamax") && t.room_enabled("acr"));
-
-        let r = RngSettings {
-            triggers: RngTriggers {
-                timer_secs: Some(30),
-                ..RngTriggers::default()
-            },
-            ..RngSettings::default()
-        };
-        let text = serde_json::to_string(&r).expect("json");
-        assert!(
-            text.contains(r#""triggers":{"newHand":true,"click":true,"timerSecs":30}"#),
-            "{text}"
-        );
-        assert!(text.contains(r#""upTo":33"#) && !text.contains("label"));
-        assert_eq!(serde_json::from_str::<RngSettings>(&text).expect("back"), r);
-        assert_eq!(
-            serde_json::from_str::<RngSettings>(r#"{"enabled":true}"#).expect("defaults"),
-            RngSettings {
-                enabled: true,
-                ..RngSettings::default()
-            }
-        );
-        // A newer peer's field is ignored.
-        assert!(serde_json::from_str::<RngSettings>(r#"{"size":3}"#).is_ok());
-    }
-
-    /// (T5 follow-up) The widget's size and opacity: stored as `scale` and
-    /// `opacity` (percent), both 100 when an older peer's settings have
-    /// neither (T3/T4 stored rows, older app builds), and read back as
-    /// written when they are there.
-    #[test]
-    fn rng_size_and_opacity_round_trip() {
-        // A T4 row, as the store and `hud_layouts` hold it: no size, no opacity.
-        let old = r##"{"enabled":true,"min":1,"max":100,"bands":[{"upTo":50,"colour":"#112233"},{"upTo":100,"colour":"#445566"}],"triggers":{"newHand":true,"click":false},"perRoom":{"acr":false}}"##;
-        let r: RngSettings = serde_json::from_str(old).expect("reads");
-        assert_eq!((r.scale, r.opacity), (RNG_DEFAULT_PCT, RNG_DEFAULT_PCT));
-        assert!(!r.room_enabled("acr") && r.enabled && !r.triggers.click);
-        assert_eq!(r.validate(), Ok(()));
-
-        let r = RngSettings {
-            scale: 150,
-            opacity: 40,
-            ..r
-        };
-        let text = serde_json::to_string(&r).expect("json");
-        assert!(
-            text.contains(r#""scale":150"#) && text.contains(r#""opacity":40"#),
-            "{text}"
-        );
-        let back: RngSettings = serde_json::from_str(&text).expect("back");
-        assert_eq!(back, r);
-        assert_eq!(back.validate(), Ok(()));
-
-        // What an older build keeps of a newer row: everything but the two.
-        #[derive(Deserialize)]
-        #[serde(rename_all = "camelCase")]
-        struct OlderRng {
-            min: u32,
-            max: u32,
-            per_room: BTreeMap<String, bool>,
-        }
-        let older: OlderRng = serde_json::from_str(&text).expect("older reads");
-        assert_eq!((older.min, older.max), (1, 100));
-        assert_eq!(older.per_room.get("acr"), Some(&false));
     }
 
     /// (T7) The hotkeys travel with the tiling settings: a T6 row (none)
@@ -837,101 +591,22 @@ mod tests {
         assert_eq!(t.auto_switch[1].min_tables, 2);
     }
 
+    /// (2026-11-16) The RNG is a switch: an older Rail's row (the
+    /// per-table overlay's fields) reads as its switch, and what this build
+    /// writes is the switch alone.
     #[test]
-    fn rng_validation() {
-        let refused = |change: &dyn Fn(&mut RngSettings)| {
-            let mut r = RngSettings::default();
-            change(&mut r);
-            r.validate().expect_err("refused")
-        };
-        refused(&|r| r.max = 0);
-        refused(&|r| {
-            r.max = RNG_LIMIT + 1;
-            r.bands.last_mut().expect("band").up_to = RNG_LIMIT + 1;
-        });
-        refused(&|r| r.bands.clear());
-        refused(&|r| r.bands.swap(0, 1));
-        refused(&|r| r.bands[1].up_to = 33);
-        refused(&|r| r.bands[0].up_to = 0);
-        refused(&|r| {
-            r.bands.pop();
-        });
-        refused(&|r| r.bands[2].up_to = 101);
-        refused(&|r| r.bands[0].colour = "red".into());
-        refused(&|r| r.bands[0].colour = "#12345g".into());
-        refused(&|r| r.bands[0].label = Some(String::new()));
-        refused(&|r| r.bands[0].label = Some("x".repeat(MAX_LABEL + 1)));
-        refused(&|r| r.triggers.timer_secs = Some(0));
-        refused(&|r| r.triggers.timer_secs = Some(MAX_TIMER_SECS + 1));
-        refused(&|r| r.scale = RNG_SCALE_MIN - 1);
-        refused(&|r| r.scale = RNG_SCALE_MAX + 1);
-        refused(&|r| r.scale = 0);
-        refused(&|r| r.opacity = RNG_OPACITY_MIN - 1);
-        refused(&|r| r.opacity = RNG_OPACITY_MAX + 1);
-        for (scale, opacity) in [
-            (RNG_SCALE_MIN, RNG_OPACITY_MIN),
-            (RNG_SCALE_MAX, RNG_OPACITY_MAX),
-        ] {
-            let edge = RngSettings {
-                scale,
-                opacity,
-                ..RngSettings::default()
-            };
-            assert_eq!(edge.validate(), Ok(()));
-        }
-        refused(&|r| {
-            r.bands = (1..=11)
-                .map(|i| RngBand {
-                    up_to: i * 9 + 1,
-                    colour: "#000000".into(),
-                    label: None,
-                })
-                .collect();
-        });
-        // 0 - 99 with named bands and a timer.
-        let r = RngSettings {
-            enabled: true,
-            min: 0,
-            max: 99,
-            bands: vec![
-                RngBand {
-                    up_to: 49,
-                    colour: "#1A2b3C".into(),
-                    label: Some("Call".into()),
-                },
-                RngBand {
-                    up_to: 99,
-                    colour: "#ffffff".into(),
-                    label: Some("Raise".into()),
-                },
-            ],
-            triggers: RngTriggers {
-                new_hand: false,
-                click: true,
-                timer_secs: Some(MAX_TIMER_SECS),
-            },
-            per_room: [("ggpoker".to_owned(), false)].into_iter().collect(),
-            scale: 75,
-            opacity: 60,
-        };
-        assert_eq!(r.validate(), Ok(()));
-        assert_eq!(r.band_for(0).and_then(|b| b.label.as_deref()), Some("Call"));
+    fn rng_is_a_switch() {
+        let old = r##"{"enabled":true,"min":1,"max":100,"bands":[{"upTo":50,"colour":"#112233"},{"upTo":100,"colour":"#445566"}],"triggers":{"newHand":true,"click":false},"perRoom":{"acr":false},"scale":150,"opacity":40}"##;
+        let r: RngSettings = serde_json::from_str(old).expect("reads");
+        assert_eq!(r, RngSettings { enabled: true });
         assert_eq!(
-            r.band_for(50).and_then(|b| b.label.as_deref()),
-            Some("Raise")
+            serde_json::to_string(&r).expect("json"),
+            r#"{"enabled":true}"#
         );
-        assert!(!r.room_enabled("ggpoker") && r.room_enabled("acr"));
-        // A one-number range with one band.
-        let one = RngSettings {
-            min: 7,
-            max: 7,
-            bands: vec![RngBand {
-                up_to: 7,
-                colour: "#000000".into(),
-                label: None,
-            }],
-            ..RngSettings::default()
-        };
-        assert_eq!(one.validate(), Ok(()));
+        assert_eq!(
+            serde_json::from_str::<RngSettings>("{}").expect("defaults"),
+            RngSettings::default()
+        );
+        assert_eq!(r.validate(), Ok(()));
     }
 }

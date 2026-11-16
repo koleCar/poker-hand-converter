@@ -61,10 +61,6 @@
 //! for the popup. The overlay never activates (`MA_NOACTIVATE`), so the
 //! click leaves the keyboard with the table.
 //!
-//! **(T4) The RNG widget** is painted from the scene's items like a panel
-//! and dragged and clicked through the same code, as the pseudo-slot
-//! `RNG_SLOT` (the engine tells a roll from a popup by the slot).
-//!
 //! **The table's geometry is always read here, at the moment it is used**
 //! (for a new frame, a hook event, the engine's `follow`), never taken
 //! from a description handed over, which can be older than what the hooks
@@ -1240,8 +1236,6 @@ impl Overlays {
             }
             // (R3.8) A click: the popup of the panel's player, beside the
             // panel on the screen.
-            // (T4) A seat's panel, or the RNG widget (its slot `RNG_SLOT`:
-            // a roll).
             let slot = drag.slot;
             let Some(rect) = overlay.scene.draggable(slot) else {
                 return;

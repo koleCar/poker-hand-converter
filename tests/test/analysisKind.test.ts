@@ -39,13 +39,25 @@ describe("the overview", () => {
 });
 
 describe("Leaks, Progress and Reports", () => {
-  it("carry the kind with the other report filters", () => {
+  it("carry the kind with the Hands list's filter (2026-11-16: one filter row everywhere)", () => {
+    // A link from before the shared row: its seat becomes the filter's position group.
     const state = parseReportsState({ kind: "cash", pos: "BTN" });
     expect(state.kind).toBe("cash");
-    expect(reportsFilters(state)).toEqual({ gameKind: "cash", position: "BTN" });
-    expect(reportsQuery(state)).toBe("pos=BTN&kind=cash");
+    expect(state.filter.positions).toEqual(["BTN"]);
+    const filters = reportsFilters(state);
+    expect(filters.gameKind).toBe("cash");
+    expect(filters.hands).toMatchObject({ positions: ["BTN"], formats: [], statsVersion: expect.stringMatching(/^stats\//) });
+    // The address carries the shared filter's saved form, and reads it back.
+    const query = reportsQuery(state);
+    expect(query).toContain("kind=cash");
+    expect(parseReportsState(new URLSearchParams(query))).toEqual(state);
     expect(leaksQuery(parseLeaksState({ kind: "tournament", sort: "count" }))).toContain("kind=tournament");
-    expect(reportsFilters(parseReportsState({})).gameKind).toBeUndefined();
+    // No group set: no hand list, the readers' summaries answer.
+    expect(reportsFilters(parseReportsState({}))).toEqual({});
+    // Old dates, room and stake become the same groups.
+    const old = parseReportsState({ from: "2026-01-02", to: "2026-01-09", room: "pokerstars", stake: "USD:200" });
+    expect(old.filter).toMatchObject({ date: "custom", dateFrom: "2026-01-02", dateTo: "2026-01-09", sites: ["pokerstars"], stakes: ["USD:200"] });
+    expect(reportsFilters(old).hands).toMatchObject({ sites: ["pokerstars"], stakes: ["USD:200"] });
   });
 });
 

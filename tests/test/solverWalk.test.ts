@@ -85,17 +85,29 @@ describe("a hand's walk to a decision", () => {
     expect(encodeWalk(handWalk(hand, at("flop", 2, board.slice(0, 3)))!)).toBe("");
   });
 
-  // Since analysis/41 no flop library is published (`FLOP_LIBRARY_SETS` is empty): a decision links nowhere,
-  // even one a stored analysis graded from the old library. The link itself is pinned again when a library
-  // on the GTO Wizard ranges ships (see git history for the expectations on a published set).
-  it("links no decision to the Solver library while no flop library is published", () => {
+  // The GTO Wizard 6-max 100bb sets are published since analysis/43 (none was in analysis/41-42).
+  it("links a decision to the Solver library: the table, the preflop line, the flop in the hand's suits", () => {
     const board = ["As", "Kh", "7d", "2c", "9s"];
     const flopFacts = { line: "btn-bb", flop: "AsKh7d", mapped: false };
     const preflop = { ...at("preflop", 1, []), facts: { board: [], chart: { set: "nlhe-cash-6max-100bb", line: "fffr" } } } as unknown as DecisionAnalysis;
     const flop = { ...at("flop", 3, board.slice(0, 3)), facts: { board: board.slice(0, 3), flop: flopFacts } } as unknown as DecisionAnalysis;
     const river = at("river", 9, board);
-    expect(FLOP_LIBRARY_SETS).toEqual([]);
-    expect(solverLinkOf([preflop, flop, river], river, hand)).toBeNull();
+    expect(FLOP_LIBRARY_SETS).toContain("nlhe-cash-6max-100bb");
+    const link = solverLinkOf([preflop, flop, river], river, hand);
+    expect(link).toEqual({ set: "nlhe-cash-6max-100bb", line: "fffrfc", flop: "AsKh7d", walk: "x-b33-c-2c-x-b75-c-9s-x", exact: true });
+
+    // Read from a representative flop: the hand's turn and river are not on it, so the walk stops at the turn's deal.
+    const mapped = { ...flop, facts: { ...flop.facts, flop: { ...flopFacts, flop: "AsKh8d", mapped: true } } } as unknown as DecisionAnalysis;
+    expect(solverLinkOf([preflop, mapped, river], river, hand)).toEqual({
+      set: "nlhe-cash-6max-100bb",
+      line: "fffrfc",
+      flop: "AsKh8d",
+      walk: "x-b33-c",
+      exact: false,
+    });
+
+    // No flop the library graded, or a preflop decision: no link.
+    expect(solverLinkOf([preflop, flop, river], preflop, hand)).toBeNull();
     expect(solverLinkOf([preflop, river], river, hand)).toBeNull();
   });
 

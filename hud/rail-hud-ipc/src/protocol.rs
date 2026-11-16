@@ -8,7 +8,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::settings::{RngSettings, Slot, TilingSettings};
+use crate::settings::{Slot, TilingSettings};
 
 /// A player as the store keys their rollups (`player_rollups`): the name as
 /// the room wrote it and the scope - `""`, or for an opaque-id room's
@@ -111,11 +111,6 @@ pub enum AppMessage {
     /// may be tiled at all is the HUD's policy, never this.
     #[serde(rename_all = "camelCase")]
     TilingChanged { settings: TilingSettings },
-    /// (T3) The user's RNG settings, on every change and after every
-    /// handshake; (T4) the HUD draws the RNG with them over the tables of
-    /// rooms whose policy allows it.
-    #[serde(rename_all = "camelCase")]
-    RngChanged { settings: RngSettings },
     /// (T3) Lay every tiled table out again, the ones the user moved by
     /// hand too (the tray's "Re-tile tables").
     Retile,
@@ -126,17 +121,12 @@ pub enum AppMessage {
     #[serde(rename_all = "camelCase")]
     CaptureLayout { request: u64 },
     /// (T3) Whether the plan includes the HUD's panels. `false` (Free,
-    /// with enforcement on): the HUD runs for table tiling and the RNG
-    /// only and attaches no panel; `true` (the plan now includes it): it
+    /// with enforcement on): the HUD runs for table tiling only and
+    /// attaches no panel; `true` (the plan now includes it): it
     /// attaches from its next look. The command line's `--panels off` is
     /// the same before the first look.
     #[serde(rename_all = "camelCase")]
     Panels { allowed: bool },
-    /// (T7) The user's hotkey: roll the RNG on the table in front (the
-    /// system's foreground window), when it shows the RNG - the user's RNG
-    /// settings on for its room **and** the room's `RngPermit`; otherwise
-    /// nothing. An older HUD ignores it.
-    RollRng,
     /// A message type this build does not know (a newer app).
     #[serde(other)]
     Unknown,
@@ -239,22 +229,6 @@ pub enum HudMessage {
         /// user's): the popup shows its sections. Absent from an older HUD.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         design: Option<String>,
-    },
-    /// (T4) The user dragged a table's RNG widget: the app remembers it in
-    /// the store (`hud_settings` kind `rng`, key `pos-<site>-<size>`:
-    /// `rail_store::hud`) for the room and the table size, like a seat's
-    /// panel, and the HUD reads it back at its
-    /// next start (and on `layout_changed`). The HUD already shows it there,
-    /// on every table of that room and size.
-    #[serde(rename_all = "camelCase")]
-    RngPositionChanged {
-        /// The `sites.json` room.
-        site: String,
-        /// The table size, 2 - 10.
-        size: u32,
-        /// The widget's centre, thousandths of the table's client area.
-        x: u32,
-        y: u32,
     },
     /// (T3) Table tiling's state, whenever it changes: on or off, how many
     /// tables it manages, the layout in force (`auto` for the auto grid;
@@ -498,9 +472,7 @@ pub struct LatencySummary {
 mod tests {
     use super::*;
     use crate::hotkeys::{HotkeyAction, HotkeyBinding};
-    use crate::settings::{
-        AutoSwitch, Layout, LayoutRef, RngBand, RngTriggers, Slot, SlotKind, SlotRect,
-    };
+    use crate::settings::{AutoSwitch, Layout, LayoutRef, Slot, SlotKind, SlotRect};
 
     /// (T5) A 1080p primary monitor with a 40 px taskbar.
     fn monitor_info() -> MonitorInfo {
@@ -637,31 +609,7 @@ mod tests {
             AppMessage::TilingChanged {
                 settings: tiling_settings(),
             },
-            AppMessage::RngChanged {
-                settings: RngSettings::default(),
-            },
-            AppMessage::RngChanged {
-                settings: RngSettings {
-                    enabled: true,
-                    min: 0,
-                    max: 99,
-                    bands: vec![RngBand {
-                        up_to: 99,
-                        colour: "#202020".into(),
-                        label: Some("Bluff".into()),
-                    }],
-                    triggers: RngTriggers {
-                        new_hand: false,
-                        click: true,
-                        timer_secs: Some(20),
-                    },
-                    per_room: [("acr".to_owned(), false)].into_iter().collect(),
-                    scale: 140,
-                    opacity: 70,
-                },
-            },
             AppMessage::Retile,
-            AppMessage::RollRng,
             AppMessage::CaptureLayout { request: 7 },
             AppMessage::Panels { allowed: false },
             AppMessage::Panels { allowed: true },
@@ -785,12 +733,6 @@ mod tests {
                 anchor: ScreenRect::default(),
                 scale_permille: 1000,
                 design: None,
-            },
-            HudMessage::RngPositionChanged {
-                site: "pokerstars".into(),
-                size: 9,
-                x: 940,
-                y: 60,
             },
             HudMessage::TilingStatus {
                 enabled: true,
@@ -961,7 +903,7 @@ mod tests {
         );
     }
 
-    /// (T3) Tiling's and the RNG's messages on the wire: `type` in snake
+    /// (T3) Tiling's messages on the wire: `type` in snake
     /// case, the settings as stored (camelCase); an older HUD reads them as
     /// `Unknown` and ignores them.
     #[test]
@@ -969,10 +911,6 @@ mod tests {
         assert_eq!(
             serde_json::to_string(&AppMessage::Retile).expect("json"),
             r#"{"type":"retile"}"#
-        );
-        assert_eq!(
-            serde_json::to_string(&AppMessage::RollRng).expect("json"),
-            r#"{"type":"roll_rng"}"#
         );
         assert_eq!(
             serde_json::to_string(&AppMessage::Panels { allowed: false }).expect("json"),
@@ -985,14 +923,18 @@ mod tests {
             .expect("json"),
             r#"{"type":"tiling_changed","settings":{"enabled":false,"active":{"kind":"auto"},"layouts":[],"autoSwitch":[],"closeGaps":false,"perRoom":{},"hotkeys":[]}}"#
         );
-        let rng = serde_json::to_string(&AppMessage::RngChanged {
-            settings: RngSettings::default(),
-        })
-        .expect("json");
-        assert!(
-            rng.starts_with(r#"{"type":"rng_changed","settings":{"enabled":false,"min":1,"max":100,"bands":[{"upTo":33,"#),
-            "{rng}"
-        );
+        // (2026-11-16) The per-table RNG's messages are gone: an older
+        // app's read as `Unknown` and are ignored.
+        for old in [
+            r#"{"type":"rng_changed","settings":{"enabled":true}}"#,
+            r#"{"type":"roll_rng"}"#,
+        ] {
+            assert_eq!(
+                serde_json::from_str::<AppMessage>(old).expect("reads"),
+                AppMessage::Unknown,
+                "{old}"
+            );
+        }
         assert_eq!(
             serde_json::to_string(&HudMessage::TilingStatus {
                 enabled: true,

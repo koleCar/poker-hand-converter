@@ -1,16 +1,12 @@
-// analysis-charts: Rail's preflop charts, a chart set of your own, and the
-// trainer.
+// analysis-charts: Rail's preflop charts and the trainer.
 
 import type { Browser } from 'playwright';
 
-import { psql, userId } from '../lib/accounts.ts';
 import { newContext, open, settle } from '../lib/browser.ts';
 import { Recorder } from '../lib/recorder.ts';
 
 export async function capture(browser: Browser): Promise<void> {
   const rec = new Recorder('analysis-charts');
-  // A clean start: no chart set of the demo account's yet (a rerun made one).
-  psql(`delete from public.preflop_chart_sets where owner_id = '${userId('demo')}';`);
   const context = await newContext(browser, { account: 'demo' });
   const page = await context.newPage();
   page.setDefaultTimeout(120_000);
@@ -33,32 +29,6 @@ export async function capture(browser: Browser): Promise<void> {
       cell,
     },
     { fullPage: true, maxHeight: 2400 },
-  );
-
-  await open(page, '/analysis/my-charts');
-  await settle(page, 2000);
-  const create = page.getByRole('button', { name: /New chart set/ });
-  if (await create.isVisible().catch(() => false)) {
-    await create.click();
-    await settle(page, 2000);
-  }
-  // Start the open-from-UTG situation from Rail's own chart.
-  const fromRail = page.locator('details', { has: page.locator('summary', { hasText: "Start from Rail's chart" }) });
-  await fromRail.locator('summary').click();
-  await fromRail.getByRole('button', { name: 'Copy' }).click();
-  await settle(page, 1500);
-  await rec.shot(
-    page,
-    'my-charts',
-    {
-      tabs: page.getByRole('tab', { name: 'Edit' }),
-      compare: page.getByRole('tab', { name: /Compare/ }),
-      grid: page.getByRole('grid').first(),
-      brush: page.getByRole('button', { name: 'Raise 100 %' }).first(),
-      fromRail: fromRail.locator('summary'),
-      save: page.getByRole('button', { name: 'Save', exact: true }),
-    },
-    { fullPage: true, maxHeight: 2600 },
   );
 
   await open(page, '/analysis/train');

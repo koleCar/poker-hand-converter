@@ -88,8 +88,7 @@ export async function capture(browser: Browser): Promise<void> {
   await rec.shot(page, 'menu', {
     user: '.usermenu__trigger',
     menu: '.usermenu__panel',
-    profile: page.getByRole('menuitem', { name: 'Your profile' }),
-    settings: page.getByRole('menuitem', { name: 'Settings' }),
+    settings: page.getByRole('menuitem', { name: 'Profile settings' }),
     signOut: page.getByRole('menuitem', { name: 'Sign out' }),
   });
   await page.keyboard.press('Escape');

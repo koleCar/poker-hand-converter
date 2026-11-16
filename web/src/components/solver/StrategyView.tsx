@@ -39,6 +39,8 @@ export interface ViewAction {
   /** Why the action leads nowhere further, if it does not. */
   ends: string | null;
   onPick: () => void;
+  /** No hand of the range takes it (`playedOptions`): left out of the action boxes and the EV rows. */
+  hidden?: boolean;
 }
 
 export interface ViewClass {
@@ -342,7 +344,7 @@ function Grid({
 
         <section className={styles.panelBlock} aria-label={t.panel.actions}>
           <div className={styles.actionBoxes}>
-            {model.actions.map((action, a) => (
+            {model.actions.map((action, a) => action.hidden ? null : (
               <button
                 key={action.key}
                 type="button"
@@ -464,14 +466,16 @@ function Grid({
 /** What each action is worth for the shown hand, as bars from zero; the best one stands out. */
 function EvRows({ actions, ev, freq }: { actions: ViewAction[]; ev: number[]; freq: number[] }) {
   const t = useSolverDict();
-  const lo = Math.min(0, ...ev);
-  const hi = Math.max(0, ...ev);
+  const shown = ev.filter((_, a) => !actions[a].hidden);
+  const lo = Math.min(0, ...shown);
+  const hi = Math.max(0, ...shown);
   const span = hi - lo || 1;
   const zero = (-lo / span) * 100;
-  const best = ev.indexOf(Math.max(...ev));
+  const best = ev.indexOf(Math.max(...shown));
   return (
     <ul className={styles.evRows}>
       {actions.map((action, a) => {
+        if (action.hidden) return null;
         const width = (Math.abs(ev[a]) / span) * 100;
         return (
           <li key={action.key} className={a === best ? styles.evBest : ""}>

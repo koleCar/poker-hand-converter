@@ -238,7 +238,7 @@ insert into readers values
   ('public.library_facets(jsonb)'),
   ('public.search_hands(jsonb, integer, integer)'),
   ('public.hands_since(timestamptz, uuid, integer)'),
-  ('public.hands_needing_stats(text, uuid, integer, boolean, text)'),
+  ('public.hands_needing_stats(text, uuid, integer, boolean, text, text)'),
   ('public.stats_coverage(text)'),
   ('public.stats_ev_missing(text, text)'),
   ('public.stats_opponents(jsonb, text, integer)'),

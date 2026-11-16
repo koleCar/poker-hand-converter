@@ -1,0 +1,5 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-0.25-0.50-201203.unknown.player.wins.txt"
+}

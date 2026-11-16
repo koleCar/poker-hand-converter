@@ -5,7 +5,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
 
-select plan(63);
+select plan(67);
 
 -- ------------------------------------------------------------------ setup --
 
@@ -207,6 +207,10 @@ select is(
 select is(jsonb_array_length(public.forum_feed('feedtest', 'hot', 'garbage~cursor', 2) -> 'posts'), 2,
   'a mangled cursor is the first page, not an error');
 select is(public.forum_feed('no-such-board'), null, 'an unknown board is null');
+select is(jsonb_array_length(public.forum_feed('feedtest', 'new', null, 10, 'text') -> 'posts'), 3, 'the text filter keeps text posts');
+select is(jsonb_array_length(public.forum_feed('feedtest', 'new', null, 10, 'hand') -> 'posts'), 0, '... and the hand filter drops them');
+select is(jsonb_array_length(public.forum_feed('feedtest', 'top', null, 10, null, true) -> 'posts'), 3, 'posts with no comments are unanswered');
+select is((public.forum_board_counts() ->> 'feedtest')::int, 3, 'the sidebar counts a board''s visible posts');
 
 -- --------------------------------------------------------------- deletion --
 

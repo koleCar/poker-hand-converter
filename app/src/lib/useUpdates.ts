@@ -1,5 +1,5 @@
 /**
- * Settings, Updates: the update's status as the app has it
+ * The sidebar's update card: the update's status as the app has it
  * (`update_status`), loaded at once and replaced by every
  * `updates-changed` event (a check's answer, download progress, a failure),
  * with the user's steps: check, download, install and restart.

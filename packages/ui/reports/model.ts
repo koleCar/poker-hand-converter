@@ -12,7 +12,7 @@
  * the R2.4 `Shown` (the app's from `rail_stats`, the web's from `showStat`
  * over the summed counters - the same digits).
  */
-import type { HandFacets, HandFilter, SavedFiltersSource } from "../hands/model";
+import type { HandFacets, HandFilter, HandsFeatures, SavedFiltersSource } from "../hands/model";
 import type { Shown, StatDefinition } from "../model/stats";
 import type { WinrateGraphBucket, WinrateGraphData } from "../stats/WinrateGraph";
 
@@ -40,6 +40,14 @@ export interface StatGroup {
   /** Thousandths of a big blind; null when refused. */
   netBbMilli: number | null;
   /** `Report.columns` (or `Breakdowns.columns`), in that order. */
+  stats: Shown[];
+}
+
+/** One of the hero's positions with every shipped definition (`reports::PositionStatsDto`). */
+export interface PositionStats {
+  key: string;
+  hands: number;
+  /** `Report.positionColumns`, in that order. */
   stats: Shown[];
 }
 
@@ -74,6 +82,14 @@ export interface Report {
   /** The definition ids of every group row's `stats`. */
   columns: string[];
   byPosition: StatGroup[];
+  /**
+   * The statistics matrix's columns: each of the hero's positions with every
+   * shipped definition (`positionColumns`, by id), where `byPosition` has
+   * the breakdown's few. Absent from a surface that does not send them yet:
+   * the matrix then shows the total column only.
+   */
+  positionColumns?: string[];
+  positionStats?: PositionStats[];
   byStake: StatGroup[];
   bySite: StatGroup[];
   bySize: StatGroup[];
@@ -122,5 +138,11 @@ export interface ReportSource {
   onChanged?(listener: () => void): () => void;
   /** How many points the graph asks for: the app's store draws about one a pixel; the server cuts fewer. */
   graphPoints: number;
+  /**
+   * What the report can be filtered by: the surface's Hands features, so the
+   * row is the Hands screen's (`filterGroups`); `rollupsOnly` where the
+   * surface sums by the rollups alone.
+   */
+  filters: HandsFeatures;
   savedFilters?: SavedFiltersSource;
 }

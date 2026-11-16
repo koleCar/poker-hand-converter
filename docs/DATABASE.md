@@ -163,6 +163,8 @@ library would otherwise hold a shared budget for hours.
 | `drill_sync:<user>` | 120 syncs / 10 min **per account** | `sync_drill_items()` |
 | `drill_review:<user>` | 600 answers / 10 min **per account** | `review_drill()` |
 | `trainer_results:<user>` | 1 200 rows / 10 min **per account** | `record_trainer_results()` |
+| `trainer_sessions:<user>` | 300 saves / 10 min **per account** | `save_trainer_session()` |
+| `trainer_session_answers:<user>` | 1 200 rows / 10 min **per account** | `record_trainer_session_answers()` |
 | `analysis_share:<user>` | 120 switches / 10 min **per account** | `set_analysis_share()` |
 | `study_plan:<user>` | 60 plans / 10 min **per account** | `save_study_plan()` |
 | `study_task:<user>` | 600 ticks / 10 min **per account** | `set_study_task()` |
@@ -991,6 +993,8 @@ DELETE grant**, nothing to `anon`.
 | `drill_items` | `id`; unique `(owner_id, hand_id, action_index)` | One drill per own graded decision of Mistake or worse (Inaccurate on request): the `analysis_version` and `ord` of its row, `street`, the leak finder's `spot_key`, the source grade and EV loss, and its SM-2 state (`reps`, `lapses`, `ease` 1.30–3.00, `interval_days` 0–365, `due_at`, `reviews`, `last_grade`). FK to `hands`, cascading. |
 | `drill_reviews` | `id` | Every answer to a drill: option chosen, grade, EV loss, SM-2 quality, and the schedule it led to. FK to `drill_items`, cascading. |
 | `trainer_results` | `id` | Every graded trainer answer: `mode` (`preflop` / `river` / `drill`), family, spot, seat, hand class, grade, EV loss (bb and pot), score. |
+| `trainer_sessions` | `id` (the client's UUID) | A Trainer session (`docs/TRAINER.md` §6): name, the settings that differ from the defaults (strings), `archived`, created and last played. At most 300 an account. Written only by `save_trainer_session(id, name, settings, archived)`. |
+| `trainer_session_answers` | `id` | Every graded answer in a session: street, the hero's cards and the board (`Kd9c`), the spot's key, seat, hand class, the move and the best move, grade, EV loss, score, and `spot_ref` (the deal's request and seed; null for a whole hand). FK to `trainer_sessions`, cascading. Written only by `record_trainer_session_answers(session, rows)` (50 rows a call, into the caller's own session); `trainer_session_list(today_from)` (invoker) reads the sessions with their counts. |
 
 Writes are three `security definer` functions with explicit `auth.uid()`
 ownership checks and per-account rate limits: `sync_drill_items(version,

@@ -140,11 +140,6 @@ export const en = {
       description:
         "After a session: your worst graded decisions, the preflop decisions off your charts and the biggest pots, with the session's result.",
     },
-    analysisMyCharts: {
-      title: "Your preflop charts | Rail",
-      description:
-        "Build or import your own preflop ranges and compare them with the hands you played: how often you followed them, where you left them, with the hands.",
-    },
     analysisHand: {
       title: "Hand analysis — one hand | Rail",
       description: "One of your hands, decision by decision, in the replayer.",
@@ -276,8 +271,8 @@ export const en = {
   },
 
   account: {
-    menuProfile: "Your profile",
-    menuSettings: "Settings",
+    menuProfile: "Profile settings",
+    opening: "Opening…",
   },
 
   profile: {
@@ -415,6 +410,27 @@ export const en = {
     anchorAfter: (where: string, what: string) => `${where}, after ${what}`,
     handBadge: "Hand",
     postDate: (date: string) => date,
+
+    nav: {
+      label: "Forum",
+      menu: "Boards and filters",
+      everything: "Everything",
+      unanswered: "Unanswered",
+      saved: "Saved",
+      boards: "Boards",
+    },
+    filters: {
+      label: "Sort and filter",
+      kinds: { all: "All", hand: "Hands", poll: "Polls", text: "Discussions" } as Record<string, string>,
+      unanswered: "Unanswered",
+      clear: "Clear",
+      empty: "No posts match these filters.",
+    },
+    rail: {
+      top: "Top posts",
+      waiting: "Waiting for an answer",
+      none: "Nothing yet.",
+    },
 
     poll: {
       badge: (votes: number) => `Poll · ${votes} ${votes === 1 ? "answer" : "answers"}`,
@@ -667,54 +683,79 @@ export const en = {
   },
 
   settings: {
-    metaTitle: "Settings | Rail",
-    metaDescription: "Your Rail username and account.",
-    heading: "Settings",
-    signedOut: "Sign in to change your username and account settings.",
+    metaTitle: "Profile settings | Rail",
+    metaDescription: "Your Rail name, account, plan and data.",
+    heading: "Profile settings",
+    signedOut: "Sign in to change your profile",
+    signedOutHint: "Your name, password, plan and data.",
     signInCta: "Sign in",
     loading: "Loading your account…",
     unavailable:
       "Account settings are not set up on this database yet. Everything else keeps working.",
-    loadFailed: "Your account could not be loaded. Reload the page to try again.",
+    loadFailed: "Your profile could not be loaded.",
+    loadFailedHint: "Your name and posting show up again once it loads.",
+    retry: "Try again",
+    sections: {
+      account: "Account",
+      plan: "Plan",
+      language: "Language",
+      data: "Your data",
+      danger: "Danger zone",
+    },
+    publicProfile: "Public profile",
+    signOut: "Sign out",
+    signingOut: "Signing out…",
+    cancel: "Cancel",
+    change: "Change",
 
     username: {
-      heading: "Username",
       label: "Username",
-      hint: "3–24 characters: letters, numbers and underscores. It is your public name and your profile address.",
-      provisional:
-        "You are on the name you were given at signup. Choose your own — the first change is free.",
-      rules:
-        "You can change it once every 30 days. Your old name stays reserved for you for a year, and links to it keep working.",
-      nextChange: (date: string) => `Your next change is possible on ${date}.`,
-      save: "Save username",
+      hint: "3–24 characters: letters, numbers and underscores.",
+      choose: "Choose your name",
+      chooseLong:
+        "Other people see this name instead of your email. You choose it once: it cannot be changed later.",
+      provisional: "Not chosen yet",
+      locked: "Your public name and profile address. It cannot be changed.",
+      confirm: (username: string) => `Your name will be ${username}, for good.`,
+      save: "Save name",
       saving: "Saving…",
-      saved: (username: string) => `Saved. You are now ${username}.`,
-      unchanged: "That is already your username.",
+      saved: (username: string) => `Saved. You are ${username}.`,
       tooShort: "Usernames are at least 3 characters.",
       tooLong: "Usernames are at most 24 characters.",
       badCharacters: "Usernames can use only letters, numbers and underscores.",
       badStart: "Usernames start with a letter or a number.",
-      viewProfile: "View your profile",
+    },
+
+    email: {
+      label: "Email",
+      confirmed: "Confirmed",
+      unconfirmed: "Not confirmed",
+      private: "Only you see it.",
     },
 
     posting: {
-      heading: "Posting",
-      ok: "Your account can post.",
-      blocked: "Your account cannot post yet.",
-      resend: "Resend the confirmation email",
+      label: "Posting",
+      ok: "Allowed",
+      blocked: "Blocked",
+      resend: "Resend email",
       resending: "Sending…",
       resent: (email: string) => `A new confirmation link is on its way to ${email}.`,
     },
     password: {
-      heading: "Password",
+      label: "Password",
       hint: "At least six characters.",
       newLabel: "New password",
       confirmLabel: "Repeat the new password",
       tooShort: "Use at least six characters.",
       mismatch: "The two passwords do not match.",
-      save: "Change password",
+      save: "Save password",
       saving: "Saving…",
       saved: "Password changed. Use the new one next time you sign in.",
+    },
+    danger: {
+      title: "Delete my account",
+      hint: "Your hands, statistics and posts. It cannot be undone.",
+      open: "Delete…",
     },
   },
 } as const;

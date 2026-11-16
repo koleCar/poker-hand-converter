@@ -82,6 +82,22 @@
   gap: var(--space-2);
 }
 
+/* The Analysis tabs' filter row: the kind switch, then the Hands list's
+   shared filter row taking the rest of the line (2026-11-16). */
+.filterRow {
+  display: flex;
+  flex: 1 1 100%;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.filterBar {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
 /* A compact select: label inside, no field chrome. */
 .dd {
   display: inline-flex;

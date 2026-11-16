@@ -256,8 +256,6 @@ struct Control {
     pointer: Vec<Gesture>,
     /// (T4) Drops so far.
     drag_seq: u64,
-    /// (T7) The table in front ([`Platform::focused_window`]).
-    focused: Option<u32>,
     /// (T7) Window signals for the next `poll_events`: table, signal.
     signals: Vec<(u32, rail_config::SignalKind)>,
     /// (T7) What the engine asked to watch ([`Platform::watch_turn_signals`]).
@@ -369,12 +367,6 @@ impl SimControl {
         self.lock().pointer.push((number, from, Some(to)));
     }
 
-    /// (T7) The user is at table `number` now (`None`: at another
-    /// program): what [`Platform::focused_window`] answers.
-    pub fn focus(&self, number: Option<u32>) {
-        self.lock().focused = number;
-    }
-
     /// (T7) Table `number`'s window gives `signal` by itself (its taskbar
     /// button flashes, its client brings it forward), reported at the next
     /// `poll_events` - as a client's own window signals would be.
@@ -484,7 +476,6 @@ impl SimBackend {
                 kept: BTreeMap::new(),
                 pointer: Vec::new(),
                 drag_seq: 0,
-                focused: None,
                 signals: Vec::new(),
                 watched: Vec::new(),
             })),
@@ -854,11 +845,6 @@ impl Platform for SimBackend {
     /// presses it.
     fn placer(&mut self) -> Option<Box<dyn Placer>> {
         Some(Box::new(SimPlacer(self.control.clone())))
-    }
-
-    /// (T7) The table the test put in front ([`SimControl::focus`]).
-    fn focused_window(&mut self) -> Option<WindowId> {
-        self.control.lock().focused.map(|n| WindowId(u64::from(n)))
     }
 
     /// (T7) Kept for the test ([`SimControl::watched`]); the signals are

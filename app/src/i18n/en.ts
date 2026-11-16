@@ -56,8 +56,39 @@ export const en = {
     signIn: "Sign in",
     signingIn: "Signing in…",
     offline: "offline",
-    updateAvailable: (version: string) => `Update: Rail ${version}`,
-    updateReady: (version: string) => `Install Rail ${version}`,
+    /** The update card above the account (`updates.rs`): shown whenever a
+     * newer Rail is found, with its steps - download, install and restart. */
+    update: {
+      available: (version: string) => `Rail ${version} is available`,
+      whatsNew: "What's new",
+      download: "Update",
+      downloading: (version: string) => `Downloading Rail ${version}…`,
+      progress: (done: string, total: string, percent: number) => `${done} of ${total} MB (${percent} %)`,
+      progressUnknown: (done: string) => `${done} MB`,
+      ready: (version: string) => `Rail ${version} is ready to install`,
+      install: "Install and restart",
+      tablesOpen: "A poker table is open: the HUD goes away while Rail restarts.",
+      installing: (version: string) => `Installing Rail ${version}…`,
+      failed: {
+        check: "Could not check for updates.",
+        download: "The download did not finish.",
+        install: "The update could not be installed.",
+      },
+      kinds: {
+        network: "Rail could not reach the update server; check the connection and try again.",
+        noRelease: "No update information has been published yet.",
+        noBuild: "The newest release has no package for this computer.",
+        signature: "The package's signature did not match, so Rail did not use it.",
+        other: (reason: string) => reason,
+      },
+      tryAgain: "Try again",
+      downloadPage: "Download from the website",
+      blockers: {
+        devBuild: "A development build: only a release build installs updates.",
+        readOnlyLocation:
+          "Rail is running from the disk image or another read-only place. Move it to Applications to update it here, or download the new version from the website.",
+      },
+    },
   },
 
   placeholder: "Not built yet.",
@@ -101,7 +132,7 @@ export const en = {
     tables: {
       title: "Tables",
       /** Not shown: the command palette's keywords. */
-      lead: "Tile every table side by side or in your layout, re-tile, the RNG.",
+      lead: "Tile every table side by side or in your layout, re-tile, hotkeys.",
     },
     import: {
       title: "Import",
@@ -157,6 +188,7 @@ export const en = {
     perHundred: {
       bb: "bb/100",
       money: (symbol: string) => `${symbol}/100`,
+      chips: "chips/100",
     },
     rateTitle: "Won per 100 hands over the session so far",
     mixedKind: "This session mixes tournament chips with cash, so it has no result to add up.",
@@ -167,6 +199,7 @@ export const en = {
       lines: "Lines on the graph: click one to hide or show it",
       bigBlinds: "bb",
       money: "Money",
+      chips: "chips",
       loading: "Drawing the graph…",
       error: (reason: string) => `The graph did not load: ${reason}`,
     },
@@ -325,6 +358,33 @@ export const en = {
         "Rail could not use the system keychain, so it will ask you to sign in again after it restarts.",
       signedOutLocally: "Signed out on this computer. Rail could not reach the server to end the session there.",
       browserFailed: "Rail could not open your browser. Use Open the page again.",
+    },
+    /** Settings' name row: the public name, chosen once (2026-11-16). */
+    name: {
+      label: "Name",
+      notChosen: "Not chosen yet",
+      hint: "Others see this name instead of your email. You choose it once: it cannot be changed later.",
+      locked: "Your public name. It cannot be changed.",
+      choose: "Choose",
+      rules: "3–24 characters: letters, numbers and underscores.",
+      confirm: (name: string) => `Your name will be ${name}, for good.`,
+      save: "Save name",
+      saving: "Saving…",
+      saved: (name: string) => `Saved. You are ${name}.`,
+      loadFailed: "Your name could not be loaded.",
+      retry: "Try again",
+      offline: "Rail could not reach the server. Try again when you are online.",
+      tooShort: "Names are at least 3 characters.",
+      tooLong: "Names are at most 24 characters.",
+      badCharacters: "Names can use only letters, numbers and underscores.",
+      badStart: "Names start with a letter or a number.",
+      refused: {
+        taken: "That name is taken.",
+        notAvailable: "That name is not available.",
+        notAllowed: "That name is not allowed.",
+        alreadySet: "Your name is already set. It cannot be changed.",
+        reservedPrefix: "Names starting with \"user_\" are reserved for new accounts.",
+      },
     },
     /** (R6.5) What this computer keeps, and the account's export and deletion on the web. */
     yourData: {
@@ -485,7 +545,8 @@ export const en = {
       folders: "Hand histories",
       statistics: "Your statistics",
       appearance: "Appearance",
-      updates: "Updates",
+      rng: "RNG",
+      about: "About",
       danger: "Danger zone",
     },
     /** The app's version, under everything. */
@@ -747,61 +808,15 @@ export const en = {
       },
     },
 
+    /** The RNG box (`rng_box.rs`): its switch. */
+    rng: {
+      show: "Show the RNG while you play",
+      hint: "One number from 1 to 100 in the top-right corner of your screen while a session is live. Click it for a new one.",
+    },
     startup: {
       heading: "Startup",
       startAtLogin: "Start Rail when you log in",
       startAtLoginHint: "Rail starts in the tray, ready to import, without opening this window.",
-    },
-
-    /** Settings, Updates (`updates.rs`). */
-    updates: {
-      heading: "Updates",
-      current: (version: string) => `You have Rail ${version}.`,
-      lastChecked: (time: string) => `Last checked ${time}.`,
-      notChecked: "Not checked yet since Rail started.",
-      check: "Check for updates",
-      checking: "Checking…",
-      upToDate: "Rail is up to date.",
-      available: (version: string) => `Rail ${version} is available.`,
-      published: (date: string) => `Published ${date}`,
-      whatsNew: "What's new",
-      download: "Download update",
-      downloadShort: "Download",
-      checkNow: "Check now",
-      automaticShort: "Check automatically",
-      upToDateShort: "Up to date",
-      downloadHint: "Rail keeps working while it downloads. It installs only when you say so.",
-      downloading: (version: string) => `Downloading Rail ${version}…`,
-      progress: (done: string, total: string, percent: number) => `${done} of ${total} MB (${percent} %)`,
-      progressUnknown: (done: string) => `${done} MB`,
-      ready: (version: string) => `Rail ${version} is downloaded and verified.`,
-      install: "Install and restart",
-      installHint:
-        "Rail closes for a moment and opens again on the new version. Your hands, folders and settings stay as they are.",
-      tablesOpen: "A poker table is open: the HUD goes away while Rail restarts. Better between sessions.",
-      installing: (version: string) => `Installing Rail ${version}…`,
-      automatic: "Check for updates automatically",
-      automaticHint:
-        "Shortly after Rail starts, then every few hours. Rail only looks: it downloads and installs only when you click.",
-      failed: {
-        check: "Could not check for updates.",
-        download: "The download did not finish.",
-        install: "The update could not be installed.",
-      },
-      kinds: {
-        network: "Rail could not reach the update server; check the connection and try again.",
-        noRelease: "No update information has been published yet.",
-        noBuild: "The newest release has no package for this computer.",
-        signature: "The package's signature did not match, so Rail did not use it.",
-        other: (reason: string) => reason,
-      },
-      tryAgain: "Try again",
-      downloadPage: "Download from the website",
-      blockers: {
-        devBuild: "A development build: it can check and download, but only a release build installs updates.",
-        readOnlyLocation:
-          "Rail is running from the disk image or another read-only place. Move Rail to the Applications folder and open it from there to update it here, or download the new version from the website.",
-      },
     },
 
     about: {
@@ -1049,6 +1064,7 @@ export const en = {
         hint: "Anyone with this link can replay the hand, no account needed. The players' names are hidden.",
         linkLabel: "Shareable link",
         copy: "Copy",
+        copiedShort: "Copied",
         copied: "Link copied.",
         copyFailed: "Copying did not work: select the link and copy it.",
         open: "Open in browser",
@@ -1058,6 +1074,22 @@ export const en = {
         rateLimited: "That is a lot of links for one hour: try again later.",
         unavailable: "Sharing needs an account, and this build has none.",
         failed: (reason: string) => `Could not create a share link: ${reason}`,
+        /** The link's names switch; the explanation is a tooltip, as on the web. */
+        names: {
+          label: "Players' names",
+          hidden: "Hidden",
+          shown: "Shown",
+          saving: "Saving…",
+          off: "Off",
+          offText: "Hero, Villain1, Villain2… No table, hand number or time.",
+          on: "On",
+          onText: "Screen names as the room printed them.",
+          failed: (reason: string) => `Could not change it: ${reason}`,
+        },
+        /** Opens the web's post preview in the browser. */
+        forum: "Post to the forum",
+        forumTitle: "Opens a preview of the post in your browser",
+        forumFailed: (reason: string) => `Could not open the preview: ${reason}`,
       },
     },
   },
@@ -1127,7 +1159,7 @@ export const en = {
       hud: "HUD",
       appearance: "Appearance and language",
       startup: "Startup",
-      updates: "Updates",
+      rng: "RNG",
       about: "About",
     },
     commands: "Commands",
@@ -1168,7 +1200,7 @@ export const en = {
   /** The analysis (R5.4): its screen, the background run's status, a hand's grades. */
   analysis: {
     tabsLabel: "Analysis sections",
-    tabs: { session: "Session review", leaks: "Top leaks", charts: "My charts" },
+    tabs: { session: "Session review", leaks: "Top leaks" },
     unavailable: "The analysis is only available inside the Rail app.",
     loading: "Opening the analysis…",
     status: {
@@ -1260,6 +1292,18 @@ export const en = {
       option: "Action",
       frequency: "How often",
       ev: "EV",
+      /** (2026-11-14) The redesign: each option's EV against the best one, the spot in words, the facts. */
+      delta: "vs best",
+      you: "You",
+      bestTag: "Best",
+      why: "Why",
+      spot: "The spot",
+      flags: "Notes",
+      approximate: "Read with care",
+      score: "Score",
+      result: "Result",
+      evLossPot: (pot: string) => `${pot} of the pot`,
+      worst: "Worst",
       notes: (count: number) => (count === 1 ? "1 note" : `${count} notes`),
       bb: (value: string) => `${value} bb`,
       streets: { preflop: "Preflop", flop: "Flop", turn: "Turn", river: "River" } as Record<string, string>,
@@ -1447,6 +1491,12 @@ export const en = {
   },
 
   /** The HUD popup (R3.8): a click on a player's panel at the table. */
+  /** The RNG box (`src/rngBox/RngBox.tsx`). */
+  rngBox: {
+    label: (n: number | null) => (n === null ? "Random number" : `Random number ${n}. Click for a new one.`),
+    hint: "Click for a new number",
+  },
+
   hudPopup: {
     label: (player: string) => `${player}: the HUD popup`,
     close: "Close (Esc)",
@@ -1686,7 +1736,7 @@ export const en = {
 
   /**
    * The Tables screen (T5): table tiling - the layout in force, re-tile, on
-   * or off, the displays with the tables on them, the rooms - and the RNG.
+   * or off, the displays with the tables on them, the rooms, the hotkeys.
    */
   tables: {
     unavailable: "Table tiling works in the Rail app.",
@@ -1804,7 +1854,6 @@ export const en = {
       taken: "Taken",
       takenHint: "Another program uses these keys.",
       failed: "Not available",
-      rngNotAllowed: "No room allows the RNG yet",
       inUse: (keys: string, action: string) => `${keys} is already set for ${action}.`,
       newer: "a newer Rail",
       problem: {
@@ -1825,43 +1874,6 @@ export const en = {
       whyApproval: (room: string) => `${room} allows other tools only with its approval, which Rail does not have.`,
       more: (count: number) => (count === 1 ? "1 more room not allowed" : `${n(count)} more rooms not allowed`),
       fewer: "Fewer rooms",
-      tileColumn: "Tiling",
-      rngColumn: "RNG",
-      rng: (room: string) => `RNG at ${room}`,
-      rngNotAllowedBy: (room: string) => `Not allowed by ${room}`,
-    },
-    rng: {
-      label: "RNG",
-      notAllowed: "Not allowed in any of your rooms yet",
-      notAllowedWhy: "No room you play has said it allows an on-screen random number generator.",
-      bands: "Colour bands",
-      band: (from: number, to: number) => `${from}–${to}`,
-      bandMenu: (from: number, to: number) => `Band ${from}–${to}`,
-      bandLabel: "Label",
-      bandColour: "Colour",
-      bandEnd: "Ends at",
-      split: "Split",
-      remove: "Remove",
-      roll: "Roll",
-      newHand: "New hand",
-      click: "Click",
-      every: (seconds: number) => `Every ${n(seconds)} s`,
-      seconds: "Seconds",
-      size: "Size",
-      opacity: "Opacity",
-      preview: "How it looks at a table",
-      problem: {
-        range: "The range ends before it starts.",
-        bandCount: "Between 1 and 10 bands.",
-        outside: "A band ends outside the range.",
-        order: "The bands must go up.",
-        colour: "A colour is not valid.",
-        label: "A label is too long.",
-        lastEnd: "The last band must end at the range's end.",
-        timer: "The timer is 1 s to 1 h.",
-        scale: "The size is 50 % to 200 %.",
-        opacity: "The opacity is 30 % to 100 %.",
-      },
     },
   },
 

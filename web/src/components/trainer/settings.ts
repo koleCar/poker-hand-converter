@@ -49,8 +49,11 @@ export const PAUSES = ["always", "mistakes"] as const;
 export const PLAYS = ["spot", "hand"] as const;
 export type Play = (typeof PLAYS)[number];
 /** The modes a whole hand starts from: preflop, the flop, or a leak's spot (at its street, a river's from the flop). */
-/** The range panel while answering: none, the range's shape only, or how the reference plays it (gives the answer away). */
-export const RANGES = ["off", "range", "strategy"] as const;
+/**
+ * The range panel while answering: the range's shape only, or how the reference plays it (gives the answer away).
+ * The panel itself folds open and shut on the spot (`RangePanel`); an old "off" reads as the default.
+ */
+export const RANGES = ["range", "strategy"] as const;
 export type RangePanel = (typeof RANGES)[number];
 /** Seconds to answer; "0": no clock. Out of time: a check where there is one, else a fold. */
 export const TIMEBANKS = ["0", "7", "15", "25"] as const;
@@ -64,6 +67,10 @@ export type Input = (typeof INPUTS)[number];
 /** Tables at once (one spot each). */
 export const TABLES = ["1", "2", "3", "4"] as const;
 export type Tables = (typeof TABLES)[number];
+
+/** Spots of the session's own dealt again (`sessions.ts`): never, about one in six, about one in three. */
+export const REPEATS = ["off", "some", "often"] as const;
+export type Repeat = (typeof REPEATS)[number];
 
 export const HAND_MODES: readonly TrainerMode[] = ["focus", "preflop", "flop"];
 export type Pause = (typeof PAUSES)[number];
@@ -102,6 +109,8 @@ export interface TrainerSettings {
   buttons: Buttons;
   input: Input;
   tables: Tables;
+  /** Spots of the session's own dealt again. */
+  repeat: Repeat;
 }
 
 export const DEFAULT_SETTINGS: TrainerSettings = {
@@ -120,11 +129,12 @@ export const DEFAULT_SETTINGS: TrainerSettings = {
   pause: "always",
   strategy: true,
   facts: true,
-  range: "off",
+  range: "range",
   timebank: "0",
   buttons: "all",
   input: "action",
   tables: "1",
+  repeat: "some",
 };
 
 /** The sets each street deals from (the river and turn trainers: the 6-max default and heads-up). */
@@ -311,6 +321,7 @@ export function parseSettings(raw: Record<string, unknown> | null | undefined): 
     buttons: oneOf(r.buttons, BUTTONS, d.buttons),
     input: oneOf(r.input, INPUTS, d.input),
     tables: oneOf(r.tables, TABLES, d.tables),
+    repeat: oneOf(r.repeat, REPEATS, d.repeat),
   };
 }
 

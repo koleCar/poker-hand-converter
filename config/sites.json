@@ -134,10 +134,10 @@
         "notes": "Prohibited: the Security & Ecology Policy (version 20260313) lists \"solvers, charts, or HUDs\" among prohibited tools; only GG's own Smart HUD / PokerCraft. Also no live files and hashed opponents. Its section 7.2 also bars 3rd-party tools that import or convert hand histories - an import question for the owner (docs/research/HUD-POLICIES.md)."
       },
       "tiling": {
-        "allowed": false,
+        "allowed": true,
         "source": "https://ggpoker.com/network/security-ecology-policy/",
         "checkedAt": "2026-11-11",
-        "notes": "Prohibited: the Security & Ecology Policy (version 20261029) prohibits any external software that \"supports, interacts with, augments, or manipulates a client\"; general-purpose utilities only if they run completely independently. Moving and resizing the client's windows interacts with it. Secondary sources report GGPoker's ban of 15 Oct 2026 naming Jurojin and Intuitive Tables. docs/research/TILING-POLICIES.md."
+        "notes": "Allowed in Rail by the owner's decision of 2026-11-16, against the room's own policy: the Security & Ecology Policy (version 20261029) prohibits any external software that \"supports, interacts with, augments, or manipulates a client\"; general-purpose utilities only if they run completely independently. Moving and resizing the client's windows interacts with it, and secondary sources report GGPoker's ban of 15 Oct 2026 naming Jurojin and Intuitive Tables, with client detection from 1 Dec 2026. A player who tiles GG tables risks the account. docs/research/TILING-POLICIES.md."
       },
       "rng": {
         "allowed": false,
@@ -149,7 +149,7 @@
         "allowed": null,
         "source": null,
         "checkedAt": "2026-11-12",
-        "notes": "Not established, and moot: tiling is not allowed here, so no table is moved into an Action Required slot either. docs/research/TILING-POLICIES.md.",
+        "notes": "Not established. Tiling is allowed here by the owner's decision of 2026-11-16, not by the room's text; a table moved on the client's own your-turn signal is not addressed. Needs the client's own turn signal captured (docs/research/REAL-CLIENT-CHECK.md §6) and the owner's signed verdict before it can be true. docs/research/TILING-POLICIES.md.",
         "signal": null
       },
       "anonymisation": "opaque-id",
@@ -836,10 +836,10 @@
         "notes": "Not established: no official terms or third-party-software page found on the web; the rules are in the app. The client writes live files (R1.4) and names are persistent in the corpus."
       },
       "tiling": {
-        "allowed": null,
-        "source": null,
+        "allowed": true,
+        "source": "https://github.com/koleCar/poker-hand-converter/blob/main/docs/research/TILING-POLICIES.md#owners-decision-2026-11-16-ggpoker-and-weplay",
         "checkedAt": "2026-11-11",
-        "notes": "Not established: no official terms or third-party-software page on the web; the rules are inside the app. The owner can read the in-app terms or ask support. docs/research/TILING-POLICIES.md."
+        "notes": "Allowed in Rail by the owner's decision of 2026-11-16. The room's rules were not read: there are no official terms or third-party-software page on the web, only the in-app terms. docs/research/TILING-POLICIES.md."
       },
       "rng": {
         "allowed": null,
@@ -851,7 +851,7 @@
         "allowed": null,
         "source": null,
         "checkedAt": "2026-11-12",
-        "notes": "Not established: neither is this entry's tiling policy. docs/research/TILING-POLICIES.md.",
+        "notes": "Not established. Tiling is allowed here by the owner's decision of 2026-11-16, not by the room's text; a table moved on the client's own your-turn signal is not addressed. Needs the client's own turn signal captured (docs/research/REAL-CLIENT-CHECK.md §6) and the owner's signed verdict before it can be true. docs/research/TILING-POLICIES.md.",
         "signal": null
       },
       "anonymisation": "none",

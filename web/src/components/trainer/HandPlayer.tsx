@@ -2,8 +2,9 @@
  * A whole hand in the Trainer (T2): the hero against one opponent, from
  * preflop or the flop to a fold or the showdown (`lib/training/play.ts`).
  *
- * Each hero decision is the spot trainer's: the felt, the buttons, the grade
- * on the felt and the feedback under it. While the player reads the
+ * Each hero decision is the spot trainer's: the table, the buttons, the grade
+ * under the table and the feedback in tabs. The table stays for the whole
+ * hand and steps on from each answer to the next decision. While the player reads the
  * feedback, the hand is already played on in the worker (the opponent's
  * moves from the reference, the next street), so "Continue" is usually
  * instant; on a turn or river the opponent's solve can take a few seconds.
@@ -18,14 +19,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DecisionAnalysis, OptionAnalysis } from "../../lib/analysis/types";
 import { nextSeed, STREAK_GRADES, type GradedAnswer, type TrainerAnswer } from "../../lib/training";
 import type { PlayOptions, PlayStep } from "../../lib/training/play";
-import type { RangeView } from "../../lib/training/rangeView";
 import { ActionButtons, groupChoices, groupForKey, TimebankBar, useTimebank, type Choice } from "./Decision";
 import { feltOf } from "./felt";
-import { Feedback, Verdict } from "./Feedback";
+import { bestIndex, useDecisionTabs, useOptionText, Verdict } from "./Feedback";
 import { useTrainerHost } from "./host";
+import { InfoTabs } from "./InfoTabs";
 import type { TrainerSettings } from "./settings";
-import { RangeGrid } from "./RangeGrid";
-import { ActionStrip, SpotFelt } from "./SpotFelt";
+import { RangePanel } from "./RangePanel";
+import { cardsText, handDecisionKey, type SessionAnswer } from "./sessions";
+import { ActionStrip, StatusRow } from "./SpotFelt";
+import { TableBox, TrainerTable, type HeroMove } from "./TrainerTable";
 import styles from "./trainer.module.css";
 
 const DEAL_TRIES = 4;
@@ -53,6 +56,8 @@ interface HandPlayerProps {
   request: PlayOptions;
   settings: TrainerSettings;
   onScored: (answer: TrainerAnswer) => void;
+  /** Every graded decision, for the session. */
+  onAnswer?: (answer: SessionAnswer) => void;
   /** A hand finished (the "For you" rotation counts hands, not answers). */
   onHandDone?: () => void;
 }
@@ -64,8 +69,9 @@ export function HandPlayer(props: HandPlayerProps) {
   return <OneHand key={`${JSON.stringify(props.request)}|${round}`} {...props} newHand={newHand} />;
 }
 
-function OneHand({ request, settings, onScored, onHandDone, newHand }: HandPlayerProps & { newHand: () => void }) {
+function OneHand({ request, settings, onScored, onAnswer, onHandDone, newHand }: HandPlayerProps & { newHand: () => void }) {
   const host = useTrainerHost();
+  const optionText = useOptionText();
   const { t } = host;
   const [step, setStep] = useState<PlayStep | null>(null);
   const [dealing, setDealing] = useState(true);
@@ -121,24 +127,25 @@ function OneHand({ request, settings, onScored, onHandDone, newHand }: HandPlaye
     [decision, t],
   );
   const groups = useMemo(() => groupChoices(buttons, settings.buttons), [buttons, settings.buttons]);
-  // The range panel (T3), read for each decision when asked for.
-  const [range, setRange] = useState<{ step: PlayStep; view: RangeView | null } | null>(null);
-  const wantsRange = settings.range !== "off" && Boolean(host.playRange);
-  useEffect(() => {
-    if (!step?.decision || !wantsRange || !host.playRange) return;
-    let live = true;
-    const at = step;
-    host
-      .playRange(at)
-      .then((view) => live && setRange({ step: at, view }))
-      .catch(() => live && setRange({ step: at, view: null }));
-    return () => {
-      live = false;
-    };
-  }, [step, wantsRange, host]);
 
   const graded = answered?.graded ?? null;
   const verdict = graded?.decision ?? null;
+
+  // The answer on the table: the chips pushed out, or the cards folded.
+  const picked = answered?.picked ?? null;
+  const move = useMemo<HeroMove | null>(() => {
+    const option = picked !== null ? decision?.menu[picked] : undefined;
+    if (!option) return null;
+    return { action: option.action as HeroMove["action"], toBb: option.sizeBb, allIn: option.allIn };
+  }, [decision, picked]);
+
+  const tabs = useDecisionTabs({
+    decision: verdict,
+    spot: null,
+    settings,
+    range: decision && host.playRange && step ? <RangePanel target={step} read={host.playRange} strategy={settings.range === "strategy" || Boolean(answered)} /> : host.playRange ? null : undefined,
+    study: host.study && graded && verdict ? host.study(graded, null) : null,
+  });
 
   const pick = useCallback(
     (index: number) => {
@@ -162,13 +169,29 @@ function OneHand({ request, settings, onScored, onHandDone, newHand }: HandPlaye
             grade: d.grade,
             evLoss: d.evLoss ?? 0,
           });
+          const best = bestIndex(d);
+          onAnswer?.({
+            at: new Date().toISOString(),
+            street: decision.street,
+            cards: cardsText(decision.cards),
+            board: cardsText(decision.board),
+            spotKey: handDecisionKey(decision.street, d.facts.position ?? "-", decision.cards, decision.board),
+            position: d.facts.position,
+            handClass: d.facts.handClass,
+            move: (buttons[index]?.label ?? "?").slice(0, 60) || "?",
+            best: best !== null ? optionText(d.options[best]).slice(0, 60) : "",
+            grade: d.grade,
+            evLoss: d.evLoss ?? 0,
+            score: d.score ?? 0,
+            ref: null,
+          });
           if (settings.pause === "mistakes" && STREAK_GRADES.includes(d.grade)) setHolding(true);
         })
         .catch((e: unknown) => {
           setAnswered((prev) => (prev ? { ...prev, error: e instanceof Error ? e.message : String(e) } : prev));
         });
     },
-    [step, decision, answered, host, onScored, buttons, settings.pause],
+    [step, decision, answered, host, onScored, onAnswer, optionText, buttons, settings.pause],
   );
 
   /** A group of sizes (one button per action): the size the reference prefers for this hand. */
@@ -256,8 +279,13 @@ function OneHand({ request, settings, onScored, onHandDone, newHand }: HandPlaye
   }
   if (dealing) {
     return (
-      <div className={styles.loading}>
-        <RailLoader label={t.play.starting} showLabel centered />
+      <div className={styles.spot}>
+        <div className={styles.stripSpace} aria-hidden="true" />
+        <TableBox>
+          <div className={styles.loading}>
+            <RailLoader label={t.play.starting} showLabel centered />
+          </div>
+        </TableBox>
       </div>
     );
   }
@@ -269,59 +297,60 @@ function OneHand({ request, settings, onScored, onHandDone, newHand }: HandPlaye
   return (
     <div className={`${styles.spot} rail-fade`}>
       <ActionStrip items={felt.strip} now={!over} />
-      <SpotFelt
-        felt={felt}
-        cards={state.heroCards}
-        toCallBb={decision && !answered ? decision.toCallBb : 0}
-        overlay={verdict && verdict.grade ? <Verdict decision={verdict} /> : over ? <Result step={step} /> : null}
+      <TrainerTable
+        hand={(decision ?? over)!.hand}
+        board={(decision ?? over)!.board}
+        heroCards={state.heroCards}
+        move={move}
+        waiting={Boolean(decision) && !answered}
+        over={!decision && Boolean(over)}
         shown={over?.villainCards ? { position: state.villain, cards: over.villainCards } : null}
       />
+      <StatusRow>
+        {verdict && verdict.grade ? (
+          <Verdict decision={verdict} />
+        ) : over ? (
+          <Result step={step} />
+        ) : answered?.error ? (
+          <span className={styles.statusError}>{t.failed(answered.error)}</span>
+        ) : answered ? (
+          <RailLoader size="inline" label={t.grading} showLabel />
+        ) : decision ? (
+          <span className={styles.statusMove}>
+            <strong>{t.yourMove}</strong>
+            {decision.toCallBb > 0 ? <span>{t.toCall(decision.toCallBb)}</span> : null}
+          </span>
+        ) : null}
+      </StatusRow>
 
       {decision ? (
         <ActionButtons choices={buttons} groups={groups} picked={answered?.picked ?? null} disabled={Boolean(answered)} onPick={pickGroup} />
       ) : null}
-      {decision && !answered ? <TimebankBar left={left} seconds={seconds} /> : null}
-      {decision && wantsRange ? (
-        <section className={styles.block} aria-label={t.rangeHeading}>
-          <h3 className={styles.blockHead}>{t.rangeHeading}</h3>
-          {range === null || range.step !== step ? (
-            <RailLoader size="inline" label={t.rangeLoading} showLabel />
-          ) : range.view ? (
-            <RangeGrid view={range.view} strategy={settings.range === "strategy" || Boolean(answered)} />
-          ) : (
-            <p className={styles.muted}>{t.rangeNone}</p>
-          )}
-        </section>
-      ) : null}
-
-      {answered && !graded && !answered.error ? (
-        <p className={styles.status}>
-          <RailLoader size="inline" label={t.grading} showLabel />
-        </p>
-      ) : null}
-      {answered?.error ? <p className={styles.notice}>{t.failed(answered.error)}</p> : null}
-
-      {graded ? (
-        <div className={styles.after}>
-          <div className={styles.nextRow}>
-            {holding ? (
-              <>
-                <span className={styles.muted}>{t.autoNext}</span>
-                <button type="button" className={styles.linkButton} onClick={() => setHolding(false)}>
-                  {t.stay}
-                </button>
-              </>
-            ) : null}
-            {waiting ? <RailLoader size="inline" label={t.play.thinking} showLabel /> : null}
-            <button type="button" className={styles.next} onClick={proceed} disabled={waiting} aria-keyshortcuts="N Enter">
-              {t.play.continue}
-              <kbd aria-hidden="true">N</kbd>
-            </button>
+      {decision ? (
+        <div className={styles.afterRow}>
+          <div className={styles.clock} data-done={answered ? true : undefined}>
+            <TimebankBar left={left} seconds={seconds} />
           </div>
-          {verdict ? <Feedback decision={verdict} spot={null} settings={settings} /> : null}
-          {host.study && verdict ? host.study(graded, null) : null}
+          {graded ? (
+            <div className={styles.nextRow}>
+              {holding ? (
+                <>
+                  <span className={styles.muted}>{t.autoNext}</span>
+                  <button type="button" className={styles.linkButton} onClick={() => setHolding(false)}>
+                    {t.stay}
+                  </button>
+                </>
+              ) : null}
+              {waiting ? <RailLoader size="inline" label={t.play.thinking} showLabel /> : null}
+              <button type="button" className={styles.next} onClick={proceed} disabled={waiting} aria-keyshortcuts="N Enter">
+                {t.play.continue}
+                <kbd aria-hidden="true">N</kbd>
+              </button>
+            </div>
+          ) : null}
         </div>
       ) : null}
+      {decision ? <InfoTabs tabs={tabs} /> : null}
 
       {over ? (
         <div className={styles.after}>

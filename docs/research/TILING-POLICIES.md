@@ -58,7 +58,7 @@ CoinPoker and BetOnline still answer scripted fetches with 403.
 | acr | **true** | null | <https://www.acrpoker.eu/security/> 4.1.7 | high (tiling); RNG not addressed |
 | wpt-global | **true** | false | <https://wptglobal.com/terms-and-conditions> Annex A 25 / 6 | high / medium-high |
 | coinpoker | **true** | false | Terms and Conditions 2026 (PDF) | medium (policy page 403) / medium-high |
-| ggpoker | false | false | <https://ggpoker.com/network/security-ecology-policy/> (20261029) | high |
+| ggpoker | **true** (owner, 2026-11-16) | false | <https://ggpoker.com/network/security-ecology-policy/> (20261029) | high (the room prohibits it) |
 | partypoker | false | false | <https://www.partypoker.com/en/poker/p/safer-poker> whitelist | high |
 | unibet | false | false | <https://www.unibet.co.uk/promotions/poker-promotions/why-play-at-unibet> | high |
 | winamax | false | false | Poker rules PDF (10 Oct 2023), section 1.2 | medium-high (approval route) |
@@ -66,7 +66,7 @@ CoinPoker and BetOnline still answer scripted fetches with 403.
 | ignition (network) | null | null | <https://www.ignitioncasino.eu/terms-of-service> | - |
 | ipoker (network) | null | null | RedStar Poker's page only | - |
 | chico (network) | null | null | - (403) | - |
-| weplay | null | null | - (no web terms) | - |
+| weplay | **true** (owner, 2026-11-16) | null | - (no web terms) | - |
 | pokerbros | false | false | no desktop client | high |
 | closed rooms and networks | false | false | research docs | high |
 | standard (format) | false | false | not a room | - |
@@ -160,7 +160,7 @@ worth an e-mail to support.
   first-hand); medium-high for the RNG. The owner should open the policy
   page in a browser before release.
 
-### GGPoker - tiling `false`, RNG `false`
+### GGPoker - tiling `true` (the owner's decision), RNG `false`
 
 - Source: "Security & Ecology Policy", current version 20261029,
   <https://ggpoker.com/network/security-ecology-policy/>, read 2026-11-11.
@@ -267,7 +267,7 @@ worth an e-mail to support.
   no skin's own text on table managers or RNGs could be read. A search found
   nothing official. The owner can read BetOnline's poker rules in a browser.
 
-### WePlay - `null`, `null`
+### WePlay - tiling `true` (the owner's decision), RNG `null`
 
 - No official website with terms; the rules are inside the app. The owner
   has an account: read the in-app terms (or ask support) for both.
@@ -286,6 +286,29 @@ Once: no client exists (their research docs, as in `HUD-POLICIES.md`).
 ### `standard` - `false`, `false`
 
 Rail's own text format, not a room.
+
+## Owner's decision 2026-11-16: GGPoker and WePlay
+
+The owner asked for GGPoker and WePlay to be tiled ("dodaj ggpoker i
+weplay u tiling logiku"), so both entries have `tiling.allowed: true`
+although neither room's text allows it:
+
+- **GGPoker** prohibits it (see its section above: the Security & Ecology
+  Policy, and the ban of 15 Oct 2026 that names Jurojin, with client
+  detection reported from 1 Dec 2026). A user who tiles GG tables risks
+  the account. The entry's `source` stays GG's policy page, so the Tables
+  screen sends the reader to the room's own words.
+- **WePlay** has no terms on the web; the in-app terms were not read.
+
+The RNG stays `false` on GGPoker and `null` on WePlay. Since the same day
+the RNG is no longer drawn over tables at all: it is the app's own box in
+the primary monitor's top-right corner while a session is live
+(`app/src-tauri/src/rng_box.rs`), switched on and off in Settings. The
+`rng` blocks no longer decide anything the app shows.
+
+Neither room's tables are found yet: like every entry, their `tables`
+matchers (process and title) wait for the real-client capture
+(REAL-CLIENT-CHECK.md), so nothing moves on a real client until then.
 
 ## The Action Required slot (T7) - `actionSlot`, `null` everywhere
 
@@ -316,8 +339,9 @@ Written 2026-11-12. **Every entry is `null` (unknown, so no) with
 | acr | null | 4.1.7 accepts table arrangers that tile by player preference; moving on the turn signal is not addressed. Capture the signal (§6); ask ACR if in doubt. |
 | wpt-global | null | Annex A item 25 permits table organisation and resizing tools; moving on the turn signal is not addressed. Capture the signal (§6). |
 | coinpoker | null | The Terms name table management software and hotkey tools as permitted; the third-party tools page could not be read. Read it in a browser; capture the signal (§6). |
-| 888poker, ipoker, chico, ignition, weplay | null | Their tiling policy is not established either. |
-| ggpoker, winamax, partypoker, unibet, pokerbros, closed rooms, standard | null | Moot: tiling itself is not allowed (or there is no desktop client). |
+| ggpoker, weplay | null | Tiling is the owner's decision (2026-11-16), not the room's word; moving on the turn signal is not addressed. |
+| 888poker, ipoker, chico, ignition | null | Their tiling policy is not established either. |
+| winamax, partypoker, unibet, pokerbros, closed rooms, standard | null | Moot: tiling itself is not allowed (or there is no desktop client). |
 
 **Turning any room on** needs, in this order: the room's own text read and
 quoted here (or its written answer), the client's turn signal captured on

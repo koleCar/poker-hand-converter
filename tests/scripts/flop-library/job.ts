@@ -31,6 +31,8 @@ export interface Job {
   pot: number;
   stack: number;
   charts: FlopChunkHeader["charts"];
+  /** `chartLineHash` of the line under the set (the chunk stays readable across re-transcriptions that leave the line alone). */
+  lineHash?: string;
   rake: FlopChunkHeader["rake"];
   /** Defaults to `FLOP_PROFILE`; tests pass a small one. */
   profile?: FlopProfile;
@@ -80,6 +82,7 @@ export function jobHeader(job: Job): FlopChunkHeader {
     tree: p.tree,
     line: job.line,
     lineKey: job.lineKey,
+    ...(job.lineHash ? { lineHash: job.lineHash } : {}),
     players: job.players,
     flop: job.flop,
     pot: job.pot,

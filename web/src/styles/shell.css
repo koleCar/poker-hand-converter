@@ -61,8 +61,11 @@
   position: sticky;
   top: 0;
   z-index: 40;
-  background: color-mix(in srgb, var(--surface-base) 88%, transparent);
-  backdrop-filter: blur(14px);
+  /* Light enough that the page glow (pinned to the viewport) shows through
+     the bar instead of stopping at its bottom edge; the blur keeps content
+     scrolling underneath unreadable. */
+  background: color-mix(in srgb, var(--surface-base) 55%, transparent);
+  backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--line-soft);
 }
 
@@ -156,47 +159,29 @@
   transform: translateX(-50%);
 }
 
-.shell__brand-sub {
-  display: none;
-  font-size: 11.5px;
-  color: var(--fg-dim);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* ------------------------------------------------------------------ tabs */
 
 .shell__tabs {
   grid-area: tabs;
-  display: grid;
-  grid-auto-flow: column;
-  /* Never narrower than a label, and sharing whatever is left. Five tabs (analysis A1)
-     do not fit a 375px phone in either language, so rather than clipping the
-     last one the strip scrolls sideways — and `AppShell` scrolls the active
-     tab into view, so the screen you are on is always visible. */
-  grid-auto-columns: minmax(max-content, 1fr);
+  /* Never scrolls. Every tab keeps its full label; when the row is too narrow
+     for all of them (a phone, or Croatian labels in a mid-width window) the
+     tabs wrap onto a second line instead of hiding behind a sideways scroll. */
+  display: flex;
+  flex-wrap: wrap;
   gap: 4px;
   padding: 4px;
   background: var(--bg-elev);
   border: 1px solid var(--line-soft);
   border-radius: 12px;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-  /* Never wider than its cell: a strip of max-content tabs would otherwise
-     spill over the status beside it rather than scroll. */
   min-width: 0;
   max-width: 100%;
-}
-
-.shell__tabs::-webkit-scrollbar {
-  display: none;
 }
 
 .shell__tab {
   /* Positions the pending mark under the label (`NavProgress.module.css`). */
   position: relative;
+  /* Phones: the tabs share each line evenly. */
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -275,11 +260,6 @@
   flex: none;
 }
 
-.shell__status--ok .shell__status-dot {
-  background: var(--good);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--success-fg) 16%, transparent);
-}
-
 .shell__status--off .shell__status-dot {
   background: var(--warn);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--warning-fg) 16%, transparent);
@@ -354,16 +334,12 @@
 /* --------------------------------------------------------------- > 560px */
 
 @media (min-width: 560px) {
-  .shell__brand-sub {
-    display: block;
-  }
-
   .shell__tabs {
     justify-self: start;
-    grid-auto-columns: auto;
   }
 
   .shell__tab {
+    flex: none;
     padding: 6px 16px;
   }
 }
@@ -394,17 +370,11 @@
 
 }
 
-/* The middle band, 900–1199px: five tabs (longer in Croatian), the bell, the
-   language switch and the account all share one row, so the tagline steps
-   aside and the tabs tighten rather than clip. Measured at 900px in Croatian
-   with the Analysis tab (analysis A1): the row fits with these paddings, and if a
-   long screen name ever makes it not fit, the strip scrolls instead of
-   clipping (see `.shell__tabs`). */
+/* The middle band, 900–1199px: the tabs (longer in Croatian), the bell, the
+   language switch and the account all share one row, so the tabs tighten
+   rather than wrap. If a long screen name ever makes it not fit, the strip
+   wraps (see `.shell__tabs`). */
 @media (min-width: 900px) and (max-width: 1199px) {
-  .shell__brand-sub {
-    display: none;
-  }
-
   .shell__tab {
     padding-inline: 9px;
   }
@@ -416,9 +386,7 @@
 
 /* -------------------------------------------------------------- > 1200px */
 
-/* The long status ("5,448 hands stored") only where it cannot crowd the tabs:
-   with a language switch in the bar and Croatian tab labels a third longer,
-   900–1200px is the short "5,448". */
+/* The long offline label only where it cannot crowd the tabs. */
 @media (min-width: 1200px) {
   .shell__status-full {
     display: inline;

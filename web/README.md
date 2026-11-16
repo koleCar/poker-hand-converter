@@ -87,7 +87,7 @@ public study pages. Gated by the Pro feature `analysis` (see
 | `/analysis/progress` | Score and EV lost over time. |
 | `/analysis/train` | The trainer: preflop and river spots, drills of your own mistakes (`workers/training.worker.ts`). |
 | `/analysis/plan` | The study plan: this week's focus from the leaks, with a checklist. |
-| `/analysis/my-charts` | Your own preflop charts (R5.3): the shared `@rail/ui/charts` screen over `lib/db/preflopCharts.ts`. |
+| `/analysis/my-charts` | Redirects to `/analysis/charts`: your own preflop charts were taken out of the UI on 2026-11-16 (node locks will replace them); `preflop_chart_sets`, `lib/db/preflopCharts.ts` and `@rail/ui/charts` remain. |
 | `/analysis/charts` | **Public, indexable.** Rail's preflop chart browser ([`docs/CHARTS.md`](../docs/CHARTS.md)). |
 | `/analysis/learn`, `/analysis/learn/[concept]` | **Public, indexable.** The concept library. |
 

@@ -21,7 +21,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
 
-select plan(52);
+select plan(62);
 
 insert into auth.users (id, email, email_confirmed_at, created_at) values
   ('00000000-0000-0000-0000-00000000b5a1', 'library.a@example.com', now(), now()),
@@ -244,6 +244,20 @@ select is(
   'the page and the counts agree, group by group');
 
 -- ---------------------------------------------------------- RLS --
+
+-- The filter builder's groups (20271116120000): what a hand's columns answer.
+select is(public.library_builder_where('{}'), '', 'no builder group: no predicate');
+select ok(public.library_act_sql('no-such-act') is null, '... and an unknown action is none');
+select is(pg_temp.ids('{"flopSuits":["twoTone"]}'), '1', 'flop suits: the one two-tone flop (2c 7d Kd)');
+select is(pg_temp.ids('{"flopSuits":["rainbow","monotone"]}'), '', '... no rainbow or monotone one, and no flop is none of them');
+select is(pg_temp.ids('{"flopHigh":["K"],"flopConnect":["noStraight"],"flopPairing":["unpaired"]}'), '1', 'flop high card, straights, pairing');
+select is(pg_temp.ids('{"heroStackMin":90,"heroStackMax":110}'), '165', 'the hero''s stack in big blinds (100 bb: 1, 6 and the undated 5)');
+select is(pg_temp.ids('{"potMin":5}'), '14', 'the pot in big blinds');
+select is(pg_temp.ids('{"weekdays":[1],"utcOffsetMinutes":0}') || '/' || pg_temp.ids('{"lastHands":2}'), '1/12',
+  'a Monday (5 October 2026), and the latest two hands');
+select is((pg_temp.facets('{"potMin":5}') ->> 'total')::int, 2, 'the counts read the builder''s groups');
+select ok(public.report_hand_ids('{"statsVersion":"stats/2","netMin":1}') = array['00000000-0000-0000-0000-00000000b501'::uuid],
+  'a report over a builder group reads the list''s hands');
 
 select pg_temp.act_as('00000000-0000-0000-0000-00000000b5b1');
 select is(pg_temp.ids('{}'), '9', 'B sees only B''s hand');

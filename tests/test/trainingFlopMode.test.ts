@@ -7,8 +7,9 @@
  *
  * - **The address**: the mode, its table (the library's sets, else the
  *   default) and its filters survive a round trip; a table the library is
- *   not solved for deals the default set - every table since `analysis/41`,
- *   when the library on Rail's old ranges stopped being read.
+ *   not solved for deals the default set (every table in `analysis/41`-`42`,
+ *   when the library on Rail's old ranges stopped being read; the GTO Wizard
+ *   6-max 100bb sets have one since `analysis/43`).
  * - **The job**: the mode's options name the set whose manifest is read and
  *   whose charts are loaded; a set with no manifest deals nothing.
  * - **A spot and its row**: on the committed pilot chunks, a spot dealt from
@@ -49,10 +50,11 @@ describe("the flop mode's address", () => {
     expect(parseTrainState({ mode: "flop" }).mode).toBe("flop");
   });
 
-  it("offers the tables the flop library is solved for - none since analysis/41 - and deals the default elsewhere", () => {
+  it("offers the tables the flop library is solved for - the 6-max 100bb sets since analysis/43 - and deals the default elsewhere", () => {
     expect(FLOP_TRAINER_SETS.map((spec) => spec.id)).toEqual([...FLOP_LIBRARY_SETS]);
-    expect(FLOP_TRAINER_SETS).toEqual([]);
-    for (const id of [HU100, "nlhe-cash-6max-100bb", "nlhe-cash-6max-40bb", "nlhe-cash-9max-150bb"]) expect(flopSetOf(id)).toBe(DEFAULT_CHART_SET);
+    expect(FLOP_TRAINER_SETS.map((spec) => spec.id)).toEqual(["nlhe-cash-6max-100bb", "nlhe-cash-6max-100bb-ante"]);
+    for (const id of FLOP_LIBRARY_SETS) expect(flopSetOf(id)).toBe(id);
+    for (const id of [HU100, "nlhe-cash-6max-40bb", "nlhe-cash-9max-150bb"]) expect(flopSetOf(id)).toBe(DEFAULT_CHART_SET);
   });
 
   it("keeps its table and filters through a round trip, defaults left out", () => {

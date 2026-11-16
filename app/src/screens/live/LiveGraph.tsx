@@ -21,7 +21,7 @@ import { useT } from "../../i18n";
 import { errorText, ipc, type Report, type Session, type Units } from "../../lib/ipc";
 import { GRAPH_POINTS } from "../../lib/reportSource";
 import { bigBlinds, signedMoney, unitOf } from "../hands/format";
-import { hasMoney, moneyUnitOf, useRate, type LiveUnit } from "./units";
+import { hasMoney, isChips, moneyUnitOf, useRate, type LiveUnit } from "./units";
 import styles from "./Live.module.css";
 
 /** The money view's currency, when the session has one. */
@@ -130,7 +130,7 @@ export function LiveGraph({ session, kind, unit, onUnit }: LiveGraphProps) {
             disabled={!hasMoney(session) || money === null}
             onClick={() => onUnit("money")}
           >
-            {session.units.symbol ?? d.graph.money}
+            {isChips(session) ? d.graph.chips : session.units.symbol || d.graph.money}
           </button>
         </div>
       </div>

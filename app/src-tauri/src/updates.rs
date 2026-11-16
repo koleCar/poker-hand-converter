@@ -1,5 +1,6 @@
-//! Settings, Updates: a newer Rail from the release, checked, downloaded and
-//! installed from inside the app (`tauri-plugin-updater`).
+//! Updates: a newer Rail from the release, checked, downloaded and installed
+//! from inside the app (`tauri-plugin-updater`), through the sidebar's update
+//! card.
 //!
 //! Where the answer comes from: the release workflow
 //! (`.github/workflows/release.yml`) publishes `latest.json` beside the
@@ -13,10 +14,9 @@
 //! The flow, one step at a time and each one the user's (nothing downloads
 //! or installs on its own):
 //!
-//! 1. **Check** - "Check for updates" in Settings, and (setting
-//!    `checkForUpdates`, on by default) once shortly after start and then
-//!    every few hours. An automatic check that fails says nothing; a manual
-//!    one says why.
+//! 1. **Check** - by itself, once shortly after start and then every few
+//!    hours; a newer version shows as a card in the sidebar. An automatic
+//!    check that fails says nothing.
 //! 2. **Download** - the package into memory, its progress reported to the
 //!    window, then verified. A failed download can be tried again.
 //! 3. **Install and restart** - macOS: the new `Rail.app` replaces this one
@@ -518,16 +518,15 @@ fn install<R: Runtime>(app: &AppHandle<R>, update: &Update, package: &[u8]) {
     }
 }
 
-/// The automatic checks: one shortly after start, then every few hours,
-/// while the setting is on.
+/// The automatic checks: one shortly after start, then every few hours.
+/// Always on: the sidebar's update card is the only way a newer Rail shows,
+/// so the old Settings switch (`check_for_updates`) no longer stops them.
 pub fn spawn<R: Runtime>(app: &AppHandle<R>) {
     let app = app.clone();
     tauri::async_runtime::spawn(async move {
         tokio::time::sleep(FIRST_CHECK_AFTER).await;
         loop {
-            if automatic(&app) {
-                check(&app, false).await;
-            }
+            check(&app, false).await;
             tokio::time::sleep(CHECK_EVERY).await;
         }
     });

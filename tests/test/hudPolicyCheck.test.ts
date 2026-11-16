@@ -95,10 +95,12 @@ describe("Room policy check before a release", () => {
     expect(rows.map((row) => `${row.id} ${row.policy}`)).toEqual([
       "pokerstars hud",
       "pokerstars tiling",
+      "ggpoker tiling",
       "winamax hud",
       "acr hud",
       "acr tiling",
       "coinpoker tiling",
+      "weplay tiling",
       "wpt-global tiling",
     ]);
     for (const row of rows) {

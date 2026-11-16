@@ -1,0 +1,5 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/pokerstars/43-tour-mtt-badugi-draw-streets-excerpt.txt"
+}

@@ -98,7 +98,7 @@ select ok(has_function_privilege('authenticated', 'public.publish_hand(uuid, pub
   'publish_hand(.., p_phf) is authenticated''s');
 select is((select count(*)::int from pg_proc where proname = 'publish_hand' and pronamespace = 'public'::regnamespace),
   1, 'one publish_hand: the three-argument form is gone');
-select ok(not has_function_privilege('anon', 'public.hands_needing_stats(text, uuid, integer, boolean, text)', 'execute')
+select ok(not has_function_privilege('anon', 'public.hands_needing_stats(text, uuid, integer, boolean, text, text)', 'execute')
           and not has_function_privilege('anon', 'public.hands_needing_analysis(text, uuid, integer)', 'execute')
           and not has_function_privilege('anon', 'public.hands_needing_analysis_recent(text, timestamptz, uuid, integer)', 'execute')
           and has_function_privilege('authenticated', 'public.hands_needing_analysis_recent_scan(text, timestamptz, uuid, integer)', 'execute'),

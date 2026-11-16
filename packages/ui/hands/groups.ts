@@ -1,6 +1,7 @@
 /**
- * The filter groups the Hands and Reports rows are made of, as data: which
- * there are, which a source offers (`handGroups`, `REPORT_GROUPS`), how each
+ * The filter groups every filter row is made of, as data: which there are,
+ * which a surface offers (`filterGroups`: one list for Hands, Reports and
+ * every screen that filters hands, 2026-11-16), how each
  * one reads its values, says what it is set to and clears; where each one
  * lives in the filter builder (its pane); and the quick filters, one click
  * each over the same state.
@@ -48,6 +49,8 @@ import {
   PLAYERS_FLOP_ORDER,
   VS_TYPE_ORDER,
   LEVELS_ORDER,
+  BLUFF_ORDER,
+  PCT_GROUPS,
   ordered,
   parseRange,
   type FilterState,
@@ -55,7 +58,7 @@ import {
 } from "./filter";
 import { stakeLabel } from "./format";
 import { isWholeKind, kindOf, kindOfFormat, withFormats, withKind } from "./gameKind";
-import type { FacetCount, HandFacets, HandSort, MoreFilter } from "./model";
+import type { FacetCount, HandFacets, HandsFeatures, MoreFilter } from "./model";
 
 export type GroupId =
   | "date"
@@ -121,7 +124,12 @@ export type GroupId =
   | "openSize"
   | "vsVpip"
   | "buyIn"
-  | "bounty";
+  | "bounty"
+  | "heroBluff"
+  | "vsBluff"
+  | "flopPct"
+  | "turnPct"
+  | "riverPct";
 
 /** The groups whose values are a list in the filter. */
 export const LIST_GROUPS: Partial<Record<GroupId, ListGroup>> = {
@@ -170,7 +178,15 @@ export const LIST_GROUPS: Partial<Record<GroupId, ListGroup>> = {
   playersFlop: "playersFlop",
   vsType: "vsType",
   levels: "levels",
+  heroBluff: "heroBluff",
+  vsBluff: "vsBluff",
 };
+
+/** The bet-size range groups (edited as the pot is: greater, less, between). */
+const PCT: readonly GroupId[] = PCT_GROUPS.map(([group]) => group);
+function isPct(group: GroupId): group is "flopPct" | "turnPct" | "riverPct" {
+  return PCT.includes(group);
+}
 
 /** The yes/no groups and the field each one sets. */
 export const FLAG_GROUPS: Partial<Record<GroupId, "allIn" | "hasNote" | "showdown" | "knownCards" | "bounty">> = {
@@ -245,6 +261,11 @@ export const BUILDER_GROUPS: GroupId[] = [
   "vsVpip",
   "buyIn",
   "bounty",
+  "heroBluff",
+  "vsBluff",
+  "flopPct",
+  "turnPct",
+  "riverPct",
 ];
 
 /** Groups a source offers or not (`HandsSource.features.more`). */
@@ -273,17 +294,15 @@ export const HAND_GROUPS: GroupId[] = [
 ];
 
 /**
- * The Hands groups for a source: the common ones, tags and notes where it
- * keeps them, the searches and showdown where it can search, the library's
- * other filters where it has them, the order where it can sort (first).
+ * The groups of a surface's filter - the one list every screen that filters
+ * hands offers (Hands, Reports, ...; 2026-11-16, the owner: "filters
+ * everywhere the same"): the common ones, tags and notes where it keeps
+ * them, the searches and showdown where it can search, the library's other
+ * filters where it has them, the builder's where it reads them. A screen
+ * never lists its own: a group added here is offered everywhere.
  */
-export function handGroups(features: {
-  annotations: boolean;
-  search: boolean;
-  sorts: HandSort[];
-  more: MoreFilter[];
-  builder?: boolean;
-}): GroupId[] {
+export function filterGroups(features: HandsFeatures): GroupId[] {
+  if (features.rollupsOnly) return [...ROLLUP_GROUPS];
   const groups = HAND_GROUPS.filter((group) => features.annotations || (group !== "tags" && group !== "notes"));
   if (features.search) {
     groups.push("heroHand", "board", "playerName", "showdown");
@@ -294,15 +313,19 @@ export function handGroups(features: {
     if (more !== "winnerPositions") groups.push(MORE_GROUPS[more]);
   }
   if (features.builder) groups.push(...BUILDER_GROUPS);
+  else if (features.builderGroups) {
+    const read = features.builderGroups;
+    groups.push(...BUILDER_GROUPS.filter((group) => read.includes(group)));
+  }
   return groups;
 }
 
 /**
- * Reports' groups (R2.7b): what `hero_totals` sums by - the dates, the
- * segment's dimensions and the hero's position. A pot type or a stack depth
- * is a breakdown there, not a filter.
+ * What a surface that sums by the rollups only can filter by
+ * (`HandsFeatures.rollupsOnly`): the dates, the segment's dimensions and the
+ * hero's position.
  */
-export const REPORT_GROUPS: GroupId[] = ["date", "site", "stakes", "position", "variant", "limit", "size"];
+export const ROLLUP_GROUPS: GroupId[] = ["date", "site", "stakes", "position", "variant", "limit", "size"];
 
 /* ------------------------------------------------------------ the builder */
 
@@ -337,8 +360,11 @@ export const PANES: { section: SectionId; panes: { id: PaneId; groups: GroupId[]
       { id: "quick", groups: [] },
       { id: "positions", groups: ["position", "showdownPositions"] },
       { id: "preflop", groups: ["potType", "preflopDid", "preflopFaced", "preflopRole"] },
-      { id: "line", groups: ["streets", "flopLine", "turnLine", "riverLine", "showdown"] },
-      { id: "sizing", groups: ["openSize", "flopSize", "turnSize", "riverSize"] },
+      { id: "line", groups: ["streets", "flopLine", "turnLine", "riverLine", "showdown", "heroBluff", "vsBluff"] },
+      {
+        id: "sizing",
+        groups: ["openSize", "flopSize", "flopPct", "turnSize", "turnPct", "riverSize", "riverPct"],
+      },
     ],
   },
   {
@@ -405,6 +431,7 @@ export function isSet(group: GroupId, filter: FilterState): boolean {
   if (group === "date") return filter.date !== null;
   if (group === "heroHand") return filter.heroCards.trim() !== "" || filter.heroRange.length > 0;
   if (group === "potSize") return filter.potSize.trim() !== "";
+  if (isPct(group)) return filter[group].trim() !== "";
   return false;
 }
 
@@ -424,6 +451,7 @@ export function clearGroup(group: GroupId, filter: FilterState, facets: HandFace
   if (group === "heroHand") return { ...filter, heroCards: "", heroRange: [] };
   // The unit stays as chosen: it is how the player thinks of pots.
   if (group === "potSize") return { ...filter, potSize: "" };
+  if (isPct(group)) return { ...filter, [group]: "" };
   return filter;
 }
 
@@ -537,6 +565,8 @@ export function useGroupWords() {
       playersFlop: t.builder.playersFlop,
       vsType: t.builder.vsType,
       levels: t.builder.levels,
+      heroBluff: t.builder.bluffStreets,
+      vsBluff: t.builder.bluffStreets,
     };
     const orders: Partial<Record<GroupId, string[]>> = {
       position: POSITION_ORDER,
@@ -604,6 +634,8 @@ export function useGroupWords() {
         case "playersFlop":
         case "vsType":
         case "levels":
+        case "heroBluff":
+        case "vsBluff":
           values = (BUILDER_ORDERS[group] ?? []).map((value) => ({ value, count: 1 }));
           break;
         case "position": {
@@ -681,6 +713,10 @@ export function useGroupWords() {
           return `≥ ${filter.minPot.trim()}`;
         case "potSize":
           return potSummary(filter);
+        case "flopPct":
+        case "turnPct":
+        case "riverPct":
+          return pctSummary(filter[group]);
         case "heroHand": {
           const parts: string[] = [];
           if (filter.heroRange.length > 0) {
@@ -713,6 +749,15 @@ export function potSummary(filter: FilterState): string {
   if (min !== null) return `> ${amount(min)}`;
   if (max !== null) return `< ${amount(max)}`;
   return filter.potSize.trim();
+}
+
+/** A bet size's range as its chip says it: "> 50 %", "< 40 %", "50–80 %". */
+export function pctSummary(text: string): string {
+  const { min, max } = parseRange(text);
+  if (min !== null && max !== null) return `${min}–${max} %`;
+  if (min !== null) return `> ${min} %`;
+  if (max !== null) return `< ${max} %`;
+  return text.trim();
 }
 
 /** The builder's list groups' values, in their order. */
@@ -748,6 +793,8 @@ const BUILDER_ORDERS: Partial<Record<GroupId, string[]>> = {
   playersFlop: PLAYERS_FLOP_ORDER,
   vsType: VS_TYPE_ORDER,
   levels: LEVELS_ORDER,
+  heroBluff: BLUFF_ORDER,
+  vsBluff: BLUFF_ORDER,
 };
 
 /** The seats a 6-max table has: offered before any hand says otherwise. */

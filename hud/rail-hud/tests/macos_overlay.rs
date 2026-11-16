@@ -117,7 +117,7 @@ mod macos {
             .expect("permitted");
         let tones = [Tone::Low, Tone::Normal, Tone::High, Tone::VeryHigh];
         OverlayFrame {
-            permit: Some(permit),
+            permit,
             status: None,
             debug: None,
             size: Some(seats),
@@ -143,7 +143,6 @@ mod macos {
                 .collect(),
             legend: vec![Tone::Low, Tone::Normal, Tone::High],
             design: PanelDesign::default(),
-            rng: None,
         }
     }
 

@@ -43,6 +43,9 @@ pub struct HandExtras {
     pub buy_in_cents: Option<i64>,
     pub bounty: bool,
     pub level: Option<i64>,
+    /// Caught bluffing ([`caught_bluffing`]): the hero's streets, then any
+    /// opponent's, as bits (1 flop, 2 turn, 4 river).
+    pub bluff: [i64; 2],
 }
 
 /// A hero's made hand, weakest first; stored as its index.
@@ -388,6 +391,7 @@ pub fn derive(hand: &PhfHand, rows: &[PreparedSeat]) -> HandExtras {
         }
         sizes(hand, hero.row.seat.seat, &mut extras);
     }
+    extras.bluff = caught_bluffing(hand, rows);
     if let Some(tournament) = &hand.tournament {
         let minor = i64::from(tournament.buy_in_unit.minor_units.max(1));
         let total = tournament.buy_in + tournament.bounty.unwrap_or(0) + tournament.fee;
@@ -396,6 +400,110 @@ pub fn derive(hand: &PhfHand, rows: &[PreparedSeat]) -> HandExtras {
         extras.level = tournament.level_number.map(i64::from);
     }
     extras
+}
+
+/// Who was caught bluffing, street by street (2026-11-15, the owner's ask):
+/// a seat bet or raised on the flop, turn or river with no pair of its own
+/// on that street's board ([`made_hand`]'s `highCard`: a bluff or a
+/// semi-bluff), and its cards were seen - the hero's when it reached a
+/// showdown or showed them, an opponent's whenever the history has them.
+/// Hold'em hands only (two hole cards). Returns the hero's bits and every
+/// opponent's together: 1 flop, 2 turn, 4 river.
+fn caught_bluffing(hand: &PhfHand, rows: &[PreparedSeat]) -> [i64; 2] {
+    let board: Vec<Card> = rail_core::phf::hand::primary_board(hand)
+        .iter()
+        .filter_map(|c| card(c))
+        .collect();
+    let mut aggressed: std::collections::HashMap<u32, i64> = std::collections::HashMap::new();
+    let mut showed: Vec<u32> = Vec::new();
+    for action in hand
+        .actions
+        .iter()
+        .filter(|action| action.runout_index == 0)
+    {
+        let Some(seat) = action.seat else { continue };
+        if action.kind == ActionType::Show {
+            showed.push(seat);
+        }
+        if !matches!(action.kind, ActionType::Bet | ActionType::Raise) {
+            continue;
+        }
+        let bit = match action.street {
+            Street::Flop => 1,
+            Street::Turn => 2,
+            Street::River => 4,
+            _ => continue,
+        };
+        *aggressed.entry(seat).or_default() |= bit;
+    }
+    let mut bluff = [0i64; 2];
+    for seat in rows {
+        let number = seat.row.seat.seat;
+        let Some(&streets) = aggressed.get(&number) else {
+            continue;
+        };
+        let is_hero = seat.row.seat.is_hero;
+        let seen =
+            !is_hero || seat.values.counters[Counter::wtsd.index()] > 0 || showed.contains(&number);
+        if !seen {
+            continue;
+        }
+        let hole: Vec<Card> = seat
+            .row
+            .seat
+            .hole_cards
+            .iter()
+            .filter_map(|c| card(c))
+            .collect();
+        let [a, b] = hole[..] else { continue };
+        for (bit, n) in [(1i64, 3usize), (2, 4), (4, 5)] {
+            if streets & bit == 0 || board.len() < n {
+                continue;
+            }
+            if made_hand([a, b], &board[..n]).0 == "highCard" {
+                bluff[usize::from(!is_hero)] |= bit;
+            }
+        }
+    }
+    bluff
+}
+
+/// Migration 23's fill: every list row with a board takes its caught
+/// bluffing bits from its hand's PHF, so the store needs no statistics
+/// rebuild for two columns. A PHF that cannot be read is skipped (its row
+/// keeps 0, nobody caught). Idempotent.
+pub(crate) fn fill_caught_bluffing(conn: &rusqlite::Connection) -> crate::error::Result<()> {
+    let mut read = conn.prepare(
+        "SELECT l.played_at, l.hand_key, h.phf, h.phf_size FROM hand_list l
+         JOIN hands h ON h.hand_key = l.hand_key
+         WHERE length(l.board) >= 8",
+    )?;
+    let mut write = conn.prepare(
+        "UPDATE hand_list SET hero_bluff = ?3, vs_bluff = ?4 WHERE played_at = ?1 AND hand_key = ?2",
+    )?;
+    let mut rows = read.query([])?;
+    while let Some(row) = rows.next()? {
+        let played_at: String = row.get(0)?;
+        let hand_key: String = row.get(1)?;
+        let blob: Vec<u8> = row.get(2)?;
+        let size = u64::try_from(row.get::<_, i64>(3)?)
+            .map_err(|_| crate::error::Error::OutOfRange("PHF size"))?;
+        let Some(hand) = crate::batch::decompress_phf(&blob, size)
+            .ok()
+            .and_then(|json| serde_json::from_str::<PhfHand>(&json).ok())
+        else {
+            log::warn!("caught bluffing of {hand_key}: the PHF could not be read; left at 0");
+            continue;
+        };
+        let bluff = crate::batch::PreparedStats::from_phf(&hand)
+            .list
+            .extras
+            .bluff;
+        if bluff != [0, 0] {
+            write.execute(rusqlite::params![played_at, hand_key, bluff[0], bluff[1]])?;
+        }
+    }
+    Ok(())
 }
 
 /// The hero's sizes: the open preflop, the first bet or raise on each later street.

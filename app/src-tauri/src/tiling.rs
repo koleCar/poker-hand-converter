@@ -1,7 +1,10 @@
 //! (T3, docs/research/TABLE-TILING.md §4.1, §4.5) Table tiling and the RNG
 //! from the app's side: the user's settings kept in the store, synced, and
-//! sent to the HUD process, which does the tiling (and, from T4, draws the
-//! RNG). The Tables screen (T5) calls the commands.
+//! (tiling's) sent to the HUD process, which does the tiling. The Tables
+//! screen (T5) calls the tiling commands, Settings the RNG's. Since
+//! 2026-11-16 the RNG is the app's own box in the monitor's corner
+//! (`crate::rng_box`), not drawn over the tables: only its switch is used,
+//! and the HUD is no longer sent it.
 //!
 //! - **The model** is `rail_hud_ipc::settings` ([`TilingSettings`],
 //!   [`RngSettings`]), shared with the HUD. Every write is validated first
@@ -13,9 +16,8 @@
 //!   brought new settings reaches the HUD and the window
 //!   ([`SETTINGS_EVENT`]). Rows that do not parse or validate read as the
 //!   defaults (tiling and the RNG off).
-//! - **To the HUD** (`crate::hud::HudState`): `tiling_changed` /
-//!   `rng_changed` on every write, and both again after every handshake, so
-//!   a restarted HUD has them; `retile` from [`retile_tables`] and the
+//! - **To the HUD** (`crate::hud::HudState`): `tiling_changed` on every
+//!   write, and again after every handshake, so a restarted HUD has it; `retile` from [`retile_tables`] and the
 //!   tray's "Re-tile tables".
 //! - (T7) **Hotkeys**: the bindings in the tiling settings are bound with
 //!   the system after every save and pull (`crate::hotkeys`).
@@ -25,7 +27,7 @@
 //!   Their *sync* is `desktop_sync`, as all of the HUD's.
 //! - **Whose windows move** is the HUD's policy first (T0's
 //!   `TilingPermit`, `sites.json` `tiling.allowed`), then the user's
-//!   per-room switch here; the RNG likewise needs the room's `RngPermit`.
+//!   per-room switch here.
 //!   A switch never allows a room the policy does not.
 
 use rail_hud_ipc::settings::{Invalid, RngSettings, SETTINGS_KEY, Slot, TilingSettings};
@@ -49,10 +51,11 @@ pub struct TableSettings {
 }
 
 impl TableSettings {
-    /// Either is on: the HUD process is wanted for them even when the plan
-    /// holds its panels back.
+    /// Tiling is on: the HUD process is wanted for it even when the plan
+    /// holds its panels back. (The RNG is the app's own box since
+    /// 2026-11-16, `crate::rng_box`: it needs no HUD.)
     pub fn wanted(&self) -> bool {
-        self.tiling.enabled || self.rng.enabled
+        self.tiling.enabled
     }
 }
 
@@ -169,16 +172,19 @@ pub fn get_rng_settings(store: State<'_, StoreState>) -> RngSettings {
     read_store(&store).rng
 }
 
-/// Save the RNG settings (refused when they do not validate), then the HUD
-/// keeps them and the sync worker sends them.
+/// Save the RNG settings (refused when they do not validate), then the
+/// sync worker sends them and the RNG box shows or goes at once
+/// (`crate::rng_box`).
 #[tauri::command]
-pub async fn set_rng_settings(
+pub async fn set_rng_settings<R: Runtime>(
+    app: AppHandle<R>,
     store: State<'_, StoreState>,
     hud: State<'_, HudState>,
     settings: RngSettings,
 ) -> Result<(), String> {
     write_rng(&writer(&store)?, &settings)?;
     hud.rng_written(settings);
+    crate::rng_box::refresh(&app);
     Ok(())
 }
 
@@ -232,7 +238,7 @@ pub fn pulled<R: Runtime>(app: &AppHandle<R>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rail_hud_ipc::settings::{LayoutRef, RngBand};
+    use rail_hud_ipc::settings::LayoutRef;
 
     /// Saved and read back through the store; refused settings are not
     /// stored; a stored row that does not validate reads as the defaults;
@@ -258,25 +264,12 @@ mod tests {
             ..TilingSettings::default()
         };
         write_tiling(&w, &tiling).expect("saved");
-        let rng = RngSettings {
-            enabled: true,
-            min: 0,
-            max: 99,
-            bands: vec![RngBand {
-                up_to: 99,
-                colour: "#336699".into(),
-                label: Some("Go".into()),
-            }],
-            // (T5 follow-up) The widget's size and opacity travel too.
-            scale: 160,
-            opacity: 55,
-            ..RngSettings::default()
-        };
+        let rng = RngSettings { enabled: true };
         write_rng(&w, &rng).expect("saved");
         let read = read_store(&store);
         assert_eq!(read.tiling, tiling);
         assert_eq!(read.rng, rng);
-        assert!(read.wanted());
+        assert!(read.wanted(), "tiling is on");
 
         // Refused: nothing stored, the error says why.
         let error = write_tiling(
@@ -295,31 +288,20 @@ mod tests {
             keys: "Ctrl+Alt+KeyR".into(),
         });
         assert!(write_tiling(&w, &twice).is_err());
-        assert!(
-            write_rng(
-                &w,
-                &RngSettings {
-                    max: 0,
-                    ..RngSettings::default()
-                }
-            )
-            .is_err()
-        );
         assert_eq!(read_store(&store).tiling, tiling);
 
-        // A row from elsewhere that does not validate: the defaults.
-        w.save_hud_setting(HudSettingKind::Rng, SETTINGS_KEY, r#"{"min":5,"max":1}"#)
+        // A row from elsewhere that does not parse: the defaults.
+        w.save_hud_setting(HudSettingKind::Rng, SETTINGS_KEY, r#"{"enabled":"yes"}"#)
             .expect("raw");
         assert_eq!(read_store(&store).rng, RngSettings::default());
-        w.save_hud_setting(HudSettingKind::Rng, SETTINGS_KEY, r#"{"opacity":5}"#)
-            .expect("raw");
-        assert_eq!(read_store(&store).rng, RngSettings::default());
-        // (T5 follow-up) A T4 row (no size, no opacity) reads with both at 100 %.
-        w.save_hud_setting(HudSettingKind::Rng, SETTINGS_KEY, r#"{"enabled":true}"#)
-            .expect("raw");
-        let old = read_store(&store).rng;
-        assert!(old.enabled);
-        assert_eq!((old.scale, old.opacity), (100, 100));
+        // An older Rail's row (the per-table overlay's fields): its switch.
+        w.save_hud_setting(
+            HudSettingKind::Rng,
+            SETTINGS_KEY,
+            r#"{"enabled":true,"min":1,"max":100,"scale":150}"#,
+        )
+        .expect("raw");
+        assert!(read_store(&store).rng.enabled);
 
         let opened = store.store.as_ref().expect("store");
         let kinds: Vec<&str> = opened

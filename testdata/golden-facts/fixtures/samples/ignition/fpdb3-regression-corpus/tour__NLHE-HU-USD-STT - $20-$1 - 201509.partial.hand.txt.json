@@ -1,0 +1,5 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-HU-USD-STT - $20-$1 - 201509.partial.hand.txt"
+}

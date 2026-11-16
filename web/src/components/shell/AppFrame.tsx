@@ -147,7 +147,7 @@ export function AppFrame({ tab, redirectWhenEmpty = false, live = false, feature
 
   useEffect(refreshCount, [refreshCount, refreshToken]);
 
-  // Hands arriving live move the chip and are handed to the screen. Keyed by
+  // Hands arriving live move the count and are handed to the screen. Keyed by
   // the account, so a sign-out or a switch drops the subscription and the
   // last account's batch with it.
   const liveUser = live && isSupabaseConfigured && auth.isSignedIn ? (auth.user?.id ?? null) : null;
@@ -275,10 +275,6 @@ export function AppFrame({ tab, redirectWhenEmpty = false, live = false, feature
       tab={tab}
       showHistoryTab={historyOpen}
       dbConfigured={isSupabaseConfigured}
-      // The chip counts "hands in your library", so it is meaningless without
-      // one. Derived rather than cleared on sign-out, so the last account's
-      // number can never be left sitting in the bar for the next visitor.
-      storedCount={auth.isSignedIn ? storedCount : null}
       lockedTabs={lockedTabs}
       wide={wide}
     >

@@ -3,15 +3,14 @@
  * layout, tiling on / off, roll the RNG - with its keys. A click on the
  * keys records new ones (the app lets every bound key go meanwhile, so the
  * keys reach the window: `hotkeys_pause`); Esc cancels; × clears. A key
- * another program holds says so (`hotkey_status`). "Roll the RNG" is
- * greyed while no room allows the RNG. Free: no plan needed.
+ * another program holds says so (`hotkey_status`). "Roll the RNG" shows a
+ * new number in the RNG box (`rng_box.rs`). Free: no plan needed.
  */
 import { useCallback, useEffect, useState } from "react";
 
 import { useT } from "../../i18n";
-import { errorText, ipc, onHotkeysChanged, type HotkeyStatus, type HudPolicy, type TilingSettings } from "../../lib/ipc";
+import { errorText, ipc, onHotkeysChanged, type HotkeyStatus, type TilingSettings } from "../../lib/ipc";
 import { HOTKEY_ACTIONS, type KnownHotkeyAction, bindingOf, boundElsewhere, keysFromEvent, keysLabel, keysProblem, setBinding } from "./hotkeys";
-import { rngAllowedAnywhere } from "./model";
 import styles from "./Tables.module.css";
 
 /** How each binding stands with the system; read again when the app says it changed. */
@@ -34,18 +33,15 @@ function useHotkeyStatus(): HotkeyStatus[] {
 
 export function HotkeysCard({
   settings,
-  policy,
   onSave,
 }: {
   settings: TilingSettings;
-  policy: HudPolicy;
   onSave: (next: TilingSettings) => Promise<boolean>;
 }) {
   const s = useT().tables.hotkeys;
   const status = useHotkeyStatus();
   const [recording, setRecording] = useState<KnownHotkeyAction | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
-  const rngAllowed = rngAllowedAnywhere(policy);
 
   const stop = useCallback(() => {
     setRecording(null);
@@ -99,11 +95,10 @@ export function HotkeysCard({
         {HOTKEY_ACTIONS.map((action) => {
           const keys = bindingOf(settings, action);
           const state = status.find((st) => st.action === action && st.keys === keys)?.state ?? null;
-          const disabled = action === "rollRng" && !rngAllowed;
           const listening = recording === action;
           return (
-            <li key={action} className={styles.hotkey} data-disabled={disabled}>
-              <span className={styles.hotkeyName} title={disabled ? s.rngNotAllowed : undefined}>
+            <li key={action} className={styles.hotkey}>
+              <span className={styles.hotkeyName}>
                 {s.action[action]}
               </span>
               {state === "taken" || state === "failed" ? (
@@ -116,8 +111,7 @@ export function HotkeysCard({
                 className={`chip-btn ${styles.keycap}${listening ? " is-active" : ""}`}
                 aria-label={s.record(s.action[action])}
                 aria-pressed={listening}
-                title={disabled ? s.rngNotAllowed : s.recordHint}
-                disabled={disabled}
+                title={s.recordHint}
                 onClick={() => (listening ? stop() : start(action))}
               >
                 {listening ? s.listening : keys !== null ? keysLabel(keys) : s.none}

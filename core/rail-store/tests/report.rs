@@ -600,6 +600,11 @@ fn sessions_follow_the_gap_rule() {
         .expect("a session");
     assert_eq!(latest.started_at, all[0].started_at);
     assert_eq!(latest.hands, all[0].hands);
+    // The RNG box's question: the latest session's newest hand.
+    assert_eq!(
+        reader.newest_hand_at().expect("newest").as_deref(),
+        Some(latest.ended_at.as_str())
+    );
     assert!(latest.tables.is_some_and(|t| t > 0));
     let pots = reader.hand_rows(&latest.biggest_pots).expect("rows");
     assert_eq!(pots.len(), latest.biggest_pots.len().min(5));
@@ -671,4 +676,79 @@ fn a_version_7_store_gets_the_reports_columns() {
     assert!(upgraded.list == reference.list, "the rebuilt list differs");
     assert!(upgraded.seats == reference.seats);
     assert!(upgraded.ev_rows == reference.ev_rows);
+}
+
+/// 2026-11-16 (the owner: one filter across the app): a report over the
+/// Hands screen's whole filter. A hand-level group that leaves no hand out
+/// reads the hands one by one and gets the rollups' numbers; a pot type's
+/// report is that pot type's breakdown row, and its graph the list's hands.
+#[test]
+fn a_report_takes_the_hands_screens_filter() {
+    let path = copy_of_corpus("report-hand-filter");
+    let store = Store::open(&path).expect("open");
+    let reader = store.reader();
+    let cash = hand_list::HandFilter {
+        formats: vec!["cash".to_owned()],
+        ..hand_list::HandFilter::default()
+    };
+    let rollups = ReportFilter::of_hands(cash.clone(), false);
+    assert!(rollups.hands.is_none(), "the rollups' groups only");
+
+    // Every result: the same hands, read one by one.
+    let every = ReportFilter::of_hands(
+        hand_list::HandFilter {
+            results: vec!["won".to_owned(), "lost".to_owned(), "even".to_owned()],
+            ..cash.clone()
+        },
+        false,
+    );
+    assert!(every.hands.is_some(), "a hand-level group");
+    let totals = |filter: &ReportFilter| {
+        let hero = reader.report_hero_filter(filter).expect("filter");
+        reader.hero_totals(&hero).expect("totals")
+    };
+    assert_eq!(totals(&every), totals(&rollups));
+    assert_eq!(
+        *reader.report_graph(&every, 60).expect("graph"),
+        *reader.report_graph(&rollups, 60).expect("graph")
+    );
+    assert_eq!(
+        *reader.report_breakdowns(&every).expect("breakdowns"),
+        *reader.report_breakdowns(&rollups).expect("breakdowns")
+    );
+
+    // A pot type: its breakdown row, and the list's hands of it.
+    let by_pot = reader.report_breakdowns(&rollups).expect("breakdowns");
+    assert!(by_pot.pot_type.len() > 2);
+    for row in &by_pot.pot_type {
+        let filter = hand_list::HandFilter {
+            pot_types: vec![row.key.clone()],
+            ..cash.clone()
+        };
+        let report = ReportFilter::of_hands(filter.clone(), false);
+        let sum = HeroSum::of(&totals(&report));
+        assert_eq!(sum.totals, row.totals, "{}", row.key);
+        let graph = reader.report_graph(&report, 1).expect("graph");
+        assert_eq!(
+            graph.hands,
+            u64::try_from(sum.totals.hands()).expect("hands"),
+            "{}",
+            row.key
+        );
+        let breakdowns = reader.report_breakdowns(&report).expect("breakdowns");
+        assert_eq!(breakdowns.pot_type.len(), 1, "{}", row.key);
+        assert_eq!(breakdowns.pot_type[0], *row);
+    }
+
+    // Nothing can match: an empty report, not every hand.
+    let none = ReportFilter::of_hands(
+        hand_list::HandFilter {
+            stacks: vec!["no-such-depth".to_owned()],
+            ..cash
+        },
+        false,
+    );
+    assert!(totals(&none).is_empty());
+    assert_eq!(reader.report_graph(&none, 1).expect("graph").hands, 0);
+    store.close();
 }

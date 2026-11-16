@@ -5,7 +5,7 @@
  *
  * - The web's source (`web/src/lib/db/reportSource.ts`) against a faked
  *   `rpc`: what it asks `report_open`, `report_graph`, `report_situations`
- *   and `report_facets` for, and the report it hands the screen - every
+ *   and `library_facets` (the Hands list's counts) for, and the report it hands the screen - every
  *   statistic `showStat` of the shipped definitions over the server's sums,
  *   the money the server withheld shown as no value, the graph's money lines,
  *   rooms named, a stake's symbol.
@@ -29,6 +29,7 @@ import type { Shown } from "@rail/ui/model/stats";
 import { Breakdown } from "@rail/ui/reports/Breakdown";
 import { HandMatrix } from "@rail/ui/reports/HandMatrix";
 import { BREAKDOWN_COLUMNS, type Report, type ReportSource, type StatGroup } from "@rail/ui/reports/model";
+import { ReportStats } from "@rail/ui/reports/ReportStats";
 import { ReportsScreen } from "@rail/ui/reports/ReportsScreen";
 import { hasBothKinds } from "@rail/ui/hands/gameKind";
 import { handsUiEn } from "@rail/ui/strings/hands.en";
@@ -41,7 +42,7 @@ import { statsUiEn } from "@rail/ui/strings/stats.en";
 import { statsUiHr } from "@rail/ui/strings/stats.hr";
 
 import { opponentsScope } from "../../web/src/components/stats/opponentsScope.js";
-import { WEB_DEFINITIONS, reportTotals, webReportSource } from "../../web/src/lib/db/reportSource.js";
+import { WEB_DEFINITIONS, sumsOf, webReportSource } from "../../web/src/lib/db/reportSource.js";
 import { STANDARD_STATS, emptyCounters, emptyMoney, showStat, statById } from "../../web/src/lib/stats/index.js";
 
 const rpc = vi.fn();
@@ -166,7 +167,16 @@ describe("the web's ReportSource over the summaries", () => {
     const [open, graph] = rpc.mock.calls;
     expect(open?.[0]).toBe("report_open");
     expect(open?.[1]).toEqual({
-      p_filter: { formats: ["cash"], positions: ["BTN"], statsVersion: expect.stringMatching(/^stats\//), evVersion: expect.stringMatching(/^ev\//) },
+      // The Hands list's own filter (`libraryFilter`): `player` is a name at the table.
+      p_filter: {
+        formats: ["cash"],
+        positions: ["BTN"],
+        player: null,
+        statsVersion: expect.stringMatching(/^stats\//),
+        evVersion: expect.stringMatching(/^ev\//),
+        analysisVersion: expect.stringMatching(/^analysis\//),
+        factsVersion: expect.stringMatching(/^facts\//),
+      },
     });
     expect(graph?.[0]).toBe("report_graph");
     expect((graph?.[1] as { p_points: number }).p_points).toBe(150);
@@ -180,10 +190,10 @@ describe("the web's ReportSource over the summaries", () => {
     expect(report.summary.stats).toHaveLength(STANDARD_STATS.length);
     expect(shownOf(report, "vpip").text).toBe("23.0");
     expect(shownOf(report, "vpip").sample).toBe(200);
-    const totals = reportTotals(report);
-    expect(totals?.counters.three_bet).toBe(9);
+    const totals = sumsOf(OPEN.total);
+    expect(totals.counters.three_bet).toBe(9);
     expect(shownOf(report, "bb_per_100")).toEqual(
-      showStat(statById(STANDARD_STATS, "bb_per_100"), totals!, 100),
+      showStat(statById(STANDARD_STATS, "bb_per_100"), totals, 100),
     );
     expect(shownOf(report, "allin_ev_bb_per_100").value).toBeCloseTo((12000 / 1000 / 198) * 100, 10);
     expect(report.summary).toMatchObject({ hands: 200, moneyHands: 198, net: 2000, netBbMilli: 10000, evNetBbMilli: 12000 });
@@ -200,6 +210,23 @@ describe("the web's ReportSource over the summaries", () => {
     expect(btn.stats[BREAKDOWN_COLUMNS.indexOf("vpip")]?.text).toBe("25.0");
     expect(report.bySite.map((row) => row.label)).toEqual(["PokerStars", "Winamax"]);
     expect(report.byPosition[1]?.key).toBe("");
+  });
+
+  it("each position with every shipped definition, for the statistics matrix", async () => {
+    rpc.mockImplementation((name: string) => Promise.resolve(name === "report_open" ? OPEN : GRAPH));
+    const report = await webReportSource("Standard format").report({}, 150);
+    const ids = STANDARD_STATS.map((stat) => stat.def.id);
+    expect(report.positionColumns).toEqual(ids);
+    expect(report.positionStats?.map((row) => [row.key, row.hands])).toEqual([
+      ["BTN", 40],
+      ["", 2],
+    ]);
+    const btn = report.positionStats?.[0];
+    expect(btn?.stats).toHaveLength(ids.length);
+    expect(btn?.stats[ids.indexOf("pfr")]?.text).toBe("20.0");
+    expect(btn?.stats[ids.indexOf("bb_per_100")]).toEqual(
+      showStat(statById(STANDARD_STATS, "bb_per_100"), sumsOf(sumsRow("BTN", 40)), 100),
+    );
   });
 
   it("the graph: every line, in big blinds and in money", async () => {
@@ -268,7 +295,7 @@ describe("the web's ReportSource over the summaries", () => {
     expect(breakdowns.potType[0]?.stats[BREAKDOWN_COLUMNS.indexOf("hands")]?.value).toBe(30);
   });
 
-  it("the chips' counts from report_facets: rooms named, a stake's symbol from its currency", async () => {
+  it("the chips' counts are the Hands list's (library_facets): rooms named, every group counted", async () => {
     rpc.mockResolvedValue({
       total: 150,
       library: 200,
@@ -279,15 +306,19 @@ describe("the web's ReportSource over the summaries", () => {
       sizes: [{ value: "6max", count: 150 }],
       positions: [{ value: "BTN", count: 40 }],
       stakes: [
-        { value: "USD:200", count: 120, currency: "USD", minorUnits: 100, smallBlind: 100, bigBlind: 200, currencySymbol: null },
+        { value: "USD:200", count: 120, currency: "USD", minorUnits: 100, smallBlind: 100, bigBlind: 200, currencySymbol: "$" },
         { value: "chips", count: 0, currency: null, minorUnits: null, smallBlind: null, bigBlind: null, currencySymbol: null },
       ],
+      potTypes: [{ value: "3bet", count: 12 }],
     });
-    const facets = await webReportSource("Standard format").facets({});
+    const facets = await webReportSource("Standard format").facets({ potTypes: ["3bet"], playerName: "Villain" });
+    expect(rpc).toHaveBeenCalledWith("library_facets", {
+      p_filter: expect.objectContaining({ potTypes: ["3bet"], player: "Villain", statsVersion: expect.stringMatching(/^stats\//) }),
+    });
     expect(facets.sites).toEqual([{ value: "pokerstars", count: 150, name: "PokerStars" }]);
     expect(facets.stakes[0]).toMatchObject({ value: "USD:200", currencySymbol: "$", smallBlind: 100, bigBlind: 200 });
     expect(facets.stakes[1]).toMatchObject({ value: "chips", currencySymbol: null });
-    expect(facets).toMatchObject({ total: 150, library: 200, potTypes: [], tags: [] });
+    expect(facets).toMatchObject({ total: 150, library: 200, potTypes: [{ value: "3bet", count: 12 }], tags: [] });
     expect(hasBothKinds(facets)).toBe(false);
     expect(hasBothKinds({ ...facets, formats: [{ value: "cash", count: 10 }, { value: "tournament", count: 30 }] })).toBe(true);
   });
@@ -382,6 +413,54 @@ const FACETS: HandFacets = {
   tags: [],
   noted: 0,
 };
+
+/** Every shipped definition over a few counters: the summary and a position's row as both surfaces send them. */
+function everyStat(hands: number): Shown[] {
+  const sums = {
+    counters: { ...emptyCounters(), hands, vpip_opp: hands, vpip: Math.round(hands / 4), pfr_opp: hands, pfr: Math.round(hands / 5) },
+    money: { ...emptyMoney(), net_bb_milli: hands * 50 },
+    moneyHands: hands,
+  };
+  return STANDARD_STATS.map((stat) => showStat(stat, sums, null));
+}
+
+describe("the statistics matrices, rendered", () => {
+  const ids = STANDARD_STATS.map((stat) => stat.def.id);
+  const report: Report = {
+    ...APP_REPORT,
+    summary: { ...APP_REPORT.summary, stats: everyStat(300), ids },
+    positionColumns: ids,
+    positionStats: [
+      { key: "SB", hands: 50, stats: everyStat(50) },
+      { key: "BTN", hands: 60, stats: everyStat(60) },
+      { key: "", hands: 2, stats: everyStat(2) },
+    ],
+  };
+  for (const locale of ["en", "hr"] as const) {
+    it(`short names, the full one on hover; positions in a player's order, ${locale}`, () => {
+      const html = render(locale, createElement(ReportStats, { report, definitions: DEFINITIONS }));
+      const r = locale === "en" ? reportsUiEn : reportsUiHr;
+      const threeBet = statById(STANDARD_STATS, "three_bet").def;
+      expect(html).toContain(`>${threeBet.label[locale]}</abbr>`);
+      expect(html).toContain(`title="${threeBet.name[locale]}`);
+      expect(html).toContain(`>${r.stats.streetRows.cbet.short}</abbr>`);
+      expect(html).toContain(r.stats.sections.steal);
+      expect(html.indexOf(">BTN<")).toBeLessThan(html.indexOf(">SB<"));
+      // The position with no name stays out of the columns.
+      expect(html).not.toContain("<th scope=\"col\"></th>");
+      expect(html).toMatch(/>25[.,]0%</);
+    });
+  }
+
+  it("the total column only when the surface sends no position rows", () => {
+    const html = render(
+      "en",
+      createElement(ReportStats, { report: { ...report, positionStats: undefined }, definitions: DEFINITIONS }),
+    );
+    expect(html).not.toContain(">BTN<");
+    expect(html).toContain(">Total<");
+  });
+});
 
 describe("the breakdown table and the grid, rendered", () => {
   for (const locale of ["en", "hr"] as const) {
@@ -509,6 +588,8 @@ describe("the screen's first render on each source", () => {
         breakdowns: () => new Promise(() => undefined),
         facets: () => new Promise(() => undefined),
         graphPoints: 1200,
+        // The app's Hands features (`app/src/lib/handsSource.ts`): the store reads a report over any of them.
+        filters: { annotations: true, search: true, sorts: [], more: [], builder: true },
         savedFilters: { list: async () => [], save: async () => [], remove: async () => [] },
       },
     ],
@@ -543,8 +624,14 @@ describe("the screen's first render on each source", () => {
         expect(html).toContain(h.filters.allFilters);
         expect(html).toContain(h.filters.quick.week);
         expect(html).not.toContain(h.filters.edit(h.filters.groups.format, h.filters.formats.cash));
-        // The Hands screen's groups a report does not sum by are not offered.
-        expect(html).not.toContain(h.filters.quick.threeBet);
+        // The Hands screen's row on the app (2026-11-16: one filter everywhere);
+        // the web's summaries sum by the rollups' groups only, for now.
+        if (source.filters.rollupsOnly) {
+          expect(html).not.toContain(h.filters.quick.threeBet);
+        } else {
+          expect(html).toContain(h.filters.quick.threeBet);
+          expect(html).toContain(h.filters.quick.won);
+        }
       });
     }
   }

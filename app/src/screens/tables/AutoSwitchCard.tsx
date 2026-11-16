@@ -12,7 +12,7 @@ import { useState } from "react";
 
 import { useT } from "../../i18n";
 import type { HudStatus, TilingSettings } from "../../lib/ipc";
-import { NumberField } from "./RngCard";
+import { NumberField } from "./NumberField";
 import {
   AUTO_LAYOUT,
   MAX_RULES,

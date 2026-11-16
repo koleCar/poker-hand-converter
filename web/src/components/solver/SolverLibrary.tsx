@@ -54,7 +54,7 @@ import {
   type LiveTurnProgress,
   type PickedFlop,
 } from "../../lib/solver";
-import { actionTotals, GRID_CELLS, OFF_RANGE_WEIGHT } from "../analysis/chartSpots";
+import { actionTotals, GRID_CELLS, OFF_RANGE_WEIGHT, playedOptions } from "../analysis/chartSpots";
 import analysis from "../analysis/analysis.module.css";
 import { FlopPicker } from "./FlopPicker";
 import { loadFullSolve, type FullSolve } from "./fullSolve";
@@ -507,6 +507,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
 function preflopModel(node: ChartNode, line: string, goLine: (line: string) => void, t: Dict): StrategyModel {
   const classes = node.range.length;
   const totals = actionTotals(node);
+  const played = playedOptions(node);
   const colours = actionColours(node.options.map((o) => ({ kind: o.action, amount: o.toBb })));
   return {
     id: `pre|${line}`,
@@ -519,6 +520,7 @@ function preflopModel(node: ChartNode, line: string, goLine: (line: string) => v
       combos: totals[a].combos,
       ends: null,
       onPick: () => goLine(line + option.code),
+      hidden: !played[a],
     })),
     classes: GRID_CELLS.map((cell) => {
       const k = cell.index;
@@ -550,7 +552,8 @@ function flopModel(
   include?: Uint8Array,
 ): StrategyModel {
   const view = exploreNode(chunk, index, include);
-  const unfiltered = include ? exploreNode(chunk, index).reach : view.reach;
+  const whole = include ? exploreNode(chunk, index) : view;
+  const unfiltered = whole.reach;
   const colours = actionColours(view.actions);
   // The turn and the river are dealt, not the end of the walk - unless the flop went all-in (nothing left to solve).
   const dealable = (deal: number) => deal >= 0 && (chunk.result.street === "turn" || turnDeal(chunk, deal) !== null);
@@ -570,6 +573,8 @@ function flopModel(
         if (action.child >= 0) onGo(action.child);
         else if (dealable(action.deal)) onDeal(action.deal);
       },
+      // Judged on the whole range: a hand filter never hides an action.
+      hidden: whole.totals[a].combos < 0.5,
     })),
     classes: GRID_CELLS.map((cell) => {
       const c = view.classes[cell.index];

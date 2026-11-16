@@ -2,9 +2,11 @@
  * The shared Reports screen's `ReportSource` (`@rail/ui/reports/model`,
  * R4.5c) over the web's report summaries (`20270707090000_report_summaries.sql`):
  * `report_open` (the summary and the rollups' breakdowns), `report_graph`,
- * `report_situations` (the breakdowns by situation) and `report_facets` (the
- * chips' counts), as the reader under RLS. The desktop app implements the
- * same interface over its local store.
+ * `report_situations` (the breakdowns by situation), and the Hands list's
+ * `library_facets` (the chips' counts), as the reader under RLS. The filter
+ * is the Hands list's (`libraryFilter`): a group the summaries do not sum by
+ * makes the server read the list's hands (`report_hand_ids`, 2026-11-16).
+ * The desktop app implements the same interface over its local store.
  *
  * The server sends sums; every statistic the screen shows is `showStat` of
  * the shipped definitions (`STANDARD_STATS`, `config/stats/`) over them - the
@@ -12,11 +14,8 @@
  * the same `Shown` from either surface. Money the server withholds (chips
  * with cash; two currencies) is not a number here: a definition that reads it
  * shows no value.
- *
- * `rawTotals` keeps each report's sums for the web's own panels beside the
- * screen (the HUD tiles read counters, not `Shown`s).
  */
-import type { FacetCount, HandFacets, HandFilter, SiteFacet, StakeFacet } from "@rail/ui/hands/model";
+import type { HandFilter } from "@rail/ui/hands/model";
 import type { Shown } from "@rail/ui/model/stats";
 import {
   BREAKDOWN_COLUMNS,
@@ -28,13 +27,11 @@ import {
   type StatGroup,
   type Units,
 } from "@rail/ui/reports/model";
-import { EV_VERSION } from "../equity";
 import { getParser, unitForCode } from "../phf";
 import {
   COUNTER_KEYS,
   MONEY_KEYS,
   STANDARD_STATS,
-  STATS_VERSION,
   emptyCounters,
   emptyMoney,
   showStat,
@@ -44,6 +41,7 @@ import {
   type SeatMoney,
 } from "../stats";
 import { rpc } from "./client";
+import { WEB_HANDS_FEATURES, libraryFilter, webHandsSource } from "./handsSource";
 
 /** The graph's points: the server cuts them at day ends (`report_graph`); a phone's width is ~310 px. */
 export const WEB_GRAPH_POINTS = 150;
@@ -59,9 +57,13 @@ export const num = (value: unknown): number =>
 export const maybe = (row: Row, key: string): number | null => (key in row && row[key] !== null ? num(row[key]) : null);
 export const str = (value: unknown): string | null => (typeof value === "string" && value.length > 0 ? value : null);
 
-/** The screen's filter as the readers take it (the versions the client reads). */
+/**
+ * The screen's filter as the readers take it: the Hands list's own
+ * (`libraryFilter`, with the versions the client reads), so a report covers
+ * exactly the hands the list shows (2026-11-16).
+ */
 function wire(filter: HandFilter): Record<string, unknown> {
-  return { ...filter, statsVersion: STATS_VERSION, evVersion: EV_VERSION };
+  return libraryFilter(filter);
 }
 
 /** The definitions the screen lists, in the shipped file's order. */
@@ -170,16 +172,9 @@ function graphOf(payload: Row): Graph {
   };
 }
 
-/** The sums behind the last report of each filter (the web's HUD tiles beside the screen). */
-const rawTotals = new WeakMap<Report, RawSums>();
-
-/** The sums `report` was shown from, for the web's own panels. */
-export function reportTotals(report: Report): RawSums | null {
-  return rawTotals.get(report) ?? null;
-}
-
 /** The web's source; `standardFormat` names hands in Rail's own text format. */
 export function webReportSource(standardFormat: string): ReportSource {
+  const hands = webHandsSource(standardFormat);
   return {
     async report(filter, points): Promise<Report> {
       const [open, graph] = await Promise.all([
@@ -195,7 +190,7 @@ export function webReportSource(standardFormat: string): ReportSource {
       const total = open.total && typeof open.total === "object" ? (open.total as Row) : {};
       const sums = sumsOf(total);
       const groups = open.groups && typeof open.groups === "object" ? (open.groups as Row) : {};
-      const report: Report = {
+      return {
         units,
         summary: {
           hands: num(open.hands),
@@ -209,13 +204,17 @@ export function webReportSource(standardFormat: string): ReportSource {
         graph: graphOf(graph),
         columns: [...BREAKDOWN_COLUMNS],
         byPosition: groupsOf(groups.position, minorUnits),
+        positionColumns: IDS,
+        positionStats: (Array.isArray(groups.position) ? (groups.position as Row[]) : []).map((row) => ({
+          key: str(row.key) ?? "",
+          hands: num(row.hands),
+          stats: show(STANDARD_STATS, sumsOf(row), minorUnits),
+        })),
         byStake: groupsOf(groups.stake, minorUnits),
         bySite: groupsOf(groups.site, minorUnits, (key) => siteName(key, standardFormat)),
         bySize: groupsOf(groups.size, minorUnits),
         byFormat: groupsOf(groups.format, minorUnits),
       };
-      rawTotals.set(report, sums);
-      return report;
     },
     async breakdowns(filter): Promise<Breakdowns> {
       const payload = await rpc<Row>("report_situations", { p_filter: wire(filter) });
@@ -230,42 +229,10 @@ export function webReportSource(standardFormat: string): ReportSource {
         street: groupsOf(groups.street, minorUnits),
       };
     },
-    async facets(filter): Promise<HandFacets> {
-      const raw = await rpc<Row>("report_facets", { p_filter: wire(filter) });
-      const list = (key: string) => (Array.isArray(raw[key]) ? (raw[key] as FacetCount[]) : []);
-      const stakes = (Array.isArray(raw.stakes) ? (raw.stakes as Row[]) : []).map(
-        (row): StakeFacet => {
-          const currency = str(row.currency);
-          return {
-            value: str(row.value) ?? "",
-            count: num(row.count),
-            currency,
-            currencySymbol: str(row.currencySymbol) ?? (currency ? unitForCode(currency).symbol : null),
-            minorUnits: maybe(row, "minorUnits"),
-            smallBlind: maybe(row, "smallBlind"),
-            bigBlind: maybe(row, "bigBlind"),
-          };
-        },
-      );
-      return {
-        total: num(raw.total),
-        library: num(raw.library),
-        sites: list("sites").map((f): SiteFacet => ({ ...f, name: siteName(f.value, standardFormat) })),
-        formats: list("formats"),
-        variants: list("variants"),
-        limits: list("limits"),
-        sizes: list("sizes"),
-        stakes,
-        positions: list("positions"),
-        // Reports' chips are the groups a report sums by; the rest are the Hands screen's.
-        potTypes: [],
-        results: [],
-        stacks: [],
-        allIn: [],
-        tags: [],
-        noted: 0,
-      };
-    },
+    // The Hands list's counts: every group of the row narrows them, as on the app.
+    facets: (filter) => hands.facets(filter),
     graphPoints: WEB_GRAPH_POINTS,
+    // The Hands list's filter: `report_hand_ids` reads a report over any of it.
+    filters: WEB_HANDS_FEATURES,
   };
 }

@@ -1,5 +1,6 @@
 /**
- * The filter row of Hands and Reports (redesigned 2026-11, after the owner's
+ * The filter row of every screen that filters hands - Hands, Reports, ...
+ * (redesigned 2026-11, after the owner's
  * brief: modern, intuitive, no hand counts on every value; the owner's
  * variant A of 2026-11-05). Two lines. The first holds what is set:
  *
@@ -12,8 +13,9 @@
  * The second is always in view: the quick filters (one-click spots over the
  * same groups) and the saved filters (`SavedRow`: apply, edit, delete, save
  * the filters in force). The order is the list's column headers. The
- * row's groups are the source's (`handGroups`, `REPORT_GROUPS` in
- * `groups.ts`); a group the source cannot filter by is never offered.
+ * row's groups are `filterGroups` of the surface's features (`groups.ts`),
+ * the same on every screen: a screen cannot pick its own, so a change to
+ * the filters is a change everywhere (2026-11-16, the owner).
  */
 import { useCallback, useMemo, useRef, useState } from "react";
 
@@ -23,19 +25,19 @@ import { AddFilter } from "./AddFilter";
 import styles from "./FilterBar.module.css";
 import { FilterBuilder } from "./FilterBuilder";
 import { GroupEditor, Pills } from "./GroupEditor";
-import { HAND_GROUPS, clearAll, clearGroup, paneOf, quickFor, shownSet, useGroupWords, type GroupId, type PaneId } from "./groups";
-import type { FilterScreen, HandFacets, HandFilter, HandSort, SavedFiltersSource } from "./model";
+import { clearAll, clearGroup, paneOf, filterGroups, quickFor, shownSet, useGroupWords, type GroupId, type PaneId } from "./groups";
+import type { FilterScreen, HandFacets, HandFilter, HandSort, HandsFeatures, SavedFiltersSource } from "./model";
 import { Popover } from "./Popover";
 import { SavedRow, useSavedFilters } from "./SavedFilters";
 
-export { HAND_GROUPS, REPORT_GROUPS, handGroups, type GroupId } from "./groups";
+export { HAND_GROUPS, ROLLUP_GROUPS, filterGroups, type GroupId } from "./groups";
 
 interface FilterBarProps {
   filter: FilterState;
   facets: HandFacets | null;
   onChange: (filter: FilterState) => void;
-  /** The groups the row offers, in order (the Hands screen's by default). */
-  groups?: GroupId[];
+  /** What the surface can filter by: the row's groups are `filterGroups` of it. */
+  features: HandsFeatures;
   /** Whose saved filters the row lists. */
   screen?: FilterScreen;
   /** Where saved filters are kept; none, no saved filters. */
@@ -70,7 +72,7 @@ export function FilterBar({
   filter,
   facets,
   onChange,
-  groups = HAND_GROUPS,
+  features,
   screen = "hands",
   saved,
   loadFacets,
@@ -79,10 +81,12 @@ export function FilterBar({
   const t = words.hands.filters;
   const savedState = useSavedFilters(saved, screen);
   const [builder, setBuilder] = useState<{ pane: PaneId | undefined } | null>(null);
-  const filterGroups = useMemo(() => groups.filter((group) => group !== "sort"), [groups]);
-  const quick = useMemo(() => quickFor(filterGroups), [filterGroups]);
-  const set = shownSet(filterGroups, filter, facets);
-  const player = screen === "hands" ? filter.player : null;
+  const groups = useMemo(() => filterGroups(features), [features]);
+  const rowGroups = useMemo(() => groups.filter((group) => group !== "sort"), [groups]);
+  const quick = useMemo(() => quickFor(rowGroups), [rowGroups]);
+  const set = shownSet(rowGroups, filter, facets);
+  // "Hands with this player" (from Players) narrows every screen that has it.
+  const player = filter.player ?? null;
   const active = set.length + (player !== null ? 1 : 0);
   const openBuilder = useCallback((pane?: PaneId) => setBuilder({ pane }), []);
 
@@ -111,7 +115,7 @@ export function FilterBar({
           {set.map((group) => (
             <ActiveChip key={group} group={group} filter={filter} facets={facets} onChange={onChange} onMore={openBuilder} />
           ))}
-          <AddFilter groups={filterGroups} filter={filter} facets={facets} onChange={onChange} onBrowse={openBuilder} />
+          <AddFilter groups={rowGroups} filter={filter} facets={facets} onChange={onChange} onBrowse={openBuilder} />
         </div>
         <div className={styles.tools}>
           {active > 0 ? (

@@ -1,0 +1,43 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [
+    {
+      "facts": {
+        "betPct": [
+          60,
+          70,
+          null
+        ],
+        "bluff": [
+          3,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": false,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          0
+        ],
+        "openTenths": 70,
+        "playersFlop": 2,
+        "vsPositions": " UTG+2 CO BTN ",
+        "vsSeats": " 2 6 7 "
+      },
+      "handId": "CHC-1002060530",
+      "index": 0
+    }
+  ],
+  "input": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-0.25-0.50-201204.post.now.txt"
+}

@@ -68,7 +68,9 @@ export type ListGroup =
   | "positionFlop"
   | "playersFlop"
   | "vsType"
-  | "levels";
+  | "levels"
+  | "heroBluff"
+  | "vsBluff";
 
 const LIST_GROUPS: ListGroup[] = [
   "sites",
@@ -116,6 +118,8 @@ const LIST_GROUPS: ListGroup[] = [
   "playersFlop",
   "vsType",
   "levels",
+  "heroBluff",
+  "vsBluff",
 ];
 
 export interface FilterState {
@@ -216,6 +220,20 @@ export interface FilterState {
   playersFlop: string[];
   vsType: string[];
   levels: string[];
+  /**
+   * Caught bluffing (schema 23): the streets on which the hero, or an
+   * opponent, bet or raised with no pair of their own and was seen with it.
+   */
+  heroBluff: string[];
+  vsBluff: string[];
+  /**
+   * The hero's first bet or raise on the flop, turn, river as a share of the
+   * pot, a range as the pot editor saves it (">50", "<40", "50-80") -
+   * 2026-11-15, a size of the player's own beside the four buckets.
+   */
+  flopPct: string;
+  turnPct: string;
+  riverPct: string;
   /** Ranges as typed: the open in big blinds, a villain's VPIP in percent, a buy-in in its currency. */
   openSize: string;
   vsVpip: string;
@@ -290,6 +308,11 @@ export const EMPTY_FILTER: FilterState = {
   playersFlop: [],
   vsType: [],
   levels: [],
+  heroBluff: [],
+  vsBluff: [],
+  flopPct: "",
+  turnPct: "",
+  riverPct: "",
   openSize: "",
   vsVpip: "",
   buyIn: "",
@@ -336,6 +359,13 @@ export const POSITION_FLOP_ORDER = ["ip", "oop"];
 export const PLAYERS_FLOP_ORDER = ["2", "3", "4plus"];
 export const VS_TYPE_ORDER = ["fish", "reg", "unknown"];
 export const LEVELS_ORDER = ["1-5", "6-10", "11-15", "16plus"];
+export const BLUFF_ORDER = ["flop", "turn", "river"];
+/** The bet-size range groups and the query fields each one sets. */
+export const PCT_GROUPS = [
+  ["flopPct", "flopPctMin", "flopPctMax"],
+  ["turnPct", "turnPctMin", "turnPctMax"],
+  ["riverPct", "riverPctMin", "riverPctMax"],
+] as const;
 
 /**
  * A typed range of big blinds: "80-120" (or "80–120", "80 to 120"), "40+"
@@ -429,7 +459,7 @@ export function activeGroups(filter: FilterState): number {
     (filter.player === null ? 0 : 1) +
     (filter.knownCards === null ? 0 : 1) +
     (filter.bounty === null ? 0 : 1) +
-    ([filter.heroStack, filter.netRange, filter.evLoss, filter.potSize, filter.openSize, filter.vsVpip, filter.buyIn].filter(
+    ([filter.heroStack, filter.netRange, filter.evLoss, filter.potSize, filter.openSize, filter.vsVpip, filter.buyIn, filter.flopPct, filter.turnPct, filter.riverPct].filter(
       (text) => text.trim() !== "",
     ).length) +
     activeSearches(filter)
@@ -576,9 +606,16 @@ export function toQuery(filter: FilterState, now: Date = new Date()): HandFilter
     playersFlop: filter.playersFlop,
     vsTypes: filter.vsType,
     levels: filter.levels,
+    heroBluffs: filter.heroBluff,
+    vsBluffs: filter.vsBluff,
   } as const;
   for (const [key, values] of Object.entries(lists) as [keyof typeof lists, string[]][]) {
     if (values.length > 0) query[key] = values;
+  }
+  for (const [group, min, max] of PCT_GROUPS) {
+    const pct = parseRange(filter[group]);
+    if (pct.min !== null) query[min] = pct.min;
+    if (pct.max !== null) query[max] = pct.max;
   }
   const open = parseRange(filter.openSize);
   if (open.min !== null) query.openMin = open.min;
@@ -708,6 +745,11 @@ export function fromSaved(json: string): FilterState | null {
     playersFlop: list("playersFlop"),
     vsType: list("vsType"),
     levels: list("levels"),
+    heroBluff: list("heroBluff"),
+    vsBluff: list("vsBluff"),
+    flopPct: typeof saved.flopPct === "string" ? saved.flopPct : "",
+    turnPct: typeof saved.turnPct === "string" ? saved.turnPct : "",
+    riverPct: typeof saved.riverPct === "string" ? saved.riverPct : "",
     openSize: typeof saved.openSize === "string" ? saved.openSize : "",
     vsVpip: typeof saved.vsVpip === "string" ? saved.vsVpip : "",
     buyIn: typeof saved.buyIn === "string" ? saved.buyIn : "",

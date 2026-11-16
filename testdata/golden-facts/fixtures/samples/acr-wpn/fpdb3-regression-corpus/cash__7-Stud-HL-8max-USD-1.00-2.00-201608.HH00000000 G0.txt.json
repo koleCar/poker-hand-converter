@@ -1,0 +1,5 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__7-Stud-HL-8max-USD-1.00-2.00-201608.HH00000000 G0.txt"
+}

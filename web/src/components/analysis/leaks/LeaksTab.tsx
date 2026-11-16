@@ -250,7 +250,6 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
             <FilterBar
               state={shownState}
               kinds={kinds}
-              facets={report.facets}
               onChange={(patch) => updateState({ ...patch, leak: null })}
             />
             <button

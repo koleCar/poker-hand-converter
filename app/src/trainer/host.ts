@@ -3,8 +3,9 @@
  * worker of its own (`worker.ts`) whose flop library files come through Rust,
  * "For you" read from the local store's leak rows (the same sums the top
  * leaks card ranks, `lib/leaksSource.ts`, grouped into focus areas as the
- * web groups them), and the settings kept in this window's storage. Answers
- * are not kept: the app has no trainer history yet.
+ * web groups them), and the training sessions kept on this computer
+ * (`localSessionStore`): the last one opened opens again with the Trainer.
+ * Every graded spot answer also goes to the account (`outbox.ts`).
  */
 import { createElement, useEffect, useMemo } from "react";
 
@@ -19,8 +20,8 @@ import { enqueue, flushOutbox } from "./outbox";
 import {
   focusAreas,
   trainerResultRow,
+  localSessionStore,
   parseSettings,
-  settingsFields,
   trainerEn,
   trainerHr,
   type FocusState,
@@ -49,11 +50,24 @@ export function storedSettings(): TrainerSettings {
   }
 }
 
-function keepSettings(settings: TrainerSettings): void {
+const SESSION_KEY = "rail.trainer.lastSession";
+/** The sessions on this computer: one store for the window's life. */
+const sessions = localSessionStore();
+
+function lastSession(): string | null {
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settingsFields(settings)));
+    return window.localStorage.getItem(SESSION_KEY);
   } catch {
-    // A webview without storage: the settings live for the window's life.
+    return null;
+  }
+}
+
+function keepSession(id: string | null): void {
+  try {
+    if (id) window.localStorage.setItem(SESSION_KEY, id);
+    else window.localStorage.removeItem(SESSION_KEY);
+  } catch {
+    // A webview without storage: the list opens next time.
   }
 }
 
@@ -215,7 +229,9 @@ export function useAppTrainerHost(kind: GameKind | null): TrainerHost {
       },
       aside: createElement(HistoryPanel),
       focus: () => focus(kind),
-      onSettings: keepSettings,
+      sessions,
+      initialSession: lastSession(),
+      onSession: keepSession,
     }),
     [locale, kind],
   );
