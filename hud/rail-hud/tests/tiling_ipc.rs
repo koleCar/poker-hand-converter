@@ -10,8 +10,7 @@
 //!   do not validate change nothing;
 //! - `retile` places a table the user dragged (pinned) back in its slot;
 //! - `tiling_changed` with `enabled: false` stops every move;
-//! - `rng_changed` is kept, and drawn on no room without an `RngPermit`;
-//!   `panels {allowed: false}` attaches nothing while tiling goes on;
+//! - `panels {allowed: false}` attaches nothing while tiling goes on;
 //! - (T5) `tiling_status` carries the monitors (tiling on or off) and each
 //!   tiled table's outer rect, name, monitor and stack; `capture_layout`
 //!   is answered with a slot per place.
@@ -24,7 +23,7 @@ use rail_hud::engine::{Hud, Input, Settings};
 use rail_hud::platform::sim::{SimBackend, SimControl, SimFeed};
 use rail_hud::platform::{Insets, Monitor, MonitorId, Rect, WindowId};
 use rail_hud_ipc::protocol::{AppMessage, HudMessage, ScreenRect, TiledTable};
-use rail_hud_ipc::settings::{LayoutRef, RngSettings, SlotKind, TilingSettings};
+use rail_hud_ipc::settings::{LayoutRef, SlotKind, TilingSettings};
 
 fn rect(x: i32, y: i32, width: u32, height: u32) -> Rect {
     Rect {
@@ -286,52 +285,11 @@ fn the_apps_settings_switch_tiling_on_and_off() {
     assert_eq!(rig.control.client_of(4), Some(rect(120, 80, 640, 480)));
 }
 
-/// `rng_changed` is kept (valid only); `panels {allowed: false}` (the Free
-/// plan) attaches no table, and tiling goes on; panels allowed again
-/// attach at the next look.
+/// `panels {allowed: false}` (the Free plan) attaches no table, and tiling
+/// goes on; panels allowed again attach at the next look.
 #[test]
-fn rng_settings_are_kept_and_panels_can_be_off() {
+fn panels_can_be_off() {
     let mut rig = Rig::new();
-    assert!(rig.hud.rng_settings().is_none());
-    let rng = RngSettings {
-        enabled: true,
-        ..RngSettings::default()
-    };
-    rig.send(AppMessage::RngChanged {
-        settings: rng.clone(),
-    });
-    assert_eq!(rig.hud.rng_settings(), Some(&rng));
-    rig.send(AppMessage::RngChanged {
-        settings: RngSettings {
-            max: 0,
-            ..RngSettings::default()
-        },
-    });
-    assert_eq!(rig.hud.rng_settings(), Some(&rng), "a refused one is not");
-    // (T4 draws it) Only with the room's RngPermit: no shipped room gives
-    // one yet (PokerStars: unknown; CoinPoker: no), whatever the settings.
-    assert!(rig.hud.rng_for("pokerstars").is_none());
-    assert!(rig.hud.rng_for("coinpoker").is_none());
-    // (T5 follow-up) The user's switch per room on, and a new size and
-    // opacity, change nothing of that: the policy decides first.
-    let switched = RngSettings {
-        per_room: [
-            ("pokerstars".to_owned(), true),
-            ("coinpoker".to_owned(), true),
-        ]
-        .into_iter()
-        .collect(),
-        scale: 200,
-        opacity: 30,
-        ..rng.clone()
-    };
-    rig.send(AppMessage::RngChanged {
-        settings: switched.clone(),
-    });
-    assert_eq!(rig.hud.rng_settings(), Some(&switched));
-    assert!(rig.hud.rng_for("pokerstars").is_none());
-    assert!(rig.hud.rng_for("coinpoker").is_none());
-
     rig.send(AppMessage::Panels { allowed: false });
     assert!(!rig.hud.panels());
     rig.send(AppMessage::TilingChanged {

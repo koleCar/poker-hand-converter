@@ -1012,8 +1012,6 @@ export interface RoomPolicy {
   closed: boolean;
   /** (T0, T5) Table tiling's policy, separate from the HUD's. */
   tiling: ToolPolicy;
-  /** (T0, T5) The RNG's policy. */
-  rng: ToolPolicy;
   /** (T7) The Action Required slot's: `permitted` only with tiling allowed and a turn signal for this system. */
   actionSlot: ToolPolicy;
 }

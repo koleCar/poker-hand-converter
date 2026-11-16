@@ -100,6 +100,7 @@ pub mod quarantine;
 pub mod replayer;
 pub mod reports;
 pub mod review;
+pub mod rng;
 pub mod rng_box;
 pub mod settings;
 pub mod share;

@@ -7,13 +7,12 @@
 //! a room's policy stricter, never looser; one that does not validate is
 //! refused whole and the shipped copy stays). There is no override.
 //!
-//! (T0) Tiling and the RNG overlay are not a HUD, so `hud.allowed` does not
-//! decide them: each room's `tiling` and `rng` blocks do, under the same
-//! rules (a room, an explicit `true`, unknown is no, a remote copy only
-//! stricter). [`TilingPermit`] and [`RngPermit`] are the yes: (T3) the
-//! engine hands the tiler only the tables of rooms with a `TilingPermit`,
-//! and gives the RNG settings out only with the room's `RngPermit`
-//! (`Hud::rng_for`, which T4 draws with).
+//! (T0) Tiling is not a HUD, so `hud.allowed` does not decide it: each
+//! room's `tiling` block does, under the same rules (a room, an explicit
+//! `true`, unknown is no, a remote copy only stricter). [`TilingPermit`] is
+//! the yes: (T3) the engine hands the tiler only the tables of rooms with
+//! one. (The `rng` blocks decide nothing here since 2026-11-16: the RNG is
+//! the app's own box, never drawn over a table.)
 //!
 //! (T7) [`ActionPermit`] is the yes to the "Action Required" slot: a
 //! room's `actionSlot` block (allowed, with its client's own turn signal
@@ -61,21 +60,6 @@ pub struct TilingPermit {
 }
 
 impl TilingPermit {
-    /// The `sites.json` room.
-    pub fn site(&self) -> &str {
-        &self.site
-    }
-}
-
-/// (T0) The yes to draw the random number generator over one room's tables:
-/// only [`Compliance::rng_permit`] makes one, for a room whose `rng.allowed`
-/// is `true` - whatever its HUD policy says.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct RngPermit {
-    site: String,
-}
-
-impl RngPermit {
     /// The `sites.json` room.
     pub fn site(&self) -> &str {
         &self.site
@@ -132,7 +116,7 @@ impl Compliance {
     /// (T4) A whole `sites.json` of the caller's in place of the shipped
     /// one, checked as the shipped one is (`rail_config::load`). **Tests
     /// only**: the simulator posing as a room the shipped policy does not
-    /// allow yet (no shipped room has `rng.allowed: true`). The binary never
+    /// allow yet (an Action Required slot). The binary never
     /// calls it - no flag reaches it, and `--policy` and the app's remote
     /// copy stay stricter-only - and it is not even compiled into it: only
     /// unit tests and the `test-policy` feature (off by default; the
@@ -223,7 +207,8 @@ impl Compliance {
         })
     }
 
-    /// (T0) May Rail use `feature` (tiling, the RNG) on the room `site`?
+    /// (T0) May Rail use `feature` (tiling, the Action Required slot) on
+    /// the room `site`?
     /// Its own block decides, never `hud`: an explicit `true` on a room;
     /// `false` is prohibited, `null` unknown (= no).
     pub fn decide_feature(&self, site: &str, feature: Feature) -> Result<(), RefusalReason> {
@@ -245,15 +230,6 @@ impl Compliance {
     pub fn tiling_permit(&self, site: &str) -> Result<TilingPermit, RefusalReason> {
         self.decide_feature(site, Feature::Tiling)?;
         Ok(TilingPermit {
-            site: site.to_owned(),
-        })
-    }
-
-    /// (T0) [`Self::decide_feature`] for the RNG, and with a yes the room's
-    /// [`RngPermit`].
-    pub fn rng_permit(&self, site: &str) -> Result<RngPermit, RefusalReason> {
-        self.decide_feature(site, Feature::Rng)?;
-        Ok(RngPermit {
             site: site.to_owned(),
         })
     }
@@ -309,38 +285,9 @@ fn matcher_of(site: &Site) -> Option<TableMatcher> {
     })
 }
 
-/// (T4, tests) The shipped policy with `rng.allowed: true` for `sites` -
-/// what no shipped room has yet ([`Compliance::from_sites_json`]).
-#[cfg(test)]
-pub(crate) fn allowing_rng(sites: &[&str]) -> Compliance {
-    let mut config: serde_json::Value =
-        serde_json::from_str(rail_config::SHIPPED).expect("shipped json");
-    for entry in config["sites"].as_array_mut().expect("sites") {
-        if sites.contains(&entry["id"].as_str().unwrap_or_default()) {
-            entry["rng"]["allowed"] = serde_json::Value::Bool(true);
-        }
-    }
-    Compliance::from_sites_json(&config.to_string()).expect("a test policy")
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    /// (T4) A test policy may allow the RNG on a room; the shipped one
-    /// allows it nowhere, and the HUD's own policy stays as shipped.
-    #[test]
-    fn a_test_policy_allows_the_rng() {
-        let shipped = Compliance::shipped().expect("shipped");
-        let test = allowing_rng(&["pokerstars", "ggpoker"]);
-        for site in ["pokerstars", "ggpoker"] {
-            assert!(shipped.rng_permit(site).is_err(), "{site}");
-            assert_eq!(test.rng_permit(site).expect(site).site(), site);
-            assert_eq!(test.decide(site), shipped.decide(site), "{site}");
-        }
-        assert!(test.rng_permit("winamax").is_err());
-        assert!(Compliance::from_sites_json("{}").is_err());
-    }
 
     /// The signed list (R3.0): PokerStars, Winamax and ACR yes; a prohibited
     /// room, an unknown one, a network, a format and an id nobody knows no.
@@ -518,10 +465,13 @@ mod tests {
             Err(RefusalReason::Unknown)
         );
         assert!(compliance.tiling_permit("weplay").is_ok());
-        assert_eq!(compliance.rng_permit("weplay"), Err(RefusalReason::Unknown));
+        assert_eq!(
+            compliance.decide_feature("weplay", Feature::Rng),
+            Err(RefusalReason::Unknown)
+        );
         // PokerStars: tiling yes, the RNG `null`.
         assert_eq!(
-            compliance.rng_permit("pokerstars"),
+            compliance.decide_feature("pokerstars", Feature::Rng),
             Err(RefusalReason::Unknown)
         );
         assert_eq!(
@@ -529,7 +479,7 @@ mod tests {
             Err(RefusalReason::Prohibited)
         );
         assert_eq!(
-            compliance.rng_permit("unibet"),
+            compliance.decide_feature("unibet", Feature::Rng),
             Err(RefusalReason::Prohibited)
         );
         assert_eq!(
@@ -537,7 +487,7 @@ mod tests {
             Err(RefusalReason::NotARoom)
         );
         assert_eq!(
-            compliance.rng_permit("standard"),
+            compliance.decide_feature("standard", Feature::Rng),
             Err(RefusalReason::NotARoom)
         );
         assert_eq!(
@@ -645,12 +595,18 @@ mod tests {
                 compliance.tiling_permit(site).map(|p| p.site().to_owned()),
                 Ok(site.to_owned())
             );
-            assert_eq!(compliance.rng_permit(site), Err(RefusalReason::Prohibited));
+            assert_eq!(
+                compliance.decide_feature(site, Feature::Rng),
+                Err(RefusalReason::Prohibited)
+            );
         }
         // Nor the other way: ACR's HUD is allowed and its RNG unknown.
         assert_eq!(compliance.decide("acr"), Ok(()));
         assert!(compliance.tiling_permit("acr").is_ok());
-        assert_eq!(compliance.rng_permit("acr"), Err(RefusalReason::Unknown));
+        assert_eq!(
+            compliance.decide_feature("acr", Feature::Rng),
+            Err(RefusalReason::Unknown)
+        );
     }
 
     /// (T0) A remote copy can switch tiling or the RNG off and never on,
@@ -708,7 +664,7 @@ mod tests {
             Err(RefusalReason::Unknown)
         );
         assert_eq!(
-            compliance.rng_permit("pokerstars"),
+            compliance.decide_feature("pokerstars", Feature::Rng),
             Err(RefusalReason::Unknown)
         );
         assert_eq!(

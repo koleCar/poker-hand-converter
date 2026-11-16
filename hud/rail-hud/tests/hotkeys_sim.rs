@@ -2,8 +2,8 @@
 //! key to the windows, headless on the sim backend with the real placement
 //! worker: each hotkey goes through `rail_hud_ipc::hotkeys::dispatch` -
 //! what the app does when the system reports the key - to the messages the
-//! app sends (`tiling_changed` with the settings the hotkey made, `retile`,
-//! `roll_rng`), and those through the HUD's engine. Checked:
+//! app sends (`tiling_changed` with the settings the hotkey made,
+//! `retile`), and those through the HUD's engine. Checked:
 //!
 //! - "Re-tile" puts a table the user dragged back in its slot;
 //! - "Next layout" / "Previous layout" lay the tables out in the user's
@@ -11,9 +11,7 @@
 //! - "Tiling on / off" switches it, and off nothing moves;
 //! - a table of a room whose policy gives no `TilingPermit` (Winamax) is
 //!   never moved by any of them;
-//! - "Roll the RNG" rolls the table in front only where the room gives an
-//!   `RngPermit` - on the shipped policy (no room does) it does nothing at
-//!   all; on a test policy it rolls the table in front and no other.
+//! - "Roll the RNG" sends the HUD nothing (the app's RNG box takes it).
 
 use std::time::{Duration, Instant};
 
@@ -24,9 +22,7 @@ use rail_hud::platform::sim::{SimBackend, SimControl, SimFeed};
 use rail_hud::platform::{Monitor, MonitorId, Rect, WindowId};
 use rail_hud_ipc::hotkeys::{HotkeyAction, HotkeyEffect, dispatch};
 use rail_hud_ipc::protocol::{AppMessage, HudMessage};
-use rail_hud_ipc::settings::{
-    Layout, LayoutRef, RngSettings, Slot, SlotKind, SlotRect, TilingSettings,
-};
+use rail_hud_ipc::settings::{Layout, LayoutRef, Slot, SlotKind, SlotRect, TilingSettings};
 
 fn rect(x: i32, y: i32, width: u32, height: u32) -> Rect {
     Rect {
@@ -59,19 +55,6 @@ fn open(feed: &SimFeed, control: &SimControl, n: u32, site: &str) {
         x = 30 * n,
         y = 20 * n
     ));
-}
-
-/// The shipped policy with `rng.allowed: true` for `sites` (tests only:
-/// `Compliance::from_sites_json`, behind the `test-policy` feature).
-fn allowing_rng(sites: &[&str]) -> Compliance {
-    let mut config: serde_json::Value =
-        serde_json::from_str(rail_config::SHIPPED).expect("shipped json");
-    for entry in config["sites"].as_array_mut().expect("sites") {
-        if sites.contains(&entry["id"].as_str().unwrap_or_default()) {
-            entry["rng"]["allowed"] = serde_json::Value::Bool(true);
-        }
-    }
-    Compliance::from_sites_json(&config.to_string()).expect("a test policy")
 }
 
 struct Rig {
@@ -182,14 +165,6 @@ impl Rig {
             .placements()
             .iter()
             .all(|p| p.id != WindowId(n))
-    }
-
-    /// The RNG rolls table `n` has shown so far.
-    fn rolls(&self, n: u32) -> u64 {
-        self.control
-            .frame(n)
-            .and_then(|f| f.rng)
-            .map_or(0, |rng| rng.seq)
     }
 }
 
@@ -318,81 +293,12 @@ fn hotkeys_move_only_permitted_rooms_tables() {
     );
 }
 
-/// The RNG on the shipped policy: no room gives an `RngPermit`, so "Roll
-/// the RNG" does nothing - no overlay, no number - whatever is in front.
+/// "Roll the RNG" is the app's RNG box (2026-11-16): nothing for the HUD.
 #[test]
-fn roll_is_inert_without_an_rng_permit() {
+fn roll_is_not_the_huds() {
     let mut rig = Rig::new(Compliance::shipped().expect("shipped"));
-    open(&rig.feed, &rig.control, 1, "pokerstars");
-    open(&rig.feed, &rig.control, 2, "coinpoker");
-    rig.send(AppMessage::RngChanged {
-        settings: RngSettings {
-            enabled: true,
-            ..RngSettings::default()
-        },
-    });
-    rig.run_for(Duration::from_millis(150));
-    for n in [1, 2] {
-        rig.control.focus(Some(n));
-        assert_eq!(
-            rig.hotkey(HotkeyAction::RollRng),
-            HotkeyEffect::Message(AppMessage::RollRng)
-        );
-        rig.run_for(Duration::from_millis(50));
-        assert_eq!(rig.hud.rng_value(WindowId(u64::from(n))), None);
-        assert_eq!(rig.rolls(n), 0);
-        assert_eq!(rig.hud.roll_focused(), None);
-    }
-    assert!(rig.hud.rng_only_tables().is_empty());
-}
-
-/// On a test policy that allows the RNG on PokerStars: the table in front
-/// rolls, another does not; a Winamax table in front (no permit), the RNG
-/// switched off and nothing in front all do nothing.
-#[test]
-fn roll_rolls_the_table_in_front_where_permitted() {
-    let mut rig = Rig::new(allowing_rng(&["pokerstars"]));
-    open(&rig.feed, &rig.control, 1, "pokerstars");
-    open(&rig.feed, &rig.control, 2, "pokerstars");
-    open(&rig.feed, &rig.control, 9, "winamax");
-    let rng = RngSettings {
-        enabled: true,
-        ..RngSettings::default()
-    };
-    rig.send(AppMessage::RngChanged {
-        settings: rng.clone(),
-    });
-    rig.run_for(Duration::from_millis(200));
-    assert_eq!((rig.rolls(1), rig.rolls(2)), (1, 1), "a first roll each");
-
-    rig.control.focus(Some(2));
-    rig.hotkey(HotkeyAction::RollRng);
-    rig.run_for(Duration::from_millis(30));
-    assert_eq!((rig.rolls(1), rig.rolls(2)), (1, 2));
-
-    // Winamax in front: no permit, no roll anywhere.
-    rig.control.focus(Some(9));
-    rig.hotkey(HotkeyAction::RollRng);
-    rig.run_for(Duration::from_millis(30));
-    assert_eq!((rig.rolls(1), rig.rolls(2)), (1, 2));
-    assert_eq!(rig.hud.rng_value(WindowId(9)), None);
-
-    // Another program in front.
-    rig.control.focus(None);
-    assert_eq!(rig.hud.roll_focused(), None);
-
-    // The user's RNG off for PokerStars: nothing.
-    rig.control.focus(Some(1));
-    rig.send(AppMessage::RngChanged {
-        settings: RngSettings {
-            per_room: [("pokerstars".to_owned(), false)].into_iter().collect(),
-            ..rng
-        },
-    });
-    rig.run_for(Duration::from_millis(30));
-    let shown = rig.rolls(1);
-    rig.hotkey(HotkeyAction::RollRng);
-    rig.run_for(Duration::from_millis(30));
-    assert_eq!(rig.hud.roll_focused(), None);
-    assert!(rig.rolls(1) <= shown, "no new roll");
+    assert!(matches!(
+        rig.hotkey(HotkeyAction::RollRng),
+        HotkeyEffect::Nothing(_)
+    ));
 }

@@ -16,8 +16,8 @@
 //!   changes ([`refresh`]). The look is one row of the store
 //!   (`Reader::newest_hand_at`).
 //! - **The number** comes from the operating system's CSPRNG with
-//!   rejection sampling (`rail_hud::rng::roll`, T4's: no modulo bias,
-//!   nothing reproducible). The box rolls when it first shows and on every
+//!   rejection sampling (`crate::rng::roll`: no modulo bias, nothing
+//!   reproducible). The box rolls when it first shows and on every
 //!   click ([`rng_box_roll`]); the "Roll the RNG" hotkey rolls it too
 //!   ([`roll_from_hotkey`]) and tells the box ([`ROLLED_EVENT`]).
 //! - **The window** is always on top, frameless, without a taskbar entry
@@ -75,7 +75,7 @@ impl RngBoxState {
 
     /// A new number.
     pub fn roll(&self) -> Result<u32, String> {
-        let n = rail_hud::rng::roll(MIN, MAX).map_err(|error| error.to_string())?;
+        let n = crate::rng::roll(MIN, MAX).map_err(|error| error.to_string())?;
         self.number.store(n, Ordering::SeqCst);
         Ok(n)
     }

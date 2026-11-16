@@ -4,13 +4,13 @@
 //! each one does ([`dispatch`]) - the one place both the app (which owns
 //! the keys) and the tests that drive the HUD's engine read it from.
 //!
-//! **Window management only.** Every action moves table windows or rolls
-//! the RNG widget, through the permits that already decide them: the
-//! tiling actions reach the HUD as `tiling_changed` / `retile`, and the
-//! HUD's tiler holds only the tables of rooms whose policy gives a
-//! `TilingPermit`; [`HotkeyAction::RollRng`] reaches it as `roll_rng`,
-//! which rolls only over a table whose room gives an `RngPermit` (none
-//! today, so it is inert). Nothing here clicks, types or acts inside a
+//! **Window management only.** The tiling actions move table windows
+//! through the permits that already decide them: they reach the HUD as
+//! `tiling_changed` / `retile`, and the HUD's tiler holds only the tables
+//! of rooms whose policy gives a `TilingPermit`. [`HotkeyAction::RollRng`]
+//! never reaches the HUD: it shows a new number in the app's own RNG box
+//! (2026-11-16, `app/src-tauri/src/rng_box.rs`), which the app handles
+//! before [`dispatch`]. Nothing here clicks, types or acts inside a
 //! table - no fold / call / bet keys: the rooms forbid them, and they are
 //! out of scope.
 //!
@@ -54,7 +54,7 @@ pub enum HotkeyAction {
     PreviousLayout,
     /// Tiling on or off.
     ToggleTiling,
-    /// Roll the RNG on the table in front, where the room allows the RNG.
+    /// A new number in the app's RNG box.
     RollRng,
     /// An action of a newer build: kept in the list (its keys still count
     /// as taken), never run.
@@ -218,7 +218,7 @@ pub enum HotkeyEffect {
     /// New tiling settings: the app stores them, sends `tiling_changed`
     /// and the window shows them (another layout, tiling on or off).
     Settings(TilingSettings),
-    /// A message for the HUD (`retile`, `roll_rng`).
+    /// A message for the HUD (`retile`).
     Message(AppMessage),
     /// Nothing to do, and why (for the log).
     Nothing(&'static str),
@@ -262,7 +262,7 @@ pub fn dispatch(action: HotkeyAction, tiling: &TilingSettings) -> HotkeyEffect {
         HotkeyAction::Retile | HotkeyAction::NextLayout | HotkeyAction::PreviousLayout => {
             HotkeyEffect::Nothing("tiling is off")
         }
-        HotkeyAction::RollRng => HotkeyEffect::Message(AppMessage::RollRng),
+        HotkeyAction::RollRng => HotkeyEffect::Nothing("the RNG box is the app's"),
         HotkeyAction::Unknown => HotkeyEffect::Nothing("an action of a newer Rail"),
     }
 }
@@ -452,10 +452,10 @@ mod tests {
             dispatch(HotkeyAction::Retile, &on),
             HotkeyEffect::Message(AppMessage::Retile)
         );
-        assert_eq!(
+        assert!(matches!(
             dispatch(HotkeyAction::RollRng, &on),
-            HotkeyEffect::Message(AppMessage::RollRng)
-        );
+            HotkeyEffect::Nothing(_)
+        ));
         // Tiling off: only the switch acts.
         let off = TilingSettings {
             enabled: false,

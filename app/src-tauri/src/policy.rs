@@ -173,15 +173,13 @@ pub struct RoomPolicyDto {
     /// (T0, T5) Table tiling's policy, separate from the HUD's (the Tables
     /// screen's rooms).
     pub tiling: ToolPolicyDto,
-    /// (T0, T5) The RNG's policy.
-    pub rng: ToolPolicyDto,
     /// (T7) The Action Required slot's policy: `permitted` only with
     /// tiling allowed too and a turn signal for this system (what the HUD
     /// acts on, `rail_hud::compliance::Compliance::action_permit`).
     pub action_slot: ToolPolicyDto,
 }
 
-/// (T5) A room's policy on tiling or the RNG, decided here so the window
+/// (T5) A room's policy on tiling or the Action Required slot, decided here so the window
 /// never repeats the rules: `rail_config::Site::permits` and
 /// `Permission::needs_approval`.
 #[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
@@ -251,7 +249,6 @@ fn rooms(config: &Config, shipped: Option<&Config>) -> Vec<RoomPolicyDto> {
                 }),
                 closed: site.operating == Some(false),
                 tiling: ToolPolicyDto::of(site, Feature::Tiling),
-                rng: ToolPolicyDto::of(site, Feature::Rng),
                 action_slot: ToolPolicyDto::of(site, Feature::ActionSlot),
             }
         })
@@ -403,14 +400,13 @@ mod tests {
             dto.notes
         );
         assert_eq!(room("ipoker").kind, SiteKind::Network);
-        // (T5) Tiling and the RNG, apart from the HUD: CoinPoker refuses a
-        // HUD and allows tiling; Winamax allows a HUD and needs its
-        // approval for tiling and the RNG.
+        // (T5) Tiling, apart from the HUD: CoinPoker refuses a HUD and
+        // allows tiling; Winamax allows a HUD and needs its approval for
+        // tiling.
         let coin = room("coinpoker");
-        assert!(!coin.permitted && coin.tiling.permitted && !coin.rng.permitted);
+        assert!(!coin.permitted && coin.tiling.permitted);
         let winamax = room("winamax");
         assert!(!winamax.tiling.permitted && winamax.tiling.needs_approval);
-        assert!(winamax.rng.needs_approval);
         assert!(!room("ggpoker").tiling.needs_approval);
         // (T7) The Action Required slot: no room yet.
         assert!(dto.rooms.iter().all(|r| !r.action_slot.permitted));

@@ -29,8 +29,6 @@
 //! - [`tiling`] and [`placer`] (T2): table tiling - where each table goes
 //!   (platform-free) and the thread that moves them when the mouse is
 //!   quiet; off unless switched on (`--tiling auto` for development).
-//! - [`rng`] (T4): the RNG overlay's rolls (the system's CSPRNG, rejection
-//!   sampling); the engine rolls per table and [`scene`] draws the widget.
 //! - [`tilecheck`] and [`signals`] (T6): the owner's tools for the real
 //!   clients - `--tile-check`, one placement of a program's tables with
 //!   the tiling engine, refused for any room whose tiling policy is not
@@ -53,7 +51,6 @@ pub mod list;
 pub mod panel;
 pub mod placer;
 pub mod platform;
-pub mod rng;
 pub mod scene;
 pub mod seats;
 pub mod signals;
@@ -116,9 +113,9 @@ the IPC, T3):
                         grid (never a real client's: no policy decides
                         rooms yet)
 
-The plan (T3): --panels off   attach no panel - tiling and the RNG only (the
-                              Free plan); the app's `panels` message turns
-                              them on
+The plan (T3): --panels off   attach no panel - tiling only (the Free
+                              plan); the app's `panels` message turns them
+                              on
 
 Windows (macOS: the titles need the Accessibility permission):
   --platform native     this system's backend (default)
@@ -167,7 +164,7 @@ pub struct Args {
     /// (development; [`engine::TilingConfig::development`]).
     pub tiling: bool,
     /// (T3) `--panels off`: no panel is attached (the plan does not include
-    /// the HUD); tiling and the RNG still run.
+    /// the HUD); tiling still runs.
     pub panels_off: bool,
 }
 

@@ -50,6 +50,9 @@ rail-hud-ipc = { path = "../../hud/rail-hud-ipc" }
 rail-hud = { path = "../../hud/rail-hud" }
 # (R3.9) A new design's random id. The version rail-sync locks.
 ring = "=0.17.14"
+# The RNG box's numbers (`rng.rs`): the operating system's CSPRNG, the
+# version the workspace already locks (rail-hud-ipc's tokens).
+getrandom = "0.3.4"
 tauri = { version = "=2.11.5", features = ["tray-icon"] }
 tauri-plugin-log = "=2.9.1"
 # The first-run screen's "Add a folder manually..." folder picker (R1.4,

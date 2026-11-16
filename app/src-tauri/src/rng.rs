@@ -1,23 +1,22 @@
-//! (T4, docs/research/TABLE-TILING.md §4.4) The RNG overlay's number: one
-//! roll per table, from the operating system's CSPRNG (`getrandom`: the
-//! system's own generator - `getrandom(2)`, `arc4random_buf`,
-//! `ProcessPrng`), mapped onto the user's range (1 - 100 by default, both
-//! ends included) by **rejection sampling**: a 32-bit word is taken only
-//! below the largest multiple of the range's size that fits in 2^32, so
-//! every number has exactly as many words as any other and there is no
-//! modulo bias. Never the analysis's seeded `Mulberry32`: nothing here is
-//! reproducible, and each table rolls independently (one draw per roll).
+//! The RNG box's numbers (`crate::rng_box`; T4 wrote it for the HUD's
+//! per-table overlay, and it moved here with the box on 2026-11-16): from
+//! the operating system's CSPRNG (`getrandom`: the system's own generator -
+//! `getrandom(2)`, `arc4random_buf`, `ProcessPrng`), mapped onto a range
+//! (1 - 100, both ends included) by **rejection sampling**: a 32-bit word
+//! is taken only below the largest multiple of the range's size that fits
+//! in 2^32, so every number has exactly as many words as any other and
+//! there is no modulo bias. Never the analysis's seeded `Mulberry32`:
+//! nothing here is reproducible.
 //!
 //! The rejection logic is [`pick`], generic over the word's width so the
-//! tests can prove it unbiased exhaustively on 8- and 12-bit words; the
-//! engine calls [`roll`].
+//! tests can prove it unbiased exhaustively on 8- and 12-bit words; the box
+//! calls [`roll`].
 
 #![forbid(unsafe_code)]
 
 /// Words drawn at most for one roll before giving up. A word is refused
 /// with a chance below `size / 2^32` (under 3 in a million for a range of
-/// 10 001, the largest the settings allow), so this is never reached
-/// unless the source is broken.
+/// 10 001), so this is never reached unless the source is broken.
 pub const MAX_DRAWS: u32 = 64;
 
 /// Why a roll failed.
