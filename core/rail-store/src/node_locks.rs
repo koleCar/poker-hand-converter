@@ -228,7 +228,20 @@ fn check_row(row: &NodeLockRow) -> Result<()> {
 /// solve was cut off when the app last exited. Returns how many. Run by
 /// [`crate::Store::open`] on the write connection, before the writer
 /// starts.
+///
+/// It writes only when a row is `solving`. Almost every open finds none, and
+/// an open that changes nothing must not take the write lock: two stores
+/// opened on one file at once (the report tests) were refused on Windows
+/// with "attempt to write a readonly database".
 pub fn cancel_solving(conn: &Connection) -> Result<u64> {
+    let solving: bool = conn.query_row(
+        "SELECT EXISTS (SELECT 1 FROM node_locks WHERE status = 'solving')",
+        [],
+        |row| row.get(0),
+    )?;
+    if !solving {
+        return Ok(0);
+    }
     let changed = conn.execute(
         "UPDATE node_locks SET status = 'cancelled' WHERE status = 'solving'",
         [],
