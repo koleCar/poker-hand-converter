@@ -28,9 +28,12 @@ import { HandList } from "./HandList";
 import { KindToggle } from "./KindToggle";
 import toggleStyles from "./KindToggle.module.css";
 import styles from "./Hands.module.css";
-import type { HandFacets, HandFilter, HandRow, HandsSource } from "./model";
+import type { HandFacets, HandFilter, HandRow, HandSort, HandsSource } from "./model";
 import { useHandList, type HandList as HandListState } from "./useHandList";
 import { useHandSelection } from "./useHandSelection";
+
+/** The orders whose values the bb/$ toggle changes. */
+const MONEY_SORTS: ReadonlySet<HandSort> = new Set<HandSort>(["pot", "potAsc", "won", "lost"]);
 
 export interface HandsScreenProps {
   source: HandsSource;
@@ -117,7 +120,15 @@ export function HandsScreen({
   const [facetsSeen, setFacetsSeen] = useState<HandFacets | null>(null);
   const filter = useMemo(() => pinKind(chosen, facetsSeen).filter, [chosen, facetsSeen]);
   // A date preset is resolved when the filter is set ("last 7 days" from now).
-  const query = useMemo(() => toQuery(filter), [filter]);
+  // The pot and the result sort in the unit the list shows (`$` sorts by
+  // money, not by big blinds); other orders do not refetch on the toggle.
+  const sortInMoney =
+    unit === "money" && kindOf(filter.formats) !== "tournament" && MONEY_SORTS.has(filter.sort);
+  const query = useMemo(() => {
+    const built = toQuery(filter);
+    if (sortInMoney) built.sortUnit = "money";
+    return built;
+  }, [filter, sortInMoney]);
   const list = useHandList(source, query, facetsSeen !== null);
   if (list.facets !== null && list.facets !== facetsSeen) {
     setFacetsSeen(list.facets);

@@ -117,6 +117,8 @@ export interface HandFilter {
   anonymizations?: string[];
   /** `HandsSource.features.sorts`; newest first when absent. */
   sort?: HandSort;
+  /** The pot's and the result's orders in each hand's money, as the list shows them (`$`); big blinds when absent. */
+  sortUnit?: "bb" | "money";
 }
 
 /**

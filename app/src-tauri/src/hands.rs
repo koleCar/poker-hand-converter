@@ -99,6 +99,8 @@ pub struct FilterDto {
     showdown: Option<bool>,
     /// The order (`hand_list::SORTS`); absent, the newest first.
     sort: Option<String>,
+    /// `"money"`: the pot's and the result's orders in money (`hand_list::MONEY_SORTS`).
+    sort_unit: Option<String>,
     /// The filter builder's groups (`hand_list::HandFilter`'s, V1).
     acts: Vec<Vec<String>>,
     flop_suits: Vec<String>,
@@ -195,6 +197,7 @@ impl From<FilterDto> for HandFilter {
             player_name: dto.player_name.filter(|name| !name.trim().is_empty()),
             showdown: dto.showdown,
             sort: dto.sort.filter(|sort| sort != "newest"),
+            sort_in_money: dto.sort_unit.as_deref() == Some("money"),
             acts: dto.acts,
             flop_suits: dto.flop_suits,
             flop_pairing: dto.flop_pairing,
