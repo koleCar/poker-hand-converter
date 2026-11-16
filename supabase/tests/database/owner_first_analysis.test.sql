@@ -157,6 +157,13 @@ analyze public.decision_analysis;
 create temp table undo (fn text primary key, back text[]);
 insert into undo values
   ('analysis_scope', array[
+    -- 20271116110000 (the Hands filter's hand list):
+    $n$  v_ids       uuid[] := public.analysis_hand_ids(p_filters);
+$n$,
+    $o$$o$,
+    $n$    and (v_ids is null or a.hand_id = any (v_ids))
+$n$,
+    $o$$o$,
     -- 20271104090000 (game kinds):
     $n$  v_formats   text[] := public.filter_formats(p_filters);
 $n$,
