@@ -769,6 +769,28 @@ pub(crate) fn allows(values: &[String], value: &str) -> bool {
 }
 
 impl HandFilter {
+    /// Whether a group is set that a report cannot sum from the rollups
+    /// (anything but the segment's dimensions, the hero's position and the
+    /// dates; the order is no filter): the report then reads the hands one
+    /// by one ([`crate::ReportFilter::hands`]).
+    pub fn beyond_rollups(&self) -> bool {
+        let rest = Self {
+            sites: Vec::new(),
+            formats: Vec::new(),
+            variants: Vec::new(),
+            limits: Vec::new(),
+            sizes: Vec::new(),
+            stakes: Vec::new(),
+            positions: Vec::new(),
+            from: None,
+            to: None,
+            sort: None,
+            utc_offset_minutes: 0,
+            ..self.clone()
+        };
+        rest != Self::default()
+    }
+
     fn segment_filtered(&self) -> bool {
         !(self.sites.is_empty()
             && self.formats.is_empty()
@@ -945,6 +967,34 @@ fn clauses(filter: &HandFilter, segments: &HashMap<i64, SegmentDims>, w: &mut Wh
     }
     search_clauses(filter, w);
     Some(())
+}
+
+/// The hands `filter` matches, as `column IN (subquery of their keys)` for
+/// a report's passes over other tables ([`crate::ReportFilter::hands`]).
+/// The subquery is the list's own (`source` and every clause), so a report
+/// covers exactly the hands the Hands screen lists. Its parameters go on
+/// `params`, numbered after those already there. `" AND 0"` when nothing
+/// can match.
+pub(crate) fn hand_keys_in(
+    conn: &Connection,
+    filter: &HandFilter,
+    column: &str,
+    params: &mut Vec<Value>,
+) -> Result<String> {
+    let segments = segments(conn)?;
+    let mut w = Where {
+        clauses: Vec::new(),
+        params: std::mem::take(params),
+    };
+    let from = source(filter, &mut w);
+    let matches = clauses(filter, &segments, &mut w).is_some();
+    let sql = w.sql();
+    *params = w.params;
+    Ok(if matches {
+        format!(" AND {column} IN (SELECT l.hand_key {from} WHERE {sql})")
+    } else {
+        " AND 0".to_owned()
+    })
 }
 
 /// The searches: the hero's hand (classes or cards), the board (cards or

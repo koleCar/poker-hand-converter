@@ -295,6 +295,12 @@ export interface HandsFeatures {
    * own; the names group is counted.
    */
   more: MoreFilter[];
+  /**
+   * Sums by the rollups only - the dates, the room, the stake, the hero's
+   * position and the game - and cannot read the hands one by one: the web's
+   * report summaries, for now. Every other group is then not offered.
+   */
+  rollupsOnly?: boolean;
 }
 
 /** The text a surface reports for a failed call. */

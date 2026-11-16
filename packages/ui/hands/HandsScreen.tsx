@@ -19,7 +19,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type Ref } from "react";
 import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
-import { FilterBar, handGroups } from "./FilterBar";
+import { FilterBar } from "./FilterBar";
 import { activeGroups, toQuery, type FilterState } from "./filter";
 import { kindOf, pinKind } from "./gameKind";
 import { HandSessionsContext } from "./sessions";
@@ -137,7 +137,6 @@ export function HandsScreen({
     if (listRef) listRef.current = list;
   });
   const selection = useHandSelection(list.rows);
-  const groups = useMemo(() => handGroups(source.features), [source.features]);
   const loadFacets = useCallback((draft: HandFilter) => source.facets(draft), [source]);
 
   const { reload } = list;
@@ -240,7 +239,7 @@ export function HandsScreen({
           filter={filter}
           facets={facets}
           onChange={onFilterChange}
-          groups={groups}
+          features={source.features}
           saved={source.savedFilters}
           sorts={source.features.sorts}
           loadFacets={loadFacets}

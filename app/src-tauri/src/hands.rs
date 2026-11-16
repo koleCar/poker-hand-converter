@@ -245,25 +245,15 @@ impl From<FilterDto> for HandFilter {
     }
 }
 
-/// The report's filter (R2.7b): the groups a report sums by (the
-/// segment's dimensions, the hero's position, the dates); the hand-level
-/// groups (pot, result, stack, all-in, notes, tags) are the list's only.
+/// The report's filter: the Hands screen's whole filter (2026-11-16, the
+/// owner: one filter across the app). The groups the rollups sum by are
+/// read from them; any other group makes the report read the list's hands
+/// one by one (`ReportFilter::of_hands`).
 impl From<FilterDto> for rail_store::ReportFilter {
     fn from(dto: FilterDto) -> Self {
-        Self {
-            sites: dto.sites,
-            formats: dto.formats,
-            variants: dto.variants,
-            limits: dto.limits,
-            sizes: dto.sizes,
-            stakes: dto.stakes,
-            positions: dto.positions,
-            from: dto.from.filter(|from| !from.is_empty()),
-            to: dto.to.filter(|to| !to.is_empty()),
-            // The app's graphs (Live, Reports) are the money: a bomb pot's
-            // result is drawn with the rest. The statistics leave it out.
-            bomb_pots: true,
-        }
+        // The app's graphs (Live, Reports) are the money: a bomb pot's
+        // result is drawn with the rest. The statistics leave it out.
+        Self::of_hands(HandFilter::from(dto), true)
     }
 }
 

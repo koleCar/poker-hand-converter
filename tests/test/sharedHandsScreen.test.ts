@@ -4,7 +4,7 @@
  *
  * - The filter model: the web library's searches and order on top of the
  *   app's groups, as a query and as a saved filter.
- * - The row of chips each source gets (`handGroups`): tags and notes only
+ * - The row of chips each source gets (`filterGroups`): tags and notes only
  *   where kept, the searches and the order only where the source has them.
  * - The web's source (`web/src/lib/db/handsSource.ts`) against a faked
  *   `rpc`: what it asks `library_page` / `library_facets` for, and the rows
@@ -20,7 +20,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { FilterBar, HAND_GROUPS, REPORT_GROUPS, handGroups } from "@rail/ui/hands/FilterBar";
+import { FilterBar, HAND_GROUPS, ROLLUP_GROUPS, filterGroups } from "@rail/ui/hands/FilterBar";
 import { BUILDER_GROUPS, PANES, QUICK_FILTERS, clearAll, clearGroup, pctSummary, potSummary, quickFor, selectedOf, shownSet, withValues } from "@rail/ui/hands/groups";
 import { EMPTY_FILTER, activeGroups, fromSaved, parseRange, potParts, potText, toQuery, toSaved, type FilterState } from "@rail/ui/hands/filter";
 import { HandList } from "@rail/ui/hands/HandList";
@@ -175,7 +175,7 @@ describe("the filter: the web's searches and order", () => {
 
 describe("the groups each source gets", () => {
   it("the desktop's: tags and notes, no searches, no order, none of the library's other filters", () => {
-    const groups = handGroups({ annotations: true, search: false, sorts: [], more: [] });
+    const groups = filterGroups({ annotations: true, search: false, sorts: [], more: [] });
     expect(groups).toEqual(HAND_GROUPS);
     expect(groups).toContain("tags");
     for (const group of ["heroHand", "board", "playerName", "sort", "showdownPositions", "anonymization"]) {
@@ -184,7 +184,7 @@ describe("the groups each source gets", () => {
   });
 
   it("the web's: the searches, showdown and the other filters; no order, no winners' positions, no tags or notes", () => {
-    const groups = handGroups({
+    const groups = filterGroups({
       annotations: false,
       search: true,
       sorts: ["oldest", "pot"],
@@ -208,19 +208,21 @@ describe("the groups each source gets", () => {
   });
 
   it("a source with only the pot gets the pot, not the card searches", () => {
-    const groups = handGroups({ annotations: false, search: false, sorts: [], more: ["minPot"] });
+    const groups = filterGroups({ annotations: false, search: false, sorts: [], more: ["minPot"] });
     expect(groups).toContain("minPot");
     expect(groups).not.toContain("heroHand");
   });
 
-  it("Reports keeps its own groups, and of the quick filters only the date's", () => {
+  it("a surface that sums by the rollups only gets their groups, and of the quick filters only the date's", () => {
     // No Game group: Cash | Tournaments is the switch over the screen (2026-11-05).
-    expect(REPORT_GROUPS).toEqual(["date", "site", "stakes", "position", "variant", "limit", "size"]);
-    expect(quickFor(REPORT_GROUPS).map((quick) => quick.id)).toEqual(["week"]);
+    const rollups = filterGroups({ annotations: true, search: true, sorts: [], more: [], builder: true, rollupsOnly: true });
+    expect(rollups).toEqual(["date", "site", "stakes", "position", "variant", "limit", "size"]);
+    expect(rollups).toEqual(ROLLUP_GROUPS);
+    expect(quickFor(rollups).map((quick) => quick.id)).toEqual(["week"]);
   });
 
   it("every group lives in one pane of the builder", () => {
-    const all = handGroups({
+    const all = filterGroups({
       annotations: true,
       search: true,
       sorts: [],
@@ -481,7 +483,7 @@ describe("the filter row, rendered", () => {
         filter: { ...EMPTY_FILTER, positions: ["BTN"], heroCards: "AKs", sort: "pot" },
         facets,
         onChange: () => undefined,
-        groups: handGroups({ annotations: false, search: true, sorts: ["pot"], more: [] }),
+        features: { annotations: false, search: true, sorts: ["pot"], more: [] },
         sorts: ["pot"],
       }),
     );
@@ -508,7 +510,7 @@ describe("the filter row, rendered", () => {
         filter: { ...EMPTY_FILTER, heroRange: range },
         facets,
         onChange: () => undefined,
-        groups: handGroups({ annotations: false, search: true, sorts: [], more: [] }),
+        features: { annotations: false, search: true, sorts: [], more: [] },
       }),
     );
     expect(html).toContain("Hero hand: Range · 1.7%. Change");
@@ -563,7 +565,7 @@ describe("the filter row, rendered", () => {
           },
           facets: withNames,
           onChange: () => undefined,
-          groups: handGroups({ annotations: false, search: true, sorts: [], more: [...MORE] }),
+          features: { annotations: false, search: true, sorts: [], more: [...MORE] },
         }),
       );
       expect(html).toContain(`${words.table}: Zeta. ${words.change}`);
@@ -582,7 +584,7 @@ describe("the filter row, rendered", () => {
         filter: EMPTY_FILTER,
         facets,
         onChange: () => undefined,
-        groups: handGroups({ annotations: true, search: false, sorts: [], more: [] }),
+        features: { annotations: true, search: false, sorts: [], more: [] },
       }),
     );
     for (const word of ["Showdown positions", "Winning positions", "Names", "Hero hand", "Went to showdown"]) {
@@ -603,6 +605,7 @@ describe("the filter row, rendered", () => {
         filter: EMPTY_FILTER,
         facets,
         onChange: () => undefined,
+        features: { annotations: true, search: false, sorts: [], more: [] },
         saved: { list: async () => [], save: async () => [], remove: async () => [] },
       }),
     );
@@ -625,7 +628,7 @@ describe("the filter row, rendered", () => {
           stakes: [{ value: "USD:200", count: 2, currency: "USD", currencySymbol: "$", minorUnits: 100, smallBlind: 100, bigBlind: 200 }],
         },
         onChange: () => undefined,
-        groups: REPORT_GROUPS,
+        features: { annotations: false, search: false, sorts: [], more: [], rollupsOnly: true },
         screen: "reports",
       }),
     );
@@ -713,7 +716,7 @@ describe("the filter builder's groups (V1, 2026-11-05)", () => {
     // Offered in the builder's Result pane, where the store reads it; not on the web.
     expect(BUILDER_GROUPS).toContain("potSize");
     expect(PANES.flatMap((s) => s.panes).find((pane) => pane.id === "result")?.groups).toContain("potSize");
-    expect(handGroups({ annotations: false, search: true, sorts: ["newest"], more: ["minPot"] })).not.toContain("potSize");
+    expect(filterGroups({ annotations: false, search: true, sorts: ["newest"], more: ["minPot"] })).not.toContain("potSize");
   });
 
   it("asks for the PHF facts (sizes, strength, villains, tournament) as the store names them", () => {
@@ -789,9 +792,9 @@ describe("the filter builder's groups (V1, 2026-11-05)", () => {
   });
 
   it("only a source that reads them gets them, each in one pane", () => {
-    const desktop = handGroups({ annotations: true, search: true, sorts: [], more: [], builder: true });
+    const desktop = filterGroups({ annotations: true, search: true, sorts: [], more: [], builder: true });
     for (const group of BUILDER_GROUPS) expect(desktop).toContain(group);
-    const web = handGroups({ annotations: false, search: true, sorts: [], more: [] });
+    const web = filterGroups({ annotations: false, search: true, sorts: [], more: [] });
     for (const group of BUILDER_GROUPS) expect(web).not.toContain(group);
     const inPanes = PANES.flatMap((section) => section.panes.flatMap((pane) => pane.groups));
     for (const group of desktop) expect(inPanes.filter((g) => g === group).length, group).toBe(1);

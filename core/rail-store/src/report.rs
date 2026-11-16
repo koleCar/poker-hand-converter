@@ -46,7 +46,7 @@ use rusqlite::types::Value;
 use rusqlite::{Connection, OptionalExtension, params, params_from_iter};
 
 use crate::error::{Error, Result};
-use crate::hand_list::{SegmentDims, allows, segments};
+use crate::hand_list::{HandFilter, SegmentDims, allows, segments};
 use crate::read::Reader;
 use crate::stats::{
     Exclusions, KIND_BOMB_POT, KIND_CASHOUT, KIND_STRADDLED, Totals, current_gen,
@@ -77,9 +77,11 @@ pub const STACK_BANDS: [(&str, i64, Option<i64>); 7] = [
 
 /// Which of the hero's hands a report covers: every group is "any" when
 /// empty. The segment's dimensions, the hero's position and a date range -
-/// what [`Reader::hero_totals`] can sum (the Hands screen's other filters
-/// are columns of single hands).
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+/// what [`Reader::hero_totals`] can sum from the rollups - and, when the
+/// Hands screen's filter sets any other group, that whole filter
+/// (`hands`): the report then covers exactly the hands the list shows,
+/// read one by one (2026-11-16, the owner: one filter across the app).
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct ReportFilter {
     pub sites: Vec<String>,
     pub formats: Vec<String>,
@@ -98,9 +100,44 @@ pub struct ReportFilter {
     /// The statistics never count them (`aggregate`'s default), whatever
     /// this says.
     pub bomb_pots: bool,
+    /// The Hands screen's whole filter, when it sets a group beyond the
+    /// ones above ([`HandFilter::beyond_rollups`]); its own copies of those
+    /// groups agree with them ([`ReportFilter::of_hands`]).
+    pub hands: Option<HandFilter>,
 }
 
 impl ReportFilter {
+    /// The report of the hands `filter` lists: the rollups' groups, and the
+    /// whole filter when it sets any other.
+    pub fn of_hands(filter: HandFilter, bomb_pots: bool) -> Self {
+        Self {
+            sites: filter.sites.clone(),
+            formats: filter.formats.clone(),
+            variants: filter.variants.clone(),
+            limits: filter.limits.clone(),
+            sizes: filter.sizes.clone(),
+            stakes: filter.stakes.clone(),
+            positions: filter.positions.clone(),
+            from: filter.from.clone(),
+            to: filter.to.clone(),
+            bomb_pots,
+            hands: filter.beyond_rollups().then_some(filter),
+        }
+    }
+
+    /// `column IN (the hands of `hands`)`, or nothing without it.
+    fn hand_keys(
+        &self,
+        conn: &Connection,
+        column: &str,
+        params: &mut Vec<Value>,
+    ) -> Result<String> {
+        match &self.hands {
+            Some(hands) => crate::hand_list::hand_keys_in(conn, hands, column, params),
+            None => Ok(String::new()),
+        }
+    }
+
     fn segment_allows(&self, dims: &SegmentDims) -> bool {
         allows(&self.sites, &dims.site)
             && allows(&self.formats, &dims.format)
@@ -452,22 +489,23 @@ fn graph_pass(conn: &Connection, filter: &ReportFilter, points: u32) -> Result<G
     let all = segments(conn)?;
     let ids = filter.segment_ids(&all);
     let mut params = Vec::new();
+    let mut filters = clauses(
+        filter,
+        ids.as_deref(),
+        (
+            "l.played_at",
+            "l.segment_id",
+            "coalesce(l.hero_position, '')",
+        ),
+        &mut params,
+    );
+    filters += &filter.hand_keys(conn, "l.hand_key", &mut params)?;
     let sql = format!(
         "SELECT l.played_at, l.hand_key, l.segment_id, l.hero_net, l.hero_net_bb_milli, l.kind,
                 l.hero_wtsd, l.all_in, l.currency, l.currency_symbol, l.minor_units
          FROM hand_list l
-         WHERE l.hero_net IS NOT NULL{}
-         ORDER BY l.played_at, l.hand_key",
-        clauses(
-            filter,
-            ids.as_deref(),
-            (
-                "l.played_at",
-                "l.segment_id",
-                "coalesce(l.hero_position, '')"
-            ),
-            &mut params,
-        )
+         WHERE l.hero_net IS NOT NULL{filters}
+         ORDER BY l.played_at, l.hand_key"
     );
     let mut text = String::new();
     let mut dated: Vec<GraphHand> = Vec::new();
@@ -777,18 +815,19 @@ fn breakdown_pass(conns: &mut [&mut Connection], filter: &ReportFilter) -> Resul
             Value::Integer(0),
             Value::Integer(0),
         ];
+        let mut filters = clauses(
+            filter,
+            ids.as_deref(),
+            ("d.played_at", "d.segment_id", "coalesce(s.position, '')"),
+            &mut params,
+        );
+        filters += &filter.hand_keys(conn, "d.hand_key", &mut params)?;
         let sql = format!(
             "SELECT d.is_bomb_pot, d.has_straddle, d.has_cashout, d.pot_type, d.player_count,
                     d.street_reached, s.hand_class, s.starting_stack_bb_tenths, s.totals
              FROM hand_stats d NOT INDEXED
              CROSS JOIN seat_stats s ON s.hand_id = d.id AND s.is_hero = 1
-             WHERE d.gen = ?1 AND d.id >= ?2 AND d.id <= ?3{}",
-            clauses(
-                filter,
-                ids.as_deref(),
-                ("d.played_at", "d.segment_id", "coalesce(s.position, '')"),
-                &mut params,
-            )
+             WHERE d.gen = ?1 AND d.id >= ?2 AND d.id <= ?3{filters}"
         );
         let bounds: (Option<i64>, Option<i64>) =
             conn.query_row("SELECT min(id), max(id) FROM hand_stats", [], |row| {
@@ -926,6 +965,7 @@ impl Reader {
                 from: filter.from.clone(),
                 to: filter.to.clone(),
                 exclusions: Exclusions::default(),
+                hands: filter.hands.clone(),
             })
         })
     }

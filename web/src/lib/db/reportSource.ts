@@ -260,5 +260,7 @@ export function webReportSource(standardFormat: string): ReportSource {
       };
     },
     graphPoints: WEB_GRAPH_POINTS,
+    // The server's summaries sum by the rollups' groups only (for now).
+    filters: { annotations: false, search: false, sorts: [], more: [], rollupsOnly: true },
   };
 }

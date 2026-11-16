@@ -575,6 +575,8 @@ describe("the screen's first render on each source", () => {
         breakdowns: () => new Promise(() => undefined),
         facets: () => new Promise(() => undefined),
         graphPoints: 1200,
+        // The app's Hands features (`app/src/lib/handsSource.ts`): the store reads a report over any of them.
+        filters: { annotations: true, search: true, sorts: [], more: [], builder: true },
         savedFilters: { list: async () => [], save: async () => [], remove: async () => [] },
       },
     ],
@@ -609,8 +611,14 @@ describe("the screen's first render on each source", () => {
         expect(html).toContain(h.filters.allFilters);
         expect(html).toContain(h.filters.quick.week);
         expect(html).not.toContain(h.filters.edit(h.filters.groups.format, h.filters.formats.cash));
-        // The Hands screen's groups a report does not sum by are not offered.
-        expect(html).not.toContain(h.filters.quick.threeBet);
+        // The Hands screen's row on the app (2026-11-16: one filter everywhere);
+        // the web's summaries sum by the rollups' groups only, for now.
+        if (source.filters.rollupsOnly) {
+          expect(html).not.toContain(h.filters.quick.threeBet);
+        } else {
+          expect(html).toContain(h.filters.quick.threeBet);
+          expect(html).toContain(h.filters.quick.won);
+        }
       });
     }
   }
