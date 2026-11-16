@@ -285,7 +285,7 @@ pub fn to_points(rect: ScreenRect, scale_permille: u32) -> ScreenRect {
     clippy::cast_possible_truncation,
     clippy::cast_sign_loss
 )]
-fn permille(scale_factor: f64) -> u32 {
+pub(crate) fn permille(scale_factor: f64) -> u32 {
     if scale_factor.is_finite() && scale_factor > 0.0 {
         (scale_factor * 1000.0).round().clamp(1.0, 100_000.0) as u32
     } else {

@@ -62,14 +62,14 @@ describe("the loader under concurrent jobs (L2)", () => {
     expect(fetches).toBe(1);
   });
 
-  it("fetches nothing for a set no flop library is published for (analysis/41)", async () => {
+  it("fetches nothing for a set no flop library is published for", async () => {
     let fetches = 0;
     const loader = new FlopLibraryLoader("mem:", async () => {
       fetches += 1;
       return { ok: true, json: async () => ({ entries: [{ line: "btn-bb", flop: "Ts7h4d" }] }), arrayBuffer: async () => new ArrayBuffer(0) };
     });
-    expect(await loader.ready(CHARTS.id)).toBe(false);
-    expect(await loader.listed(CHARTS.id)).toEqual([]);
+    expect(await loader.ready("nlhe-cash-6max-40bb")).toBe(false);
+    expect(await loader.listed("nlhe-cash-6max-40bb")).toEqual([]);
     expect(fetches).toBe(0);
   });
 });

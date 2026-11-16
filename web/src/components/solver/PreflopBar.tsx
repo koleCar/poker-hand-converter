@@ -13,6 +13,7 @@
 
 import { Overlay } from "@rail/ui/overlay/Overlay";
 import { useState } from "react";
+import { playedOptions } from "../analysis/chartSpots";
 import { useSolverDict } from "./host";
 import type { PreflopState } from "./preflop";
 import styles from "./solver.module.css";
@@ -58,6 +59,7 @@ export function PreflopBar({ tables, table, onTable, state, onLine, viewing = nu
 
       <div className={styles.seats} role="group" aria-label={t.preflop.label}>
         {(state?.cards ?? []).map((card) => {
+          const played = playedOptions(card.node);
           // The card whose decision the grid shows: the one being looked back at, else the one to act.
           const shown = viewing !== null ? card.kind === "past" && card.line === viewing : card.kind === "current";
           const look = () => {
@@ -81,8 +83,10 @@ export function PreflopBar({ tables, table, onTable, state, onLine, viewing = nu
                 <span>{t.preflop.stack(card.stackBb)}</span>
               </button>
               <div className={styles.seatOptions}>
-                {card.node.options.map((option) => {
+                {card.node.options.map((option, a) => {
                   const taken = card.chosen === option.code;
+                  // An option no hand takes is not one to offer - unless the line took it.
+                  if (!taken && !played[a]) return null;
                   const other = card.kind === "ahead" || (card.kind === "past" && !taken);
                   return (
                     <button

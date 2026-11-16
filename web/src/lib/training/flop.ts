@@ -24,7 +24,7 @@
  */
 
 import type { ChartPosition, ChartSet } from "../charts";
-import { chartLineOf, flopLinesFor, lineSeats, sameLine, LIBRARY_MODEL, type FlopLibrary, type FlopLine } from "../analysis";
+import { chartLineOf, chunkFromCharts, flopLinesFor, lineSeats, sameLine, LIBRARY_MODEL, type FlopLibrary, type FlopLine } from "../analysis";
 import { cardCode, cardIndex } from "../equity/evaluator";
 import type { PhfHand } from "../phf/types";
 import {
@@ -386,7 +386,7 @@ function attempt(charts: ChartSet, plan: FlopPlan, chunk: FlopChunk, options: Fl
 /** The chunk a plan reads, if the library has it loaded and it was solved from these charts. */
 function planChunk(charts: ChartSet, library: FlopLibrary, plan: FlopPlan): FlopChunk | null {
   const chunk = library.get(plan.set, plan.line.id, plan.flop);
-  if (!chunk || chunk.header.charts.hash !== charts.model.hash) return null;
+  if (!chunk || !chunkFromCharts(chunk.header, charts)) return null;
   return chunk;
 }
 

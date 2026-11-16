@@ -696,11 +696,12 @@ mod tests {
             ),
             "{listing}"
         );
-        // (T6) Tiling and the RNG: GGPoker's own `false`s.
+        // (T6) Tiling (the owner's yes of 2026-11-16) and the RNG (GGPoker's
+        // own `false`).
         assert!(
             listing.contains(
-                "permits: HUD refused (the room prohibits it); tiling refused (the room \
-                 prohibits it); RNG refused (the room prohibits it)"
+                "permits: HUD refused (the room prohibits it); tiling permitted; RNG \
+                 refused (the room prohibits it)"
             ),
             "{listing}"
         );

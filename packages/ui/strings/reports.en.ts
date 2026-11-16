@@ -38,6 +38,7 @@ export const reportsUiEn = {
     unit: "Show in",
     bigBlinds: "Big blinds",
     money: "Money",
+    chips: "Chips",
   },
   stats: {
     heading: "Statistics",
@@ -47,8 +48,31 @@ export const reportsUiEn = {
       showdown: "Showdown",
       results: "Results",
     },
-    note: "A value fades while its sample is thin; hover it for the sample and its 95% interval.",
+    note: "A value fades while its sample is thin; hover it for the sample and its 95% interval, a name for what it stands for.",
     yours: (name: string) => `${name} (yours)`,
+    /** The matrices' tables (positions across, streets across for postflop). */
+    sections: {
+      preflop: "Preflop",
+      steal: "Steal and blinds",
+      postflop: "Postflop",
+      showdown: "Showdown",
+      results: "Results",
+      yours: "Yours",
+    },
+    total: "Total",
+    stat: "Statistic",
+    hands: "Hands",
+    streets: { all: "All", flop: "Flop", turn: "Turn", river: "River" },
+    /** Postflop rows (one statistic per street): the short name and the full one for its tooltip. */
+    streetRows: {
+      cbet: { short: "CB", full: "Continuation bet" },
+      foldToCbet: { short: "FCB", full: "Fold to continuation bet" },
+      raiseCbet: { short: "RCB", full: "Raise continuation bet" },
+      donk: { short: "Donk", full: "Donk bet" },
+      checkRaise: { short: "XR", full: "Check-raise" },
+      af: { short: "AF", full: "Aggression factor" },
+      afq: { short: "AFq", full: "Aggression frequency" },
+    },
   },
   breakdown: {
     heading: "Breakdown",

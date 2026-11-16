@@ -1,25 +1,31 @@
 /**
- * The Trainer's settings, one sheet: every choice a row of chips (one click,
- * no dropdown to open), only the rows the current mode reads, in three
- * groups - the spot, how the training runs, and what an answer shows. A
- * change applies at once and deals the next hand under it.
+ * A new training session (`sessions.ts`): its name and its settings, one
+ * sheet. Every choice is a row of chips (one click, no dropdown to open),
+ * only the rows the chosen mode reads, in three groups - the spot, how the
+ * training runs, and what an answer shows. The settings are fixed once the
+ * session starts; opened from a running session, the sheet starts a new one
+ * and says so. Settings another session already trains offer to continue it.
  */
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ChartPosition } from "../../lib/charts";
 import { DEAL_BIASES, FLOP_FACINGS, PLAY_FAMILIES, RIVER_POTS, RIVER_ROLES, RIVER_SEATS } from "../../lib/training";
 import { useTrainerHost } from "./host";
+import { defaultName, sameTraining, sessionSettings, type TrainerSession } from "./sessions";
 import {
   BUTTONS,
   DEFAULT_SETTINGS,
+  HAND_MODES,
   INPUTS,
   PAUSES,
   PLAYS,
   RANGES,
+  REPEATS,
   TABLES,
   TIMEBANKS,
+  TRAINER_MODES,
   familiesAt,
   flopLinesAt,
   flopSeatsAt,
@@ -28,7 +34,6 @@ import {
   setsFor,
   type TrainerSettings,
 } from "./settings";
-import { drillSettings, readDrills, saveDrills, withDrill, type Drill } from "./drills";
 import styles from "./trainer.module.css";
 
 interface ChipsProps<T extends string> {
@@ -61,29 +66,45 @@ function Chips<T extends string>({ label, value, options, onChange }: ChipsProps
 }
 
 export function SettingsSheet({
-  open,
-  settings,
-  onChange,
+  initial,
+  from,
+  sessions,
+  canPlayHands,
+  onStart,
+  onContinue,
   onClose,
 }: {
-  open: boolean;
-  settings: TrainerSettings;
-  onChange: (patch: Partial<TrainerSettings>) => void;
+  initial: TrainerSettings;
+  /** Opened from a running session: changing settings starts a new one. */
+  from: TrainerSession | null;
+  /** The player's sessions, to find one that trains the same settings. */
+  sessions: readonly TrainerSession[];
+  canPlayHands: boolean;
+  onStart: (name: string, settings: TrainerSettings) => void;
+  onContinue: (session: TrainerSession) => void;
   onClose: () => void;
 }) {
   const { t } = useTrainerHost();
   const panel = useRef<HTMLDivElement>(null);
-  const [drills, setDrills] = useState<Drill[]>(() => (typeof window === "undefined" ? [] : readDrills()));
-  const [name, setName] = useState("");
-  const keep = (list: Drill[]) => {
-    setDrills(list);
-    saveDrills(list);
-  };
+  const [settings, setSettings] = useState<TrainerSettings>(initial);
+  const [custom, setCustom] = useState<string | null>(null);
   useEffect(() => {
-    if (open) panel.current?.focus();
-  }, [open]);
-  if (!open) return null;
-
+    panel.current?.focus();
+  }, []);
+  const onChange = (patch: Partial<TrainerSettings>) =>
+    setSettings((current) => {
+      const next = { ...current, ...patch };
+      // A whole hand starts preflop or on the flop: a turn or river spot mode becomes the flop.
+      if (next.play === "hand" && !HAND_MODES.includes(next.mode)) next.mode = "flop";
+      return next;
+    });
+  const auto = defaultName(settings, t);
+  const name = custom ?? auto;
+  const twin = useMemo(
+    () => sessions.find((session) => !session.archived && session.id !== from?.id && sameTraining(sessionSettings(session), settings)) ?? null,
+    [sessions, settings, from],
+  );
+  const unchanged = from !== null && sameTraining(sessionSettings(from), settings);
   const mode = settings.mode;
   const set = setFor(mode, settings.set);
   const anyOf = <T extends string>(values: readonly T[], names: Record<string, string>) => [
@@ -98,18 +119,15 @@ export function SettingsSheet({
   // A whole hand starts from a heads-up line, and on the flop from its root: what is faced is played out.
   const hand = settings.play === "hand";
 
+  const s = t.sessions;
   return (
     <div className={styles.sheetLayer} onKeyDown={(event) => event.key === "Escape" && onClose()}>
       <button type="button" className={styles.scrim} aria-label={t.close} onClick={onClose} />
-      <div ref={panel} className={styles.sheet} role="dialog" aria-modal="true" aria-label={t.settingsTitle} tabIndex={-1}>
+      <div ref={panel} className={styles.sheet} role="dialog" aria-modal="true" aria-label={s.title} tabIndex={-1}>
         <div className={styles.sheetHead}>
-          <strong>{t.settingsTitle}</strong>
+          <strong>{s.title}</strong>
           <span className={styles.sheetActions}>
-            <button
-              type="button"
-              className={styles.linkButton}
-              onClick={() => onChange({ ...DEFAULT_SETTINGS, mode: settings.mode })}
-            >
+            <button type="button" className={styles.linkButton} onClick={() => onChange({ ...DEFAULT_SETTINGS, mode: settings.mode, play: settings.play })}>
               {t.reset}
             </button>
             <button type="button" className={styles.linkButton} onClick={onClose}>
@@ -118,38 +136,63 @@ export function SettingsSheet({
           </span>
         </div>
 
-        <section className={styles.sheetSection}>
-          <h3>{t.drills.heading}</h3>
-          {drills.length === 0 ? <p className={styles.muted}>{t.drills.none}</p> : null}
-          <ul className={styles.drills}>
-            {drills.map((drill) => (
-              <li key={drill.id}>
-                <button type="button" className={styles.chip} aria-label={t.drills.open(drill.name)} onClick={() => onChange(drillSettings(drill))}>
-                  {drill.name}
+        {from ? <p className={styles.sheetNote}>{s.changeNote(from.name, from.hands)}</p> : null}
+
+        <form
+          className={styles.nameForm}
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!unchanged && name.trim()) onStart(name.trim(), settings);
+          }}
+        >
+          <label className={styles.field}>
+            <span className={styles.fieldLabel}>{s.name}</span>
+            <span className={styles.nameRow}>
+              <input
+                className={`${styles.input} ${styles.nameInput}`}
+                value={name}
+                maxLength={60}
+                onChange={(event) => setCustom(event.target.value)}
+              />
+              {custom !== null ? (
+                <button type="button" className={styles.linkButton} onClick={() => setCustom(null)}>
+                  {s.auto}
                 </button>
-                <button type="button" className={styles.linkButton} aria-label={t.drills.remove(drill.name)} onClick={() => keep(drills.filter((d) => d.id !== drill.id))}>
-                  ×
-                </button>
-              </li>
-            ))}
-          </ul>
-          <form
-            className={styles.drillForm}
-            onSubmit={(event) => {
-              event.preventDefault();
-              if (!name.trim()) return;
-              keep(withDrill(drills, name, settings, `${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`));
-              setName("");
-            }}
-          >
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>{t.drills.name}</span>
-              <input className={styles.input} value={name} maxLength={60} placeholder={t.drills.placeholder} onChange={(event) => setName(event.target.value)} />
-            </label>
-            <button type="submit" className={styles.chip} disabled={!name.trim()}>
-              {t.drills.save}
+              ) : null}
+            </span>
+            <span className={styles.muted}>{custom !== null ? s.nameOwn : s.nameAuto}</span>
+          </label>
+          {twin ? (
+            <div className={styles.twin}>
+              <span>
+                {s.duplicate(twin.name)}
+                <span className={styles.muted}> · {s.duplicateMeta(twin.hands, twin.hands ? Math.round(twin.scoreSum / twin.hands).toString() : "—")}</span>
+              </span>
+              <button type="button" className={styles.next} onClick={() => onContinue(twin)}>
+                {s.continueIt}
+              </button>
+            </div>
+          ) : null}
+          <div className={styles.startRow}>
+            <button type="button" className={styles.linkButton} onClick={onClose}>
+              {s.cancel}
             </button>
-          </form>
+            <button type="submit" className={twin ? styles.chip : styles.next} disabled={unchanged || !name.trim()}>
+              {twin ? s.startAnyway : s.start}
+            </button>
+          </div>
+        </form>
+
+        <section className={styles.sheetSection}>
+          <Chips
+            label={t.modesLabel}
+            value={settings.mode}
+            options={TRAINER_MODES.filter((id) => settings.play !== "hand" || HAND_MODES.includes(id)).map((id) => ({ value: id, label: t.modes[id] ?? id }))}
+            onChange={(value) => onChange({ mode: value })}
+          />
+          {canPlayHands ? (
+            <Chips label={t.play.label} value={settings.play} options={PLAYS.map((value) => ({ value, label: t.play[value] }))} onChange={(play) => onChange({ play })} />
+          ) : null}
         </section>
 
         {mode !== "focus" ? (
@@ -227,11 +270,12 @@ export function SettingsSheet({
         <section className={styles.sheetSection}>
           <h3>{t.sections.play}</h3>
           <Chips
-            label={t.play.label}
-            value={settings.play}
-            options={PLAYS.map((value) => ({ value, label: t.play[value] }))}
-            onChange={(play) => onChange({ play })}
+            label={s.repeatLabel}
+            value={settings.repeat}
+            options={REPEATS.map((value) => ({ value, label: s.repeats[value] ?? value }))}
+            onChange={(repeat) => onChange({ repeat })}
           />
+          {settings.play === "spot" ? <p className={styles.muted}>{s.repeatHints[settings.repeat]}</p> : null}
           <Chips
             label={t.deal}
             value={settings.deal}

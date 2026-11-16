@@ -11,12 +11,15 @@ import { inApp, ipc, onOpenRoute } from "./lib/ipc";
 import { go, SETUP } from "./lib/router";
 import { HudPopupWindow } from "./popup/HudPopup";
 import { ReplayerWindow } from "./replayer/ReplayerWindow";
+import { RngBoxWindow } from "./rngBox/RngBox";
 
 // (R3.8) The HUD popup is a window of its own on this page's popup route
 // (`src-tauri/src/popup.rs`): the popup, not the app's screens.
 const popup = window.location.hash.startsWith("#/hud-popup");
 // The replayer's own window (`src-tauri/src/replayer.rs`), likewise.
 const replayer = window.location.hash.startsWith("#/replayer");
+// The RNG box (`src-tauri/src/rng_box.rs`), likewise.
+const rngBox = window.location.hash.startsWith("#/rng-box");
 
 // The theme, density and language were painted before this script ran
 // (`public/appearance.js`, from the copy `lib/appearance.ts` keeps); the
@@ -29,7 +32,7 @@ if (inApp) {
     .getSettings()
     .then((settings) => {
       adoptSettings(settings);
-      if (!popup && !replayer && !settings.firstRunDone) {
+      if (!popup && !replayer && !rngBox && !settings.firstRunDone) {
         go(SETUP);
       }
     })
@@ -39,7 +42,7 @@ if (inApp) {
 // (R5.4) The hand analysis in the background: its first look waits
 // (`START_DELAY_MS`), then a page at a time, never while a table is open.
 // The main window only (the HUD popup is a window of its own).
-if (inApp && !popup && !replayer) {
+if (inApp && !popup && !replayer && !rngBox) {
   // A link in the replayer window (the hand's analysis) opens here.
   onOpenRoute((href) => {
     window.location.hash = href;
@@ -54,6 +57,8 @@ if (root) {
       <I18nProvider>
         {popup ? (
           <HudPopupWindow />
+        ) : rngBox ? (
+          <RngBoxWindow />
         ) : replayer ? (
           <DataSourceProvider source={storeDataSource}>
             <ReplayerWindow />

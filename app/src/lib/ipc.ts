@@ -1516,6 +1516,9 @@ export const ipc = {
   setTilingSettings: (settings: TilingSettings) => invoke<null>("set_tiling_settings", { settings }),
   getRngSettings: () => invoke<RngSettings>("get_rng_settings"),
   setRngSettings: (settings: RngSettings) => invoke<null>("set_rng_settings", { settings }),
+  /** The RNG box (`rng_box.rs`): the number it shows, and a new one (a click). */
+  rngBoxNumber: () => invoke<number>("rng_box_number"),
+  rngBoxRoll: () => invoke<number>("rng_box_roll"),
   retileTables: () => invoke<boolean>("retile_tables"),
   captureTilingLayout: () => invoke<TilingSlot[]>("capture_tiling_layout"),
   /** (T7) The global hotkeys: how each binding stands, and letting every key go while one is recorded. */
@@ -1682,6 +1685,11 @@ export function onHudStatusChanged(onChange: () => void): () => void {
 /** (T3) A sync brought another computer's tiling or RNG settings. */
 export function onTilingSettingsChanged(onChange: () => void): () => void {
   return onAppEvent("tiling-settings-changed", onChange);
+}
+
+/** The RNG box's number changed outside it (the "Roll the RNG" hotkey). */
+export function onRngBoxRolled(onRoll: (n: number) => void): () => void {
+  return onAppEvent<number>("rng-box-rolled", onRoll);
 }
 
 /** (T7) A hotkey was bound, found taken, or paused: ask `hotkeyStatus` again. */

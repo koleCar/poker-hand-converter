@@ -8,9 +8,6 @@
  * - **The rooms**: which rooms are listed and which fold away
  *   ({@link roomRows}). Whether a room may be tiled is the Rust side's
  *   (`hud_policy`'s `tiling`), never decided here.
- * - **The RNG's bands**: editing that keeps them valid, and the same checks
- *   as `RngSettings::validate` (`rail_hud_ipc::settings`), so the screen
- *   never sends what the app would refuse.
  * - **Layouts**: a captured arrangement saved as a user layout, renamed,
  *   deleted (with the rules that pointed at it).
  */
@@ -19,8 +16,6 @@ import type {
   HudStatus,
   LayoutRef,
   MonitorInfo,
-  RngBand,
-  RngSettings,
   RoomPolicy,
   ScreenRect,
   TiledTable,
@@ -154,10 +149,6 @@ export interface RoomRow {
   tables: number;
   /** The user's tiling switch (on unless switched off). */
   on: boolean;
-  /** (T5 follow-up) The RNG's verdict (`hud_policy`'s `rng`). */
-  rngVerdict: RoomVerdict;
-  /** The user's RNG switch for the room (on unless switched off). */
-  rngOn: boolean;
 }
 
 /** A room's verdict for tiling (`tool` "tiling") or the RNG ("rng"), as the Rust side decided it. */
@@ -180,21 +171,8 @@ export function setRoomOn(settings: TilingSettings, site: string, on: boolean): 
   return { ...settings, perRoom };
 }
 
-/** (T5 follow-up) Whether the user wants the RNG on this room's tables (`RngSettings::room_enabled`). */
-export function rngRoomOn(rng: RngSettings, site: string): boolean {
-  return rng.perRoom[site] ?? true;
-}
-
-/** The user's RNG switch for a room: on is the default, so it is stored only when off. The room's policy still decides first. */
-export function setRngRoomOn(rng: RngSettings, site: string, on: boolean): RngSettings {
-  const perRoom = { ...rng.perRoom };
-  if (on) delete perRoom[site];
-  else perRoom[site] = false;
-  return { ...rng, perRoom };
-}
-
 /**
- * The rooms card: the rooms tiling may move or the RNG may show on, then
+ * The rooms card: the rooms tiling may move, then
  * the others with a table open now (approval first, then by name); every
  * other room folds into "N more rooms not allowed". Rail's own format and
  * closed clients are not rooms anyone plays: left out.
@@ -203,7 +181,6 @@ export function roomRows(
   policy: HudPolicy,
   settings: TilingSettings,
   status: HudStatus | null,
-  rng: RngSettings | null = null,
 ): { shown: RoomRow[]; folded: RoomRow[] } {
   const tiled = new Map<string, number>();
   for (const table of status?.tiling?.windows ?? []) tiled.set(table.site, (tiled.get(table.site) ?? 0) + 1);
@@ -220,11 +197,9 @@ export function roomRows(
         verdict: verdictOf(room),
         tables: tiled.get(room.id) ?? open.get(room.id) ?? 0,
         on: roomOn(settings, room.id),
-        rngVerdict: verdictOf(room, "rng"),
-        rngOn: rng === null ? true : rngRoomOn(rng, room.id),
       }),
     );
-  const isAllowed = (row: RoomRow) => row.verdict === "allowed" || row.rngVerdict === "allowed";
+  const isAllowed = (row: RoomRow) => row.verdict === "allowed";
   const allowed = rows.filter(isAllowed);
   const rest = rows.filter((row) => !isAllowed(row));
   const withTables = rest
@@ -233,186 +208,9 @@ export function roomRows(
   return { shown: [...allowed, ...withTables], folded: rest.filter((row) => row.tables === 0) };
 }
 
-/** Whether any room allows the RNG (else its switch is off and says why). */
-export function rngAllowedAnywhere(policy: HudPolicy): boolean {
-  return policy.rooms.some((room) => room.rng.permitted);
-}
-
 /** (T7) Whether any room allows the Action Required slot (none yet; an older Rust side says nothing: no). */
 export function actionSlotAllowedAnywhere(policy: HudPolicy): boolean {
   return policy.rooms.some((room) => room.actionSlot?.permitted === true);
-}
-
-// ---------------------------------------------------------------------
-// The RNG's bands (`rail_hud_ipc::settings::RngSettings`).
-
-/** The RNG's largest number (`RNG_LIMIT`). */
-export const RNG_LIMIT = 10_000;
-/** Colour bands at most (`MAX_BANDS`). */
-export const MAX_BANDS = 10;
-/** The longest band label, characters (`MAX_LABEL`). */
-export const MAX_LABEL = 24;
-/** The longest timer, seconds (`MAX_TIMER_SECS`). */
-export const MAX_TIMER_SECS = 3600;
-/** The timer a fresh "Every N s" starts with. */
-export const DEFAULT_TIMER_SECS = 10;
-/** (T5 follow-up) The widget's size, percent (`RNG_SCALE_MIN` - `RNG_SCALE_MAX`). */
-export const RNG_SCALE_MIN = 50;
-export const RNG_SCALE_MAX = 200;
-/** Its opacity, percent (`RNG_OPACITY_MIN` - `RNG_OPACITY_MAX`). */
-export const RNG_OPACITY_MIN = 30;
-export const RNG_OPACITY_MAX = 100;
-/** Both, when the settings have neither (`RNG_DEFAULT_PCT`). */
-export const RNG_DEFAULT_PCT = 100;
-
-/** The widget's size, percent: the stored one (100 when an older build stored none). */
-export function rngScale(rng: RngSettings): number {
-  return rng.scale ?? RNG_DEFAULT_PCT;
-}
-
-/** The widget's opacity, percent (100 when none is stored). */
-export function rngOpacity(rng: RngSettings): number {
-  return rng.opacity ?? RNG_DEFAULT_PCT;
-}
-
-/** The widget's size set to `pct`, a whole percent kept within 50 - 200. */
-export function setRngScale(rng: RngSettings, pct: number): RngSettings {
-  if (!Number.isFinite(pct)) return rng;
-  return { ...rng, scale: clamp(Math.round(pct), RNG_SCALE_MIN, RNG_SCALE_MAX) };
-}
-
-/** The widget's opacity set to `pct`, a whole percent kept within 30 - 100. */
-export function setRngOpacity(rng: RngSettings, pct: number): RngSettings {
-  if (!Number.isFinite(pct)) return rng;
-  return { ...rng, opacity: clamp(Math.round(pct), RNG_OPACITY_MIN, RNG_OPACITY_MAX) };
-}
-
-/** A new band's colour: the next of these not in use (neutral, as the defaults). */
-const BAND_COLOURS = ["#5c6370", "#8b929e", "#c5cad3", "#3e7cb1", "#5aa469", "#d1a03f", "#c0504d", "#8e6bbf", "#4fa3a5", "#e8eef6"];
-
-/** A band as drawn: the numbers it covers. */
-export interface BandSpan {
-  from: number;
-  to: number;
-  colour: string;
-  label: string | null;
-}
-
-/** Each band's first and last number (from the band before's end, or the range's start). */
-export function bandSpans(rng: RngSettings): BandSpan[] {
-  let from = rng.min;
-  return rng.bands.map((band) => {
-    const span = { from, to: band.upTo, colour: band.colour, label: band.label ?? null };
-    from = band.upTo + 1;
-    return span;
-  });
-}
-
-/** A band's share of the bar, 0 - 1. */
-export function bandShare(span: BandSpan, rng: RngSettings): number {
-  const total = rng.max - rng.min + 1;
-  return total > 0 ? (span.to - span.from + 1) / total : 0;
-}
-
-function withBands(rng: RngSettings, bands: RngBand[]): RngSettings {
-  return { ...rng, bands };
-}
-
-/**
- * Band `index` ends at `upTo`, kept inside its neighbours (one number at
- * least each); the last band always ends at the range's end.
- */
-export function setBandEnd(rng: RngSettings, index: number, upTo: number): RngSettings {
-  if (index < 0 || index >= rng.bands.length - 1 || !Number.isFinite(upTo)) return rng;
-  const low = index === 0 ? rng.min : rng.bands[index - 1].upTo + 1;
-  const high = rng.bands[index + 1].upTo - 1;
-  const end = clamp(Math.round(upTo), low, high);
-  return withBands(
-    rng,
-    rng.bands.map((band, i) => (i === index ? { ...band, upTo: end } : band)),
-  );
-}
-
-/** Band `index` split in two at its middle (when it has two numbers and there is room for a band). */
-export function splitBand(rng: RngSettings, index: number): RngSettings {
-  const spans = bandSpans(rng);
-  const span = spans[index];
-  if (!span || span.to <= span.from || rng.bands.length >= MAX_BANDS) return rng;
-  const used = new Set(rng.bands.map((b) => b.colour.toLowerCase()));
-  const colour = BAND_COLOURS.find((c) => !used.has(c)) ?? BAND_COLOURS[0];
-  const middle = Math.floor((span.from + span.to) / 2);
-  const bands = [...rng.bands];
-  bands.splice(index, 0, { upTo: middle, colour });
-  return withBands(rng, bands);
-}
-
-/** Band `index` gone, its numbers to the band after it (the last band's to the one before). */
-export function removeBand(rng: RngSettings, index: number): RngSettings {
-  if (rng.bands.length <= 1 || index < 0 || index >= rng.bands.length) return rng;
-  const bands = rng.bands.filter((_, i) => i !== index);
-  if (index === rng.bands.length - 1) bands[bands.length - 1] = { ...bands[bands.length - 1], upTo: rng.max };
-  return withBands(rng, bands);
-}
-
-/** Band `index`'s label: trimmed, at most {@link MAX_LABEL} characters; empty is none. */
-export function setBandLabel(rng: RngSettings, index: number, label: string): RngSettings {
-  const text = [...label.trim()].slice(0, MAX_LABEL).join("");
-  return withBands(
-    rng,
-    rng.bands.map((band, i) => {
-      if (i !== index) return band;
-      const next = { ...band };
-      if (text === "") delete next.label;
-      else next.label = text;
-      return next;
-    }),
-  );
-}
-
-export function setBandColour(rng: RngSettings, index: number, colour: string): RngSettings {
-  if (!isHexColour(colour)) return rng;
-  return withBands(
-    rng,
-    rng.bands.map((band, i) => (i === index ? { ...band, colour: colour.toLowerCase() } : band)),
-  );
-}
-
-/** The timer on (`secs`) or off (`null`), within 1 s - 1 h. */
-export function setTimer(rng: RngSettings, secs: number | null): RngSettings {
-  const triggers = { ...rng.triggers };
-  if (secs === null) delete triggers.timerSecs;
-  else triggers.timerSecs = clamp(Math.round(secs), 1, MAX_TIMER_SECS);
-  return { ...rng, triggers };
-}
-
-export function isHexColour(text: string): boolean {
-  return /^#[0-9a-fA-F]{6}$/.test(text);
-}
-
-/** Why `RngSettings::validate` would refuse it (one of these), or `null`. */
-export type RngProblem = "range" | "bandCount" | "outside" | "order" | "colour" | "label" | "lastEnd" | "timer" | "scale" | "opacity";
-
-/** `RngSettings::validate`'s checks, in its order (the rooms' ids and the size are the app's to check). */
-export function rngProblem(rng: RngSettings): RngProblem | null {
-  if (rng.max > RNG_LIMIT || rng.max < rng.min) return "range";
-  if (rng.bands.length === 0 || rng.bands.length > MAX_BANDS) return "bandCount";
-  let floor: number | null = null;
-  for (const band of rng.bands) {
-    if (band.upTo < rng.min || band.upTo > rng.max) return "outside";
-    if (floor !== null && band.upTo <= floor) return "order";
-    floor = band.upTo;
-    if (!isHexColour(band.colour)) return "colour";
-    const label = band.label;
-    if (label !== undefined && label !== null && (label.trim() === "" || [...label].length > MAX_LABEL)) return "label";
-  }
-  if (floor !== rng.max) return "lastEnd";
-  const secs = rng.triggers.timerSecs;
-  if (secs !== undefined && secs !== null && !(secs >= 1 && secs <= MAX_TIMER_SECS)) return "timer";
-  const scale = rngScale(rng);
-  if (!Number.isInteger(scale) || scale < RNG_SCALE_MIN || scale > RNG_SCALE_MAX) return "scale";
-  const opacity = rngOpacity(rng);
-  if (!Number.isInteger(opacity) || opacity < RNG_OPACITY_MIN || opacity > RNG_OPACITY_MAX) return "opacity";
-  return null;
 }
 
 // ---------------------------------------------------------------------

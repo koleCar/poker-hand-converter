@@ -11,6 +11,10 @@
 # (macOS keychain), lives only in this process and a 0600 temp header file
 # deleted on exit, and is never printed. Chunks first, the manifest last, so
 # a half-finished upload never lists a chunk that is not there yet.
+#
+# Incremental: every chunk uploaded is listed in `<out>/<set>/<tree>/.uploaded`
+# and skipped the next time (the nightly runner uploads after each batch);
+# `UPLOAD_ALL=1` uploads everything again. The manifest goes up every time.
 set -euo pipefail
 setopt nullglob
 
@@ -40,13 +44,27 @@ upload() { # <local file> <object path> <content type>
   [[ $code == 200 ]] || { echo "upload $2: HTTP $code" >&2; return 1; }
 }
 
-PATHS=$(python3 -c 'import json,sys; print("\n".join(e["path"] for e in json.load(open(sys.argv[1]))["entries"]))' "$DIR/manifest.json")
-total=$(print -r -- "$PATHS" | wc -l | tr -d ' ')
+DONE="$DIR/.uploaded"
+[[ -n ${UPLOAD_ALL:-} ]] && rm -f "$DONE"
+touch "$DONE"
+PATHS=$(python3 -c '
+import json, sys
+done = set(open(sys.argv[2]).read().split())
+print("\n".join(e["path"] for e in json.load(open(sys.argv[1]))["entries"] if e["path"] not in done))' "$DIR/manifest.json" "$DONE")
+total=$(print -r -- "$PATHS" | grep -c . || true)
 n=0; failed=0; pids=()
-reap() { for pid in $pids; do wait $pid || failed=$((failed + 1)); done; pids=(); }
+batch=()
+reap() {
+  local i=1
+  for pid in $pids; do
+    if wait $pid; then print -r -- "${batch[$i]}" >> "$DONE"; else failed=$((failed + 1)); fi
+    i=$((i + 1))
+  done
+  pids=(); batch=()
+}
 for p in ${(f)PATHS}; do
   upload "$DIR/$p" "$SET/$TREE/$p" application/octet-stream &
-  pids+=($!)
+  pids+=($!); batch+=("$p")
   n=$((n + 1))
   (( n % 8 == 0 )) && reap
   (( n % 200 == 0 )) && echo "$n / $total"

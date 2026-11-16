@@ -12,9 +12,7 @@
  * seen yet (the overview's run button). The web cannot see poker tables, so
  * A10 is the screen's default instead: the latest session that has ended.
  *
- * Where "off your preflop charts" comes from (R5.3): Rail's charts, or one of
- * the reader's own (`ownChartDeviations` over `lib/db/preflopCharts.ts`),
- * picked over the list and remembered in this browser.
+ * "Off your preflop charts" is graded against Rail's charts.
  */
 
 "use client";
@@ -22,17 +20,13 @@
 import { kindOf, pinFormats } from "@rail/ui/hands/gameKind";
 import Link from "next/link";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import type { ChartSet } from "@rail/ui/charts/model";
-import { ownChartDeviations } from "@rail/ui/charts/sessionSource";
-import type { ChartSummary } from "@rail/ui/charts/source";
+import { useCallback, useMemo, useState } from "react";
 import { shippedChartDeviations, type SessionQuery } from "@rail/ui/review/model";
 import { SessionReviewScreen, type HandLinkProps } from "@rail/ui/review/SessionReviewScreen";
 import { useUiStrings } from "@rail/ui/i18n";
 import { encodePosition } from "@rail/ui/replayer/position";
 import { useAuth } from "../../../lib/auth";
 import { DATABASE_NOT_CONFIGURED_MESSAGE, isDatabaseConfigured } from "../../../lib/db/client";
-import { webPreflopChartsSource, webSessionChartsSource } from "../../../lib/db/preflopCharts";
 import { webSessionReviewSource } from "../../../lib/db/sessionReview";
 import { useDict } from "../../../lib/i18n/client";
 import { paths } from "../../../lib/routes";
@@ -62,48 +56,6 @@ export function SessionReviewTab({ initialQuery, refreshToken = 0 }: SessionRevi
     () => (kinds.kind === null ? null : { ...asked, filter: { ...asked.filter, formats: pinFormats(asked.filter.formats, kinds.kind) } }),
     [asked, kinds.kind],
   );
-  const [charts, setCharts] = useState<ChartSummary[]>([]);
-  const [choice, setChoice] = useState<string>(() => readChoice());
-  const [own, setOwn] = useState<{ id: string; set: ChartSet } | null>(null);
-
-  // The reader's own chart sets, for the choice over the deviations list.
-  useEffect(() => {
-    if (!isDatabaseConfigured || !signedIn) return;
-    let live = true;
-    webPreflopChartsSource.list().then(
-      (items) => live && setCharts(items),
-      () => undefined,
-    );
-    return () => {
-      live = false;
-    };
-  }, [signedIn]);
-
-  const ownId = choice.startsWith(OWN) ? choice.slice(OWN.length) : null;
-  useEffect(() => {
-    if (!ownId || !signedIn) return;
-    let live = true;
-    webPreflopChartsSource.load(ownId).then(
-      (set) => live && setOwn({ id: ownId, set }),
-      () => live && setChoice(SHIPPED),
-    );
-    return () => {
-      live = false;
-    };
-  }, [ownId, signedIn]);
-
-  const deviationSource = useMemo(
-    () => (own && ownId === own.id ? ownChartDeviations(webSessionChartsSource, own.set) : shippedChartDeviations),
-    [own, ownId],
-  );
-  const deviationChoices = useMemo(
-    () =>
-      charts.length > 0
-        ? [{ id: SHIPPED, label: ui.review.deviationSource.shipped }, ...charts.map((c) => ({ id: `${OWN}${c.id}`, label: c.name }))]
-        : undefined,
-    [charts, ui],
-  );
-
   const onQuery = useCallback((next: SessionQuery) => {
     setQuery(next);
     if (typeof window !== "undefined") {
@@ -156,12 +108,7 @@ export function SessionReviewTab({ initialQuery, refreshToken = 0 }: SessionRevi
     <SessionReviewScreen
       kindCounts={kinds.counts}
       source={webSessionReviewSource}
-      deviationSource={deviationSource}
-      deviationChoices={deviationChoices}
-      onDeviationSource={(id) => {
-        setChoice(id);
-        writeChoice(id);
-      }}
+      deviationSource={shippedChartDeviations}
       query={query}
       onQuery={onQuery}
       renderHandLink={renderHandLink}
@@ -191,26 +138,4 @@ export function SessionReviewTab({ initialQuery, refreshToken = 0 }: SessionRevi
       }
     />
   );
-}
-
-const SHIPPED = shippedChartDeviations.id;
-const OWN = "own:";
-const CHOICE_KEY = "rail.review.deviations";
-
-/** The deviation source picked last in this browser (a convenience: Rail's charts when unknown). */
-function readChoice(): string {
-  try {
-    const value = typeof window !== "undefined" ? window.localStorage.getItem(CHOICE_KEY) : null;
-    return value && (value === SHIPPED || /^own:[0-9a-f-]{36}$/.test(value)) ? value : SHIPPED;
-  } catch {
-    return SHIPPED;
-  }
-}
-
-function writeChoice(value: string): void {
-  try {
-    window.localStorage.setItem(CHOICE_KEY, value);
-  } catch {
-    // Private mode or blocked storage: the choice lasts this page only.
-  }
 }

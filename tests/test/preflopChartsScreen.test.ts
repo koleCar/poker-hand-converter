@@ -6,8 +6,7 @@
  *   the situation words, the export text), the comparison (tiles, situations,
  *   deviations, the missing situations), `hiddenDuringPlay` reading nothing;
  *   the session review's list read against an own chart.
- * - The web: the address (`myChartsQuery.ts`, a whitelist, round trips), the
- *   payload readers and the calls `lib/db/preflopCharts.ts` makes against a
+ * - The web: the payload readers and the calls `lib/db/preflopCharts.ts` makes against a
  *   faked `rpc`, and Rail's chart copied into a situation.
  * - The two languages' keys.
  *
@@ -35,7 +34,6 @@ import { replayerHr } from "@rail/ui/strings/replayer.hr";
 import { reviewUiEn } from "@rail/ui/strings/review.en";
 import { reviewUiHr } from "@rail/ui/strings/review.hr";
 
-import { myChartsQueryString, parseMyChartsQuery } from "../../web/src/components/analysis/myCharts/myChartsQuery.js";
 import {
   playedFromPayload,
   sessionDecisionsFromPayload,
@@ -299,30 +297,6 @@ describe("the screens", () => {
 
 describe("the web", () => {
   beforeEach(() => rpc.mockReset());
-
-  it("reads its address as a whitelist and writes it back", () => {
-    const id = "0a1b2c3d-0000-4000-8000-00000000c001";
-    expect(parseMyChartsQuery({ set: id, view: "compare", period: "365d" })).toEqual({
-      selected: id,
-      view: "compare",
-      situation: null,
-      period: "365d",
-    });
-    expect(parseMyChartsQuery({ set: "new", at: "vs-open:BB:BTN" })).toMatchObject({ selected: "new", view: "edit", situation: "vs-open:BB:BTN" });
-    expect(parseMyChartsQuery({ set: "x';drop", view: "compare", at: "bogus", period: "7d" })).toEqual({
-      selected: null,
-      view: "edit",
-      situation: null,
-      period: undefined,
-    });
-    for (const query of [
-      { selected: id, view: "compare" as const, situation: null, period: "all" as const },
-      { selected: id, view: "edit" as const, situation: "rfi:CO", period: undefined },
-    ]) {
-      expect(parseMyChartsQuery(new URLSearchParams(myChartsQueryString(query)))).toEqual(query);
-    }
-    expect(myChartsQueryString({ selected: null, view: "edit", situation: null, period: undefined })).toBe("");
-  });
 
   it("reads the played cells and the session's decisions, dropping malformed rows", () => {
     expect(

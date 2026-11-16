@@ -132,7 +132,7 @@ export const en = {
     tables: {
       title: "Tables",
       /** Not shown: the command palette's keywords. */
-      lead: "Tile every table side by side or in your layout, re-tile, the RNG.",
+      lead: "Tile every table side by side or in your layout, re-tile, hotkeys.",
     },
     import: {
       title: "Import",
@@ -188,6 +188,7 @@ export const en = {
     perHundred: {
       bb: "bb/100",
       money: (symbol: string) => `${symbol}/100`,
+      chips: "chips/100",
     },
     rateTitle: "Won per 100 hands over the session so far",
     mixedKind: "This session mixes tournament chips with cash, so it has no result to add up.",
@@ -198,6 +199,7 @@ export const en = {
       lines: "Lines on the graph: click one to hide or show it",
       bigBlinds: "bb",
       money: "Money",
+      chips: "chips",
       loading: "Drawing the graph…",
       error: (reason: string) => `The graph did not load: ${reason}`,
     },
@@ -516,6 +518,7 @@ export const en = {
       folders: "Hand histories",
       statistics: "Your statistics",
       appearance: "Appearance",
+      rng: "RNG",
       about: "About",
       danger: "Danger zone",
     },
@@ -778,6 +781,11 @@ export const en = {
       },
     },
 
+    /** The RNG box (`rng_box.rs`): its switch. */
+    rng: {
+      show: "Show the RNG while you play",
+      hint: "One number from 1 to 100 in the top-right corner of your screen while a session is live. Click it for a new one.",
+    },
     startup: {
       heading: "Startup",
       startAtLogin: "Start Rail when you log in",
@@ -1107,6 +1115,7 @@ export const en = {
       hud: "HUD",
       appearance: "Appearance and language",
       startup: "Startup",
+      rng: "RNG",
       about: "About",
     },
     commands: "Commands",
@@ -1147,7 +1156,7 @@ export const en = {
   /** The analysis (R5.4): its screen, the background run's status, a hand's grades. */
   analysis: {
     tabsLabel: "Analysis sections",
-    tabs: { session: "Session review", leaks: "Top leaks", charts: "My charts" },
+    tabs: { session: "Session review", leaks: "Top leaks" },
     unavailable: "The analysis is only available inside the Rail app.",
     loading: "Opening the analysis…",
     status: {
@@ -1438,6 +1447,12 @@ export const en = {
   },
 
   /** The HUD popup (R3.8): a click on a player's panel at the table. */
+  /** The RNG box (`src/rngBox/RngBox.tsx`). */
+  rngBox: {
+    label: (n: number | null) => (n === null ? "Random number" : `Random number ${n}. Click for a new one.`),
+    hint: "Click for a new number",
+  },
+
   hudPopup: {
     label: (player: string) => `${player}: the HUD popup`,
     close: "Close (Esc)",
@@ -1677,7 +1692,7 @@ export const en = {
 
   /**
    * The Tables screen (T5): table tiling - the layout in force, re-tile, on
-   * or off, the displays with the tables on them, the rooms - and the RNG.
+   * or off, the displays with the tables on them, the rooms, the hotkeys.
    */
   tables: {
     unavailable: "Table tiling works in the Rail app.",
@@ -1795,7 +1810,6 @@ export const en = {
       taken: "Taken",
       takenHint: "Another program uses these keys.",
       failed: "Not available",
-      rngNotAllowed: "No room allows the RNG yet",
       inUse: (keys: string, action: string) => `${keys} is already set for ${action}.`,
       newer: "a newer Rail",
       problem: {
@@ -1816,43 +1830,6 @@ export const en = {
       whyApproval: (room: string) => `${room} allows other tools only with its approval, which Rail does not have.`,
       more: (count: number) => (count === 1 ? "1 more room not allowed" : `${n(count)} more rooms not allowed`),
       fewer: "Fewer rooms",
-      tileColumn: "Tiling",
-      rngColumn: "RNG",
-      rng: (room: string) => `RNG at ${room}`,
-      rngNotAllowedBy: (room: string) => `Not allowed by ${room}`,
-    },
-    rng: {
-      label: "RNG",
-      notAllowed: "Not allowed in any of your rooms yet",
-      notAllowedWhy: "No room you play has said it allows an on-screen random number generator.",
-      bands: "Colour bands",
-      band: (from: number, to: number) => `${from}–${to}`,
-      bandMenu: (from: number, to: number) => `Band ${from}–${to}`,
-      bandLabel: "Label",
-      bandColour: "Colour",
-      bandEnd: "Ends at",
-      split: "Split",
-      remove: "Remove",
-      roll: "Roll",
-      newHand: "New hand",
-      click: "Click",
-      every: (seconds: number) => `Every ${n(seconds)} s`,
-      seconds: "Seconds",
-      size: "Size",
-      opacity: "Opacity",
-      preview: "How it looks at a table",
-      problem: {
-        range: "The range ends before it starts.",
-        bandCount: "Between 1 and 10 bands.",
-        outside: "A band ends outside the range.",
-        order: "The bands must go up.",
-        colour: "A colour is not valid.",
-        label: "A label is too long.",
-        lastEnd: "The last band must end at the range's end.",
-        timer: "The timer is 1 s to 1 h.",
-        scale: "The size is 50 % to 200 %.",
-        opacity: "The opacity is 30 % to 100 %.",
-      },
     },
   },
 

@@ -48,6 +48,8 @@ import {
   PLAYERS_FLOP_ORDER,
   VS_TYPE_ORDER,
   LEVELS_ORDER,
+  BLUFF_ORDER,
+  PCT_GROUPS,
   ordered,
   parseRange,
   type FilterState,
@@ -121,7 +123,12 @@ export type GroupId =
   | "openSize"
   | "vsVpip"
   | "buyIn"
-  | "bounty";
+  | "bounty"
+  | "heroBluff"
+  | "vsBluff"
+  | "flopPct"
+  | "turnPct"
+  | "riverPct";
 
 /** The groups whose values are a list in the filter. */
 export const LIST_GROUPS: Partial<Record<GroupId, ListGroup>> = {
@@ -170,7 +177,15 @@ export const LIST_GROUPS: Partial<Record<GroupId, ListGroup>> = {
   playersFlop: "playersFlop",
   vsType: "vsType",
   levels: "levels",
+  heroBluff: "heroBluff",
+  vsBluff: "vsBluff",
 };
+
+/** The bet-size range groups (edited as the pot is: greater, less, between). */
+const PCT: readonly GroupId[] = PCT_GROUPS.map(([group]) => group);
+function isPct(group: GroupId): group is "flopPct" | "turnPct" | "riverPct" {
+  return PCT.includes(group);
+}
 
 /** The yes/no groups and the field each one sets. */
 export const FLAG_GROUPS: Partial<Record<GroupId, "allIn" | "hasNote" | "showdown" | "knownCards" | "bounty">> = {
@@ -245,6 +260,11 @@ export const BUILDER_GROUPS: GroupId[] = [
   "vsVpip",
   "buyIn",
   "bounty",
+  "heroBluff",
+  "vsBluff",
+  "flopPct",
+  "turnPct",
+  "riverPct",
 ];
 
 /** Groups a source offers or not (`HandsSource.features.more`). */
@@ -337,8 +357,11 @@ export const PANES: { section: SectionId; panes: { id: PaneId; groups: GroupId[]
       { id: "quick", groups: [] },
       { id: "positions", groups: ["position", "showdownPositions"] },
       { id: "preflop", groups: ["potType", "preflopDid", "preflopFaced", "preflopRole"] },
-      { id: "line", groups: ["streets", "flopLine", "turnLine", "riverLine", "showdown"] },
-      { id: "sizing", groups: ["openSize", "flopSize", "turnSize", "riverSize"] },
+      { id: "line", groups: ["streets", "flopLine", "turnLine", "riverLine", "showdown", "heroBluff", "vsBluff"] },
+      {
+        id: "sizing",
+        groups: ["openSize", "flopSize", "flopPct", "turnSize", "turnPct", "riverSize", "riverPct"],
+      },
     ],
   },
   {
@@ -405,6 +428,7 @@ export function isSet(group: GroupId, filter: FilterState): boolean {
   if (group === "date") return filter.date !== null;
   if (group === "heroHand") return filter.heroCards.trim() !== "" || filter.heroRange.length > 0;
   if (group === "potSize") return filter.potSize.trim() !== "";
+  if (isPct(group)) return filter[group].trim() !== "";
   return false;
 }
 
@@ -424,6 +448,7 @@ export function clearGroup(group: GroupId, filter: FilterState, facets: HandFace
   if (group === "heroHand") return { ...filter, heroCards: "", heroRange: [] };
   // The unit stays as chosen: it is how the player thinks of pots.
   if (group === "potSize") return { ...filter, potSize: "" };
+  if (isPct(group)) return { ...filter, [group]: "" };
   return filter;
 }
 
@@ -537,6 +562,8 @@ export function useGroupWords() {
       playersFlop: t.builder.playersFlop,
       vsType: t.builder.vsType,
       levels: t.builder.levels,
+      heroBluff: t.builder.bluffStreets,
+      vsBluff: t.builder.bluffStreets,
     };
     const orders: Partial<Record<GroupId, string[]>> = {
       position: POSITION_ORDER,
@@ -604,6 +631,8 @@ export function useGroupWords() {
         case "playersFlop":
         case "vsType":
         case "levels":
+        case "heroBluff":
+        case "vsBluff":
           values = (BUILDER_ORDERS[group] ?? []).map((value) => ({ value, count: 1 }));
           break;
         case "position": {
@@ -681,6 +710,10 @@ export function useGroupWords() {
           return `≥ ${filter.minPot.trim()}`;
         case "potSize":
           return potSummary(filter);
+        case "flopPct":
+        case "turnPct":
+        case "riverPct":
+          return pctSummary(filter[group]);
         case "heroHand": {
           const parts: string[] = [];
           if (filter.heroRange.length > 0) {
@@ -713,6 +746,15 @@ export function potSummary(filter: FilterState): string {
   if (min !== null) return `> ${amount(min)}`;
   if (max !== null) return `< ${amount(max)}`;
   return filter.potSize.trim();
+}
+
+/** A bet size's range as its chip says it: "> 50 %", "< 40 %", "50–80 %". */
+export function pctSummary(text: string): string {
+  const { min, max } = parseRange(text);
+  if (min !== null && max !== null) return `${min}–${max} %`;
+  if (min !== null) return `> ${min} %`;
+  if (max !== null) return `< ${max} %`;
+  return text.trim();
 }
 
 /** The builder's list groups' values, in their order. */
@@ -748,6 +790,8 @@ const BUILDER_ORDERS: Partial<Record<GroupId, string[]>> = {
   playersFlop: PLAYERS_FLOP_ORDER,
   vsType: VS_TYPE_ORDER,
   levels: LEVELS_ORDER,
+  heroBluff: BLUFF_ORDER,
+  vsBluff: BLUFF_ORDER,
 };
 
 /** The seats a 6-max table has: offered before any hand says otherwise. */

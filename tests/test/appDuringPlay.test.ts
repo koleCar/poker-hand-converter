@@ -84,7 +84,8 @@ describe("A10: no help during play", () => {
     for (const { path, text } of links) expect(text, path).toMatch(/hiddenDuringPlay\("analysis"/);
     const screen = readFileSync(join(APP_SRC, "screens/Analysis.tsx"), "utf8");
     expect(screen).toMatch(/const hidden = hiddenDuringPlay\("analysis", tablesOpen\);/);
-    expect(screen.match(/hiddenDuringPlay=\{hidden\}/g)?.length).toBe(2);
+    // The session review (My charts, the second, was removed on 2026-11-16).
+    expect(screen.match(/hiddenDuringPlay=\{hidden\}/g)?.length).toBe(1);
   });
 
   it("(R3.10) leaves a helping screen out of the sidebar and the palette while a table is open", () => {

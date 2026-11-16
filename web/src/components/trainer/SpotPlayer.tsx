@@ -1,6 +1,6 @@
 /**
  * One table of the Trainer's spot mode: a spot dealt for the request, the
- * felt, the answer (a button, a grouped button or a mix), the clock, the
+ * table (the replayer's felt, `TrainerTable`), the answer (a button, a grouped button or a mix), the clock, the
  * range panel, the grade and the feedback; then the next spot. Several of
  * these side by side are the multi-table mode (T5): each deals and grades
  * on its own, and only the table the Trainer names takes the keys.
@@ -18,11 +18,15 @@ import { nextSeed, STREAK_GRADES, type GradedAnswer, type TrainerAnswer, type Tr
 import { gradeMix, normalised, type MixResult } from "../../lib/training/frequency";
 import { ActionButtons, groupChoices, groupForKey, MixInput, TimebankBar, useTimebank, type Choice } from "./Decision";
 import { feltOf } from "./felt";
-import { Feedback, Verdict } from "./Feedback";
+import { bestIndex, useDecisionTabs, useOptionText, Verdict } from "./Feedback";
 import { useTrainerHost } from "./host";
+import { InfoTabs } from "./InfoTabs";
 import { RangePanel } from "./RangePanel";
+import { SeenBefore } from "./SeenBefore";
+import { cardsText, spotKey, type SessionAnswer, type SpotRef } from "./sessions";
 import type { SpotRequest, StreetMode, TrainerSettings } from "./settings";
-import { ActionStrip, SpotFelt } from "./SpotFelt";
+import { ActionStrip, StatusRow } from "./SpotFelt";
+import { TableBox, TrainerTable, type HeroMove } from "./TrainerTable";
 import styles from "./trainer.module.css";
 
 const DEAL_TRIES = 3;
@@ -40,6 +44,12 @@ export interface SpotPlayerProps {
   compact?: boolean;
   onScored: (answer: TrainerAnswer) => void;
   onStatus?: (status: TableStatus) => void;
+  /** A spot of the session's own to deal again (asked once per spot), with the key it must have; null: a new one. */
+  pickRef?: () => { ref: SpotRef; key: string } | null;
+  /** Every graded answer, for the session. */
+  onAnswer?: (answer: SessionAnswer) => void;
+  /** The session's earlier answers on a spot (read when the answer is graded). */
+  earlier?: (key: string) => SessionAnswer[];
 }
 
 /** Spots one after another: each its own component, so a new spot starts from a clean state. */
@@ -70,10 +80,15 @@ interface Answered {
   timedOut: boolean;
 }
 
-function OneSpot({ request, mode, settings, keys, compact = false, onScored, onStatus, next }: SpotPlayerProps & { next: () => void }) {
+function OneSpot({ request, mode, settings, keys, compact = false, onScored, onStatus, pickRef, onAnswer, earlier, next }: SpotPlayerProps & { next: () => void }) {
   const host = useTrainerHost();
   const { t } = host;
+  const optionText = useOptionText();
+  // A spot of the session's own, chosen once for this table's spot.
+  const [forced] = useState(() => pickRef?.() ?? null);
   const [spot, setSpot] = useState<TrainerSpot | null>(null);
+  const [ref, setRef] = useState<SpotRef | null>(null);
+  const [before, setBefore] = useState<SessionAnswer[]>([]);
   const [dealt, setDealt] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [answered, setAnswered] = useState<Answered | null>(null);
@@ -85,16 +100,23 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
   useEffect(() => {
     let live = true;
     const parsed = JSON.parse(requestJson) as SpotRequest;
-    (async () => {
+    (async (): Promise<{ spot: TrainerSpot; ref: SpotRef } | null> => {
+      // The spot again, exactly: its own request and seed. A reference that changed since (another deal) is dealt anew.
+      if (forced) {
+        const again = await host.deal(forced.ref.request, forced.ref.seed).catch(() => null);
+        if (again && spotKey(again) === forced.key) return { spot: again, ref: forced.ref };
+      }
       for (let attempt = 0; attempt < DEAL_TRIES; attempt += 1) {
-        const got = await host.deal(parsed, nextSeed());
-        if (got) return got;
+        const seed = nextSeed();
+        const got = await host.deal(parsed, seed);
+        if (got) return { spot: got, ref: { request: parsed, seed } };
       }
       return null;
     })()
       .then((got) => {
         if (!live) return;
-        setSpot(got);
+        setSpot(got?.spot ?? null);
+        setRef(got?.ref ?? null);
         setDealt(true);
       })
       .catch((e: unknown) => {
@@ -105,7 +127,7 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
     return () => {
       live = false;
     };
-  }, [requestJson, host]);
+  }, [requestJson, host, forced]);
 
 
   const status: TableStatus = !dealt ? "dealing" : answered || !spot ? "answered" : "waiting";
@@ -135,17 +157,51 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
   }, [spot, t]);
   const groups = useMemo(() => groupChoices(choices, settings.buttons), [choices, settings.buttons]);
 
+  // The answer on the table: the chips pushed out, or the cards folded.
+  const picked = answered?.picked ?? null;
+  const move = useMemo<HeroMove | null>(() => {
+    if (!spot || picked === null) return null;
+    if (spot.kind === "preflop") {
+      const item = spot.menu[picked];
+      if (!item) return null;
+      if (item.action === "allin") return { action: "raise", allIn: true };
+      return { action: item.action as HeroMove["action"], toBb: item.toBb };
+    }
+    const item = spot.menu[picked];
+    if (!item) return null;
+    if (item.kind === "allin") return { action: spot.toCallBb > 0 ? "raise" : "bet", allIn: true };
+    return { action: item.kind as HeroMove["action"], toBb: item.to };
+  }, [spot, picked]);
+
   const settle = useCallback(
     (result: GradedAnswer, scored: TrainerAnswer, d: DecisionAnalysis, label: string) => {
       onScored(scored);
       if (spot) {
         host.record?.(spot, scored, d.facts.handClass);
         host.kept?.({ at: new Date().toISOString(), street: d.street, cards: [...spot.cards], label, grade: scored.grade, evLoss: scored.evLoss });
+        const key = spotKey(spot);
+        setBefore(earlier?.(key) ?? []);
+        const best = bestIndex(d);
+        onAnswer?.({
+          at: new Date().toISOString(),
+          street: spot.kind,
+          cards: cardsText(spot.cards),
+          board: spot.kind === "preflop" ? "" : cardsText(spot.board),
+          spotKey: key,
+          position: spot.hero,
+          handClass: d.facts.handClass,
+          move: label.slice(0, 60) || "?",
+          best: best !== null ? optionText(d.options[best]).slice(0, 60) : "",
+          grade: scored.grade,
+          evLoss: scored.evLoss,
+          score: scored.score,
+          ref,
+        });
       }
       if (settings.pause === "mistakes" && STREAK_GRADES.includes(scored.grade)) setHolding(true);
       void result;
     },
-    [onScored, spot, host, settings.pause],
+    [onScored, spot, host, settings.pause, earlier, onAnswer, optionText, ref],
   );
 
   /** An action answer: a group's first size, then (one per action) the size the reference prefers for the hand. */
@@ -235,6 +291,14 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
 
   const graded = answered?.graded ?? null;
   const decision = graded?.decision ?? null;
+  const tabs = useDecisionTabs({
+    decision,
+    spot,
+    settings,
+    mix: answered?.mix?.shares ?? null,
+    range: host.range && spot ? <RangePanel target={spot} read={host.range} strategy={settings.range === "strategy" || Boolean(answered)} /> : undefined,
+    study: host.study && graded && decision ? host.study(graded, spot) : null,
+  });
 
   useEffect(() => {
     if (!keys) return;
@@ -274,8 +338,13 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
   }
   if (!dealt) {
     return (
-      <div className={styles.loading} data-compact={compact || undefined}>
-        <RailLoader label={mode === "flop" ? t.loadingFlop : mode === "turn" || mode === "river" ? t.solving : t.dealing} showLabel centered />
+      <div className={styles.spot} data-compact={compact || undefined}>
+        {compact ? null : <div className={styles.stripSpace} aria-hidden="true" />}
+        <TableBox compact={compact}>
+          <div className={styles.loading}>
+            <RailLoader label={mode === "flop" ? t.loadingFlop : mode === "turn" || mode === "river" ? t.solving : t.dealing} showLabel centered />
+          </div>
+        </TableBox>
       </div>
     );
   }
@@ -294,39 +363,42 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
   return (
     <div className={`${styles.spot} rail-fade`} data-compact={compact || undefined} data-keys={keys ?? undefined}>
       {compact ? null : <ActionStrip items={felt.strip} />}
-      <SpotFelt
-        felt={felt}
-        cards={spot.cards}
-        toCallBb={answered ? 0 : spot.toCallBb}
+      <TrainerTable
+        hand={spot.hand}
+        board={spot.kind === "preflop" ? [] : spot.board}
+        heroCards={spot.cards}
+        move={move}
+        waiting={!answered}
         compact={compact}
-        overlay={
-          decision && decision.grade ? (
-            <Verdict decision={mix ? { ...decision, grade: mix.result.grade, evLoss: mix.result.evLoss } : decision} note={mix ? t.mixAccuracy(mix.result.accuracy) : answered?.timedOut ? t.timeUp : null}
-              compact={compact}
-            />
-          ) : null
-        }
       />
+      <StatusRow compact={compact}>
+        {decision && decision.grade ? (
+          <Verdict
+            decision={mix ? { ...decision, grade: mix.result.grade, evLoss: mix.result.evLoss } : decision}
+            note={mix ? t.mixAccuracy(mix.result.accuracy) : answered?.timedOut ? t.timeUp : null}
+            compact={compact}
+          />
+        ) : answered?.error ? (
+          <span className={styles.statusError}>{t.failed(answered.error)}</span>
+        ) : answered ? (
+          <RailLoader size="inline" label={t.grading} showLabel />
+        ) : (
+          <span className={styles.statusMove}>
+            <strong>{t.yourMove}</strong>
+            {spot.toCallBb > 0 ? <span>{t.toCall(spot.toCallBb)}</span> : null}
+          </span>
+        )}
+      </StatusRow>
       {settings.input === "frequency" ? (
         <MixInput choices={choices} disabled={Boolean(answered)} onSubmit={pickMix} />
       ) : (
         <ActionButtons choices={choices} groups={groups} picked={answered?.picked ?? null} disabled={Boolean(answered)} onPick={(g) => pickGroup(g)} />
       )}
-      {!answered ? <TimebankBar left={left} seconds={seconds} /> : null}
-
-      {host.range && !compact ? (
-        <RangePanel target={spot} read={host.range} strategy={settings.range === "strategy" || Boolean(answered)} />
-      ) : null}
-
-      {answered && !graded && !answered.error ? (
-        <p className={styles.status}>
-          <RailLoader size="inline" label={t.grading} showLabel />
-        </p>
-      ) : null}
-      {answered?.error ? <p className={styles.notice}>{t.failed(answered.error)}</p> : null}
-
-      {graded ? (
-        <div className={styles.after}>
+      <div className={styles.afterRow}>
+        <div className={styles.clock} data-done={answered ? true : undefined}>
+          <TimebankBar left={left} seconds={seconds} />
+        </div>
+        {graded ? (
           <div className={styles.nextRow}>
             {holding ? (
               <>
@@ -346,10 +418,11 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
               {keys === "next" ? <kbd aria-hidden="true">N</kbd> : null}
             </button>
           </div>
-          {decision && open ? <Feedback decision={decision} spot={spot} settings={settings} mix={mix?.shares ?? null} /> : null}
-          {host.study && open && decision ? host.study(graded, spot) : null}
-        </div>
-      ) : null}
+        ) : null}
+      </div>
+
+      {decision?.grade && before.length > 0 && !compact ? <SeenBefore rows={before} grade={mix ? mix.result.grade : decision.grade} /> : null}
+      {open ? <InfoTabs tabs={tabs} /> : null}
     </div>
   );
 }

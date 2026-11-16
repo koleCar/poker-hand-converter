@@ -3,8 +3,8 @@
  * one row of pill tabs, the concept library behind a book icon, and the
  * screen's own tools (filters, the analysis run) on the same row.
  *
- * Ten sections became seven: the study plan lives on Train, your own charts
- * on Charts (Rail | Mine), and the concepts are reached from the icon and
+ * Ten sections became seven: the study plan lives on Train (your own charts
+ * were removed on 2026-11-16), and the concepts are reached from the icon and
  * from every "Learn" link rather than from a tab. Their pages still exist, so
  * they light up the section that now holds them.
  *
@@ -28,15 +28,13 @@ export type AnalysisSection =
   | "progress"
   | "reports"
   | "charts"
-  | "my-charts"
   | "learn";
 
 type Tab = "overview" | "session" | "leaks" | "progress" | "reports" | "train" | "charts";
 
-/** The tab a section lights up: the plan is on Train, your charts on Charts. */
+/** The tab a section lights up: the plan is on Train. */
 function tabOf(section: AnalysisSection): Tab | null {
   if (section === "plan") return "train";
-  if (section === "my-charts") return "charts";
   if (section === "learn") return null;
   return section;
 }

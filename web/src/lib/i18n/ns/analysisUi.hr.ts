@@ -71,7 +71,6 @@ export const uiHr: Dict["analysis"]["ui"] = {
     empty: "Ovdje nema ruku",
   },
   empty: { upload: "Učitaj ruke" },
-  charts: { label: "Čiji chartovi", rail: "Rail", mine: "Moji" },
   side: {
     topLeaks: "Najveći leakovi",
     allTime: "cijelo vrijeme",

@@ -21,7 +21,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FilterBar, HAND_GROUPS, REPORT_GROUPS, handGroups } from "@rail/ui/hands/FilterBar";
-import { BUILDER_GROUPS, PANES, QUICK_FILTERS, clearAll, clearGroup, potSummary, quickFor, selectedOf, shownSet, withValues } from "@rail/ui/hands/groups";
+import { BUILDER_GROUPS, PANES, QUICK_FILTERS, clearAll, clearGroup, pctSummary, potSummary, quickFor, selectedOf, shownSet, withValues } from "@rail/ui/hands/groups";
 import { EMPTY_FILTER, activeGroups, fromSaved, parseRange, potParts, potText, toQuery, toSaved, type FilterState } from "@rail/ui/hands/filter";
 import { HandList } from "@rail/ui/hands/HandList";
 import type { HandFacets, HandRow } from "@rail/ui/hands/model";
@@ -753,6 +753,39 @@ describe("the filter builder's groups (V1, 2026-11-05)", () => {
     for (const key of ["openMin", "flopSizes", "flopMade", "kickers", "vsTypes", "vsVpipMin", "buyInMin", "bounty", "levels"]) {
       expect(plain).not.toHaveProperty(key);
     }
+  });
+
+  it("asks for a bet size of the player's own and who was caught bluffing, by street", () => {
+    const filter: FilterState = {
+      ...EMPTY_FILTER,
+      flopPct: "<40",
+      turnPct: "50-80",
+      riverPct: ">100",
+      heroBluff: ["river"],
+      vsBluff: ["flop", "turn"],
+    };
+    const query = toQuery(filter, NOW);
+    expect([query.flopPctMin, query.flopPctMax]).toEqual([undefined, 40]);
+    expect([query.turnPctMin, query.turnPctMax]).toEqual([50, 80]);
+    expect([query.riverPctMin, query.riverPctMax]).toEqual([100, undefined]);
+    expect(query.heroBluffs).toEqual(["river"]);
+    expect(query.vsBluffs).toEqual(["flop", "turn"]);
+    expect(pctSummary(filter.flopPct)).toBe("< 40 %");
+    expect(pctSummary(filter.turnPct)).toBe("50–80 %");
+    expect(pctSummary(filter.riverPct)).toBe("> 100 %");
+    expect(fromSaved(toSaved(filter))).toEqual(filter);
+    expect(activeGroups(filter)).toBe(5);
+    expect(clearGroup("turnPct", filter).turnPct).toBe("");
+    expect(clearGroup("vsBluff", filter).vsBluff).toEqual([]);
+    // A filter saved before the groups reads as "any"; unset, nothing goes to the store.
+    expect(fromSaved(JSON.stringify({ sites: [] }))).toMatchObject({ flopPct: "", heroBluff: [], vsBluff: [] });
+    const plain = toQuery(EMPTY_FILTER, NOW);
+    for (const key of ["flopPctMin", "flopPctMax", "riverPctMax", "heroBluffs", "vsBluffs"]) {
+      expect(plain).not.toHaveProperty(key);
+    }
+    const panes = PANES.flatMap((section) => section.panes);
+    expect(panes.find((pane) => pane.id === "sizing")?.groups).toEqual(expect.arrayContaining(["flopPct", "turnPct", "riverPct"]));
+    expect(panes.find((pane) => pane.id === "line")?.groups).toEqual(expect.arrayContaining(["heroBluff", "vsBluff"]));
   });
 
   it("only a source that reads them gets them, each in one pane", () => {

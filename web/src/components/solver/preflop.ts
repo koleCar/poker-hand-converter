@@ -24,7 +24,7 @@
  * so heads-up, 6-max and full ring read alike.
  */
 
-import { sameLine, type FlopLine } from "../../lib/analysis/flopLibrary";
+import { libraryLine, sameLine, type FlopLine } from "../../lib/analysis/flopLibrary";
 import { uncapturedLine, type ChartAction, type ChartNode, type ChartPosition, type ChartSet } from "../../lib/charts";
 
 export interface SeatAct {
@@ -149,7 +149,8 @@ export function preflopState(charts: ChartSet, line: string, lines: readonly Flo
   else if (allIn) end = { kind: "allin" };
   else if (live.length > 2) end = { kind: "multiway", players: live };
   else {
-    const solved = lines.find((candidate) => sameLine(candidate.key, walked)) ?? null;
+    // A fixed library line, else an extra one the charts play heads-up (`libraryLine`); the manifest says whether it is solved.
+    const solved = lines.find((candidate) => sameLine(candidate.key, walked)) ?? libraryLine(charts, walked);
     end = { kind: "flop", players: [live[0], live[1]], line: solved };
   }
   return { line: walked, seats, cards, node: null, end, potBb };

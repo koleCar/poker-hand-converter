@@ -17,7 +17,8 @@ import type { GradedAnswer, TrainerAnswer, TrainerSpot } from "../../lib/trainin
 import type { PlayOptions, PlayStep } from "../../lib/training/play";
 import type { RangeView } from "../../lib/training/rangeView";
 import type { FocusArea } from "../../lib/training/plan";
-import type { SpotRequest, TrainerSettings } from "./settings";
+import type { SpotRequest } from "./settings";
+import type { SessionStore } from "./sessions";
 
 export type TrainerDict = Dict["trainer"];
 
@@ -67,8 +68,12 @@ export interface TrainerHost {
   focus(): Promise<FocusState>;
   /** A graded answer, to keep (the web's `trainer_results`); absent: kept nowhere. */
   record?(spot: TrainerSpot, answer: TrainerAnswer, handClass: string | null): void;
-  /** The settings changed: keep them (the address, local storage). */
-  onSettings?(settings: TrainerSettings): void;
+  /** Where training sessions are kept: the account (the web), this device (the app). */
+  sessions: SessionStore;
+  /** The session to open first (the address's `session`); absent: the list. */
+  initialSession?: string | null;
+  /** The open session changed (null: the list): keep it in the address. */
+  onSession?(id: string | null): void;
   /**
    * More of the answer's study under the feedback: the web's whole chart or
    * range study and its Learn links. Absent: none. `spot` is null for a

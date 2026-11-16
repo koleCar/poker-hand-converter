@@ -18,10 +18,10 @@
 //!   settings change - stored, sent to the HUD (`tiling_changed`), synced,
 //!   the window told ([`crate::tiling::SETTINGS_EVENT`]) - exactly as if the
 //!   user had clicked it on the Tables screen; "Re-tile" sends `retile`;
-//!   "Roll the RNG" sends `roll_rng`. The HUD's permits decide every
-//!   window: the tiler holds only the tables of rooms with a
-//!   `TilingPermit`, and a roll needs the table's `RngPermit` (no room has
-//!   one today, so that key is inert). Nothing here acts inside a table.
+//!   "Roll the RNG" shows a new number in the RNG box (`crate::rng_box`,
+//!   since 2026-11-16; nothing when the box is not showing). The HUD's
+//!   permits decide every window: the tiler holds only the tables of rooms
+//!   with a `TilingPermit`. Nothing here acts inside a table.
 //! - **A key another program holds** is not an error: its binding is
 //!   reported as `taken` ([`HotkeyStatusDto`], [`STATUS_EVENT`]) and the
 //!   others still work. Windows refuses a combination another program
@@ -276,6 +276,16 @@ pub fn run<R: Runtime>(app: &AppHandle<R>, action: HotkeyAction) -> bool {
     else {
         return false;
     };
+    // The RNG is the app's own box since 2026-11-16 (`crate::rng_box`), no
+    // longer the HUD's: its key rolls the box.
+    if action == HotkeyAction::RollRng {
+        let rolled = crate::rng_box::roll_from_hotkey(app);
+        log::info!(
+            "hotkeys: {action:?}{}",
+            if rolled { "" } else { " (no RNG box)" }
+        );
+        return rolled;
+    }
     match dispatch(action, &hud.table_settings().tiling) {
         HotkeyEffect::Settings(next) => {
             let saved = crate::tiling::writer(&store)
@@ -563,7 +573,7 @@ mod tests {
         assert!(run(handle, HotkeyAction::PreviousLayout));
         assert_eq!(stored().active, LayoutRef::Auto);
         assert!(!run(handle, HotkeyAction::Retile), "no HUD running");
-        assert!(!run(handle, HotkeyAction::RollRng), "no HUD running");
+        assert!(!run(handle, HotkeyAction::RollRng), "no RNG box showing");
         assert!(run(handle, HotkeyAction::ToggleTiling));
         assert!(!stored().enabled);
         handle.state::<HudState>().stop();

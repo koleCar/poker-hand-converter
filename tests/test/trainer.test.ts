@@ -79,7 +79,7 @@ describe("trainer settings", () => {
     expect(unavailable("river", s)).toBeNull();
   });
 
-  it("says a set not transcribed yet, or a flop with no flop library, is not available, and deals nothing else", () => {
+  it("says a set not transcribed yet is not available, and deals nothing else", () => {
     // A study plan's link to the 9-max set (planned, not transcribed): kept, and unavailable on every street.
     const s = parseSettings({ mode: "preflop", set: "nlhe-cash-9max-100bb" });
     expect(s.set).toBe("nlhe-cash-9max-100bb");
@@ -92,9 +92,10 @@ describe("trainer settings", () => {
     expect(unavailable("turn", hu.settings)).toBe("set");
     // An unknown id is still the default.
     expect(parseSettings({ set: "nlhe-cash-7max-100bb" }).set).toBe(DEFAULT_SETTINGS.set);
-    // No flop library is published: the flop, and a whole hand from it, wait; a whole hand from preflop deals.
-    expect(unavailable("flop", DEFAULT_SETTINGS)).toBe("flop");
-    expect(unavailable("river", DEFAULT_SETTINGS, true)).toBe("flop");
+    // The 6-max 100bb flop library is published since analysis/43 (solved night by night): the flop, and a whole
+    // hand from it, deal from what its manifest lists.
+    expect(unavailable("flop", DEFAULT_SETTINGS)).toBeNull();
+    expect(unavailable("river", DEFAULT_SETTINGS, true)).toBeNull();
     expect(unavailable("preflop", DEFAULT_SETTINGS, true)).toBeNull();
   });
 

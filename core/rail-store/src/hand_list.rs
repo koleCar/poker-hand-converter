@@ -190,6 +190,13 @@ pub struct HandFilter {
     pub bounty: Option<bool>,
     /// Blind levels: `1-5`, `6-10`, `11-15`, `16plus`.
     pub levels: Vec<String>,
+    /// The hero's first bet or raise on the flop, turn, river within a
+    /// share of the pot, percent: from, to (2026-11-15, the owner's ask: a
+    /// size of the player's own, where `bet_sizes` has four buckets).
+    pub bet_pct: [(Option<f64>, Option<f64>); 3],
+    /// Caught bluffing on any of these streets (`flop`, `turn`, `river`):
+    /// the hero, then an opponent ([`crate::facts`]'s `caught_bluffing`).
+    pub bluffs: [Vec<String>; 2],
 }
 
 /// The hero's actions on the list row (`hand_list.hero_acts`, version 18),
@@ -459,6 +466,28 @@ fn facts_clauses(filter: &HandFilter, w: &mut Where) {
         .collect();
     if !levels.is_empty() {
         w.push(format!("({})", levels.join(" OR ")));
+    }
+    for (column, (min, max)) in ["l.flop_bet_pct", "l.turn_bet_pct", "l.river_bet_pct"]
+        .iter()
+        .zip(filter.bet_pct)
+    {
+        if min.is_some_and(f64::is_finite) || max.is_some_and(f64::is_finite) {
+            w.push(format!("{column} IS NOT NULL"));
+            ranged(w, column, min, max, 1);
+        }
+    }
+    for (column, streets) in ["l.hero_bluff", "l.vs_bluff"].iter().zip(&filter.bluffs) {
+        let mask = streets.iter().fold(0, |mask, street| {
+            mask | match street.as_str() {
+                "flop" => 1,
+                "turn" => 2,
+                "river" => 4,
+                _ => 0,
+            }
+        });
+        if mask != 0 {
+            w.push(format!("({column} & {mask}) != 0"));
+        }
     }
 }
 

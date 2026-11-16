@@ -143,6 +143,16 @@ pub struct FilterDto {
     buy_in_max: Option<f64>,
     bounty: Option<bool>,
     levels: Vec<String>,
+    /// The hero's bet on the flop, turn, river: from, to, percent of the pot.
+    flop_pct_min: Option<f64>,
+    flop_pct_max: Option<f64>,
+    turn_pct_min: Option<f64>,
+    turn_pct_max: Option<f64>,
+    river_pct_min: Option<f64>,
+    river_pct_max: Option<f64>,
+    /// Caught bluffing on these streets: the hero, an opponent.
+    hero_bluffs: Vec<String>,
+    vs_bluffs: Vec<String>,
 }
 
 /// `PlayerRef`: an opponent's room (site key) and name.
@@ -210,6 +220,12 @@ impl From<FilterDto> for HandFilter {
             open_max: dto.open_max,
             bet_sizes: [dto.flop_sizes, dto.turn_sizes, dto.river_sizes],
             made: [dto.flop_made, dto.turn_made, dto.river_made],
+            bet_pct: [
+                (dto.flop_pct_min, dto.flop_pct_max),
+                (dto.turn_pct_min, dto.turn_pct_max),
+                (dto.river_pct_min, dto.river_pct_max),
+            ],
+            bluffs: [dto.hero_bluffs, dto.vs_bluffs],
             kickers: dto.kickers,
             draws: [dto.flop_draws, dto.turn_draws],
             vs_positions: dto.vs_positions,

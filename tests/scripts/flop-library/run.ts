@@ -24,7 +24,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFile
 import { availableParallelism, cpus, totalmem } from "node:os";
 import { dirname, join, resolve } from "node:path";
 
-import { FLOP_PROFILE, flopLinesFor, type FlopLine } from "../../../web/src/lib/analysis/flopLibrary.js";
+import { chartLineHash, FLOP_PROFILE, flopLinesFor, libraryLineById, type FlopLine } from "../../../web/src/lib/analysis/flopLibrary.js";
 import { rakeOf } from "../../../web/src/lib/analysis/river.js";
 import { loadCharts, type ChartSet } from "../../../web/src/lib/charts/index.js";
 import {
@@ -52,6 +52,8 @@ interface Options {
   set: string;
   lines: string[] | null;
   flops: string[];
+  /** `--queue FILE`: the jobs as a JSON list of `{ line, flop }` (or `{ jobs: [...] }`), in order, instead of flops x lines. */
+  queue: string | null;
   only: number | null;
   threads: number;
   memGb: number;
@@ -79,6 +81,7 @@ function parseArgs(argv: string[]): Options {
     set: get("set") ?? "nlhe-cash-6max-100bb",
     lines: list(get("lines")),
     flops: (list(get("flops")) ?? byWeight).map((f) => flopKey(f.match(/../g) ?? [])),
+    queue: get("queue") ? resolve(get("queue") as string) : null,
     only: get("only") ? Number(get("only")) : null,
     threads: Number(get("threads") ?? Math.max(1, Math.floor(availableParallelism() / 2))),
     memGb: Number(get("mem") ?? Math.round(totalmem() / 2 / 1e9)),
@@ -268,26 +271,49 @@ async function main(): Promise<void> {
     return;
   }
 
-  // The queue: flops in coverage order, each with every line asked for.
+  // The queue: flops in coverage order, each with every line asked for - or the `--queue` file's pairs, in its order.
+  const pairs: { line: string; flop: string }[] = [];
+  if (options.queue) {
+    const raw = JSON.parse(readFileSync(options.queue, "utf8")) as { line: string; flop: string }[] | { jobs: { line: string; flop: string }[] };
+    for (const { line, flop } of Array.isArray(raw) ? raw : raw.jobs) pairs.push({ line, flop: flopKey(flop.match(/../g) ?? []) });
+  } else {
+    for (const flop of options.flops) for (const line of wanted) pairs.push({ line, flop });
+  }
   const jobs: Job[] = [];
-  for (const flop of options.flops) {
-    for (const lineId of wanted) {
-      const line = lines.find((l) => l.id === lineId);
-      const spot = spots.get(lineId);
-      if (!line || !spot) throw new Error(`unknown or unplayable line ${lineId}`);
-      jobs.push({
-        id: `${line.id}/${flop}`,
-        line: line.id,
-        lineKey: line.key,
-        flop,
-        players: spot.players,
-        ranges: [Array.from(spot.ranges[0]), Array.from(spot.ranges[1])],
-        pot: spot.pot,
-        stack: spot.stack,
-        charts: { id: charts.id, version: charts.version, hash: charts.model.hash },
-        rake: { name: rake.name, percent: rake.percent, cap: rake.cap },
-      });
+  const seen = new Set<string>();
+  for (const { line: lineId, flop } of pairs) {
+    if (seen.has(`${lineId}/${flop}`)) continue;
+    seen.add(`${lineId}/${flop}`);
+    // A fixed line of the table, or an extra heads-up line (`x-<key>`, `libraryLine`) the charts play.
+    const line = lines.find((l) => l.id === lineId) ?? libraryLineById(charts, lineId) ?? undefined;
+    if (line && !spots.has(line.id)) {
+      try {
+        spots.set(line.id, lineSpot(charts, line));
+      } catch (error) {
+        log(`line ${line.id}: skipped (${error instanceof Error ? error.message : String(error)})`);
+      }
     }
+    const spot = line ? spots.get(line.id) : undefined;
+    if (!line || !spot) {
+      if (options.queue) {
+        log(`  ${lineId}/${flop}: skipped (unknown or unplayable line)`);
+        continue;
+      }
+      throw new Error(`unknown or unplayable line ${lineId}`);
+    }
+    jobs.push({
+      id: `${line.id}/${flop}`,
+      line: line.id,
+      lineKey: line.key,
+      flop,
+      players: spot.players,
+      ranges: [Array.from(spot.ranges[0]), Array.from(spot.ranges[1])],
+      pot: spot.pot,
+      stack: spot.stack,
+      charts: { id: charts.id, version: charts.version, hash: charts.model.hash },
+      lineHash: chartLineHash(charts, line.key) ?? undefined,
+      rake: { name: rake.name, percent: rake.percent, cap: rake.cap },
+    });
   }
   const selected = options.only !== null ? jobs.slice(0, options.only) : jobs;
   const chunkFile = (job: Job) => join(options.out, chunkPath(options.set, FLOP_PROFILE.tree, job.line, job.flop));
@@ -301,8 +327,9 @@ async function main(): Promise<void> {
   }
 
   // Memory per job, predicted from the work proxy (calibrated on finished solves, else on the pilot's btn-bb rainbow flop).
-  const mbPerWork = stats.length
-    ? stats.reduce((s, x) => s + x.peakRssMb, 0) / stats.reduce((s, x) => s + workOf(spots.get(x.line) as LineSpot, x.flop).work, 0)
+  const fitted = stats.filter((x) => spots.has(x.line));
+  const mbPerWork = fitted.length
+    ? fitted.reduce((s, x) => s + x.peakRssMb, 0) / fitted.reduce((s, x) => s + workOf(spots.get(x.line) as LineSpot, x.flop).work, 0)
     : 2400 / (1074 * 49);
   const predictMb = (job: Job) => workOf(spots.get(job.line) as LineSpot, job.flop).work * mbPerWork;
 

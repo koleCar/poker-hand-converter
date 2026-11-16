@@ -146,7 +146,7 @@ export const hr: Dict = {
     tables: {
       title: "Stolovi",
       /** Not shown: the command palette's keywords. */
-      lead: "Složi sve stolove jedan uz drugi ili po svom rasporedu, ponovno slaganje, RNG.",
+      lead: "Složi sve stolove jedan uz drugi ili po svom rasporedu, ponovno slaganje, prečaci.",
     },
     import: {
       title: "Uvoz",
@@ -200,6 +200,7 @@ export const hr: Dict = {
     perHundred: {
       bb: "bb/100",
       money: (symbol) => `${symbol}/100`,
+      chips: "čipova/100",
     },
     rateTitle: "Dobiveno na 100 ruku kroz dosadašnju sesiju",
     mixedKind: "Ova sesija miješa turnirske žetone i cash, pa nema rezultata koji bi se mogao zbrojiti.",
@@ -210,6 +211,7 @@ export const hr: Dict = {
       lines: "Linije na grafu: klikni jednu da je sakriješ ili prikažeš",
       bigBlinds: "bb",
       money: "Novac",
+      chips: "čipovi",
       loading: "Crtam graf…",
       error: (reason) => `Graf se nije učitao: ${reason}`,
     },
@@ -513,6 +515,7 @@ export const hr: Dict = {
       folders: "Povijesti ruku",
       statistics: "Tvoje statistike",
       appearance: "Izgled",
+      rng: "RNG",
       about: "O aplikaciji",
       danger: "Opasna zona",
     },
@@ -769,6 +772,10 @@ export const hr: Dict = {
       },
     },
 
+    rng: {
+      show: "Prikaži RNG dok igraš",
+      hint: "Jedan broj od 1 do 100 u gornjem desnom kutu ekrana dok traje sesija. Klikni ga za novi.",
+    },
     startup: {
       heading: "Pokretanje",
       startAtLogin: "Pokreni Rail pri prijavi u sustav",
@@ -1081,6 +1088,7 @@ export const hr: Dict = {
       hud: "HUD",
       appearance: "Izgled i jezik",
       startup: "Pokretanje",
+      rng: "RNG",
       about: "O aplikaciji",
     },
     commands: "Naredbe",
@@ -1119,7 +1127,7 @@ export const hr: Dict = {
 
   analysis: {
     tabsLabel: "Dijelovi analize",
-    tabs: { session: "Pregled sessiona", leaks: "Najveći leakovi", charts: "Moji chartovi" },
+    tabs: { session: "Pregled sessiona", leaks: "Najveći leakovi" },
     unavailable: "Analiza je dostupna samo u aplikaciji Rail.",
     loading: "Otvaram analizu…",
     status: {
@@ -1397,6 +1405,11 @@ export const hr: Dict = {
       granted: "Dopuštenje Pristupačnost je dano: HUD vidi tvoje stolove.",
       noClient: "HUD na macOS-u: nije pokrenut nijedan podržani poker klijent.",
     },
+  },
+
+  rngBox: {
+    label: (n) => (n === null ? "Slučajni broj" : `Slučajni broj ${n}. Klikni za novi.`),
+    hint: "Klikni za novi broj",
   },
 
   hudPopup: {
@@ -1750,7 +1763,6 @@ export const hr: Dict = {
       taken: "Zauzeto",
       takenHint: "Te tipke koristi drugi program.",
       failed: "Nije dostupno",
-      rngNotAllowed: "Nijedna soba još ne dopušta RNG",
       inUse: (keys, action) => `${keys} je već postavljeno za: ${action}.`,
       newer: "noviji Rail",
       problem: {
@@ -1771,43 +1783,6 @@ export const hr: Dict = {
       whyApproval: (room) => `${room} dopušta druge alate samo uz svoje odobrenje, a Rail ga nema.`,
       more: (count) => `Još ${n(count)} ${plural(count, "soba", "sobe", "soba")} u kojima nije dopušteno`,
       fewer: "Manje soba",
-      tileColumn: "Slaganje",
-      rngColumn: "RNG",
-      rng: (room) => `RNG u sobi ${room}`,
-      rngNotAllowedBy: (room) => `${room} to ne dopušta`,
-    },
-    rng: {
-      label: "RNG",
-      notAllowed: "Još nije dopušten ni u jednoj tvojoj sobi",
-      notAllowedWhy: "Nijedna soba u kojoj igraš nije rekla da dopušta generator slučajnih brojeva na zaslonu.",
-      bands: "Pojasevi boja",
-      band: (from, to) => `${from}–${to}`,
-      bandMenu: (from, to) => `Pojas ${from}–${to}`,
-      bandLabel: "Oznaka",
-      bandColour: "Boja",
-      bandEnd: "Završava na",
-      split: "Podijeli",
-      remove: "Ukloni",
-      roll: "Novi broj",
-      newHand: "Nova ruka",
-      click: "Klik",
-      every: (seconds) => `Svakih ${n(seconds)} s`,
-      seconds: "Sekunde",
-      size: "Veličina",
-      opacity: "Neprozirnost",
-      preview: "Kako izgleda za stolom",
-      problem: {
-        range: "Raspon završava prije nego što počne.",
-        bandCount: "Od 1 do 10 pojaseva.",
-        outside: "Pojas završava izvan raspona.",
-        order: "Pojasevi moraju rasti.",
-        colour: "Boja nije ispravna.",
-        label: "Oznaka je preduga.",
-        lastEnd: "Posljednji pojas mora završiti na kraju raspona.",
-        timer: "Mjerač je od 1 s do 1 h.",
-        scale: "Veličina je od 50 % do 200 %.",
-        opacity: "Neprozirnost je od 30 % do 100 %.",
-      },
     },
   },
 

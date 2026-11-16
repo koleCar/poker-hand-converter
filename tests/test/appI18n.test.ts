@@ -71,6 +71,8 @@ describe("dictionaries", () => {
       "Solver",
       // (T5) The Tables screen: "RNG" is what Croatian players say too.
       "RNG",
+      // Reports' rows by street: statistics' abbreviations, the same in Croatian as VPIP and PFR.
+      "FCB", "RCB", "Donk", "AFq",
     ]);
     const english = new Map(leaves(en as unknown as Node));
     const untranslated = leaves(hr as unknown as Node).filter(([path, text]) => {

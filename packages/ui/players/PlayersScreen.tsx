@@ -22,11 +22,13 @@
  * not keep (`PlayersSource.features`: the web has no colours or labels) the
  * screen leaves out.
  */
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
+import filterStyles from "../hands/FilterBar.module.css";
 import { countIn } from "../hands/format";
 import toggleStyles from "../hands/KindToggle.module.css";
 import type { FacetCount, PlayerRef } from "../hands/model";
+import { Popover } from "../hands/Popover";
 import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
 import type { Definition } from "../reports/model";
@@ -305,21 +307,13 @@ export function PlayersScreen({
           onChange={(event) => update({ search: event.target.value })}
         />
         {hideTitle ? null : kinds}
-        <label className={styles.select}>
-          <span>{p.room}</span>
-          <select
-            value={query.site ?? ""}
-            aria-label={p.room}
-            onChange={(event) => update({ site: event.target.value || null })}
-          >
-            <option value="">{p.anyRoom}</option>
-            {sites.map((site) => (
-              <option key={site.value} value={site.value}>
-                {site.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <RoomMenu
+          sites={sites}
+          site={query.site ?? null}
+          label={p.room}
+          anyRoom={p.anyRoom}
+          onPick={(site) => update({ site })}
+        />
         {hasColours ? (
           <div className={styles.swatches} role="group" aria-label={p.colourFilter}>
             {PLAYER_COLOURS.map((colour) => {
@@ -453,5 +447,69 @@ function KindsSwitch({
         </button>
       ))}
     </div>
+  );
+}
+
+/**
+ * The room filter: the Hands toolbar's "Saved" button and panel (a button
+ * naming the room in force, a list under it, the chosen one in the accent),
+ * in place of the system select.
+ */
+function RoomMenu({
+  sites,
+  site,
+  label,
+  anyRoom,
+  onPick,
+}: {
+  sites: readonly PlayerSite[];
+  site: string | null;
+  label: string;
+  anyRoom: string;
+  onPick: (site: string | null) => void;
+}) {
+  const anchor = useRef<HTMLSpanElement>(null);
+  const [open, setOpen] = useState(false);
+  const close = useCallback(() => setOpen(false), []);
+  const options = [{ value: null as string | null, name: anyRoom }, ...sites];
+  const current = options.find((option) => option.value === site) ?? options[0];
+
+  return (
+    <span ref={anchor} className={filterStyles.anchor}>
+      <button
+        type="button"
+        className={filterStyles.tool}
+        aria-expanded={open}
+        aria-haspopup="dialog"
+        aria-label={`${label}: ${current?.name ?? anyRoom}`}
+        onClick={() => setOpen((was) => !was)}
+      >
+        <span className={filterStyles.toolText}>{current?.name ?? anyRoom}</span>
+        <span className={filterStyles.caret} aria-hidden="true">
+          ▾
+        </span>
+      </button>
+      {open ? (
+        <Popover anchor={anchor} label={label} onClose={close}>
+          <ul className={filterStyles.savedList}>
+            {options.map((option) => (
+              <li key={option.value ?? ""}>
+                <button
+                  type="button"
+                  className={filterStyles.savedApply}
+                  aria-current={option.value === site ? "true" : undefined}
+                  onClick={() => {
+                    onPick(option.value);
+                    close();
+                  }}
+                >
+                  {option.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </Popover>
+      ) : null}
+    </span>
   );
 }

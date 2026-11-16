@@ -600,6 +600,11 @@ fn sessions_follow_the_gap_rule() {
         .expect("a session");
     assert_eq!(latest.started_at, all[0].started_at);
     assert_eq!(latest.hands, all[0].hands);
+    // The RNG box's question: the latest session's newest hand.
+    assert_eq!(
+        reader.newest_hand_at().expect("newest").as_deref(),
+        Some(latest.ended_at.as_str())
+    );
     assert!(latest.tables.is_some_and(|t| t > 0));
     let pots = reader.hand_rows(&latest.biggest_pots).expect("rows");
     assert_eq!(pots.len(), latest.biggest_pots.len().min(5));

@@ -68,6 +68,10 @@ export type Input = (typeof INPUTS)[number];
 export const TABLES = ["1", "2", "3", "4"] as const;
 export type Tables = (typeof TABLES)[number];
 
+/** Spots of the session's own dealt again (`sessions.ts`): never, about one in six, about one in three. */
+export const REPEATS = ["off", "some", "often"] as const;
+export type Repeat = (typeof REPEATS)[number];
+
 export const HAND_MODES: readonly TrainerMode[] = ["focus", "preflop", "flop"];
 export type Pause = (typeof PAUSES)[number];
 
@@ -105,6 +109,8 @@ export interface TrainerSettings {
   buttons: Buttons;
   input: Input;
   tables: Tables;
+  /** Spots of the session's own dealt again. */
+  repeat: Repeat;
 }
 
 export const DEFAULT_SETTINGS: TrainerSettings = {
@@ -128,6 +134,7 @@ export const DEFAULT_SETTINGS: TrainerSettings = {
   buttons: "all",
   input: "action",
   tables: "1",
+  repeat: "some",
 };
 
 /** The sets each street deals from (the river and turn trainers: the 6-max default and heads-up). */
@@ -314,6 +321,7 @@ export function parseSettings(raw: Record<string, unknown> | null | undefined): 
     buttons: oneOf(r.buttons, BUTTONS, d.buttons),
     input: oneOf(r.input, INPUTS, d.input),
     tables: oneOf(r.tables, TABLES, d.tables),
+    repeat: oneOf(r.repeat, REPEATS, d.repeat),
   };
 }
 

@@ -54,6 +54,12 @@ export interface FlopChunkHeader {
   /** Line id (`FLOP_LINES`) and its chart line key. */
   line: string;
   lineKey: string;
+  /**
+   * The chart nodes the line's ranges come from, fingerprinted
+   * (`chartLineHash`, `lib/analysis/flopLibrary.ts`). Absent from chunks
+   * solved before it: those are read only while `charts.hash` matches.
+   */
+  lineHash?: string;
   /** Positions, out of position first: player 0 of the solve is `players[0]`. */
   players: [string, string];
   /** Canonical flop key, e.g. `Qs7h2d`. */

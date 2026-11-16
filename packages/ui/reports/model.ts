@@ -43,6 +43,14 @@ export interface StatGroup {
   stats: Shown[];
 }
 
+/** One of the hero's positions with every shipped definition (`reports::PositionStatsDto`). */
+export interface PositionStats {
+  key: string;
+  hands: number;
+  /** `Report.positionColumns`, in that order. */
+  stats: Shown[];
+}
+
 /** A point of the graph: the shared graph's bucket with the money hands. */
 export interface GraphBucket extends WinrateGraphBucket {
   moneyHands: number;
@@ -74,6 +82,14 @@ export interface Report {
   /** The definition ids of every group row's `stats`. */
   columns: string[];
   byPosition: StatGroup[];
+  /**
+   * The statistics matrix's columns: each of the hero's positions with every
+   * shipped definition (`positionColumns`, by id), where `byPosition` has
+   * the breakdown's few. Absent from a surface that does not send them yet:
+   * the matrix then shows the total column only.
+   */
+  positionColumns?: string[];
+  positionStats?: PositionStats[];
   byStake: StatGroup[];
   bySite: StatGroup[];
   bySize: StatGroup[];
