@@ -124,12 +124,9 @@ export const solverHr: Dict["solver"] = {
   cellLabel: (hand: string, parts: string[], absent: boolean) => `${hand}: ${absent ? "nije u rasponu" : parts.join(", ")}`,
   part: (label: string, freq: number) => `${label} ${pct1(freq)}`,
   detailEmpty: "Pređi mišem ili odaberi ruku da vidiš koliko vrijedi koja akcija.",
-  reaches: (reach: number, count: number) => `${num(reach, 1)} od ${combos(count)} dolazi do ove odluke.`,
-  reachesShare: (share: number) => `Do ove odluke dolazi s ${pct1(share)} svojih kombinacija.`,
   you: "Ti",
   yourHand: "Tvoja ruka",
   comboOff: "Nije u ovom spotu",
-  inRange: (weight: number) => `${pct1(weight)} u rasponu`,
   tileLabel: (cards: string, parts: string[], value: string) => `${cards}: ${parts.join(", ")}, ${value}`,
   combosLabel: "Kombinacije",
   absent: "Ovdje nije u rasponu.",
@@ -140,15 +137,6 @@ export const solverHr: Dict["solver"] = {
   freq: pct1,
   signedBb,
   evShort: (value: number) => num(Math.round(value * 100) / 100 || 0, 2),
-  rangeValue: (reach: number, value: number) =>
-    `${num(reach, 1)} kombinacija dolazi do ove odluke · EV raspona ${signedBb(value)}`,
-  solvedTo: (exploitability: number, iterations: number) =>
-    `Solvano do ${num(exploitability, 2)} % pota exploitabilityja u ${num(iterations)} iteracija.`,
-  chartNote:
-    "Preflop: GTO Wizard rješenje, preneseno. Gdje ima više veličina raisea, prikazane su kao jedan raise najčešće veličine. Ćelija blijedi što manje te ruke dolazi do odluke.",
-  fullNote: "Puni solve: flop, turn i river (lokalno). ",
-  liveNote: "Turn i river solvani ovdje iz rangeova s flopa: turn 75 % i all-in, jedan raise; river 75 % i all-in. ",
-  flopNote: "Ćelija blijedi što manje te ruke dolazi do odluke. Kombinacije su u bojama odabranog flopa.",
 
   tabs: { label: "Prikaz", strategy: "Strategija + EV", ranges: "Rangeovi" },
 
@@ -239,7 +227,5 @@ export const solverHr: Dict["solver"] = {
     share: pct1,
     active: (mode: "include" | "exclude") => (mode === "include" ? "Samo" : "Bez"),
     remove: (label: string) => `Makni ${label}`,
-    note: (count: number, share: number) => `Filter: ${num(count, 1)} kombinacija, ${pct1(share)} rangea.`,
-    none: "Ništa iz rangea ne prolazi filter.",
   },
 };

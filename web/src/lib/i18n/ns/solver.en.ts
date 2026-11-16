@@ -126,12 +126,9 @@ export const solverEn = {
     `${hand}: ${absent ? "not in the range" : parts.join(", ")}`,
   part: (label: string, freq: number) => `${label} ${pct1(freq)}`,
   detailEmpty: "Hover or pick a hand to see what each action is worth.",
-  reaches: (reach: number, combos: number) => `${num(reach, 1)} of ${num(combos)} combos reach this decision.`,
-  reachesShare: (share: number) => `Reaches this decision with ${pct1(share)} of its combos.`,
   you: "You",
   yourHand: "Your hand",
   comboOff: "Not in this spot",
-  inRange: (weight: number) => `${pct1(weight)} in range`,
   tileLabel: (cards: string, parts: string[], value: string) => `${cards}: ${parts.join(", ")}, ${value}`,
   combosLabel: "Combos",
   absent: "Not in the range here.",
@@ -142,14 +139,6 @@ export const solverEn = {
   freq: pct1,
   signedBb,
   evShort: (value: number) => num(Math.round(value * 100) / 100 || 0, 2),
-  rangeValue: (reach: number, value: number) => `${num(reach, 1)} combos reach this decision · range EV ${signedBb(value)}`,
-  solvedTo: (exploitability: number, iterations: number) =>
-    `Solved to ${num(exploitability, 2)}% of the pot exploitability in ${num(iterations)} iterations.`,
-  chartNote:
-    "Preflop: a GTO Wizard solution, transcribed. Where it has several raise sizes, they show as one raise at the most frequent size. Cells fade where less of the hand reaches the decision.",
-  fullNote: "Full solve: flop, turn and river (local). ",
-  liveNote: "Turn and river solved here from the flop's ranges: turn 75% and all-in, one raise; river 75% and all-in. ",
-  flopNote: "A cell fades where less of the hand reaches the decision. Combos are shown in the suits of the picked flop.",
 
   tabs: { label: "View", strategy: "Strategy + EV", ranges: "Ranges" },
 
@@ -241,7 +230,5 @@ export const solverEn = {
     share: pct1,
     active: (mode: "include" | "exclude") => (mode === "include" ? "Only" : "Without"),
     remove: (label: string) => `Remove ${label}`,
-    note: (combos: number, share: number) => `Filter: ${num(combos, 1)} combos, ${pct1(share)} of the range.`,
-    none: "Nothing in the range passes the filter.",
   },
 } as const;

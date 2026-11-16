@@ -454,8 +454,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     }
     const where: Where = { flop: flopSolve, turn: turn ? solve : null, turnChance, full: fullSolve };
     const include = masks ? masks[solve.result.nodes[nodeIndex].player] : undefined;
-    const source = fullSolve ? t.fullNote : turn ? t.liveNote : "";
-    const model = flopModel(solve, nodeIndex, picked, source, t, include);
+    const model = flopModel(solve, nodeIndex, picked, t, include);
     postflop = (
       <>
         {postflop}
@@ -593,10 +592,8 @@ function preflopModel(node: ChartNode, line: string, t: Dict): StrategyModel {
         freq,
         ev,
         value: freq.reduce((sum, f, a) => sum + f * ev[a], 0),
-        reach: t.reachesShare(range),
       };
     }),
-    note: t.chartNote,
   };
 }
 
@@ -604,14 +601,11 @@ function flopModel(
   chunk: FlopChunk,
   index: number,
   picked: PickedFlop,
-  /** Where the turn comes from, for the note: a full solve's, a live one's, or "" on a library flop. */
-  source: string,
   t: Dict,
   include?: Uint8Array,
 ): StrategyModel {
   const view = exploreNode(chunk, index, include);
   const whole = include ? exploreNode(chunk, index) : view;
-  const unfiltered = whole.reach;
   const colours = actionColours(view.actions);
   return {
     id: `flop|${chunk.header.line}|${chunk.header.flop}|${chunk.result.board.join("")}|${index}`,
@@ -633,7 +627,6 @@ function flopModel(
         freq: c.freq,
         ev: c.ev,
         value: c.value,
-        reach: t.reaches(c.weight, c.combos),
       };
     }),
     combos: (k) =>
@@ -641,9 +634,6 @@ function flopModel(
         ...combo,
         cards: `${picked.toPicked(combo.cards.slice(0, 2))}${picked.toPicked(combo.cards.slice(2, 4))}`,
       })),
-    note:
-      (include ? `${view.reach > 0 ? t.filters.note(view.reach, view.reach / unfiltered) : t.filters.none} ` : "") +
-      `${t.rangeValue(view.reach, view.value)} · ${t.solvedTo(chunk.result.exploitabilityPct, chunk.result.iterations)} ${source}${t.flopNote}`,
   };
 }
 
