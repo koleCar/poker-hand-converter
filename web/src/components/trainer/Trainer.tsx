@@ -7,317 +7,439 @@
  * - the charts, the flop library and the turn and river solved on the spot -
  * and graded by the analysis itself (`lib/training`): a trainer answer is the
  * analysis' grade of the same spot by construction. "For you" deals from the
- * player's own leaks ({@link trainableAreas}).
+ * player's own leaks.
  *
- * Host-neutral (`host.tsx`): the web and the desktop app render it in place.
- * Every async step is keyed (`mode | request | round`): a slow deal or grade
- * for an old spot never lands on a new one.
+ * Training happens in **sessions** (`sessions.ts`, `docs/TRAINER.md` §7): a
+ * name and settings fixed for the session's life. This is the session list
+ * and the switch between it, a session's training (`SessionTrainer`) and its
+ * history (`SessionReview`); a new session is the settings sheet with a name
+ * (`SettingsSheet`). A change of settings starts a new session.
+ *
+ * Host-neutral (`host.tsx`): the web and the desktop app render it in place;
+ * the host says where sessions are kept (the account, or this device).
  */
 
 "use client";
 
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { addAnswer, emptySession, sessionAccuracy, type SessionStats, type TrainerAnswer } from "../../lib/training";
-import type { FocusArea } from "../../lib/training/plan";
-import { leakKind } from "../../lib/analysis/leaks";
-import { focusTarget, HANDS_PER_AREA, trainableAreas } from "./focus";
-import { useTrainerHost, type FocusState } from "./host";
+import { GRADES } from "../../lib/analysis/types";
+import { readDrills, saveDrills } from "./drills";
+import { useTrainerHost } from "./host";
+import { lockedSummary, scoreBand, SessionTrainer } from "./SessionTrainer";
+import { SessionReview } from "./SessionReview";
+import { emptyCounts, newSessionId, sessionSettings, whenText, type SessionAnswer, type TrainerSession } from "./sessions";
 import { SettingsSheet } from "./SettingsSheet";
-import { HandPlayer } from "./HandPlayer";
-import { HAND_MODES, PLAYS, playOptions, spotOptions, targetSettings, TRAINER_MODES, unavailable, type StreetMode, type TrainerSettings } from "./settings";
-import { Fold, Tick } from "./Session";
-import { SpotPlayer, type TableStatus } from "./SpotPlayer";
-import { TableBox } from "./TrainerTable";
+import { settingsFields, type TrainerSettings } from "./settings";
 import styles from "./trainer.module.css";
 
-export function Trainer({ initial }: { initial: TrainerSettings }) {
+type View = { kind: "list" } | { kind: "train"; id: string } | { kind: "review"; id: string };
+type Sort = "recent" | "hands" | "score";
+
+export function Trainer({ initial, suggest = false }: { initial: TrainerSettings; suggest?: boolean }) {
   const host = useTrainerHost();
   const { t } = host;
-  const [settings, setSettings] = useState<TrainerSettings>(initial);
-  const [sheet, setSheet] = useState(false);
-  const [session, setSession] = useState<SessionStats>(emptySession);
-  const [focus, setFocus] = useState<FocusState>({ status: "loading" });
-  const [areaIndex, setAreaIndex] = useState(0);
-  /** Answers (spots) or hands in the current area of "For you". */
-  const inArea = useRef(0);
-  const [statuses, setStatuses] = useState<TableStatus[]>([]);
+  const store = host.sessions;
+  const [sessions, setSessions] = useState<TrainerSession[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [view, setView] = useState<View>({ kind: "list" });
+  const [sheet, setSheet] = useState<{ initial: TrainerSettings; from: TrainerSession | null } | null>(null);
+  const [answers, setAnswers] = useState<Record<string, SessionAnswer[]>>({});
+  const [again, setAgain] = useState<{ answer: SessionAnswer; stamp: number } | null>(null);
+  const opened = useRef(false);
+  const asked = useRef(new Set<string>());
 
-  const change = useCallback(
-    (patch: Partial<TrainerSettings>) => {
-      setSettings((current) => {
-        const next = { ...current, ...patch };
-        // A whole hand starts preflop or on the flop: a turn or river spot mode becomes the flop.
-        if (next.play === "hand" && !HAND_MODES.includes(next.mode)) next.mode = "flop";
-        host.onSettings?.(next);
-        return next;
-      });
+  const failed = useCallback((e: unknown) => setError(e instanceof Error ? e.message : String(e)), []);
+
+  const reload = useCallback(
+    () =>
+      store
+        .list()
+        .then((list) => setSessions(list))
+        .catch((e: unknown) => {
+          failed(e);
+          setSessions((current) => current ?? []);
+        }),
+    [store, failed],
+  );
+  useEffect(() => {
+    void reload();
+  }, [reload]);
+
+  /** A session's answers, read once; answers given meanwhile stay after them. */
+  const loadAnswers = useCallback(
+    (id: string) => {
+      if (asked.current.has(id)) return;
+      asked.current.add(id);
+      store
+        .answers(id)
+        .then((list) => setAnswers((current) => ({ ...current, [id]: [...list, ...(current[id] ?? [])] })))
+        .catch(failed);
     },
-    [host],
+    [store, failed],
   );
 
-  // "For you": read the leaks once.
-  const wantsFocus = settings.mode === "focus";
+  const show = useCallback(
+    (next: View) => {
+      setView(next);
+      if (next.kind !== "list") loadAnswers(next.id);
+      host.onSession?.(next.kind === "list" ? null : next.id);
+      if (next.kind === "list") void reload();
+    },
+    [host, loadAnswers, reload],
+  );
+
+  const save = useCallback(
+    (session: TrainerSession) => {
+      setSessions((list) => (list ? (list.some((s) => s.id === session.id) ? list.map((s) => (s.id === session.id ? session : s)) : [session, ...list]) : [session]));
+      store.save({ id: session.id, name: session.name, fields: session.fields, archived: session.archived }).catch(failed);
+    },
+    [store, failed],
+  );
+
+  const start = useCallback(
+    (name: string, settings: TrainerSettings) => {
+      const now = new Date().toISOString();
+      const session: TrainerSession = {
+        id: newSessionId(),
+        name,
+        fields: settingsFields(settings),
+        archived: false,
+        createdAt: now,
+        playedAt: now,
+        hands: 0,
+        today: 0,
+        scoreSum: 0,
+        evLoss: 0,
+        counts: emptyCounts(),
+      };
+      save(session);
+      asked.current.add(session.id);
+      setAnswers((current) => ({ ...current, [session.id]: [] }));
+      setSheet(null);
+      setAgain(null);
+      setView({ kind: "train", id: session.id });
+      host.onSession?.(session.id);
+    },
+    [save, host],
+  );
+
+  // Once the list is in: the saved drills of before become sessions, then the session the address names opens,
+  // or the sheet for a new one (a link's settings, or nothing to continue yet).
   useEffect(() => {
-    if (!wantsFocus || focus.status !== "loading") return;
-    let live = true;
-    host
-      .focus()
-      .then((state) => live && setFocus(state))
-      .catch((error: unknown) => live && setFocus({ status: "error", message: error instanceof Error ? error.message : String(error) }));
-    return () => {
-      live = false;
-    };
-  }, [wantsFocus, focus.status, host]);
+    if (!sessions || opened.current) return;
+    opened.current = true;
+    const drills = typeof window === "undefined" ? [] : readDrills();
+    if (drills.length > 0) {
+      const now = new Date().toISOString();
+      for (const drill of drills) {
+        if (sessions.some((s) => s.name === drill.name)) continue;
+        save({ id: newSessionId(), name: drill.name, fields: drill.fields, archived: false, createdAt: now, playedAt: now, hands: 0, today: 0, scoreSum: 0, evLoss: 0, counts: emptyCounts() });
+      }
+      saveDrills([]);
+    }
+    const wanted = host.initialSession ? sessions.find((s) => s.id === host.initialSession) : undefined;
+    if (wanted) {
+      setView({ kind: "train", id: wanted.id });
+      loadAnswers(wanted.id);
+    } else if (suggest || (sessions.length === 0 && drills.length === 0)) setSheet({ initial, from: null });
+  }, [sessions, host.initialSession, suggest, initial, save, loadAnswers]);
 
-  const areas = useMemo<FocusArea[]>(() => (focus.status === "ready" ? trainableAreas(focus.areas) : []), [focus]);
+  const openId = view.kind !== "list" ? view.id : null;
+  const onAnswer = useCallback(
+    (answer: SessionAnswer) => {
+      if (!openId) return;
+      const id = openId;
+      setAnswers((current) => ({ ...current, [id]: [...(current[id] ?? []), answer] }));
+      setSessions((list) =>
+        list
+          ? list.map((s) =>
+              s.id === id
+                ? {
+                    ...s,
+                    playedAt: answer.at,
+                    hands: s.hands + 1,
+                    today: s.today + 1,
+                    scoreSum: s.scoreSum + answer.score,
+                    evLoss: s.evLoss + Math.max(0, answer.evLoss),
+                    counts: { ...s.counts, [answer.grade]: s.counts[answer.grade] + 1 },
+                  }
+                : s,
+            )
+          : list,
+      );
+      store.record(id, answer);
+    },
+    [openId, store],
+  );
 
-  // What to deal now: the mode's own settings, or in "For you" the current area's (or the general list's) target.
-  const plan = useMemo<{ mode: StreetMode; settings: TrainerSettings; area: FocusArea | null } | null>(() => {
-    if (settings.mode !== "focus") return { mode: settings.mode, settings, area: null };
-    if (focus.status === "loading") return null;
-    const { area, target } = focusTarget(areas, areaIndex);
-    const shaped = targetSettings(target, settings);
-    return { mode: shaped.mode, settings: shaped.settings, area };
-  }, [settings, focus.status, areas, areaIndex]);
-
+  const current = view.kind !== "list" ? (sessions?.find((s) => s.id === view.id) ?? null) : null;
   const canPlayHands = Boolean(host.playStart && host.playGrade && host.playAnswer);
-  // A whole hand (T2) when the host can play one and the mode starts one; spots otherwise.
-  const handMode = settings.play === "hand" && canPlayHands && HAND_MODES.includes(settings.mode);
-  // Nothing to deal (no flop library, a set not transcribed yet): said, never dealt from something else.
-  const blocked = plan ? unavailable(plan.mode, plan.settings, handMode) : null;
-  const playRequest = useMemo(() => (handMode && plan && !blocked ? playOptions(plan.mode, plan.settings) : null), [handMode, plan, blocked]);
-  const spotRequest = useMemo(() => (!handMode && plan && !blocked ? spotOptions(plan.mode, plan.settings) : null), [handMode, plan, blocked]);
-  // Several tables in spot mode only (T5); a whole hand is one table.
-  const tables = handMode ? 1 : Number(settings.tables) || 1;
 
-  const counted = useCallback(
-    (step: number) => {
-      // "For you" works through an area a few answers (or hands) at a time.
-      if (settings.mode !== "focus") return;
-      inArea.current += 1;
-      if (inArea.current >= step) {
-        inArea.current = 0;
-        setAreaIndex((i) => i + 1);
-      }
-    },
-    [settings.mode],
+  let body;
+  if (sessions === null) {
+    body = (
+      <div className={styles.loading}>
+        <RailLoader label={t.sessions.loading} showLabel centered />
+      </div>
+    );
+  } else if (current && view.kind === "train") {
+    body = (
+      <SessionTrainer
+        key={`${current.id}|${again?.stamp ?? 0}`}
+        session={current}
+        answers={answers[current.id] ?? []}
+        onAnswer={onAnswer}
+        again={again?.answer ?? null}
+        onSessions={() => show({ kind: "list" })}
+        onReview={() => show({ kind: "review", id: current.id })}
+        onChangeSettings={() => setSheet({ initial: sessionSettings(current), from: current })}
+        onRename={(name) => save({ ...current, name })}
+      />
+    );
+  } else if (current && view.kind === "review") {
+    body = (
+      <SessionReview
+        session={current}
+        answers={answers[current.id] ?? []}
+        onSessions={() => show({ kind: "list" })}
+        onContinue={() => {
+          setAgain(null);
+          show({ kind: "train", id: current.id });
+        }}
+        onPlayAgain={(answer) => {
+          setAgain({ answer, stamp: Date.now() });
+          show({ kind: "train", id: current.id });
+        }}
+      />
+    );
+  } else {
+    body = (
+      <SessionList
+        sessions={sessions}
+        onNew={() => setSheet({ initial, from: null })}
+        onOpen={(session) => {
+          setAgain(null);
+          show({ kind: "train", id: session.id });
+        }}
+        onReview={(session) => show({ kind: "review", id: session.id })}
+        onFrom={(session) => setSheet({ initial: sessionSettings(session), from: null })}
+        onSave={save}
+      />
+    );
+  }
+
+  return (
+    <>
+      {error ? (
+        <p className={styles.notice} role="alert">
+          {t.sessions.failed(error)}{" "}
+          <button type="button" className={styles.linkButton} onClick={() => setError(null)}>
+            {t.close}
+          </button>
+        </p>
+      ) : null}
+      {body}
+      {sheet ? (
+        <SettingsSheet
+          initial={sheet.initial}
+          from={sheet.from}
+          sessions={sessions ?? []}
+          canPlayHands={canPlayHands}
+          onStart={start}
+          onContinue={(session) => {
+            setSheet(null);
+            setAgain(null);
+            show({ kind: "train", id: session.id });
+          }}
+          onClose={() => setSheet(null)}
+        />
+      ) : null}
+    </>
   );
-  const scored = useCallback(
-    (answer: TrainerAnswer) => {
-      setSession((stats) => addAnswer(stats, answer));
-      if (!handMode) counted(HANDS_PER_AREA);
-    },
-    [handMode, counted],
-  );
-  const handDone = useCallback(() => counted(Math.ceil(HANDS_PER_AREA / 2)), [counted]);
+}
 
-  // Keys go to one table: the first waiting for an answer, else the first answered (for "next").
-  const statusOf = useCallback(
-    (index: number) => (status: TableStatus) =>
-      setStatuses((current) => {
-        if (current[index] === status) return current;
-        const next = [...current];
-        next[index] = status;
-        return next;
-      }),
-    [],
-  );
-  const reporters = useMemo(() => Array.from({ length: 4 }, (_, i) => statusOf(i)), [statusOf]);
-  const live = statuses.slice(0, tables);
-  const waiting = live.findIndex((status) => status === "waiting");
-  const answeredAt = live.findIndex((status) => status === "answered");
-  const keysFor = (index: number): "answer" | "next" | null =>
-    waiting >= 0 ? (index === waiting ? "answer" : null) : index === answeredAt ? "next" : null;
-
-  // S opens the settings, whatever the mode.
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.metaKey || event.ctrlKey || event.altKey || sheet) return;
-      const target = event.target as HTMLElement | null;
-      if (target && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))) return;
-      if (event.key.toLowerCase() === "s") {
-        setSheet(true);
-        event.preventDefault();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [sheet]);
-
-  const accuracy = sessionAccuracy(session);
-  const area = plan?.area ?? null;
-  const summary = plan && settings.mode !== "focus" ? spotSummary(plan.mode, plan.settings, t) : null;
+/** The player's sessions: each one's name and settings, hands, score, grades, EV lost and when it was last played. */
+function SessionList({
+  sessions,
+  onNew,
+  onOpen,
+  onReview,
+  onFrom,
+  onSave,
+}: {
+  sessions: readonly TrainerSession[];
+  onNew: () => void;
+  onOpen: (session: TrainerSession) => void;
+  onReview: (session: TrainerSession) => void;
+  onFrom: (session: TrainerSession) => void;
+  onSave: (session: TrainerSession) => void;
+}) {
+  const host = useTrainerHost();
+  const { t, locale } = host;
+  const s = t.sessions;
+  const [sort, setSort] = useState<Sort>("recent");
+  const [archived, setArchived] = useState(false);
+  const [menu, setMenu] = useState<string | null>(null);
+  const [renaming, setRenaming] = useState<{ id: string; name: string } | null>(null);
+  const archivedCount = sessions.filter((x) => x.archived).length;
+  const list = useMemo(() => {
+    const shown = sessions.filter((x) => x.archived === archived);
+    const score = (x: TrainerSession) => (x.hands ? x.scoreSum / x.hands : -1);
+    if (sort === "hands") return [...shown].sort((a, b) => b.hands - a.hands);
+    if (sort === "score") return [...shown].sort((a, b) => score(b) - score(a));
+    return [...shown].sort((a, b) => b.playedAt.localeCompare(a.playedAt));
+  }, [sessions, archived, sort]);
 
   return (
     <div className={styles.trainer}>
       <div className={styles.top}>
-        <nav className={styles.modes} aria-label={t.modesLabel}>
-          {TRAINER_MODES.filter((id) => settings.play !== "hand" || !canPlayHands || HAND_MODES.includes(id)).map((id) => (
-            <button
-              key={id}
-              type="button"
-              className={styles.mode}
-              aria-pressed={settings.mode === id}
-              title={t.modeHints[id]}
-              onClick={() => change({ mode: id })}
-            >
-              {t.modes[id]}
-            </button>
-          ))}
-          {host.extraModes}
-        </nav>
-        {canPlayHands ? (
-          <div className={styles.playSwitch} role="group" aria-label={t.play.label}>
-            {PLAYS.map((id) => (
-              <button key={id} type="button" className={styles.mode} aria-pressed={settings.play === id} onClick={() => change({ play: id })}>
-                {t.play[id]}
+        <button type="button" className={styles.next} onClick={onNew}>
+          + {s.newSession}
+        </button>
+        <span className={styles.listTools}>
+          <span className={styles.modes} role="group" aria-label={s.sortLabel}>
+            {(["recent", "hands", "score"] as const).map((id) => (
+              <button key={id} type="button" className={styles.mode} aria-pressed={sort === id} onClick={() => setSort(id)}>
+                {s.sorts[id]}
               </button>
             ))}
-          </div>
-        ) : null}
-        <button type="button" className={styles.settingsButton} onClick={() => setSheet(true)} aria-keyshortcuts="S">
-          {summary ? <span className={styles.summary}>{summary}</span> : null}
-          <span className={styles.gear} aria-hidden="true">
-            ⚙
           </span>
-          <span>{t.settings}</span>
-        </button>
+          {archivedCount > 0 || archived ? (
+            <button type="button" className={styles.chip} role="switch" aria-checked={archived} onClick={() => setArchived((v) => !v)}>
+              {s.archived} <span className={styles.muted}>{archivedCount}</span>
+            </button>
+          ) : null}
+          {host.extraModes}
+        </span>
       </div>
 
-      {settings.mode === "focus" ? (
-        <FocusBar
-          state={focus}
-          area={area}
-          onNext={() => {
-            inArea.current = 0;
-            setAreaIndex((i) => i + 1);
-          }}
-          hasAreas={areas.length > 0}
-        />
-      ) : null}
-
-      <div className={styles.layout} data-tables={tables > 1 ? tables : undefined}>
-        <div className={styles.play}>
-          {plan === null ? (
-            <div className={styles.spot}>
-              <div className={styles.stripSpace} aria-hidden="true" />
-              <TableBox>
-                <div className={styles.loading}>
-                  <RailLoader label={t.focus.loading} showLabel centered />
-                </div>
-              </TableBox>
-            </div>
-          ) : null}
-          {blocked ? (
-            <div className={styles.notice}>
-              <p>{blocked === "flop" ? t.unavailable.flop : t.unavailable.set}</p>
-            </div>
-          ) : null}
-          {handMode && playRequest ? (
-            <HandPlayer request={playRequest} settings={plan?.settings ?? settings} onScored={scored} onHandDone={handDone} />
-          ) : null}
-          {!handMode && spotRequest && plan ? (
-            <div className={styles.tables} data-count={tables}>
-              {Array.from({ length: tables }, (_, i) => (
-                <SpotPlayer
-                  key={i}
-                  request={spotRequest}
-                  mode={plan.mode}
-                  settings={plan.settings}
-                  keys={keysFor(i)}
-                  compact={tables > 1}
-                  onScored={scored}
-                  onStatus={reporters[i]}
-                />
-              ))}
-            </div>
-          ) : null}
+      {list.length === 0 ? (
+        <p className={styles.sessionsEmpty}>
+          {archived ? s.noneArchived : s.none}{" "}
+          {archived ? null : (
+            <button type="button" className={styles.linkButton} onClick={onNew}>
+              {s.newSession}
+            </button>
+          )}
+        </p>
+      ) : (
+        <div className={styles.sessionTable}>
+          <div className={styles.sessionHead} aria-hidden="true">
+            <span>{s.columns.session}</span>
+            <span>{s.columns.hands}</span>
+            <span>{s.columns.score}</span>
+            <span>{s.columns.grades}</span>
+            <span>{s.columns.evLost}</span>
+            <span>{s.columns.played}</span>
+            <span />
+          </div>
+          <ul className={styles.sessionRows}>
+            {list.map((session) => {
+              const score = session.hands ? session.scoreSum / session.hands : null;
+              const editing = renaming?.id === session.id;
+              return (
+                <li key={session.id} className={styles.sessionRow}>
+                  {editing ? (
+                    <form
+                      className={styles.renameForm}
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        if (renaming.name.trim()) onSave({ ...session, name: renaming.name.trim() });
+                        setRenaming(null);
+                      }}
+                    >
+                      <input
+                        className={styles.input}
+                        value={renaming.name}
+                        maxLength={60}
+                        autoFocus
+                        aria-label={s.name}
+                        onChange={(event) => setRenaming({ id: session.id, name: event.target.value })}
+                        onKeyDown={(event) => event.key === "Escape" && setRenaming(null)}
+                      />
+                      <button type="submit" className={styles.chip}>
+                        {s.renameSave}
+                      </button>
+                    </form>
+                  ) : (
+                    <button type="button" className={styles.sessionOpen} onClick={() => onOpen(session)}>
+                      <strong>{session.name}</strong>
+                      <span className={styles.muted}>{lockedSummary(sessionSettings(session), t)}</span>
+                    </button>
+                  )}
+                  <span className={styles.sessionHands}>
+                    <strong>{session.hands.toLocaleString(locale)}</strong>
+                    {session.today > 0 ? <span className={styles.muted}>{s.todayCount(session.today)}</span> : null}
+                  </span>
+                  <strong data-score={scoreBand(score)}>{score === null ? "—" : Math.round(score).toLocaleString(locale)}</strong>
+                  <span className={styles.gradeBar} title={GRADES.map((g) => `${t.words.grades[g]} ${session.counts[g]}`).join(", ")}>
+                    {GRADES.map((grade) => (
+                      <i key={grade} data-grade={grade} style={{ flexGrow: session.counts[grade] }} />
+                    ))}
+                  </span>
+                  <span data-loss={session.evLoss > 0 || undefined}>{t.lostBb(session.evLoss)}</span>
+                  <span className={styles.muted}>{whenText(session.playedAt, t, locale)}</span>
+                  <span className={styles.sessionActions}>
+                    <button type="button" className={styles.chip} onClick={() => onOpen(session)}>
+                      {s.continue}
+                    </button>
+                    <span className={styles.menuBox}>
+                      <button
+                        type="button"
+                        className={styles.iconButton}
+                        aria-label={s.menu(session.name)}
+                        aria-expanded={menu === session.id}
+                        aria-haspopup="menu"
+                        onClick={() => setMenu(menu === session.id ? null : session.id)}
+                      >
+                        ⋯
+                      </button>
+                      {menu === session.id ? (
+                        <span className={styles.menu} role="menu" data-end>
+                          <button type="button" role="menuitem" onClick={() => onReview(session)}>
+                            {s.review}
+                          </button>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setMenu(null);
+                              setRenaming({ id: session.id, name: session.name });
+                            }}
+                          >
+                            {s.rename}
+                          </button>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setMenu(null);
+                              onFrom(session);
+                            }}
+                          >
+                            {s.fromThese}
+                          </button>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setMenu(null);
+                              onSave({ ...session, archived: !session.archived });
+                            }}
+                          >
+                            {session.archived ? s.restore : s.archive}
+                          </button>
+                        </span>
+                      ) : null}
+                    </span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
         </div>
-
-        <aside className={styles.side} aria-label={t.session.label}>
-          <dl className={styles.stats}>
-            <div>
-              <dt>{t.session.answers}</dt>
-              <dd>
-                <Tick value={session.answers.toLocaleString(host.locale)} />
-              </dd>
-            </div>
-            <div>
-              <dt>{t.session.accuracy}</dt>
-              <dd>
-                <Tick value={accuracy === null ? "—" : `${Math.round(accuracy * 100).toLocaleString(host.locale)}%`} />
-              </dd>
-            </div>
-            <div>
-              <dt>{t.session.streak}</dt>
-              <dd>
-                <Tick value={session.streak.toLocaleString(host.locale)} />
-                <span className={styles.muted}> / {session.bestStreak.toLocaleString(host.locale)}</span>
-              </dd>
-            </div>
-            <div>
-              <dt>{t.session.evLost}</dt>
-              <dd data-loss={session.evLoss > 0 || undefined}>
-                <Tick value={t.lostBb(session.evLoss)} />
-              </dd>
-            </div>
-          </dl>
-          <ol className={styles.history} aria-hidden="true" data-empty={session.answers === 0 || undefined}>
-            {(["perfect", "good", "inaccurate", "mistake", "blunder"] as const).map((grade) => (
-              <li key={grade} data-grade={grade} style={{ flexGrow: session.counts[grade] }} title={`${t.words.grades[grade]}: ${session.counts[grade]}`} />
-            ))}
-          </ol>
-          <button type="button" className={styles.linkButton} onClick={() => setSession(emptySession())} disabled={session.answers === 0}>
-            {t.session.reset}
-          </button>
-          {host.aside}
-          <Fold id="keys" label={t.keysHeading}>
-            <p className={styles.keys}>{t.keys}</p>
-          </Fold>
-        </aside>
-      </div>
-
-      <SettingsSheet open={sheet} settings={settings} onChange={change} onClose={() => setSheet(false)} />
+      )}
     </div>
   );
 }
-
-function FocusBar({ state, area, onNext, hasAreas }: { state: FocusState; area: FocusArea | null; onNext: () => void; hasAreas: boolean }) {
-  const { t } = useTrainerHost();
-  if (state.status === "loading") return null;
-  if (state.status === "signed-out") return <p className={styles.focus}>{t.focus.signIn}</p>;
-  if (!area || !hasAreas) return <p className={styles.focus}>{t.focus.none}</p>;
-  const top = area.leaks[0];
-  const where = area.where;
-  const title = top ? t.words.leakTitle(leakKind(top.taken, top.best), where) : t.words.leakContext(where, area.level, area.partial);
-  const context = t.words.leakContext(where, area.level, area.partial);
-  return (
-    <div className={styles.focus}>
-      <span className={styles.focusLabel}>{t.focus.working}</span>
-      <strong>{title}</strong>
-      <span className={styles.muted}>{context}</span>
-      {area.per100 > 0 ? <span className={styles.focusCost}>{t.focus.costs(area.per100)}</span> : null}
-      <button type="button" className={styles.linkButton} onClick={onNext}>
-        {t.focus.nextArea}
-      </button>
-    </div>
-  );
-}
-
-/** "Preflop · vs open · BB vs BTN · 6-max 100bb": what the settings deal, in one line. */
-function spotSummary(mode: StreetMode, s: TrainerSettings, t: ReturnType<typeof useTrainerHost>["t"]): string {
-  const parts: string[] = [];
-  if (mode === "preflop") {
-    if (s.family !== "random") parts.push(t.families[s.family] ?? s.family);
-    if (s.seat || s.vs) parts.push([s.seat ?? t.any, s.vs ? `${t.vs.toLowerCase()} ${s.vs}` : null].filter(Boolean).join(" "));
-  } else {
-    if (s.pot !== "any") parts.push(t.pots[s.pot] ?? s.pot);
-    if (s.side !== "any") parts.push(t.sides[s.side] ?? s.side);
-    if (s.role !== "any") parts.push(t.roles[s.role] ?? s.role);
-    if (s.facing !== "any") parts.push(`${t.facing.toLowerCase()} ${(t.facings[s.facing] ?? s.facing).toLowerCase()}`);
-    if (mode === "flop" && s.line) parts.push(t.words.lineName(s.line));
-  }
-  return parts.join(" · ");
-}
-

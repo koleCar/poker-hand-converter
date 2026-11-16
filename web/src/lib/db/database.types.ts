@@ -4120,6 +4120,101 @@ export type Database = {
         }
         Relationships: []
       }
+      trainer_session_answers: {
+        Row: {
+          best: string
+          board: string
+          cards: string
+          created_at: string
+          ev_loss_bb: number
+          grade: string
+          hand_class: string | null
+          id: number
+          move: string
+          owner_id: string
+          position: string | null
+          score: number
+          session_id: string
+          spot_key: string
+          spot_ref: Json | null
+          street: string
+        }
+        Insert: {
+          best?: string
+          board?: string
+          cards: string
+          created_at?: string
+          ev_loss_bb: number
+          grade: string
+          hand_class?: string | null
+          id?: never
+          move: string
+          owner_id: string
+          position?: string | null
+          score: number
+          session_id: string
+          spot_key: string
+          spot_ref?: Json | null
+          street: string
+        }
+        Update: {
+          best?: string
+          board?: string
+          cards?: string
+          created_at?: string
+          ev_loss_bb?: number
+          grade?: string
+          hand_class?: string | null
+          id?: never
+          move?: string
+          owner_id?: string
+          position?: string | null
+          score?: number
+          session_id?: string
+          spot_key?: string
+          spot_ref?: Json | null
+          street?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trainer_session_answers_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "trainer_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trainer_sessions: {
+        Row: {
+          archived: boolean
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          played_at: string
+          settings: Json
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          id: string
+          name: string
+          owner_id: string
+          played_at?: string
+          settings?: Json
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          played_at?: string
+          settings?: Json
+        }
+        Relationships: []
+      }
       unparsed_hands: {
         Row: {
           anonymiser_version: string | null
@@ -5429,6 +5524,10 @@ export type Database = {
       record_lesson_results: { Args: { p_rows: Json }; Returns: Json }
       record_share_view: { Args: { p_slug: string }; Returns: boolean }
       record_trainer_results: { Args: { p_rows: Json }; Returns: Json }
+      record_trainer_session_answers: {
+        Args: { p_rows: Json; p_session: string }
+        Returns: Json
+      }
       recount_forum_counters: { Args: never; Returns: Json }
       recount_forum_karma: { Args: never; Returns: number }
       refresh_report_summaries: { Args: never; Returns: Json }
@@ -5498,6 +5597,15 @@ export type Database = {
           p_kind: string
           p_tasks: Json
           p_week_start: string
+        }
+        Returns: Json
+      }
+      save_trainer_session: {
+        Args: {
+          p_archived?: boolean
+          p_id: string
+          p_name: string
+          p_settings: Json
         }
         Returns: Json
       }
@@ -5579,6 +5687,7 @@ export type Database = {
         Args: { p_settings: Json }
         Returns: string
       }
+      trainer_session_list: { Args: { p_today_from?: string }; Returns: Json }
       trainer_summary: { Args: { p_days?: number }; Returns: Json }
       unparsed_consent_instant: { Args: { p_value: string }; Returns: string }
       unparsed_summary: { Args: { p_limit?: number }; Returns: Json }

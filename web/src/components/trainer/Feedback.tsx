@@ -67,7 +67,7 @@ export function Verdict({
   );
 }
 
-function bestIndex(decision: DecisionAnalysis): number | null {
+export function bestIndex(decision: DecisionAnalysis): number | null {
   let best: number | null = null;
   decision.options.forEach((option, index) => {
     if (best === null || option.ev > decision.options[best].ev + 1e-9) best = index;

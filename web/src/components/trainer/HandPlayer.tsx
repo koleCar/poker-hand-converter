@@ -21,11 +21,12 @@ import { nextSeed, STREAK_GRADES, type GradedAnswer, type TrainerAnswer } from "
 import type { PlayOptions, PlayStep } from "../../lib/training/play";
 import { ActionButtons, groupChoices, groupForKey, TimebankBar, useTimebank, type Choice } from "./Decision";
 import { feltOf } from "./felt";
-import { useDecisionTabs, Verdict } from "./Feedback";
+import { bestIndex, useDecisionTabs, useOptionText, Verdict } from "./Feedback";
 import { useTrainerHost } from "./host";
 import { InfoTabs } from "./InfoTabs";
 import type { TrainerSettings } from "./settings";
 import { RangePanel } from "./RangePanel";
+import { cardsText, handDecisionKey, type SessionAnswer } from "./sessions";
 import { ActionStrip, StatusRow } from "./SpotFelt";
 import { TableBox, TrainerTable, type HeroMove } from "./TrainerTable";
 import styles from "./trainer.module.css";
@@ -55,6 +56,8 @@ interface HandPlayerProps {
   request: PlayOptions;
   settings: TrainerSettings;
   onScored: (answer: TrainerAnswer) => void;
+  /** Every graded decision, for the session. */
+  onAnswer?: (answer: SessionAnswer) => void;
   /** A hand finished (the "For you" rotation counts hands, not answers). */
   onHandDone?: () => void;
 }
@@ -66,8 +69,9 @@ export function HandPlayer(props: HandPlayerProps) {
   return <OneHand key={`${JSON.stringify(props.request)}|${round}`} {...props} newHand={newHand} />;
 }
 
-function OneHand({ request, settings, onScored, onHandDone, newHand }: HandPlayerProps & { newHand: () => void }) {
+function OneHand({ request, settings, onScored, onAnswer, onHandDone, newHand }: HandPlayerProps & { newHand: () => void }) {
   const host = useTrainerHost();
+  const optionText = useOptionText();
   const { t } = host;
   const [step, setStep] = useState<PlayStep | null>(null);
   const [dealing, setDealing] = useState(true);
@@ -165,13 +169,29 @@ function OneHand({ request, settings, onScored, onHandDone, newHand }: HandPlaye
             grade: d.grade,
             evLoss: d.evLoss ?? 0,
           });
+          const best = bestIndex(d);
+          onAnswer?.({
+            at: new Date().toISOString(),
+            street: decision.street,
+            cards: cardsText(decision.cards),
+            board: cardsText(decision.board),
+            spotKey: handDecisionKey(decision.street, d.facts.position ?? "-", decision.cards, decision.board),
+            position: d.facts.position,
+            handClass: d.facts.handClass,
+            move: (buttons[index]?.label ?? "?").slice(0, 60) || "?",
+            best: best !== null ? optionText(d.options[best]).slice(0, 60) : "",
+            grade: d.grade,
+            evLoss: d.evLoss ?? 0,
+            score: d.score ?? 0,
+            ref: null,
+          });
           if (settings.pause === "mistakes" && STREAK_GRADES.includes(d.grade)) setHolding(true);
         })
         .catch((e: unknown) => {
           setAnswered((prev) => (prev ? { ...prev, error: e instanceof Error ? e.message : String(e) } : prev));
         });
     },
-    [step, decision, answered, host, onScored, buttons, settings.pause],
+    [step, decision, answered, host, onScored, onAnswer, optionText, buttons, settings.pause],
   );
 
   /** A group of sizes (one button per action): the size the reference prefers for this hand. */

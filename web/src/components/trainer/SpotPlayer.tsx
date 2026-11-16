@@ -18,10 +18,12 @@ import { nextSeed, STREAK_GRADES, type GradedAnswer, type TrainerAnswer, type Tr
 import { gradeMix, normalised, type MixResult } from "../../lib/training/frequency";
 import { ActionButtons, groupChoices, groupForKey, MixInput, TimebankBar, useTimebank, type Choice } from "./Decision";
 import { feltOf } from "./felt";
-import { useDecisionTabs, Verdict } from "./Feedback";
+import { bestIndex, useDecisionTabs, useOptionText, Verdict } from "./Feedback";
 import { useTrainerHost } from "./host";
 import { InfoTabs } from "./InfoTabs";
 import { RangePanel } from "./RangePanel";
+import { SeenBefore } from "./SeenBefore";
+import { cardsText, spotKey, type SessionAnswer, type SpotRef } from "./sessions";
 import type { SpotRequest, StreetMode, TrainerSettings } from "./settings";
 import { ActionStrip, StatusRow } from "./SpotFelt";
 import { TableBox, TrainerTable, type HeroMove } from "./TrainerTable";
@@ -42,6 +44,12 @@ export interface SpotPlayerProps {
   compact?: boolean;
   onScored: (answer: TrainerAnswer) => void;
   onStatus?: (status: TableStatus) => void;
+  /** A spot of the session's own to deal again (asked once per spot), with the key it must have; null: a new one. */
+  pickRef?: () => { ref: SpotRef; key: string } | null;
+  /** Every graded answer, for the session. */
+  onAnswer?: (answer: SessionAnswer) => void;
+  /** The session's earlier answers on a spot (read when the answer is graded). */
+  earlier?: (key: string) => SessionAnswer[];
 }
 
 /** Spots one after another: each its own component, so a new spot starts from a clean state. */
@@ -72,10 +80,15 @@ interface Answered {
   timedOut: boolean;
 }
 
-function OneSpot({ request, mode, settings, keys, compact = false, onScored, onStatus, next }: SpotPlayerProps & { next: () => void }) {
+function OneSpot({ request, mode, settings, keys, compact = false, onScored, onStatus, pickRef, onAnswer, earlier, next }: SpotPlayerProps & { next: () => void }) {
   const host = useTrainerHost();
   const { t } = host;
+  const optionText = useOptionText();
+  // A spot of the session's own, chosen once for this table's spot.
+  const [forced] = useState(() => pickRef?.() ?? null);
   const [spot, setSpot] = useState<TrainerSpot | null>(null);
+  const [ref, setRef] = useState<SpotRef | null>(null);
+  const [before, setBefore] = useState<SessionAnswer[]>([]);
   const [dealt, setDealt] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [answered, setAnswered] = useState<Answered | null>(null);
@@ -87,16 +100,23 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
   useEffect(() => {
     let live = true;
     const parsed = JSON.parse(requestJson) as SpotRequest;
-    (async () => {
+    (async (): Promise<{ spot: TrainerSpot; ref: SpotRef } | null> => {
+      // The spot again, exactly: its own request and seed. A reference that changed since (another deal) is dealt anew.
+      if (forced) {
+        const again = await host.deal(forced.ref.request, forced.ref.seed).catch(() => null);
+        if (again && spotKey(again) === forced.key) return { spot: again, ref: forced.ref };
+      }
       for (let attempt = 0; attempt < DEAL_TRIES; attempt += 1) {
-        const got = await host.deal(parsed, nextSeed());
-        if (got) return got;
+        const seed = nextSeed();
+        const got = await host.deal(parsed, seed);
+        if (got) return { spot: got, ref: { request: parsed, seed } };
       }
       return null;
     })()
       .then((got) => {
         if (!live) return;
-        setSpot(got);
+        setSpot(got?.spot ?? null);
+        setRef(got?.ref ?? null);
         setDealt(true);
       })
       .catch((e: unknown) => {
@@ -107,7 +127,7 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
     return () => {
       live = false;
     };
-  }, [requestJson, host]);
+  }, [requestJson, host, forced]);
 
 
   const status: TableStatus = !dealt ? "dealing" : answered || !spot ? "answered" : "waiting";
@@ -159,11 +179,29 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
       if (spot) {
         host.record?.(spot, scored, d.facts.handClass);
         host.kept?.({ at: new Date().toISOString(), street: d.street, cards: [...spot.cards], label, grade: scored.grade, evLoss: scored.evLoss });
+        const key = spotKey(spot);
+        setBefore(earlier?.(key) ?? []);
+        const best = bestIndex(d);
+        onAnswer?.({
+          at: new Date().toISOString(),
+          street: spot.kind,
+          cards: cardsText(spot.cards),
+          board: spot.kind === "preflop" ? "" : cardsText(spot.board),
+          spotKey: key,
+          position: spot.hero,
+          handClass: d.facts.handClass,
+          move: label.slice(0, 60) || "?",
+          best: best !== null ? optionText(d.options[best]).slice(0, 60) : "",
+          grade: scored.grade,
+          evLoss: scored.evLoss,
+          score: scored.score,
+          ref,
+        });
       }
       if (settings.pause === "mistakes" && STREAK_GRADES.includes(scored.grade)) setHolding(true);
       void result;
     },
-    [onScored, spot, host, settings.pause],
+    [onScored, spot, host, settings.pause, earlier, onAnswer, optionText, ref],
   );
 
   /** An action answer: a group's first size, then (one per action) the size the reference prefers for the hand. */
@@ -383,6 +421,7 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
         ) : null}
       </div>
 
+      {decision?.grade && before.length > 0 && !compact ? <SeenBefore rows={before} grade={mix ? mix.result.grade : decision.grade} /> : null}
       {open ? <InfoTabs tabs={tabs} /> : null}
     </div>
   );

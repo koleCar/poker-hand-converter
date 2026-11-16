@@ -18,6 +18,7 @@ import { preflopChartSet } from "../../../lib/chartSet";
 import { isDatabaseConfigured } from "../../../lib/db";
 import { fetchLeaks } from "../../../lib/db/analysisLeaks";
 import { recordTrainerResults } from "../../../lib/db/training";
+import { accountSessionStore } from "../../../lib/db/trainerSessions";
 import { useAuth } from "../../../lib/auth";
 import { useDict } from "../../../lib/i18n/client";
 import { conceptsForDecision } from "../../../lib/learn/links";
@@ -37,7 +38,7 @@ import {
 import type { GradedAnswer, TrainerSpot } from "../../../lib/training";
 import { focusAreas } from "../../../lib/training/plan";
 import { TrainerHostProvider, type FocusState, type TrainerHost } from "../../trainer/host";
-import { settingsFields } from "../../trainer/settings";
+import { localSessionStore, type SessionStore } from "../../trainer/sessions";
 import { initialSettings } from "./trainerQuery";
 import { Trainer } from "../../trainer/Trainer";
 import { useIntlLocale } from "../../stats/format";
@@ -69,6 +70,11 @@ export function WebTrainer({ query }: { query: Record<string, string | string[] 
   // Answers kept: the plan card counts them (its trainer tasks).
   const [kept, setKept] = useState(0);
   const [initial] = useState(() => initialSettings(query, typeof window === "undefined" ? null : readStored()));
+  // A link with settings (a leak's, the study plan's) opens a new session on them; `session` opens that session.
+  const [suggest] = useState(() => typeof query.mode === "string");
+  const [initialSession] = useState(() => (typeof query.session === "string" ? query.session : null));
+  // Sessions live in the account; without a database (a local build), in this browser.
+  const sessions = useMemo<SessionStore>(() => (isDatabaseConfigured ? accountSessionStore() : localSessionStore()), []);
 
   // One kind of game's leaks: wait for the kind before reading them.
   const kinds = useAnalysisKind(null, signedIn);
@@ -117,15 +123,12 @@ export function WebTrainer({ query }: { query: Record<string, string | string[] 
                 .catch(() => undefined);
           }
         : undefined,
-      onSettings: (settings) => {
-        try {
-          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settingsFields(settings)));
-        } catch {
-          // Private mode: the settings live for the visit only.
-        }
-        const params = new URLSearchParams(settingsFields(settings));
-        const search = params.toString();
-        window.history.replaceState(window.history.state, "", `${paths.analysisTrain()}${search ? `?${search}` : ""}`);
+      sessions,
+      initialSession,
+      // The open session in the address, so a reload or a bookmark comes back to it.
+      onSession: (id) => {
+        const search = id ? `?${new URLSearchParams({ session: id }).toString()}` : "";
+        window.history.replaceState(window.history.state, "", `${paths.analysisTrain()}${search}`);
       },
       study: (graded, spot) => <WebStudy graded={graded} spot={spot} />,
       aside: signedIn ? <PlanCard generation={kept} /> : null,
@@ -135,12 +138,12 @@ export function WebTrainer({ query }: { query: Record<string, string | string[] 
         </Link>
       ) : null,
     }),
-    [dict, locale, focus, signedIn, kept],
+    [dict, locale, focus, signedIn, kept, sessions, initialSession],
   );
 
   return (
     <TrainerHostProvider host={host}>
-      <Trainer initial={initial} />
+      <Trainer initial={initial} suggest={suggest} />
     </TrainerHostProvider>
   );
 }
