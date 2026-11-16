@@ -56,7 +56,7 @@ import analysisStyles from "../analysis.module.css";
 import reportStyles from "../reports/reports.module.css";
 import { ConfidenceTag } from "./ConfidenceTag";
 import { TrendTag } from "./WhatChanged";
-import { EMPTY_LEAKS_STATE, leaksQuery } from "./leaksState";
+import { EMPTY_LEAKS_STATE, leaksQuery, scopeFilter } from "./leaksState";
 import styles from "./topLeaks.module.css";
 
 /** The migration the card needs, named in its not-installed note. An identifier, not prose. */
@@ -224,8 +224,7 @@ export function TopLeaksBody({
   const allHref = paths.analysisLeaks(
     leaksQuery({
       ...EMPTY_LEAKS_STATE,
-      ...(window ? { from: window.from, to: window.to } : {}),
-      position: scope.position ?? null,
+      filter: scopeFilter(window, scope.position),
     }),
   );
   return (
@@ -248,8 +247,7 @@ export function TopLeaksBody({
               leakHref={paths.analysisLeaks(
                 leaksQuery({
                   ...EMPTY_LEAKS_STATE,
-                  ...(window ? { from: window.from, to: window.to } : {}),
-                  position: scope.position ?? null,
+                  filter: scopeFilter(window, scope.position),
                   leak: entry.leak.id,
                 }),
               )}

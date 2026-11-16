@@ -101,6 +101,11 @@ export interface AnalysisFilters {
   grade?: string;
   /** The hand's worst grade is at least this bad (`mistake`: a Mistake or a Blunder). */
   minGrade?: string;
+  /**
+   * The Hands list's filter (`libraryFilter`, 2026-11-16): the readers keep
+   * only the hands the list shows (`analysis_hand_ids`).
+   */
+  hands?: Record<string, unknown>;
 }
 
 /**

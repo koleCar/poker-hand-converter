@@ -23,7 +23,11 @@
 
 "use client";
 
+import { FilterBar as SharedFilterBar } from "@rail/ui/hands/FilterBar";
+import { toQuery } from "@rail/ui/hands/filter";
+import { kindFormats } from "@rail/ui/hands/gameKind";
 import { KindSwitch } from "@rail/ui/hands/KindSwitch";
+import type { HandFacets, HandFilter } from "@rail/ui/hands/model";
 
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
@@ -56,28 +60,25 @@ import {
 } from "../../../lib/db";
 import type { AnalysisFilters } from "../../../lib/db/analysis";
 import { fetchNodeActions, fetchNodeHands, type NodeActionsReport, type NodeHandRow } from "../../../lib/db/analysisReports";
+import { WEB_HANDS_FEATURES, webHandsSource } from "../../../lib/db/handsSource";
 import { useAuth } from "../../../lib/auth";
 import { useAnalysisKind, type AnalysisKind } from "../analysisKind";
 import { useDict } from "../../../lib/i18n/client";
 import type { ConceptId } from "../../../lib/learn/concepts";
 import { paths } from "../../../lib/routes";
-import { getParser } from "../../../lib/phf";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
-import { countIn, dateFormat, stakeLabel, useIntlLocale } from "../../stats/format";
+import { countIn, dateFormat, useIntlLocale } from "../../stats/format";
 import { AnalysisNav } from "../AnalysisNav";
 import { GradeIcon } from "../GradeIcon";
 import { LearnLink } from "../LearnLinks";
 import { SPOT_CATEGORIES, categoriesOf, lineSteps, type SpotCategory } from "../chartSpots";
 import analysisStyles from "../analysis.module.css";
 import {
-  EMPTY_REPORTS_STATE,
-  REPORT_POSITIONS,
   REPORT_SET_KEY,
   parseReportSet,
   parseReportsState,
   reportsFilters,
   reportsQuery,
-  stakeKey,
   type ReportsState,
 } from "./reportsState";
 import styles from "./reports.module.css";
@@ -314,7 +315,7 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
       <Header
         tools={
           <>
-            <FilterBar state={shownState} kinds={kinds} facets={report.facets} onChange={updateState} />
+            <FilterBar state={shownState} kinds={kinds} onChange={updateState} />
             <button
               type="button"
               className={an.chip}
@@ -406,84 +407,57 @@ function HowToRead({ open }: { open: boolean }) {
 
 /* --------------------------------------------------------------- filters - */
 
-/** The report filters (dates, room, stake, seat); shared with Leaks and Progress (A6), which take the same keys. */
+/**
+ * The Analysis tabs' filter row (Reports, Leaks, Progress): the kind switch
+ * and the Hands list's own filter row (`@rail/ui/hands/FilterBar`, 2026-11-16:
+ * one filter everywhere). Its counts are the Hands list's (`library_facets`)
+ * within the kind shown.
+ */
 export function FilterBar({
   state,
   kinds,
-  facets,
   onChange,
 }: {
   state: ReportsState;
   /** The kind shown and the kinds' hands (`useAnalysisKind`). */
   kinds: AnalysisKind;
-  facets: NodeActionsReport["facets"];
   onChange: (patch: Partial<ReportsState>) => void;
 }) {
-  const t = useDict().analysis.reports.filters;
-  const any = useDict().analysis.ui.scope.any;
-  const day = (iso: string | null) => (iso ? iso.slice(0, 10) : undefined);
-  const set = state.from || state.to || state.room || state.stake || state.position;
+  const standardFormat = useDict().converter.library.standardFormat;
+  const source = useMemo(() => webHandsSource(standardFormat), [standardFormat]);
+  const withinKind = useCallback(
+    (query: HandFilter): HandFilter => (kinds.kind ? { ...query, formats: kindFormats(kinds.kind) } : query),
+    [kinds.kind],
+  );
+  const query = useMemo(() => withinKind(toQuery(state.filter)), [state.filter, withinKind]);
+  const queryKey = JSON.stringify(query);
+  const [facets, setFacets] = useState<{ key: string; facets: HandFacets } | null>(null);
+  useEffect(() => {
+    let live = true;
+    source
+      .facets(JSON.parse(queryKey) as HandFilter)
+      .then((next) => {
+        if (live) setFacets({ key: queryKey, facets: next });
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, [source, queryKey]);
+  const loadFacets = useCallback((draft: HandFilter) => source.facets(withinKind(draft)), [source, withinKind]);
   return (
-    <div className={an.tools} role="group" aria-label={t.ariaLabel}>
+    <div className={an.filterRow}>
       <KindSwitch kind={kinds.kind} counts={kinds.counts} onChange={(kind) => onChange({ kind })} />
-      <label className={an.dd}>
-        {t.from}
-        <input
-          type="date"
-          value={state.from ?? ""}
-          min={day(facets.first)}
-          max={state.to ?? day(facets.last)}
-          onChange={(event) => onChange({ from: event.target.value || null })}
+      <div className={an.filterBar}>
+        <SharedFilterBar
+          filter={state.filter}
+          facets={facets?.facets ?? null}
+          onChange={(filter) => onChange({ filter: { ...filter, formats: [] } })}
+          features={WEB_HANDS_FEATURES}
+          screen="reports"
+          loadFacets={loadFacets}
         />
-      </label>
-      <label className={an.dd}>
-        {t.to}
-        <input
-          type="date"
-          value={state.to ?? ""}
-          min={state.from ?? day(facets.first)}
-          max={day(facets.last)}
-          onChange={(event) => onChange({ to: event.target.value || null })}
-        />
-      </label>
-      <label className={an.dd}>
-        {t.room}
-        <select value={state.room ?? ""} onChange={(event) => onChange({ room: event.target.value || null })}>
-          <option value="">{any}</option>
-          {facets.sites.map((site) => (
-            <option key={site.site} value={site.site}>
-              {t.stakeOption(getParser(site.site)?.name ?? site.site, site.hands)}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className={an.dd}>
-        {t.stake}
-        <select value={state.stake ?? ""} onChange={(event) => onChange({ stake: event.target.value || null })}>
-          <option value="">{any}</option>
-          {facets.stakes.map((stake) => (
-            <option key={stakeKey(stake.currency, stake.bigBlind)} value={stakeKey(stake.currency, stake.bigBlind)}>
-              {t.stakeOption(stakeLabel(stake, t.unknownStake), stake.hands)}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className={an.dd}>
-        {t.position}
-        <select value={state.position ?? ""} onChange={(event) => onChange({ position: event.target.value || null })}>
-          <option value="">{any}</option>
-          {REPORT_POSITIONS.map((position) => (
-            <option key={position} value={position}>
-              {position}
-            </option>
-          ))}
-        </select>
-      </label>
-      {set ? (
-        <button type="button" className={an.linkBtn} onClick={() => onChange({ ...EMPTY_REPORTS_STATE, kind: state.kind })}>
-          {t.clear}
-        </button>
-      ) : null}
+      </div>
     </div>
   );
 }

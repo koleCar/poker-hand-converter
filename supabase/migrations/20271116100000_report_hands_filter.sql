@@ -1202,3 +1202,6 @@ begin
   );
 end;
 $$;
+
+-- The R6.2 entitlement gate, back in every re-created gated function.
+select public.entitlement_gates_apply();

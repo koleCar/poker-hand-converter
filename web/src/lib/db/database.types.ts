@@ -4520,6 +4520,7 @@ export type Database = {
         Args: { p_hand_id: string; p_version?: string }
         Returns: Json
       }
+      analysis_hand_ids: { Args: { p_filters: Json }; Returns: string[] }
       analysis_hand_table_set: { Args: { p_phf: Json }; Returns: string }
       analysis_hands: {
         Args: {
@@ -5752,6 +5753,7 @@ export type Database = {
         street: string | null
         flag: string | null
         formats: string[] | null
+        hands: string[] | null
       }
     }
   }

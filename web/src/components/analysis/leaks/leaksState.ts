@@ -1,16 +1,18 @@
 /**
  * Leaks' and Progress' state, as it lives in the address bar (phase A6).
  *
- * Both take the Reports filters — dates, room, stake, seat, under the same
- * keys (`reportsState.ts`) — so a filter carried from one screen to another
- * means the same thing, and add their own view: the leak finder its street,
- * ranking and open leak; progress its bucket, split and metric.
+ * Both take the Reports filter — the Hands list's filter row and the kind,
+ * under the same keys (`reportsState.ts`) — so a filter carried from one
+ * screen to another means the same thing, and add their own view: the leak
+ * finder its street, ranking and open leak; progress its bucket, split and
+ * metric.
  *
  * Parsing is a whitelist, like every list state in the tab: anything that is
  * not one of these keys with a value of the expected shape is dropped, and a
  * stale bookmark degrades to the default view.
  */
 
+import { EMPTY_FILTER, type FilterState } from "@rail/ui/hands/filter";
 import { LEAK_SORTS, LEAK_STREETS, parseLeakId, type LeakSort } from "../../../lib/analysis/leaks";
 import { TREND_BUCKETS, TREND_GROUPS, type TrendBucket, type TrendGroup } from "../../../lib/db/analysisLeaks";
 import { EMPTY_REPORTS_STATE, parseReportsState, reportsQuery, type ReportsState } from "../reports/reportsState";
@@ -90,8 +92,17 @@ export function progressQuery(state: ProgressState): string {
   return params.toString();
 }
 
-/** A `[from, to)` ISO window as the Reports date filters (UTC days, `to` inclusive). */
-export function windowState(from: string, to: string): Pick<ReportsState, "from" | "to"> {
+/** A `[from, to)` ISO window as the Reports filter's custom dates (days, `to` inclusive). */
+export function windowState(from: string, to: string): Pick<ReportsState, "filter"> {
   const lastDay = new Date(Date.parse(to) - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-  return { from: from.slice(0, 10), to: lastDay };
+  return { filter: { ...EMPTY_FILTER, date: "custom", dateFrom: from.slice(0, 10), dateTo: lastDay } };
+}
+
+/** The leak finder's filter for a window of days (`to` inclusive) and a seat: what Top leaks links to. */
+export function scopeFilter(window: { from: string; to: string } | null, position: string | null | undefined): FilterState {
+  return {
+    ...EMPTY_FILTER,
+    ...(window ? { date: "custom" as const, dateFrom: window.from.slice(0, 10), dateTo: window.to.slice(0, 10) } : {}),
+    positions: position ? [position] : [],
+  };
 }

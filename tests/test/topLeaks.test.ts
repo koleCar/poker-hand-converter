@@ -37,6 +37,7 @@ import {
   type ExampleCandidate,
 } from "../../web/src/lib/analysis/topLeaks.js";
 import { TENTATIVE_MIN_MISTAKES } from "../../web/src/lib/training/plan.js";
+import { parseLeaksState } from "../../web/src/components/analysis/leaks/leaksState.js";
 
 const rpc = vi.fn();
 vi.mock("../../web/src/lib/db/client.js", async (importOriginal) => ({
@@ -401,9 +402,16 @@ describe("the card", () => {
 
   it("links each leak to its row in the report, over the same days and seat", () => {
     const html = render("en");
+    // The days and the seat as the Hands list's filter (`f`, 2026-11-16: one filter row everywhere).
+    const scope = new URLSearchParams({
+      f: JSON.stringify({ positions: ["CO"], date: "custom", dateFrom: "2026-09-01", dateTo: "2026-09-30" }),
+    }).toString();
     const id = new URLSearchParams({ leak: top[0].leak.id }).toString();
-    expect(html).toContain(`href="/analysis/leaks?from=2026-09-01&amp;to=2026-09-30&amp;pos=CO&amp;${id}"`);
-    expect(html).toContain('href="/analysis/leaks?from=2026-09-01&amp;to=2026-09-30&amp;pos=CO"');
+    const href = (query: string) => `href="/analysis/leaks?${query.replace(/&/g, "&amp;")}"`;
+    expect(html).toContain(href(`${scope}&${id}`));
+    expect(html).toContain(href(scope));
+    const link = new URLSearchParams(scope);
+    expect(parseLeaksState(link).filter).toMatchObject({ positions: ["CO"], date: "custom", dateFrom: "2026-09-01", dateTo: "2026-09-30" });
   });
 
   it("speaks Croatian", () => {

@@ -269,11 +269,12 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 -- the library (under the cap) and the converter's failure registry
                 'get_hand', 'ingest_hands', 'library_count', 'library_facets', 'library_list', 'library_page',
                 'library_result', 'library_rows', 'library_size', 'library_stack', 'library_stake',
-                'library_table_names', 'record_conversion_failures', 'register_web_hand_source', 'save_hands',
+                'library_table_names', 'library_where', 'library_beyond_rollups', 'record_conversion_failures',
+                'register_web_hand_source', 'save_hands',
                 'search_hands', 'unparsed_summary', 'normalize_cards', 'normalize_positions', 'is_card_array',
                 'is_position_array',
                 -- basic statistics and their upkeep; notes
-                'report_open', 'report_graph', 'report_facets', 'stats_coverage', 'stats_empty_graph',
+                'report_open', 'report_graph', 'report_facets', 'report_hand_ids', 'stats_coverage', 'stats_empty_graph',
                 'stats_ev_missing', 'hands_needing_stats', 'save_hand_stats', 'save_hand_ev',
                 'hand_stats_ev_normalize', 'prune_hand_stats', 'prune_villain_stats', 'refresh_report_summaries',
                 'my_player_notes', 'set_player_note',
@@ -283,6 +284,8 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 'claim_desktop_sign_in',
                 -- pure helpers: no table, or a date of the caller's own rows
                 'analysis_best_action', 'analysis_chosen_action', 'analysis_filter_of', 'analysis_filter_rows_ok',
+                -- the Hands list's hands for an analysis reader (the readers themselves are gated)
+                'analysis_hand_ids',
                 'analysis_filter_sums_ok', 'analysis_grade_rank', 'analysis_hand_table_set', 'analysis_leak_table_of', 'analysis_leak_pot_of',
                 'analysis_trimmed_phf',
                 'analysis_month_of', 'analysis_spot_key',
