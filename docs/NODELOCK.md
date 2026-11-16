@@ -47,6 +47,30 @@ Targets on the M2 Pro, flop lock to 1 %:
 | Turn lock | a few seconds |
 | River lock | under 1 s |
 
+**Native engine as built (2026-11-16, workstream N).** Release build,
+`cargo run --release -p rail-solver --example bench -- target/rail-solver-fixtures/flop-m1-spot.json --threads N`
+(the spot from `npm run solver:fixtures` in `tests/`): set
+`nlhe-cash-6max-100bb`, line `btn-bb`, flop `Ks5h3s`, flop-m1 tree
+(547,392 nodes, 1,429 boards, 443 vs 541 hands), measured from iteration 40
+every 10. The M2 Pro was **not idle**: the nightly flop library's three
+TypeScript workers ran throughout (load average 7–19), so these are upper
+bounds.
+
+| Threads | Storage | Iterations | To 1 % of the pot | Median iteration | Memory |
+|---|---|---|---|---|---|
+| 1 | f32 | 100 | 523 s (8.7 min) | 5.0 s | 3.1 GB |
+| 6 | f32 | 100 | 107 s | 0.92 s | 3.1 GB |
+| 9 | f32 | 100 | **75 s** | 0.57 s | 3.1 GB |
+| 9 | i16 | 110 | 73 s | 0.60 s | 1.1 GB |
+
+- The TypeScript took 50.9 s for the first 4 iterations of the same spot
+  (one measurement included); the native engine 4.1 s at 9 threads, with
+  bit-identical strategies and a byte-identical chunk.
+- f32 is the default when it fits two fifths of the memory, else i16
+  (`nodelock_solve.rs`). i16 needs a few more iterations (its quantisation)
+  but a third of the memory.
+- Not done yet: the warm start.
+
 ## 1. The lock model (shared library code, `web/src/lib/solver/nodelock.ts`)
 
 This is library code with no UI, so the app can import it through
@@ -249,6 +273,16 @@ plus:
     strategies match the TS reference within 1e-4 and the exploitability
     within 1e-3 % of the pot.
   - The app uses it when present and says which engine ran.
+  - **As built:** `core/rail-solver` (parity fixtures from
+    `tests/scripts/rail-solver`, bit-identical with the TypeScript on every
+    fixture and on the real flop-m1 spot), `app/src-tauri/src/nodelock_solve.rs`
+    (`nodelock_engine_info`, `nodelock_solve_start`, `nodelock://progress`,
+    `nodelock://done`, `nodelock_solve_cancel`, `nodelock_solve_result`) and
+    `app/src/solver/nodelock/engine/native.ts` (`createNativeEngine()`). The
+    window builds the spot from the library chunk (a flop lock: the chunk's
+    hands and weights on `FLOP_PROFILE`; a turn or river lock: `liveTurnSpot`)
+    and Rust applies the `LockSet` (§2.1 semantics as N reads them, until the
+    TypeScript freeze lands to check against).
 - **Warm start.** Within one app session the engine keeps the last solver of
   a spot in memory. A new lock on the same spot starts from it.
 
