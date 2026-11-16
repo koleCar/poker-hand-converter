@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use crate::betting::{Build, Street, StreetParams, build_street, dealt_path};
 use crate::cards::{card_code, parse_cards, to_range};
 use crate::game::{Game, HandSet, Mirror, ShowdownBoard};
-use crate::iso::{permute_card, spot_symmetries, symmetrize};
+use crate::iso::{permute_card, restrict_symmetries, spot_symmetries, symmetrize};
 use crate::subgame::{
     BuiltSubgame, HandMaps, SpotInput, classes_of, hands_of, rules_of, strengths, validate_pot,
 };
@@ -53,7 +53,10 @@ pub fn build_flop_game(spot: &FlopSpot) -> Result<BuiltSubgame, SolverInputError
     let mut r0 = to_range(&spot.ranges[0])?;
     let mut r1 = to_range(&spot.ranges[1])?;
     let group = if spot.isomorphism.unwrap_or(false) {
-        spot_symmetries(&board, &[&r0, &r1])
+        restrict_symmetries(
+            spot_symmetries(&board, &[&r0, &r1]),
+            spot.symmetry.as_deref(),
+        )
     } else {
         vec![[0, 1, 2, 3]]
     };

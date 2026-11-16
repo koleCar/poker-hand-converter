@@ -355,6 +355,8 @@ struct Pass {
     groups_f: f64,
     record_ev: bool,
     keep: f64,
+    /// Best response with frozen hands playing frozen (the locked game's).
+    best_frozen: bool,
 }
 
 pub struct Solver {
@@ -377,6 +379,7 @@ pub struct Solver {
     sampling: bool,
     evaluated: bool,
     slab: usize,
+    best_frozen: bool,
 }
 
 impl std::fmt::Debug for Solver {
@@ -605,6 +608,7 @@ impl Solver {
             group: 0,
             sampling: false,
             evaluated: false,
+            best_frozen: false,
             slab,
             sh,
             st,
@@ -740,7 +744,7 @@ impl Solver {
     ///
     /// # Panics
     /// When `node` is not an action node or the arrays do not fit it.
-    pub fn freeze(&mut self, node: usize, strategy: &[f64], mask: &[bool]) {
+    pub fn freeze(&mut self, node: usize, strategy: &[f64], mask: Option<&[bool]>) {
         let tree = &self.sh.game.tree;
         assert_eq!(tree.kind[node], ACTION, "node {node} is not an action node");
         let count = tree.child_count[node] as usize;
@@ -750,10 +754,32 @@ impl Solver {
             count * size,
             "a frozen strategy is [action][hand]"
         );
-        assert_eq!(mask.len(), size, "a frozen mask is one flag per hand");
+        assert!(
+            mask.is_none_or(|m| m.len() == size),
+            "a frozen mask is one flag per hand"
+        );
+        // As the TypeScript: rows normalised; a row with no positive sum stays free.
+        let mut fixed = vec![0.0; count * size];
+        let mut held = vec![false; size];
+        for i in 0..size {
+            if mask.is_some_and(|m| !m[i]) {
+                continue;
+            }
+            let mut sum = 0.0;
+            for a in 0..count {
+                sum += strategy[a * size + i].max(0.0);
+            }
+            if !(sum > 0.0) || !sum.is_finite() {
+                continue;
+            }
+            held[i] = true;
+            for a in 0..count {
+                fixed[a * size + i] = strategy[a * size + i].max(0.0) / sum;
+            }
+        }
         let frozen = Frozen {
-            strategy: strategy.to_vec(),
-            mask: mask.to_vec(),
+            strategy: fixed,
+            mask: held,
         };
         let at = self.sh.frozen_of[node];
         if at == NONE {
@@ -762,10 +788,18 @@ impl Solver {
         } else {
             self.sh.frozen[at as usize] = frozen;
         }
-        if !self.st.current_stamp.is_empty() {
-            // A cached strategy predates the freeze.
-            self.st.current_stamp[node] = -2;
-        }
+        // The reuse cache may hold this node's unfrozen strategy.
+        self.st.current_stamp.fill(-2);
+    }
+
+    /// A warm start (`restartAverage`): keeps the regrets, drops the average
+    /// strategy and goes on from `iteration` (at least 1).
+    pub fn restart_average(&mut self, iteration: u32) {
+        self.st.sums.fill(0.0);
+        self.st.sums16.fill(0);
+        self.st.sum_scale.fill(0.0);
+        self.st.current_stamp.fill(-2);
+        self.iterations = iteration.max(1);
     }
 
     /// Removes every freeze.
@@ -814,6 +848,7 @@ impl Solver {
                     groups_f: self.sh.groups as f64,
                     record_ev: false,
                     keep: -1.0,
+                    best_frozen: false,
                 };
                 self.traverse(pass, None);
             }
@@ -880,10 +915,19 @@ impl Solver {
 
     /// Best response and profile values for the current average strategy.
     pub fn exploitability(&mut self) -> Exploitability {
+        self.exploitability_with(false)
+    }
+
+    /// `exploitability({ unconstrained })`: with frozen nodes the best
+    /// response plays the frozen hands as frozen (the locked game's number)
+    /// unless `unconstrained`.
+    pub fn exploitability_with(&mut self, unconstrained: bool) -> Exploitability {
+        self.best_frozen = !self.sh.frozen.is_empty() && !unconstrained;
         let br = [
             self.root_value(0, Mode::Best, None),
             self.root_value(1, Mode::Best, None),
         ];
+        self.best_frozen = false;
         let value = if self.constant_sum.is_nan() {
             [
                 self.root_value(0, Mode::Eval, None),
@@ -1068,6 +1112,7 @@ impl Solver {
             groups_f: 1.0,
             record_ev,
             keep,
+            best_frozen: self.best_frozen,
         };
         self.traverse(pass, best);
         let w = &self.sh.game.hands[p].weight;
@@ -1386,6 +1431,9 @@ impl Walker<'_> {
                     }
                     out[i] = best;
                 }
+                if self.ps.best_frozen {
+                    best_frozen_values(sh, node, count, n, cfv, out);
+                }
                 return;
             }
             let strat = &mut lvl.strat[..count * n];
@@ -1587,6 +1635,9 @@ impl Walker<'_> {
                         }
                     }
                     out[i] = best;
+                }
+                if self.ps.best_frozen {
+                    best_frozen_values(sh, node, count, n, cfv, out);
                 }
                 return;
             }
@@ -2012,6 +2063,32 @@ fn combine(strat: &[f64], cfv: &[f64], count: usize, n: usize, out: &mut [f64]) 
         for i in 0..n {
             out[i] += s[i] * c[i];
         }
+    }
+}
+
+/// `MODE_BEST` with frozen play: a frozen hand's value is its frozen mix.
+fn best_frozen_values(
+    sh: &Shared,
+    node: usize,
+    count: usize,
+    n: usize,
+    cfv: &[f64],
+    out: &mut [f64],
+) {
+    let at = sh.frozen_of[node];
+    if at == NONE {
+        return;
+    }
+    let f = &sh.frozen[at as usize];
+    for i in 0..n {
+        if !f.mask[i] {
+            continue;
+        }
+        let mut v = f.strategy[i] * cfv[i];
+        for a in 1..count {
+            v += f.strategy[a * n + i] * cfv[a * n + i];
+        }
+        out[i] = v;
     }
 }
 

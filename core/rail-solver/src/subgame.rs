@@ -12,7 +12,9 @@ use crate::cards::{
     CardInput, NUM_COMBOS, RangeInput, card_code, combo_hi, combo_lo, parse_cards, to_range,
 };
 use crate::game::{Game, HandSet, Mirror, ShowdownBoard};
-use crate::iso::{Perm, card_orbit, permute_card, permute_combo, spot_symmetries, symmetrize};
+use crate::iso::{
+    Perm, card_orbit, permute_card, permute_combo, restrict_symmetries, spot_symmetries, symmetrize,
+};
 use crate::tree::{Edge, Rake};
 use crate::{SolverInputError, input_error};
 
@@ -51,6 +53,10 @@ pub struct SpotInput {
     /// Flop games: keep the turn and river nodes' info (tests).
     #[serde(default)]
     pub deep_info: Option<bool>,
+    /// With `isomorphism`: only these suit relabellings may be used (a
+    /// nodelock keeps those it is invariant under, `lock_symmetries`).
+    #[serde(default)]
+    pub symmetry: Option<Vec<Perm>>,
 }
 
 /// A subgame ready for the engine (`BuiltSubgame`).
@@ -353,7 +359,10 @@ pub fn build_turn_game(spot: &SpotInput) -> Result<BuiltSubgame, SolverInputErro
     let mut r0 = to_range(&spot.ranges[0])?;
     let mut r1 = to_range(&spot.ranges[1])?;
     let group = if spot.isomorphism.unwrap_or(false) {
-        spot_symmetries(&board, &[&r0, &r1])
+        restrict_symmetries(
+            spot_symmetries(&board, &[&r0, &r1]),
+            spot.symmetry.as_deref(),
+        )
     } else {
         vec![[0, 1, 2, 3]]
     };

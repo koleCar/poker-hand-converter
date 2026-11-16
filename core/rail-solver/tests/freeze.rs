@@ -25,7 +25,7 @@ fn a_frozen_caller_is_exploited() {
     let game = game_of(&fx["game"]);
     let mut solver = Solver::new(game, DEFAULT_DCFR, SolverConfig::default());
     // Node ids: 0 check showdown, 1 fold, 2 call showdown, 3 facing (player 1), 4 root (player 0).
-    solver.freeze(3, &[0.0, 1.0], &[true]);
+    solver.freeze(3, &[0.0, 1.0], None);
     solver.iterate(400);
     assert_eq!(solver.average_strategy(3), vec![0.0, 1.0]);
     let root = solver.average_strategy(4);
@@ -45,7 +45,7 @@ fn unmasked_hands_adapt() {
     let game = game_of(&fx["game"]);
     let mut solver = Solver::new(game, DEFAULT_DCFR, SolverConfig::default());
     // Freeze the nuts (hand 0) to check; air (hand 1) adapts.
-    solver.freeze(4, &[1.0, 0.0, 0.0, 0.0], &[true, false]);
+    solver.freeze(4, &[1.0, 0.0, 0.0, 0.0], Some(&[true, false]));
     solver.iterate(400);
     let root = solver.average_strategy(4);
     assert_eq!(
@@ -262,61 +262,4 @@ fn a_nodelock_request_solves() {
     // A cancel is an error.
     let cancelled = run_nodelock(&request, &AtomicBool::new(true), |_| {});
     assert_eq!(cancelled.err().as_deref(), Some("cancelled"));
-}
-
-/// A turn lock as the app addresses it (`X-X~Kd/…`), "player" with no
-/// baseline sent: the unlocked live turn is solved first and the earlier node
-/// keeps it; the chunk wraps the turn solve.
-#[test]
-fn a_turn_lock_request_solves_its_own_baseline() {
-    use std::sync::atomic::AtomicBool;
-
-    use rail_solver::nodelock::{NodelockRequest, RequestOptions, run_nodelock};
-
-    let fx = load("turn-iso");
-    let spot = spot_of(&fx);
-    let options = RequestOptions {
-        max_iterations: 20,
-        target_pct: 0.0,
-        check_from: Some(20),
-        check_every: 20,
-        dcfr: rail_solver::cfr::DcfrParams {
-            alpha: 1.5,
-            beta: 0.0,
-            gamma: 3.0,
-        },
-    };
-    let mut base_options = options_of(&fx["options"], 2);
-    base_options.run.max_iterations = 20;
-    base_options.run.check_from = Some(20);
-    base_options.run.check_every = 20;
-    let base = solve(&spot, &base_options, None, None, |_| true).unwrap();
-    let node = base
-        .result
-        .nodes
-        .iter()
-        .find(|n| !n.chance && n.player == 0 && n.path.starts_with("X-B"))
-        .unwrap();
-    let labels: Vec<&str> = node.labels.iter().map(String::as_str).collect();
-    let mut spec = uniform_lock(&format!("X-X~Kd/{}", node.path), 0, &labels, 0);
-    spec.street = "turn".into();
-    let request = NodelockRequest {
-        spot,
-        lock_set: lock_set(vec![spec], LockEarlier::Player),
-        baseline: None,
-        header: "{\"version\":\"floplib/1\",\"solver\":\"solver/1\"}".into(),
-        options,
-        threads: Some(2),
-        storage: None,
-        memory_budget: None,
-    };
-    let out = run_nodelock(&request, &AtomicBool::new(false), |_| {}).unwrap();
-    let decoded = decode(&out.chunk).unwrap();
-    let diff = decoded.nodes[0]
-        .strategy
-        .iter()
-        .zip(base.result.nodes[0].strategy.iter())
-        .map(|(a, b)| (a - f64::from(*b)).abs())
-        .fold(0.0, f64::max);
-    assert!(diff < 1e-4, "the turn root moved by {diff}");
 }

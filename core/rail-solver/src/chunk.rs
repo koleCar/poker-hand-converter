@@ -216,6 +216,9 @@ pub struct DecodedNode {
 pub struct DecodedSolve {
     pub hands: [Vec<u16>; 2],
     pub nodes: Vec<DecodedNode>,
+    /// The solution's pot and stack (NaN when not given).
+    pub pot: f64,
+    pub stack: f64,
 }
 
 fn u16_at(b: &[u8], at: usize) -> Option<u16> {
@@ -312,5 +315,10 @@ pub fn decode(bytes: &[u8]) -> Result<DecodedSolve, String> {
             strategy,
         });
     }
-    Ok(DecodedSolve { hands, nodes })
+    Ok(DecodedSolve {
+        hands,
+        nodes,
+        pot: header["pot"].as_f64().unwrap_or(f64::NAN),
+        stack: header["stack"].as_f64().unwrap_or(f64::NAN),
+    })
 }

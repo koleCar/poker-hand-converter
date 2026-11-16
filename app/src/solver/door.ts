@@ -38,9 +38,8 @@ export {
   type FlopChunk,
 } from "@rail/web-lib/solver";
 export { cardIndex } from "@rail/web-lib/equity";
-// The native nodelock engine (`./nodelock/engine/native.ts`): the spots it sends.
-export { LIVE_TURN, liveTurnSpot, NUM_COMBOS } from "@rail/web-lib/solver";
-export { FLOP_PROFILE } from "@rail/web-lib/analysis/flopLibrary";
+// The native nodelock engine (`./nodelock/engine/native.ts`): how a turn lock runs.
+export { LIVE_TURN } from "@rail/web-lib/solver";
 export {
   availableArchetypes,
   nodelockSuggestEn,

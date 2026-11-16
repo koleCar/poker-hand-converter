@@ -10,7 +10,7 @@ use crate::cfr::{
 };
 use crate::chunk::DecodedSolve;
 use crate::flop::build_flop_game;
-use crate::lock::{Applied, LockSet, apply_locks};
+use crate::lock::{Applied, LockSet, apply_plan, chunk_baseline, plan_locks};
 use crate::solve::{Scope, SolveResult, extract};
 use crate::subgame::{BuiltSubgame, SpotInput, build_river_game, build_turn_game};
 
@@ -79,18 +79,32 @@ pub struct Solved {
     pub seconds: f64,
 }
 
-/// Solves `spot` with `locks` frozen, calling `on` after every iteration and
-/// measurement (returning false cancels).
+/// A built game and its solver, between the steps of a solve.
+pub struct Prepared {
+    pub built: BuiltSubgame,
+    pub solver: Solver,
+    pub storage: Storage,
+    nodes: usize,
+    action_nodes: usize,
+    boards: usize,
+    turn_classes: usize,
+    started: Instant,
+}
+
+impl std::fmt::Debug for Prepared {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Prepared")
+            .field("nodes", &self.nodes)
+            .field("storage", &self.storage)
+            .finish()
+    }
+}
+
+/// Builds the game and its solver.
 ///
 /// # Errors
-/// Bad input or a lock that does not fit the tree.
-pub fn solve(
-    spot: &SpotInput,
-    options: &SolveOptions,
-    locks: Option<&LockSet>,
-    baseline: Option<&DecodedSolve>,
-    mut on: impl FnMut(&Progress) -> bool,
-) -> Result<Solved, String> {
+/// Bad input.
+pub fn prepare(spot: &SpotInput, options: &SolveOptions) -> Result<Prepared, String> {
     let started = Instant::now();
     let mut built = build(spot).map_err(|e| e.0)?;
     let tree = &built.game.tree;
@@ -111,7 +125,7 @@ pub fn solve(
         Some(_) => Storage::I16,
         None => options.storage,
     };
-    let mut solver = Solver::new(
+    let solver = Solver::new(
         std::mem::take(&mut built.game),
         options.dcfr,
         SolverConfig {
@@ -120,42 +134,87 @@ pub fn solve(
             threads: options.threads,
         },
     );
-    let applied = match locks {
-        Some(set) => apply_locks(&built, &mut solver, set, baseline)?,
-        None => Applied::default(),
-    };
-    let mut last = f64::NAN;
-    let memory_mb = solver.native_bytes() as f64 / 1e6;
-    let run = solver.run(&options.run, |event| {
-        let (iteration, measured) = match event {
-            RunEvent::Iteration(t) => (t, false),
-            RunEvent::Progress(t, e) => {
-                last = e.percent_pot;
-                (t, true)
-            }
-        };
-        on(&Progress {
-            iteration,
-            elapsed_ms: started.elapsed().as_secs_f64() * 1000.0,
-            exploitability_pct: last,
-            measured,
-            memory_mb,
-        })
-    });
-    let result = extract(&built, &mut solver, &run, options.scope);
-    Ok(Solved {
-        result,
-        run,
-        applied,
+    Ok(Prepared {
+        built,
+        solver,
+        storage,
         nodes,
         action_nodes,
         boards,
         turn_classes,
-        native_bytes: solver.native_bytes(),
-        storage,
-        threads: solver.threads(),
-        seconds: started.elapsed().as_secs_f64(),
+        started,
     })
+}
+
+impl Prepared {
+    /// Runs DCFR, calling `on` after every iteration and measurement
+    /// (returning false cancels).
+    pub fn run(&mut self, run: &RunOptions, mut on: impl FnMut(&Progress) -> bool) -> RunResult {
+        let started = self.started;
+        let mut last = f64::NAN;
+        let memory_mb = self.solver.native_bytes() as f64 / 1e6;
+        self.solver.run(run, |event| {
+            let (iteration, measured) = match event {
+                RunEvent::Iteration(t) => (t, false),
+                RunEvent::Progress(t, e) => {
+                    last = e.percent_pot;
+                    (t, true)
+                }
+            };
+            on(&Progress {
+                iteration,
+                elapsed_ms: started.elapsed().as_secs_f64() * 1000.0,
+                exploitability_pct: last,
+                measured,
+                memory_mb,
+            })
+        })
+    }
+
+    /// Extracts the result.
+    pub fn finish(mut self, run: RunResult, applied: Applied, scope: Scope) -> Solved {
+        let result = extract(&self.built, &mut self.solver, &run, scope);
+        Solved {
+            result,
+            run,
+            applied,
+            nodes: self.nodes,
+            action_nodes: self.action_nodes,
+            boards: self.boards,
+            turn_classes: self.turn_classes,
+            native_bytes: self.solver.native_bytes(),
+            storage: self.storage,
+            threads: self.solver.threads(),
+            seconds: self.started.elapsed().as_secs_f64(),
+        }
+    }
+}
+
+/// Solves `spot` with `locks` frozen (earlier nodes at `baseline`, a decoded
+/// chunk of the same game), calling `on` after every iteration and
+/// measurement (returning false cancels).
+///
+/// # Errors
+/// Bad input or a lock that does not fit the tree.
+pub fn solve(
+    spot: &SpotInput,
+    options: &SolveOptions,
+    locks: Option<&LockSet>,
+    baseline: Option<&DecodedSolve>,
+    on: impl FnMut(&Progress) -> bool,
+) -> Result<Solved, String> {
+    let mut prepared = prepare(spot, options)?;
+    let applied = match locks {
+        Some(set) => {
+            let lookup = baseline.map(|b| chunk_baseline(b, &prepared.built));
+            let base: Option<&dyn Fn(usize) -> Option<Vec<f64>>> = lookup.as_ref().map(|f| f as _);
+            let plan = plan_locks(&prepared.built, &prepared.solver.game().tree, set)?;
+            apply_plan(&prepared.built, &mut prepared.solver, plan, base)?
+        }
+        None => Applied::default(),
+    };
+    let run = prepared.run(&options.run, on);
+    Ok(prepared.finish(run, applied, options.scope))
 }
 
 /// A solve's decision nodes as a baseline for earlier-node freezing (what a
@@ -163,6 +222,8 @@ pub fn solve(
 #[must_use]
 pub fn baseline_of(result: &SolveResult) -> DecodedSolve {
     DecodedSolve {
+        pot: result.pot,
+        stack: result.stack,
         hands: result.hands.clone(),
         nodes: result
             .nodes

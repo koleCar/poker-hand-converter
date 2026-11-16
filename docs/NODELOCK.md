@@ -299,10 +299,13 @@ plus:
     (`nodelock_engine_info`, `nodelock_solve_start`, `nodelock://progress`,
     `nodelock://done`, `nodelock_solve_cancel`, `nodelock_solve_result`) and
     `app/src/solver/nodelock/engine/native.ts` (`createNativeEngine()`). The
-    window builds the spot from the library chunk (a flop lock: the chunk's
-    hands and weights on `FLOP_PROFILE`; a turn or river lock: `liveTurnSpot`)
-    and Rust applies the `LockSet` (§2.1 semantics as N reads them, until the
-    TypeScript freeze lands to check against).
+    window builds the reference's game (`nodelockSpotOf`) and Rust runs
+    `solveNodelock`'s steps (`rail_solver::nodelock`): the same chunk bytes
+    as the TypeScript reference for a flop lock and a turn lock with
+    "player" earlier nodes, at 1 and 3 threads (`nodelock.json` fixture).
+    It defaults to float32 storage when that fits two fifths of the memory
+    (the reference: 16-bit on the flop), so an app solve is not bit-identical
+    to the worker engine's, only as accurate.
 - **Warm start.** Within one app session the engine keeps the last solver of
   a spot in memory. A new lock on the same spot starts from it.
 

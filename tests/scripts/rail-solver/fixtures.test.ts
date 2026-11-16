@@ -25,7 +25,12 @@ import { loadCharts } from "../../../web/src/lib/charts/index.js";
 import { Solver, type DcfrParams } from "../../../web/src/lib/solver/cfr.js";
 import { parseRange } from "../../../web/src/lib/solver/combos.js";
 import { solveFlop, type FlopSpot } from "../../../web/src/lib/solver/flop.js";
-import { encodeChunk, FLOPLIB_VERSION, type FlopChunkHeader } from "../../../web/src/lib/solver/flopLibrary.js";
+import { decodeChunk, encodeChunk, FLOPLIB_VERSION, type FlopChunkHeader } from "../../../web/src/lib/solver/flopLibrary.js";
+import { LIVE_TURN, liveTurnSpot } from "../../../web/src/lib/solver/liveTurn.js";
+import { lockPathOf, lockSymmetries, nodelockHeader, type LockSet, type NodeLockSpec } from "../../../web/src/lib/solver/nodelock.js";
+import { buildTurnGame } from "../../../web/src/lib/solver/subgame.js";
+import { NUM_COMBOS } from "../../../web/src/lib/solver/combos.js";
+import { nodelockFlopRun, nodelockTurnRun, nodelockTurnSpot, solveNodelock } from "../../../web/src/lib/analysis/nodelock.js";
 import { encodeSolution, SOLVER_VERSION } from "../../../web/src/lib/solver/format.js";
 import type { Game } from "../../../web/src/lib/solver/game.js";
 import { solveRiver, solveTurn, type SolveResult } from "../../../web/src/lib/solver/solve.js";
@@ -200,9 +205,108 @@ function header(flop: string, pot: number, stack: number, rake: { name: string; 
   };
 }
 
+const SMALL_R0 = "99-55, A5s-A2s, KTs+, QJs, T9s, 87s, 76s, KQo";
+const SMALL_R1 = "TT+, AQs+, AKo, K9s, 65s, 54s";
+
+function smallFlopSpot(): FlopSpot {
+  const [r0, r1] = [SMALL_R0, SMALL_R1];
+  const p = FLOP_PROFILE;
+  return {
+    board: ["Ks", "5h", "3s"],
+    ranges: [parseRange(r0), parseRange(r1)],
+    pot: 5.5,
+    stack: 97.5,
+    firstToAct: 0,
+    menus: [p.flopMenu, p.flopMenu],
+    raiseCap: p.flopRaiseCap,
+    turnMenus: [p.turnMenu, p.turnMenu],
+    turnRaiseCap: p.turnRaiseCap,
+    riverMenus: [p.riverMenu, p.riverMenu],
+    riverRaiseCap: p.riverRaiseCap,
+    allInThreshold: p.allInThreshold,
+    minBet: p.minBet,
+    rake: { percent: 0.05, cap: 3 },
+    bigBlind: 1,
+    isomorphism: true,
+  };
+}
+
+/** A lock: the first action for every other combo (by index), so it is not suit-symmetric. */
+function halfLock(street: "flop" | "turn" | "river", path: string, player: 0 | 1, actions: string[], symmetric: boolean): NodeLockSpec {
+  const strategy = actions.map((_, a) => new Array<number>(NUM_COMBOS).fill(a === 0 ? 1 : 0));
+  const locked = Array.from({ length: NUM_COMBOS }, (_, c) => (symmetric ? 1 : c % 2));
+  return { street, path, player, actions, strategy, locked };
+}
+
+/**
+ * Nodelock solves by the TypeScript reference (`solveNodelock`) on the small
+ * flop: a flop lock and a turn lock, each with "player" earlier nodes. The
+ * fixture is the native request (`NodelockRequest`) and the chunk it must give.
+ */
+function nodelockFixtures() {
+  const spot = smallFlopSpot();
+  const p = FLOP_PROFILE;
+  const library = solveFlop(spot, { maxIterations: 12, checkEvery: 6, checkFrom: 6, targetExploitability: 0, dcfr: { ...p.dcfr }, storage: "i16" });
+  const baselineBytes = encodeChunk(header("Ks5h3s", 5.5, 97.5, { name: "fixture", percent: 0.05, cap: 3 }, p.tree, p.targetPct), library.result);
+  const chunk = decodeChunk(baselineBytes);
+  const out: Record<string, unknown> = {};
+
+  // Flop: player 0's node after check-bet, half its combos locked; its earlier node is the root.
+  const node = chunk.result.nodes.find((n) => n.kind === "action" && n.player === 0 && n.path.startsWith("X-B"));
+  if (!node) throw new Error("no X-B node");
+  const flopSet: LockSet = {
+    version: 1,
+    spot: { set: "fixture", line: "btn-bb", flop: "Ks5h3s" },
+    nodes: [halfLock("flop", node.path, 0, node.labels, false)],
+    earlier: "player",
+    targetPct: 1,
+  };
+  const flopSpot: FlopSpot = { ...spot, symmetry: lockSymmetries(flopSet, spot.board) };
+  const flopSolve = solveNodelock({ street: "flop", spot: flopSpot }, flopSet, { baseline: chunk, maxIterations: 12 });
+  const flopRun = nodelockFlopRun(flopSet, 12);
+  out.flop = {
+    request: {
+      spot: { ...flopSpot, ranges: [rangeB64(SMALL_R0), rangeB64(SMALL_R1)] },
+      lockSet: flopSet,
+      baseline: b64(baselineBytes),
+      header: JSON.stringify(nodelockHeader(chunk.header, flopSet)),
+      options: { maxIterations: flopRun.maxIterations, targetPct: flopRun.targetExploitability, checkFrom: flopRun.checkFrom, checkEvery: flopRun.checkEvery, dcfr: flopRun.dcfr },
+    },
+    expect: { chunk: b64(flopSolve.chunk), iterations: flopSolve.stats.iterations, exploitabilityPct: f64([flopSolve.stats.exploitabilityPct]) },
+  };
+
+  // Turn: the check-check deal, its first turn card, player 0's node after check-bet in the turn game.
+  const deal = chunk.result.nodes.findIndex((n) => n.kind === "chance" && n.path === "X-X");
+  const card = chunk.result.nodes[deal].labels[0];
+  const turnGame = buildTurnGame(liveTurnSpot(chunk, deal, card));
+  const turnInfo = turnGame.info.find((info, k) => info && info.street === "turn" && info.path.startsWith("X-B") && turnGame.game.tree.player[k] === 0);
+  if (!turnInfo) throw new Error("no turn X-B node");
+  const turnSet: LockSet = {
+    version: 1,
+    spot: { set: "fixture", line: "btn-bb", flop: "Ks5h3s", turn: card },
+    nodes: [halfLock("turn", lockPathOf("X-X", card, turnInfo.path), 0, turnInfo.actions.map((a) => a.label), false)],
+    earlier: "player",
+    targetPct: 1,
+  };
+  const turnSpot = nodelockTurnSpot(chunk, turnSet);
+  const turnSolve = solveNodelock(turnSpot, turnSet, { baseline: chunk, maxIterations: 30 });
+  const turnRun = nodelockTurnRun(turnSet, 30);
+  out.turn = {
+    request: {
+      spot: { ...turnSpot.spot, ranges: [f64(turnSpot.spot.ranges[0] as Float64Array), f64(turnSpot.spot.ranges[1] as Float64Array)] },
+      lockSet: turnSet,
+      baseline: null,
+      header: JSON.stringify(nodelockHeader(chunk.header, turnSet)),
+      options: { maxIterations: turnRun.maxIterations, targetPct: turnRun.targetExploitability, checkFrom: turnRun.checkFrom, checkEvery: turnRun.checkEvery, dcfr: LIVE_TURN.dcfr },
+    },
+    expect: { chunkLength: turnSolve.chunk.length, chunkFnv: fnv64(turnSolve.chunk), rootStrategy: f32(turnSolve.result.nodes[0].strategy), iterations: turnSolve.stats.iterations, exploitabilityPct: f64([turnSolve.stats.exploitabilityPct]) },
+  };
+  return out;
+}
+
 function flopFixture(name: string, storage: "f32" | "i16") {
-  const r0 = "99-55, A5s-A2s, KTs+, QJs, T9s, 87s, 76s, KQo";
-  const r1 = "TT+, AQs+, AKo, K9s, 65s, 54s";
+  const r0 = SMALL_R0;
+  const r1 = SMALL_R1;
   const p = FLOP_PROFILE;
   const spot: FlopSpot = {
     board: ["Ks", "5h", "3s"],
@@ -315,6 +419,7 @@ describe("rail-solver fixtures", () => {
     write(SMALL, "turn-iso", turnFixture("turn-iso"));
     write(SMALL, "flop-small", flopFixture("flop-small", "i16"));
     write(SMALL, "flop-small-f32", flopFixture("flop-small-f32", "f32"));
+    write(SMALL, "nodelock", nodelockFixtures());
     // V8's Math.pow for the discounts, to compare with Rust's powf.
     const pows: number[] = [];
     for (let t = 1; t <= 400; t += 1) pows.push(Math.pow(t - 1, 1.5), Math.pow(t, 2), Math.pow(t, 3));

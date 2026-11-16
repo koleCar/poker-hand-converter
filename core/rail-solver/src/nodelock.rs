@@ -8,10 +8,10 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 use crate::cards::base64_decode;
 use crate::cfr::{DcfrParams, RunOptions, StoppedBy, Storage};
-use crate::chunk::{DecodedSolve, decode, encode_chunk, wrap_chunk};
-use crate::lock::{LockEarlier, LockSet};
+use crate::chunk::{decode, encode_chunk, wrap_chunk};
+use crate::lock::{LockSet, apply_plan, chunk_baseline, lock_symmetries, plan_locks};
 use crate::solve::Scope;
-use crate::spot::{SolveOptions, baseline_of, solve};
+use crate::spot::{SolveOptions, prepare};
 use crate::subgame::SpotInput;
 
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
@@ -115,7 +115,35 @@ impl Eta {
     }
 }
 
-/// Runs a nodelock solve. `cancel` stops it between iterations.
+/// The warm start's iteration (`NODELOCK_WARM_ITERATION`).
+pub const WARM_ITERATION: u32 = 10;
+
+fn run_options(o: &RequestOptions) -> RunOptions {
+    RunOptions {
+        max_iterations: o.max_iterations,
+        target_exploitability: o.target_pct,
+        check_every: o.check_every,
+        check_from: o.check_from,
+    }
+}
+
+/// The live turn's own settings (`LIVE_TURN`), for a turn lock's baseline.
+fn live_turn() -> RequestOptions {
+    RequestOptions {
+        max_iterations: 400,
+        target_pct: 0.5,
+        check_from: Some(30),
+        check_every: 10,
+        dcfr: DcfrParams {
+            alpha: 1.5,
+            beta: 0.0,
+            gamma: 3.0,
+        },
+    }
+}
+
+/// Runs a nodelock solve (`solveNodelock`, the TypeScript reference, step
+/// for step). `cancel` stops it between iterations.
 ///
 /// # Errors
 /// Bad input, a lock that does not fit the tree, or a cancel (`"cancelled"`).
@@ -127,85 +155,120 @@ pub fn run_nodelock(
     let flop = request.spot.board.len() == 3;
     let threads = request.threads.unwrap_or_else(default_threads).max(1);
     let o = &request.options;
+    let mut spot = request.spot.clone();
+    if spot.isomorphism.unwrap_or(false) && spot.symmetry.is_none() {
+        let board = crate::cards::parse_cards(&spot.board).map_err(|e| e.0)?;
+        spot.symmetry = Some(lock_symmetries(&request.lock_set, &board));
+    }
     let options = SolveOptions {
-        run: RunOptions {
-            max_iterations: o.max_iterations,
-            target_exploitability: o.target_pct,
-            check_every: o.check_every,
-            check_from: o.check_from,
-        },
+        run: run_options(o),
         dcfr: o.dcfr,
-        storage: request.storage.unwrap_or(Storage::F32),
+        // The reference's: 16-bit for a flop lock (as the library), float32 for a turn.
+        storage: request
+            .storage
+            .unwrap_or(if flop { Storage::I16 } else { Storage::F32 }),
         threads,
         scope: if flop { Scope::Flop } else { Scope::All },
         memory_budget: if request.storage.is_some() {
             None
         } else {
-            Some(request.memory_budget.unwrap_or(usize::MAX))
+            request.memory_budget
         },
     };
-    let mut lock_set = request.lock_set.clone();
-    for node in &mut lock_set.nodes {
-        node.path = game_path(&node.path).to_owned();
-    }
-
-    let mut baseline: Option<DecodedSolve> = None;
-    if lock_set.earlier != LockEarlier::None {
-        if flop {
-            let bytes = request
-                .baseline
-                .as_deref()
-                .and_then(base64_decode)
-                .ok_or("a flop lock needs the library chunk")?;
-            baseline = Some(decode(&bytes)?);
-        } else {
-            // The live turn unlocked: the baseline the earlier nodes keep.
-            let solved = solve(&request.spot, &options, None, None, |_| {
-                !cancel.load(Ordering::Relaxed)
-            })?;
-            if solved.run.stopped_by == StoppedBy::Cancelled {
-                return Err("cancelled".into());
-            }
-            baseline = Some(baseline_of(&solved.result));
-        }
-    }
+    let mut prepared = prepare(&spot, &options)?;
+    let plan = plan_locks(
+        &prepared.built,
+        &prepared.solver.game().tree,
+        &request.lock_set,
+    )?;
 
     let mut eta = Eta::default();
     let mut peak_mb = 0.0_f64;
     let target = o.target_pct;
-    let solved = solve(
-        &request.spot,
-        &options,
-        Some(&lock_set),
-        baseline.as_ref(),
-        |p| {
-            peak_mb = peak_mb.max(p.memory_mb);
-            if p.measured {
-                eta.points
-                    .push((f64::from(p.iteration), p.exploitability_pct));
+    let max = f64::from(o.max_iterations);
+    let mut report = |p: &crate::spot::Progress, eta: &mut Eta| {
+        peak_mb = peak_mb.max(p.memory_mb);
+        if p.measured {
+            eta.points
+                .push((f64::from(p.iteration), p.exploitability_pct));
+        }
+        let per_iteration = p.elapsed_ms / f64::from(p.iteration.max(1));
+        let eta_ms = eta
+            .iterations_to(target)
+            .map(|t| (t.min(max) - f64::from(p.iteration)).max(0.0) * per_iteration);
+        on_progress(&NodelockProgress {
+            iteration: p.iteration,
+            exploitability_pct: if p.exploitability_pct.is_nan() {
+                None
+            } else {
+                Some(p.exploitability_pct)
+            },
+            elapsed_ms: p.elapsed_ms,
+            eta_ms,
+            memory_mb: p.memory_mb,
+        });
+        !cancel.load(Ordering::Relaxed)
+    };
+
+    let applied = if flop {
+        let bytes = request
+            .baseline
+            .as_deref()
+            .and_then(base64_decode)
+            .ok_or("a flop lock needs the library chunk")?;
+        let chunk = decode(&bytes)?;
+        let built = &prepared.built;
+        // `checkBaseline`: the chunk was solved on this game.
+        // (Pot and stack within float noise: the header's JSON need not parse back to the same bits.)
+        let near = |a: f64, b: f64| (a - b).abs() <= 1e-9 * a.abs().max(1.0);
+        if chunk.hands != built.combos
+            || !near(chunk.pot, built.pot)
+            || !near(chunk.stack, built.stack)
+        {
+            return Err("the library chunk was solved on other ranges than the spot's".into());
+        }
+        let lookup = chunk_baseline(&chunk, built);
+        apply_plan(built, &mut prepared.solver, plan, Some(&lookup))?
+    } else {
+        let mut baseline: Option<Vec<Option<Vec<f64>>>> = None;
+        if !plan.earlier.is_empty() {
+            // The baseline: the unlocked turn, solved as the live turn solves it.
+            let run = prepared.run(&run_options(&live_turn()), |p| {
+                let mut ignore = Eta::default();
+                report(p, &mut ignore)
+            });
+            if run.stopped_by == StoppedBy::Cancelled {
+                return Err("cancelled".into());
             }
-            let per_iteration = p.elapsed_ms / f64::from(p.iteration.max(1));
-            let eta_ms = eta.iterations_to(target).map(|t| {
-                (t.min(f64::from(o.max_iterations)) - f64::from(p.iteration)).max(0.0)
-                    * per_iteration
-            });
-            on_progress(&NodelockProgress {
-                iteration: p.iteration,
-                exploitability_pct: if p.exploitability_pct.is_nan() {
-                    None
-                } else {
-                    Some(p.exploitability_pct)
-                },
-                elapsed_ms: p.elapsed_ms,
-                eta_ms,
-                memory_mb: p.memory_mb,
-            });
-            !cancel.load(Ordering::Relaxed)
-        },
-    )?;
-    if solved.run.stopped_by == StoppedBy::Cancelled {
+            let tree = &prepared.solver.game().tree;
+            baseline = Some(
+                (0..tree.size)
+                    .map(|node| {
+                        (tree.kind[node] == crate::tree::ACTION).then(|| {
+                            prepared
+                                .solver
+                                .average_strategy(node)
+                                .iter()
+                                .map(|&x| f64::from(x))
+                                .collect()
+                        })
+                    })
+                    .collect(),
+            );
+        }
+        let warm = baseline.is_some();
+        let lookup = |node: usize| baseline.as_ref().and_then(|b| b[node].clone());
+        let applied = apply_plan(&prepared.built, &mut prepared.solver, plan, Some(&lookup))?;
+        if warm {
+            prepared.solver.restart_average(WARM_ITERATION);
+        }
+        applied
+    };
+    let run = prepared.run(&options.run, |p| report(p, &mut eta));
+    if run.stopped_by == StoppedBy::Cancelled {
         return Err("cancelled".into());
     }
+    let solved = prepared.finish(run, applied, options.scope);
     let chunk = if flop {
         encode_chunk(&request.header, &solved.result)?
     } else {

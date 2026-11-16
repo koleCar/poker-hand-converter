@@ -94,3 +94,75 @@ fn real_flop_m1_matches() {
     eprintln!("flop-m1: {report}");
     report.assert_ok();
 }
+
+/// Nodelock solves against the TypeScript reference (`solveNodelock`): a
+/// flop lock and a turn lock, "player" earlier nodes, a lock that is not
+/// suit-symmetric. Same chunk bytes, at 1 and 3 threads.
+#[test]
+fn nodelock_matches_the_reference() {
+    use std::sync::atomic::AtomicBool;
+
+    use rail_solver::nodelock::{NodelockRequest, run_nodelock};
+
+    let fx = load("nodelock");
+    for threads in [1, 3] {
+        // Flop.
+        let mut request: NodelockRequest =
+            serde_json::from_value(fx["flop"]["request"].clone()).unwrap();
+        request.threads = Some(threads);
+        let out = run_nodelock(&request, &AtomicBool::new(false), |_| {}).unwrap();
+        let want = bytes(&fx["flop"]["expect"]["chunk"]);
+        let got = rail_solver::chunk::decode(&out.chunk).unwrap();
+        let expected = rail_solver::chunk::decode(&want).unwrap();
+        let diff = got
+            .nodes
+            .iter()
+            .zip(&expected.nodes)
+            .flat_map(|(a, b)| {
+                a.strategy
+                    .iter()
+                    .zip(&b.strategy)
+                    .map(|(x, y)| (x - y).abs())
+            })
+            .fold(0.0, f64::max);
+        let pct = f64s(&fx["flop"]["expect"]["exploitabilityPct"])[0];
+        eprintln!(
+            "nodelock flop ({threads} threads): max |Δ strategy| {diff:.3e}, exploitability {} vs {pct}, bytes identical {}",
+            out.stats.exploitability_pct,
+            out.chunk == want
+        );
+        assert!(diff <= 1e-4);
+        assert!((out.stats.exploitability_pct - pct).abs() <= 1e-3);
+        assert_eq!(out.chunk, want, "the flop lock's chunk");
+
+        // Turn.
+        let mut request: NodelockRequest =
+            serde_json::from_value(fx["turn"]["request"].clone()).unwrap();
+        request.threads = Some(threads);
+        let out = run_nodelock(&request, &AtomicBool::new(false), |_| {}).unwrap();
+        let e = &fx["turn"]["expect"];
+        let got = rail_solver::chunk::decode(&out.chunk).unwrap();
+        let root = f32s(&e["rootStrategy"]);
+        let diff = got.nodes[0]
+            .strategy
+            .iter()
+            .zip(&root)
+            .map(|(a, b)| (a - f64::from(*b)).abs())
+            .fold(0.0, f64::max);
+        let pct = f64s(&e["exploitabilityPct"])[0];
+        eprintln!(
+            "nodelock turn ({threads} threads): root |Δ| {diff:.3e}, iterations {} vs {}, exploitability {} vs {pct}, bytes identical {}",
+            out.stats.iterations,
+            e["iterations"],
+            out.stats.exploitability_pct,
+            Some(fnv64(&out.chunk).as_str()) == e["chunkFnv"].as_str()
+        );
+        assert!(diff <= 1e-4);
+        assert!((out.stats.exploitability_pct - pct).abs() <= 1e-3);
+        assert_eq!(
+            Some(fnv64(&out.chunk).as_str()),
+            e["chunkFnv"].as_str(),
+            "the turn lock's chunk"
+        );
+    }
+}

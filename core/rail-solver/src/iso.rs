@@ -120,6 +120,19 @@ pub fn symmetrize(range: &[f64], group: &[Perm]) -> Vec<f64> {
     out
 }
 
+/// `restrictSymmetries`: the permutations of `group` that `allowed` also
+/// holds; `group` when nothing restricts it; the identity when none is left.
+#[must_use]
+pub fn restrict_symmetries(group: Vec<Perm>, allowed: Option<&[Perm]>) -> Vec<Perm> {
+    let Some(allowed) = allowed else { return group };
+    let kept: Vec<Perm> = group.into_iter().filter(|p| allowed.contains(p)).collect();
+    if kept.is_empty() {
+        vec![[0, 1, 2, 3]]
+    } else {
+        kept
+    }
+}
+
 /// `cardOrbit`: every card some permutation takes `card` to, ascending.
 #[must_use]
 pub fn card_orbit(card: u8, group: &[Perm]) -> Vec<u8> {
