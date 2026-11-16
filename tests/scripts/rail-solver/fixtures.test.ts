@@ -234,7 +234,7 @@ function flopFixture(name: string, storage: "f32" | "i16") {
   };
 }
 
-function realFlopFixture(iterations: number) {
+function realFlopSpot() {
   const setId = "nlhe-cash-6max-100bb";
   const charts = loadCharts(JSON.parse(readFileSync(join(ROOT, "web/src/lib/charts/data", `${setId}.json`), "utf8")));
   const line = FLOP_LINES.find((l) => l.id === "btn-bb");
@@ -260,19 +260,37 @@ function realFlopFixture(iterations: number) {
     bigBlind: 1,
     isomorphism: true,
   };
-  const options: SpotOptions = { maxIterations: iterations, checkEvery: iterations, checkFrom: iterations, targetExploitability: 0, dcfr: { ...p.dcfr }, storage: "i16" };
-  const started = performance.now();
-  const solved = solveFlop(spot, options);
-  const seconds = (performance.now() - started) / 1000;
   const h: FlopChunkHeader = {
     ...header("Ks5h3s", ls.pot, ls.stack, { name: rake.name, percent: rake.percent, cap: rake.cap }, p.tree, p.targetPct),
     charts: { id: charts.id, version: charts.version, hash: charts.model.hash },
     lineHash: chartLineHash(charts, line.key) ?? undefined,
     players: ls.players,
   };
+  return { spot, ranges: [f64(ls.ranges[0]), f64(ls.ranges[1])] as [string, string], header: h };
+}
+
+/** The real spot's input alone (no solve): what the native benchmark reads. */
+function realSpotInput() {
+  const { spot, ranges, header: h } = realFlopSpot();
+  const p = FLOP_PROFILE;
   return {
     name: "flop-m1-btn-bb-Ks5h3s",
-    spot: { ...spot, ranges: [f64(ls.ranges[0]), f64(ls.ranges[1])] },
+    spot: { ...spot, ranges },
+    options: { maxIterations: p.maxIterations, checkEvery: p.checkEvery, checkFrom: p.checkFrom, targetExploitability: p.targetPct, dcfr: { ...p.dcfr }, storage: "i16", scope: "flop" },
+    header: JSON.stringify(h),
+  };
+}
+
+function realFlopFixture(iterations: number) {
+  const { spot, ranges, header: h } = realFlopSpot();
+  const p = FLOP_PROFILE;
+  const options: SpotOptions = { maxIterations: iterations, checkEvery: iterations, checkFrom: iterations, targetExploitability: 0, dcfr: { ...p.dcfr }, storage: "i16" };
+  const started = performance.now();
+  const solved = solveFlop(spot, options);
+  const seconds = (performance.now() - started) / 1000;
+  return {
+    name: "flop-m1-btn-bb-Ks5h3s",
+    spot: { ...spot, ranges },
     options: { ...options, scope: "flop" },
     header: JSON.stringify(h),
     tsSeconds: seconds,
@@ -301,6 +319,10 @@ describe("rail-solver fixtures", () => {
     const pows: number[] = [];
     for (let t = 1; t <= 400; t += 1) pows.push(Math.pow(t - 1, 1.5), Math.pow(t, 2), Math.pow(t, 3));
     write(SMALL, "pow", { pows: f64(pows) });
+  });
+
+  it("writes the real flop-m1 spot's input", () => {
+    write(BIG, "flop-m1-spot", realSpotInput());
   });
 
   it.runIf(process.env.RAIL_SOLVER_BIG === "1")("writes the real flop-m1 spot", () => {

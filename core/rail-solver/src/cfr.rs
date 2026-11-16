@@ -30,10 +30,9 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 
-use rayon::prelude::*;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 use crate::game::Game;
-use crate::js::math_round;
 use crate::tree::{ACTION, CHANCE, FOLD, SHOWDOWN};
 
 #[derive(Debug, Clone, Copy, PartialEq, serde::Deserialize, serde::Serialize)]
@@ -189,6 +188,11 @@ struct Sorted {
     c1: [Vec<u8>; 2],
     c2: [Vec<u8>; 2],
     same: [Vec<i32>; 2],
+    /// `below[p][t]`: how many of the opponent's hands are strictly weaker
+    /// than p's `t`-th; `upto[p][t]`: how many are not stronger. The sweeps
+    /// stop there instead of comparing strengths.
+    below: [Vec<u32>; 2],
+    upto: [Vec<u32>; 2],
 }
 
 /// A split chance node's slot: where its edges' values and its reach go.
@@ -214,6 +218,8 @@ struct Shared {
     sampled_chance: Vec<u8>,
     split_slot: Vec<u32>,
     slots: Vec<Slot>,
+    /// Per edge below a split node: its subtree's node count (task order).
+    task_weight: Vec<u32>,
     max_hands: usize,
     compact: bool,
 }
@@ -431,10 +437,27 @@ impl Solver {
                 };
                 let (a1, a2, a3) = side(0);
                 let (b1, b2, b3) = side(1);
+                let bounds = |p: usize| {
+                    let mine = &board.strength[p];
+                    let theirs = &board.strength[1 - p];
+                    let below = mine
+                        .iter()
+                        .map(|&s| theirs.partition_point(|&x| x < s) as u32)
+                        .collect();
+                    let upto = mine
+                        .iter()
+                        .map(|&s| theirs.partition_point(|&x| x <= s) as u32)
+                        .collect();
+                    (below, upto)
+                };
+                let (l0, u0) = bounds(0);
+                let (l1, u1) = bounds(1);
                 Sorted {
                     c1: [a1, b1],
                     c2: [a2, b2],
                     same: [a3, b3],
+                    below: [l0, l1],
+                    upto: [u0, u1],
                 }
             })
             .collect();
@@ -510,6 +533,16 @@ impl Solver {
             groups,
             edge_group,
             sampled_chance,
+            task_weight: if use_split {
+                (0..edge_count)
+                    .map(|e| {
+                        let child = tree.children[e] as usize;
+                        child as u32 - tree.first[child] + 1
+                    })
+                    .collect()
+            } else {
+                Vec::new()
+            },
             split_slot: if use_split {
                 split_slot
             } else {
@@ -1067,20 +1100,36 @@ impl Solver {
             reach,
             tasks,
         );
-        // 2. Solve the subtrees.
-        let workers = &self.workers;
-        let run = |&(slot, edge): &(u32, u32)| {
-            let index = rayon::current_thread_index().unwrap_or(0) % workers.len();
-            let mut guard = match workers[index].lock() {
+        // 2. Solve the subtrees: largest first, each worker taking the next
+        // task (so a slow core never ends up holding a big subtree last).
+        let weight = &sh.task_weight;
+        let starts = &tree.child_start;
+        tasks.sort_unstable_by_key(|&(slot, edge)| {
+            let e = starts[sh.slots[slot as usize].node as usize] as usize + edge as usize;
+            (std::cmp::Reverse(weight[e]), slot, edge)
+        });
+        let tasks = &*tasks;
+        let next = AtomicUsize::new(0);
+        let work = |worker: &Mutex<Scratch>| {
+            let mut guard = match worker.lock() {
                 Ok(g) => g,
                 Err(poisoned) => poisoned.into_inner(),
             };
-            walker.task(slot as usize, edge as usize, &mut guard);
+            loop {
+                let k = next.fetch_add(1, Ordering::Relaxed);
+                let Some(&(slot, edge)) = tasks.get(k) else {
+                    break;
+                };
+                walker.task(slot as usize, edge as usize, &mut guard);
+            }
         };
-        if let Some(pool) = &self.pool {
-            pool.install(|| tasks.par_iter().with_max_len(1).for_each(run));
-        } else {
-            tasks.iter().for_each(run);
+        match &self.pool {
+            Some(pool) => pool.scope(|scope| {
+                for worker in &self.workers {
+                    scope.spawn(|_| work(worker));
+                }
+            }),
+            None => work(&self.workers[0]),
         }
         // 3. Back up.
         walker.walk(
@@ -1271,6 +1320,7 @@ impl Walker<'_> {
         );
     }
 
+    #[inline(never)]
     fn action(
         &self,
         node: usize,
@@ -1472,6 +1522,7 @@ impl Walker<'_> {
         }
     }
 
+    #[inline(never)]
     fn action_compact(
         &self,
         node: usize,
@@ -1736,6 +1787,7 @@ impl Walker<'_> {
         }
     }
 
+    #[inline(never)]
     fn chance(
         &self,
         node: usize,
@@ -1819,6 +1871,7 @@ impl Walker<'_> {
         }
     }
 
+    #[inline(never)]
     fn showdown(&self, node: usize, tmp: &mut Tmp, reach: &[f64], out: &mut [f64]) {
         let sh = self.sh;
         let tree = &sh.game.tree;
@@ -1828,15 +1881,15 @@ impl Walker<'_> {
         let board_id = tree.board[node] as usize;
         let board = &sh.game.boards[board_id];
         let sorted = &sh.sorted[board_id];
-        let pc1 = &sorted.c1[p];
-        let pc2 = &sorted.c2[p];
-        let psame = &sorted.same[p];
-        let oc1 = &sorted.c1[o];
-        let oc2 = &sorted.c2[o];
-        let ord_p = &board.order[p];
-        let str_p = &board.strength[p];
-        let ord_o = &board.order[o];
-        let str_o = &board.strength[o];
+        let pc1 = &sorted.c1[p][..];
+        let pc2 = &sorted.c2[p][..];
+        let psame = &sorted.same[p][..];
+        let oc1 = &sorted.c1[o][..];
+        let oc2 = &sorted.c2[o][..];
+        let ord_p = &board.order[p][..];
+        let ord_o = &board.order[o][..];
+        let below = &sorted.below[p][..];
+        let upto = &sorted.upto[p][..];
         let nv = ord_p.len();
         let mv = ord_o.len();
         let base = node * 6 + p * 3;
@@ -1847,60 +1900,84 @@ impl Walker<'_> {
         if nv < n {
             out.fill(0.0);
         }
-        let wins = &mut tmp.win;
-        let cs = &mut tmp.card_sum;
+        let wins = &mut tmp.win[..nv];
+        let cs = &mut tmp.card_sum[..];
+        let acc = &mut tmp.card_sum2[..];
         cs.fill(0.0);
-        let mut cum = 0.0;
-        let mut k = 0;
-        for t in 0..nv {
-            let s = str_p[t];
-            while k < mv && str_o[k] < s {
-                let v = reach[ord_o[k] as usize];
+        acc.fill(0.0);
+        assert!(
+            pc1.len() == nv
+                && pc2.len() == nv
+                && psame.len() == nv
+                && below.len() == nv
+                && upto.len() == nv,
+            "showdown tables"
+        );
+        assert!(oc1.len() == mv && oc2.len() == mv, "showdown tables");
+        // SAFETY: every index below is a hand position (< nv or < mv, checked
+        // above), a card (< num_cards + 2 = the card sums' length), or a hand
+        // index of the board's order (< the reach and out lengths, which are
+        // the players' hand counts).
+        unsafe {
+            // Ascending: compatible opponent reach strictly weaker than each
+            // hand; run on to the end for the totals.
+            let mut cum = 0.0;
+            let mut k = 0;
+            for t in 0..nv {
+                let stop = *below.get_unchecked(t) as usize;
+                while k < stop {
+                    let v = *reach.get_unchecked(*ord_o.get_unchecked(k) as usize);
+                    if v != 0.0 {
+                        cum += v;
+                        *cs.get_unchecked_mut(usize::from(*oc1.get_unchecked(k))) += v;
+                        *cs.get_unchecked_mut(usize::from(*oc2.get_unchecked(k))) += v;
+                    }
+                    k += 1;
+                }
+                *wins.get_unchecked_mut(t) = cum
+                    - *cs.get_unchecked(usize::from(*pc1.get_unchecked(t)))
+                    - *cs.get_unchecked(usize::from(*pc2.get_unchecked(t)));
+            }
+            while k < mv {
+                let v = *reach.get_unchecked(*ord_o.get_unchecked(k) as usize);
                 if v != 0.0 {
                     cum += v;
-                    cs[usize::from(oc1[k])] += v;
-                    cs[usize::from(oc2[k])] += v;
+                    *cs.get_unchecked_mut(usize::from(*oc1.get_unchecked(k))) += v;
+                    *cs.get_unchecked_mut(usize::from(*oc2.get_unchecked(k))) += v;
                 }
                 k += 1;
             }
-            wins[t] = cum - cs[usize::from(pc1[t])] - cs[usize::from(pc2[t])];
-        }
-        while k < mv {
-            let v = reach[ord_o[k] as usize];
-            if v != 0.0 {
-                cum += v;
-                cs[usize::from(oc1[k])] += v;
-                cs[usize::from(oc2[k])] += v;
-            }
-            k += 1;
-        }
-        let total = cum;
-        let acc = &mut tmp.card_sum2;
-        acc.fill(0.0);
-        cum = 0.0;
-        let mut k = mv as isize - 1;
-        let win_minus_lose = win - lose;
-        let tie_minus_lose = tie - lose;
-        for t in (0..nv).rev() {
-            let s = str_p[t];
-            while k >= 0 && str_o[k as usize] > s {
-                let ku = k as usize;
-                let v = reach[ord_o[ku] as usize];
-                if v != 0.0 {
-                    cum += v;
-                    acc[usize::from(oc1[ku])] += v;
-                    acc[usize::from(oc2[ku])] += v;
+            let total = cum;
+            // Descending: strictly stronger; then combine.
+            cum = 0.0;
+            let mut k = mv;
+            let win_minus_lose = win - lose;
+            let tie_minus_lose = tie - lose;
+            for t in (0..nv).rev() {
+                let stop = *upto.get_unchecked(t) as usize;
+                while k > stop {
+                    k -= 1;
+                    let v = *reach.get_unchecked(*ord_o.get_unchecked(k) as usize);
+                    if v != 0.0 {
+                        cum += v;
+                        *acc.get_unchecked_mut(usize::from(*oc1.get_unchecked(k))) += v;
+                        *acc.get_unchecked_mut(usize::from(*oc2.get_unchecked(k))) += v;
+                    }
                 }
-                k -= 1;
+                let a = usize::from(*pc1.get_unchecked(t));
+                let b = usize::from(*pc2.get_unchecked(t));
+                let losses = cum - *acc.get_unchecked(a) - *acc.get_unchecked(b);
+                let sm = *psame.get_unchecked(t);
+                let all = total - *cs.get_unchecked(a) - *cs.get_unchecked(b)
+                    + if sm >= 0 {
+                        *reach.get_unchecked(sm as usize)
+                    } else {
+                        0.0
+                    };
+                let w = *wins.get_unchecked(t);
+                *out.get_unchecked_mut(*ord_p.get_unchecked(t) as usize) =
+                    lose * all + win_minus_lose * w + tie_minus_lose * (all - w - losses);
             }
-            let a = usize::from(pc1[t]);
-            let b = usize::from(pc2[t]);
-            let losses = cum - acc[a] - acc[b];
-            let sm = psame[t];
-            let all = total - cs[a] - cs[b] + if sm >= 0 { reach[sm as usize] } else { 0.0 };
-            let w = wins[t];
-            out[ord_p[t] as usize] =
-                lose * all + win_minus_lose * w + tie_minus_lose * (all - w - losses);
         }
     }
 }
@@ -2077,6 +2154,15 @@ fn average16(sums: &[u16], count: usize, size: usize, strat: &mut [f64], sum: &m
     }
 }
 
+/// `Math.round` for the encoders: the nearest integer, halves up. Exact
+/// (`x - floor(x)` is), branch-free so the loops vectorise; the sign of a
+/// zero, the one thing it drops, does not survive the integer cast anyway.
+#[inline]
+fn round_half_up(x: f64) -> f64 {
+    let f = x.floor();
+    if x - f >= 0.5 { f + 1.0 } else { f }
+}
+
 /// `encodeI16`: int16 at the block's own scale; returns the scale.
 fn encode_i16(values: &[f64], out: &mut [i16]) -> f64 {
     let mut max = 0.0_f64;
@@ -2092,7 +2178,7 @@ fn encode_i16(values: &[f64], out: &mut [i16]) -> f64 {
     }
     let inv = 32767.0 / max;
     for (o, &v) in out.iter_mut().zip(values) {
-        *o = math_round(v * inv) as i16;
+        *o = round_half_up(v * inv) as i16;
     }
     max / 32767.0
 }
@@ -2112,7 +2198,7 @@ fn encode_u16(values: &[f64], out: &mut [u16]) -> f64 {
     let inv = 65535.0 / max;
     for (o, &v) in out.iter_mut().zip(values) {
         *o = if v > 0.0 {
-            math_round(v * inv) as u16
+            round_half_up(v * inv) as u16
         } else {
             0
         };
