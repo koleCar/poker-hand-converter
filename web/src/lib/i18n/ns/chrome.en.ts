@@ -50,6 +50,7 @@ export const chromeEn = {
     via: "Share via…",
     webShareTitle: "Poker hand replay",
     copied: "Link copied to clipboard.",
+    copiedShort: "Copied",
     copyBlocked: "Your browser blocked the clipboard. Select the link above and copy it manually.",
     /** The owner's switch for a link's screen names (R4.5): hidden unless turned on. */
     names: {
@@ -60,7 +61,19 @@ export const chromeEn = {
       shown: "Names shown on this link",
       saving: "Saving…",
       failed: (reason: string) => `Could not change it: ${reason}`,
+      /** The popover's one-row form; the explanation is a tooltip. */
+      row: {
+        label: "Players' names",
+        hidden: "Hidden",
+        shown: "Shown",
+        off: "Off",
+        offText: "Hero, Villain1, Villain2… No table, hand number or time.",
+        on: "On",
+        onText: "Screen names as the room printed them.",
+      },
     },
+    signInLine: "Sign in to make a link. Opening it needs no account.",
+    signInButton: "Sign in",
     /** Posting the hand to the forum with a comment, from the same popover. */
     forum: {
       button: "Post to the forum",
@@ -79,14 +92,36 @@ export const chromeEn = {
       view: "Open the post",
       signIn: "Sign in to post a hand to the forum.",
       notSaved: "The hand could not be saved to your library, so it cannot be posted.",
+      /** The popover's button opens the preview in a new tab. */
+      newTab: "Opens a preview of the post in a new tab",
+      /** `/submit/preview`: the post's settings beside a live preview of it. */
+      preview: {
+        metaTitle: "Post preview",
+        back: "Back to the hand",
+        viewLabel: "Preview",
+        views: { thread: "Thread", feed: "Feed card" },
+        kindLabel: "Post type",
+        kinds: { hand: "Hand review", poll: "What would you do?" },
+        spot: "Stop the hand at",
+        hideCards: "Hide hero's cards",
+        analysisHidden: "Readers won't see your analysis.",
+        showIt: "Show it",
+        pollIntro: "Readers see the hand up to here, then answer:",
+        pollAfter: "Results show after they vote.",
+        justNow: "just now",
+        repliesHere: "Readers reply here",
+        addTitle: "Add a title first",
+        confirmNames: "Confirm the screen names first",
+        posted: (board: string) => `Posted in ${board}.`,
+        handGone: "This hand is no longer here. Open the share menu on the hand and press Post to the forum again.",
+        loading: "Loading the hand…",
+      },
     },
   },
   db: {
     offlineTitle: "No database configured. The converter works offline; saved hands and sharing are unavailable.",
     offline: "Offline — no database",
     offlineShort: "Offline",
-    connected: "Database connected",
-    stored: (count: string, n: number) => `${count} ${n === 1 ? "hand" : "hands"} stored`,
   },
   /** The shell's live strip (R4.3): uploads in the account's other tabs, the desktop app's sync, new hands. */
   live: {

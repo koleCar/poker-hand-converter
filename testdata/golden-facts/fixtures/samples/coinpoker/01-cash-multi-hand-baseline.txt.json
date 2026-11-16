@@ -1,0 +1,154 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          2,
+          7,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 2,
+        "vsPositions": " BB UTG ",
+        "vsSeats": " 3 4 "
+      },
+      "handId": "256459677",
+      "index": 0
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          4
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 2,
+        "vsPositions": " CO UTG ",
+        "vsSeats": " 1 6 "
+      },
+      "handId": "256460002",
+      "index": 1
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          32,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          2,
+          7,
+          11
+        ],
+        "openTenths": null,
+        "playersFlop": 2,
+        "vsPositions": " BTN BB HJ ",
+        "vsSeats": " 2 4 7 "
+      },
+      "handId": "352695201",
+      "index": 2
+    },
+    {
+      "facts": {
+        "betPct": [
+          30,
+          38,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          4
+        ],
+        "heroIp": false,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          9
+        ],
+        "openTenths": null,
+        "playersFlop": 2,
+        "vsPositions": " HJ ",
+        "vsSeats": " 6 "
+      },
+      "handId": "352675127",
+      "index": 3
+    }
+  ],
+  "input": "fixtures/samples/coinpoker/01-cash-multi-hand-baseline.txt"
+}

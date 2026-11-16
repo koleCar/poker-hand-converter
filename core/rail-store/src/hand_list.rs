@@ -115,6 +115,9 @@ pub struct HandFilter {
     pub showdown: Option<bool>,
     /// The order: [`SORTS`]; `None` (or an unknown one) is the newest first.
     pub sort: Option<String>,
+    /// The pot's and the result's orders in each hand's money rather than in
+    /// big blinds ([`MONEY_SORTS`]): the list shows `$` (2026-11-16).
+    pub sort_in_money: bool,
     /// The builder's groups of the hero's actions ([`ACTS`] names): a hand
     /// matches a group with any of its actions, and every group.
     pub acts: Vec<Vec<String>>,
@@ -543,13 +546,38 @@ const POSITION_ORDER_DESC: &str = "(l.hero_position IS NULL), CASE l.hero_positi
      WHEN 'MP+1' THEN 5 WHEN 'LJ' THEN 6 WHEN 'HJ' THEN 7 WHEN 'CO' THEN 8 WHEN 'BTN' THEN 9 \
      WHEN 'SB' THEN 10 WHEN 'BB' THEN 11 ELSE 0 END DESC";
 
+/// The pot's and the result's orders in money, as the list shows them: each
+/// hand's amount over its currency's minor units (`$1.50` is 1.5), hands
+/// without one last. Tournaments' chips are big blinds only on the screen.
+pub const MONEY_SORTS: &[(&str, &str)] = &[
+    (
+        "pot",
+        "(d.total_pot IS NULL), CAST(d.total_pot AS REAL) / coalesce(nullif(d.currency_minor_units, 0), 1) DESC",
+    ),
+    (
+        "potAsc",
+        "(d.total_pot IS NULL), CAST(d.total_pot AS REAL) / coalesce(nullif(d.currency_minor_units, 0), 1) ASC",
+    ),
+    (
+        "won",
+        "(l.hero_net IS NULL), CAST(l.hero_net AS REAL) / coalesce(nullif(d.currency_minor_units, 0), 1) DESC",
+    ),
+    (
+        "lost",
+        "(l.hero_net IS NULL), CAST(l.hero_net AS REAL) / coalesce(nullif(d.currency_minor_units, 0), 1) ASC",
+    ),
+];
+
 /// The order's `ORDER BY`, `None` for the newest first.
-fn order_of(sort: Option<&str>) -> Option<&'static str> {
+fn order_of(sort: Option<&str>, in_money: bool) -> Option<&'static str> {
     let sort = sort?;
-    SORTS
-        .iter()
-        .find(|(id, _)| *id == sort)
-        .map(|(_, sql)| *sql)
+    let find = |list: &[(&str, &'static str)]| {
+        list.iter().find(|(id, _)| *id == sort).map(|(_, sql)| *sql)
+    };
+    in_money
+        .then(|| find(MONEY_SORTS))
+        .flatten()
+        .or_else(|| find(SORTS))
 }
 
 /// The hero's two cards (`Ah Kd`) as their class (`AKo`), in SQL; `NULL`
@@ -741,6 +769,28 @@ pub(crate) fn allows(values: &[String], value: &str) -> bool {
 }
 
 impl HandFilter {
+    /// Whether a group is set that a report cannot sum from the rollups
+    /// (anything but the segment's dimensions, the hero's position and the
+    /// dates; the order is no filter): the report then reads the hands one
+    /// by one ([`crate::ReportFilter::hands`]).
+    pub fn beyond_rollups(&self) -> bool {
+        let rest = Self {
+            sites: Vec::new(),
+            formats: Vec::new(),
+            variants: Vec::new(),
+            limits: Vec::new(),
+            sizes: Vec::new(),
+            stakes: Vec::new(),
+            positions: Vec::new(),
+            from: None,
+            to: None,
+            sort: None,
+            utc_offset_minutes: 0,
+            ..self.clone()
+        };
+        rest != Self::default()
+    }
+
     fn segment_filtered(&self) -> bool {
         !(self.sites.is_empty()
             && self.formats.is_empty()
@@ -917,6 +967,34 @@ fn clauses(filter: &HandFilter, segments: &HashMap<i64, SegmentDims>, w: &mut Wh
     }
     search_clauses(filter, w);
     Some(())
+}
+
+/// The hands `filter` matches, as `column IN (subquery of their keys)` for
+/// a report's passes over other tables ([`crate::ReportFilter::hands`]).
+/// The subquery is the list's own (`source` and every clause), so a report
+/// covers exactly the hands the Hands screen lists. Its parameters go on
+/// `params`, numbered after those already there. `" AND 0"` when nothing
+/// can match.
+pub(crate) fn hand_keys_in(
+    conn: &Connection,
+    filter: &HandFilter,
+    column: &str,
+    params: &mut Vec<Value>,
+) -> Result<String> {
+    let segments = segments(conn)?;
+    let mut w = Where {
+        clauses: Vec::new(),
+        params: std::mem::take(params),
+    };
+    let from = source(filter, &mut w);
+    let matches = clauses(filter, &segments, &mut w).is_some();
+    let sql = w.sql();
+    *params = w.params;
+    Ok(if matches {
+        format!(" AND {column} IN (SELECT l.hand_key {from} WHERE {sql})")
+    } else {
+        " AND 0".to_owned()
+    })
 }
 
 /// The searches: the hero's hand (classes or cards), the board (cards or
@@ -1338,7 +1416,7 @@ impl Reader {
             }
             // The newest first pages by the last row (a hand that arrives
             // does not move the pages after it); another order by an offset.
-            let order = order_of(filter.sort.as_deref());
+            let order = order_of(filter.sort.as_deref(), filter.sort_in_money);
             let skip = if order.is_some() {
                 after.and_then(|after| after.offset).unwrap_or(0)
             } else {

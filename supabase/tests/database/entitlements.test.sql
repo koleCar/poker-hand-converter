@@ -253,7 +253,8 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 'admin_create_board', 'admin_purge', 'admin_set_board_moderator', 'admin_set_role',
                 'can_moderate_board', 'can_moderate_post', 'create_comment', 'create_poll_post', 'create_post',
                 'create_share', 'delete_comment', 'delete_post', 'edit_comment', 'edit_post', 'forum_author_hidden',
-                'forum_best_rank', 'forum_controversy', 'forum_feed', 'forum_fingerprint', 'forum_hot_rank',
+                'forum_best_rank', 'forum_board_counts', 'forum_controversy', 'forum_feed', 'forum_fingerprint', 'forum_hot_rank',
+                'forum_post_is_poll',
                 'forum_path_segment', 'forum_post_json', 'forum_slugify', 'get_post', 'get_post_comments',
                 'get_revisions', 'is_admin', 'is_board_moderator', 'is_moderator', 'mark_notifications_read',
                 'mod_ban', 'mod_edit_post_title', 'mod_queue', 'mod_resolve_report', 'mod_set_comment_status',
@@ -269,12 +270,15 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 -- the library (under the cap) and the converter's failure registry
                 'get_hand', 'ingest_hands', 'library_count', 'library_facets', 'library_list', 'library_page',
                 'library_result', 'library_rows', 'library_size', 'library_stack', 'library_stake',
-                'library_table_names', 'record_conversion_failures', 'register_web_hand_source', 'save_hands',
+                'library_table_names', 'library_where', 'library_beyond_rollups', 'library_builder_where',
+                'library_builder_ids', 'library_act_sql', 'library_number', 'record_conversion_failures',
+                'register_web_hand_source', 'save_hands',
                 'search_hands', 'unparsed_summary', 'normalize_cards', 'normalize_positions', 'is_card_array',
                 'is_position_array',
                 -- basic statistics and their upkeep; notes
-                'report_open', 'report_graph', 'report_facets', 'stats_coverage', 'stats_empty_graph',
+                'report_open', 'report_graph', 'report_facets', 'report_hand_ids', 'stats_coverage', 'stats_empty_graph',
                 'stats_ev_missing', 'hands_needing_stats', 'save_hand_stats', 'save_hand_ev',
+                'save_hand_facts', 'hand_facts_missing',
                 'hand_stats_ev_normalize', 'prune_hand_stats', 'prune_villain_stats', 'refresh_report_summaries',
                 'my_player_notes', 'set_player_note',
                 -- a shared analysis is read by anyone; switching one's own share and pruning stay free
@@ -283,6 +287,8 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 'claim_desktop_sign_in',
                 -- pure helpers: no table, or a date of the caller's own rows
                 'analysis_best_action', 'analysis_chosen_action', 'analysis_filter_of', 'analysis_filter_rows_ok',
+                -- the Hands list's hands for an analysis reader (the readers themselves are gated)
+                'analysis_hand_ids',
                 'analysis_filter_sums_ok', 'analysis_grade_rank', 'analysis_hand_table_set', 'analysis_leak_table_of', 'analysis_leak_pot_of',
                 'analysis_trimmed_phf',
                 'analysis_month_of', 'analysis_spot_key',
@@ -392,7 +398,7 @@ select is(pg_temp.refusal($$ select public.report_situations('{}') $$), 'PT402:r
   '... with the feature as the hint');
 select is((select array_agg(f || '=' || pg_temp.call_state(f)) from unnest(array[
              'public.report_open(jsonb)', 'public.report_graph(jsonb,integer)', 'public.report_facets(jsonb)',
-             'public.stats_coverage(text)', 'public.hands_needing_stats(text,uuid,integer,boolean,text)',
+             'public.stats_coverage(text)', 'public.hands_needing_stats(text,uuid,integer,boolean,text,text)',
              'public.library_count()', 'public.library_page(jsonb,jsonb,integer)']) f
             where pg_temp.call_state(f) = 'PT402'),
   null, 'basic statistics and the library stay open to Free');

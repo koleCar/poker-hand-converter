@@ -155,7 +155,7 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
     }
     setGeneration((value) => value + 1);
     void load().then((loaded) => {
-      if (loaded && loaded.missing + loaded.stale + loaded.evMissing > 0 && !autoRebuilt.current) {
+      if (loaded && loaded.missing + loaded.stale + loaded.evMissing + loaded.factsMissing > 0 && !autoRebuilt.current) {
         autoRebuilt.current = true;
         void runRebuild();
       }
@@ -177,7 +177,7 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
       do {
         catchUpAgain.current = false;
         const loaded = await load();
-        if (loaded && loaded.missing + loaded.stale + loaded.evMissing > 0) {
+        if (loaded && loaded.missing + loaded.stale + loaded.evMissing + loaded.factsMissing > 0) {
           await runRebuild();
         } else {
           setGeneration((value) => value + 1);
@@ -362,7 +362,7 @@ function CoverageBar({
   const t = useDict().stats;
   const en = t.coverage;
   if (rebuild.status === "running") {
-    const target = coverage ? coverage.missing + coverage.stale + coverage.evMissing : 0;
+    const target = coverage ? coverage.missing + coverage.stale + coverage.evMissing + coverage.factsMissing : 0;
     const done = rebuild.progress.processed;
     const text = en.running(target > 0 ? Math.min(done, target) : done, target);
     // The paragraph is the live region; the mark beside it is only the look.

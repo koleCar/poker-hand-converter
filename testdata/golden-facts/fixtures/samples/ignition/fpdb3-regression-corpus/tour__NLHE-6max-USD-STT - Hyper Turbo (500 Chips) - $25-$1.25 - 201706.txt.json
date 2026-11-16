@@ -1,0 +1,117 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": 0,
+        "draws": [
+          32,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": 1,
+        "made": [
+          0,
+          0,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 0,
+        "vsPositions": "",
+        "vsSeats": ""
+      },
+      "handId": "3534392210",
+      "index": 0
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": 0,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": 1,
+        "made": [
+          null,
+          null,
+          null
+        ],
+        "openTenths": 30,
+        "playersFlop": 0,
+        "vsPositions": "",
+        "vsSeats": ""
+      },
+      "handId": "3534392764",
+      "index": 1
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": 0,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": 1,
+        "made": [
+          null,
+          null,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 0,
+        "vsPositions": "",
+        "vsSeats": ""
+      },
+      "handId": "3534392956",
+      "index": 2
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-6max-USD-STT - Hyper Turbo (500 Chips) - $25-$1.25 - 201706.txt"
+}

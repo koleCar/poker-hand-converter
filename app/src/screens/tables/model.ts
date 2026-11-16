@@ -151,9 +151,9 @@ export interface RoomRow {
   on: boolean;
 }
 
-/** A room's verdict for tiling (`tool` "tiling") or the RNG ("rng"), as the Rust side decided it. */
-export function verdictOf(room: RoomPolicy, tool: "tiling" | "rng" = "tiling"): RoomVerdict {
-  const policy = room[tool];
+/** A room's verdict for tiling, as the Rust side decided it. */
+export function verdictOf(room: RoomPolicy): RoomVerdict {
+  const policy = room.tiling;
   if (policy.permitted) return "allowed";
   return policy.needsApproval ? "approval" : "notAllowed";
 }

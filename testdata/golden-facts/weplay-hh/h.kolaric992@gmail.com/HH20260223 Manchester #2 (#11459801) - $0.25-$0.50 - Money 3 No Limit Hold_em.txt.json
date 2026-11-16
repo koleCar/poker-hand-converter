@@ -1,0 +1,1449 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": false,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 4,
+        "vsPositions": " UTG+1 CO SB ",
+        "vsSeats": " 1 4 6 "
+      },
+      "handId": "HD76560416",
+      "index": 0
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          8,
+          0
+        ],
+        "heroIp": false,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          null,
+          null
+        ],
+        "openTenths": 70,
+        "playersFlop": 2,
+        "vsPositions": " UTG+1 BTN ",
+        "vsSeats": " 2 6 "
+      },
+      "handId": "HD76560440",
+      "index": 1
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          8,
+          8
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          3
+        ],
+        "openTenths": null,
+        "playersFlop": 2,
+        "vsPositions": " BB UTG ",
+        "vsSeats": " 1 2 "
+      },
+      "handId": "HD76560457",
+      "index": 2
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          1,
+          1
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          3,
+          3,
+          3
+        ],
+        "openTenths": null,
+        "playersFlop": 3,
+        "vsPositions": " SB BB BTN ",
+        "vsSeats": " 1 2 8 "
+      },
+      "handId": "HD76560472",
+      "index": 3
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          32,
+          0
+        ],
+        "heroIp": true,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          null
+        ],
+        "openTenths": 20,
+        "playersFlop": 2,
+        "vsPositions": " SB ",
+        "vsSeats": " 2 "
+      },
+      "handId": "HD76560482",
+      "index": 4
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          1
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          8,
+          8
+        ],
+        "heroIp": false,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          3,
+          3,
+          3
+        ],
+        "openTenths": 35,
+        "playersFlop": 3,
+        "vsPositions": " BTN HJ ",
+        "vsSeats": " 2 8 "
+      },
+      "handId": "HD76560510",
+      "index": 5
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          2,
+          7,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 2,
+        "vsPositions": " SB BB ",
+        "vsSeats": " 4 5 "
+      },
+      "handId": "HD76560558",
+      "index": 6
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          5,
+          5,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 4,
+        "vsPositions": " CO BTN SB BB ",
+        "vsSeats": " 2 4 5 6 "
+      },
+      "handId": "HD76560577",
+      "index": 7
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          25,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          8,
+          8
+        ],
+        "heroIp": false,
+        "kicker": [
+          null,
+          3,
+          3
+        ],
+        "level": null,
+        "made": [
+          0,
+          4,
+          4
+        ],
+        "openTenths": null,
+        "playersFlop": 4,
+        "vsPositions": " LJ SB UTG ",
+        "vsSeats": " 1 6 8 "
+      },
+      "handId": "HD76560603",
+      "index": 8
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          8
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 3,
+        "vsPositions": " LJ BTN BB ",
+        "vsSeats": " 2 6 8 "
+      },
+      "handId": "HD76560630",
+      "index": 9
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          8,
+          8
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          0
+        ],
+        "openTenths": null,
+        "playersFlop": 2,
+        "vsPositions": " BB SB ",
+        "vsSeats": " 1 8 "
+      },
+      "handId": "HD76560648",
+      "index": 10
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          3,
+          null,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 2,
+        "vsPositions": " BB HJ ",
+        "vsSeats": " 2 6 "
+      },
+      "handId": "HD76560665",
+      "index": 11
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          0
+        ],
+        "openTenths": null,
+        "playersFlop": 4,
+        "vsPositions": " BTN SB UTG CO ",
+        "vsSeats": " 1 2 5 8 "
+      },
+      "handId": "HD76560682",
+      "index": 12
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          0
+        ],
+        "openTenths": null,
+        "playersFlop": 3,
+        "vsPositions": " CO BTN UTG ",
+        "vsSeats": " 1 2 6 "
+      },
+      "handId": "HD76560739",
+      "index": 13
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          2,
+          2,
+          3
+        ],
+        "openTenths": null,
+        "playersFlop": 2,
+        "vsPositions": " CO BB ",
+        "vsSeats": " 1 6 "
+      },
+      "handId": "HD76560768",
+      "index": 14
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          60,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          32,
+          0
+        ],
+        "heroIp": false,
+        "kicker": [
+          3,
+          3,
+          3
+        ],
+        "level": null,
+        "made": [
+          4,
+          4,
+          4
+        ],
+        "openTenths": null,
+        "playersFlop": 2,
+        "vsPositions": " HJ ",
+        "vsSeats": " 1 "
+      },
+      "handId": "HD76560793",
+      "index": 15
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          4,
+          4
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          3,
+          3,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 5,
+        "vsPositions": " UTG UTG+1 LJ BTN BB ",
+        "vsSeats": " 1 2 3 6 8 "
+      },
+      "handId": "HD76560829",
+      "index": 16
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          8,
+          8
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          0
+        ],
+        "openTenths": null,
+        "playersFlop": 3,
+        "vsPositions": " UTG+1 CO SB ",
+        "vsSeats": " 3 6 8 "
+      },
+      "handId": "HD76560863",
+      "index": 17
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          9,
+          9,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 3,
+        "vsPositions": " LJ HJ BTN ",
+        "vsSeats": " 5 6 8 "
+      },
+      "handId": "HD76560888",
+      "index": 18
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          2,
+          null,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 4,
+        "vsPositions": " BTN UTG LJ CO ",
+        "vsSeats": " 1 4 6 8 "
+      },
+      "handId": "HD76560916",
+      "index": 19
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          2
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          8
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          0
+        ],
+        "openTenths": null,
+        "playersFlop": 2,
+        "vsPositions": " SB UTG UTG+1 ",
+        "vsSeats": " 3 5 6 "
+      },
+      "handId": "HD76560932",
+      "index": 20
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          32,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          null,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 3,
+        "vsPositions": " HJ SB UTG ",
+        "vsSeats": " 1 4 6 "
+      },
+      "handId": "HD76560963",
+      "index": 21
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          null,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 2,
+        "vsPositions": " LJ CO ",
+        "vsSeats": " 1 3 "
+      },
+      "handId": "HD76560974",
+      "index": 22
+    },
+    {
+      "facts": {
+        "betPct": [
+          33,
+          33,
+          58
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": false,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          8,
+          11,
+          11
+        ],
+        "openTenths": 30,
+        "playersFlop": 2,
+        "vsPositions": " BB ",
+        "vsSeats": " 8 "
+      },
+      "handId": "HD76560991",
+      "index": 23
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          null,
+          null,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 0,
+        "vsPositions": " CO ",
+        "vsSeats": " 5 "
+      },
+      "handId": "HD76561020",
+      "index": 24
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": false,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          5,
+          6,
+          6
+        ],
+        "openTenths": 25,
+        "playersFlop": 3,
+        "vsPositions": " BB BTN ",
+        "vsSeats": " 2 8 "
+      },
+      "handId": "HD76561037",
+      "index": 25
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          2
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": true,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          0
+        ],
+        "openTenths": 55,
+        "playersFlop": 2,
+        "vsPositions": " UTG ",
+        "vsSeats": " 4 "
+      },
+      "handId": "HD76561070",
+      "index": 26
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          null,
+          null,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 0,
+        "vsPositions": " UTG+1 ",
+        "vsSeats": " 6 "
+      },
+      "handId": "HD76561110",
+      "index": 27
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          8,
+          8
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          0
+        ],
+        "openTenths": null,
+        "playersFlop": 4,
+        "vsPositions": " HJ BB UTG LJ ",
+        "vsSeats": " 1 5 6 8 "
+      },
+      "handId": "HD76561124",
+      "index": 28
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 3,
+        "vsPositions": " CO BB UTG+1 ",
+        "vsSeats": " 3 6 8 "
+      },
+      "handId": "HD76561158",
+      "index": 29
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          8,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          3,
+          3
+        ],
+        "openTenths": null,
+        "playersFlop": 3,
+        "vsPositions": " LJ HJ SB ",
+        "vsSeats": " 1 2 6 "
+      },
+      "handId": "HD76561173",
+      "index": 30
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          0
+        ],
+        "openTenths": null,
+        "playersFlop": 3,
+        "vsPositions": " UTG BTN BB ",
+        "vsSeats": " 1 6 8 "
+      },
+      "handId": "HD76561195",
+      "index": 31
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          36,
+          4
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          3
+        ],
+        "openTenths": null,
+        "playersFlop": 3,
+        "vsPositions": " BB UTG SB ",
+        "vsSeats": " 1 2 8 "
+      },
+      "handId": "HD76561217",
+      "index": 32
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          7,
+          11,
+          11
+        ],
+        "openTenths": null,
+        "playersFlop": 3,
+        "vsPositions": " LJ HJ BTN ",
+        "vsSeats": " 5 6 8 "
+      },
+      "handId": "HD76561247",
+      "index": 33
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          2
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          3,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          4,
+          6,
+          11
+        ],
+        "openTenths": null,
+        "playersFlop": 3,
+        "vsPositions": " SB BB LJ ",
+        "vsSeats": " 2 3 6 "
+      },
+      "handId": "HD76561282",
+      "index": 34
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 5,
+        "vsPositions": " CO SB BB UTG HJ ",
+        "vsSeats": " 1 3 5 6 8 "
+      },
+      "handId": "HD76561310",
+      "index": 35
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          0
+        ],
+        "openTenths": null,
+        "playersFlop": 4,
+        "vsPositions": " HJ SB BB LJ ",
+        "vsSeats": " 1 5 6 8 "
+      },
+      "handId": "HD76563338",
+      "index": 36
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          54,
+          342
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": true,
+        "kicker": [
+          1,
+          1,
+          1
+        ],
+        "level": null,
+        "made": [
+          4,
+          4,
+          4
+        ],
+        "openTenths": 70,
+        "playersFlop": 2,
+        "vsPositions": " UTG+1 SB ",
+        "vsSeats": " 1 6 "
+      },
+      "handId": "HD76563369",
+      "index": 37
+    },
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          null,
+          null,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 0,
+        "vsPositions": "",
+        "vsSeats": ""
+      },
+      "handId": "HD76563411",
+      "index": 38
+    }
+  ],
+  "input": "weplay-hh/h.kolaric992@gmail.com/HH20260223 Manchester #2 (#11459801) - $0.25-$0.50 - Money 3 No Limit Hold_em.txt"
+}

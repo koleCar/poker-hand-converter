@@ -1,0 +1,5 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__7Stud-8max-USD-0.04-0.08-201907.CASHID-TN-Gorham GAMETYPE.txt"
+}

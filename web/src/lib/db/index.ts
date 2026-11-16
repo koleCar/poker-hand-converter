@@ -40,6 +40,7 @@ export {
   setPlayerNote,
   pruneVillainStats,
   rebuildStats,
+  fetchFactsMissing,
   setVillainRowsEnabled,
   handStatsRows,
   saveHandStats,

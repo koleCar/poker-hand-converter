@@ -96,10 +96,12 @@ pub mod manual_import;
 pub mod players;
 pub mod policy;
 pub mod popup;
+pub mod profile;
 pub mod quarantine;
 pub mod replayer;
 pub mod reports;
 pub mod review;
+pub mod rng;
 pub mod rng_box;
 pub mod settings;
 pub mod share;
@@ -424,6 +426,8 @@ pub fn run() {
         account::account_cancel_sign_in,
         account::account_sign_out,
         account::account_open_web_page,
+        profile::account_profile,
+        profile::account_set_username,
         sync::sync_status,
         sync::sync_now,
         sync::sync_set_paused,
@@ -448,6 +452,8 @@ pub fn run() {
         replayer::replayer_open_in_main,
         share::hand_share,
         share::share_open,
+        share::share_set_names,
+        share::forum_preview_open,
         trainer::trainer_results_record,
         hands::hand_annotations,
         hands::hand_set_note,
@@ -576,6 +582,8 @@ pub fn run() {
         account::account_cancel_sign_in,
         account::account_sign_out,
         account::account_open_web_page,
+        profile::account_profile,
+        profile::account_set_username,
         sync::sync_status,
         sync::sync_now,
         sync::sync_set_paused,
@@ -600,6 +608,8 @@ pub fn run() {
         replayer::replayer_open_in_main,
         share::hand_share,
         share::share_open,
+        share::share_set_names,
+        share::forum_preview_open,
         trainer::trainer_results_record,
         hands::hand_annotations,
         hands::hand_set_note,

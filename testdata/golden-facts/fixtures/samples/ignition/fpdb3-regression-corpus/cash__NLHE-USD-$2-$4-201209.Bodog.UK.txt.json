@@ -1,0 +1,43 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          8
+        ],
+        "heroIp": true,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 1,
+        "vsPositions": "",
+        "vsSeats": ""
+      },
+      "handId": "2635581996",
+      "index": 0
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-USD-$2-$4-201209.Bodog.UK.txt"
+}

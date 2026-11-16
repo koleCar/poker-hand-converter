@@ -6,6 +6,13 @@
 import type { PhfHand } from "../phf/types";
 
 export type FeedSort = "hot" | "new" | "top";
+/** `forum_feed`'s `p_kind`: hand posts, polls, text posts. */
+export type FeedKind = "hand" | "poll" | "text";
+
+export interface FeedFilters {
+  kind: FeedKind | null;
+  unanswered: boolean;
+}
 export type CommentSort = "best" | "new" | "top";
 
 export interface BoardRef {

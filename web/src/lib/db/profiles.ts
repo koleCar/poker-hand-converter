@@ -19,7 +19,7 @@ export interface MyProfile {
   /** Still on the `user_xxxxxxxx` name handed out at signup. */
   provisional: boolean;
   usernameChangedAt: string | null;
-  /** When the 30-day limit lifts. Null while the name is provisional. */
+  /** Always null since the name is chosen once (`20271116130500_username_set_once.sql`). */
   nextUsernameChangeAt: string | null;
   role: ProfileRole;
   karma: number;
@@ -47,9 +47,9 @@ export async function fetchMyProfile(): Promise<MyProfile | null> {
 }
 
 /**
- * Changes the caller's username.
+ * Chooses the caller's username, once: a chosen name cannot be changed.
  *
- * Every refusal — shape, reserved, taken, "once every 30 days" — comes back as
+ * Every refusal — shape, reserved, taken, "already set" — comes back as
  * an error whose message is already the sentence to show. `rpc()` prefixes it
  * with the function name for logs; {@link usernameErrorMessage} strips that.
  */

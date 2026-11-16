@@ -1,0 +1,5 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/merge/05-3bet-hand.txt"
+}

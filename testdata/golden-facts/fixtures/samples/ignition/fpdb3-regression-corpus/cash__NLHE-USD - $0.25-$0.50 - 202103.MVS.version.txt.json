@@ -1,0 +1,43 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [
+    {
+      "facts": {
+        "betPct": [
+          30,
+          35,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": true,
+        "kicker": [
+          2,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          4,
+          6,
+          6
+        ],
+        "openTenths": 25,
+        "playersFlop": 1,
+        "vsPositions": "",
+        "vsSeats": ""
+      },
+      "handId": "4086249181",
+      "index": 0
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-USD - $0.25-$0.50 - 202103.MVS.version.txt"
+}

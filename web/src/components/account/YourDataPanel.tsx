@@ -18,6 +18,7 @@ import { DatabaseRpcError } from "../../lib/db/client";
 import { useDict } from "../../lib/i18n/client";
 import type { Dict } from "../../lib/i18n/types";
 import styles from "./account.module.css";
+import rows from "./rows.module.css";
 
 /** `12 345 678` bytes -> `12.3 MB`, in the reader's number format. */
 export function formatSize(bytes: number, intl: string): string {
@@ -186,55 +187,70 @@ export function YourDataPanel({ username }: { username: string | null }) {
   const busy = state.kind === "running" || state.kind === "picking";
 
   return (
-    <section id="your-data" ref={section} className={`card ${styles.panel}`} aria-labelledby="settings-your-data">
-      <h2 id="settings-your-data" className={styles.heading}>
+    <section id="your-data" ref={section} className={rows.group} aria-labelledby="settings-your-data">
+      <h2 id="settings-your-data" className={rows.groupLabel}>
         {t.heading}
       </h2>
-      <p>{t.intro}</p>
-      <p className={`muted ${styles.small}`}>{t.formats}</p>
-
-      <fieldset className={styles.options} disabled={busy}>
-        <label className={styles.check}>
-          <input type="checkbox" checked={derived} onChange={(event) => setDerived(event.target.checked)} />
-          <span>{t.derived}</span>
+      <div className={rows.card}>
+        <div className={`${rows.row} ${rows.rowWide}`}>
+          <span className={rows.value}>
+            <span className={rows.strong}>{t.start}</span>
+            <span className={rows.muted}>{t.summary}</span>
+            {state.kind === "picking" ? <span className={rows.muted}>{t.pickFile}</span> : null}
+            {state.kind === "running" ? <ExportProgressView progress={state.progress} t={t} intl={en.chrome.intl} /> : null}
+            {state.kind === "done" ? (
+              <span className={rows.success} role="status">
+                {t.done(state.name, formatSize(state.bytes, en.chrome.intl))} {state.url ? null : t.savedToDisk}
+              </span>
+            ) : null}
+            {state.kind === "cancelled" ? <span className={rows.muted}>{t.cancelled}</span> : null}
+            {state.kind === "failed" ? (
+              <span className={rows.error} role="alert">
+                {state.message}
+              </span>
+            ) : null}
+          </span>
+          <span className={rows.actions}>
+            {state.kind === "done" && state.url ? (
+              <a className="btn btn--ghost btn--sm" href={state.url} download={state.name}>
+                {t.saveAgain}
+              </a>
+            ) : null}
+            {state.kind === "running" ? (
+              <button type="button" className="btn btn--sm" onClick={() => abort.current?.abort()}>
+                {t.cancel}
+              </button>
+            ) : (
+              <button type="button" className="btn btn--sm" disabled={busy} onClick={() => void start()}>
+                {t.downloadZip}
+              </button>
+            )}
+          </span>
+        </div>
+        <label className={`${rows.row} ${rows.rowWide}`}>
+          <span className={rows.text}>{t.derived}</span>
+          <input
+            type="checkbox"
+            role="switch"
+            className={rows.switch}
+            checked={derived}
+            disabled={busy}
+            onChange={(event) => setDerived(event.target.checked)}
+          />
         </label>
-        <label className={styles.check}>
-          <input type="checkbox" checked={originals} onChange={(event) => setOriginals(event.target.checked)} />
-          <span>{t.originals}</span>
+        <label className={`${rows.row} ${rows.rowWide}`}>
+          <span className={rows.text}>{t.originals}</span>
+          <input
+            type="checkbox"
+            role="switch"
+            className={rows.switch}
+            checked={originals}
+            disabled={busy}
+            onChange={(event) => setOriginals(event.target.checked)}
+          />
         </label>
-      </fieldset>
-      <p className={`muted ${styles.small}`}>{t.bigHint}</p>
-
-      {state.kind === "picking" ? <p className="muted">{t.pickFile}</p> : null}
-      {state.kind === "running" ? <ExportProgressView progress={state.progress} t={t} intl={en.chrome.intl} /> : null}
-      {state.kind === "done" ? (
-        <p className="notice notice--info" role="status">
-          {t.done(state.name, formatSize(state.bytes, en.chrome.intl))} {state.url ? null : t.savedToDisk}
-        </p>
-      ) : null}
-      {state.kind === "cancelled" ? <p className="notice notice--warn">{t.cancelled}</p> : null}
-      {state.kind === "failed" ? (
-        <p className="notice notice--error" role="alert">
-          {state.message}
-        </p>
-      ) : null}
-
-      <div className={styles.actions}>
-        {state.kind === "running" ? (
-          <button type="button" className="btn" onClick={() => abort.current?.abort()}>
-            {t.cancel}
-          </button>
-        ) : (
-          <button type="button" className="btn btn--primary" disabled={busy} onClick={() => void start()}>
-            {t.start}
-          </button>
-        )}
-        {state.kind === "done" && state.url ? (
-          <a className="btn btn--ghost" href={state.url} download={state.name}>
-            {t.saveAgain}
-          </a>
-        ) : null}
       </div>
+      {busy ? <p className={rows.note}>{t.bigHint}</p> : null}
     </section>
   );
 }

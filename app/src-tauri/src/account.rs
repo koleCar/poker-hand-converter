@@ -322,7 +322,7 @@ pub fn account_open_web_page(page: String) -> Result<(), String> {
 /// The web pages the app opens, by name.
 fn web_page_path(page: &str) -> Option<&'static str> {
     match page {
-        "delete-account" => Some("/settings#delete-account"),
+        "delete-account" => Some("/settings/delete-account"),
         "your-data" => Some("/settings#your-data"),
         "privacy" => Some("/privacy"),
         _ => None,
@@ -372,7 +372,7 @@ mod tests {
             web_page_url(DEFAULT_WEB_URL, "delete-account")
                 .expect("delete-account")
                 .as_str(),
-            "https://poker-hand-converter.vercel.app/settings#delete-account"
+            "https://poker-hand-converter.vercel.app/settings/delete-account"
         );
         assert_eq!(
             web_page_url("https://rail.example/", "your-data")

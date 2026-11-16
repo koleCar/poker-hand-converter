@@ -3,6 +3,10 @@ import type { Dict } from "../types";
 /** Planovi i prava (Rail R6.2). Same shape as `plan.en.ts`. */
 export const planHr: Dict["plan"] = {
   heading: "Plan",
+  earlyAccess: "Rani pristup",
+  discount: (percent: number) => `−${percent} % zauvijek`,
+  discountLabel: "Popust",
+  open: "Otvori",
   loading: "Učitavam tvoj plan…",
   unavailable: "Planovi još nisu postavljeni na ovoj bazi. Sve ostalo radi.",
   loadFailed: "Tvoj plan se nije mogao učitati. Osvježi stranicu i pokušaj ponovno.",

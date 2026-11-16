@@ -129,3 +129,14 @@
     transition: none;
   }
 }
+
+/* The delete page: a list drawn as a card of rows, and the buttons at the end. */
+.plain {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.end {
+  justify-content: flex-end;
+}

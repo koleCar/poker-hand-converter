@@ -47,12 +47,41 @@ body,
   height: 100%;
 }
 
+/* The page glow. Painted once, pinned to the viewport: `no-repeat` +
+   `fixed`. Without them the body background is sized to the root element
+   (one viewport tall) and tiles down a long page, so every viewport height a
+   fresh glow started right under the dark bottom edge of the one above — a
+   hard horizontal line. The glows fade out in eased steps rather than one
+   linear ramp to transparent, so their edge never reads as a ring. Where
+   `fixed` is ignored (iOS Safari) the glow simply scrolls away with the top
+   of the page; with `no-repeat` there is still no seam. */
 body {
   margin: 0;
-  background:
-    radial-gradient(1200px 600px at 20% -10%, var(--surface-glow-1) 0%, transparent 60%),
-    radial-gradient(900px 500px at 95% 0%, var(--surface-glow-2) 0%, transparent 55%),
-    var(--surface-base);
+  background-color: var(--surface-base);
+  background-image:
+    radial-gradient(
+      1200px 600px at 20% -10%,
+      var(--surface-glow-1) 0%,
+      color-mix(in srgb, var(--surface-glow-1) 84%, transparent) 14%,
+      color-mix(in srgb, var(--surface-glow-1) 62%, transparent) 27%,
+      color-mix(in srgb, var(--surface-glow-1) 40%, transparent) 39%,
+      color-mix(in srgb, var(--surface-glow-1) 22%, transparent) 51%,
+      color-mix(in srgb, var(--surface-glow-1) 9%, transparent) 62%,
+      color-mix(in srgb, var(--surface-glow-1) 2.5%, transparent) 71%,
+      transparent 78%
+    ),
+    radial-gradient(
+      900px 500px at 95% 0%,
+      var(--surface-glow-2) 0%,
+      color-mix(in srgb, var(--surface-glow-2) 82%, transparent) 13%,
+      color-mix(in srgb, var(--surface-glow-2) 58%, transparent) 25%,
+      color-mix(in srgb, var(--surface-glow-2) 36%, transparent) 37%,
+      color-mix(in srgb, var(--surface-glow-2) 18%, transparent) 49%,
+      color-mix(in srgb, var(--surface-glow-2) 7%, transparent) 60%,
+      transparent 72%
+    );
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text-primary);
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);

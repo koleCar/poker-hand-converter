@@ -27,7 +27,7 @@
 //!   Their *sync* is `desktop_sync`, as all of the HUD's.
 //! - **Whose windows move** is the HUD's policy first (T0's
 //!   `TilingPermit`, `sites.json` `tiling.allowed`), then the user's
-//!   per-room switch here; the RNG likewise needs the room's `RngPermit`.
+//!   per-room switch here.
 //!   A switch never allows a room the policy does not.
 
 use rail_hud_ipc::settings::{Invalid, RngSettings, SETTINGS_KEY, Slot, TilingSettings};
@@ -238,7 +238,7 @@ pub fn pulled<R: Runtime>(app: &AppHandle<R>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rail_hud_ipc::settings::{LayoutRef, RngBand};
+    use rail_hud_ipc::settings::LayoutRef;
 
     /// Saved and read back through the store; refused settings are not
     /// stored; a stored row that does not validate reads as the defaults;
@@ -264,25 +264,12 @@ mod tests {
             ..TilingSettings::default()
         };
         write_tiling(&w, &tiling).expect("saved");
-        let rng = RngSettings {
-            enabled: true,
-            min: 0,
-            max: 99,
-            bands: vec![RngBand {
-                up_to: 99,
-                colour: "#336699".into(),
-                label: Some("Go".into()),
-            }],
-            // (T5 follow-up) The widget's size and opacity travel too.
-            scale: 160,
-            opacity: 55,
-            ..RngSettings::default()
-        };
+        let rng = RngSettings { enabled: true };
         write_rng(&w, &rng).expect("saved");
         let read = read_store(&store);
         assert_eq!(read.tiling, tiling);
         assert_eq!(read.rng, rng);
-        assert!(read.wanted());
+        assert!(read.wanted(), "tiling is on");
 
         // Refused: nothing stored, the error says why.
         let error = write_tiling(
@@ -301,31 +288,20 @@ mod tests {
             keys: "Ctrl+Alt+KeyR".into(),
         });
         assert!(write_tiling(&w, &twice).is_err());
-        assert!(
-            write_rng(
-                &w,
-                &RngSettings {
-                    max: 0,
-                    ..RngSettings::default()
-                }
-            )
-            .is_err()
-        );
         assert_eq!(read_store(&store).tiling, tiling);
 
-        // A row from elsewhere that does not validate: the defaults.
-        w.save_hud_setting(HudSettingKind::Rng, SETTINGS_KEY, r#"{"min":5,"max":1}"#)
+        // A row from elsewhere that does not parse: the defaults.
+        w.save_hud_setting(HudSettingKind::Rng, SETTINGS_KEY, r#"{"enabled":"yes"}"#)
             .expect("raw");
         assert_eq!(read_store(&store).rng, RngSettings::default());
-        w.save_hud_setting(HudSettingKind::Rng, SETTINGS_KEY, r#"{"opacity":5}"#)
-            .expect("raw");
-        assert_eq!(read_store(&store).rng, RngSettings::default());
-        // (T5 follow-up) A T4 row (no size, no opacity) reads with both at 100 %.
-        w.save_hud_setting(HudSettingKind::Rng, SETTINGS_KEY, r#"{"enabled":true}"#)
-            .expect("raw");
-        let old = read_store(&store).rng;
-        assert!(old.enabled);
-        assert_eq!((old.scale, old.opacity), (100, 100));
+        // An older Rail's row (the per-table overlay's fields): its switch.
+        w.save_hud_setting(
+            HudSettingKind::Rng,
+            SETTINGS_KEY,
+            r#"{"enabled":true,"min":1,"max":100,"scale":150}"#,
+        )
+        .expect("raw");
+        assert!(read_store(&store).rng.enabled);
 
         let opened = store.store.as_ref().expect("store");
         let kinds: Vec<&str> = opened

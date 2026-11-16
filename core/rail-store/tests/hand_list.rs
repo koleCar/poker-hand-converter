@@ -859,6 +859,41 @@ fn every_order_lists_the_same_hands_in_its_order() {
             assert!(ok, "{sort}: {} then {}", a.hand_key, b.hand_key);
         }
     }
+    // In money (2026-11-16): each hand's amount over its minor units, as
+    // the list's `$` shows it, which is not the big blinds' order across stakes.
+    // Compared without division, as the pots above: a/m >= c/n as a*n >= c*m.
+    let money_cmp = |x: i64, a: &HandRow, y: i64, b: &HandRow| {
+        (i128::from(x) * i128::from(b.minor_units.max(1)))
+            .cmp(&(i128::from(y) * i128::from(a.minor_units.max(1))))
+    };
+    for (sort, _) in hand_list::MONEY_SORTS {
+        let filter = HandFilter {
+            sort: Some((*sort).to_owned()),
+            sort_in_money: true,
+            ..HandFilter::default()
+        };
+        let rows = all_pages(&store, &filter, 377);
+        assert_eq!(keys(&rows), keys(&all), "{sort} in money: the same hands");
+        for pair in rows.windows(2) {
+            let (a, b) = (&pair[0], &pair[1]);
+            let (x, y) = match *sort {
+                "pot" | "potAsc" => (Some(a.total_pot), Some(b.total_pot)),
+                _ => (a.hero_net, b.hero_net),
+            };
+            let ok = match (x, y) {
+                (Some(x), Some(y)) => {
+                    let order = money_cmp(x, a, y, b);
+                    match *sort {
+                        "pot" | "won" => order != std::cmp::Ordering::Less,
+                        _ => order != std::cmp::Ordering::Greater,
+                    }
+                }
+                (Some(_), None) | (None, None) => true,
+                (None, Some(_)) => false,
+            };
+            assert!(ok, "{sort} in money: {} then {}", a.hand_key, b.hand_key);
+        }
+    }
     // An unknown order is the newest first.
     let unknown = HandFilter {
         sort: Some("sideways".to_owned()),

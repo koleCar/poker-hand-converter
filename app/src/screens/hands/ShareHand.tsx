@@ -4,6 +4,12 @@
  * store (`hand_share`, src-tauri/src/share.rs). The link opens without an
  * account; making one needs the app to be signed in.
  *
+ * Laid out as the web's popover: the link with its open icon and Copy in one
+ * field, the names switch as one row (its explanation a tooltip), and "Post
+ * to the forum", which opens the web's post preview in the browser
+ * (`forum_preview_open`). The hand's analysis lives in this app, not on the
+ * web, so there is no analysis switch here.
+ *
  * The panel is portalled to the body and placed under the button: the
  * replayer clips its own box (`overflow: clip`), and a panel inside it would
  * be cut off at the felt's edge.
@@ -11,7 +17,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@rail/ui/icon/Icon";
-import { RailLoader } from "@rail/ui/loader/RailLoader";
+import { SettingRow, TipLine } from "@rail/ui/share/SettingRow";
 import type { PhfHand } from "@rail/ui/model/phf";
 import { stakesLabel } from "@rail/ui/replayer/handFacts";
 
@@ -55,6 +61,10 @@ export function ShareHand({ handKey, hand }: { handKey: string; hand: PhfHand })
   const [error, setError] = useState<string | null>(null);
   const [signedOut, setSignedOut] = useState(false);
   const [copy, setCopy] = useState<CopyState>("idle");
+  /** The link's names switch: a link is made with names hidden (`create_share`). */
+  const [showNames, setShowNames] = useState(false);
+  const [namesBusy, setNamesBusy] = useState(false);
+  const [namesError, setNamesError] = useState<string | null>(null);
   const [at, setAt] = useState<{ top: number; right: number } | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -132,6 +142,22 @@ export function ShareHand({ handKey, hand }: { handKey: string; hand: PhfHand })
     }
   };
 
+  const setNames = async (next: boolean) => {
+    if (!link) return;
+    setNamesBusy(true);
+    setNamesError(null);
+    setShowNames(next);
+    try {
+      setShowNames(await ipc.shareSetNames(link.slug, next));
+    } catch (reason: unknown) {
+      setShowNames(!next);
+      setNamesError(t.names.failed(errorText(reason)));
+    } finally {
+      setNamesBusy(false);
+    }
+  };
+
+  const copied = copy === "copied";
   const panel =
     open && at
       ? createPortal(
@@ -142,23 +168,10 @@ export function ShareHand({ handKey, hand }: { handKey: string; hand: PhfHand })
             role="dialog"
             aria-label={t.heading}
           >
-            <div className={styles.head}>
-              <strong>{t.heading}</strong>
-              <button
-                type="button"
-                className="btn btn--icon btn--sm"
-                onClick={() => setOpen(false)}
-                aria-label={t.close}
-                title={t.close}
-              >
-                <Icon name="close" />
-              </button>
-            </div>
-            {busy ? <RailLoader size="small" showLabel label={t.creating} /> : null}
             {signedOut ? (
               <>
                 <p className={styles.hint}>{t.signedOut}</p>
-                <div className={styles.actions}>
+                <div>
                   <button
                     type="button"
                     className="btn btn--primary btn--sm"
@@ -176,10 +189,9 @@ export function ShareHand({ handKey, hand }: { handKey: string; hand: PhfHand })
                 {error}
               </p>
             ) : null}
-            {link ? (
-              <>
-                <p className={styles.hint}>{t.hint}</p>
-                <div className={styles.row}>
+            {busy || link ? (
+              <div className={styles.link}>
+                {link ? (
                   <input
                     ref={inputRef}
                     className={styles.url}
@@ -189,40 +201,86 @@ export function ShareHand({ handKey, hand }: { handKey: string; hand: PhfHand })
                     aria-label={t.linkLabel}
                     onFocus={(event) => event.currentTarget.select()}
                   />
+                ) : (
+                  <span className={styles.shim} role="status" aria-label={t.creating} />
+                )}
+                {link ? (
                   <button
                     type="button"
-                    className="btn btn--sm"
-                    onClick={() => {
-                      void copyText(link.url, inputRef.current).then((done) =>
-                        setCopy(done ? "copied" : "failed"),
-                      );
-                    }}
-                  >
-                    {t.copy}
-                  </button>
-                </div>
-                <div className={styles.actions}>
-                  <button
-                    type="button"
-                    className="btn btn--ghost btn--sm"
+                    className={styles.icon}
+                    aria-label={t.open}
+                    title={t.open}
                     onClick={() => {
                       ipc.shareOpen(link.slug).catch((reason: unknown) => setError(errorText(reason)));
                     }}
                   >
-                    <Icon name="globe" />
-                    {t.open}
+                    <Icon name="external" />
                   </button>
-                </div>
-                {copy !== "idle" ? (
-                  <p
-                    className={copy === "copied" ? styles.ok : styles.warn}
-                    role="status"
-                  >
-                    {copy === "copied" ? t.copied : t.copyFailed}
-                  </p>
                 ) : null}
-              </>
+                <button
+                  type="button"
+                  className={`${styles.copy}${copied ? ` ${styles.copied}` : ""}`}
+                  disabled={!link}
+                  onClick={() => {
+                    if (!link) return;
+                    void copyText(link.url, inputRef.current).then((done) => setCopy(done ? "copied" : "failed"));
+                  }}
+                >
+                  {copied ? <Icon name="check" /> : null}
+                  <span role="status">{copied ? t.copiedShort : t.copy}</span>
+                </button>
+              </div>
             ) : null}
+            {copy === "failed" ? (
+              <p className={styles.warn} role="status">
+                {t.copyFailed}
+              </p>
+            ) : null}
+            {/* R4.5: the link hides the players' names unless this is on. */}
+            {link ? (
+              <SettingRow
+                icon="user"
+                label={t.names.label}
+                checked={showNames}
+                status={namesBusy ? t.names.saving : showNames ? t.names.shown : t.names.hidden}
+                busy={namesBusy}
+                onToggle={(next) => void setNames(next)}
+                error={namesError}
+                explain={
+                  <>
+                    <TipLine current={!showNames}>
+                      <b>{t.names.off}</b> · {t.names.offText}
+                    </TipLine>
+                    <TipLine current={showNames}>
+                      <b>{t.names.on}</b> · {t.names.onText}
+                    </TipLine>
+                  </>
+                }
+              />
+            ) : null}
+            {signedOut ? null : (
+              <>
+                <div className={styles.sep} />
+                {/* The post's settings and a preview of it, on the web. */}
+                <button
+                  type="button"
+                  className={styles.forum}
+                  title={t.forumTitle}
+                  onClick={() => {
+                    ipc
+                      .forumPreviewOpen(handKey)
+                      .then(() => setOpen(false))
+                      .catch((reason: unknown) => setError(t.forumFailed(errorText(reason))));
+                  }}
+                >
+                  <Icon name="megaphone" />
+                  {t.forum}
+                  <span className={styles.ext}>
+                    <Icon name="external" />
+                  </span>
+                </button>
+              </>
+            )}
           </div>,
           document.body,
         )

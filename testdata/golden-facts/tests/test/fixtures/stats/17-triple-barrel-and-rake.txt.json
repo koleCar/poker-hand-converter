@@ -1,0 +1,43 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [
+    {
+      "facts": {
+        "betPct": [
+          61,
+          68,
+          57
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": true,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          0,
+          0,
+          0
+        ],
+        "openTenths": 30,
+        "playersFlop": 2,
+        "vsPositions": " BB ",
+        "vsSeats": " 3 "
+      },
+      "handId": "ST17",
+      "index": 0
+    }
+  ],
+  "input": "tests/test/fixtures/stats/17-triple-barrel-and-rake.txt"
+}

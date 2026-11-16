@@ -18,6 +18,22 @@ export const shareEn = {
     shared: "Shared: the analysis shows wherever this hand is public.",
     private: "Private: only you see this analysis.",
     failed: (message: string) => `Could not save: ${message}`,
+    /** The one-row form in the share popover and the post preview; the explanation is a tooltip. */
+    row: {
+      label: "Analysis",
+      private: "Private",
+      shared: "Shared",
+      off: "Off",
+      offText: "Only you see the grades.",
+      offTextPoll: "Only you see the grades.",
+      on: "On",
+      onText:
+        "Anyone who can see this hand sees its grades, the reference's options and the explanations. Your other hands and stats stay private.",
+      onTextPoll: "Readers see the grades and the reference's answer after they vote.",
+      analyse: "Analyse",
+      notAnalysed: "Not analysed",
+      notAnalysedText: "This hand has no saved analysis yet. Run it, then share it here.",
+    },
   },
 
   /** The read-only sheet on a public page. */

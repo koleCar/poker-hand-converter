@@ -15,6 +15,7 @@ import { paths } from "../../lib/routes";
 import { CommentActions } from "./CommentActions";
 import { formatPostDate } from "./format";
 import { AnchorChip } from "./PostDiscussion";
+import { Face } from "./PostCard";
 import { PostText } from "./PostText";
 import { Revisions } from "./Revisions";
 import { VoteButtons } from "./VoteButtons";
@@ -52,9 +53,14 @@ export function CommentThread({
               <p className={styles.tombstone}>{comment.removed ? en.forum.comments.removed : en.forum.comments.deleted}</p>
             ) : (
               <>
+                <span className={styles.commentFace}>
+                  <Face username={comment.author?.username ?? null} size={26} />
+                </span>
                 <p className={styles.meta}>
                   {comment.author ? (
-                    <Link href={paths.profile(comment.author.username)}>{comment.author.username}</Link>
+                    <Link href={paths.profile(comment.author.username)} className={styles.author}>
+                      {comment.author.username}
+                    </Link>
                   ) : (
                     en.forum.deletedAuthor
                   )}

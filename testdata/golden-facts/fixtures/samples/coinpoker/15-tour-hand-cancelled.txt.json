@@ -1,0 +1,5 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/coinpoker/15-tour-hand-cancelled.txt"
+}

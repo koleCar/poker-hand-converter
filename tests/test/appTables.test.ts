@@ -57,7 +57,6 @@ function room(id: string, name: string, tiling: Partial<RoomPolicy["tiling"]>, e
     stricterThanShipped: false,
     closed: false,
     tiling: { allowed: null, permitted: false, needsApproval: false, ...tiling },
-    rng: { allowed: null, permitted: false, needsApproval: false },
     actionSlot: { allowed: null, permitted: false, needsApproval: false },
     ...extra,
   };

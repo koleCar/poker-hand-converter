@@ -29,7 +29,7 @@
  */
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { FilterBar, REPORT_GROUPS } from "../hands/FilterBar";
+import { FilterBar } from "../hands/FilterBar";
 import { EMPTY_FILTER, activeGroups, toQuery, type FilterState } from "../hands/filter";
 import { bigBlindsIn, countIn, signedMoney, unitOf } from "../hands/format";
 import { pinKind } from "../hands/gameKind";
@@ -182,7 +182,7 @@ export function ReportsScreen({
         filter={filter}
         facets={facets}
         onChange={onChoose}
-        groups={REPORT_GROUPS}
+        features={source.filters}
         screen="reports"
         saved={source.savedFilters}
         loadFacets={loadFacets}

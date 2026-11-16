@@ -7,7 +7,7 @@ export const script: Tutorial = {
   slug: 'account',
   title: 'Your account',
   subtitle: 'Settings, your plan, downloading your data and deleting your account',
-  where: 'your menu → Settings · /settings',
+  where: 'your menu → Profile settings · /settings',
   next: 'desktop-setup',
   chapters: [
     {
@@ -21,7 +21,7 @@ export const script: Tutorial = {
           cursor: 'settings',
           click: true,
           highlight: 'settings',
-          caption: 'Settings is in your menu.',
+          caption: 'Profile settings is in your menu.',
           seconds: 3,
         },
         {
@@ -29,7 +29,7 @@ export const script: Tutorial = {
           focus: 'language',
           fill: 0.55,
           highlight: ['language', 'username'],
-          caption: 'Choose the language and your username: your public name on the forum and your profile address.',
+          caption: 'Choose your name once: others see it instead of your email, and it cannot be changed later.',
           seconds: 5,
         },
         {

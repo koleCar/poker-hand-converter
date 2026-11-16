@@ -77,7 +77,7 @@ export const script: Tutorial = {
           cursor: 'user',
           click: true,
           highlight: 'menu',
-          caption: 'Your menu holds your profile, saved posts, Settings and Sign out.',
+          caption: 'Your menu holds Profile settings, saved posts and Sign out.',
           seconds: 4,
         },
       ],

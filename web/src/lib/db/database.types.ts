@@ -1505,6 +1505,104 @@ export type Database = {
         }
         Relationships: []
       }
+      hand_facts: {
+        Row: {
+          bounty: boolean
+          buy_in_cents: number | null
+          created_at: string
+          facts_version: string
+          flop_bet_pct: number | null
+          flop_draws: number
+          flop_kicker: number | null
+          flop_made: number | null
+          hand_id: string
+          hand_key: string
+          hero_bluff: number
+          hero_ip: boolean | null
+          open_tenths: number | null
+          owner_id: string
+          players_flop: number
+          river_bet_pct: number | null
+          river_kicker: number | null
+          river_made: number | null
+          tour_level: number | null
+          turn_bet_pct: number | null
+          turn_draws: number
+          turn_kicker: number | null
+          turn_made: number | null
+          vs_bluff: number
+          vs_players: string[]
+          vs_positions: string
+          vs_seats: string
+        }
+        Insert: {
+          bounty?: boolean
+          buy_in_cents?: number | null
+          created_at?: string
+          facts_version: string
+          flop_bet_pct?: number | null
+          flop_draws?: number
+          flop_kicker?: number | null
+          flop_made?: number | null
+          hand_id: string
+          hand_key: string
+          hero_bluff?: number
+          hero_ip?: boolean | null
+          open_tenths?: number | null
+          owner_id: string
+          players_flop?: number
+          river_bet_pct?: number | null
+          river_kicker?: number | null
+          river_made?: number | null
+          tour_level?: number | null
+          turn_bet_pct?: number | null
+          turn_draws?: number
+          turn_kicker?: number | null
+          turn_made?: number | null
+          vs_bluff?: number
+          vs_players?: string[]
+          vs_positions?: string
+          vs_seats?: string
+        }
+        Update: {
+          bounty?: boolean
+          buy_in_cents?: number | null
+          created_at?: string
+          facts_version?: string
+          flop_bet_pct?: number | null
+          flop_draws?: number
+          flop_kicker?: number | null
+          flop_made?: number | null
+          hand_id?: string
+          hand_key?: string
+          hero_bluff?: number
+          hero_ip?: boolean | null
+          open_tenths?: number | null
+          owner_id?: string
+          players_flop?: number
+          river_bet_pct?: number | null
+          river_kicker?: number | null
+          river_made?: number | null
+          tour_level?: number | null
+          turn_bet_pct?: number | null
+          turn_draws?: number
+          turn_kicker?: number | null
+          turn_made?: number | null
+          vs_bluff?: number
+          vs_players?: string[]
+          vs_positions?: string
+          vs_seats?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hand_facts_hand_id_fkey"
+            columns: ["hand_id"]
+            isOneToOne: false
+            referencedRelation: "hands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hand_sources: {
         Row: {
           created_at: string
@@ -4520,6 +4618,7 @@ export type Database = {
         Args: { p_hand_id: string; p_version?: string }
         Returns: Json
       }
+      analysis_hand_ids: { Args: { p_filters: Json }; Returns: string[] }
       analysis_hand_table_set: { Args: { p_phf: Json }; Returns: string }
       analysis_hands: {
         Args: {
@@ -4980,6 +5079,7 @@ export type Database = {
         Args: { p_down: number; p_up: number }
         Returns: number
       }
+      forum_board_counts: { Args: never; Returns: Json }
       forum_controversy: {
         Args: { p_down: number; p_up: number }
         Returns: number
@@ -4988,8 +5088,10 @@ export type Database = {
         Args: {
           p_after?: string
           p_board?: string
+          p_kind?: string
           p_limit?: number
           p_sort?: string
+          p_unanswered?: boolean
         }
         Returns: Json
       }
@@ -4999,6 +5101,7 @@ export type Database = {
         Returns: number
       }
       forum_path_segment: { Args: { p_seq: number }; Returns: string }
+      forum_post_is_poll: { Args: { p_post: string }; Returns: boolean }
       forum_post_json: {
         Args: { p: Database["public"]["Tables"]["posts"]["Row"] }
         Returns: Json
@@ -5026,6 +5129,7 @@ export type Database = {
         Args: { p_post_public_id: string; p_seq?: number }
         Returns: Json
       }
+      hand_facts_missing: { Args: { p_facts_version: string }; Returns: number }
       hand_phf_matches: {
         Args: {
           p_hand: Database["public"]["Tables"]["hands"]["Row"]
@@ -5154,6 +5258,7 @@ export type Database = {
         Args: {
           p_after?: string
           p_ev_version?: string
+          p_facts_version?: string
           p_limit?: number
           p_version: string
           p_villains?: boolean
@@ -5194,12 +5299,20 @@ export type Database = {
       is_card_array: { Args: { p_cards: string[] }; Returns: boolean }
       is_moderator: { Args: never; Returns: boolean }
       is_position_array: { Args: { p_positions: string[] }; Returns: boolean }
+      library_act_sql: { Args: { p_name: string }; Returns: string }
+      library_beyond_rollups: { Args: { p_filter: Json }; Returns: boolean }
+      library_builder_ids: { Args: { p_filter: Json }; Returns: string[] }
+      library_builder_where: { Args: { p_filter: Json }; Returns: string }
       library_count: { Args: never; Returns: number }
       library_counts_rebuild: { Args: { p_owner: string }; Returns: Json }
       library_facets: { Args: { p_filter?: Json }; Returns: Json }
       library_list: {
         Args: { p_filter: Json; p_key: string }
         Returns: string[]
+      }
+      library_number: {
+        Args: { p_filter: Json; p_key: string }
+        Returns: string
       }
       library_page: {
         Args: { p_after?: Json; p_filter?: Json; p_limit?: number }
@@ -5261,6 +5374,7 @@ export type Database = {
         Returns: string
       }
       library_table_names: { Args: { p_table: string }; Returns: string[] }
+      library_where: { Args: { p_filter: Json }; Returns: string }
       mark_notifications_read: { Args: { p_ids?: number[] }; Returns: number }
       mod_ban: {
         Args: { p_days: number; p_reason: string; p_username: string }
@@ -5558,6 +5672,7 @@ export type Database = {
         Args: { p_filter?: Json; p_points?: number }
         Returns: Json
       }
+      report_hand_ids: { Args: { p_filter: Json }; Returns: string[] }
       report_open: { Args: { p_filter?: Json }; Returns: Json }
       report_sessions: {
         Args: { p_filter?: Json; p_gap_minutes?: number }
@@ -5583,6 +5698,7 @@ export type Database = {
       }
       save_hand_analysis: { Args: { p_rows: Json }; Returns: Json }
       save_hand_ev: { Args: { p_rows: Json }; Returns: Json }
+      save_hand_facts: { Args: { p_rows: Json }; Returns: Json }
       save_hand_stats: { Args: { p_rows: Json }; Returns: Json }
       save_hands: { Args: { p_hands: Json }; Returns: Json }
       save_post: {
@@ -5749,6 +5865,7 @@ export type Database = {
         street: string | null
         flag: string | null
         formats: string[] | null
+        hands: string[] | null
       }
     }
   }

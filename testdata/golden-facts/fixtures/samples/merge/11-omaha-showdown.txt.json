@@ -1,0 +1,5 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/merge/11-omaha-showdown.txt"
+}

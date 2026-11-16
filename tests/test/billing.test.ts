@@ -83,7 +83,8 @@ const GRANTED = { plan: "pro" as const, period: null, status: null, currentPerio
 const render = (locale: "en" | "hr", node: ReturnType<typeof createElement>) =>
   renderToStaticMarkup(createElement(I18nProvider, { locale }, node));
 const panel = (locale: "en" | "hr", e: ReturnType<typeof entitlements>, offer: typeof OFFER | null) =>
-  render(locale, createElement(PlanDetails, { entitlements: e, offer }));
+  // The chooser opens behind "Upgrade to Pro": rendered open here.
+  render(locale, createElement(PlanDetails, { entitlements: e, offer, upgradeOpen: true }));
 
 describe("the offer", () => {
   it("reads the function's answer", () => {

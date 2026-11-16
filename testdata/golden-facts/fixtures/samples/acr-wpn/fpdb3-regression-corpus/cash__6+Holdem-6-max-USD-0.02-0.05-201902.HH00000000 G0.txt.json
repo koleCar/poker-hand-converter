@@ -1,0 +1,43 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [
+    {
+      "facts": {
+        "betPct": [
+          null,
+          9,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": false,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          1,
+          8,
+          null
+        ],
+        "openTenths": null,
+        "playersFlop": 2,
+        "vsPositions": " CO BTN ",
+        "vsSeats": " 3 5 "
+      },
+      "handId": "1377529121",
+      "index": 0
+    }
+  ],
+  "input": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__6+Holdem-6-max-USD-0.02-0.05-201902.HH00000000 G0.txt"
+}

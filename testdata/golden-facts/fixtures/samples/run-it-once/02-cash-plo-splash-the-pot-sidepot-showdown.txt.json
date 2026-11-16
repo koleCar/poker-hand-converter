@@ -1,0 +1,5 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/run-it-once/02-cash-plo-splash-the-pot-sidepot-showdown.txt"
+}

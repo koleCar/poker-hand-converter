@@ -21,9 +21,10 @@ import type {
   SiteFacet,
   StakeFacet,
 } from "@rail/ui/hands/model";
+import { ANALYSIS_VERSION } from "../analysis/types";
 import { EV_VERSION } from "../equity";
 import { getParser } from "../phf";
-import { STATS_VERSION } from "../stats";
+import { FACTS_VERSION, STATS_VERSION } from "../stats";
 import { rpc } from "./client";
 
 /** "PokerStars", not "pokerstars"; our own re-import format has no room. */
@@ -33,7 +34,8 @@ function siteName(id: string, standardFormat: string): string {
 }
 
 /** The screen's filter as `library_page` reads it. */
-function wire(filter: HandFilter): Record<string, unknown> {
+/** The Hands list's filter as the server reads it (`library_where`): the list's and the reports'. */
+export function libraryFilter(filter: HandFilter): Record<string, unknown> {
   // `player` is the app's opponent reference; here it is a name at the
   // table. Tags and notes are the app's.
   const out: Record<string, unknown> = {
@@ -41,6 +43,9 @@ function wire(filter: HandFilter): Record<string, unknown> {
     player: filter.playerName ?? null,
     statsVersion: STATS_VERSION,
     evVersion: EV_VERSION,
+    // The builder's analysis groups and facts read the versions the client reads.
+    analysisVersion: ANALYSIS_VERSION,
+    factsVersion: FACTS_VERSION,
   };
   delete out.playerName;
   delete out.tags;
@@ -62,7 +67,7 @@ export function webHandsSource(standardFormat: string): HandsSource {
   return {
     async page(filter, after, limit): Promise<HandPage> {
       const page = await rpc<{ rows: WireRow[]; next: unknown }>("library_page", {
-        p_filter: wire(filter),
+        p_filter: libraryFilter(filter),
         p_after: after ?? null,
         p_limit: limit,
       });
@@ -76,7 +81,7 @@ export function webHandsSource(standardFormat: string): HandsSource {
       };
     },
     async facets(filter): Promise<HandFacets> {
-      const raw = await rpc<Record<string, unknown>>("library_facets", { p_filter: wire(filter) });
+      const raw = await rpc<Record<string, unknown>>("library_facets", { p_filter: libraryFilter(filter) });
       const list = (key: string) => (Array.isArray(raw[key]) ? (raw[key] as FacetCount[]) : []);
       return {
         total: Number(raw.total ?? 0),
@@ -101,12 +106,23 @@ export function webHandsSource(standardFormat: string): HandsSource {
       listeners.add(listener);
       return () => listeners.delete(listener);
     },
-    features: {
-      annotations: false,
-      search: true,
-      sorts: ["oldest", "pot", "won", "lost"],
-      // Everything the library's old filter bar had (R4.5b restores it).
-      more: ["tableName", "minPot", "showdownPositions", "winnerPositions", "anonymization"],
-    },
+    features: WEB_HANDS_FEATURES,
   };
 }
+
+/**
+ * What the web's Hands list filters by - and its reports (2026-11-16: one
+ * filter row everywhere; `report_hand_ids` reads a report over any of it).
+ */
+export const WEB_HANDS_FEATURES: HandsSource["features"] = {
+  annotations: false,
+  search: true,
+  sorts: ["oldest", "pot", "won", "lost"],
+  // The library's old filter bar (R4.5b restores it), but its smallest pot:
+  // the builder's pot size (a range, big blinds or money) is the app's and
+  // replaces it (2026-11-16); saved filters with `minPot` still read.
+  more: ["tableName", "showdownPositions", "winnerPositions", "anonymization"],
+  // Every filter builder group (20271116120000: the hand's columns;
+  // 20271116130000: its facts, `hand_facts`), as on the desktop.
+  builder: true,
+};

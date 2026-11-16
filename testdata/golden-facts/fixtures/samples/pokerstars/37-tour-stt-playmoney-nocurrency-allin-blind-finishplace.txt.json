@@ -1,0 +1,43 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [
+    {
+      "facts": {
+        "betPct": [
+          131,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": 211000,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": true,
+        "kicker": [
+          1,
+          1,
+          1
+        ],
+        "level": 2,
+        "made": [
+          4,
+          4,
+          4
+        ],
+        "openTenths": 40,
+        "playersFlop": 4,
+        "vsPositions": " HJ SB UTG ",
+        "vsSeats": " 1 4 7 "
+      },
+      "handId": "75726253875",
+      "index": 0
+    }
+  ],
+  "input": "fixtures/samples/pokerstars/37-tour-stt-playmoney-nocurrency-allin-blind-finishplace.txt"
+}

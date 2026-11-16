@@ -72,6 +72,33 @@
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
+/* A row being edited: the label, then a column of fields. */
+.rowStack {
+  grid-template-columns: 120px minmax(0, 1fr);
+  align-items: start;
+}
+
+.rowStack > .rowLabel {
+  padding-top: var(--space-1-5, 6px);
+}
+
+/* A text field in a row (the name). */
+.input {
+  width: 100%;
+  max-width: 320px;
+  min-width: 0;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--danger-border);
+}
+
 .rowLabel {
   color: var(--text-secondary);
   font-size: var(--font-size-sm);

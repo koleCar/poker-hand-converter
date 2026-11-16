@@ -16,6 +16,21 @@ export const shareHr = {
     shared: "Podijeljeno: analiza se prikazuje svugdje gdje je ova ruka javna.",
     private: "Privatno: ovu analizu vidiš samo ti.",
     failed: (message: string) => `Spremanje nije uspjelo: ${message}`,
+    row: {
+      label: "Analiza",
+      private: "Privatna",
+      shared: "Podijeljena",
+      off: "Isključeno",
+      offText: "Ocjene vidiš samo ti.",
+      offTextPoll: "Ocjene vidiš samo ti.",
+      on: "Uključeno",
+      onText:
+        "Svatko tko može vidjeti ovu ruku vidi njezine ocjene, opcije reference i objašnjenja. Ostale ruke i statistika ostaju privatni.",
+      onTextPoll: "Čitatelji vide ocjene i odgovor reference nakon što glasaju.",
+      analyse: "Analiziraj",
+      notAnalysed: "Nije analizirana",
+      notAnalysedText: "Ova ruka još nema spremljenu analizu. Pokreni je, pa je ovdje podijeli.",
+    },
   },
 
   sheet: {

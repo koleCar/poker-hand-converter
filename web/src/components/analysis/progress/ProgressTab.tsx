@@ -190,7 +190,7 @@ export function ProgressTab({ initialQuery, refreshToken = 0 }: ProgressTabProps
 
   return (
     <div className="stats">
-      <Header tools={<FilterBar state={shownState} kinds={kinds} facets={trend.facets} onChange={updateState} />} />
+      <Header tools={<FilterBar state={shownState} kinds={kinds} onChange={updateState} />} />
       <Controls state={state} onChange={updateState} />
       {state.bucket === "session" ? <p className={reportStyles.muted}>{t.sessionNote(trend.gapMinutes)}</p> : null}
 

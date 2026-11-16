@@ -267,6 +267,14 @@
   background: var(--bg-elev-2);
 }
 
+/* A menu link whose page is loading: a spinner and "Opening…". */
+.usermenu__pending {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--fg-muted);
+}
+
 /* ---------------------------------------------------- signed-out prompts - */
 
 /* The stand-in for a feature that needs an account: shown where the thing

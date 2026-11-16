@@ -1,0 +1,5 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/pokerstars/44-cash-7stud-hilo-brings-in-streets-excerpt.txt"
+}

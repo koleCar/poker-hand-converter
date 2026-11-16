@@ -244,8 +244,9 @@ fn place(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError>; //
 > while the RNG switch (now in Settings) is on and a session is live (the
 > hero's newest hand within the 30-minute session gap) or the HUD has a
 > table open. A click shows a new number; so does the "Roll the RNG"
-> hotkey. `app/src-tauri/src/rng_box.rs`. The app no longer sends
-> `rng_changed` to the HUD, so the per-table overlay below stays dormant.
+> hotkey. `app/src-tauri/src/rng_box.rs`. The per-table overlay described
+> below was removed from the HUD the same day (its messages, widget,
+> permit and stored positions); this section is history.
 
 - **Look:**
   - A small, borderless widget. The default spot is the table's top-right
