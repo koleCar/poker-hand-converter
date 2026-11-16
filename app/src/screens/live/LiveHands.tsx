@@ -2,8 +2,9 @@
  * The Live screen's hands: every hand of the session, newest first, ten to
  * a page - the hero's cards, the board, the position, and the pot and the
  * result both in the screen's unit (big blinds or the hand's money). The
- * whole row opens the hand (a click, or Enter on the row's link); a hovered
- * row says so with its background, an accent edge and an arrow at its end.
+ * whole row opens the hand in the replayer's own window, and the Live
+ * screen stays (a click, or Enter on the row's link); a hovered row says so
+ * with its background, an accent edge and an arrow at its end.
  *
  * The session's hands are read whole (the store's pages of up to 500,
  * following its cursor; a session is hundreds of hands, not thousands) and
@@ -31,7 +32,8 @@ import { StateMessage } from "../../components/StateMessage";
 import { useT } from "../../i18n";
 import { liveNumberFormat } from "../../i18n/format";
 import { errorText, ipc, type HandCursor, type HandRow, type Session } from "../../lib/ipc";
-import { go, screenHref } from "../../lib/router";
+import { screenHref } from "../../lib/router";
+import { openInReplayer } from "../analysis/openHand";
 import { bigBlinds, money, signedMoney, unitOf } from "../hands/format";
 import { HANDS_PER_PAGE, nextSort, pageList, sortHands, type LiveSort, type LiveSortColumn } from "./model";
 import type { LiveUnit } from "./units";
@@ -271,12 +273,12 @@ function HandLine({
     : row.heroNetBbMilli !== null
       ? d.bb(bigBlinds(row.heroNetBbMilli))
       : "—";
-  const open = () => go("hands", row.handKey);
+  const open = () => openInReplayer(row.handKey);
   // A plain click opens the hand; with Cmd/Ctrl or Shift it only chooses.
   const click = (event: MouseEvent) => {
     if (!selection.click(row.handKey, event)) open();
   };
-  // A plain click leaves the screen, so a chosen row was chosen with a modifier.
+  // A plain click chooses this row alone and opens it in the replayer.
   const chosen = selection.checked.has(row.handKey);
   return (
     <tr
