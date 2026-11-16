@@ -57,10 +57,11 @@ builds against the main checkout's sources.
 
 ## Promoting prestaging to staging (the batch PR)
 
-Open a batch PR when the owner asks, or when you land a change and `prestaging`
-is 10 or more non-merge commits ahead of `staging`:
+Open a batch PR **only when the owner asks** in the current conversation
+(2026-11-16). However many commits `prestaging` is ahead of `staging`, do not
+open one on your own; if it is far ahead, say so and leave it to the owner:
 `git rev-list --count --no-merges origin/staging..origin/prestaging`.
-First check that no batch PR is already open:
+When asked, first check that no batch PR is already open:
 `gh pr list --base staging --search "head:batch/"`. If one is open, leave it alone.
 
 ```bash
@@ -75,8 +76,12 @@ The PR comes from a **snapshot branch**, not from `prestaging` itself. Other
 sessions keep pushing to `prestaging`, and each push would restart the ~40
 minute CI on the open PR.
 
-- **CI red:** find the change that broke it and fix it with a commit on the
-  `batch/…` branch. That restarts CI for the batch only.
+- **CI red:** find the change that broke it and fix it on `prestaging` first,
+  like any other change (never a commit only on the `batch/…` branch). Then
+  bring the fix to the batch branch: `git push origin
+  <fix sha>:refs/heads/batch/…` when nothing else landed on `prestaging`
+  between the snapshot and the fix, else cherry-pick the fix onto it. That restarts CI for the
+  batch only.
 - **CI green:** merge only behind a gate that fails closed. GitHub auto-merge
   is off, and `gh pr checks --watch` exits 0 even when a check failed:
   ```bash
