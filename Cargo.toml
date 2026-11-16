@@ -10,6 +10,7 @@ members = [
   "core/rail-core-wasm",
   "core/rail-stats",
   "core/rail-equity",
+  "core/rail-solver",
   "core/rail-store",
   "core/rail-watch",
   "core/rail-sync",
@@ -74,6 +75,11 @@ opt-level = 3
 # opt-level changes). The evaluator's hot functions in rail-core are
 # `#[inline]`, so they are compiled here, at this level, too.
 [profile.dev.package.rail-equity]
+opt-level = 3
+
+# rail-solver: the parity tests run real DCFR solves (a reduced flop among
+# them); unoptimised that is minutes. Debug assertions and overflow checks stay on.
+[profile.dev.package.rail-solver]
 opt-level = 3
 
 # rail-store's C (R1.2): SQLite and zstd compiled at -O0 make the store's

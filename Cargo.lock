@@ -3862,6 +3862,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "rail-solver"
+version = "0.0.0"
+dependencies = [
+ "rail-core",
+ "rayon",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "rail-stats"
 version = "0.0.0"
 dependencies = [
