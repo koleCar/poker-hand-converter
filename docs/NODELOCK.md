@@ -83,6 +83,35 @@ ancestor decision node, at the baseline (library) strategy. "all" freezes
 both players. Freezing them keeps the range that arrives at the locked node as
 it was.
 
+**As built (workstream E)** — `web/src/lib/solver/nodelock.ts`, exported from
+`@rail/web-lib/solver`; tests in `tests/test/solver/nodelock.test.ts`:
+- The types and `lockHash` exactly as above. The canonical JSON sorts object
+  keys at every level (`canonicalJson`); the SHA-256 is synchronous
+  (`sha256Hex`).
+- **Paths** (as U's `lockPath`, §5.6). A flop node's `path` is its chunk
+  path (`X-B1.82`). A turn or river node's is the flop chunk's deal path,
+  the turn card and the node's path in the live turn's result:
+  `X-X~Kd/B2.5` (turn), `X-X~Kd/X-X|7h|X` (river). `lockPathOf(flopDeal,
+  turn, turnPath)` builds one; `splitLockPath` takes one apart.
+- **One game per lock set** (`lockGameStreet`): every node on the flop, or
+  every node under one deal and turn card (turn and river nodes mixed).
+  Flop and turn nodes cannot be locked together.
+- `lockSymmetries(set, board)`: the suit relabellings the lock keeps. The
+  solve uses isomorphism only under them (`FlopSpot.symmetry` /
+  `TurnSpot.symmetry`), so a lock on one suited combo stays exact. It just
+  saves less.
+- `applyNodelock(built, solver, set, { pathOf?, baseline? })` freezes the
+  locks and the earlier nodes (`earlierNodes`). It throws `NodelockError`
+  when a path is missing, the player differs, or the action labels differ.
+  `chunkBaseline(chunk, built)` reads a flop chunk's strategies onto a game.
+- `combos.ts`: `combosToHands`, `handsToCombos`, `comboRowsToHands`,
+  `handRowsToCombos` (1,326-combo rows ↔ a solver's hand list).
+- Chunks: `FlopChunkHeader.lockHash?` marks a nodelock result
+  (`nodelockHeader`). A flop lock's chunk is a flop-level chunk like the
+  library's. A turn or river lock's chunk holds the deal's whole turn game
+  (`street: "turn"`, `scope: "all"`), the same as a live turn's
+  `FlopChunk`. Library chunks read as before.
+
 ## 2. Engine
 
 ### 2.1 Frozen nodes in DCFR (`web/src/lib/solver/cfr.ts`)
@@ -137,6 +166,72 @@ interface NodelockEngine {
 }
 ```
 
+### 2.1–2.4 as built (workstream E)
+
+**Frozen nodes** (`cfr.ts`, both storages):
+- `Solver.freeze(node, strategy, mask?)`, `unfreezeAll()`, `frozenNodes`.
+- `exploitability()` measures the **locked** game: frozen hands play frozen
+  in the best response too, so it goes to zero. `exploitability({
+  unconstrained: true })` and `bestResponse()` let the frozen player
+  deviate. `bestResponse()` against a fully frozen node equals `lock.ts`'s
+  `exploitLab` (tested).
+- `restartAverage(t)` is the warm start. It keeps the regrets, drops the
+  average and goes on from iteration `t`
+  (`NODELOCK_WARM_ITERATION = 10`; at `t = 1` DCFR's discount would wipe the
+  regrets).
+
+**Split** (`split.ts`):
+- The units are the turn deals (the first chance nodes below the flop). The
+  turn cards (one per suit class) are split into N groups of about equal
+  river work. The split is fixed: `splitCards`, biggest first, each to the
+  lightest group.
+- A part (`SplitPart`) builds a **partial game**: `buildFlopGame(spot, {
+  keepTurn })` keeps only its own turn cards' subtrees, with their regrets,
+  tree and boards. The others lead to an empty chance node. The coordinator
+  (`SplitCoordinator`) builds the flop only.
+- Values cross as **`Float64Array`**, not `Float32Array`. Bit-identity
+  needs the sums at full precision. They are still transferable, with no
+  SharedArrayBuffer.
+- The solve, the exploitability and the evaluation are generators
+  (`SplitRun`). `driveSync` runs the parts in-thread; `driveAsync` hands each
+  traversal to a pool.
+- Bit-identical to `Solver.run` at any iteration count and any N, in `i16`
+  and `f32`, with frozen nodes (`tests/test/solver/split.test.ts`,
+  `nodelock.test.ts`).
+
+**Same spot as the library** (`web/src/lib/analysis/flopJob.ts`):
+- `lineSpot`, `Job`, `jobOf`, `libraryJob`, `jobSpot`, `jobHeader` and
+  `nodelockSpot(charts: ChartSet, line: string, flop: string): FlopSpot`.
+- The runner (`tests/scripts/flop-library/run.ts`, `full.ts`, `job.ts`,
+  `spots.ts`) uses them. `tests/test/solver/nodelockSpot.test.ts` checks
+  four lines × four flops of `nlhe-cash-6max-100bb` against the runner's
+  old job.
+
+**Reference solve** (`web/src/lib/analysis/nodelock.ts`, `@rail/web-lib/analysis/nodelock`):
+- `nodelockSpotOf(set, baseline: FlopChunk, charts?) → NodelockSpot`:
+  - `{ street: "flop", spot }` for a flop lock (charts needed);
+  - `{ street: "turn", spot, deal, card }` for a turn or river lock (the
+    deal's `liveTurnSpot`).
+- `solveNodelock(spot, set, { baseline, maxIterations?, storage?,
+  onIteration?, warm? }) → { result, chunk, header, solver, warm, built,
+  stats }`.
+  - Flop: the library profile (`nodelockFlopRun`), `i16`. `checkBaseline`
+    refuses a chunk whose hands, pot or stack differ from the game.
+  - Turn and river: the live turn's tree and DCFR, `f32`. The flop stays the
+    chunk's, so `earlier: "none"` frees only the turn and river decisions.
+    Earlier turn and river nodes freeze at the **unlocked turn solve** (the
+    live turn), solved first and kept in `warm.turnBaseline`. The locked
+    solve then goes on from it warm.
+
+**Engine interface** (`app/src/solver/nodelock/engine/types.ts`), as §2.4
+plus:
+- `NodelockRequest.baseline: Uint8Array` is **required**: the library chunk
+  bytes the view shows.
+- `NodelockStats.warm: boolean`.
+- `NodelockEngine.release()` drops the warm state and stops the workers.
+- One solve at a time; a second call rejects. A cancel rejects with the
+  signal's reason (an `AbortError`).
+
 ### 2.5 The two engines
 
 - **Worker engine** (`app/src/solver/nodelock/engine/`): a pool of
@@ -156,6 +251,27 @@ interface NodelockEngine {
   - The app uses it when present and says which engine ran.
 - **Warm start.** Within one app session the engine keeps the last solver of
   a spot in memory. A new lock on the same spot starts from it.
+
+**Worker engine as built** (`app/src/solver/nodelock/engine/`, tests in
+`tests/test/appNodelockEngine.test.ts`):
+- For U: `import { createWorkerEngine } from
+  "<…>/solver/nodelock/engine"`. `createWorkerEngine({ threads? })` returns
+  a `NodelockEngine`. The index also exports the types, `lockHash`,
+  `defaultThreads` and `etaOf`.
+- Imports of the web library go through `engine/door.ts` only (ESLint
+  allows that file).
+- **Flop locks** run split. The coordinator runs on the window's thread and
+  walks only the flop's decisions. The parts live in
+  `hardwareConcurrency - 1` module workers.
+- **Turn and river locks** run whole (`solveNodelock`) in one extra worker
+  of their own. A cancel terminates it without touching the flop parts.
+- **Warm start.** The parts and the coordinator of the last flop spot stay
+  in memory; a cancel keeps them. A worker error drops them, and the next
+  solve starts cold. The turn worker keeps its last deal's solver and
+  unlocked baseline.
+- **Progress.** Sent after every iteration. `etaMs` comes from a power law
+  through the last two measurements; it is null until there are two.
+  `memoryMb` is the solvers' arrays across all threads (not RSS).
 
 ## 3. Local storage (`core/rail-store`, migration `0024_node_locks.sql`)
 
@@ -373,8 +489,9 @@ All strings are EN + HR in the app's i18n.
   players, steps, shifts: [{ label, gto, locked }] }`.
 - **Routes.** My nodelocks is `#/solver/locks`; opening a lock goes to its
   view (`#/solver/set=…`).
-- Until §1's `lockHash` lands, `lock_hash` is the sha-256 of the LockSet's
-  JSON (`contract.ts`).
+- `lock_hash` is §1's `lockHash` (canonical-JSON sha-256). `contract.ts`
+  re-exports §1's `LockSet`, `NodeLockSpec` and `LockEarlier`, and `ipc.ts`'s
+  `NodeLockSet` is `LockSet`.
 
 ## 6. Workstreams (agents)
 

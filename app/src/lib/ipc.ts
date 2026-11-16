@@ -1214,12 +1214,10 @@ export type NodeLockStreet = "flop" | "turn" | "river";
 /** `rail_store::NodeLockStatus`: a row still `solving` when the app starts becomes `cancelled`. */
 export type NodeLockStatus = "draft" | "solving" | "solved" | "failed" | "cancelled";
 
-/**
- * The lock a row holds (`lock_json`).
- * TODO(nodelock workstream U): `LockSet` from `@rail/web-lib/solver/nodelock` once that file is on
- * prestaging; until then the store hands it back as the JSON object it was given.
- */
-export type NodeLockSet = unknown;
+import type { LockSet } from "../solver/nodelock/contract";
+
+/** The lock a row holds (`lock_json`): §1's `LockSet` (`web/src/lib/solver/nodelock.ts`). */
+export type NodeLockSet = LockSet;
 
 /**
  * `nodelock_store::NodeLockDto`: one `node_locks` row, column for column (snake_case, as the table),

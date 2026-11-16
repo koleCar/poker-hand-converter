@@ -6,34 +6,17 @@
  * behind `nodelock_*` commands).
  */
 
-export type LockEarlier = "none" | "player" | "all";
+import { lockHash, type LockSet } from "./engine/types";
 
 export type LockStreet = "flop" | "turn" | "river";
 
-export interface NodeLockSpec {
-  street: LockStreet;
-  /**
-   * The node's address. On the flop, the flop chunk's node path (`X-B1.82`);
-   * on a turn or a river, the flop chunk's deal path, the turn card and the
-   * live turn's node path: `X-X~Kd/B2.5` (`lockPath`).
-   */
-  path: string;
-  player: 0 | 1;
-  actions: string[];
-  /** `[action][combo]` over the 1,326 canonical combos. */
-  strategy: number[][];
-  /** 1,326 flags: 1 = fixed, 0 = adapts. */
-  locked: number[];
-}
-
-export interface LockSet {
-  version: 1;
-  spot: { set: string; line: string; flop: string; turn?: string; river?: string };
-  nodes: NodeLockSpec[];
-  earlier: LockEarlier;
-  /** 1 = standard, 2.5 = quick. */
-  targetPct: number;
-}
+/**
+ * The lock model is §1's (`web/src/lib/solver/nodelock.ts`, through the
+ * engine's door). A node's address: on the flop, the flop chunk's node path
+ * (`X-B1.82`); on a turn or a river, the flop chunk's deal path, the turn
+ * card and the live turn's node path: `X-X~Kd/B2.5` (`lockPath`).
+ */
+export type { LockEarlier, LockSet, NodeLockSpec } from "./engine/types";
 
 export interface NodelockProgress {
   iteration: number;
@@ -78,9 +61,7 @@ export interface NodelockSummary {
   shifts: Array<{ label: string; gto: number; locked: number }>;
 }
 
-/** §1's canonical JSON hash, until the lock model's `lockHash` is in: sha-256 hex of the JSON. */
+/** §1's lock hash: sha-256 hex of the lock's canonical JSON (`lockHash`). */
 export async function lockHashOf(set: LockSet): Promise<string> {
-  const bytes = new TextEncoder().encode(JSON.stringify(set));
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
+  return lockHash(set);
 }
