@@ -21,6 +21,7 @@
 
 import type { GameKind } from "@rail/ui/hands/gameKind";
 import {
+  FACTS_VERSION,
   STATS_VERSION,
   emptyCounters,
   COUNTER_KEYS,
@@ -31,13 +32,15 @@ import type { PhfHand } from "../phf/types";
 import type { HandFilter } from "@rail/ui/hands/model";
 import { currentUserId, requireUserId, rpc } from "./client";
 import {
-  handStatsRows,
+  handDerivation,
   villainRowsEnabled,
   type DeriveOptions,
+  type HandFactsInsert,
   type HandStatsInsert,
 } from "./statsRows";
 
 export {
+  handDerivation,
   handStatsRows,
   setVillainRowsEnabled,
   villainRowsEnabled,
@@ -93,8 +96,12 @@ export async function saveHandStats(
   // that out, and `save_hand_stats` would only drop the second copy anyway.
   const seen = new Set<string>();
   const rows: HandStatsInsert[] = [];
+  // The filter builder's facts (20271116130000), one row a hand, beside its statistics.
+  const facts = new Map<string, HandFactsInsert>();
   for (const hand of hands) {
-    for (const row of handStatsRows(hand, options)) {
+    const derivation = handDerivation(hand, options);
+    if (derivation.facts) facts.set(derivation.facts.hand_key, derivation.facts);
+    for (const row of derivation.stats) {
       const key = `${row.hand_key}|${row.stats_version}|${row.seat}`;
       if (seen.has(key)) {
         continue;
@@ -119,6 +126,12 @@ export async function saveHandStats(
     } catch (error) {
       result.errors.push(error instanceof Error ? error.message : String(error));
     }
+  }
+  // A failed facts write costs nothing but the builder's facts of those
+  // hands, which the next rebuild derives again (`hands_needing_stats`).
+  const factRows = [...facts.values()];
+  for (let i = 0; i < factRows.length; i += MAX_ROWS_PER_REQUEST) {
+    await rpc("save_hand_facts", { p_rows: factRows.slice(i, i + MAX_ROWS_PER_REQUEST) }).catch(() => undefined);
   }
 
   return result;
@@ -249,6 +262,8 @@ export interface StatsCoverage {
   obsoleteRows: number;
   /** Hands with statistics but no all-in EV evaluation yet. */
   evMissing: number;
+  /** Hands with a hero and no filter builder facts yet (`hand_facts_missing`). */
+  factsMissing: number;
   /** The formats and stakes in the library, biggest first. */
   stakes: StakeVolume[];
 }
@@ -267,10 +282,12 @@ export async function fetchStatsCoverage(): Promise<StatsCoverage | null> {
   if (!(await currentUserId())) {
     return null;
   }
-  const [payload, evMissing] = await Promise.all([
+  const [payload, evMissing, factsMissing] = await Promise.all([
     rpc<Row | null>("stats_coverage", { p_version: STATS_VERSION }),
     // A database without the EV migration simply has nothing to catch up on.
     rpc<number>("stats_ev_missing", { p_version: STATS_VERSION, p_ev_version: EV_VERSION }).catch(() => 0),
+    // Nor one without the facts' (20271116130000).
+    fetchFactsMissing(),
   ]);
   if (!payload) {
     return null;
@@ -284,6 +301,7 @@ export async function fetchStatsCoverage(): Promise<StatsCoverage | null> {
     withoutHero: num(payload.withoutHero),
     obsoleteRows: num(payload.obsoleteRows),
     evMissing: num(evMissing),
+    factsMissing,
     stakes: (Array.isArray(payload.stakes) ? (payload.stakes as Row[]) : []).map((row) => ({
       gameFormat: str(row.gameFormat) ?? "cash",
       currency: str(row.currency) ?? "",
@@ -293,6 +311,11 @@ export async function fetchStatsCoverage(): Promise<StatsCoverage | null> {
       hands: num(row.hands),
     })),
   };
+}
+
+/** The caller's hands with a hero and no filter builder facts at the current version (0 when unknown). */
+export async function fetchFactsMissing(): Promise<number> {
+  return num(await rpc<number>("hand_facts_missing", { p_facts_version: FACTS_VERSION }).catch(() => 0));
 }
 
 export interface RebuildProgress {

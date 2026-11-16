@@ -1,0 +1,5 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/chico/fpdb3-regression-corpus/tour__NLHE-10max-USD-MTT-201210.dead.stack.txt"
+}

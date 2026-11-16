@@ -380,14 +380,10 @@ describe("the web's source", () => {
     expect(facets.anonymizations).toEqual([{ value: "positional", count: 1 }]);
     // The smallest pot is the builder's pot size on the web too (2026-11-16); `minPot` still reads.
     expect(source.features.more).toEqual(["tableName", "showdownPositions", "winnerPositions", "anonymization"]);
-    // The builder's groups a hand's columns answer (20271116120000), not the per-hand facts'.
+    // Every builder group on the web too (2026-11-16: the hand's columns and its facts), as on the desktop.
     const groups = filterGroups(source.features);
-    for (const group of ["preflopDid", "flopSuits", "players", "weekdays", "heroStack", "potSize", "grades", "knownCards"]) {
-      expect(groups).toContain(group);
-    }
-    for (const group of ["flopMade", "kicker", "vsPosition", "positionFlop", "buyIn", "heroBluff", "flopPct", "minPot"]) {
-      expect(groups).not.toContain(group);
-    }
+    expect(groups).toEqual(expect.arrayContaining([...BUILDER_GROUPS]));
+    expect(groups).not.toContain("minPot");
   });
 
   it("passes live arrivals to the list", async () => {

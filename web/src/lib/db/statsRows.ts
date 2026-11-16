@@ -8,7 +8,7 @@
  */
 
 import { EV_VERSION, evNetBySeat } from "../equity";
-import { handFacts, statsRows, toBbMilli, type StatsRow } from "../stats";
+import { FACTS_VERSION, builderFacts, handFacts, keptRows, statsRows, toBbMilli, type StatsRow } from "../stats";
 import type { PhfHand } from "../phf/types";
 import { detectAnonymization } from "./anonymization";
 import type { SiteAnonymization } from "./types";
@@ -83,17 +83,94 @@ export interface DeriveOptions {
  * mistake impossible.
  */
 export function handStatsRows(hand: PhfHand, options: DeriveOptions = {}): HandStatsInsert[] {
+  return handDerivation(hand, options).stats;
+}
+
+/** One row as `save_hand_facts` takes it (`hand_facts`, 20271116130000). */
+export type HandFactsInsert = {
+  hand_key: string;
+  facts_version: string;
+  open_tenths: number | null;
+  flop_bet_pct: number | null;
+  turn_bet_pct: number | null;
+  river_bet_pct: number | null;
+  flop_made: number | null;
+  turn_made: number | null;
+  river_made: number | null;
+  flop_kicker: number | null;
+  turn_kicker: number | null;
+  river_kicker: number | null;
+  flop_draws: number;
+  turn_draws: number;
+  players_flop: number;
+  hero_ip: boolean | null;
+  vs_seats: string;
+  vs_positions: string;
+  /** The opponents in the pot by name (their type and VPIP, `player_stats`): the web's own. */
+  vs_players: string[];
+  buy_in_cents: number | null;
+  bounty: boolean;
+  tour_level: number | null;
+  hero_bluff: number;
+  vs_bluff: number;
+};
+
+/**
+ * A hand's statistics rows and its builder facts (`lib/stats/builderFacts`,
+ * the app's `facts.rs`), from one derivation: the facts read every seat the
+ * desktop keeps, villains included, whether or not their rows are written.
+ * No facts without a hero.
+ */
+export function handDerivation(
+  hand: PhfHand,
+  options: DeriveOptions = {},
+): { stats: HandStatsInsert[]; facts: HandFactsInsert | null } {
   const anonymization = detectAnonymization(hand);
   const villains =
     (options.includeVillains ?? villainRowsEnabled()) && anonymization !== "positional";
-
-  return statsRows(handFacts(hand))
+  const all = statsRows(handFacts(hand));
+  const stats = all
     .filter((row) => row.is_hero || villains)
     .map(({ hand_id: siteHandId, ...row }) => ({
       ...row,
       site_hand_id: siteHandId,
       site_anonymization: anonymization,
     }));
+  const kept = keptRows(all, anonymization === "positional");
+  const hero = kept.find((row) => row.is_hero);
+  if (!hero) return { stats, facts: null };
+  const facts = builderFacts(hand, kept);
+  return {
+    stats,
+    facts: {
+      hand_key: hero.hand_key,
+      facts_version: FACTS_VERSION,
+      open_tenths: facts.openTenths,
+      flop_bet_pct: facts.betPct[0],
+      turn_bet_pct: facts.betPct[1],
+      river_bet_pct: facts.betPct[2],
+      flop_made: facts.made[0],
+      turn_made: facts.made[1],
+      river_made: facts.made[2],
+      flop_kicker: facts.kicker[0],
+      turn_kicker: facts.kicker[1],
+      river_kicker: facts.kicker[2],
+      flop_draws: facts.draws[0],
+      turn_draws: facts.draws[1],
+      players_flop: facts.playersFlop,
+      hero_ip: facts.heroIp,
+      vs_seats: facts.vsSeats,
+      vs_positions: facts.vsPositions,
+      vs_players: kept
+        .filter((row) => !row.is_hero && (row.vpip > 0 || row.flop_seen > 0) && row.player)
+        .map((row) => row.player),
+      buy_in_cents: facts.buyInCents,
+      bounty: facts.bounty,
+      tour_level: facts.level,
+      hero_bluff: facts.bluff[0],
+      vs_bluff: facts.bluff[1],
+    },
+  };
 }
 
 /* ------------------------------------------------------------- all-in EV - */

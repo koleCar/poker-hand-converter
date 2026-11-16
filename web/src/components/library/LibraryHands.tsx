@@ -36,7 +36,7 @@ import { Icon } from "@rail/ui/icon/Icon";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
 import { useAuth } from "../../lib/auth";
-import { isDatabaseConfigured, latestDesktopSync, rebuildStats, saveHand, type DesktopSync } from "../../lib/db";
+import { fetchFactsMissing, isDatabaseConfigured, latestDesktopSync, rebuildStats, saveHand, type DesktopSync } from "../../lib/db";
 import { webDataSource } from "../../lib/db/dataSource";
 import { notifyHandsChanged, webHandsSource } from "../../lib/db/handsSource";
 import { useDict, useLocale } from "../../lib/i18n/client";
@@ -143,6 +143,19 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
   }, [arrival]);
 
   const userId = auth.isSignedIn ? (auth.user?.id ?? null) : null;
+
+  // The filter builder's facts (20271116130000): hands stored before them, or
+  // synced from the desktop, get theirs in the background, once a sign-in,
+  // and the list counts again - the builder's filters then read every hand.
+  const factsCaughtUp = useRef<string | null>(null);
+  useEffect(() => {
+    if (!userId || !isDatabaseConfigured || factsCaughtUp.current === userId) return;
+    factsCaughtUp.current = userId;
+    void fetchFactsMissing()
+      .then((missing) => (missing > 0 ? rebuildStats().then(() => notifyHandsChanged()) : undefined))
+      .catch(() => undefined);
+  }, [userId]);
+
   const selected = selection !== null && selection.user === userId ? selection.key : null;
   const select = useCallback((key: string) => setSelection({ user: userId, key }), [userId]);
 

@@ -303,6 +303,20 @@ next to it) adds seeded mutations of golden hands, random `equity()` requests
 and range requests run through both engines; regenerate it after a change to
 `lib/equity` or to the goldens.
 
+## The filter builder's facts (2026-11-16)
+
+`testdata/golden-facts/<input path>.json` (committed, written by the same
+`npm run golden:emit` run, `tests/scripts/golden/facts.ts`): per hand the
+filter builder's facts the web derives (`web/src/lib/stats/builderFacts.ts`) -
+the hero's open and bet sizes, made hands, kickers, draws, the opponents in
+the pot, position on the flop, the tournament's buy-in, bounty and level, who
+was caught bluffing - from the rows the desktop keeps (the hero's and the
+villains', none of a positionally anonymised room). `core/rail-store/tests/
+facts_corpus.rs` derives the desktop's facts (`facts::derive`) from
+`testdata/golden-full/` and compares field by field, so the web's builder
+filters (`hand_facts`) mean the app's (`hand_list`). 6.8 MB, written out in
+full: a change shows as the hands and fields that moved.
+
 ## Notes for the Rust port
 
 - **R0.4, `T | null` vs `T?`.** PHF distinguishes a field that is always

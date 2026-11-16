@@ -1562,6 +1562,104 @@ export type Database = {
         }
         Relationships: []
       }
+      hand_facts: {
+        Row: {
+          bounty: boolean
+          buy_in_cents: number | null
+          created_at: string
+          facts_version: string
+          flop_bet_pct: number | null
+          flop_draws: number
+          flop_kicker: number | null
+          flop_made: number | null
+          hand_id: string
+          hand_key: string
+          hero_bluff: number
+          hero_ip: boolean | null
+          open_tenths: number | null
+          owner_id: string
+          players_flop: number
+          river_bet_pct: number | null
+          river_kicker: number | null
+          river_made: number | null
+          tour_level: number | null
+          turn_bet_pct: number | null
+          turn_draws: number
+          turn_kicker: number | null
+          turn_made: number | null
+          vs_bluff: number
+          vs_players: string[]
+          vs_positions: string
+          vs_seats: string
+        }
+        Insert: {
+          bounty?: boolean
+          buy_in_cents?: number | null
+          created_at?: string
+          facts_version: string
+          flop_bet_pct?: number | null
+          flop_draws?: number
+          flop_kicker?: number | null
+          flop_made?: number | null
+          hand_id: string
+          hand_key: string
+          hero_bluff?: number
+          hero_ip?: boolean | null
+          open_tenths?: number | null
+          owner_id: string
+          players_flop?: number
+          river_bet_pct?: number | null
+          river_kicker?: number | null
+          river_made?: number | null
+          tour_level?: number | null
+          turn_bet_pct?: number | null
+          turn_draws?: number
+          turn_kicker?: number | null
+          turn_made?: number | null
+          vs_bluff?: number
+          vs_players?: string[]
+          vs_positions?: string
+          vs_seats?: string
+        }
+        Update: {
+          bounty?: boolean
+          buy_in_cents?: number | null
+          created_at?: string
+          facts_version?: string
+          flop_bet_pct?: number | null
+          flop_draws?: number
+          flop_kicker?: number | null
+          flop_made?: number | null
+          hand_id?: string
+          hand_key?: string
+          hero_bluff?: number
+          hero_ip?: boolean | null
+          open_tenths?: number | null
+          owner_id?: string
+          players_flop?: number
+          river_bet_pct?: number | null
+          river_kicker?: number | null
+          river_made?: number | null
+          tour_level?: number | null
+          turn_bet_pct?: number | null
+          turn_draws?: number
+          turn_kicker?: number | null
+          turn_made?: number | null
+          vs_bluff?: number
+          vs_players?: string[]
+          vs_positions?: string
+          vs_seats?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hand_facts_hand_id_fkey"
+            columns: ["hand_id"]
+            isOneToOne: false
+            referencedRelation: "hands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hand_stats: {
         Row: {
           bet_flop: number
@@ -5034,6 +5132,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      hand_facts_missing: { Args: { p_facts_version: string }; Returns: number }
       hand_row_from_phf: {
         Args: { p_phf: Json }
         Returns: {
@@ -5155,6 +5254,7 @@ export type Database = {
         Args: {
           p_after?: string
           p_ev_version?: string
+          p_facts_version?: string
           p_limit?: number
           p_version: string
           p_villains?: boolean
@@ -5594,6 +5694,7 @@ export type Database = {
       }
       save_hand_analysis: { Args: { p_rows: Json }; Returns: Json }
       save_hand_ev: { Args: { p_rows: Json }; Returns: Json }
+      save_hand_facts: { Args: { p_rows: Json }; Returns: Json }
       save_hand_stats: { Args: { p_rows: Json }; Returns: Json }
       save_hands: { Args: { p_hands: Json }; Returns: Json }
       save_post: {

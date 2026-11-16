@@ -1,0 +1,5 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/unibet/05-tournament-summary-2026-anonymised.txt"
+}

@@ -277,6 +277,7 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 -- basic statistics and their upkeep; notes
                 'report_open', 'report_graph', 'report_facets', 'report_hand_ids', 'stats_coverage', 'stats_empty_graph',
                 'stats_ev_missing', 'hands_needing_stats', 'save_hand_stats', 'save_hand_ev',
+                'save_hand_facts', 'hand_facts_missing',
                 'hand_stats_ev_normalize', 'prune_hand_stats', 'prune_villain_stats', 'refresh_report_summaries',
                 'my_player_notes', 'set_player_note',
                 -- a shared analysis is read by anyone; switching one's own share and pruning stay free
@@ -396,7 +397,7 @@ select is(pg_temp.refusal($$ select public.report_situations('{}') $$), 'PT402:r
   '... with the feature as the hint');
 select is((select array_agg(f || '=' || pg_temp.call_state(f)) from unnest(array[
              'public.report_open(jsonb)', 'public.report_graph(jsonb,integer)', 'public.report_facets(jsonb)',
-             'public.stats_coverage(text)', 'public.hands_needing_stats(text,uuid,integer,boolean,text)',
+             'public.stats_coverage(text)', 'public.hands_needing_stats(text,uuid,integer,boolean,text,text)',
              'public.library_count()', 'public.library_page(jsonb,jsonb,integer)']) f
             where pg_temp.call_state(f) = 'PT402'),
   null, 'basic statistics and the library stay open to Free');

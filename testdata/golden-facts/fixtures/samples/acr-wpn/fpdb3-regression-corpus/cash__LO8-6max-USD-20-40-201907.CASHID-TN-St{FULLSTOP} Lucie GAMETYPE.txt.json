@@ -1,0 +1,5 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__LO8-6max-USD-20-40-201907.CASHID-TN-St{FULLSTOP} Lucie GAMETYPE.txt"
+}

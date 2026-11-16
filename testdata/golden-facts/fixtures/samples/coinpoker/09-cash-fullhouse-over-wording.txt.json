@@ -1,0 +1,43 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [
+    {
+      "facts": {
+        "betPct": [
+          37,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": null,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": false,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": null,
+        "made": [
+          11,
+          11,
+          11
+        ],
+        "openTenths": 25,
+        "playersFlop": 3,
+        "vsPositions": " BB CO ",
+        "vsSeats": " 1 5 "
+      },
+      "handId": "352028090",
+      "index": 0
+    }
+  ],
+  "input": "fixtures/samples/coinpoker/09-cash-fullhouse-over-wording.txt"
+}

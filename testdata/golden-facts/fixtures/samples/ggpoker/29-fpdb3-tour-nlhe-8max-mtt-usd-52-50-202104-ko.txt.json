@@ -1,0 +1,43 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": 5250,
+        "draws": [
+          32,
+          0
+        ],
+        "heroIp": false,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": 1,
+        "made": [
+          3,
+          null,
+          null
+        ],
+        "openTenths": 20,
+        "playersFlop": 2,
+        "vsPositions": " LJ ",
+        "vsSeats": " 8 "
+      },
+      "handId": "TM599808286",
+      "index": 0
+    }
+  ],
+  "input": "fixtures/samples/ggpoker/29-fpdb3-tour-nlhe-8max-mtt-usd-52-50-202104-ko.txt"
+}

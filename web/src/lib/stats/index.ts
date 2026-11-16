@@ -141,3 +141,5 @@ export {
   type RateInterval,
   type Reliability,
 } from "./reliability";
+
+export { FACTS_VERSION, builderFacts, keptRows, type BuilderFacts } from "./builderFacts";

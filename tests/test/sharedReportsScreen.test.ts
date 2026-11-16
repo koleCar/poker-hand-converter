@@ -175,6 +175,7 @@ describe("the web's ReportSource over the summaries", () => {
         statsVersion: expect.stringMatching(/^stats\//),
         evVersion: expect.stringMatching(/^ev\//),
         analysisVersion: expect.stringMatching(/^analysis\//),
+        factsVersion: expect.stringMatching(/^facts\//),
       },
     });
     expect(graph?.[0]).toBe("report_graph");
