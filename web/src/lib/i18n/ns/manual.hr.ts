@@ -15,7 +15,6 @@ export const manualHr: Dict["manual"] = {
 
   bar: {
     game: "Igra",
-    players: "Igrači",
     stakes: (sb: string, bb: string) => `${sb}/${bb}`,
     effective: (amount: string) => `${amount} efektivno`,
   },
@@ -32,15 +31,18 @@ export const manualHr: Dict["manual"] = {
       bet: (amount: string) => `Bet ${amount}`,
       raise: (amount: string) => `Raise ${amount}`,
     },
-    hint: "Klikni igrača da uneseš njegovu akciju ili board da podijeliš karte.",
+    hint: "Klikni igrača da uneseš njegovu akciju, ime da ga promijeniš ili board da podijeliš karte.",
     next: (position: string, name: string) => `Sljedeći: ${position ? `${position} ` : ""}${name}`,
     notTheirTurn: (name: string) => `Na potezu je ${name}.`,
     goToActor: "Idi na igrača na potezu",
     skipped: (list: string) => `Prije njega: ${list}`,
     startingStack: "Početni stack",
-    makeHero: "Hero",
-    makeButton: "Button ovdje",
     handOver: "Ruka je gotova. Ako pobjednici nisu određeni, odaberi ih ispod, pa je odigraj ili spremi.",
+  },
+
+  hero: {
+    label: "Ti si",
+    rename: (name: string) => `Preimenuj ${name}`,
   },
 
   nav: {
@@ -95,17 +97,8 @@ export const manualHr: Dict["manual"] = {
   },
 
   players: {
-    heading: "Igrači i stackovi",
-    effective: "Efektivni stack",
-    effectiveHint: "Hero protiv najdubljeg protivnika.",
     setAll: "Svi stackovi na",
     apply: "Primijeni",
-    seat: (seat: number) => `Sjedalo ${seat}`,
-    taken: "Sjedalo zauzeto",
-    name: "Ime",
-    stack: "Stack",
-    button: "Button",
-    hero: "Hero",
     cards: "Karte",
     unknown: "Nepoznate",
     setCards: "Odaberi",

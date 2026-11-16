@@ -9,14 +9,11 @@
 
 import { randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { gunzipSync } from "node:zlib";
 
 import { describe, expect, it } from "vitest";
 
 import {
   readInputs,
-  shortHash,
-  storagePathFor,
   type BulkSource,
   type InputItem,
 } from "../../web/src/components/converter/bulkSource";
@@ -263,25 +260,6 @@ describe("reading a drop lazily", () => {
       ["pictures.zip", "empty-archive"],
       ["big.txt", "too-large"],
     ]);
-  });
-
-  it("gzips the originals only when asked, under a safe and stable Storage path", async () => {
-    const zip = buildZip([{ name: "Hero ♠/HH 2026-10-01 (1).txt", data: STARS }]);
-    const off = await collect([zipItem(zip)]);
-    expect(off[0].original).toBeUndefined();
-    const on = await collect([zipItem(zip)], { keepOriginals: true });
-    const original = on[0].original!;
-    expect(original.path).toBe(`export.zip/Hero _/HH 2026-10-01 (1).txt.${shortHash(on[0].key)}.gz`);
-    expect(original.blob.type).toBe("application/gzip");
-    const unzipped = gunzipSync(new Uint8Array(await original.blob.arrayBuffer())).toString("utf8");
-    expect(unzipped).toBe(STARS);
-  });
-
-  it("makes Storage paths of anything", () => {
-    expect(storagePathFor("../../etc/passwd", "k")).toBe(`_/_/etc/passwd.${shortHash("k")}.gz`);
-    expect(storagePathFor("a.zip → b/c.txt", "k")).toBe(`a.zip/b/c.txt.${shortHash("k")}.gz`);
-    expect(storagePathFor("", "k")).toBe(`file.${shortHash("k")}.gz`);
-    expect(storagePathFor("a/".repeat(20) + "x.txt", "k").split("/")).toHaveLength(7);
   });
 });
 

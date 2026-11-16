@@ -83,6 +83,12 @@ interface ReplayTableProps {
    * real button, so the cards need not be a second tab stop inside the seat.
    */
   onSeatCardsClick?: (seatNo: number) => void;
+  /**
+   * Draws a seat's name in place of the plain label, for the editor's rename
+   * in place. Whatever it renders handles its own clicks and keys (and stops
+   * them), since it sits inside the seat's own button.
+   */
+  renderSeatName?: (seat: SeatFrameState, label: string) => React.ReactNode;
 }
 
 interface Placed {
@@ -231,6 +237,7 @@ export function ReplayTable({
   onSeatClick,
   onBoardClick,
   onSeatCardsClick,
+  renderSeatName,
 }: ReplayTableProps) {
   const t = useUiStrings().replayer;
   const words = t.table;
@@ -619,20 +626,30 @@ export function ReplayTable({
               {/* Everything from here down is already in the group's label, so
                   it is hidden from assistive tech rather than repeated four
                   times in whatever order the slot table happened to paint. */}
-              <div className="pseat__plate" aria-hidden="true">
+              {/* An editable name is a control of its own, so the plate is
+                  only hidden piece by piece around it. */}
+              <div className="pseat__plate" aria-hidden={renderSeatName ? undefined : true}>
                 <span className="pseat__name">
                   {seat.position ? (
-                    <span className="pseat__pos" title={spokenPosition(seat.position, t) ?? undefined}>
+                    <span
+                      className="pseat__pos"
+                      title={spokenPosition(seat.position, t) ?? undefined}
+                      aria-hidden={renderSeatName ? true : undefined}
+                    >
                       {seat.position}
                     </span>
                   ) : null}
-                  {/* Long screen names still have to ellipsis at nine seats on
-                      a phone, so the full one stays reachable on hover. */}
-                  <span className="pseat__nick" title={mask.seat(seat.name)}>
-                    {mask.seat(seat.name)}
-                  </span>
+                  {renderSeatName ? (
+                    renderSeatName(seat, mask.seat(seat.name))
+                  ) : (
+                    // Long screen names still have to ellipsis at nine seats on
+                    // a phone, so the full one stays reachable on hover.
+                    <span className="pseat__nick" title={mask.seat(seat.name)}>
+                      {mask.seat(seat.name)}
+                    </span>
+                  )}
                 </span>
-                <span className="pseat__stack">
+                <span className="pseat__stack" aria-hidden={renderSeatName ? true : undefined}>
                   {seat.allIn && seat.stack <= 0 ? (
                     <span className="pseat__allin-text">{words.allIn}</span>
                   ) : (

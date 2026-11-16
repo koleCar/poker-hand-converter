@@ -73,12 +73,14 @@ describe("dictionaries", () => {
       "RNG",
       // Reports' rows by street: statistics' abbreviations, the same in Croatian as VPIP and PFR.
       "FCB", "RCB", "Donk", "AFq",
+      // The Solver's nodelock (docs/NODELOCK.md §5): poker software's words, said in English in Croatian too.
+      "Nodelock", "Range", "GTO", "Spot",
     ]);
     const english = new Map(leaves(en as unknown as Node));
     const untranslated = leaves(hr as unknown as Node).filter(([path, text]) => {
       if (english.get(path) !== text || same.has(text)) return false;
       // A function whose output is only its arguments and signs ("#3", "3 – x", "3 bb").
-      return /\p{L}{3}/u.test(text.replace(/\bx\b|\bbb\b|\bEV\b|\bmin\b|\bms\b|\bKB\b/g, ""));
+      return /\p{L}{3}/u.test(text.replace(/\bx\b|\bbb\b|\bEV\b|\bmin\b|\bms\b|\bKB\b|\bNaN\b/g, ""));
     });
     expect(untranslated).toEqual([]);
   });

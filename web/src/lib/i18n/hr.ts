@@ -187,9 +187,6 @@ export const hr: Dict = {
     note: "Pretvaranje, pregled, preuzimanje i replay ne trebaju račun.",
   },
 
-  convert: {
-    privacy: "Ništa se ne šalje. Hand historyji se pretvaraju u ovoj kartici i nikad je ne napuštaju.",
-  },
 
   notFound: {
     heading: "Stranica nije pronađena",

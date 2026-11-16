@@ -268,7 +268,7 @@ and ["Notifications and realtime"](../docs/DATABASE.md#notifications-and-realtim
 
 | Bucket | Access | Holds |
 | --- | --- | --- |
-| `hand-uploads` | private; the owner's own folder only | Original hand-history files, gzip, only when the user ticks "Also keep the original files" on `/convert` |
+| `hand-uploads` | private; the owner's own folder only | Original hand-history files, gzip; no longer written since the `/convert` opt-in was removed (2026-11-16), kept for files already stored |
 | `flop-library` | public, read-only (no policies: nobody can list or write through the API) | The solved flop chunks the analysis fetches; uploaded by the owner's script with the service role |
 | `frontend-site` | inert | Left from an old deploy path |
 

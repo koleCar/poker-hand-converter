@@ -21,7 +21,14 @@ import {
   type ManualVariant,
   type WinnerPicks,
 } from "../../lib/manual";
-import { formatAmount, type Amount, type CurrencyUnit } from "../../lib/phf/types";
+import {
+  formatAmount,
+  positionRing,
+  resolvePositions,
+  type Amount,
+  type CurrencyUnit,
+  type Position,
+} from "../../lib/phf/types";
 
 export type AmountMode = "bb" | "money";
 
@@ -139,6 +146,50 @@ export function setupOf(state: EditorState): ManualSetup {
         cards: seat.cards,
       })),
   };
+}
+
+/* ------------------------------------------------------ hero and names - */
+
+/** What a seat is called before anyone renames it. */
+export function defaultNameFor(state: EditorState, seat: number, defaultName: (seat: number) => string): string {
+  return seat === state.heroSeat ? "Hero" : defaultName(seat);
+}
+
+/** A typed name as PHF can carry it: no `: [ ] ( )`, no padding. */
+export function cleanName(text: string): string {
+  return text.replace(/[:[\]()]/g, "").trim();
+}
+
+export interface HeroPositionOption {
+  position: Position;
+  /** Where the button goes for the hero to be in `position`. */
+  buttonSeat: number;
+}
+
+/**
+ * Every position the hero can be in, in preflop order (UTG first, the big
+ * blind last), each with the seat the button has to sit on for it. The hero
+ * keeps their seat; picking a position moves the button.
+ */
+export function heroPositions(state: EditorState): HeroPositionOption[] {
+  const taken = state.seats.filter((seat) => seat.taken).map((seat) => seat.seat);
+  if (taken.length < 2 || !taken.includes(state.heroSeat)) return [];
+  const ring = positionRing(taken.length);
+  // The ring starts at the small blind; preflop the action starts after the
+  // big blind. Heads-up the button is the small blind and acts first.
+  const order = taken.length > 2 ? [...ring.slice(2), ...ring.slice(0, 2)] : ring;
+  return taken
+    .map((buttonSeat) => ({ position: resolvePositions(taken, buttonSeat).get(state.heroSeat), buttonSeat }))
+    .filter((option): option is HeroPositionOption => option.position !== undefined)
+    .sort((a, b) => order.indexOf(a.position) - order.indexOf(b.position));
+}
+
+/** The next taken seat round the table from `seat`, `step` 1 or -1. */
+export function neighbourSeat(state: EditorState, seat: number, step: 1 | -1): number {
+  const taken = state.seats.filter((entry) => entry.taken).map((entry) => entry.seat);
+  const index = taken.indexOf(seat);
+  if (index < 0 || taken.length === 0) return seat;
+  return taken[(index + step + taken.length) % taken.length];
 }
 
 export function unitOf(state: EditorState): CurrencyUnit {

@@ -282,3 +282,44 @@ export function rangeSize(range: ArrayLike<number>, dead: readonly number[] = []
   }
   return total;
 }
+
+/* ------------------------------------------- combos <-> a player's hands - */
+
+/**
+ * A 1,326-combo array read onto a solver's hand list (`hands[i]` is hand i's
+ * combo index, `BuiltSubgame.combos[p]` or `SolveResult.hands[p]`):
+ * `out[i] = values[hands[i]]`.
+ */
+export function combosToHands(values: ArrayLike<number>, hands: ArrayLike<number>): Float64Array {
+  if (values.length !== NUM_COMBOS) throw new SolverInputError(`expected ${NUM_COMBOS} values, got ${values.length}`);
+  const out = new Float64Array(hands.length);
+  for (let i = 0; i < hands.length; i += 1) out[i] = values[hands[i]];
+  return out;
+}
+
+/** A hand-list array spread over the 1,326 combos; combos not in the list get `fill`. */
+export function handsToCombos(values: ArrayLike<number>, hands: ArrayLike<number>, fill = 0): Float64Array {
+  const out = new Float64Array(NUM_COMBOS).fill(fill);
+  for (let i = 0; i < hands.length; i += 1) out[hands[i]] = values[i];
+  return out;
+}
+
+/** `[action][combo]` rows (1,326 each) as one `[action][hand]` block over a hand list. */
+export function comboRowsToHands(rows: readonly ArrayLike<number>[], hands: ArrayLike<number>): Float64Array {
+  const n = hands.length;
+  const out = new Float64Array(rows.length * n);
+  rows.forEach((row, a) => out.set(combosToHands(row, hands), a * n));
+  return out;
+}
+
+/** An `[action][hand]` block over a hand list as `[action][combo]` rows; combos not in the list get `fill`. */
+export function handRowsToCombos(strategy: ArrayLike<number>, count: number, hands: ArrayLike<number>, fill = 0): number[][] {
+  const n = hands.length;
+  const rows: number[][] = [];
+  for (let a = 0; a < count; a += 1) {
+    const row = new Array<number>(NUM_COMBOS).fill(fill);
+    for (let i = 0; i < n; i += 1) row[hands[i]] = strategy[a * n + i];
+    rows.push(row);
+  }
+  return rows;
+}

@@ -23,7 +23,7 @@
 
 import { useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
 import { SUIT_SYMBOL, type Suit } from "../../lib/cards";
-import { useSolverDict } from "./host";
+import { useSolverDict, type StrategyCompare } from "./host";
 import type { ExploreCombo } from "../../lib/solver";
 import { GRID_CELLS } from "../analysis/chartSpots";
 import analysis from "../analysis/analysis.module.css";
@@ -180,9 +180,11 @@ interface StrategyViewProps {
   fade?: boolean;
   /** The hero's hand: marked, and shown first, when their position acts. */
   hero?: StrategyHero | null;
+  /** A baseline at the same decision (the app's nodelock: GTO beside the locked solve): its deltas show. */
+  compare?: StrategyCompare | null;
 }
 
-export function StrategyView({ model, overview, toolbar, main, filters, fade = false, hero = null }: StrategyViewProps) {
+export function StrategyView({ model, overview, toolbar, main, filters, fade = false, hero = null, compare = null }: StrategyViewProps) {
   // Kept across decisions: the panel stays on the filters while the line is walked.
   const [panelTab, setPanelTab] = useState<"hand" | "filters">("hand");
   // `rail-fade` plays once, when the view first replaces a loader or a message;
@@ -198,6 +200,7 @@ export function StrategyView({ model, overview, toolbar, main, filters, fade = f
         filters={filters}
         fade={fade}
         hero={hero}
+        compare={compare}
         panelTab={panelTab}
         onPanelTab={setPanelTab}
       />
@@ -213,6 +216,7 @@ function Grid({
   filters,
   fade,
   hero,
+  compare,
   panelTab,
   onPanelTab,
 }: StrategyViewProps & { panelTab: "hand" | "filters"; onPanelTab: (tab: "hand" | "filters") => void }) {
@@ -365,6 +369,12 @@ function Grid({
                 </span>
                 <strong className={styles.actionBoxShare}>{t.shareOnly(action.share)}</strong>
                 <span className={styles.actionBoxCombos}>{t.combosCount(action.combos)}</span>
+                {compare ? (
+                  <span className={styles.actionBoxCompare}>
+                    {compare.label} {t.shareOnly(compare.shares[a] ?? 0)}{" "}
+                    <strong>{compare.shareDelta(action.share - (compare.shares[a] ?? 0))}</strong>
+                  </span>
+                ) : null}
                 <span className={styles.actionTrack} aria-hidden="true">
                   <span className={action.colour} style={{ inlineSize: `${action.share * 100}%` }} />
                 </span>
@@ -401,7 +411,12 @@ function Grid({
               <p className={styles.handHead}>
                 <strong className={styles.handName}>{GRID_CELLS[shown].name}</strong>
                 {shown === heroIndex ? <span className={styles.youTag}>{t.yourHand}</span> : null}
-                {detail.state === "absent" ? null : <span className={styles.handValue}>{t.value(detail.value)}</span>}
+                {detail.state === "absent" ? null : (
+                  <span className={styles.handValue}>
+                    {t.value(detail.value)}
+                    {compare ? <small className={styles.compareDelta}> {t.signedBb(detail.value - compare.classes[shown].value)}</small> : null}
+                  </span>
+                )}
               </p>
               {detail.state === "absent" ? (
                 <p className={analysis.muted}>{t.absent}</p>
@@ -412,7 +427,7 @@ function Grid({
                       <span key={a} className={model.actions[a].colour} style={{ inlineSize: `${f * 100}%` }} />
                     ))}
                   </span>
-                  <EvRows actions={model.actions} ev={detail.ev} freq={detail.freq} />
+                  <EvRows actions={model.actions} ev={detail.ev} freq={detail.freq} base={compare?.classes[shown].ev} />
                   <ul
                     className={styles.tiles}
                     style={{ "--tile-columns": columns } as CSSProperties}
@@ -464,7 +479,7 @@ function Grid({
 }
 
 /** What each action is worth for the shown hand, as bars from zero; the best one stands out. */
-function EvRows({ actions, ev, freq }: { actions: ViewAction[]; ev: number[]; freq: number[] }) {
+function EvRows({ actions, ev, freq, base }: { actions: ViewAction[]; ev: number[]; freq: number[]; base?: number[] }) {
   const t = useSolverDict();
   const shown = ev.filter((_, a) => !actions[a].hidden);
   const lo = Math.min(0, ...shown);
@@ -487,7 +502,10 @@ function EvRows({ actions, ev, freq }: { actions: ViewAction[]; ev: number[]; fr
                 style={{ insetInlineStart: `${ev[a] >= 0 ? zero : zero - width}%`, inlineSize: `${width}%`, opacity: freq[a] >= SHOWN_FREQ ? 1 : 0.5 }}
               />
             </span>
-            <span className={analysis.num}>{t.signedBb(ev[a])}</span>
+            <span className={analysis.num}>
+              {t.signedBb(ev[a])}
+              {base ? <small className={styles.compareDelta}> {t.signedBb(ev[a] - base[a])}</small> : null}
+            </span>
           </li>
         );
       })}

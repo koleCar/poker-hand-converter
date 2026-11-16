@@ -59,8 +59,8 @@ import analysis from "../analysis/analysis.module.css";
 import { FlopPicker } from "./FlopPicker";
 import { loadFullSolve, type FullSolve } from "./fullSolve";
 import { HandFilters } from "./HandFilters";
-import { useSolverHost, type SolverDict } from "./host";
-import { liveTurnId, parseLiveTurnId, solveTurnLive } from "./liveTurn";
+import { useSolverHost, type NodelockAt, type SolverDict, type StrategyCompare } from "./host";
+import { liveTurnCached, liveTurnId, parseLiveTurnId, solveTurnLive } from "./liveTurn";
 import { PreflopBar, type TableOption } from "./PreflopBar";
 import { preflopState } from "./preflop";
 import { filterMasks, useRangeData } from "./rangeData";
@@ -138,7 +138,7 @@ export function SolverLibrary(props: SolverLibraryProps) {
 }
 
 function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTurn, initialPath, initialWalk, onView, hero = null }: SolverLibraryProps) {
-  const { t, loader, fullSolveBase } = useSolverHost();
+  const { t, loader, fullSolveBase, nodelock } = useSolverHost();
   const [setId, setSetId] = useState<string>(
     initialSet && SOLVER_SETS.includes(initialSet) ? initialSet : SOLVER_SETS.includes(DEFAULT_CHART_SET) ? DEFAULT_CHART_SET : SOLVER_SETS[0],
   );
@@ -238,12 +238,17 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
       live = false;
     };
   }, [chunkKey, setId, libraryLine, flopKey, fullSolveBase]);
+  /** The app's nodelock: a locked solution of this flop shown in place of the library's (never on the web). */
+  const override = chunkKey && nodelock?.override?.key === chunkKey ? nodelock.override : null;
   const fullReady = full.key === chunkKey && full.status === "ready";
-  const fullSolve = fullReady ? full.value : null;
+  const fullSolve = fullReady && !override ? full.value : null;
   const librarySolve = chunk.key === chunkKey && chunk.status === "ready" ? chunk.value : null;
-  /** Without a full solve, turns are solved live from the library's chunk. */
-  const liveBase = fullReady && !fullSolve ? librarySolve : null;
-  const flopSolve = fullSolve?.flop ?? librarySolve;
+  const shownFlop = override?.flop ?? librarySolve;
+  /** Without a full solve, turns are solved live from the library's chunk (or the locked one). */
+  const liveBase = fullReady && !fullSolve ? shownFlop : null;
+  const flopSolve = fullSolve?.flop ?? shownFlop;
+  /** Turns solved live from a locked flop are kept apart from the library's. */
+  const liveKey = override?.flop ? `${chunkKey}#${override.id}` : chunkKey;
 
   // A hand's line: followed on the flop's solve, then onto the turn its deal deals - a full solve's file, or solved live.
   const flopWalk = useMemo(() => (walk && flopSolve && picked ? followWalk(flopSolve, walk, picked.perm) : null), [walk, flopSolve, picked]);
@@ -258,14 +263,16 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
   }, [flopWalk, flopSolve, fullReady, fullSolve]);
   const turn = walk ? walkTurn : pickedTurn;
   const live = useMemo(() => (turn?.startsWith("live:") ? parseLiveTurnId(turn.slice(5)) : null), [turn]);
+  /** A turn (or river) lock's solve, in place of this live turn. */
+  const lockedTurn = live && override?.turn?.id === liveTurnId(live.chance, live.card) ? override.turn.chunk : null;
 
-  const turnKey = turn && (live ? liveBase : fullSolve) ? `${chunkKey}/${turn}` : "";
+  const turnKey = turn && (live ? liveBase : fullSolve) ? `${liveKey}/${turn}` : "";
   useEffect(() => {
-    if (!turnKey || !turn) return;
+    if (!turnKey || !turn || lockedTurn) return;
     let alive = true;
     let request: Promise<FlopChunk | null>;
     if (live && liveBase) {
-      request = solveTurnLive(chunkKey, liveBase, live.chance, live.card, (p) => {
+      request = solveTurnLive(liveKey, liveBase, live.chance, live.card, (p) => {
         if (alive) setProgress({ ...p, key: turnKey });
       });
     } else if (fullSolve) {
@@ -282,8 +289,8 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     return () => {
       alive = false;
     };
-  }, [turnKey, turn, live, liveBase, fullSolve, chunkKey, attempt]);
-  const turnSolve = turnChunk.key === turnKey && turnChunk.status === "ready" ? turnChunk.value : null;
+  }, [turnKey, turn, live, liveBase, fullSolve, liveKey, lockedTurn, attempt]);
+  const turnSolve = lockedTurn ?? (turnChunk.key === turnKey && turnChunk.status === "ready" ? turnChunk.value : null);
   const turnWalk = useMemo(
     () => (walk && turn && turnSolve && flopWalk?.card ? followWalk(turnSolve, flopWalk.rest, flopWalk.perm) : null),
     [walk, turn, turnSolve, flopWalk],
@@ -360,6 +367,24 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
 
   const looked = viewing !== null ? (state?.cards.find((c) => c.kind === "past" && c.line === viewing)?.node ?? null) : null;
 
+  // The nodelock slot (the app only): where the view is, on a library flop decision or a live turn's.
+  const at: NodelockAt | null =
+    nodelock && state && solve && picked && flop && librarySolve && libraryLine && flopKey && (!turn || live) && !(looked ?? state.node)
+      ? {
+          set: setId,
+          line: libraryLine.id,
+          flop: flopKey,
+          preflop: state.line,
+          picked,
+          board: live ? [...flop, picked.toPicked(live.card)] : flop,
+          library: librarySolve,
+          chunk: solve,
+          node: nodeIndex,
+          turn: live ? { chance: live.chance, card: live.card } : null,
+          locked: Boolean(override && (live ? lockedTurn || override.flop : override.flop)),
+        }
+      : null;
+
   let body: ReactNode;
   if (!state || !manifest) {
     body = <RailLoader label={t.loadingLibrary} showLabel centered />;
@@ -390,7 +415,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
         </button>
       </div>
     );
-  } else if ((chunk.key === chunkKey && chunk.status === "error" && !fullSolve) || (turn && turnChunk.key === turnKey && turnChunk.status === "error")) {
+  } else if ((chunk.key === chunkKey && chunk.status === "error" && !fullSolve) || (turn && !lockedTurn && turnChunk.key === turnKey && turnChunk.status === "error")) {
     body = (
       <div className={styles.message}>
         <p>{t.loadError}</p>
@@ -411,9 +436,11 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     const include = masks ? masks[solve.result.nodes[nodeIndex].player] : undefined;
     const source = fullSolve ? t.fullNote : turn ? t.liveNote : "";
     const model = flopModel(solve, nodeIndex, picked, goNode, goDeal, source, t, include);
+    const compare = at?.locked && nodelock?.compare ? compareWith(at, chunkKey, include, nodelock.compareLabel, nodelock.shareDelta) : null;
     body = (
       <StrategyView
         model={model}
+        compare={compare}
         hero={hero}
         toolbar={
           <div className={styles.viewTabs} role="tablist" aria-label={t.tabs.label}>
@@ -452,6 +479,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
               setTurn(file);
             }}
             onChange={() => setPicker(true)}
+            action={at && nodelock ? nodelock.nodeAction(at) : null}
             t={t}
           />
         }
@@ -480,6 +508,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
         viewing={looked ? viewing : null}
         onView={setViewing}
       />
+      {nodelock ? nodelock.banner(at) : null}
       {body}
       {pickerOpen ? (
         <FlopPicker
@@ -598,6 +627,35 @@ function flopModel(
   };
 }
 
+/**
+ * GTO at the decision a locked solution shows (the app's nodelock compare):
+ * the library's flop decision on the same path, or on a turn the library's
+ * own live turn when it was solved this session. Null when there is none, or
+ * the trees differ.
+ */
+function compareWith(
+  at: NodelockAt,
+  chunkKey: string,
+  include: Uint8Array | undefined,
+  label: string,
+  shareDelta: (delta: number) => string,
+): StrategyCompare | null {
+  const base = at.turn ? liveTurnCached(chunkKey, at.turn.chance, at.turn.card) : at.library;
+  if (!base) return null;
+  const shown = at.chunk.result.nodes[at.node];
+  const index = nodeAt(base.result, shown.path);
+  const node = base.result.nodes[index];
+  if (!node || node.kind !== "action" || node.actions.length !== shown.actions.length) return null;
+  const sameHands = base.result.hands[node.player].length === at.chunk.result.hands[shown.player].length;
+  const view = exploreNode(base, index, sameHands ? include : undefined);
+  return {
+    label,
+    shareDelta,
+    shares: view.totals.map((x) => x.share),
+    classes: view.classes.map((c) => ({ freq: c.freq, ev: c.ev, value: c.value })),
+  };
+}
+
 /* --------------------------------------------------------- the overviews - */
 
 function PreflopOverview({ node, t }: { node: ChartNode; t: Dict }) {
@@ -631,6 +689,7 @@ function FlopOverview({
   onFlop,
   onTurn,
   onChange,
+  action,
   t,
 }: {
   where: Where;
@@ -642,6 +701,8 @@ function FlopOverview({
   onFlop: (node: number) => void;
   onTurn: (file: string, node: number) => void;
   onChange: () => void;
+  /** The app's Nodelock action for this decision, or null. */
+  action: ReactNode;
   t: Dict;
 }) {
   const chunk = where.turn ?? where.flop;
@@ -692,9 +753,12 @@ function FlopOverview({
           {t.flop.change}
         </button>
       </div>
-      <p className={styles.overviewTitle}>
-        <strong>{t.panel.toAct(view.position)}</strong> <span className={analysis.muted}>{t.panel.pot(view.pot, view.toCall)}</span>
-      </p>
+      <div className={styles.overviewHead}>
+        <p className={styles.overviewTitle}>
+          <strong>{t.panel.toAct(view.position)}</strong> <span className={analysis.muted}>{t.panel.pot(view.pot, view.toCall)}</span>
+        </p>
+        {action}
+      </div>
       <nav className={styles.history} aria-label={t.panel.history}>
         <button type="button" className={styles.step} disabled={!where.turn && index === 0} onClick={() => onFlop(0)}>
           {t.panel.start}

@@ -286,7 +286,7 @@ Each has a lint rule or test behind it; reasons in
   [WEB.md, "The refusal principle"](../docs/WEB.md#the-refusal-principle).
 - **Hand histories never leave the tab** on `/convert` and
   `/convert/manual` unless the signed-in user saves. Original files are
-  uploaded only with "Also keep the original files" ticked.
+  never uploaded.
 - **The pure layer is framework-free.** Nothing under
   `src/lib/{phf,parsers,replay,cards,format,stats}` imports `next/*`,
   `server-only` or reads `process.env`.

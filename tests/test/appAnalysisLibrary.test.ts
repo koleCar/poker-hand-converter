@@ -84,6 +84,8 @@ describe("the app's analysis and the web's library", () => {
       "app/src/analysis/sheetWords.ts",
       // The web's Solver library, in place (the Solver tab, the analysis' split view).
       "app/src/solver/door.ts",
+      // The nodelock engine's lock model and solver (docs/NODELOCK.md §2.5); its workers bundle no React.
+      "app/src/solver/nodelock/engine/door.ts",
       // The web's Trainer, in place (the Trainer screen), and its worker's pure jobs.
       "app/src/trainer/door.ts",
       "app/src/trainer/jobs.ts",

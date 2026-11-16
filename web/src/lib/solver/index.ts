@@ -21,6 +21,8 @@
  * explore.ts      one chunk node at a time: mix and EV per class and combo (the Solver library tab)
  * ranges.ts       both ranges at a node: EV, equity, made hands and draws, the hand filter (the Ranges tab)
  * lock.ts         the exploit lab (Learn L4): lock a node, best-respond, gain and risk
+ * split.ts        a flop solve split over turn cards, bit-identical (nodelock, docs/NODELOCK.md §2.2)
+ * nodelock.ts     the nodelock model (LockSet, lockHash) and the locked solve (§1, §2.3-2.4)
  * ```
  *
  * **Import rule: this module may import only `lib/phf/types`, `lib/cards` and
@@ -36,7 +38,10 @@
  */
 
 export {
+  combineConstantSums,
   DEFAULT_DCFR,
+  exploitabilityOf,
+  isPlaceholder,
   Solver,
   type BestResponseRow,
   type ChanceSampling,
@@ -46,13 +51,54 @@ export {
   type RunProgress,
   type RunResult,
   type SolverConfig,
+  type TraversalKind,
+  type TraversalState,
+  type UnitValues,
 } from "./cfr";
+export {
+  applyNodelock,
+  canonicalJson,
+  chunkBaseline,
+  earlierNodes,
+  lockedNodes,
+  lockFlopCards,
+  lockGameStreet,
+  lockHash,
+  lockPathOf,
+  lockSymmetries,
+  NodelockError,
+  nodelockHeader,
+  sha256Hex,
+  splitLockPath,
+  type AppliedLocks,
+  type BaselineStrategy,
+  type LockEarlier,
+  type LockSet,
+  type NodeLockSpec,
+} from "./nodelock";
+export {
+  driveAsync,
+  driveSync,
+  solveFlopSplit,
+  SplitCoordinator,
+  SplitPart,
+  splitCards,
+  unitNodes,
+  valuesSource,
+  type SplitRun,
+  type SplitSpec,
+  type SplitStep,
+} from "./split";
 export {
   comboCards,
   comboCode,
+  comboRowsToHands,
+  combosToHands,
   comboHi,
   comboIndex,
   comboLo,
+  handRowsToCombos,
+  handsToCombos,
   NUM_COMBOS,
   parseCards,
   parseCombo,
@@ -117,6 +163,7 @@ export {
   spotSymmetries,
   SUIT_PERMUTATIONS,
   SYMMETRY_TOLERANCE,
+  restrictSymmetries,
   symmetrize,
   type CanonicalBoard,
   type CanonicalSpot,
@@ -124,6 +171,7 @@ export {
 export {
   buildFlopGame,
   solveFlop,
+  type FlopBuildOptions,
   type FlopProgress,
   type FlopSolve,
   type FlopSolveOptions,

@@ -1,8 +1,8 @@
 /**
- * Batch conversion — the "Many hands" mode of the upload tab.
+ * The upload page: the one box (`upload/UploadBox`) and the batch conversion.
  *
- * The single-hand path is `upload/SingleHandPanel`; `upload/UploadTab` picks
- * between them. This file is everything that only matters in bulk: a worker, a
+ * A pasted hand is replayed by `upload/ReplayPanel` (the `replay` slot, under
+ * the box). This file is everything else, which only matters in bulk: a worker, a
  * progress bar, coalesced state flushes, the save and a failure corpus.
  *
  * What it does, in order: take files (dropped, picked, pasted, zipped or in a
@@ -33,9 +33,7 @@
  *    for an account. When a run finishes with nobody signed in, the results are
  *    held in memory and offered — "sign in to save these 412 hands" — so the
  *    work is never lost and the login never arrives before the value does.
- *  * **Originals stay in the tab** unless the user ticks "keep the original
- *    files" (A2): then each file is stored, compressed, in their private
- *    folder of the `hand-uploads` bucket. Off by default, every visit.
+ *  * **Originals stay in the tab**: only the converted hands are saved.
  *
  * The page stays fully usable with no database and with no account: conversion,
  * preview, download and the replayer hand-off never touch Supabase.
@@ -43,7 +41,7 @@
 
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../lib/auth";
@@ -63,7 +61,7 @@ import type { SourceInfo } from "./converter/bulkRun";
 import { createBulkSaver, type BulkSaver, type SaveProgress } from "./converter/bulkSaver";
 import { uploadActivityOf } from "../lib/live/activity";
 import { useUploadPresence } from "./live/useLiveActivity";
-import { DropZone } from "./converter/DropZone";
+import { UploadBox } from "./upload/UploadBox";
 import { FailurePanel } from "./converter/FailurePanel";
 import { HandPreview } from "./converter/HandPreview";
 import { ResultsPanel } from "./converter/ResultsPanel";
@@ -124,6 +122,10 @@ interface ConverterTabProps {
    * a loaded hand to the replayer directly.
    */
   onOpenHand?: (hand: PhfHand, standardText: string) => void;
+  /** Pasted text the user wants replayed (its first hand). */
+  onReplay?: (text: string) => void;
+  /** Rendered right under the box: the replayed hand. */
+  replay?: ReactNode;
 }
 
 function readAutoSavePreference(): boolean {
@@ -203,7 +205,7 @@ function toSaveState(progress: SaveProgress | null, pausedMessage: string | null
   };
 }
 
-export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
+export function ConverterTab({ onHandsSaved, onOpenHand, onReplay, replay }: ConverterTabProps) {
   const dict = useDict();
   const t = dict.converter.batch;
   const capText = dict.planNotice.converter;
@@ -229,7 +231,6 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
   const [recorded, setRecorded] = useState<{ created: number; updated: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [autoSave, setAutoSave] = useState(readAutoSavePreference);
-  const [keepOriginals, setKeepOriginals] = useState(false);
   const [preview, setPreview] = useState<PhfHand | null>(null);
   const [usedWorker, setUsedWorker] = useState<boolean | null>(null);
   const [held, setHeld] = useState<HeldSave | null>(null);
@@ -247,8 +248,6 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
   // would otherwise close over a stale toggle.
   const autoSaveRef = useRef(autoSave);
   autoSaveRef.current = autoSave;
-  const keepOriginalsRef = useRef(keepOriginals);
-  keepOriginalsRef.current = keepOriginals;
   const signedInRef = useRef(auth.isSignedIn);
   signedInRef.current = auth.isSignedIn;
 
@@ -390,12 +389,11 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
 
   /** A saver for this tab's session; `manifest` null for held hands (no resume). */
   const makeSaver = useCallback(
-    (userId: string, manifest: UploadManifest, manifests: ManifestStore | null): BulkSaver => {
+    (manifest: UploadManifest, manifests: ManifestStore | null): BulkSaver => {
       const saver = createBulkSaver({
         api: createUploadApi(requireDb() as unknown as UploadClient),
         store: manifests,
         manifest,
-        userId,
         ack: (batches) => jobRef.current?.ack(batches),
         onChange: onSaveChange,
         onDone: afterSave,
@@ -427,7 +425,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
         return;
       }
       setLegacySave(IDLE_SAVE);
-      const saver = makeSaver(userId, newManifest(userId, [], false), null);
+      const saver = makeSaver(newManifest(userId, []), null);
       saver.addHands(hands);
       saver.close();
     },
@@ -531,13 +529,12 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
       // Save as we go when the user can: database, switch on, signed in.
       let saver: BulkSaver | null = null;
       let resume = { done: [] as string[], batches: [] as Array<[string, number]> };
-      const keep = keepOriginalsRef.current;
       const userId = isDatabaseConfigured && autoSaveRef.current && signedInRef.current ? await currentUserId() : null;
       if (userId) {
         const manifests = store();
         let manifest: UploadManifest;
         if (unfinished && unfinished.userId === userId && isSameUpload(unfinished, inputs)) {
-          manifest = { ...unfinished, keepOriginals: keep };
+          manifest = { ...unfinished };
           try {
             resume = resumeStateOf((await manifests?.sources(manifest.id)) ?? []);
           } catch {
@@ -547,7 +544,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
           if (unfinished) {
             void manifests?.remove(unfinished.id).catch(() => undefined);
           }
-          manifest = newManifest(userId, inputs, keep);
+          manifest = newManifest(userId, inputs);
           try {
             await manifests?.put(manifest);
           } catch {
@@ -555,7 +552,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
           }
         }
         setResumable(null);
-        saver = makeSaver(userId, manifest, manifests);
+        saver = makeSaver(manifest, manifests);
       }
 
       const retainedHands: PhfHand[] = [];
@@ -571,14 +568,12 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
           // Everything converts: the old tab was cash-only, but a user with a
           // tournament history wants it converted, not silently dropped.
           options: { validate: true },
-          keepOriginals: saver !== null && keep,
           resume,
           window: WORKER_WINDOW,
         },
         {
           onSource: (info) => {
             resultsRef.current.set(info.id, toResult(info));
-            saver?.addSource(info);
             schedulePublish();
           },
           onConsumed: (consumed) => {
@@ -779,11 +774,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
     if (!upload || upload.state === "cancelled") {
       return null;
     }
-    const lines = [t.saveLive(upload.inserted, upload.duplicates, upload.refused)];
-    if (upload.originalsStored > 0) {
-      lines.push(t.originalsKept(upload.originalsStored, formatBytes(upload.originalsBytes, locale)));
-    }
-    return lines.join(" · ");
+    return t.saveLive(upload.inserted, upload.duplicates, upload.refused);
   })();
 
   const saveStatus = (() => {
@@ -825,71 +816,107 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
   const hasFinished = hasResults && !converting;
   const recordedNow = upload?.failuresRecorded ?? recorded;
 
+  const progressView = (
+    <div className="conv-progress" aria-live="polite">
+      <div className="conv-progress__head">
+        <strong>
+          {reading
+            ? t.readingFiles
+            : progress.current
+              ? t.convertingFile(progress.current.name)
+              : converting
+                ? t.converting
+                : saveLine}
+        </strong>
+        {busy ? (
+          <button type="button" className="btn btn--ghost btn--sm" onClick={() => jobRef.current?.cancel()}>
+            {t.stop}
+          </button>
+        ) : upload?.state === "paused" ? (
+          <button type="button" className="btn btn--ghost btn--sm" onClick={() => saverRef.current?.resume()}>
+            {t.saveRetry}
+          </button>
+        ) : null}
+      </div>
+      <div
+        className="conv-bar"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={progress.percent}
+      >
+        <span className="conv-bar__fill" style={{ width: `${Math.max(2, progress.percent)}%` }} />
+      </div>
+      <p className="muted conv-progress__detail">
+        {t.progressBulk(
+          progress.handsDone,
+          progress.filesDone,
+          formatBytes(read.bytes, locale),
+          formatBytes(read.total, locale),
+          progress.percent,
+        )}
+      </p>
+      {busy && saveLine ? <p className="muted conv-progress__detail">{saveLine}</p> : null}
+      {read.done > 0 ? <p className="muted conv-progress__detail">{t.resumed(read.done)}</p> : null}
+      {saveStatus ? <p className="notice notice--warn conv-progress__detail">{saveStatus}</p> : null}
+    </div>
+  );
+
   return (
     <div className="conv">
-      <section className="card conv-intro">
-        <DropZone onFiles={handleFiles} onText={handleText} busy={busy || saving} siteNames={siteNames} />
-
-        <div className="conv-controls">
-          <div className="conv-switches">
-            <label className={`conv-switch ${!isDatabaseConfigured ? "is-disabled" : ""}`}>
-              <input
-                type="checkbox"
-                checked={autoSave}
-                disabled={!isDatabaseConfigured}
-                onChange={(event) => {
-                  setAutoSave(event.target.checked);
-                  try {
-                    localStorage.setItem(AUTO_SAVE_KEY, event.target.checked ? "on" : "off");
-                  } catch {
-                    // Preference is a nicety; losing it is not worth an error.
-                  }
-                }}
-              />
-              <span className="conv-switch__track" aria-hidden="true">
-                <span className="conv-switch__thumb" />
-              </span>
-              <span className="conv-switch__text">
-                <strong>{t.autoSave}</strong>
-                {/* Only the two cases a person cannot work out for themselves:
-                    the feature is missing, or it needs an account they have not
-                    got yet. When it simply works, the toggle says everything. */}
-                {!isDatabaseConfigured ? (
-                  <small>{t.autoSaveUnavailable}</small>
-                ) : !auth.isSignedIn ? (
-                  <small>{t.autoSaveSignedOut}</small>
-                ) : null}
-              </span>
-            </label>
-
-            {/* A2: the original files leave the tab only on this explicit,
-                per-visit opt-in, and only into the user's own private folder. */}
-            {isDatabaseConfigured && autoSave && auth.isSignedIn ? (
-              <label className="conv-switch">
-                <input
-                  type="checkbox"
-                  checked={keepOriginals}
-                  disabled={busy || saving}
-                  onChange={(event) => setKeepOriginals(event.target.checked)}
-                />
-                <span className="conv-switch__track" aria-hidden="true">
-                  <span className="conv-switch__thumb" />
-                </span>
-                <span className="conv-switch__text">
-                  <strong>{t.keepOriginals}</strong>
-                  <small>{t.keepOriginalsHint}</small>
-                </span>
-              </label>
+      <UploadBox
+        onFiles={handleFiles}
+        onConvertText={handleText}
+        onReplay={(text) => onReplay?.(text)}
+        busy={busy || saving}
+        siteNames={siteNames}
+        status={showProgress ? progressView : null}
+        controls={
+          <label className={`conv-switch ${!isDatabaseConfigured ? "is-disabled" : ""}`}>
+            <input
+              type="checkbox"
+              checked={autoSave}
+              disabled={!isDatabaseConfigured}
+              onChange={(event) => {
+                setAutoSave(event.target.checked);
+                try {
+                  localStorage.setItem(AUTO_SAVE_KEY, event.target.checked ? "on" : "off");
+                } catch {
+                  // Preference is a nicety; losing it is not worth an error.
+                }
+              }}
+            />
+            <span className="conv-switch__track" aria-hidden="true">
+              <span className="conv-switch__thumb" />
+            </span>
+            <span className="conv-switch__text">
+              <strong>{t.autoSave}</strong>
+              {/* Only the two cases a person cannot work out for themselves. */}
+              {!isDatabaseConfigured ? (
+                <small>{t.autoSaveUnavailable}</small>
+              ) : !auth.isSignedIn ? (
+                <small>{t.autoSaveSignedOut}</small>
+              ) : null}
+            </span>
+          </label>
+        }
+        links={
+          <>
+            {sources.length > 0 && !busy ? (
+              <button type="button" className="upload__link" onClick={reset}>
+                {t.startOver}
+              </button>
             ) : null}
-          </div>
+            <Link href={paths.convertManual()} className="upload__link">
+              {dict.manual.entry}
+            </Link>
+          </>
+        }
+      />
 
-          {sources.length > 0 ? (
-            <button type="button" className="btn btn--ghost" onClick={reset} disabled={busy}>
-              {t.startOver}
-            </button>
-          ) : null}
-        </div>
+      {replay}
 
+      <section className="conv-notices">
         {!isDatabaseConfigured ? (
           <p className="notice notice--warn">{t.dbNotConfigured}</p>
         ) : null}
@@ -944,51 +971,6 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
         {error ? <p className="notice notice--error">{error}</p> : null}
       </section>
 
-      {showProgress ? (
-        <section className="card conv-progress rail-enter" aria-live="polite">
-          <div className="conv-progress__head">
-            <strong>
-              {reading
-                ? t.readingFiles
-                : progress.current
-                  ? t.convertingFile(progress.current.name)
-                  : converting
-                    ? t.converting
-                    : saveLine}
-            </strong>
-            {busy ? (
-              <button type="button" className="btn btn--ghost btn--sm" onClick={() => jobRef.current?.cancel()}>
-                {t.stop}
-              </button>
-            ) : upload?.state === "paused" ? (
-              <button type="button" className="btn btn--ghost btn--sm" onClick={() => saverRef.current?.resume()}>
-                {t.saveRetry}
-              </button>
-            ) : null}
-          </div>
-          <div
-            className="conv-bar"
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={progress.percent}
-          >
-            <span className="conv-bar__fill" style={{ width: `${Math.max(2, progress.percent)}%` }} />
-          </div>
-          <p className="muted conv-progress__detail">
-            {t.progressBulk(
-              progress.handsDone,
-              progress.filesDone,
-              formatBytes(read.bytes, locale),
-              formatBytes(read.total, locale),
-              progress.percent,
-            )}
-          </p>
-          {busy && saveLine ? <p className="muted conv-progress__detail">{saveLine}</p> : null}
-          {read.done > 0 ? <p className="muted conv-progress__detail">{t.resumed(read.done)}</p> : null}
-          {saveStatus ? <p className="notice notice--warn conv-progress__detail">{saveStatus}</p> : null}
-        </section>
-      ) : null}
 
       {hasFinished && read.other > 0 ? (
         <p className="muted conv-footnote">{t.skippedOther(read.other)}</p>

@@ -410,7 +410,7 @@ describeStack("web/app parity (R4.4)", () => {
     const sourcePaths = new Map<string, string>();
     const converted = new Map<string, Map<string, string>>();
     const started = Date.now();
-    const manifest = newManifest(webUser.id, files.map((path) => ({ path, size: statSync(join(ROOT, path)).size })), false);
+    const manifest = newManifest(webUser.id, files.map((path) => ({ path, size: statSync(join(ROOT, path)).size })));
     let run: ReturnType<typeof startBulkRun> | null = null;
     let finish!: (progress: SaveProgress) => void;
     const saved = new Promise<SaveProgress>((resolve) => {
@@ -420,7 +420,6 @@ describeStack("web/app parity (R4.4)", () => {
       api: createUploadApi(webClient),
       store: null,
       manifest,
-      userId: webUser.id,
       ack: (batches) => run?.ack(batches),
       onDone: finish,
     });
@@ -431,7 +430,6 @@ describeStack("web/app parity (R4.4)", () => {
         jobId: 1,
         items,
         options: { validate: true },
-        keepOriginals: false,
         resume: { done: [], batches: [] },
         window: 4,
       },
@@ -441,7 +439,6 @@ describeStack("web/app parity (R4.4)", () => {
         if (m.type === "bulk-source") {
           // A dropped file's key is `f|<path>|<size>|<mtime>`.
           sourcePaths.set(m.source.id, m.source.key.split("|")[1] ?? m.source.name);
-          saver.addSource(m.source);
         } else if (m.type === "bulk-batch") {
           const { type: _type, jobId: _job, ...batch } = m;
           for (const [i, hand] of batch.hands.entries()) {

@@ -14,7 +14,7 @@ import { runSourceStream, type SourceStart, type StreamBatch } from "./pipeline"
 
 /** What an earlier attempt of the same upload already stored. */
 export interface ResumeState {
-  /** Source keys whose hands (and original, when kept) are all stored. */
+  /** Source keys whose hands are all stored. */
   done: string[];
   /** Source keys with a stored prefix of batches, and how many. */
   batches: Array<[string, number]>;
@@ -25,7 +25,6 @@ export interface BulkRequest {
   jobId: number;
   items: InputItem[];
   options: ConvertOptions;
-  keepOriginals: boolean;
   resume: ResumeState;
   /** Batches that may be posted before an acknowledgement is awaited. */
   window: number;
@@ -83,7 +82,6 @@ export function startBulkRun(
 
   const sources = readInputs(request.items, {
     idPrefix: `j${jobId}`,
-    keepOriginals: request.keepOriginals,
     isDone: (key) => done.has(key),
     isCancelled,
     onConsumed: (bytes, skipped) => {
@@ -104,7 +102,6 @@ export function startBulkRun(
         bytes: source.bytes,
         encoding: source.encoding,
         problem: source.problem,
-        original: source.original,
       };
       post({ type: "bulk-source", jobId, source: info });
     },

@@ -97,8 +97,7 @@ export async function capture(browser: Browser): Promise<void> {
   await settle(page, 1200);
   await rec.shot(page, 'upload', {
     tab: page.getByRole('tab', { name: 'Upload hand' }),
-    drop: '.conv-drop',
-    paste: '.single',
+    drop: '.upbox',
   });
   await context.close();
 

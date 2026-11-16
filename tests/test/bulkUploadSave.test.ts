@@ -9,7 +9,6 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { createBulkSaver, ingestRowOf, type SaverOptions } from "../../web/src/components/converter/bulkSaver";
-import type { SourceInfo } from "../../web/src/components/converter/bulkRun";
 import type { StreamBatch } from "../../web/src/components/converter/pipeline";
 import {
   isSameUpload,
@@ -60,16 +59,13 @@ function deferred() {
   return { promise, resolve };
 }
 
-/** An `ingest_hands` and Storage that behave like the real ones, with scripted failures. */
+/** An `ingest_hands` that behaves like the real one, with scripted failures. */
 function fakeServer() {
   const stored = new Map<string, IngestRow>();
-  const objects = new Map<string, Blob>();
   const calls: IngestRow[][] = [];
   const failures: Array<UploadError | null> = [];
-  const originalFailures: Array<UploadError | null> = [];
   let registered = 0;
   let gate: Promise<void> | null = null;
-  let originalGate: Promise<void> | null = null;
   const recorded: ConversionFailure[][] = [];
   const api: UploadApi = {
     userId: async () => "user-1",
@@ -102,14 +98,6 @@ function fakeServer() {
       }
       return report;
     },
-    storeOriginal: async (path, blob) => {
-      if (originalGate) await originalGate;
-      const scripted = originalFailures.shift();
-      if (scripted) throw scripted;
-      if (objects.has(path)) return "exists";
-      objects.set(path, blob);
-      return "stored";
-    },
     recordFailures: async (batch) => {
       recorded.push(batch);
       return { created: batch.length, updated: 0 };
@@ -118,24 +106,19 @@ function fakeServer() {
   return {
     api,
     stored,
-    objects,
     calls,
     failures,
-    originalFailures,
     recorded,
     registered: () => registered,
     setGate: (p: Promise<void> | null) => {
       gate = p;
-    },
-    setOriginalGate: (p: Promise<void> | null) => {
-      originalGate = p;
     },
   };
 }
 
 function saverFor(server: ReturnType<typeof fakeServer>, overrides: Partial<SaverOptions> = {}) {
   const store = overrides.store === undefined ? memoryManifestStore() : overrides.store;
-  const manifest = overrides.manifest ?? newManifest("user-1", [{ path: "export.zip", size: 1000 }], false, "upload-1");
+  const manifest = overrides.manifest ?? newManifest("user-1", [{ path: "export.zip", size: 1000 }], "upload-1");
   const acks: number[] = [];
   const sleeps: number[] = [];
   const states: string[] = [];
@@ -143,7 +126,6 @@ function saverFor(server: ReturnType<typeof fakeServer>, overrides: Partial<Save
     api: server.api,
     store,
     manifest,
-    userId: "user-1",
     ack: (n) => acks.push(n),
     sleep: async (ms) => {
       sleeps.push(ms);
@@ -341,7 +323,7 @@ describe("resuming an upload", () => {
   it("a resumed run picks up the counts, and its repeats are duplicates, never copies", async () => {
     const server = fakeServer();
     const store = memoryManifestStore();
-    const manifest = newManifest("user-1", [{ path: "export.zip", size: 1000 }], false, "upload-1");
+    const manifest = newManifest("user-1", [{ path: "export.zip", size: 1000 }], "upload-1");
     server.failures.push(null, new UploadError("rate-limited-day", "desktop_ingest_day:"));
     const first = saverFor(server, { store, manifest, maxHandsPerCall: 50 });
     for (const batch of batches("A", "a", 100, 50)) first.saver.addBatch(batch);
@@ -362,57 +344,7 @@ describe("resuming an upload", () => {
   });
 });
 
-/* ----------------------------------------------------------- originals - */
 
-describe("kept originals (A2's opt-in)", () => {
-  const source = (key: string, path: string, text = "the original"): SourceInfo => ({
-    id: `id-${key}`,
-    key,
-    name: path,
-    bytes: text.length,
-    encoding: "UTF-8",
-    original: { path, blob: new Blob([text]) },
-  });
-
-  it("go under <uid>/<upload id>/, and a source is done only once its original is stored", async () => {
-    const server = fakeServer();
-    const gate = deferred();
-    server.setOriginalGate(gate.promise);
-    const { saver, store, manifest } = saverFor(server);
-    saver.addSource(source("A", "export.zip/a.txt.0000.gz"));
-    for (const batch of batches("A", "a", 10, 10)) saver.addBatch(batch);
-    saver.endSource("A");
-    await vi.waitFor(() => expect(server.stored.size).toBe(10));
-    expect((await store!.sources(manifest.id)).find((r) => r.key === "A")?.done ?? false).toBe(false);
-    server.setOriginalGate(null);
-    gate.resolve();
-    saver.close();
-    const done = await saver.idle();
-    expect(done).toMatchObject({ originalsStored: 1, sourcesDone: 1 });
-    expect([...server.objects.keys()]).toEqual(["user-1/upload-1/export.zip/a.txt.0000.gz"]);
-  });
-
-  it("an original already stored by an earlier attempt counts as stored", async () => {
-    const server = fakeServer();
-    server.objects.set("user-1/upload-1/a.gz", new Blob(["x"]));
-    const { saver } = saverFor(server);
-    saver.addSource(source("A", "a.gz"));
-    saver.endSource("A");
-    saver.close();
-    expect(await saver.idle()).toMatchObject({ originalsStored: 1, originalsFailed: 0, sourcesDone: 1 });
-  });
-
-  it("an original the server refuses does not hold the hands up", async () => {
-    const server = fakeServer();
-    server.originalFailures.push(new UploadError("refused", "storage: Payload too large"));
-    const { saver } = saverFor(server);
-    saver.addSource(source("A", "a.gz"));
-    for (const batch of batches("A", "a", 10, 10)) saver.addBatch(batch);
-    saver.endSource("A");
-    saver.close();
-    expect(await saver.idle()).toMatchObject({ state: "done", inserted: 10, originalsStored: 0, originalsFailed: 1, sourcesDone: 1 });
-  });
-});
 
 /* ------------------------------------------------------------ the calls - */
 
@@ -432,26 +364,16 @@ describe("the calls and their failures", () => {
 
   function fakeClient(answers: {
     rpc?: (fn: string, args: Record<string, unknown>) => unknown;
-    upload?: (path: string) => unknown;
   }) {
     const rpcCalls: Array<[string, Record<string, unknown>]> = [];
-    const uploads: Array<[string, string, Record<string, unknown>, string]> = [];
     const client: UploadClient = {
       auth: { getSession: async () => ({ data: { session: { user: { id: "user-1" } } } }) },
       rpc: async (fn, args) => {
         rpcCalls.push([fn, args]);
         return answers.rpc!(fn, args) as Awaited<ReturnType<UploadClient["rpc"]>>;
       },
-      storage: {
-        from: (bucket) => ({
-          upload: async (path, body, options) => {
-            uploads.push([bucket, path, options, body.type]);
-            return answers.upload!(path) as Awaited<ReturnType<ReturnType<UploadClient["storage"]["from"]>["upload"]>>;
-          },
-        }),
-      },
     };
-    return { api: createUploadApi(client), rpcCalls, uploads };
+    return { api: createUploadApi(client), rpcCalls };
   }
 
   it("sends rows to ingest_hands from the web source and reads its report", async () => {
@@ -487,22 +409,4 @@ describe("the calls and their failures", () => {
     await expect(api.registerWebSource()).rejects.toMatchObject({ kind: "transient" });
   });
 
-  it("stores an original privately as gzip, without overwriting; an existing object is success", async () => {
-    const answers: Record<string, unknown> = {
-      "u/1/new.gz": { data: { path: "u/1/new.gz" }, error: null },
-      "u/1/old.gz": { data: null, error: Object.assign(new Error("The resource already exists"), { status: 400, statusCode: "409" }) },
-      "u/1/big.gz": { data: null, error: Object.assign(new Error("Payload too large"), { status: 413, statusCode: "413" }) },
-      "u/1/rls.gz": { data: null, error: Object.assign(new Error("new row violates row-level security policy"), { status: 400, statusCode: "403" }) },
-      "u/1/down.gz": { data: null, error: Object.assign(new Error("fetch failed"), { name: "StorageUnknownError" }) },
-    };
-    const { api, uploads } = fakeClient({ upload: (path) => answers[path] });
-    const blob = new Blob(["x"]);
-    expect(await api.storeOriginal("u/1/new.gz", blob)).toBe("stored");
-    expect(await api.storeOriginal("u/1/old.gz", blob)).toBe("exists");
-    await expect(api.storeOriginal("u/1/big.gz", blob)).rejects.toMatchObject({ kind: "refused" });
-    await expect(api.storeOriginal("u/1/rls.gz", blob)).rejects.toMatchObject({ kind: "refused" });
-    await expect(api.storeOriginal("u/1/down.gz", blob)).rejects.toMatchObject({ kind: "transient" });
-    // storage-js sends a Blob with its own type: an untyped one would be refused by the bucket.
-    expect(uploads[0]).toEqual(["hand-uploads", "u/1/new.gz", { contentType: "application/gzip", upsert: false, cacheControl: "3600" }, "application/gzip"]);
-  });
 });

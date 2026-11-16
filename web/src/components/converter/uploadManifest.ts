@@ -7,7 +7,7 @@
  * die with the tab. So an interrupted upload - tab closed, page reloaded,
  * network gone for longer than the retries, the day's budget spent - resumes
  * when **the user drops the same files or folder again**. The converter then
- * skips every file whose hands (and original, when kept) are all stored, and
+ * skips every file whose hands are all stored, and
  * inside a half-stored file the batches already stored: only the rest is
  * read, converted and sent. The page says so when it opens with an unfinished
  * upload ("412 of 1 030 files saved - drop the same files again to finish").
@@ -33,7 +33,6 @@ export interface UploadCounts {
   duplicates: number;
   refused: number;
   sourcesDone: number;
-  originalsStored: number;
 }
 
 export interface UploadManifest {
@@ -41,7 +40,6 @@ export interface UploadManifest {
   userId: string;
   createdAt: string;
   updatedAt: string;
-  keepOriginals: boolean;
   /** The dropped inputs (first 200), to recognise the same drop again. */
   inputs: Array<{ path: string; size: number }>;
   inputCount: number;
@@ -55,7 +53,7 @@ export interface SourceRecord {
   key: string;
   /** Batches of this source stored, from its first. */
   batches: number;
-  /** Every hand (and the original, when kept) stored. */
+  /** Every hand stored. */
   done: boolean;
 }
 
@@ -73,7 +71,6 @@ export const EMPTY_COUNTS: UploadCounts = {
   duplicates: 0,
   refused: 0,
   sourcesDone: 0,
-  originalsStored: 0,
 };
 
 const MAX_LISTED_INPUTS = 200;
@@ -81,7 +78,6 @@ const MAX_LISTED_INPUTS = 200;
 export function newManifest(
   userId: string,
   inputs: Array<{ path: string; size: number }>,
-  keepOriginals: boolean,
   id: string = randomId(),
   now: Date = new Date(),
 ): UploadManifest {
@@ -90,7 +86,6 @@ export function newManifest(
     userId,
     createdAt: now.toISOString(),
     updatedAt: now.toISOString(),
-    keepOriginals,
     inputs: inputs.slice(0, MAX_LISTED_INPUTS),
     inputCount: inputs.length,
     inputBytes: inputs.reduce((sum, input) => sum + input.size, 0),

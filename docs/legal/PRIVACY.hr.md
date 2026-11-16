@@ -52,10 +52,7 @@ profila), kao i sve što objaviš na forumu.
   Railov format ruke), polja za pretragu izvedena iz njega i naziv datoteke
   iz koje je došla; za ruke spremljene iz jednog pokretanja konvertera i
   pretvoreni te izvorni tekst povijesti ruke. Skupni prijenos sprema samo
-  strukturirani dokument.
-- **Izvorne datoteke** skupnog prijenosa spremaju se samo ako za taj prijenos
-  označiš "Zadrži i izvorne datoteke" (komprimirane, u privatnom spremištu
-  koje čita samo tvoj račun).
+  strukturirani dokument; njegove izvorne datoteke se ne šalju.
 - **Desktop aplikacija** sprema ruke u bazu na tvom računalu. Kad si prijavljen
   i sinkronizacija je uključena, šalje strukturirani dokument i statistiku po
   sjedalu za svaku ruku - nikad izvorne datoteke ni njihov tekst.

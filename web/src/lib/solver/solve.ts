@@ -145,18 +145,22 @@ export function extract(
   solver: Solver,
   run: RunResult,
   scope: "all" | "turn" | "flop" = "all",
+  /** The solver's `evaluate` already run with the scope's nodes recorded (a split solve's, `split.ts`). */
+  evaluatedAlready?: { value: [number, number]; rootEv: [Float64Array, Float64Array] },
 ): SolveResult {
   const { game } = built;
   const tree = game.tree;
   // A partial result stops at the first deal below its street.
   const turnOnly = scope !== "all";
-  const evaluated = solver.evaluate(
-    scope === "turn"
-      ? (node) => built.info[node]?.street !== "river"
-      : scope === "flop"
-        ? (node) => built.info[node]?.street === "flop"
-        : undefined,
-  );
+  const evaluated =
+    evaluatedAlready ??
+    solver.evaluate(
+      scope === "turn"
+        ? (node) => built.info[node]?.street !== "river"
+        : scope === "flop"
+          ? (node) => built.info[node]?.street === "flop"
+          : undefined,
+    );
   const ev = solver.ev as Float32Array;
   const evOffset = solver.evOffset as Int32Array;
   const nodes: SolvedNode[] = [];

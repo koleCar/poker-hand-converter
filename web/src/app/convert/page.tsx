@@ -19,9 +19,8 @@ import { paths } from "../../lib/routes";
  * before any hand is read and carrying nothing of the user's — and (b) an
  * *explicit, opt-in* save to the user's library when they are signed in and
  * have left "Save to my library" on — the converted hands, without their
- * original text; the original files themselves only if they also tick "Also
- * keep the original files" (off by default, every visit), into their own
- * private Storage folder (A2, R4.2); while that save runs, its progress -
+ * original text (the original files are never uploaded); while that save
+ * runs, its progress -
  * counts and a state, nothing of a hand or a file name - goes to the
  * account's own private Realtime channel so its other tabs can show it
  * (R4.3, `components/live/useLiveActivity.ts`). `tests/test/wasmWeb.test.ts` checks that
@@ -33,9 +32,7 @@ import { paths } from "../../lib/routes";
  * It is also a real differentiator — the competing converters are uploads.
  *
  * A framework migration is exactly when this gets broken by accident, which is
- * why it is written down twice: here, and as a line of UI copy on the page
- * (`en.convert.privacy`) so a change that breaks it also makes the app tell a
- * lie somebody can see. Concretely, do not:
+ * why it is written down here. Concretely, do not:
  *
  *  * turn any of this into a Server Action or a Route Handler taking hand text;
  *  * add analytics that carry file names, hand ids or counts derived from

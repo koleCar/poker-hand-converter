@@ -12,11 +12,10 @@
  *    per 10 minutes for every account together): a 1M-hand upload would need
  *    seven hours and lock every other user out meanwhile. `ingest_hands`
  *    charges the account's own budget (150 000 / 10 min, 2 000 000 / day).
- *  * **Size, and A2.** A `save_hands` row carries the original text twice
- *    (`source_text`, and the PHF's `meta.rawText`) and the standard text,
- *    ~7.3 KB a hand; an ingested row is the PHF alone (~2.9 KB) and its
- *    columns are derived on the server (A5, Q4). The original text leaves
- *    the tab only when the user opts in to keeping the files (below).
+ *  * **Size, and A2.** An ingested row is the PHF alone (~2.9 KB) and its
+ *    columns are derived on the server (A5, Q4). Neither door stores the
+ *    original text any more (`save_hands` stopped on 2026-11-16); the
+ *    original files never leave the tab.
  *  * **Parity.** The same hand from the app and from the web is the same row
  *    (R4.4).
  *
@@ -24,20 +23,10 @@
  * 20270609090000): the PHF-only shape of a desktop row, written from the web.
  * Insert-only as everywhere: `on conflict (owner_id, hand_key) do nothing`, so
  * a repeat of the same file inserts nothing and is counted as duplicates.
- *
- * ## Originals (A2: opt-in)
- *
- * When - and only when - the user ticks "keep the original files", each file
- * that decoded goes gzip-compressed to the private bucket `hand-uploads`
- * under `<uid>/<upload id>/...`. The bucket's policies (same migration) let
- * an account read, write and delete only under its own uid.
  */
 
 import { planRefusalOf, type PlanRefusal } from "../entitlements/planRefusal";
 import type { ConversionFailure } from "../phf/detect";
-
-/** The private bucket for originals the user chose to keep. */
-export const UPLOAD_BUCKET = "hand-uploads";
 
 /** One row for `ingest_hands`. */
 export interface IngestRow {
@@ -135,8 +124,6 @@ export interface UploadApi {
   /** The account's web hand source (created on first use). */
   registerWebSource(): Promise<string>;
   ingest(source: string, rows: IngestRow[]): Promise<IngestReport>;
-  /** Stores one original; "exists" when an earlier attempt already did. */
-  storeOriginal(path: string, blob: Blob): Promise<"stored" | "exists">;
   /** Best effort: the failure corpus (`record_conversion_failures`). */
   recordFailures(failures: ConversionFailure[]): Promise<{ created: number; updated: number }>;
 }
@@ -149,14 +136,6 @@ export interface UploadClient {
     error: RpcFailure | null;
     status?: number;
   }>;
-  storage: {
-    from(bucket: string): {
-      upload(path: string, body: Blob, options: { contentType: string; upsert: boolean; cacheControl?: string }): Promise<{
-        data: unknown;
-        error: (Error & { status?: number; statusCode?: string | number }) | null;
-      }>;
-    };
-  };
 }
 
 /** A PostgREST error as supabase-js hands it over. */
@@ -218,37 +197,6 @@ export function createUploadApi(client: UploadClient): UploadApi {
         rejected: report.rejected ?? 0,
         rows: report.rows,
       };
-    },
-
-    async storeOriginal(path, blob) {
-      // storage-js sends a Blob as multipart form data with the Blob's own
-      // type, not `contentType`; an untyped Blob arrives as
-      // application/octet-stream, which the bucket refuses. (Found against a
-      // local stack; wrapping copies no bytes.)
-      const body = blob.type === "application/gzip" ? blob : new Blob([blob], { type: "application/gzip" });
-      let response;
-      try {
-        response = await client.storage
-          .from(UPLOAD_BUCKET)
-          .upload(path, body, { contentType: "application/gzip", upsert: false, cacheControl: "3600" });
-      } catch (error) {
-        throw new UploadError("transient", error instanceof Error ? error.message : String(error));
-      }
-      const error = response.error;
-      if (!error) {
-        return "stored";
-      }
-      const statusCode = Number(error.statusCode ?? error.status ?? 0);
-      // A resumed upload sends a file the first attempt stored: the object is
-      // there, which is all that was wanted. (Storage answers 409, or 400 with
-      // statusCode "409", depending on its version.)
-      if (statusCode === 409 || /already exists|duplicate/i.test(error.message)) {
-        return "exists";
-      }
-      const kind = statusCode === 413
-        ? "refused"
-        : classifyFailure(null, statusCode || (error.name === "StorageUnknownError" ? 0 : 400), error.message);
-      throw new UploadError(kind, `storage: ${error.message}`);
     },
 
     async recordFailures(failures) {

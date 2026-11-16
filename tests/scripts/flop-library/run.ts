@@ -20,12 +20,12 @@
  */
 
 import { fork, type ChildProcess } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, writeFileSync } from "node:fs";
 import { availableParallelism, cpus, totalmem } from "node:os";
 import { dirname, join, resolve } from "node:path";
 
-import { chartLineHash, FLOP_PROFILE, flopLinesFor, libraryLineById, type FlopLine } from "../../../web/src/lib/analysis/flopLibrary.js";
-import { rakeOf } from "../../../web/src/lib/analysis/river.js";
+import { FLOP_PROFILE, flopLinesFor, libraryLineById, type FlopLine } from "../../../web/src/lib/analysis/flopLibrary.js";
+import { jobOf } from "../../../web/src/lib/analysis/flopJob.js";
 import { loadCharts, type ChartSet } from "../../../web/src/lib/charts/index.js";
 import {
   boardSymmetries,
@@ -146,7 +146,8 @@ function readStats(dir: string): StatsFile[] {
   if (!existsSync(dir)) return out;
   for (const line of readdirSync(dir)) {
     const sub = join(dir, line);
-    if (!existsSync(sub) || line.endsWith(".json")) continue;
+    // Only the line folders: `upload.sh` keeps its `.uploaded` list beside them.
+    if (!existsSync(sub) || !statSync(sub).isDirectory()) continue;
     for (const file of readdirSync(sub)) {
       if (file.endsWith(".json")) out.push(JSON.parse(readFileSync(join(sub, file), "utf8")) as StatsFile);
     }
@@ -230,7 +231,6 @@ async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
   const log = (line: string) => console.log(line);
   const charts = loadSet(options.set);
-  const rake = rakeOf(charts);
   const treeDir = join(options.out, options.set, FLOP_PROFILE.tree);
   mkdirSync(treeDir, { recursive: true });
 
@@ -301,19 +301,7 @@ async function main(): Promise<void> {
       }
       throw new Error(`unknown or unplayable line ${lineId}`);
     }
-    jobs.push({
-      id: `${line.id}/${flop}`,
-      line: line.id,
-      lineKey: line.key,
-      flop,
-      players: spot.players,
-      ranges: [Array.from(spot.ranges[0]), Array.from(spot.ranges[1])],
-      pot: spot.pot,
-      stack: spot.stack,
-      charts: { id: charts.id, version: charts.version, hash: charts.model.hash },
-      lineHash: chartLineHash(charts, line.key) ?? undefined,
-      rake: { name: rake.name, percent: rake.percent, cap: rake.cap },
-    });
+    jobs.push(jobOf(charts, line, spot, flop));
   }
   const selected = options.only !== null ? jobs.slice(0, options.only) : jobs;
   const chunkFile = (job: Job) => join(options.out, chunkPath(options.set, FLOP_PROFILE.tree, job.line, job.flop));

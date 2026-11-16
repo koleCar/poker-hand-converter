@@ -1208,6 +1208,102 @@ export interface StoredChartSetDto {
   updated_at: string | null;
 }
 
+/** `rail_store::NodeLockStreet` (docs/NODELOCK.md §3). */
+export type NodeLockStreet = "flop" | "turn" | "river";
+
+/** `rail_store::NodeLockStatus`: a row still `solving` when the app starts becomes `cancelled`. */
+export type NodeLockStatus = "draft" | "solving" | "solved" | "failed" | "cancelled";
+
+import type { LockSet } from "../solver/nodelock/contract";
+
+/** The lock a row holds (`lock_json`): §1's `LockSet` (`web/src/lib/solver/nodelock.ts`). */
+export type NodeLockSet = LockSet;
+
+/**
+ * `nodelock_store::NodeLockDto`: one `node_locks` row, column for column (snake_case, as the table),
+ * with `lock_json` and `summary_json` parsed. Kept on this computer only; never synced.
+ */
+export interface NodeLockRow {
+  /** uuid v4. */
+  id: string;
+  name: string;
+  /** Unix ms. */
+  created_at: number;
+  updated_at: number;
+  set_id: string;
+  line: string;
+  flop: string;
+  turn: string | null;
+  river: string | null;
+  street: NodeLockStreet;
+  /** The first locked node, for the list. */
+  node_path: string;
+  lock_json: NodeLockSet;
+  lock_hash: string;
+  /** The suggestion it started from, if any. */
+  preset: string | null;
+  status: NodeLockStatus;
+  engine: string | null;
+  threads: number | null;
+  iterations: number | null;
+  exploitability_pct: number | null;
+  seconds: number | null;
+  peak_mb: number | null;
+  /** The list's headline numbers (JSON), or null. */
+  summary_json: unknown;
+  /** The locked solve's chunk size in bytes; null: no chunk. Not a column: `length(result)`. */
+  result_size: number | null;
+}
+
+/** A row with its chunk (`nodelock_get`). */
+export interface NodeLock extends NodeLockRow {
+  result: Uint8Array | null;
+}
+
+/**
+ * What `nodelockSave` takes: the whole row (an upsert replaces it, the chunk included). No `id`
+ * (or an empty one) makes a new row; the times are the store's.
+ */
+export type NodeLockInput = Omit<NodeLockRow, "id" | "created_at" | "updated_at" | "result_size"> & {
+  id?: string | null;
+};
+
+/** A Solver-library spot, as the history filters by it. */
+export interface NodeLockSpot {
+  set_id: string;
+  line: string;
+  flop: string;
+}
+
+/** `nodelock_store::SavedDto`. */
+export interface NodeLockSaved {
+  id: string;
+  created_at: number;
+  updated_at: number;
+}
+
+/**
+ * A nodelock row and its chunk as one frame (`nodelock_store::frame`): the row's JSON length (u32,
+ * little-endian), the JSON (UTF-8), the chunk's bytes. The chunk never crosses as a JSON array.
+ */
+export function nodeLockFrame(row: object, result: Uint8Array | null): Uint8Array {
+  const json = new TextEncoder().encode(JSON.stringify(row));
+  const out = new Uint8Array(4 + json.length + (result?.length ?? 0));
+  new DataView(out.buffer).setUint32(0, json.length, true);
+  out.set(json, 4);
+  if (result) out.set(result, 4 + json.length);
+  return out;
+}
+
+/** `nodelock_get`'s frame back into the row and its chunk; no bytes: no such row. */
+export function nodeLockUnframe(buffer: ArrayBuffer): NodeLock | null {
+  if (buffer.byteLength === 0) return null;
+  const length = new DataView(buffer).getUint32(0, true);
+  const row = JSON.parse(new TextDecoder().decode(new Uint8Array(buffer, 4, length))) as NodeLockRow;
+  const result = row.result_size === null ? null : new Uint8Array(buffer.slice(4 + length));
+  return { ...row, result };
+}
+
 /** `analysis::ChartSummaryDto`. */
 export interface ChartSetSummaryDto {
   id: string;
@@ -1601,6 +1697,21 @@ export const ipc = {
   chartSetLoad: (id: string) => invoke<StoredChartSetDto | null>("chart_set_load", { id }),
   chartSetSave: (set: StoredChartSetDto) => invoke<{ id: string; updatedAt: string }>("chart_set_save", { set }),
   chartSetDelete: (id: string) => invoke<boolean>("chart_set_delete", { id }),
+  /** (docs/NODELOCK.md §3) The user's nodelocks: newest change first, without chunks; `spot` keeps one spot's. */
+  nodelockList: (spot: NodeLockSpot | null = null) => invoke<NodeLockRow[]>("nodelock_list", { spot }),
+  /** One nodelock with its chunk; null when there is none of that id. */
+  nodelockGet: async (id: string): Promise<NodeLock | null> =>
+    nodeLockUnframe(await invoke<ArrayBuffer>("nodelock_get", { id })),
+  /** Insert or replace a nodelock, the chunk (`result`) included: a save without one clears it. */
+  nodelockSave: (row: NodeLockInput, result: Uint8Array | null = null) =>
+    invoke<NodeLockSaved>(
+      "nodelock_save",
+      nodeLockFrame({ ...row, id: row.id ?? "", result_size: result ? result.length : null }, result),
+    ),
+  /** Whether it was there. */
+  nodelockRename: (id: string, name: string) => invoke<boolean>("nodelock_rename", { id, name }),
+  /** How many went (unknown ids are skipped). */
+  nodelockDelete: (ids: string[]) => invoke<number>("nodelock_delete", { ids }),
   /** (R5.5) The user's settings per tournament (`site:id` keys), kept in the store only; a save or delete re-queues its hands. */
   tournamentSettingsList: () =>
     invoke<{ key: string; settings: Record<string, unknown>; updatedAt: string }[]>("tournament_settings_list"),

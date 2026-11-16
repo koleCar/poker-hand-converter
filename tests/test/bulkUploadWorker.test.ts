@@ -80,7 +80,6 @@ describe("the worker's bulk path", () => {
       jobId: 3,
       items: [{ kind: "file", file: file("export.zip", zip), path: "Exports/export.zip" }],
       options: { validate: true },
-      keepOriginals: false,
       resume: { done: [], batches: [] },
       window: 2,
     });
@@ -119,9 +118,9 @@ describe("the worker's bulk path", () => {
   it("skips what the resume state says is stored", async () => {
     const zip = buildZip([{ name: "a.txt", data: STARS }, { name: "b.txt", data: WEPLAY }]);
     const items: Extract<WorkerRequest, { type: "bulk" }>["items"] = [{ kind: "file", file: file("e.zip", zip), path: "e.zip" }];
-    const first = await runBulkWorker({ type: "bulk", jobId: 4, items, options: { validate: true }, keepOriginals: false, resume: { done: [], batches: [] }, window: 4 });
+    const first = await runBulkWorker({ type: "bulk", jobId: 4, items, options: { validate: true }, resume: { done: [], batches: [] }, window: 4 });
     const keys = first.replies.flatMap((r) => (r.type === "bulk-source" ? [r.source.key] : []));
-    const second = await runBulkWorker({ type: "bulk", jobId: 5, items, options: { validate: true }, keepOriginals: false, resume: { done: [keys[0]], batches: [] }, window: 4 });
+    const second = await runBulkWorker({ type: "bulk", jobId: 5, items, options: { validate: true }, resume: { done: [keys[0]], batches: [] }, window: 4 });
     expect(second.replies.flatMap((r) => (r.type === "bulk-source" ? [r.source.name] : []))).toEqual(["e.zip → b.txt"]);
     expect(second.replies.reduce((sum, r) => sum + (r.type === "bulk-consumed" ? r.done : 0), 0)).toBe(1);
   });
@@ -149,7 +148,7 @@ describe("the worker's bulk path", () => {
     await import("../../web/src/workers/convert.worker");
     (await import("../../web/src/lib/wasm/engine")).resetConversionEngine();
     scope.onmessage!({
-      data: { type: "bulk", jobId: 6, items: [{ kind: "file", file: file("w.zip", zip), path: "w.zip" }], options: { validate: true }, keepOriginals: false, resume: { done: [], batches: [] }, window: 1 },
+      data: { type: "bulk", jobId: 6, items: [{ kind: "file", file: file("w.zip", zip), path: "w.zip" }], options: { validate: true }, resume: { done: [], batches: [] }, window: 1 },
     } as MessageEvent<WorkerRequest>);
     await finished;
     expect(replies.filter((r) => r.type === "bulk-batch")).toHaveLength(1);
