@@ -167,7 +167,6 @@ function cappedServer(cap: number | null, already: string[] = []) {
       }
       return report;
     },
-    storeOriginal: async () => "stored",
     recordFailures: async () => ({ created: 0, updated: 0 }),
   };
   return { api, stored, calls, upgrade: () => (limit = null) };
@@ -177,8 +176,7 @@ function saverOn(api: UploadApi) {
   return createBulkSaver({
     api,
     store: memoryManifestStore(),
-    manifest: newManifest("user-1", [{ path: "export.zip", size: 1 }], false, "upload-cap"),
-    userId: "user-1",
+    manifest: newManifest("user-1", [{ path: "export.zip", size: 1 }], "upload-cap"),
     ack: () => undefined,
     sleep: async () => undefined,
     random: () => 1,

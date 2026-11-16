@@ -1401,8 +1401,11 @@ now names both), written from the browser. The insert policy still admits
 `save_hands`; a hand saved one at a time (paste box, replayer) is still a
 `save_hands` web row. `hand_arrivals` reports an upload as `web`.
 
-**The bucket `hand-uploads`** holds the originals a user chose to keep
-("Also keep the original files", off by default, per visit): private, 50 MiB
+**The bucket `hand-uploads`** holds the originals users chose to keep
+while the converter offered "Also keep the original files". That opt-in and
+the client code that uploaded them were removed on 2026-11-16; nothing writes
+to the bucket now, and it stays for the files already there (export and
+account deletion still read and remove them). Private, 50 MiB
 an object, `application/gzip` only; objects at `<uid>/<upload id>/<path>.<hash>.gz`.
 Policies on `storage.objects` (`hand_uploads_owner_select`, `_insert`,
 `_delete`, all `to authenticated`) require the first path segment to be

@@ -8,9 +8,8 @@
  *
  *  * **A bounded queue.** Batches from the worker go into a queue of rows; the
  *    worker is acknowledged only while the queue holds fewer than
- *    `maxQueuedHands` (and the kept originals fewer than
- *    `maxQueuedOriginalBytes`), so conversion waits for the network, never
- *    the other way round, and the tab holds at most that many hands.
+ *    `maxQueuedHands`, so conversion waits for the network, never the other
+ *    way round, and the tab holds at most that many hands.
  *  * **Chunked calls.** One call at a time, of at most `maxHandsPerCall` rows
  *    and `maxBytesPerCall` bytes (`ingest_hands` takes 500 and 8 MiB; the
  *    smaller chunk keeps each call well inside PostgREST's statement timeout).
@@ -30,8 +29,8 @@
  *    plan refusal pauses with `plan`. The server stays the gate: nothing
  *    here counts hands itself.
  *  * **Resume.** Every acknowledged call advances the manifest
- *    (`uploadManifest.ts`): per source, the batches stored and, once all are
- *    (and its original, when kept), done. A later drop of the same files
+ *    (`uploadManifest.ts`): per source, the batches stored and, once all
+ *    are, done. A later drop of the same files
  *    skips what is recorded.
  *
  * Nothing here knows about React; `ConverterTab` drives it and renders
@@ -44,7 +43,6 @@ import { handKeyOf } from "../../lib/db/mapping";
 import { ingestPhfOf } from "../../lib/db/storedHand";
 import { UploadError, type IngestRow, type UploadApi } from "../../lib/db/upload";
 import { allowanceOf } from "../../lib/entitlements/planRefusal";
-import type { SourceInfo } from "./bulkRun";
 import type { StreamBatch } from "./pipeline";
 import type { ManifestStore, UploadManifest } from "./uploadManifest";
 
@@ -86,9 +84,6 @@ export interface SaveProgress {
   /** Hands waiting in the tab. */
   queued: number;
   sourcesDone: number;
-  originalsStored: number;
-  originalsBytes: number;
-  originalsFailed: number;
   /** What the failure corpus made of the refused hands sent so far; null before any. */
   failuresRecorded: { created: number; updated: number } | null;
   /**
@@ -107,8 +102,6 @@ export interface SaverOptions {
   /** Null when the browser has no IndexedDB: the upload works, without resuming. */
   store: ManifestStore | null;
   manifest: UploadManifest;
-  /** `<uid>/<upload id>/` is prefixed to each original's path. */
-  userId: string;
   /** Called with how many more batches the worker may convert. */
   ack(batches: number): void;
   onChange?(progress: SaveProgress): void;
@@ -117,7 +110,6 @@ export interface SaverOptions {
   maxHandsPerCall?: number;
   maxBytesPerCall?: number;
   maxQueuedHands?: number;
-  maxQueuedOriginalBytes?: number;
   /** Failures recorded to the corpus per upload, at most. */
   maxFailures?: number;
   retry?: { baseMs: number; maxMs: number; attempts: number };
@@ -133,15 +125,7 @@ type Item =
   | { kind: "row"; key: string; row: IngestRow; bytes: number }
   | { kind: "mark"; key: string; batches?: number; done?: boolean };
 
-interface Original {
-  key: string;
-  path: string;
-  blob: Blob;
-}
-
 export interface BulkSaver {
-  /** A source was read; its original (if kept) joins the queue. */
-  addSource(source: SourceInfo): void;
   /** One converted batch: its hands join the queue. */
   addBatch(batch: StreamBatch): void;
   /** All of a source's batches were handed over. */
@@ -164,7 +148,6 @@ export const MAX_HANDS_PER_CALL = 250;
 export const MAX_BYTES_PER_CALL = 3_000_000;
 /** Hands queued in the tab before the worker is held back. */
 export const MAX_QUEUED_HANDS = 1_500;
-export const MAX_QUEUED_ORIGINAL_BYTES = 32 * 1024 * 1024;
 export const MAX_FAILURES_PER_UPLOAD = 2_000;
 const FAILURES_PER_CALL = 200;
 
@@ -189,7 +172,6 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
   const maxHands = options.maxHandsPerCall ?? MAX_HANDS_PER_CALL;
   const maxBytes = options.maxBytesPerCall ?? MAX_BYTES_PER_CALL;
   const maxQueued = options.maxQueuedHands ?? MAX_QUEUED_HANDS;
-  const maxOriginalBytes = options.maxQueuedOriginalBytes ?? MAX_QUEUED_ORIGINAL_BYTES;
   const maxFailures = options.maxFailures ?? MAX_FAILURES_PER_UPLOAD;
   const retry = options.retry ?? { baseMs: 1_000, maxMs: 30_000, attempts: 6 };
   const budgetWaitMs = options.budgetWaitMs ?? 60_000;
@@ -197,19 +179,13 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
   const sleep = options.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
   const now = options.now ?? (() => Date.now());
   const random = options.random ?? Math.random;
-  const prefix = `${options.userId}/${manifest.id}/`;
 
   const queue: Item[] = [];
-  const originals: Original[] = [];
   const failures: ConversionFailure[] = [];
   let failuresTaken = 0;
   let queuedHands = 0;
-  let queuedOriginalBytes = 0;
   /** Batches received from the worker and not yet acknowledged. */
   let owed = 0;
-  /** Sources whose original is not stored yet, and those already ended. */
-  const originalPending = new Set<string>();
-  const endedWaitingOriginal = new Set<string>();
 
   let source: string | null = null;
   let closed = false;
@@ -229,9 +205,6 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
     refusedReasons: {},
     queued: 0,
     sourcesDone: manifest.counts.sourcesDone,
-    originalsStored: manifest.counts.originalsStored,
-    originalsBytes: 0,
-    originalsFailed: 0,
     failuresRecorded: null,
     cap: null,
     trimmed: false,
@@ -250,7 +223,7 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
 
   /** Acknowledge every batch owed while there is room. */
   function releaseAcks(): void {
-    if (owed > 0 && queuedHands < maxQueued && queuedOriginalBytes < maxOriginalBytes) {
+    if (owed > 0 && queuedHands < maxQueued) {
       const count = owed;
       owed = 0;
       options.ack(count);
@@ -282,7 +255,6 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
       duplicates: state.duplicates,
       refused: state.refused,
       sourcesDone: state.sourcesDone,
-      originalsStored: state.originalsStored,
     };
     try {
       await store?.put(manifest);
@@ -307,11 +279,7 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
       await record(mark.key, mark.batches, false);
     }
     if (mark.done) {
-      if (originalPending.has(mark.key)) {
-        endedWaitingOriginal.add(mark.key);
-      } else {
-        await markDone(mark.key);
-      }
+      await markDone(mark.key);
     }
   }
 
@@ -521,36 +489,6 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
     return true;
   }
 
-  async function sendOriginal(): Promise<boolean> {
-    const original = originals[0];
-    let outcome: "stored" | "exists" | "paused" | "failed";
-    try {
-      outcome = await withRetry(() => api.storeOriginal(prefix + original.path, original.blob));
-    } catch (error) {
-      state.lastError = error instanceof Error ? error.message : String(error);
-      outcome = "failed";
-    }
-    if (outcome === "paused" || state.state === "cancelled") {
-      return false;
-    }
-    originals.shift();
-    queuedOriginalBytes -= original.blob.size;
-    if (outcome === "failed") {
-      state.originalsFailed += 1;
-    } else {
-      state.originalsStored += 1;
-      state.originalsBytes += original.blob.size;
-    }
-    originalPending.delete(original.key);
-    if (endedWaitingOriginal.delete(original.key)) {
-      await markDone(original.key);
-    }
-    await persistManifest();
-    releaseAcks();
-    changed();
-    return true;
-  }
-
   async function sendFailures(): Promise<void> {
     const batch = failures.splice(0, FAILURES_PER_CALL);
     try {
@@ -583,13 +521,7 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
             break;
           }
         }
-        if (originals.length > 0) {
-          progressed = await sendOriginal();
-          if (!progressed) {
-            break;
-          }
-        }
-        if (queue.length === 0 && originals.length === 0 && failures.length > 0) {
+        if (queue.length === 0 && failures.length > 0) {
           await sendFailures();
           progressed = true;
         }
@@ -597,16 +529,12 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
           if (closed) {
             state.state = "done";
             state.retryAt = null;
-            if (originalPending.size === 0) {
-              manifest.finished = true;
-            }
+            manifest.finished = true;
             await persistManifest();
-            if (manifest.finished) {
-              try {
-                await store?.remove(manifest.id);
-              } catch {
-                // Left behind: offered once as resumable, harmless.
-              }
+            try {
+              await store?.remove(manifest.id);
+            } catch {
+              // Left behind: offered once as resumable, harmless.
             }
             changed();
             options.onDone?.(snapshot());
@@ -624,15 +552,6 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
   }
 
   return {
-    addSource(info) {
-      if (info.original) {
-        originals.push({ key: info.key, path: info.original.path, blob: info.original.blob });
-        originalPending.add(info.key);
-        queuedOriginalBytes += info.original.blob.size;
-        poke();
-      }
-    },
-
     addBatch(batch) {
       owed += 1;
       for (const [i, hand] of batch.hands.entries()) {
@@ -690,9 +609,7 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
     cancel() {
       state.state = "cancelled";
       queue.length = 0;
-      originals.length = 0;
       queuedHands = 0;
-      queuedOriginalBytes = 0;
       const resolve = wake;
       wake = null;
       resolve?.();

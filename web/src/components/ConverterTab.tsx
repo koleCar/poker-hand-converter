@@ -33,9 +33,7 @@
  *    for an account. When a run finishes with nobody signed in, the results are
  *    held in memory and offered — "sign in to save these 412 hands" — so the
  *    work is never lost and the login never arrives before the value does.
- *  * **Originals stay in the tab** unless the user ticks "keep the original
- *    files" (A2): then each file is stored, compressed, in their private
- *    folder of the `hand-uploads` bucket. Off by default, every visit.
+ *  * **Originals stay in the tab**: only the converted hands are saved.
  *
  * The page stays fully usable with no database and with no account: conversion,
  * preview, download and the replayer hand-off never touch Supabase.
@@ -387,12 +385,11 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
 
   /** A saver for this tab's session; `manifest` null for held hands (no resume). */
   const makeSaver = useCallback(
-    (userId: string, manifest: UploadManifest, manifests: ManifestStore | null): BulkSaver => {
+    (manifest: UploadManifest, manifests: ManifestStore | null): BulkSaver => {
       const saver = createBulkSaver({
         api: createUploadApi(requireDb() as unknown as UploadClient),
         store: manifests,
         manifest,
-        userId,
         ack: (batches) => jobRef.current?.ack(batches),
         onChange: onSaveChange,
         onDone: afterSave,
@@ -424,7 +421,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
         return;
       }
       setLegacySave(IDLE_SAVE);
-      const saver = makeSaver(userId, newManifest(userId, [], false), null);
+      const saver = makeSaver(newManifest(userId, []), null);
       saver.addHands(hands);
       saver.close();
     },
@@ -533,7 +530,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
         const manifests = store();
         let manifest: UploadManifest;
         if (unfinished && unfinished.userId === userId && isSameUpload(unfinished, inputs)) {
-          manifest = { ...unfinished, keepOriginals: false };
+          manifest = { ...unfinished };
           try {
             resume = resumeStateOf((await manifests?.sources(manifest.id)) ?? []);
           } catch {
@@ -543,7 +540,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
           if (unfinished) {
             void manifests?.remove(unfinished.id).catch(() => undefined);
           }
-          manifest = newManifest(userId, inputs, false);
+          manifest = newManifest(userId, inputs);
           try {
             await manifests?.put(manifest);
           } catch {
@@ -551,7 +548,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
           }
         }
         setResumable(null);
-        saver = makeSaver(userId, manifest, manifests);
+        saver = makeSaver(manifest, manifests);
       }
 
       const retainedHands: PhfHand[] = [];
@@ -567,14 +564,12 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
           // Everything converts: the old tab was cash-only, but a user with a
           // tournament history wants it converted, not silently dropped.
           options: { validate: true },
-          keepOriginals: false,
           resume,
           window: WORKER_WINDOW,
         },
         {
           onSource: (info) => {
             resultsRef.current.set(info.id, toResult(info));
-            saver?.addSource(info);
             schedulePublish();
           },
           onConsumed: (consumed) => {
@@ -775,11 +770,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
     if (!upload || upload.state === "cancelled") {
       return null;
     }
-    const lines = [t.saveLive(upload.inserted, upload.duplicates, upload.refused)];
-    if (upload.originalsStored > 0) {
-      lines.push(t.originalsKept(upload.originalsStored, formatBytes(upload.originalsBytes, locale)));
-    }
-    return lines.join(" · ");
+    return t.saveLive(upload.inserted, upload.duplicates, upload.refused);
   })();
 
   const saveStatus = (() => {

@@ -72,8 +72,6 @@ export const converterHr: Dict["converter"] = {
       `${num(inserted)} ${plural(inserted, "spremljena", "spremljene", "spremljenih")} u biblioteku${
         duplicates ? ` · ${num(duplicates)} ${plural(duplicates, "već postoji", "već postoje", "već postoji")}` : ""
       }${refused ? ` · ${num(refused)} ${plural(refused, "odbijena", "odbijene", "odbijenih")}` : ""}`,
-    originalsKept: (count: number, size: string) =>
-      `${num(count)} ${plural(count, "izvorna datoteka zadržana", "izvorne datoteke zadržane", "izvornih datoteka zadržano")} (${size})`,
     saveRetrying: (seconds: number) => `Problem s vezom — novi pokušaj za ${num(seconds)} s.`,
     saveWaitingBudget: (time: string) =>
       `Ovaj račun je na nekoliko minuta potrošio kvotu za učitavanje — nastavljamo u ${time}.`,

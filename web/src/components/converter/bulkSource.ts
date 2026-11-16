@@ -48,18 +48,11 @@ export interface BulkSource {
   /** Decoded text; empty when `problem` is set. */
   text: string;
   problem?: SourceProblem;
-  /**
-   * The original file gzip-compressed, for the opt-in copy in Storage (A2).
-   * Only when asked for, and only for a file that decoded.
-   */
-  original?: { path: string; blob: Blob };
 }
 
 export interface ReadInputsOptions {
   /** Prefix for source ids, so two runs never share one. */
   idPrefix?: string;
-  /** Gzip each readable original for the Storage opt-in. */
-  keepOriginals?: boolean;
   /** True for a key an earlier attempt already stored: it is not read at all. */
   isDone?(key: string): boolean;
   /**
@@ -89,38 +82,6 @@ export function shortHash(text: string): string {
   return hash.toString(16).padStart(8, "0");
 }
 
-/**
- * A path that is safe as a Storage object name: ASCII letters, digits and
- * `._- ()` per segment, no empty or dot segments, each segment at most 80
- * characters; ends in the key's hash so two names that sanitise alike stay
- * apart, and so the same file lands on the same object when an upload resumes.
- */
-export function storagePathFor(displayPath: string, key: string): string {
-  const segments = displayPath
-    .split(/[\\/]|\s→\s/)
-    .map((segment) =>
-      segment
-        .normalize("NFKD")
-        .replace(/[^A-Za-z0-9._\- ()]/g, "_")
-        .replace(/^\.+/, "_")
-        .slice(0, 80)
-        .trim(),
-    )
-    .filter((segment) => segment.length > 0);
-  const leaf = segments.pop() ?? "file";
-  return [...segments.slice(-6), `${leaf}.${shortHash(key)}.gz`].join("/");
-}
-
-/** The bytes gzip-compressed, streamed: never a second uncompressed copy. */
-async function gzip(data: Blob): Promise<Blob> {
-  const Compression = (globalThis as { CompressionStream?: typeof CompressionStream }).CompressionStream;
-  if (!Compression) {
-    throw new Error("CompressionStream is not available");
-  }
-  const compressed = await new Response(data.stream().pipeThrough(new Compression("gzip"))).blob();
-  return new Blob([compressed], { type: "application/gzip" });
-}
-
 function fileKey(item: Extract<InputItem, { kind: "file" }>): string {
   return `f|${item.path}|${item.file.size}|${item.file.lastModified ?? 0}`;
 }
@@ -141,30 +102,24 @@ export async function* readInputs(items: InputItem[], options: ReadInputsOptions
   const consumed = (bytes: number, done = 0, other = 0) => options.onConsumed?.(bytes, { done, other });
   const cancelled = () => options.isCancelled?.() ?? false;
 
-  async function decoded(
+  function decoded(
     key: string,
     name: string,
-    storageName: string,
     bytes: Uint8Array | null,
     fallbackBytes: number,
     problem?: SourceProblem,
-  ): Promise<BulkSource> {
+  ): BulkSource {
     if (!bytes || problem) {
       return { id: nextId(), key, name, bytes: fallbackBytes, encoding: "-", text: "", problem };
     }
     const result = decodeSource(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer);
-    const source: BulkSource = { id: nextId(), key, name, bytes: bytes.byteLength, ...result };
-    if (options.keepOriginals && !result.problem) {
-      source.original = { path: storagePathFor(storageName, key), blob: await gzip(new Blob([bytes as BlobPart])) };
-    }
-    return source;
+    return { id: nextId(), key, name, bytes: bytes.byteLength, ...result };
   }
 
   async function* zip(
     archive: Blob,
     archiveKey: string,
     archiveName: string,
-    archivePath: string,
     depth: number,
     counts = true,
   ): AsyncGenerator<BulkSource> {
@@ -204,7 +159,6 @@ export async function* readInputs(items: InputItem[], options: ReadInputsOptions
         continue;
       }
       const name = `${archiveName} → ${entry.name}`;
-      const path = `${archivePath}/${entry.name}`;
       if (/\.zip$/i.test(entry.name) && depth < MAX_ZIP_DEPTH) {
         let inner: Uint8Array;
         try {
@@ -212,7 +166,7 @@ export async function* readInputs(items: InputItem[], options: ReadInputsOptions
         } catch (error) {
           consumed(share);
           readable += 1;
-          yield await decoded(key, name, path, null, entry.uncompressedSize, zipEntryProblem(error, entry.uncompressedSize));
+          yield decoded(key, name, null, entry.uncompressedSize, zipEntryProblem(error, entry.uncompressedSize));
           continue;
         }
         // The inner archive is in memory (it is one entry, under the size
@@ -221,7 +175,7 @@ export async function* readInputs(items: InputItem[], options: ReadInputsOptions
         // is not counted twice.
         readable += 1;
         consumed(share);
-        yield* zip(new Blob([inner as BlobPart]), key, name, path, depth + 1, false);
+        yield* zip(new Blob([inner as BlobPart]), key, name, depth + 1, false);
         continue;
       }
       readable += 1;
@@ -233,7 +187,7 @@ export async function* readInputs(items: InputItem[], options: ReadInputsOptions
         problem = zipEntryProblem(error, entry.uncompressedSize);
       }
       consumed(share);
-      yield await decoded(key, name, path, content, entry.uncompressedSize, problem);
+      yield decoded(key, name, content, entry.uncompressedSize, problem);
       content = null;
     }
     consumed(Math.max(0, archive.size - accounted));
@@ -263,16 +217,13 @@ export async function* readInputs(items: InputItem[], options: ReadInputsOptions
         encoding: "UTF-8",
         text: normalized,
         problem: normalized.trim() ? undefined : { kind: "nothing-pasted" },
-        original: options.keepOriginals && normalized.trim()
-          ? { path: storagePathFor(item.name, key), blob: await gzip(new Blob([bytes as BlobPart])) }
-          : undefined,
       };
       continue;
     }
 
     const key = fileKey(item);
     if (isZip(item.file)) {
-      yield* zip(item.file, key, item.file.name, item.path, 1);
+      yield* zip(item.file, key, item.file.name, 1);
       continue;
     }
     if (options.isDone?.(key)) {
@@ -281,7 +232,7 @@ export async function* readInputs(items: InputItem[], options: ReadInputsOptions
     }
     if (item.file.size > maxBytes) {
       consumed(item.file.size);
-      yield await decoded(key, item.file.name, item.path, null, item.file.size, { kind: "too-large", bytes: item.file.size });
+      yield decoded(key, item.file.name, null, item.file.size, { kind: "too-large", bytes: item.file.size });
       continue;
     }
     let content: Uint8Array | null = null;
@@ -292,7 +243,7 @@ export async function* readInputs(items: InputItem[], options: ReadInputsOptions
       problem = { kind: "unreadable-file", detail: error instanceof Error ? error.message : undefined };
     }
     consumed(item.file.size);
-    yield await decoded(key, item.file.name, item.path, content, item.file.size, problem);
+    yield decoded(key, item.file.name, content, item.file.size, problem);
     content = null;
   }
 }

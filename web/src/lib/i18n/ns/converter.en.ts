@@ -86,8 +86,6 @@ export const converterEn = {
       `${num(inserted)} saved to your library${duplicates ? ` · ${num(duplicates)} already there` : ""}${
         refused ? ` · ${num(refused)} refused` : ""
       }`,
-    originalsKept: (count: number, size: string) =>
-      `${num(count)} original ${count === 1 ? "file" : "files"} kept (${size})`,
     saveRetrying: (seconds: number) => `Connection trouble — trying again in ${num(seconds)} s.`,
     saveWaitingBudget: (time: string) =>
       `This account's upload budget is used up for a few minutes — continuing at ${time}.`,
