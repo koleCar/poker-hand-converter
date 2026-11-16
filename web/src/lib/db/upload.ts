@@ -12,11 +12,10 @@
  *    per 10 minutes for every account together): a 1M-hand upload would need
  *    seven hours and lock every other user out meanwhile. `ingest_hands`
  *    charges the account's own budget (150 000 / 10 min, 2 000 000 / day).
- *  * **Size, and A2.** A `save_hands` row carries the original text twice
- *    (`source_text`, and the PHF's `meta.rawText`) and the standard text,
- *    ~7.3 KB a hand; an ingested row is the PHF alone (~2.9 KB) and its
- *    columns are derived on the server (A5, Q4). The original files never
- *    leave the tab.
+ *  * **Size, and A2.** An ingested row is the PHF alone (~2.9 KB) and its
+ *    columns are derived on the server (A5, Q4). Neither door stores the
+ *    original text any more (`save_hands` stopped on 2026-11-16); the
+ *    original files never leave the tab.
  *  * **Parity.** The same hand from the app and from the web is the same row
  *    (R4.4).
  *

@@ -168,14 +168,14 @@ export function handInsertFromPhf(hand: PhfHand, standardText: string): HandInse
 
   return {
     hand_key: handKeyOf(hand),
-    // The **entire** document, `meta.rawText` and all. That is correct for the
-    // owner's own library — re-converting a hand after a parser fix needs the
-    // source — but it means `phf` is not publishable as-is. Every path that
-    // hands a hand to someone who does not own it must redact it first; in SQL
-    // that is `public.phf_redact_private()`.
-    phf: hand,
+    // The document without the room's original text (2026-11-16): the PHF
+    // (or its verified standard text) is the hand, so the source would only
+    // double the row. Still not publishable as-is (player names, filename):
+    // every path that hands a hand to someone who does not own it must redact
+    // it first; in SQL that is `public.phf_redact_private()`.
+    phf: { ...hand, meta: { ...hand.meta, rawText: "" } },
     standard_text: standardText,
-    source_text: hand.meta.rawText || null,
+    source_text: null,
     schema_version: hand.schema,
     parser_version: hand.meta.parserVersion || null,
 
