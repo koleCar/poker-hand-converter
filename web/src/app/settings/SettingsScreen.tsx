@@ -28,7 +28,7 @@ import { paths } from "../../lib/routes";
  * password), Plan, Language, Your data, and the danger zone, which only links
  * to `/settings/delete-account`.
  *
- * The username is chosen once (`20271116130000_username_set_once.sql`): it is
+ * The username is chosen once (`20271116130500_username_set_once.sql`): it is
  * what other people see instead of the email, so it is an identity, not a
  * nickname.
  */

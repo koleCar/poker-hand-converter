@@ -2,7 +2,7 @@
 //! the email. Settings → Account shows it, and while it is still the
 //! provisional `user_xxxxxxxx` from signup the account chooses its own -
 //! once; it cannot be changed afterwards (`rail_sync::ingest::profile`,
-//! `20271116130000_username_set_once.sql`).
+//! `20271116130500_username_set_once.sql`).
 //!
 //! Errors the window acts on come back as codes ([`SIGNED_OUT`],
 //! [`UNAVAILABLE`], [`UNREACHABLE`]); a refusal of the name (taken, reserved,

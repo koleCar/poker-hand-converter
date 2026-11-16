@@ -19,7 +19,7 @@ export interface MyProfile {
   /** Still on the `user_xxxxxxxx` name handed out at signup. */
   provisional: boolean;
   usernameChangedAt: string | null;
-  /** Always null since the name is chosen once (`20271116130000_username_set_once.sql`). */
+  /** Always null since the name is chosen once (`20271116130500_username_set_once.sql`). */
   nextUsernameChangeAt: string | null;
   role: ProfileRole;
   karma: number;

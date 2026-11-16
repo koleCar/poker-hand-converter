@@ -3,7 +3,7 @@
 //! - `my_profile()` (`20261007090000_forum_identity.sql`): the username and
 //!   whether it is still the provisional `user_xxxxxxxx` from signup;
 //! - `set_username(p_username)`: choose it, once
-//!   (`20271116130000_username_set_once.sql`). A refusal (the shape, taken,
+//!   (`20271116130500_username_set_once.sql`). A refusal (the shape, taken,
 //!   reserved, already chosen) is SQLSTATE `22023` with the sentence to show,
 //!   which comes back as [`SetUsernameError::Refused`].
 //!
