@@ -73,26 +73,6 @@
   gap: var(--space-1);
 }
 
-.select {
-  max-inline-size: 100%;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-}
-
-.select select {
-  inline-size: auto;
-  min-inline-size: 0;
-  max-inline-size: min(16rem, 100%);
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-2);
-  background: var(--surface-inset);
-  color: var(--text-primary);
-}
-
 .swatches {
   display: inline-flex;
   align-items: center;
@@ -636,7 +616,7 @@
   grid-column: 1 / -1;
 }
 
-/* The swatches, the room select, the search and "clear" under a finger. */
+/* The swatches, the search and "clear" under a finger. */
 @media (pointer: coarse) {
   .swatchButton {
     inline-size: 44px;
