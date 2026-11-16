@@ -174,6 +174,7 @@ describe("the web's ReportSource over the summaries", () => {
         player: null,
         statsVersion: expect.stringMatching(/^stats\//),
         evVersion: expect.stringMatching(/^ev\//),
+        analysisVersion: expect.stringMatching(/^analysis\//),
       },
     });
     expect(graph?.[0]).toBe("report_graph");

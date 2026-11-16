@@ -5195,13 +5195,20 @@ export type Database = {
       is_card_array: { Args: { p_cards: string[] }; Returns: boolean }
       is_moderator: { Args: never; Returns: boolean }
       is_position_array: { Args: { p_positions: string[] }; Returns: boolean }
+      library_act_sql: { Args: { p_name: string }; Returns: string }
       library_beyond_rollups: { Args: { p_filter: Json }; Returns: boolean }
+      library_builder_ids: { Args: { p_filter: Json }; Returns: string[] }
+      library_builder_where: { Args: { p_filter: Json }; Returns: string }
       library_count: { Args: never; Returns: number }
       library_counts_rebuild: { Args: { p_owner: string }; Returns: Json }
       library_facets: { Args: { p_filter?: Json }; Returns: Json }
       library_list: {
         Args: { p_filter: Json; p_key: string }
         Returns: string[]
+      }
+      library_number: {
+        Args: { p_filter: Json; p_key: string }
+        Returns: string
       }
       library_page: {
         Args: { p_after?: Json; p_filter?: Json; p_limit?: number }

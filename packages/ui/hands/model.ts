@@ -290,6 +290,12 @@ export interface HandsFeatures {
   /** The filter builder's groups (V1): the hero's actions, the texture, ... (the desktop store). */
   builder?: boolean;
   /**
+   * Some of the builder's groups (`GroupId`s), where a source reads only those
+   * (the web, 2026-11-16: the groups a hand's columns answer). Ignored with
+   * `builder`.
+   */
+  builderGroups?: readonly string[];
+  /**
    * The other filters it has; the screen hides the rest. The position lists,
    * the table and the minimum pot narrow the counts and have none of their
    * own; the names group is counted.

@@ -21,6 +21,7 @@ import type {
   SiteFacet,
   StakeFacet,
 } from "@rail/ui/hands/model";
+import { ANALYSIS_VERSION } from "../analysis/types";
 import { EV_VERSION } from "../equity";
 import { getParser } from "../phf";
 import { STATS_VERSION } from "../stats";
@@ -42,6 +43,8 @@ export function libraryFilter(filter: HandFilter): Record<string, unknown> {
     player: filter.playerName ?? null,
     statsVersion: STATS_VERSION,
     evVersion: EV_VERSION,
+    // The builder's analysis groups read the version the client reads.
+    analysisVersion: ANALYSIS_VERSION,
   };
   delete out.playerName;
   delete out.tags;
@@ -114,6 +117,34 @@ export const WEB_HANDS_FEATURES: HandsSource["features"] = {
   annotations: false,
   search: true,
   sorts: ["oldest", "pot", "won", "lost"],
-  // Everything the library's old filter bar had (R4.5b restores it).
-  more: ["tableName", "minPot", "showdownPositions", "winnerPositions", "anonymization"],
+  // The library's old filter bar (R4.5b restores it), but its smallest pot:
+  // the builder's pot size (a range, big blinds or money) is the app's and
+  // replaces it (2026-11-16); saved filters with `minPot` still read.
+  more: ["tableName", "showdownPositions", "winnerPositions", "anonymization"],
+  // The filter builder's groups a hand's columns answer (`library_builder_where`,
+  // 20271116120000). The rest need the app's per-hand facts.
+  builderGroups: [
+    "preflopDid",
+    "preflopFaced",
+    "preflopRole",
+    "streets",
+    "flopLine",
+    "turnLine",
+    "riverLine",
+    "flopSuits",
+    "flopPairing",
+    "flopHigh",
+    "flopConnect",
+    "players",
+    "conditions",
+    "weekdays",
+    "dayParts",
+    "lastHands",
+    "heroStack",
+    "netRange",
+    "potSize",
+    "grades",
+    "evLoss",
+    "knownCards",
+  ],
 };

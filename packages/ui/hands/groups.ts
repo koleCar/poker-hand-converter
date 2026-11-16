@@ -313,6 +313,10 @@ export function filterGroups(features: HandsFeatures): GroupId[] {
     if (more !== "winnerPositions") groups.push(MORE_GROUPS[more]);
   }
   if (features.builder) groups.push(...BUILDER_GROUPS);
+  else if (features.builderGroups) {
+    const read = features.builderGroups;
+    groups.push(...BUILDER_GROUPS.filter((group) => read.includes(group)));
+  }
   return groups;
 }
 
