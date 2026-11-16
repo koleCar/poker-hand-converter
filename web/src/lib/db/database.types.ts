@@ -1505,63 +1505,6 @@ export type Database = {
         }
         Relationships: []
       }
-      hand_sources: {
-        Row: {
-          created_at: string
-          device_id: string | null
-          device_name: string | null
-          hands_duplicate: number
-          hands_inserted: number
-          hands_received: number
-          hands_rejected: number
-          id: string
-          kind: Database["public"]["Enums"]["hand_source_kind"]
-          label: string | null
-          last_ingest_at: string | null
-          last_rejection: string | null
-          local_id: string | null
-          owner_id: string
-          site: string | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          device_id?: string | null
-          device_name?: string | null
-          hands_duplicate?: number
-          hands_inserted?: number
-          hands_received?: number
-          hands_rejected?: number
-          id?: string
-          kind: Database["public"]["Enums"]["hand_source_kind"]
-          label?: string | null
-          last_ingest_at?: string | null
-          last_rejection?: string | null
-          local_id?: string | null
-          owner_id: string
-          site?: string | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          device_id?: string | null
-          device_name?: string | null
-          hands_duplicate?: number
-          hands_inserted?: number
-          hands_received?: number
-          hands_rejected?: number
-          id?: string
-          kind?: Database["public"]["Enums"]["hand_source_kind"]
-          label?: string | null
-          last_ingest_at?: string | null
-          last_rejection?: string | null
-          local_id?: string | null
-          owner_id?: string
-          site?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
       hand_facts: {
         Row: {
           bounty: boolean
@@ -1659,6 +1602,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      hand_sources: {
+        Row: {
+          created_at: string
+          device_id: string | null
+          device_name: string | null
+          hands_duplicate: number
+          hands_inserted: number
+          hands_received: number
+          hands_rejected: number
+          id: string
+          kind: Database["public"]["Enums"]["hand_source_kind"]
+          label: string | null
+          last_ingest_at: string | null
+          last_rejection: string | null
+          local_id: string | null
+          owner_id: string
+          site: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          device_id?: string | null
+          device_name?: string | null
+          hands_duplicate?: number
+          hands_inserted?: number
+          hands_received?: number
+          hands_rejected?: number
+          id?: string
+          kind: Database["public"]["Enums"]["hand_source_kind"]
+          label?: string | null
+          last_ingest_at?: string | null
+          last_rejection?: string | null
+          local_id?: string | null
+          owner_id: string
+          site?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string | null
+          device_name?: string | null
+          hands_duplicate?: number
+          hands_inserted?: number
+          hands_received?: number
+          hands_rejected?: number
+          id?: string
+          kind?: Database["public"]["Enums"]["hand_source_kind"]
+          label?: string | null
+          last_ingest_at?: string | null
+          last_rejection?: string | null
+          local_id?: string | null
+          owner_id?: string
+          site?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       hand_stats: {
         Row: {
@@ -5129,6 +5129,7 @@ export type Database = {
         Args: { p_post_public_id: string; p_seq?: number }
         Returns: Json
       }
+      hand_facts_missing: { Args: { p_facts_version: string }; Returns: number }
       hand_phf_matches: {
         Args: {
           p_hand: Database["public"]["Tables"]["hands"]["Row"]
@@ -5136,7 +5137,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      hand_facts_missing: { Args: { p_facts_version: string }; Returns: number }
       hand_row_from_phf: {
         Args: { p_phf: Json }
         Returns: {
