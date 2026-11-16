@@ -85,8 +85,6 @@ export const chromeEn = {
     offlineTitle: "No database configured. The converter works offline; saved hands and sharing are unavailable.",
     offline: "Offline — no database",
     offlineShort: "Offline",
-    connected: "Database connected",
-    stored: (count: string, n: number) => `${count} ${n === 1 ? "hand" : "hands"} stored`,
   },
   /** The shell's live strip (R4.3): uploads in the account's other tabs, the desktop app's sync, new hands. */
   live: {

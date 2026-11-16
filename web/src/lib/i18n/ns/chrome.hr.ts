@@ -83,8 +83,6 @@ export const chromeHr: Dict["chrome"] = {
     offlineTitle: "Baza podataka nije postavljena. Konverter radi bez nje; spremljene ruke i dijeljenje nisu dostupni.",
     offline: "Offline — bez baze",
     offlineShort: "Offline",
-    connected: "Baza povezana",
-    stored: (count: string, n: number) => `${count} ${plural(n, "spremljena ruka", "spremljene ruke", "spremljenih ruku")}`,
   },
   live: {
     region: "Aktivnost uživo",

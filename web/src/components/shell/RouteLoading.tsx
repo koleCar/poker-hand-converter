@@ -102,7 +102,7 @@ export function RouteLoading() {
       <div className="sharepage">
         <header className="sharepage__bar">
           <div className="sharepage__bar-inner">
-            <BrandMark showTagline={false} />
+            <BrandMark />
           </div>
         </header>
         <main className="sharepage__main">
