@@ -5194,6 +5194,7 @@ export type Database = {
       is_card_array: { Args: { p_cards: string[] }; Returns: boolean }
       is_moderator: { Args: never; Returns: boolean }
       is_position_array: { Args: { p_positions: string[] }; Returns: boolean }
+      library_beyond_rollups: { Args: { p_filter: Json }; Returns: boolean }
       library_count: { Args: never; Returns: number }
       library_counts_rebuild: { Args: { p_owner: string }; Returns: Json }
       library_facets: { Args: { p_filter?: Json }; Returns: Json }
@@ -5261,6 +5262,7 @@ export type Database = {
         Returns: string
       }
       library_table_names: { Args: { p_table: string }; Returns: string[] }
+      library_where: { Args: { p_filter: Json }; Returns: string }
       mark_notifications_read: { Args: { p_ids?: number[] }; Returns: number }
       mod_ban: {
         Args: { p_days: number; p_reason: string; p_username: string }
@@ -5558,6 +5560,7 @@ export type Database = {
         Args: { p_filter?: Json; p_points?: number }
         Returns: Json
       }
+      report_hand_ids: { Args: { p_filter: Json }; Returns: string[] }
       report_open: { Args: { p_filter?: Json }; Returns: Json }
       report_sessions: {
         Args: { p_filter?: Json; p_gap_minutes?: number }

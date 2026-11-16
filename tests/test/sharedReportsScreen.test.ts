@@ -5,7 +5,7 @@
  *
  * - The web's source (`web/src/lib/db/reportSource.ts`) against a faked
  *   `rpc`: what it asks `report_open`, `report_graph`, `report_situations`
- *   and `report_facets` for, and the report it hands the screen - every
+ *   and `library_facets` (the Hands list's counts) for, and the report it hands the screen - every
  *   statistic `showStat` of the shipped definitions over the server's sums,
  *   the money the server withheld shown as no value, the graph's money lines,
  *   rooms named, a stake's symbol.
@@ -167,7 +167,14 @@ describe("the web's ReportSource over the summaries", () => {
     const [open, graph] = rpc.mock.calls;
     expect(open?.[0]).toBe("report_open");
     expect(open?.[1]).toEqual({
-      p_filter: { formats: ["cash"], positions: ["BTN"], statsVersion: expect.stringMatching(/^stats\//), evVersion: expect.stringMatching(/^ev\//) },
+      // The Hands list's own filter (`libraryFilter`): `player` is a name at the table.
+      p_filter: {
+        formats: ["cash"],
+        positions: ["BTN"],
+        player: null,
+        statsVersion: expect.stringMatching(/^stats\//),
+        evVersion: expect.stringMatching(/^ev\//),
+      },
     });
     expect(graph?.[0]).toBe("report_graph");
     expect((graph?.[1] as { p_points: number }).p_points).toBe(150);
@@ -286,7 +293,7 @@ describe("the web's ReportSource over the summaries", () => {
     expect(breakdowns.potType[0]?.stats[BREAKDOWN_COLUMNS.indexOf("hands")]?.value).toBe(30);
   });
 
-  it("the chips' counts from report_facets: rooms named, a stake's symbol from its currency", async () => {
+  it("the chips' counts are the Hands list's (library_facets): rooms named, every group counted", async () => {
     rpc.mockResolvedValue({
       total: 150,
       library: 200,
@@ -297,15 +304,19 @@ describe("the web's ReportSource over the summaries", () => {
       sizes: [{ value: "6max", count: 150 }],
       positions: [{ value: "BTN", count: 40 }],
       stakes: [
-        { value: "USD:200", count: 120, currency: "USD", minorUnits: 100, smallBlind: 100, bigBlind: 200, currencySymbol: null },
+        { value: "USD:200", count: 120, currency: "USD", minorUnits: 100, smallBlind: 100, bigBlind: 200, currencySymbol: "$" },
         { value: "chips", count: 0, currency: null, minorUnits: null, smallBlind: null, bigBlind: null, currencySymbol: null },
       ],
+      potTypes: [{ value: "3bet", count: 12 }],
     });
-    const facets = await webReportSource("Standard format").facets({});
+    const facets = await webReportSource("Standard format").facets({ potTypes: ["3bet"], playerName: "Villain" });
+    expect(rpc).toHaveBeenCalledWith("library_facets", {
+      p_filter: expect.objectContaining({ potTypes: ["3bet"], player: "Villain", statsVersion: expect.stringMatching(/^stats\//) }),
+    });
     expect(facets.sites).toEqual([{ value: "pokerstars", count: 150, name: "PokerStars" }]);
     expect(facets.stakes[0]).toMatchObject({ value: "USD:200", currencySymbol: "$", smallBlind: 100, bigBlind: 200 });
     expect(facets.stakes[1]).toMatchObject({ value: "chips", currencySymbol: null });
-    expect(facets).toMatchObject({ total: 150, library: 200, potTypes: [], tags: [] });
+    expect(facets).toMatchObject({ total: 150, library: 200, potTypes: [{ value: "3bet", count: 12 }], tags: [] });
     expect(hasBothKinds(facets)).toBe(false);
     expect(hasBothKinds({ ...facets, formats: [{ value: "cash", count: 10 }, { value: "tournament", count: 30 }] })).toBe(true);
   });

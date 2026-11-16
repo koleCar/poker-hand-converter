@@ -15,14 +15,18 @@
 --     and `report_situations` against `stats_breakdown`, `report_sessions` against
 --     `stats_sessions`, and `stats_opponents` against its previous body;
 --   * RLS: another account sees nothing of A's, anon is refused, nobody
---     writes the summaries.
+--     writes the summaries;
+--   * the Hands list's whole filter (`20271116100000_report_hands_filter`):
+--     a group beyond the rollups' reads the list's hands one by one and
+--     answers what the summaries answer when it leaves no hand out, and a
+--     pot type's report is its situation row.
 
 begin;
 
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
 
-select plan(91);
+select plan(102);
 
 insert into auth.users (id, email, email_confirmed_at, created_at) values
   ('00000000-0000-0000-0000-0000000045a1', 'summaries.a@example.com', now(), now()),
@@ -1549,6 +1553,44 @@ select ok((public.report_open('{"statsVersion":"stats/2"}') ->> 'hands')::bigint
 select pg_temp.act_as_anon();
 select throws_ok($$ select public.report_open('{}') $$, '42501', null, 'anon: report_open refused');
 select throws_ok($$ select count(*) from public.hero_rollups $$, '42501', null, 'anon: the rollups refused');
+
+-- ---------------------------------------------------------------------------
+-- 6. The Hands list's filter (2026-11-16)
+-- ---------------------------------------------------------------------------
+
+select pg_temp.act_as('00000000-0000-0000-0000-0000000045a1');
+select ok(public.report_hand_ids('{"statsVersion":"stats/2","positions":["BTN"],"from":"2026-10-02T00:00:00Z"}') is null,
+          'only the rollups'' groups: no hand list, the summaries answer');
+-- Every pot type the account has: a group beyond the rollups that leaves no hand out.
+create function pg_temp.every_pot(p_filter jsonb) returns jsonb language sql as $$
+  select p_filter || jsonb_build_object('potTypes',
+    (select jsonb_agg(distinct coalesce(x.pot_type, '')) from public.hand_stats x
+      where x.owner_id = '00000000-0000-0000-0000-0000000045a1'))
+$$;
+grant execute on function pg_temp.every_pot(jsonb) to authenticated;
+select ok(cardinality(public.report_hand_ids(pg_temp.every_pot('{"statsVersion":"stats/2"}'))) > 0,
+          'a pot type set: the list''s hands');
+select is(public.report_open(pg_temp.every_pot(f)), public.report_open(f), 'report_open over the hands = the summaries: ' || k)
+  from (values ('every hand', '{"statsVersion":"stats/2"}'::jsonb),
+               ('dates cut inside days', '{"statsVersion":"stats/2","from":"2026-10-02T07:30:00Z","to":"2026-10-20T18:00:00Z"}'),
+               ('a position and a room', '{"statsVersion":"stats/2","positions":["BTN","BB"],"sites":["pokerstars"]}')) t(k, f);
+select is(public.report_graph(pg_temp.every_pot(f || '{"includeBombPots":true}'), 7), public.report_graph(f || '{"includeBombPots":true}', 7),
+          'report_graph over the hands = the summaries: ' || k)
+  from (values ('every hand', '{"statsVersion":"stats/2"}'::jsonb),
+               ('dates cut inside days', '{"statsVersion":"stats/2","from":"2026-10-02T07:30:00Z","to":"2026-10-20T18:00:00Z"}'),
+               ('a position and a room', '{"statsVersion":"stats/2","positions":["BTN","BB"],"sites":["pokerstars"]}')) t(k, f);
+select is(public.report_situations(pg_temp.every_pot('{"statsVersion":"stats/2","from":"2026-10-02T07:30:00Z"}')),
+          public.report_situations('{"statsVersion":"stats/2","from":"2026-10-02T07:30:00Z"}'),
+          'report_situations over the hands = the summaries');
+select is((select count(*) from jsonb_array_elements(public.report_situations('{"statsVersion":"stats/2"}') -> 'groups' -> 'potType') g,
+                lateral jsonb_each(g) kv
+           where kv.key not in ('key', 'dim')
+             and (public.report_open(jsonb_build_object('statsVersion', 'stats/2', 'potTypes', jsonb_build_array(g ->> 'key'))) -> 'total') ? kv.key
+             and (public.report_open(jsonb_build_object('statsVersion', 'stats/2', 'potTypes', jsonb_build_array(g ->> 'key'))) -> 'total' -> kv.key)
+                 is distinct from kv.value),
+          0::bigint, 'a pot type''s report is its situation row, sum by sum');
+select is(public.report_open('{"statsVersion":"stats/2","stacks":["no-such-depth"]}') -> 'total' ->> 'hands', '0',
+          'a filter nothing matches: no hands, not every hand');
 
 select * from finish();
 rollback;
