@@ -7,6 +7,7 @@ import { SCREENS, screenHref, type Screen } from "../lib/router";
 import { useAccount } from "../lib/useAccount";
 import { MOD_KEY, openPalette } from "./Palette";
 import styles from "./Sidebar.module.css";
+import { SidebarNodelock } from "../solver/nodelock/SidebarNodelock";
 import { SidebarUpdate } from "./SidebarUpdate";
 
 /** One icon per screen: all a collapsed sidebar shows of it. */
@@ -133,6 +134,7 @@ export function Sidebar({ current, tablesOpen }: { current: Screen; tablesOpen: 
           </li>
         ))}
       </ul>
+      <SidebarNodelock collapsed={collapsed} />
       <SidebarUpdate collapsed={collapsed} tablesOpen={tablesOpen} />
       <AccountFoot />
     </nav>
