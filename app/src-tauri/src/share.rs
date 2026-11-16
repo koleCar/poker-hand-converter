@@ -104,9 +104,95 @@ pub fn share_open(slug: String) -> Result<(), String> {
     open::that_detached(url).map_err(|error| error.to_string())
 }
 
+/// The owner's names switch on a link made here; the state the server kept.
+#[tauri::command]
+pub async fn share_set_names(
+    account: State<'_, AccountState>,
+    slug: String,
+    show: bool,
+) -> Result<bool, String> {
+    let account = account.0.clone().ok_or_else(|| UNAVAILABLE.to_owned())?;
+    if account.user().is_none() {
+        return Err(SIGNED_OUT.to_owned());
+    }
+    let client = IngestClient::new(account.config()).map_err(code_of)?;
+    client
+        .set_share_names_as(account.as_ref(), &slug, show)
+        .await
+        .map_err(code_of)
+}
+
+/// `<web>/submit/preview#text=<base64url of the gzipped standard text>`: the
+/// web's post preview, with the hand in the fragment, which the browser
+/// never sends to a server. The author picks the post's settings there and
+/// sees the post before anything is published.
+fn forum_preview_url(origin: &str, standard_text: &str) -> Result<String, String> {
+    use base64::Engine as _;
+    use std::io::Write as _;
+
+    let mut gzip = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::best());
+    gzip.write_all(standard_text.as_bytes())
+        .map_err(|error| error.to_string())?;
+    let packed = base64::engine::general_purpose::URL_SAFE_NO_PAD
+        .encode(gzip.finish().map_err(|error| error.to_string())?);
+    let mut url = url::Url::parse(origin)
+        .and_then(|base| base.join("submit/preview"))
+        .map_err(|error| error.to_string())?;
+    url.set_fragment(Some(&format!("text={packed}")));
+    Ok(url.into())
+}
+
+/// "Post to the forum" from the share panel: the web's post preview for a
+/// hand in the store, in the default browser. Needs no account here: the web
+/// page asks for one when the author posts.
+#[tauri::command]
+pub fn forum_preview_open(store: State<'_, StoreState>, hand_key: String) -> Result<(), String> {
+    let phf_json = store
+        .store
+        .as_ref()
+        .ok_or_else(|| "the store is not open".to_owned())?
+        .reader()
+        .hand_phf(&hand_key)
+        .map_err(|error| error.to_string())?
+        .ok_or_else(|| MISSING.to_owned())?;
+    let hand: PhfHand =
+        serde_json::from_str(&phf_json).map_err(|error| format!("unreadable hand: {error}"))?;
+    let url = forum_preview_url(&web_url(), &to_standard_text(&hand))?;
+    open::that_detached(url).map_err(|error| error.to_string())
+}
+
 #[cfg(test)]
 mod tests {
-    use super::share_url;
+    use super::{forum_preview_url, share_url};
+
+    #[test]
+    fn the_forum_preview_carries_the_hand_in_its_fragment() -> Result<(), String> {
+        use base64::Engine as _;
+        use std::io::Read as _;
+
+        let text = "Poker Hand #1: Hold'em No Limit ($0.10/$0.20)\nSeat 1: Hero ($20)";
+        let url = forum_preview_url("https://poker-hand-converter.vercel.app", text)?;
+        let (base, fragment) = url.split_once('#').ok_or("no fragment")?;
+        assert_eq!(
+            base,
+            "https://poker-hand-converter.vercel.app/submit/preview"
+        );
+        let packed = fragment.strip_prefix("text=").ok_or("no text")?;
+        assert!(
+            packed
+                .bytes()
+                .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_')
+        );
+        let bytes = base64::engine::general_purpose::URL_SAFE_NO_PAD
+            .decode(packed)
+            .map_err(|error| error.to_string())?;
+        let mut out = String::new();
+        flate2::read::GzDecoder::new(&bytes[..])
+            .read_to_string(&mut out)
+            .map_err(|error| error.to_string())?;
+        assert_eq!(out, text);
+        Ok(())
+    }
 
     #[test]
     fn a_link_is_the_web_page_of_its_slug() {

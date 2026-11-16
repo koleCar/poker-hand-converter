@@ -79,6 +79,10 @@ keyring = { version = "=3.6.3", features = ["apple-native", "windows-native"] }
 # Opens the sign-in page in the default browser (R1.7).
 open = "=5.3.3"
 url = "=2.5.8"
+# The post preview link: the hand gzipped and base64url-encoded into the
+# URL fragment (`share.rs`, `forum_preview_url`). The versions the lockfile has.
+flate2 = "=1.1.10"
+base64 = "=0.22.1"
 tauri-plugin-autostart = "=2.5.1"
 # Settings, Updates: the check against the release's `latest.json`, the
 # download (verified with the minisign public key in tauri.conf.json) and

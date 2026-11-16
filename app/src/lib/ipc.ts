@@ -1472,6 +1472,10 @@ export const ipc = {
   trainerResultsRecord: (rows: TrainerResultDto[]) => invoke<number>("trainer_results_record", { rows }),
   /** Open a share link made here in the default browser. */
   shareOpen: (slug: string) => invoke<null>("share_open", { slug }),
+  /** The owner's names switch on a link made here; the state the server kept. */
+  shareSetNames: (slug: string, show: boolean) => invoke<boolean>("share_set_names", { slug, show }),
+  /** The web's post preview for a hand in the store, in the default browser (`share.rs`). */
+  forumPreviewOpen: (handKey: string) => invoke<null>("forum_preview_open", { handKey }),
   handAnnotations: (handKey: string) => invoke<HandAnnotations>("hand_annotations", { handKey }),
   handSetNote: (handKey: string, note: string) => invoke<HandAnnotations>("hand_set_note", { handKey, note }),
   handAddTag: (handKey: string, tag: string) => invoke<HandAnnotations>("hand_add_tag", { handKey, tag }),

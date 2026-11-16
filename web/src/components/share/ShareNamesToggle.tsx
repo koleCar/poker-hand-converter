@@ -17,7 +17,7 @@ import { useAuth } from "../../lib/auth";
 import { setShareNames, shareNamesState, type ShareNamesState } from "../../lib/db";
 import { useDict } from "../../lib/i18n/client";
 import styles from "../analysis/AnalysisShareToggle.module.css";
-import { SettingRow, TipLine } from "./SettingRow";
+import { SettingRow, TipLine } from "@rail/ui/share/SettingRow";
 
 export function ShareNamesToggle({
   slug,

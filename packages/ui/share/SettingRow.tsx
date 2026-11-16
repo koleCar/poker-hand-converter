@@ -12,7 +12,7 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
-import { Icon, type IconName } from "@rail/ui/icon/Icon";
+import { Icon, type IconName } from "../icon/Icon";
 import styles from "./SettingRow.module.css";
 
 export function SettingRow({

@@ -21,7 +21,7 @@ import { ANALYSIS_VERSION } from "../../lib/analysis/types";
 import { useAuth } from "../../lib/auth";
 import { analysisShareState, setAnalysisShare, type AnalysisShareState, type ShareSurface } from "../../lib/db/analysisShare";
 import { useDict } from "../../lib/i18n/client";
-import { SettingRow, TipLine } from "../share/SettingRow";
+import { SettingRow, TipLine } from "@rail/ui/share/SettingRow";
 import { paths } from "../../lib/routes";
 import styles from "./AnalysisShareToggle.module.css";
 

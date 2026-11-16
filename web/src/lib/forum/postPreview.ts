@@ -169,3 +169,25 @@ export function dropPostDraft(id: string): void {
     // Nothing to clean up in a browser that blocks storage.
   }
 }
+
+/* --------------------------------------------- desktop app → preview tab - */
+
+/**
+ * The desktop app opens the preview in the default browser with the hand in
+ * the URL's fragment: `#text=<base64url of the gzipped standard text>`. A
+ * fragment never leaves the browser, so the hand reaches no server until the
+ * author presses Post (`app/src-tauri/src/share.rs`, `forum_preview_open`).
+ */
+export async function handTextFromFragment(hash: string): Promise<string | null> {
+  const packed = new URLSearchParams(hash.replace(/^#/, "")).get("text");
+  if (!packed || !/^[A-Za-z0-9_-]+$/.test(packed)) return null;
+  try {
+    const base64 = packed.replace(/-/g, "+").replace(/_/g, "/");
+    const binary = atob(base64 + "=".repeat((4 - (base64.length % 4)) % 4));
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+    return await new Response(stream).text();
+  } catch {
+    return null;
+  }
+}

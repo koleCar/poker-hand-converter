@@ -27,7 +27,8 @@ import { fetchHandAnalysis } from "../../../lib/db/analysis";
 import { createPollPost, createPost, forumErrorMessage, listOpenBoards } from "../../../lib/db/forum";
 import { publishErrorMessage, publishHand, type PublishMode } from "../../../lib/db/publishing";
 import { CHOICE_LABEL, pollSpots } from "../../../lib/forum/poll";
-import { dropPostDraft, previewPoll, previewScrub, readPostDraft } from "../../../lib/forum/postPreview";
+import { dropPostDraft, handTextFromFragment, previewPoll, previewScrub, readPostDraft } from "../../../lib/forum/postPreview";
+import { convertAny } from "../../../lib/parsers";
 import type { BoardRef } from "../../../lib/forum/types";
 import { useDict } from "../../../lib/i18n/client";
 import { toStandardText } from "../../../lib/phf";
@@ -94,7 +95,13 @@ function PostPreview({ handId, draftId }: { handId: string | null; draftId: stri
         () => undefined,
       );
     } else if (!handId) {
-      setLoaded({ status: "gone" });
+      // From the desktop app: the hand in the fragment, as standard text.
+      void handTextFromFragment(window.location.hash)
+        .then(async (text) => (text ? (await convertAny(text)).hands[0] ?? null : null))
+        .then(
+          (hand) => live && setLoaded(hand ? { status: "ok", hand } : { status: "gone" }),
+          () => live && setLoaded({ status: "gone" }),
+        );
     }
     return () => {
       live = false;

@@ -1,70 +1,218 @@
-/* The share panel: under the share button, over everything (portalled to
-   the body; see ShareHand.tsx). */
+/* The share panel, as on the web (`web/src/styles/share.css`): the link,
+   the names switch and "Post to the forum", with no heading or close
+   button. Under the share button, over everything (portalled to the body;
+   see ShareHand.tsx). */
 
 .panel {
   position: fixed;
   z-index: var(--z-menu);
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  inline-size: min(22rem, calc(100vw - 1rem));
-  padding: var(--space-3);
+  gap: var(--space-1);
+  inline-size: min(344px, calc(100vw - 1rem));
+  padding: var(--space-2);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-3);
-  background: var(--surface-raised);
-  box-shadow: var(--shadow-2);
+  background: var(--surface-overlay);
+  box-shadow: var(--elevation-2);
   color: var(--text-primary);
   font-size: var(--font-size-sm);
+  animation: share-in var(--dur-3) var(--ease-out);
+  transform-origin: top right;
 }
 
-.head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
+@keyframes share-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
 }
 
 .hint {
+  margin: 0;
+  padding: var(--space-1) var(--space-1) var(--space-2);
   color: var(--text-secondary);
-  font-size: var(--font-size-xs);
 }
 
-.row {
+/* The link, its open icon and Copy in one field. */
+.link {
   display: flex;
-  gap: var(--space-2);
+  align-items: center;
+  gap: 2px;
+  block-size: 42px;
+  padding-inline-end: 5px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-sunken);
+}
+
+.link:focus-within {
+  border-color: var(--border-focus);
 }
 
 .url {
   flex: 1 1 auto;
   min-inline-size: 0;
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-2);
-  background: var(--surface-inset);
+  block-size: 100%;
+  padding: 0 var(--space-1) 0 var(--space-3);
+  border: 0;
+  background: transparent;
   color: var(--text-primary);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  text-overflow: ellipsis;
+}
+
+.url:focus-visible {
+  outline: none;
+}
+
+.shim {
+  flex: 1 1 auto;
+  block-size: 10px;
+  margin: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--surface-raised), var(--surface-hover), var(--surface-raised));
+  background-size: 200% 100%;
+  animation: share-shim 1.2s linear infinite;
+}
+
+@keyframes share-shim {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 28px;
+  block-size: 28px;
+  border: 0;
+  border-radius: var(--radius-1);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.icon:hover {
+  color: var(--text-primary);
+  background: var(--surface-hover);
+}
+
+.icon svg {
+  inline-size: 15px;
+  block-size: 15px;
+}
+
+.copy {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  block-size: 30px;
+  margin-inline-start: var(--space-1);
+  padding: 0 11px;
+  border: 0;
+  border-radius: var(--radius-1);
+  background: var(--accent-bg);
+  color: var(--text-on-accent);
   font: inherit;
   font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background var(--dur-2) var(--ease-standard);
 }
 
-.actions {
+.copy:hover {
+  background: var(--accent-bg-hover);
+}
+
+.copy:disabled {
+  background: var(--surface-hover);
+  color: var(--text-tertiary);
+  cursor: progress;
+}
+
+.copied {
+  background: var(--success-fg);
+}
+
+.copy svg {
+  inline-size: 13px;
+  block-size: 13px;
+  stroke-width: 3;
+}
+
+.sep {
+  block-size: 1px;
+  margin: 2px;
+  background: var(--border-subtle);
+}
+
+/* "Post to the forum": the web's post preview, in the browser. */
+.forum {
   display: flex;
+  align-items: center;
   gap: var(--space-2);
+  inline-size: 100%;
+  block-size: 42px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background var(--dur-2) var(--ease-standard);
 }
 
-.ok,
+.forum:hover {
+  background: var(--surface-hover);
+}
+
+.forum svg {
+  inline-size: 16px;
+  block-size: 16px;
+}
+
+.ext {
+  margin-inline-start: auto;
+  display: inline-flex;
+  color: var(--text-tertiary);
+}
+
+.forum:hover .ext {
+  color: var(--text-primary);
+}
+
+.ext svg {
+  inline-size: 14px;
+  block-size: 14px;
+}
+
 .warn,
 .error {
+  margin: 0;
+  padding: 0 var(--space-1);
   font-size: var(--font-size-xs);
-}
-
-.ok {
-  color: var(--success-fg);
 }
 
 .warn {
-  color: var(--text-secondary);
+  color: var(--warning-fg);
 }
 
 .error {
   color: var(--danger-fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .shim {
+    animation: none;
+  }
 }

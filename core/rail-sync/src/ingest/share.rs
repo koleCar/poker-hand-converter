@@ -30,6 +30,12 @@ struct Created {
     slug: String,
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct NamesState {
+    show_names: bool,
+}
+
 /// A slug as `generate_share_slug()` makes them: short, URL-safe.
 pub fn is_share_slug(slug: &str) -> bool {
     (1..=64).contains(&slug.len())
@@ -74,6 +80,40 @@ impl IngestClient {
     ) -> Result<String, IngestError> {
         with_token(account, |token| async move {
             self.create_share(&token, request).await
+        })
+        .await
+    }
+}
+
+impl IngestClient {
+    /// The owner's switch on a link made here (`set_share_names()`, R4.5):
+    /// whether it shows the players' screen names. The state the server kept.
+    pub async fn set_share_names(
+        &self,
+        token: &Secret,
+        slug: &str,
+        show: bool,
+    ) -> Result<bool, IngestError> {
+        if !is_share_slug(slug) {
+            return Err(IngestError::Transient("not a share link".into()));
+        }
+        let body = serde_json::json!({ "p_slug": slug, "p_show": show }).to_string();
+        let bytes = self.call(token, "set_share_names", body).await?;
+        let state: NamesState = serde_json::from_slice(&bytes)
+            .map_err(|_| IngestError::Transient("unreadable share".into()))?;
+        Ok(state.show_names)
+    }
+
+    /// [`IngestClient::set_share_names`] with the account's token (one
+    /// refresh and retry after a `401`).
+    pub async fn set_share_names_as(
+        &self,
+        account: &impl TokenSource,
+        slug: &str,
+        show: bool,
+    ) -> Result<bool, IngestError> {
+        with_token(account, |token| async move {
+            self.set_share_names(&token, slug, show).await
         })
         .await
     }

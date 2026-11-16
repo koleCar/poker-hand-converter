@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /**
  * The post preview, opened in a new tab by "Post to the forum" in the share
- * popover: `?hand=<library row id>` or `?draft=<local draft key>`. Everything
+ * popover: `?hand=<library row id>`, `?draft=<local draft key>`, or the desktop app's `#text=<hand>`. Everything
  * here is the author's own and private until they press Post, so the page is
  * all client: it reads the hand with the author's session.
  */
