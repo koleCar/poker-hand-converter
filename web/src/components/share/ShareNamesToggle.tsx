@@ -17,13 +17,17 @@ import { useAuth } from "../../lib/auth";
 import { setShareNames, shareNamesState, type ShareNamesState } from "../../lib/db";
 import { useDict } from "../../lib/i18n/client";
 import styles from "../analysis/AnalysisShareToggle.module.css";
+import { SettingRow, TipLine } from "./SettingRow";
 
 export function ShareNamesToggle({
   slug,
   refreshOnChange = false,
+  compact = false,
   className,
 }: {
   slug: string;
+  /** One row with the explanation on hover: the share popover. */
+  compact?: boolean;
   /** Re-render the server page after a change: the share page reads its hand on the server. */
   refreshOnChange?: boolean;
   className?: string;
@@ -68,6 +72,30 @@ export function ShareNamesToggle({
     } finally {
       setBusy(false);
     }
+  }
+
+  if (compact) {
+    return (
+      <SettingRow
+        icon="user"
+        label={t.row.label}
+        checked={state.showNames}
+        status={busy ? t.saving : state.showNames ? t.row.shown : t.row.hidden}
+        busy={busy}
+        onToggle={(next) => void toggle(next)}
+        error={error}
+        explain={
+          <>
+            <TipLine current={!state.showNames}>
+              <b>{t.row.off}</b> · {t.row.offText}
+            </TipLine>
+            <TipLine current={state.showNames}>
+              <b>{t.row.on}</b> · {t.row.onText}
+            </TipLine>
+          </>
+        }
+      />
+    );
   }
 
   return (

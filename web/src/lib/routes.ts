@@ -161,6 +161,15 @@ export const paths = {
   comment: (board: string, publicId: string, slug: string, seq: number) =>
     `/f/${encodeURIComponent(board)}/${encodeURIComponent(publicId)}/${encodeURIComponent(slug)}#c-${seq}`,
   submit: () => "/submit",
+  /**
+   * A hand's forum post, previewed before it is posted: a library hand by its
+   * row id, or a hand not saved yet by the key of its local draft
+   * (`lib/forum/postPreview.ts`). Opened in a new tab from the share popover.
+   */
+  postPreview: (source: { hand: string } | { draft: string }) =>
+    "hand" in source
+      ? `/submit/preview?hand=${encodeURIComponent(source.hand)}`
+      : `/submit/preview?draft=${encodeURIComponent(source.draft)}`,
   notifications: () => "/notifications",
   saved: () => "/saved",
   mod: () => "/mod",
