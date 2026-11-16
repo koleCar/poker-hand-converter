@@ -40,15 +40,7 @@ interface PreflopBarProps {
   onView?: (line: string | null) => void;
 }
 
-export function PreflopBar({
-  tables,
-  table,
-  onTable,
-  state,
-  onLine,
-  viewing = null,
-  onView,
-}: PreflopBarProps) {
+export function PreflopBar({ tables, table, onTable, state, onLine, viewing = null, onView }: PreflopBarProps) {
   const t = useSolverDict();
   const [settings, setSettings] = useState(false);
 
@@ -60,11 +52,7 @@ export function PreflopBar({
           {t.settings.summary(table.players, table.stackBb)}
           {table.format !== "classic" ? ` · ${t.settings[table.format]}` : ""}
         </strong>
-        <button
-          type="button"
-          className="btn btn--sm"
-          onClick={() => setSettings(true)}
-        >
+        <button type="button" className="btn btn--sm" onClick={() => setSettings(true)}>
           {t.settings.change}
         </button>
       </div>
@@ -73,10 +61,7 @@ export function PreflopBar({
         {(state?.cards ?? []).map((card) => {
           const played = playedOptions(card.node);
           // The card whose decision the grid shows: the one being looked back at, else the one to act.
-          const shown =
-            viewing !== null
-              ? card.kind === "past" && card.line === viewing
-              : card.kind === "current";
+          const shown = viewing !== null ? card.kind === "past" && card.line === viewing : card.kind === "current";
           const look = () => {
             if (card.kind === "past") onView?.(card.line);
             else if (card.kind === "current") onView?.(null);
@@ -91,11 +76,7 @@ export function PreflopBar({
                 type="button"
                 className={styles.seatHead}
                 aria-pressed={shown}
-                title={
-                  card.kind === "ahead"
-                    ? t.preflop.foldTo(card.node.actor)
-                    : t.preflop.show(card.node.actor)
-                }
+                title={card.kind === "ahead" ? t.preflop.foldTo(card.node.actor) : t.preflop.show(card.node.actor)}
                 onClick={look}
               >
                 <strong>{card.node.actor}</strong>
@@ -106,19 +87,14 @@ export function PreflopBar({
                   const taken = card.chosen === option.code;
                   // An option no hand takes is not one to offer - unless the line took it.
                   if (!taken && !played[a]) return null;
-                  const other =
-                    card.kind === "ahead" || (card.kind === "past" && !taken);
+                  const other = card.kind === "ahead" || (card.kind === "past" && !taken);
                   return (
                     <button
                       key={option.code}
                       type="button"
                       className={`${styles.seatOption} ${taken ? styles.seatTaken : ""} ${other ? styles.seatAhead : ""}`}
                       aria-pressed={card.kind === "past" ? taken : undefined}
-                      title={
-                        card.kind === "past" && !taken
-                          ? t.preflop.rewind(card.node.actor)
-                          : undefined
-                      }
+                      title={card.kind === "past" && !taken ? t.preflop.rewind(card.node.actor) : undefined}
                       onClick={() => onLine(card.line + option.code)}
                     >
                       {t.preflop.action(option.action, option.toBb)}
@@ -132,11 +108,7 @@ export function PreflopBar({
       </div>
 
       {settings ? (
-        <Overlay
-          open
-          onClose={() => setSettings(false)}
-          title={t.settings.title}
-        >
+        <Overlay open onClose={() => setSettings(false)} title={t.settings.title}>
           <TableSettings
             tables={tables}
             table={table}
@@ -145,11 +117,7 @@ export function PreflopBar({
             }}
           />
           <div className={styles.settingsFoot}>
-            <button
-              type="button"
-              className="btn btn--primary"
-              onClick={() => setSettings(false)}
-            >
+            <button type="button" className="btn btn--primary" onClick={() => setSettings(false)}>
               {t.settings.done}
             </button>
           </div>
@@ -159,21 +127,11 @@ export function PreflopBar({
   );
 }
 
-function TableSettings({
-  tables,
-  table,
-  onTable,
-}: {
-  tables: readonly TableOption[];
-  table: TableOption;
-  onTable: (id: string) => void;
-}) {
+function TableSettings({ tables, table, onTable }: { tables: readonly TableOption[]; table: TableOption; onTable: (id: string) => void }) {
   const t = useSolverDict().settings;
   const formats = FORMATS.filter((f) => tables.some((x) => x.format === f));
   const sameFormat = tables.filter((x) => x.format === table.format);
-  const counts = [...new Set(sameFormat.map((x) => x.players))].sort(
-    (a, b) => a - b,
-  );
+  const counts = [...new Set(sameFormat.map((x) => x.players))].sort((a, b) => a - b);
   const depths = sameFormat.filter((x) => x.players === table.players);
   return (
     <div className={styles.settings}>
@@ -189,18 +147,8 @@ function TableSettings({
                 aria-pressed={format === table.format}
                 onClick={() => {
                   const pool = tables.filter((x) => x.format === format);
-                  const same = pool.find(
-                    (x) =>
-                      x.players === table.players &&
-                      x.stackBb === table.stackBb,
-                  );
-                  onTable(
-                    (
-                      same ??
-                      pool.find((x) => x.players === table.players) ??
-                      pool[0]
-                    ).id,
-                  );
+                  const same = pool.find((x) => x.players === table.players && x.stackBb === table.stackBb);
+                  onTable((same ?? pool.find((x) => x.players === table.players) ?? pool[0]).id);
                 }}
               >
                 {t[format]}
@@ -219,12 +167,8 @@ function TableSettings({
               className={`${styles.segment} ${players === table.players ? styles.segmentOn : ""}`}
               aria-pressed={players === table.players}
               onClick={() => {
-                const same = sameFormat.find(
-                  (x) => x.players === players && x.stackBb === table.stackBb,
-                );
-                onTable(
-                  (same ?? sameFormat.find((x) => x.players === players)!).id,
-                );
+                const same = sameFormat.find((x) => x.players === players && x.stackBb === table.stackBb);
+                onTable((same ?? sameFormat.find((x) => x.players === players)!).id);
               }}
             >
               {t.playersName(players)}

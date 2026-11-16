@@ -35,19 +35,9 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { flopLinesFor } from "../../lib/analysis/flopLibrary";
-import {
-  followWalk,
-  parseWalk,
-  type WalkStep,
-} from "../../lib/analysis/solverWalk";
+import { followWalk, parseWalk, type WalkStep } from "../../lib/analysis/solverWalk";
 import { preflopChartSet } from "../../lib/chartSet";
-import {
-  CHART_SETS,
-  chartSetKind,
-  DEFAULT_CHART_SET,
-  type ChartNode,
-  type ChartSet,
-} from "../../lib/charts";
+import { CHART_SETS, chartSetKind, DEFAULT_CHART_SET, type ChartNode, type ChartSet } from "../../lib/charts";
 import {
   classCombos,
   dealtCards,
@@ -64,12 +54,7 @@ import {
   type LiveTurnProgress,
   type PickedFlop,
 } from "../../lib/solver";
-import {
-  actionTotals,
-  GRID_CELLS,
-  OFF_RANGE_WEIGHT,
-  playedOptions,
-} from "../analysis/chartSpots";
+import { actionTotals, GRID_CELLS, OFF_RANGE_WEIGHT, playedOptions } from "../analysis/chartSpots";
 import analysis from "../analysis/analysis.module.css";
 import { FlopPicker } from "./FlopPicker";
 import { loadFullSolve, type FullSolve } from "./fullSolve";
@@ -80,12 +65,7 @@ import { PreflopBar, type TableOption } from "./PreflopBar";
 import { preflopState } from "./preflop";
 import { filterMasks, useRangeData } from "./rangeData";
 import { RangesView } from "./RangesView";
-import {
-  actionColours,
-  StrategyView,
-  type StrategyHero,
-  type StrategyModel,
-} from "./StrategyView";
+import { actionColours, StrategyView, type StrategyHero, type StrategyModel } from "./StrategyView";
 import styles from "./solver.module.css";
 
 type Dict = SolverDict;
@@ -111,10 +91,7 @@ function byRanks(a: string, b: string): number {
   return rb[0] - ra[0] || rb[1] - ra[1] || rb[2] - ra[2] || a.localeCompare(b);
 }
 
-type Loaded<T> =
-  | { key: string; status: "loading" }
-  | { key: string; status: "ready"; value: T }
-  | { key: string; status: "error" };
+type Loaded<T> = { key: string; status: "loading" } | { key: string; status: "ready"; value: T } | { key: string; status: "error" };
 
 interface SolverLibraryProps {
   initialSet: string | null;
@@ -155,77 +132,37 @@ export interface SolverView {
 
 export function SolverLibrary(props: SolverLibraryProps) {
   const { t } = useSolverHost();
-  if (!SOLVER_SETS.length)
-    return <p className={analysis.muted}>{t.unavailable}</p>;
+  if (!SOLVER_SETS.length) return <p className={analysis.muted}>{t.unavailable}</p>;
   // Without a flop library reader the preflop charts still show: every line is preflop only.
   return <Browser {...props} />;
 }
 
-function Browser({
-  initialSet,
-  initialLine,
-  initialFlop,
-  initialNode,
-  initialTurn,
-  initialPath,
-  initialWalk,
-  onView,
-  hero = null,
-}: SolverLibraryProps) {
+function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTurn, initialPath, initialWalk, onView, hero = null }: SolverLibraryProps) {
   const { t, loader, fullSolveBase } = useSolverHost();
   const [setId, setSetId] = useState<string>(
-    initialSet && SOLVER_SETS.includes(initialSet)
-      ? initialSet
-      : SOLVER_SETS.includes(DEFAULT_CHART_SET)
-        ? DEFAULT_CHART_SET
-        : SOLVER_SETS[0],
+    initialSet && SOLVER_SETS.includes(initialSet) ? initialSet : SOLVER_SETS.includes(DEFAULT_CHART_SET) ? DEFAULT_CHART_SET : SOLVER_SETS[0],
   );
   const [line, setLine] = useState(initialLine ?? "");
-  const [flop, setFlop] = useState<string[] | null>(
-    initialFlop ? flopCards(initialFlop) : null,
-  );
+  const [flop, setFlop] = useState<string[] | null>(initialFlop ? flopCards(initialFlop) : null);
   const [node, setNode] = useState(initialNode ?? 0);
   /** A flop decision named by its path, read once the flop's solve is in (`initialPath`). */
   const [path, setPath] = useState(initialPath ?? null);
   /** A hand's line being followed (`initialWalk`): the turn and the decision are read off it until the walk moves on. */
-  const [walk, setWalk] = useState<WalkStep[] | null>(() =>
-    parseWalk(initialWalk),
-  );
+  const [walk, setWalk] = useState<WalkStep[] | null>(() => parseWalk(initialWalk));
   const [picker, setPicker] = useState(false);
   /** The line whose automatic flop prompt was closed: it does not come back for that line. */
   const [dismissed, setDismissed] = useState<string | null>(null);
-  const [charts, setCharts] = useState<Loaded<ChartSet>>({
-    key: "",
-    status: "loading",
-  });
-  const [entries, setEntries] = useState<Loaded<Map<string, string[]>>>({
-    key: "",
-    status: "loading",
-  });
-  const [chunk, setChunk] = useState<Loaded<FlopChunk>>({
-    key: "",
-    status: "loading",
-  });
+  const [charts, setCharts] = useState<Loaded<ChartSet>>({ key: "", status: "loading" });
+  const [entries, setEntries] = useState<Loaded<Map<string, string[]>>>({ key: "", status: "loading" });
+  const [chunk, setChunk] = useState<Loaded<FlopChunk>>({ key: "", status: "loading" });
   const [attempt, setAttempt] = useState(0);
-  const [full, setFull] = useState<Loaded<FullSolve | null>>({
-    key: "",
-    status: "loading",
-  });
+  const [full, setFull] = useState<Loaded<FullSolve | null>>({ key: "", status: "loading" });
   /** The turn being walked - a full solve's file (`turn/X-X~Kd.bin`) or a live turn (`live:12~Kd`) - or null on the flop. */
   const [pickedTurn, setTurn] = useState<string | null>(
-    initialTurn
-      ? parseLiveTurnId(initialTurn)
-        ? `live:${initialTurn}`
-        : `turn/${initialTurn}.bin`
-      : null,
+    initialTurn ? (parseLiveTurnId(initialTurn) ? `live:${initialTurn}` : `turn/${initialTurn}.bin`) : null,
   );
-  const [turnChunk, setTurnChunk] = useState<Loaded<FlopChunk>>({
-    key: "",
-    status: "loading",
-  });
-  const [progress, setProgress] = useState<
-    (LiveTurnProgress & { key: string }) | null
-  >(null);
+  const [turnChunk, setTurnChunk] = useState<Loaded<FlopChunk>>({ key: "", status: "loading" });
+  const [progress, setProgress] = useState<(LiveTurnProgress & { key: string }) | null>(null);
   /** A street's betting is over and its card is being picked: the deal's node (flop chunk: the turn; turn file: the river). */
   const [deal, setDeal] = useState<number | null>(null);
   const [tab, setTab] = useState<"strategy" | "ranges">("strategy");
@@ -247,68 +184,44 @@ function Browser({
     let live = true;
     void preflopChartSet(setId)
       .then((value) => {
-        if (live)
-          setCharts(
-            value
-              ? { key: setId, status: "ready", value }
-              : { key: setId, status: "error" },
-          );
+        if (live) setCharts(value ? { key: setId, status: "ready", value } : { key: setId, status: "error" });
       })
       .catch(() => {
         if (live) setCharts({ key: setId, status: "error" });
       });
-    void (
-      loader
-        ? loader.listed(setId)
-        : Promise.resolve([] as Array<{ line: string; flop: string }>)
-    ).then((listed) => {
-      if (!live) return;
-      const byLine = new Map<string, string[]>();
-      for (const entry of listed)
-        byLine.set(entry.line, [...(byLine.get(entry.line) ?? []), entry.flop]);
-      for (const keys of byLine.values()) keys.sort(byRanks);
-      setEntries({ key: setId, status: "ready", value: byLine });
-    });
+    void (loader ? loader.listed(setId) : Promise.resolve([] as Array<{ line: string; flop: string }>))
+      .then((listed) => {
+        if (!live) return;
+        const byLine = new Map<string, string[]>();
+        for (const entry of listed) byLine.set(entry.line, [...(byLine.get(entry.line) ?? []), entry.flop]);
+        for (const keys of byLine.values()) keys.sort(byRanks);
+        setEntries({ key: setId, status: "ready", value: byLine });
+      });
     return () => {
       live = false;
     };
   }, [setId, loader]);
 
-  const chartSet =
-    charts.key === setId && charts.status === "ready" ? charts.value : null;
-  const manifest =
-    entries.key === setId && entries.status === "ready" ? entries.value : null;
-  const state = useMemo(
-    () => (chartSet ? preflopState(chartSet, line, lines) : null),
-    [chartSet, line, lines],
-  );
+  const chartSet = charts.key === setId && charts.status === "ready" ? charts.value : null;
+  const manifest = entries.key === setId && entries.status === "ready" ? entries.value : null;
+  const state = useMemo(() => (chartSet ? preflopState(chartSet, line, lines) : null), [chartSet, line, lines]);
   const end = state?.end ?? null;
   const libraryLine = end?.kind === "flop" ? end.line : null;
-  const solved = useMemo(
-    () => (libraryLine && manifest?.get(libraryLine.id)) || [],
-    [libraryLine, manifest],
-  );
-  const picked: PickedFlop | null = useMemo(
-    () => (flop ? pickedFlop(flop) : null),
-    [flop],
-  );
+  const solved = useMemo(() => (libraryLine && manifest?.get(libraryLine.id)) || [], [libraryLine, manifest]);
+  const picked: PickedFlop | null = useMemo(() => (flop ? pickedFlop(flop) : null), [flop]);
   const flopKey = picked && solved.includes(picked.key) ? picked.key : null;
-  const chunkKey =
-    libraryLine && flopKey ? `${setId}/${libraryLine.id}/${flopKey}` : "";
+  const chunkKey = libraryLine && flopKey ? `${setId}/${libraryLine.id}/${flopKey}` : "";
 
   // The chunk of the line and the flop.
   useEffect(() => {
     // A chunk is only ever named from the reader's own manifest.
     if (!chunkKey || !libraryLine || !flopKey || !loader) return;
     let live = true;
-    void loader.load(setId, libraryLine.id, flopKey).then((value) => {
-      if (live)
-        setChunk(
-          value
-            ? { key: chunkKey, status: "ready", value }
-            : { key: chunkKey, status: "error" },
-        );
-    });
+    void loader
+      .load(setId, libraryLine.id, flopKey)
+      .then((value) => {
+        if (live) setChunk(value ? { key: chunkKey, status: "ready", value } : { key: chunkKey, status: "error" });
+      });
     return () => {
       live = false;
     };
@@ -318,13 +231,7 @@ function Browser({
   useEffect(() => {
     if (!chunkKey || !libraryLine || !flopKey) return;
     let live = true;
-    void loadFullSolve(
-      fullSolveBase,
-      setId,
-      "flop-m1",
-      libraryLine.id,
-      flopKey,
-    ).then((value) => {
+    void loadFullSolve(fullSolveBase, setId, "flop-m1", libraryLine.id, flopKey).then((value) => {
       if (live) setFull({ key: chunkKey, status: "ready", value });
     });
     return () => {
@@ -333,69 +240,40 @@ function Browser({
   }, [chunkKey, setId, libraryLine, flopKey, fullSolveBase]);
   const fullReady = full.key === chunkKey && full.status === "ready";
   const fullSolve = fullReady ? full.value : null;
-  const librarySolve =
-    chunk.key === chunkKey && chunk.status === "ready" ? chunk.value : null;
+  const librarySolve = chunk.key === chunkKey && chunk.status === "ready" ? chunk.value : null;
   /** Without a full solve, turns are solved live from the library's chunk. */
   const liveBase = fullReady && !fullSolve ? librarySolve : null;
   const flopSolve = fullSolve?.flop ?? librarySolve;
 
   // A hand's line: followed on the flop's solve, then onto the turn its deal deals - a full solve's file, or solved live.
-  const flopWalk = useMemo(
-    () =>
-      walk && flopSolve && picked
-        ? followWalk(flopSolve, walk, picked.perm)
-        : null,
-    [walk, flopSolve, picked],
-  );
+  const flopWalk = useMemo(() => (walk && flopSolve && picked ? followWalk(flopSolve, walk, picked.perm) : null), [walk, flopSolve, picked]);
   const walkTurn = useMemo(() => {
-    if (!flopWalk?.card || flopWalk.deal === null || !flopSolve || !fullReady)
-      return null;
+    if (!flopWalk?.card || flopWalk.deal === null || !flopSolve || !fullReady) return null;
     if (fullSolve) {
       const at = flopSolve.result.nodes[flopWalk.deal].path;
-      return (
-        fullSolve.manifest.turns.find(
-          (x) => x.flopPath === at && x.card === flopWalk.card,
-        )?.file ?? null
-      );
+      return fullSolve.manifest.turns.find((x) => x.flopPath === at && x.card === flopWalk.card)?.file ?? null;
     }
     // An all-in on the flop: nothing left to solve.
-    return turnDeal(flopSolve, flopWalk.deal)
-      ? `live:${liveTurnId(flopWalk.deal, flopWalk.card)}`
-      : null;
+    return turnDeal(flopSolve, flopWalk.deal) ? `live:${liveTurnId(flopWalk.deal, flopWalk.card)}` : null;
   }, [flopWalk, flopSolve, fullReady, fullSolve]);
   const turn = walk ? walkTurn : pickedTurn;
-  const live = useMemo(
-    () => (turn?.startsWith("live:") ? parseLiveTurnId(turn.slice(5)) : null),
-    [turn],
-  );
+  const live = useMemo(() => (turn?.startsWith("live:") ? parseLiveTurnId(turn.slice(5)) : null), [turn]);
 
-  const turnKey =
-    turn && (live ? liveBase : fullSolve) ? `${chunkKey}/${turn}` : "";
+  const turnKey = turn && (live ? liveBase : fullSolve) ? `${chunkKey}/${turn}` : "";
   useEffect(() => {
     if (!turnKey || !turn) return;
     let alive = true;
     let request: Promise<FlopChunk | null>;
     if (live && liveBase) {
-      request = solveTurnLive(
-        chunkKey,
-        liveBase,
-        live.chance,
-        live.card,
-        (p) => {
-          if (alive) setProgress({ ...p, key: turnKey });
-        },
-      );
+      request = solveTurnLive(chunkKey, liveBase, live.chance, live.card, (p) => {
+        if (alive) setProgress({ ...p, key: turnKey });
+      });
     } else if (fullSolve) {
       request = fullSolve.turn(turn);
     } else return;
     void request.then(
       (value) => {
-        if (alive)
-          setTurnChunk(
-            value
-              ? { key: turnKey, status: "ready", value }
-              : { key: turnKey, status: "error" },
-          );
+        if (alive) setTurnChunk(value ? { key: turnKey, status: "ready", value } : { key: turnKey, status: "error" });
       },
       () => {
         if (alive) setTurnChunk({ key: turnKey, status: "error" });
@@ -405,45 +283,27 @@ function Browser({
       alive = false;
     };
   }, [turnKey, turn, live, liveBase, fullSolve, chunkKey, attempt]);
-  const turnSolve =
-    turnChunk.key === turnKey && turnChunk.status === "ready"
-      ? turnChunk.value
-      : null;
+  const turnSolve = turnChunk.key === turnKey && turnChunk.status === "ready" ? turnChunk.value : null;
   const turnWalk = useMemo(
-    () =>
-      walk && turn && turnSolve && flopWalk?.card
-        ? followWalk(turnSolve, flopWalk.rest, flopWalk.perm)
-        : null,
+    () => (walk && turn && turnSolve && flopWalk?.card ? followWalk(turnSolve, flopWalk.rest, flopWalk.perm) : null),
     [walk, turn, turnSolve, flopWalk],
   );
   /** The walk is still waiting on a solve: the flop's, the full solve's word on the turn, or the turn's. */
-  const walkPending =
-    walk !== null &&
-    (!flopWalk ||
-      (flopWalk.card !== null && !fullReady) ||
-      (turn !== null && !turnWalk));
+  const walkPending = walk !== null && (!flopWalk || (flopWalk.card !== null && !fullReady) || (turn !== null && !turnWalk));
   const walkEnd = walk && !walkPending ? (turn ? turnWalk : flopWalk) : null;
 
   const solve = turn ? turnSolve : flopSolve;
   // A decision named by its path (a hand's analysis) until the walk moves on.
-  const pathNode =
-    path && flopSolve && !turn ? nodeAt(flopSolve.result, path) : -1;
+  const pathNode = path && flopSolve && !turn ? nodeAt(flopSolve.result, path) : -1;
   const wanted = walkEnd ? walkEnd.node : pathNode >= 0 ? pathNode : node;
-  const nodeIndex =
-    solve && solve.result.nodes[wanted]?.kind === "action" ? wanted : 0;
+  const nodeIndex = solve && solve.result.nodes[wanted]?.kind === "action" ? wanted : 0;
   // A walk that ends at a deal opens its card picker - the turn's only when there is a turn to solve.
   const walkDeal = walkEnd?.deal ?? null;
   const shownDeal = walkEnd
-    ? walkDeal !== null &&
-      (turn || (flopSolve && turnDeal(flopSolve, walkDeal)))
-      ? walkDeal
-      : null
+    ? walkDeal !== null && (turn || (flopSolve && turnDeal(flopSolve, walkDeal))) ? walkDeal : null
     : deal;
   const rangeData = useRangeData(solve, nodeIndex, picked);
-  const masks = useMemo(
-    () => filterMasks(rangeData, filter),
-    [rangeData, filter],
-  );
+  const masks = useMemo(() => filterMasks(rangeData, filter), [rangeData, filter]);
   /** The walk's view becomes the browser's own once the reader moves from it. */
   const settle = () => {
     if (!walk) return;
@@ -475,20 +335,13 @@ function Browser({
       line: state.line,
       flop: flopKey && flop ? flop.join("") : undefined,
       node: flopKey ? nodeIndex : 0,
-      turn:
-        flopKey && turn
-          ? turn
-              .replace(/^live:/, "")
-              .replace(/^turn\//, "")
-              .replace(/\.bin$/, "")
-          : undefined,
+      turn: flopKey && turn ? turn.replace(/^live:/, "").replace(/^turn\//, "").replace(/\.bin$/, "") : undefined,
     });
   }, [onView, setId, state, flop, flopKey, nodeIndex, turn, walkPending]);
 
   // A line that ends on a solved flop line with no flop yet asks for one, once.
   const lineKey = `${setId}|${line}`;
-  const pickerOpen =
-    solved.length > 0 && (picker || (!flopKey && dismissed !== lineKey));
+  const pickerOpen = solved.length > 0 && (picker || (!flopKey && dismissed !== lineKey));
   const closePicker = () => {
     setPicker(false);
     setDismissed(lineKey);
@@ -505,11 +358,7 @@ function Browser({
     setNode(0);
   };
 
-  const looked =
-    viewing !== null
-      ? (state?.cards.find((c) => c.kind === "past" && c.line === viewing)
-          ?.node ?? null)
-      : null;
+  const looked = viewing !== null ? (state?.cards.find((c) => c.kind === "past" && c.line === viewing)?.node ?? null) : null;
 
   let body: ReactNode;
   if (!state || !manifest) {
@@ -517,19 +366,8 @@ function Browser({
   } else if (looked ?? state.node) {
     // A past decision looked back at, else the one to make. Picking an action on it rewrites the line from there.
     const shown = looked ?? state.node!;
-    const model = preflopModel(
-      shown,
-      looked ? viewing! : state.line,
-      goLine,
-      t,
-    );
-    body = (
-      <StrategyView
-        model={model}
-        hero={hero}
-        overview={<PreflopOverview node={shown} t={t} />}
-      />
-    );
+    const model = preflopModel(shown, looked ? viewing! : state.line, goLine, t);
+    body = <StrategyView model={model} hero={hero} overview={<PreflopOverview node={shown} t={t} />} />;
   } else if (end?.kind === "folded") {
     body = <p className={styles.message}>{t.preflop.folded(end.winner)}</p>;
   } else if (end?.kind === "uncaptured") {
@@ -537,43 +375,26 @@ function Browser({
   } else if (end?.kind === "allin") {
     body = <p className={styles.message}>{t.preflop.allin}</p>;
   } else if (end?.kind === "multiway") {
-    body = (
-      <p className={styles.message}>
-        {t.preflop.multiway(end.players.join(", "))}
-      </p>
-    );
+    body = <p className={styles.message}>{t.preflop.multiway(end.players.join(", "))}</p>;
   } else if (end?.kind === "flop" && solved.length === 0) {
     body = (
       <p className={styles.message}>
-        {manifest.size === 0
-          ? t.preflop.setEmpty
-          : t.preflop.notSolved(end.players[0], end.players[1])}
+        {manifest.size === 0 ? t.preflop.setEmpty : t.preflop.notSolved(end.players[0], end.players[1])}
       </p>
     );
   } else if (!flopKey) {
     body = (
       <div className={styles.message}>
-        <button
-          type="button"
-          className="btn btn--primary"
-          onClick={() => setPicker(true)}
-        >
+        <button type="button" className="btn btn--primary" onClick={() => setPicker(true)}>
           {t.flop.pick}
         </button>
       </div>
     );
-  } else if (
-    (chunk.key === chunkKey && chunk.status === "error" && !fullSolve) ||
-    (turn && turnChunk.key === turnKey && turnChunk.status === "error")
-  ) {
+  } else if ((chunk.key === chunkKey && chunk.status === "error" && !fullSolve) || (turn && turnChunk.key === turnKey && turnChunk.status === "error")) {
     body = (
       <div className={styles.message}>
         <p>{t.loadError}</p>
-        <button
-          type="button"
-          className="btn btn--sm"
-          onClick={() => setAttempt((n) => n + 1)}
-        >
+        <button type="button" className="btn btn--sm" onClick={() => setAttempt((n) => n + 1)}>
           {t.retry}
         </button>
       </div>
@@ -583,43 +404,19 @@ function Browser({
     if (turn && live) turnChance = live.chance;
     else if (turn && fullSolve) {
       const entry = fullSolve.manifest.turns.find((x) => x.file === turn);
-      const at = entry
-        ? flopSolve.result.nodes.findIndex(
-            (n) => n.kind === "chance" && n.path === entry.flopPath,
-          )
-        : -1;
+      const at = entry ? flopSolve.result.nodes.findIndex((n) => n.kind === "chance" && n.path === entry.flopPath) : -1;
       turnChance = at >= 0 ? at : null;
     }
-    const where: Where = {
-      flop: flopSolve,
-      turn: turn ? solve : null,
-      turnChance,
-      full: fullSolve,
-    };
-    const include = masks
-      ? masks[solve.result.nodes[nodeIndex].player]
-      : undefined;
+    const where: Where = { flop: flopSolve, turn: turn ? solve : null, turnChance, full: fullSolve };
+    const include = masks ? masks[solve.result.nodes[nodeIndex].player] : undefined;
     const source = fullSolve ? t.fullNote : turn ? t.liveNote : "";
-    const model = flopModel(
-      solve,
-      nodeIndex,
-      picked,
-      goNode,
-      goDeal,
-      source,
-      t,
-      include,
-    );
+    const model = flopModel(solve, nodeIndex, picked, goNode, goDeal, source, t, include);
     body = (
       <StrategyView
         model={model}
         hero={hero}
         toolbar={
-          <div
-            className={styles.viewTabs}
-            role="tablist"
-            aria-label={t.tabs.label}
-          >
+          <div className={styles.viewTabs} role="tablist" aria-label={t.tabs.label}>
             {(["strategy", "ranges"] as const).map((x) => (
               <button
                 key={x}
@@ -638,20 +435,9 @@ function Browser({
             ))}
           </div>
         }
-        main={
-          tab === "ranges" && rangeData ? (
-            <RangesView data={rangeData} masks={masks} strategy={model} />
-          ) : undefined
-        }
+        main={tab === "ranges" && rangeData ? <RangesView data={rangeData} masks={masks} strategy={model} /> : undefined}
         fade={swappedAt === model.id}
-        filters={
-          <HandFilters
-            data={rangeData}
-            filter={filter}
-            onFilter={setFilter}
-            colours={model.actions.map((a) => a.colour)}
-          />
-        }
+        filters={<HandFilters data={rangeData} filter={filter} onFilter={setFilter} colours={model.actions.map((a) => a.colour)} />}
         overview={
           <FlopOverview
             where={where}
@@ -674,16 +460,7 @@ function Browser({
   } else if (live) {
     // The turn is being solved here.
     const shown = progress?.key === turnKey ? progress : null;
-    body = (
-      <RailLoader
-        label={t.solvingTurn(
-          shown?.iteration ?? 0,
-          shown?.exploitabilityPct ?? null,
-        )}
-        showLabel
-        centered
-      />
-    );
+    body = <RailLoader label={t.solvingTurn(shown?.iteration ?? 0, shown?.exploitabilityPct ?? null)} showLabel centered />;
   } else {
     // The flop's (or the turn's) solve is downloading.
     body = <RailLoader label={t.loadingSolve} showLabel centered />;
@@ -727,18 +504,11 @@ function Browser({
 
 /* ------------------------------------------------------------ the models - */
 
-function preflopModel(
-  node: ChartNode,
-  line: string,
-  goLine: (line: string) => void,
-  t: Dict,
-): StrategyModel {
+function preflopModel(node: ChartNode, line: string, goLine: (line: string) => void, t: Dict): StrategyModel {
   const classes = node.range.length;
   const totals = actionTotals(node);
   const played = playedOptions(node);
-  const colours = actionColours(
-    node.options.map((o) => ({ kind: o.action, amount: o.toBb })),
-  );
+  const colours = actionColours(node.options.map((o) => ({ kind: o.action, amount: o.toBb })));
   return {
     id: `pre|${line}`,
     actor: node.actor,
@@ -782,12 +552,11 @@ function flopModel(
   include?: Uint8Array,
 ): StrategyModel {
   const view = exploreNode(chunk, index, include);
-  const unfiltered = include ? exploreNode(chunk, index).reach : view.reach;
+  const whole = include ? exploreNode(chunk, index) : view;
+  const unfiltered = whole.reach;
   const colours = actionColours(view.actions);
   // The turn and the river are dealt, not the end of the walk - unless the flop went all-in (nothing left to solve).
-  const dealable = (deal: number) =>
-    deal >= 0 &&
-    (chunk.result.street === "turn" || turnDeal(chunk, deal) !== null);
+  const dealable = (deal: number) => deal >= 0 && (chunk.result.street === "turn" || turnDeal(chunk, deal) !== null);
   return {
     id: `flop|${chunk.header.line}|${chunk.header.flop}|${chunk.result.board.join("")}|${index}`,
     actor: view.position,
@@ -799,17 +568,13 @@ function flopModel(
       combos: view.totals[a].combos,
       ends:
         // A deal stays clickable: it opens the card picker.
-        action.ends === "street"
-          ? dealable(action.deal)
-            ? null
-            : t.panel.showdown
-          : action.ends
-            ? t.panel.ends[action.ends]
-            : null,
+        action.ends === "street" ? (dealable(action.deal) ? null : t.panel.showdown) : action.ends ? t.panel.ends[action.ends] : null,
       onPick: () => {
         if (action.child >= 0) onGo(action.child);
         else if (dealable(action.deal)) onDeal(action.deal);
       },
+      // Judged on the whole range: a hand filter never hides an action.
+      hidden: whole.totals[a].combos < 0.5,
     })),
     classes: GRID_CELLS.map((cell) => {
       const c = view.classes[cell.index];
@@ -828,9 +593,7 @@ function flopModel(
         cards: `${picked.toPicked(combo.cards.slice(0, 2))}${picked.toPicked(combo.cards.slice(2, 4))}`,
       })),
     note:
-      (include
-        ? `${view.reach > 0 ? t.filters.note(view.reach, view.reach / unfiltered) : t.filters.none} `
-        : "") +
+      (include ? `${view.reach > 0 ? t.filters.note(view.reach, view.reach / unfiltered) : t.filters.none} ` : "") +
       `${t.rangeValue(view.reach, view.value)} · ${t.solvedTo(chunk.result.exploitabilityPct, chunk.result.iterations)} ${source}${t.flopNote}`,
   };
 }
@@ -842,9 +605,7 @@ function PreflopOverview({ node, t }: { node: ChartNode; t: Dict }) {
     <div className={styles.overview}>
       <p className={styles.overviewTitle}>
         <strong>{t.panel.toAct(node.actor)}</strong>{" "}
-        <span className={analysis.muted}>
-          {t.panel.pot(node.potBb, Math.max(0, node.toMatchBb - node.inBb))}
-        </span>
+        <span className={analysis.muted}>{t.panel.pot(node.potBb, Math.max(0, node.toMatchBb - node.inBb))}</span>
       </p>
       <p className={analysis.muted}>{t.preflop.label}</p>
     </div>
@@ -887,14 +648,8 @@ function FlopOverview({
   const view = exploreNode(chunk, index);
   const history = exploreHistory(chunk, index);
   const shown = (card: string) => picked.toPicked(card);
-  const label = (step: {
-    position: string;
-    action: { kind: string; sizePot: number; amount: number };
-  }) =>
-    t.panel.step(
-      step.position,
-      t.action(step.action.kind, step.action.sizePot, step.action.amount),
-    );
+  const label = (step: { position: string; action: { kind: string; sizePot: number; amount: number } }) =>
+    t.panel.step(step.position, t.action(step.action.kind, step.action.sizePot, step.action.amount));
 
   // On a turn: the flop's decisions that led to it, then the turn card.
   let flopSteps: Array<{ node: number; text: string }> = [];
@@ -903,27 +658,12 @@ function FlopOverview({
     const nodes = where.flop.result.nodes;
     const last = nodes[chance].parent;
     flopSteps = [
-      ...exploreHistory(where.flop, last).map((step) => ({
-        node: step.node,
-        text: label(step),
-      })),
-      {
-        node: last,
-        text: label({
-          position: where.flop.header.players[nodes[last].player],
-          action: exploreNode(where.flop, last).actions[
-            nodes[chance].parentEdge
-          ],
-        }),
-      },
+      ...exploreHistory(where.flop, last).map((step) => ({ node: step.node, text: label(step) })),
+      { node: last, text: label({ position: where.flop.header.players[nodes[last].player], action: exploreNode(where.flop, last).actions[nodes[chance].parentEdge] }) },
     ];
   }
   const river = history.find((step) => step.card)?.card;
-  const cards = [
-    ...board,
-    ...(where.turn ? [shown(where.turn.result.board[3])] : []),
-    ...(river ? [shown(river)] : []),
-  ];
+  const cards = [...board, ...(where.turn ? [shown(where.turn.result.board[3])] : []), ...(river ? [shown(river)] : [])];
 
   // The card being picked: the turn (a deal of the flop's solve) or a river (a deal inside the turn file).
   let options: Array<{ card: string; go: () => void }> = [];
@@ -935,20 +675,13 @@ function FlopOverview({
         .map((x) => ({ card: x.card, go: () => onTurn(x.file, 0) }));
     } else if (!where.turn) {
       // No full solve: the picked card's turn is solved here.
-      options = dealtCards(where.flop, deal).map((x) => ({
-        card: x.card,
-        go: () => onTurn(`live:${liveTurnId(deal, x.card)}`, 0),
-      }));
+      options = dealtCards(where.flop, deal).map((x) => ({ card: x.card, go: () => onTurn(`live:${liveTurnId(deal, x.card)}`, 0) }));
     } else {
       options = dealtCards(where.turn, deal)
         .filter((x) => x.node >= 0)
         .map((x) => ({ card: x.card, go: () => onGo(x.node) }));
     }
-    options.sort(
-      (a, b) =>
-        "AKQJT98765432".indexOf(a.card[0]) -
-          "AKQJT98765432".indexOf(b.card[0]) || a.card.localeCompare(b.card),
-    );
+    options.sort((a, b) => "AKQJT98765432".indexOf(a.card[0]) - "AKQJT98765432".indexOf(b.card[0]) || a.card.localeCompare(b.card));
   }
 
   return (
@@ -960,28 +693,16 @@ function FlopOverview({
         </button>
       </div>
       <p className={styles.overviewTitle}>
-        <strong>{t.panel.toAct(view.position)}</strong>{" "}
-        <span className={analysis.muted}>
-          {t.panel.pot(view.pot, view.toCall)}
-        </span>
+        <strong>{t.panel.toAct(view.position)}</strong> <span className={analysis.muted}>{t.panel.pot(view.pot, view.toCall)}</span>
       </p>
       <nav className={styles.history} aria-label={t.panel.history}>
-        <button
-          type="button"
-          className={styles.step}
-          disabled={!where.turn && index === 0}
-          onClick={() => onFlop(0)}
-        >
+        <button type="button" className={styles.step} disabled={!where.turn && index === 0} onClick={() => onFlop(0)}>
           {t.panel.start}
         </button>
         {flopSteps.map((step) => (
           <span key={`f${step.node}`} className={styles.stepWrap}>
             <span aria-hidden="true">›</span>
-            <button
-              type="button"
-              className={styles.step}
-              onClick={() => onFlop(step.node)}
-            >
+            <button type="button" className={styles.step} onClick={() => onFlop(step.node)}>
               {step.text}
             </button>
           </span>
@@ -989,12 +710,7 @@ function FlopOverview({
         {where.turn ? (
           <span className={styles.stepWrap}>
             <span aria-hidden="true">›</span>
-            <button
-              type="button"
-              className={styles.step}
-              disabled={index === 0}
-              onClick={() => onGo(0)}
-            >
+            <button type="button" className={styles.step} disabled={index === 0} onClick={() => onGo(0)}>
               {t.panel.street("turn", shown(where.turn.result.board[3]))}
             </button>
           </span>
@@ -1002,42 +718,24 @@ function FlopOverview({
         {history.map((step) => (
           <span key={step.node} className={styles.stepWrap}>
             <span aria-hidden="true">›</span>
-            <button
-              type="button"
-              className={styles.step}
-              onClick={() => onGo(step.node)}
-            >
+            <button type="button" className={styles.step} onClick={() => onGo(step.node)}>
               {label(step)}
             </button>
             {step.card ? (
               <>
                 <span aria-hidden="true">›</span>
-                <span className={styles.step}>
-                  {t.panel.street("river", shown(step.card))}
-                </span>
+                <span className={styles.step}>{t.panel.street("river", shown(step.card))}</span>
               </>
             ) : null}
           </span>
         ))}
       </nav>
       {options.length ? (
-        <div
-          className={styles.dealRow}
-          role="group"
-          aria-label={t.panel.dealPick(where.turn ? "river" : "turn")}
-        >
-          <p className={analysis.muted}>
-            {t.panel.dealPick(where.turn ? "river" : "turn")}
-          </p>
+        <div className={styles.dealRow} role="group" aria-label={t.panel.dealPick(where.turn ? "river" : "turn")}>
+          <p className={analysis.muted}>{t.panel.dealPick(where.turn ? "river" : "turn")}</p>
           <div className={styles.dealCards}>
             {options.map((x) => (
-              <button
-                key={x.card}
-                type="button"
-                className={styles.dealCard}
-                onClick={x.go}
-                aria-label={shown(x.card)}
-              >
+              <button key={x.card} type="button" className={styles.dealCard} onClick={x.go} aria-label={shown(x.card)}>
                 <CardRow cards={[shown(x.card)]} size="xs" />
               </button>
             ))}

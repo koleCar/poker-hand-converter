@@ -6,12 +6,7 @@
  * Reads chart nodes only through `lib/charts`' public types.
  */
 
-import {
-  handClassOf,
-  isOpenLimpNode,
-  type ChartNode,
-  type ChartSet,
-} from "../../lib/charts";
+import { handClassOf, isOpenLimpNode, type ChartNode, type ChartSet } from "../../lib/charts";
 
 /**
  * Table order of the 6-max sets, as their line keys are written
@@ -19,27 +14,10 @@ import {
  */
 export const CHART_POSITIONS = ["UTG", "HJ", "CO", "BTN", "SB", "BB"] as const;
 
-export const SPOT_CATEGORIES = [
-  "rfi",
-  "vs-open",
-  "vs-3bet",
-  "vs-4bet",
-  "squeeze",
-  "bvb",
-  "vs-limp",
-] as const;
+export const SPOT_CATEGORIES = ["rfi", "vs-open", "vs-3bet", "vs-4bet", "squeeze", "bvb", "vs-limp"] as const;
 export type SpotCategory = (typeof SPOT_CATEGORIES)[number];
 
-export type StepVerb =
-  | "open"
-  | "iso"
-  | "limp"
-  | "call"
-  | "3bet"
-  | "4bet"
-  | "5bet"
-  | "allin"
-  | "check";
+export type StepVerb = "open" | "iso" | "limp" | "call" | "3bet" | "4bet" | "5bet" | "allin" | "check";
 
 export interface LineStep {
   position: string;
@@ -51,10 +29,7 @@ export interface LineStep {
  * turn order, folds included, so the actor of each letter is the next player
  * still able to act.
  */
-export function lineSteps(
-  line: string,
-  positions: readonly string[] = CHART_POSITIONS,
-): LineStep[] {
+export function lineSteps(line: string, positions: readonly string[] = CHART_POSITIONS): LineStep[] {
   const folded = new Set<number>();
   const allIn = new Set<number>();
   const steps: LineStep[] = [];
@@ -78,16 +53,7 @@ export function lineSteps(
       if (facingAllIn) allIn.add(seat);
       steps.push({ position, verb: raises === 0 ? "limp" : "call" });
     } else if (code === "r") {
-      const verb: StepVerb =
-        raises === 0
-          ? limpers > 0
-            ? "iso"
-            : "open"
-          : raises === 1
-            ? "3bet"
-            : raises === 2
-              ? "4bet"
-              : "5bet";
+      const verb: StepVerb = raises === 0 ? (limpers > 0 ? "iso" : "open") : raises === 1 ? "3bet" : raises === 2 ? "4bet" : "5bet";
       raises += 1;
       steps.push({ position, verb });
     } else if (code === "a") {
@@ -116,8 +82,7 @@ function blindVersusBlind(node: ChartNode): boolean {
  * blinds (`charts/4`) is a limped pot.
  */
 export function categoriesOf(node: ChartNode): SpotCategory[] {
-  if (blindVersusBlind(node))
-    return node.scenario === "rfi" ? ["rfi", "bvb"] : ["bvb"];
+  if (blindVersusBlind(node)) return node.scenario === "rfi" ? ["rfi", "bvb"] : ["bvb"];
   if (isOpenLimpNode(node)) return ["vs-limp"];
   switch (node.scenario) {
     case "rfi":
@@ -147,9 +112,7 @@ export const BROWSE_LIMP_REACH = 1e-4;
 export function nodesIn(charts: ChartSet, category: SpotCategory): ChartNode[] {
   const seats: readonly string[] = charts.game.positions;
   const out = [...charts.nodes.values()].filter(
-    (node) =>
-      categoriesOf(node).includes(category) &&
-      (category !== "vs-limp" || node.reach >= BROWSE_LIMP_REACH),
+    (node) => categoriesOf(node).includes(category) && (category !== "vs-limp" || node.reach >= BROWSE_LIMP_REACH),
   );
   return out.sort(
     (a, b) =>
@@ -171,21 +134,18 @@ export function gridClass(row: number, col: number): string {
   return row < col ? `${a}${b}s` : `${b}${a}o`;
 }
 
-export const GRID_CELLS: ReadonlyArray<{
-  name: string;
-  index: number;
-  row: number;
-  col: number;
-}> = Array.from({ length: 169 }, (_, i) => {
-  const row = Math.floor(i / 13);
-  const col = i % 13;
-  const name = gridClass(row, col);
-  return { name, index: handClassOf(name), row, col };
-});
+export const GRID_CELLS: ReadonlyArray<{ name: string; index: number; row: number; col: number }> = Array.from(
+  { length: 169 },
+  (_, i) => {
+    const row = Math.floor(i / 13);
+    const col = i % 13;
+    const name = gridClass(row, col);
+    return { name, index: handClassOf(name), row, col };
+  },
+);
 
 /** Combos of a class before card removal. */
-export const combosOf = (name: string) =>
-  name.length === 2 ? 6 : name.endsWith("s") ? 4 : 12;
+export const combosOf = (name: string) => (name.length === 2 ? 6 : name.endsWith("s") ? 4 : 12);
 
 /** Below this a class never reaches the node (the stored range rounds to 0). */
 export const OFF_RANGE_WEIGHT = 0.5 / 255;
@@ -214,9 +174,7 @@ export function cellData(node: ChartNode, name: string): CellData {
  * reaches the node and by its combos. `combos` is the weighted count playing
  * the action.
  */
-export function actionTotals(
-  node: ChartNode,
-): Array<{ share: number; combos: number }> {
+export function actionTotals(node: ChartNode): Array<{ share: number; combos: number }> {
   const classes = node.range.length;
   const totals = node.options.map(() => 0);
   let all = 0;
@@ -227,10 +185,7 @@ export function actionTotals(
       totals[a] += weight * node.freq[a * classes + cell.index];
     });
   }
-  return totals.map((combos) => ({
-    share: all > 0 ? combos / all : 0,
-    combos,
-  }));
+  return totals.map((combos) => ({ share: all > 0 ? combos / all : 0, combos }));
 }
 
 /**
