@@ -218,6 +218,43 @@ CREATE INDEX node_locks_spot ON node_locks(set_id, line, flop);
 - Later: "From this player's stats" when the spot was opened from a hand, out
   of the villain's own numbers with sample sizes (canvas variant C).
 
+**As built** (tests: `tests/test/solver/nodelockSuggest.test.ts`):
+- Exports: `suggestLocks(ctx, archetype, dict?)`, `availableArchetypes(ctx)`,
+  `ARCHETYPES`, `nodelockSuggestEn`, `nodelockSuggestHr`, and the types
+  `SuggestContext`, `NodelockSuggestion`, `NodelockSuggestDict`,
+  `Archetype`, `NodeKind`, `Street`. `NodeLockSpec` is declared locally
+  until §1's `nodelock.ts` lands (TODO in the file).
+- Archetype ids: `tight`, `aggressive`, `station`, `overfolder`, `passive`.
+  The suggestion's `id` is the archetype; it goes into `node_locks.preset`.
+- Node kinds: `first`, `facingBet`, `facingRaise`.
+- The context carries the action labels (the tree's `X`/`B1.82`/`F`/`C`/
+  `R5.4`/`A100`, or words; `kinds`/`amounts` override them), the baseline
+  `[action][combo]`, the player's reach per combo, and either `ev`
+  (`[action][combo]`) or `strength` (per combo, higher is stronger).
+- Groups: fold; passive (check, call); aggressive (bet, raise, all-in).
+  "×m" and "+pp" apply to the group's reach-weighted share. A rule only moves
+  its own way: when an earlier rule already went past its target, it is
+  skipped. Fold rules run first.
+- Turn and river, for "aggressive" and "overfolder" only: pp shifts ×1.25
+  (turn) and ×1.5 (river); a multiplier's excess over 1 scales the same way
+  (raises ×2 become ×2.25 on the turn). The aggressive player also moves
+  40 % (turn) or 60 % (river) of every smaller bet or raise size to the
+  biggest one (not all-in).
+- Where leaving hands go: to their own mix outside the group, else to check
+  or call. Tight's dropped raises go to fold. "Never raises" moves all of
+  the raises to call.
+- Which hands move: with EVs, the cheapest to switch first (EV of the
+  hand's mix outside the group minus inside). Costs within `evTolerance`
+  (0.01 bb) tie, and the tie goes to strength, the hand's EV under the
+  baseline. Without EVs, by strength: folds take the weakest first, and
+  bets and raises lose the weakest first.
+- Every combo is locked, and every combo's row sums to 1 (empty rows go to
+  check or call). `availableArchetypes` drops any archetype that changes no
+  row: overfolder when first to act, passive facing an all-in, and tight,
+  station and passive when the range never bets.
+- Titles: "Tight BTN on the flop" / "Tight BTN na flopu", "Aggressive
+  opponent on the turn" / "Agresivan protivnik na turnu".
+
 ## 5. UI (app only: `app/src/solver/nodelock/`)
 
 ### 5.1 Entry and slot
