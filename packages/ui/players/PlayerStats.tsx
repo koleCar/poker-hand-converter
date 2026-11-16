@@ -1,6 +1,6 @@
 /**
  * An opponent's statistics as matrices (the Players redesign, after Hand2Note's
- * statistics dashboard): a strip of the numbers read first, then preflop, the
+ * statistics dashboard): cards with the numbers read first, then preflop, the
  * steal and the blinds, and showdown by position class (Total, EP, MP, CO,
  * BTN, SB, BB) and postflop by street (Flop, Turn, River).
  *
@@ -15,6 +15,7 @@ import { useUiStrings } from "../i18n";
 import type { Shown, StatDefinition } from "../model/stats";
 import { shownOf, textLocale } from "../reports/definitions";
 import { countIn } from "../stats/format";
+import { StatCards } from "../stats/StatCards";
 import { decimalMark, shownText, shownTitle } from "../stats/StatValue";
 import { POSITION_CLASSES, type PlayerProfile as Profile } from "./model";
 import styles from "../stats/StatMatrix.module.css";
@@ -89,7 +90,7 @@ const POSTFLOP: readonly StreetRow[] = [
   { label: "afq", cells: ["aggression_frequency", "aggression_frequency_flop", "aggression_frequency_turn", "aggression_frequency_river"] },
 ];
 
-/** The strip over the matrices: the numbers a reader looks for first. */
+/** The cards over the matrices (the Live tiles' look): the numbers a reader looks for first. */
 const KEY_STATS = ["vpip", "pfr", "three_bet", "fold_to_three_bet", "cbet_flop", "aggression_factor", "wtsd", "wsd", "bb_per_100"];
 
 type Lookup = (id: string, stats: readonly Shown[]) => { definition: StatDefinition; shown: Shown } | null;
@@ -178,19 +179,7 @@ export function PlayerStats({ profile, definitions }: { profile: Profile; defini
 
   return (
     <div className={styles.statsBlock}>
-      <dl className={styles.keyStats}>
-        {KEY_STATS.map((id) => {
-          const found = lookup(id, profile.stats);
-          if (found === null) return null;
-          const { definition, shown } = found;
-          return (
-            <div key={id} className={styles.keyStat} data-tone={shown.tone ?? undefined} title={shownTitle(shown, all, count)}>
-              <dd style={{ opacity: shown.reliability.opacity }}>{shownText(shown, definition.format.unit, mark, count)}</dd>
-              <dt>{definition.label[text]}</dt>
-            </div>
-          );
-        })}
-      </dl>
+      <StatCards ids={KEY_STATS} stats={profile.stats} definitions={definitions} />
 
       <div className={styles.matrices}>
         <div className={styles.matrixColumn}>
