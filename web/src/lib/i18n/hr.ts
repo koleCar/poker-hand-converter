@@ -385,6 +385,27 @@ export const hr: Dict = {
     handBadge: "Ruka",
     postDate: (date: string) => date,
 
+    nav: {
+      label: "Forum",
+      menu: "Boardovi i filteri",
+      everything: "Sve",
+      unanswered: "Bez odgovora",
+      saved: "Spremljeno",
+      boards: "Boardovi",
+    },
+    filters: {
+      label: "Poredak i filteri",
+      kinds: { all: "Sve", hand: "Ruke", poll: "Ankete", text: "Rasprave" },
+      unanswered: "Bez odgovora",
+      clear: "Očisti",
+      empty: "Nijedan post ne odgovara ovim filterima.",
+    },
+    rail: {
+      top: "Najbolji postovi",
+      waiting: "Čekaju odgovor",
+      none: "Još ništa.",
+    },
+
     poll: {
       badge: (votes: number) => `Anketa · ${votes} ${plural(votes, "odgovor", "odgovora", "odgovora")}`,
       heading: "Što bi ti odigrao/la?",

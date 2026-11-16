@@ -411,6 +411,27 @@ export const en = {
     handBadge: "Hand",
     postDate: (date: string) => date,
 
+    nav: {
+      label: "Forum",
+      menu: "Boards and filters",
+      everything: "Everything",
+      unanswered: "Unanswered",
+      saved: "Saved",
+      boards: "Boards",
+    },
+    filters: {
+      label: "Sort and filter",
+      kinds: { all: "All", hand: "Hands", poll: "Polls", text: "Discussions" } as Record<string, string>,
+      unanswered: "Unanswered",
+      clear: "Clear",
+      empty: "No posts match these filters.",
+    },
+    rail: {
+      top: "Top posts",
+      waiting: "Waiting for an answer",
+      none: "Nothing yet.",
+    },
+
     poll: {
       badge: (votes: number) => `Poll · ${votes} ${votes === 1 ? "answer" : "answers"}`,
       heading: "What would you do?",

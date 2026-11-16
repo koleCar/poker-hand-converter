@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { CommentComposer } from "../../../../../components/forum/CommentComposer";
 import { CommentThread } from "../../../../../components/forum/CommentThread";
+import { ForumLayout } from "../../../../../components/forum/ForumLayout";
 import { LiveCommentBanner } from "../../../../../components/forum/LiveCommentBanner";
 import { ModProvider } from "../../../../../components/forum/ModContext";
 import { PostModTools } from "../../../../../components/forum/PostModTools";
@@ -13,11 +14,14 @@ import { formatPostDate } from "../../../../../components/forum/format";
 import { MyVotesProvider } from "../../../../../components/forum/MyVotes";
 import { PostActions } from "../../../../../components/forum/PostActions";
 import { PostDiscussion } from "../../../../../components/forum/PostDiscussion";
+import { Face } from "../../../../../components/forum/PostCard";
 import { PostText } from "../../../../../components/forum/PostText";
 import { VoteButtons } from "../../../../../components/forum/VoteButtons";
 import { HandSummary } from "../../../../../components/hand/HandSummary";
 import { PollThread } from "../../../../../components/forum/PollThread";
 import { decodePosition, POSITION_PARAM } from "@rail/ui/replayer/position";
+import type { CSSProperties } from "react";
+import { boardHue } from "../../../../../lib/forum/boards";
 import { ServerFrame } from "../../../../../components/shell/ServerFrame";
 import { discussionJsonLd, jsonLdScript } from "../../../../../lib/forum/jsonLd";
 import { excerpt } from "../../../../../lib/forum/text";
@@ -26,7 +30,7 @@ import { getDict } from "../../../../../lib/i18n/server";
 import { getParser } from "../../../../../lib/parsers";
 import { canonicalUrl, paths } from "../../../../../lib/routes";
 import { readSharedAnalysisAnon } from "../../../../../lib/server/analysisShare";
-import { readComments, readHiddenPostAsViewer, readPollAnon, readPost } from "../../../../../lib/server/forum";
+import { readBoardCounts, readBoards, readComments, readHiddenPostAsViewer, readPollAnon, readPost } from "../../../../../lib/server/forum";
 import { AnalysisShareToggle } from "../../../../../components/analysis/AnalysisShareToggle";
 import { NavPending, PendingDims, PendingLoader, PendingScope } from "../../../../../components/shell/NavProgress";
 import styles from "../../../../../components/forum/forum.module.css";
@@ -155,12 +159,14 @@ export default async function PostPage({ params, searchParams }: { params: Param
 
   // A poll's comments and hand are sealed until the reader answers; the server
   // render is anonymous, so it gets the spot and no discussion (#51).
-  const [comments, poll, analysis] = await Promise.all([
+  const [comments, poll, analysis, boards, counts] = await Promise.all([
     post.poll ? Promise.resolve([]) : viewerOnly ? Promise.resolve(viewerOnly.comments) : readComments(post.publicId, commentSort),
     post.poll ? readPollAnon(post.publicId) : Promise.resolve(null),
     // A7.1: the hand's analysis, when its author shared it. Never for a poll
     // here: its reference waits for the reader's vote, read in the browser.
     !post.poll && post.handPhf ? readSharedAnalysisAnon("post", post.publicId) : Promise.resolve(null),
+    readBoards(),
+    readBoardCounts(),
   ]);
   const hand = post.handPhf ?? null;
   const siteName = post.hand ? getParser(post.hand.site)?.name ?? post.hand.site : null;
@@ -181,19 +187,38 @@ export default async function PostPage({ params, searchParams }: { params: Param
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(ld) }} />
       <MyVotesProvider postIds={[post.publicId]} commentsOf={post.publicId}>
         <ModProvider post={post.publicId}>
-        <article className={styles.post}>
-          <p className={styles.meta}>
-            <Link href={paths.board(post.board.slug)}>{en.forum.post.backToBoard(post.board.name)}</Link>
-          </p>
+        <ForumLayout t={en} boards={boards} counts={counts} current={post.board.slug} nav="post">
+        <article className={styles.post} style={{ "--hue": boardHue(post.board.slug) } as CSSProperties}>
+          <nav className={styles.crumbs} aria-label={en.forum.post.backToBoard(post.board.name)}>
+            <Link href={paths.home()}>{en.forum.nav.label}</Link>
+            <span aria-hidden="true">›</span>
+            <Link href={paths.board(post.board.slug)} className={styles.crumbBoard}>
+              <span className={styles.navDot} aria-hidden="true" />
+              {post.board.name}
+            </Link>
+          </nav>
           <header className={styles.postHead}>
             <VoteButtons post={post.publicId} upvotes={post.upvotes} downvotes={post.downvotes} disabled={post.isLocked} />
             <div className="stack">
+              {post.poll || post.kind === "hand" || post.isPinned || post.isLocked ? (
+                <div className={styles.tags}>
+                  {post.poll ? (
+                    <span className={`${styles.badge} ${styles.badgePoll}`}>{en.forum.poll.badge(post.poll.votes)}</span>
+                  ) : post.kind === "hand" ? (
+                    <span className={`${styles.badge} ${styles.badgeHand}`}>{en.forum.handBadge}</span>
+                  ) : null}
+                  {post.isPinned ? <span className={`${styles.badge} ${styles.badgePin}`}>{en.forum.pinned}</span> : null}
+                  {post.isLocked ? <span className={styles.badge}>{en.forum.locked}</span> : null}
+                </div>
+              ) : null}
               <h1 className={styles.postTitle}>{post.title}</h1>
               <p className={styles.meta}>
+                <Face username={post.author?.username ?? null} size={26} />
                 <span>
-                  {en.forum.by}{" "}
                   {post.author ? (
-                    <Link href={paths.profile(post.author.username)}>{post.author.username}</Link>
+                    <Link href={paths.profile(post.author.username)} className={styles.author}>
+                      {post.author.username}
+                    </Link>
                   ) : (
                     en.forum.deletedAuthor
                   )}
@@ -302,6 +327,7 @@ export default async function PostPage({ params, searchParams }: { params: Param
           </PostDiscussion>
           )}
         </article>
+        </ForumLayout>
         </ModProvider>
       </MyVotesProvider>
     </ServerFrame>

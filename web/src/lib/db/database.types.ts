@@ -5079,6 +5079,7 @@ export type Database = {
         Args: { p_down: number; p_up: number }
         Returns: number
       }
+      forum_board_counts: { Args: never; Returns: Json }
       forum_controversy: {
         Args: { p_down: number; p_up: number }
         Returns: number
@@ -5087,8 +5088,10 @@ export type Database = {
         Args: {
           p_after?: string
           p_board?: string
+          p_kind?: string
           p_limit?: number
           p_sort?: string
+          p_unanswered?: boolean
         }
         Returns: Json
       }
@@ -5098,6 +5101,7 @@ export type Database = {
         Returns: number
       }
       forum_path_segment: { Args: { p_seq: number }; Returns: string }
+      forum_post_is_poll: { Args: { p_post: string }; Returns: boolean }
       forum_post_json: {
         Args: { p: Database["public"]["Tables"]["posts"]["Row"] }
         Returns: Json

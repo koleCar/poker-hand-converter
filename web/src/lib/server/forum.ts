@@ -1,7 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
-import type { Board, FeedPage, FeedSort, ForumComment, ForumPost, PollState, SearchHit } from "../forum/types";
+import type { Board, FeedFilters, FeedPage, FeedSort, ForumComment, ForumPost, PollState, SearchHit } from "../forum/types";
 import { getAnonServerSupabase, getServerSupabase, getServerUser } from "../supabase/server";
 
 /**
@@ -23,19 +23,37 @@ export const readBoards = cache(async (): Promise<Board[]> => {
 });
 
 export const readFeed = cache(
-  async (board: string | null, sort: FeedSort, after: string | null): Promise<FeedPage | null> => {
+  async (
+    board: string | null,
+    sort: FeedSort,
+    after: string | null,
+    kind: FeedFilters["kind"] = null,
+    unanswered = false,
+    limit = 25,
+  ): Promise<FeedPage | null> => {
     const supabase = getAnonServerSupabase();
     if (!supabase) return null;
     const { data, error } = await supabase.rpc("forum_feed", {
       p_board: board ?? undefined,
       p_sort: sort,
       p_after: after ?? undefined,
-      p_limit: 25,
+      p_limit: limit,
+      p_kind: kind ?? undefined,
+      p_unanswered: unanswered || undefined,
     });
     if (error || !data) return null;
     return data as unknown as FeedPage;
   },
 );
+
+/** Visible posts per board slug, for the forum sidebar. Empty when unavailable. */
+export const readBoardCounts = cache(async (): Promise<Record<string, number>> => {
+  const supabase = getAnonServerSupabase();
+  if (!supabase) return {};
+  const { data, error } = await supabase.rpc("forum_board_counts");
+  if (error || !data || typeof data !== "object") return {};
+  return data as Record<string, number>;
+});
 
 export type PostReadResult =
   | { status: "ok"; post: ForumPost }
