@@ -403,6 +403,15 @@
   margin: 0;
 }
 
+/* The decision's title, and the desktop app's Nodelock action beside it (the web has none). */
+.overviewHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
 .boardRow {
   display: flex;
   flex-wrap: wrap;
@@ -515,6 +524,19 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* The app's nodelock compare: GTO's share of the action and the change. */
+.actionBoxCompare {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.actionBoxCompare strong,
+.compareDelta {
+  color: var(--warning-fg);
+  font-weight: var(--font-weight-medium);
+}
+
 .actionTrack {
   position: absolute;
   inset-inline: 0;
@@ -589,7 +611,7 @@
 
 .evRows li {
   display: grid;
-  grid-template-columns: minmax(4.5rem, auto) minmax(0, 1fr) 3.5rem;
+  grid-template-columns: minmax(4.5rem, auto) minmax(0, 1fr) minmax(3.5rem, auto);
   align-items: center;
   gap: var(--space-2);
   color: var(--text-secondary);
