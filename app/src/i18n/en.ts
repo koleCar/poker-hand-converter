@@ -244,6 +244,8 @@ export const en = {
       previous: "Previous page",
       next: "Next page",
       page: (page: number) => `Page ${page}`,
+      perPage: "Hands per page",
+      all: "All",
       range: (from: number, to: number, total: number) => `${n(from)}–${n(to)} of ${n(total)}`,
     },
     empty: {

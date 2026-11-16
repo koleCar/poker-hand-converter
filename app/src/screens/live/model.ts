@@ -29,8 +29,33 @@ export const LIVE_STATS = [
   "wsd",
 ] as const;
 
-/** Rows in one page of the hands table. */
+/** Rows in one page of the hands table, until the reader picks another size. */
 export const HANDS_PER_PAGE = 10;
+
+/** The hands table's page sizes; `null` is every hand on one page. */
+export const PAGE_SIZES = [10, 25, 100, null] as const;
+
+/** One of `PAGE_SIZES`. */
+export type PageSize = (typeof PAGE_SIZES)[number];
+
+/** A stored page size ("10", "25", "100", "all"); anything else is the default. */
+export function parsePageSize(text: string | null): PageSize {
+  if (text === "all") return null;
+  return PAGE_SIZES.find((size) => size !== null && String(size) === text) ?? HANDS_PER_PAGE;
+}
+
+/** A page size as stored. */
+export function pageSizeText(size: PageSize): string {
+  return size === null ? "all" : String(size);
+}
+
+/**
+ * The page that keeps the reader's first row in view when the page size
+ * changes: the row at index `first` (0-based) lands on this 1-based page.
+ */
+export function pageForRow(first: number, size: PageSize): number {
+  return size === null ? 1 : Math.floor(Math.max(0, first) / size) + 1;
+}
 
 /** Below this the session is too short for a rate per hour. */
 export const MIN_MINUTES_FOR_RATE = 10;

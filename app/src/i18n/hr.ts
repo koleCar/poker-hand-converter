@@ -256,6 +256,8 @@ export const hr: Dict = {
       previous: "Prethodna stranica",
       next: "Sljedeća stranica",
       page: (page) => `Stranica ${page}`,
+      perPage: "Ruku po stranici",
+      all: "Sve",
       range: (from, to, total) => `${n(from)}–${n(to)} od ${n(total)}`,
     },
     empty: {
