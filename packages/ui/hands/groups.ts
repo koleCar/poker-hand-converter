@@ -802,7 +802,7 @@ const DEFAULT_SEATS = ["UTG", "HJ", "CO", "BTN", "SB", "BB"];
 
 /* ------------------------------------------------------------ quick filters */
 
-export type QuickId = "week" | "threeBet" | "showdown" | "won" | "lost" | "noted";
+export type QuickId = "week" | "threeBet" | "showdown" | "won" | "lost" | "noted" | "review";
 
 export interface QuickFilter {
   id: QuickId;
@@ -848,6 +848,9 @@ export const QUICK_FILTERS: QuickFilter[] = [
   listQuick("won", "result", "results", ["won"]),
   listQuick("lost", "result", "results", ["lost"]),
   flagQuick("noted", "notes", "hasNote"),
+  // The hands tagged for review (the desktop's "Review" tag, stored by that
+  // name whatever the language: `app/src/components/markers.ts`).
+  listQuick("review", "tags", "tags", ["Review"]),
 ];
 
 /** The quick filters a row of these groups offers. */

@@ -256,6 +256,10 @@ export function LiveHands({ session, kind, unit }: { session: Session; kind: Gam
   return (
     <section className={styles.section} aria-label={d.label}>
       {body}
+      {actions.bar(
+        (sorted ?? NO_ROWS).filter((row) => selection.checked.has(row.handKey)).map((row) => row.handKey),
+        selection.clear,
+      )}
       {actions.element}
     </section>
   );

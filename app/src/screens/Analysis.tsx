@@ -18,6 +18,7 @@ import { useUiStrings } from "@rail/ui/i18n";
 import { shippedChartDeviations, type SessionQuery } from "@rail/ui/review/model";
 import { SessionReviewScreen, type HandLinkProps } from "@rail/ui/review/SessionReviewScreen";
 
+import { ChosenLink, HandTable } from "../components/HandTable";
 import headerStyles from "../components/ScreenHeader.module.css";
 import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
@@ -139,19 +140,18 @@ function Session({
     replaceParam("analysis", viewParam({ kind: "session", at: next.at, gap: next.gapMinutes }));
   }, []);
 
+  // Each hand chooses as a Hands row does (`HandTable`): several replayed or tagged at once.
   const renderHandLink = useCallback(
     ({ handId, label, className, children }: HandLinkProps) => (
-      <a
+      <ChosenLink
+        handKey={handId}
         href={screenHref("hands", handId)}
         className={className}
-        aria-label={label}
-        onClick={(event) => {
-          event.preventDefault();
-          openInReplayer(handId);
-        }}
+        label={label}
+        open={() => openInReplayer(handId)}
       >
         {children}
-      </a>
+      </ChosenLink>
     ),
     [],
   );
@@ -180,21 +180,23 @@ function Session({
   }
 
   return (
-    <SessionReviewScreen
-      source={storeReviewSource}
-      deviationSource={shippedChartDeviations}
-      query={query}
-      onQuery={onQuery}
-      renderHandLink={renderHandLink}
-      title={t.analysis.tabs.session}
-      hideTitle
-      notice={nav(kindSwitch)}
-      reloadToken={reload}
-      coverageAction={<span>{t.analysis.session.notAnalysed}</span>}
-      hiddenDuringPlay={hidden}
-      intro={false}
-      layout="table"
-      renderState={(kind, text) => <StateMessage kind={kind}>{text}</StateMessage>}
-    />
+    <HandTable resetKey={`${view.at ?? ""}|${kinds.kind ?? ""}`}>
+      <SessionReviewScreen
+        source={storeReviewSource}
+        deviationSource={shippedChartDeviations}
+        query={query}
+        onQuery={onQuery}
+        renderHandLink={renderHandLink}
+        title={t.analysis.tabs.session}
+        hideTitle
+        notice={nav(kindSwitch)}
+        reloadToken={reload}
+        coverageAction={<span>{t.analysis.session.notAnalysed}</span>}
+        hiddenDuringPlay={hidden}
+        intro={false}
+        layout="table"
+        renderState={(kind, text) => <StateMessage kind={kind}>{text}</StateMessage>}
+      />
+    </HandTable>
   );
 }

@@ -242,6 +242,7 @@ export const handsUiEn = {
       won: "Won hands",
       lost: "Lost hands",
       noted: "With a note",
+      review: "For review",
     },
     menu: {
       label: "Add a filter",

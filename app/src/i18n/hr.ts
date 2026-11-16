@@ -986,6 +986,12 @@ export const hr: Dict = {
       replay: (count) => (count === 1 ? "Pogledaj ruku u replayeru" : `Pogledaj ${rukuAcc(count)} u replayeru`),
       export: (count) => (count === 1 ? "Izvezi ruku u .txt" : `Izvezi ${rukuAcc(count)} u .txt`),
       mark: "Označi",
+      bar: {
+        replay: "Pogledaj u replayeru",
+        tag: "Označi",
+        export: "Izvezi .txt",
+        clear: "Poništi odabir",
+      },
       markers: {
         label: "Oznake",
         presets: {

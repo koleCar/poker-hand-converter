@@ -241,6 +241,7 @@ export const handsUiHr: typeof handsUiEn = {
       won: "Dobivene ruke",
       lost: "Izgubljene ruke",
       noted: "S bilješkom",
+      review: "Za pregled",
     },
     menu: {
       label: "Dodaj filtar",

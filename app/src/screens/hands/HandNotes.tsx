@@ -2,13 +2,16 @@
  * The hand's tags and note, behind one button in the replayer's header (top
  * right) instead of a block under the table. The button shows how many tags
  * the hand has (a dot for a note alone); it opens a small panel where a tag
- * is picked from the ones already in use (what the Hands filter offers) or
- * typed as a new one, and the note is free text, saved as it is typed.
+ * is picked - the hand lists' ready-made ones first (Review, Mistake, ...;
+ * `components/markers.ts`, as their right-click "Tag" menu offers), then
+ * the ones already in use - or typed as a new one, and the note is free
+ * text, saved as it is typed.
  */
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Icon } from "@rail/ui/icon/Icon";
 import { Popover } from "@rail/ui/hands/Popover";
 
+import { offeredMarkers, REVIEW, sameMarker, typedMarker } from "../../components/markers";
 import { useT } from "../../i18n";
 import { errorText, ipc, onHandAnnotated, type HandAnnotations } from "../../lib/ipc";
 import styles from "./HandNotes.module.css";
@@ -28,7 +31,9 @@ interface HandNotesProps {
 }
 
 export function HandNotes({ handKey, knownTags, onAnnotated }: HandNotesProps) {
-  const t = useT().hands.panel;
+  const dict = useT().hands;
+  const t = dict.panel;
+  const markers = dict.actions.markers;
   const anchor = useRef<HTMLSpanElement>(null);
   const [open, setOpen] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
@@ -105,8 +110,8 @@ export function HandNotes({ handKey, knownTags, onAnnotated }: HandNotesProps) {
   };
 
   const addTag = (name: string) => {
-    const value = name.trim();
-    if (!value || tags.includes(value)) {
+    const value = typedMarker(name);
+    if (!value || tags.some((tag) => sameMarker(tag, value))) {
       setDraft("");
       return;
     }
@@ -126,14 +131,13 @@ export function HandNotes({ handKey, knownTags, onAnnotated }: HandNotesProps) {
       .catch((reason: unknown) => setError(t.tagFailed(errorText(reason))));
   };
 
-  const typed = draft.trim();
-  const needle = typed.toLowerCase();
-  const offered = knownTags
-    .filter((known) => !tags.includes(known) && known.toLowerCase().includes(needle))
+  const typed = typedMarker(draft);
+  const offered = offeredMarkers(knownTags, typed)
+    .filter((offer) => !tags.some((tag) => sameMarker(tag, offer)))
     .slice(0, OFFERED);
-  // Enter takes the tag in use that matches what was typed, ignoring case,
+  // Enter takes the tag offered that matches what was typed, ignoring case,
   // so "River" does not become a second "river".
-  const exact = knownTags.find((known) => known.toLowerCase() === needle);
+  const exact = offeredMarkers(knownTags, "").find((offer) => sameMarker(offer, typed));
   const isNew = typed !== "" && exact === undefined;
 
   const onTagKey = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -193,7 +197,7 @@ export function HandNotes({ handKey, knownTags, onAnnotated }: HandNotesProps) {
                 <ul className={styles.tags} aria-labelledby={`${handKey}-tags`}>
                   {tags.map((name) => (
                     <li key={name} className={styles.tag}>
-                      {name}
+                      {markers.presets[name] ?? name}
                       <button
                         type="button"
                         aria-label={t.removeTag(name)}
@@ -214,8 +218,14 @@ export function HandNotes({ handKey, knownTags, onAnnotated }: HandNotesProps) {
                     </button>
                   ) : null}
                   {offered.map((known) => (
-                    <button key={known} type="button" className={styles.pick} onClick={() => addTag(known)}>
-                      {known}
+                    <button
+                      key={known}
+                      type="button"
+                      className={styles.pick}
+                      title={known === REVIEW ? markers.reviewTitle : undefined}
+                      onClick={() => addTag(known)}
+                    >
+                      {markers.presets[known] ?? known}
                     </button>
                   ))}
                 </div>

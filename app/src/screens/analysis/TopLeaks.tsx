@@ -19,6 +19,7 @@ import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import table from "@rail/ui/review/SpotTable.module.css";
 
+import { ChosenLink, HandTable } from "../../components/HandTable";
 import { StateMessage } from "../../components/StateMessage";
 import { useLocale, useT } from "../../i18n";
 import { liveDateFormat, liveNumberFormat } from "../../i18n/format";
@@ -156,7 +157,10 @@ export function TopLeaks({
         // Another period or kind on its way: the previous list stays, dimmed
         // (rows written by the background run read again without dimming).
         <div className={`${styles.leaksBody} rail-dims`} aria-busy={!loaded.key.startsWith(`${period}|${gameKind ?? ""}|`)}>
-          <TopLeaksBody report={loaded.report} top={loaded.top} examples={loaded.examples} period={period} />
+          {/* Every leak's example hands are one table: chosen across leaks, replayed or tagged together. */}
+          <HandTable resetKey={`${period}|${gameKind ?? ""}`}>
+            <TopLeaksBody report={loaded.report} top={loaded.top} examples={loaded.examples} period={period} />
+          </HandTable>
         </div>
       )}
     </section>
@@ -326,7 +330,10 @@ function MixRow({ label, mix, title }: { label: string; mix: Leak["taken"]; titl
   );
 }
 
-/** The leak's example hands: the Hands screen's table, each row opening the hand in the replayer. */
+/**
+ * The leak's example hands: the Hands screen's table, each row opening the
+ * hand in the replayer; several can be chosen (`HandTable`).
+ */
 function ExampleTable({ rows, name }: { rows: readonly LeakExampleRow[]; name: string }) {
   const w = useLeakWords();
   const dict = useT();
@@ -346,15 +353,13 @@ function ExampleTable({ rows, name }: { rows: readonly LeakExampleRow[]; name: s
       </div>
       <div className={table.body}>
         {rows.map((row) => (
-          <a
+          <ChosenLink
             key={`${row.handId}-${row.ord}`}
+            handKey={row.handId}
             className={table.row}
             href={screenHref("hands", row.handId)}
-            aria-label={w.top.openHand(row.heroCards.join(" ") || row.handClass || row.handId, name)}
-            onClick={(event) => {
-              event.preventDefault();
-              openInReplayer(row.handId);
-            }}
+            label={w.top.openHand(row.heroCards.join(" ") || row.handClass || row.handId, name)}
+            open={() => openInReplayer(row.handId)}
           >
             <span className={table.secondary}>{row.playedAt ? WHEN.format(new Date(row.playedAt)) : "—"}</span>
             <span className={table.secondary}>{row.stakesLabel ?? ""}</span>
@@ -376,7 +381,7 @@ function ExampleTable({ rows, name }: { rows: readonly LeakExampleRow[]; name: s
             <span className={`${table.num} ${row.evLossBb !== null && row.evLossBb > 0 ? table.lost : table.dim}`}>
               {row.evLossBb !== null && row.evLossBb > 0 ? `−${BB.format(row.evLossBb)}` : "—"}
             </span>
-          </a>
+          </ChosenLink>
         ))}
       </div>
     </div>
