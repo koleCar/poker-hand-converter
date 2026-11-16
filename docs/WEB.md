@@ -387,9 +387,9 @@ checks that loading the core requests nothing but its own `.wasm`.
 
 The save is the only exception, and only when you are signed in with "Save
 to my library" on: converted hands go to your library, as PHF without the
-original text. The original files themselves go only when you also tick
-**"Also keep the original files"** — off by default, on each visit — and then
-compressed, into your private folder of the `hand-uploads` bucket (A2).
+original text. The original files themselves are never uploaded (the
+"Also keep the original files" opt-in into the `hand-uploads` bucket was
+removed on 2026-11-16).
 While such a save runs, its progress (a state and counts, nothing of a hand
 or a file name) is published to your account's private Realtime channel so
 your other tabs can show it (R4.3, below).

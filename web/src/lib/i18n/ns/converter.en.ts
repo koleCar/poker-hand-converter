@@ -78,8 +78,6 @@ export const converterEn = {
       "This browser would not start a background worker, so conversion ran on the page itself. Large files may have felt slow.",
     workerStopped: "The conversion worker stopped unexpectedly.",
     /** The Storage opt-in next to "Save to my library" (A2, R4.2). Off by default. */
-    keepOriginals: "Also keep the original files",
-    keepOriginalsHint: "Compressed, private to your account. Off: only the converted hands are saved.",
     /** Progress of a drop read as a stream (R4.2): `read` / `total` are formatted sizes. */
     progressBulk: (handsDone: number, files: number, read: string, total: string, percent: number) =>
       `${num(handsDone)} ${hands(handsDone)} converted · ${num(files)} ${files === 1 ? "file" : "files"} · ${read} of ${total} (${percent}%)`,

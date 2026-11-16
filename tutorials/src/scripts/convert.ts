@@ -15,14 +15,6 @@ export const script: Tutorial = {
       steps: [
         {
           shot: 'empty',
-          focus: 'privacy',
-          fill: 0.8,
-          highlight: 'privacy',
-          caption: 'Conversion happens in your browser tab. Nothing leaves it unless you save to your library.',
-          seconds: 4.5,
-        },
-        {
-          shot: 'empty',
           focus: 'drop',
           fill: 0.7,
           cursor: 'chooseFiles',
@@ -35,8 +27,8 @@ export const script: Tutorial = {
           shot: 'empty',
           focus: 'save',
           fill: 0.5,
-          highlight: ['save', 'originals'],
-          caption: 'Signed in, Save to my library stores the converted hands as they convert. Keeping the original files is a separate choice, off by default.',
+          highlight: 'save',
+          caption: 'Signed in, Save to my library stores the converted hands as they convert.',
           seconds: 5.5,
         },
       ],

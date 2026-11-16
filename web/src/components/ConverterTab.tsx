@@ -229,7 +229,6 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
   const [recorded, setRecorded] = useState<{ created: number; updated: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [autoSave, setAutoSave] = useState(readAutoSavePreference);
-  const [keepOriginals, setKeepOriginals] = useState(false);
   const [preview, setPreview] = useState<PhfHand | null>(null);
   const [usedWorker, setUsedWorker] = useState<boolean | null>(null);
   const [held, setHeld] = useState<HeldSave | null>(null);
@@ -247,8 +246,6 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
   // would otherwise close over a stale toggle.
   const autoSaveRef = useRef(autoSave);
   autoSaveRef.current = autoSave;
-  const keepOriginalsRef = useRef(keepOriginals);
-  keepOriginalsRef.current = keepOriginals;
   const signedInRef = useRef(auth.isSignedIn);
   signedInRef.current = auth.isSignedIn;
 
@@ -531,13 +528,12 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
       // Save as we go when the user can: database, switch on, signed in.
       let saver: BulkSaver | null = null;
       let resume = { done: [] as string[], batches: [] as Array<[string, number]> };
-      const keep = keepOriginalsRef.current;
       const userId = isDatabaseConfigured && autoSaveRef.current && signedInRef.current ? await currentUserId() : null;
       if (userId) {
         const manifests = store();
         let manifest: UploadManifest;
         if (unfinished && unfinished.userId === userId && isSameUpload(unfinished, inputs)) {
-          manifest = { ...unfinished, keepOriginals: keep };
+          manifest = { ...unfinished, keepOriginals: false };
           try {
             resume = resumeStateOf((await manifests?.sources(manifest.id)) ?? []);
           } catch {
@@ -547,7 +543,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
           if (unfinished) {
             void manifests?.remove(unfinished.id).catch(() => undefined);
           }
-          manifest = newManifest(userId, inputs, keep);
+          manifest = newManifest(userId, inputs, false);
           try {
             await manifests?.put(manifest);
           } catch {
@@ -571,7 +567,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
           // Everything converts: the old tab was cash-only, but a user with a
           // tournament history wants it converted, not silently dropped.
           options: { validate: true },
-          keepOriginals: saver !== null && keep,
+          keepOriginals: false,
           resume,
           window: WORKER_WINDOW,
         },
@@ -862,25 +858,6 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
               </span>
             </label>
 
-            {/* A2: the original files leave the tab only on this explicit,
-                per-visit opt-in, and only into the user's own private folder. */}
-            {isDatabaseConfigured && autoSave && auth.isSignedIn ? (
-              <label className="conv-switch">
-                <input
-                  type="checkbox"
-                  checked={keepOriginals}
-                  disabled={busy || saving}
-                  onChange={(event) => setKeepOriginals(event.target.checked)}
-                />
-                <span className="conv-switch__track" aria-hidden="true">
-                  <span className="conv-switch__thumb" />
-                </span>
-                <span className="conv-switch__text">
-                  <strong>{t.keepOriginals}</strong>
-                  <small>{t.keepOriginalsHint}</small>
-                </span>
-              </label>
-            ) : null}
           </div>
 
           {sources.length > 0 ? (

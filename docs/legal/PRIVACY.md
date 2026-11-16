@@ -52,10 +52,7 @@ page), as is everything you post on the forum.
   hand format), search fields derived from it and the name of the file it
   came from; for hands saved from the converter's single run also the
   converted and the original hand-history text. A bulk upload stores the
-  structured document only.
-- **The original files** of a bulk upload are stored only if you tick "Also
-  keep the original files" for that upload (compressed, in a private storage
-  area only your account can read).
+  structured document only; its original files are not uploaded.
 - **The desktop app** stores hands in a database on your computer. When you
   are signed in with sync on, it sends the structured document and per-seat
   statistics of each hand - never the original files or their text.

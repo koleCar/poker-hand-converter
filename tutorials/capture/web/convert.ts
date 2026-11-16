@@ -24,14 +24,12 @@ export async function capture(browser: Browser): Promise<void> {
   page.setDefaultTimeout(60_000);
   await open(page, '/convert');
   await rec.shot(page, 'empty', {
-    privacy: page.getByText('Nothing is uploaded.'),
     paste: '.single',
     drop: '.conv-drop',
     chooseFiles: page.locator('.conv-drop').getByRole('button', { name: 'Choose files' }),
     chooseFolder: page.locator('.conv-drop').getByRole('button', { name: 'Choose a folder' }),
     rooms: '.conv-drop__hint',
     save: page.locator('label.conv-switch', { hasText: 'Save to my library' }),
-    originals: page.locator('label.conv-switch', { hasText: 'Also keep the original files' }),
   });
 
   await page.locator('.conv-drop input[type=file]').first().setInputFiles(drop);

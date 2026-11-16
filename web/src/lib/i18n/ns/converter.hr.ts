@@ -66,8 +66,6 @@ export const converterHr: Dict["converter"] = {
     noWorker:
       "Ovaj preglednik nije htio pokrenuti pozadinski worker, pa je pretvaranje radilo na samoj stranici. Velike datoteke zato su se mogle činiti sporima.",
     workerStopped: "Pretvaranje se neočekivano zaustavilo.",
-    keepOriginals: "Zadrži i izvorne datoteke",
-    keepOriginalsHint: "Komprimirane, vidljive samo tvom računu. Isključeno: spremaju se samo pretvorene ruke.",
     progressBulk: (handsDone: number, files: number, read: string, total: string, percent: number) =>
       `${converted(handsDone)} · ${num(files)} ${plural(files, "datoteka", "datoteke", "datoteka")} · ${read} od ${total} (${percent} %)`,
     saveLive: (inserted: number, duplicates: number, refused: number) =>

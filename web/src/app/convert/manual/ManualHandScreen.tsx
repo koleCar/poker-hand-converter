@@ -21,12 +21,6 @@ export function ManualHandScreen() {
               ← {t.back}
             </Link>
             <h1 className={styles.manualTitle}>{t.title}</h1>
-            <p className={styles.manualIntro}>
-              <span aria-hidden="true" className={styles.privacyMark}>
-                ⦿
-              </span>{" "}
-              {en.convert.privacy}
-            </p>
           </div>
           <ManualHandEditor onSaved={onHandsSaved} />
         </div>
