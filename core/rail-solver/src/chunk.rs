@@ -180,6 +180,14 @@ pub fn encode_chunk(header_json: &str, result: &SolveResult) -> Result<Vec<u8>, 
     if result.street != crate::betting::Street::Flop || result.scope != crate::solve::Scope::Flop {
         return Err("a flop library chunk holds a flop-level flop solve (nodes: \"flop\")".into());
     }
+    Ok(wrap_chunk(header_json, result))
+}
+
+/// The chunk layout around any solve, a turn's included (a turn or river
+/// nodelock's result: the library header of the flop it came from, then the
+/// live turn's solution). `encodeChunk` itself takes only flop solves.
+#[must_use]
+pub fn wrap_chunk(header_json: &str, result: &SolveResult) -> Vec<u8> {
     let json = header_json.as_bytes();
     let solve = encode_solution(result);
     let start = pad4(12 + json.len());
@@ -190,7 +198,7 @@ pub fn encode_chunk(header_json: &str, result: &SolveResult) -> Result<Vec<u8>, 
     out[8..12].copy_from_slice(&(json.len() as u32).to_le_bytes());
     out[12..12 + json.len()].copy_from_slice(json);
     out[start..].copy_from_slice(&solve);
-    Ok(out)
+    out
 }
 
 /// A decoded node's strategy, as `decodeSolution` reads it (renormalised).

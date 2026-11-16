@@ -44,6 +44,7 @@ pub mod game;
 pub mod iso;
 pub mod js;
 pub mod lock;
+pub mod nodelock;
 pub mod solve;
 pub mod spot;
 pub mod subgame;

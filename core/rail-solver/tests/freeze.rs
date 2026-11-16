@@ -198,3 +198,125 @@ fn locked_flop_is_thread_count_independent() {
         }
     }
 }
+
+/// The app's request end to end: a flop lock with "player", the library
+/// chunk as the baseline, a chunk back that decodes.
+#[test]
+fn a_nodelock_request_solves() {
+    use std::sync::atomic::AtomicBool;
+
+    use rail_solver::nodelock::{NodelockRequest, RequestOptions, run_nodelock};
+
+    let fx = load("flop-small");
+    let spot = spot_of(&fx);
+    let chunk = fx["expect"]["bytes"].as_str().unwrap().to_owned();
+    let library = decode(&bytes(&fx["expect"]["bytes"])).unwrap();
+    // Player 1 facing the small bet: its ancestor of player 1 is none, so
+    // lock player 0's node after check-bet instead; its ancestor is the root.
+    let node = library
+        .nodes
+        .iter()
+        .find(|n| n.player == 0 && n.path.starts_with("X-B"))
+        .unwrap();
+    let labels: Vec<&str> = node.labels.iter().map(String::as_str).collect();
+    let mut spec = uniform_lock(&node.path, 0, &labels, 0);
+    spec.street = "flop".into();
+    let request = NodelockRequest {
+        spot,
+        lock_set: lock_set(vec![spec], LockEarlier::Player),
+        baseline: Some(chunk),
+        header: fx["header"].as_str().unwrap().to_owned(),
+        options: RequestOptions {
+            max_iterations: 8,
+            target_pct: 0.0,
+            check_from: Some(8),
+            check_every: 8,
+            dcfr: rail_solver::cfr::DcfrParams {
+                alpha: 1.5,
+                beta: 0.0,
+                gamma: 3.0,
+            },
+        },
+        threads: Some(3),
+        storage: None,
+        memory_budget: None,
+    };
+    let mut calls = 0;
+    let out = run_nodelock(&request, &AtomicBool::new(false), |p| {
+        calls += 1;
+        assert!(p.memory_mb > 0.0);
+    })
+    .unwrap();
+    assert_eq!(calls, 9, "8 iterations and one measurement");
+    assert_eq!(out.stats.iterations, 8);
+    assert_eq!(out.stats.engine, "native");
+    let decoded = decode(&out.chunk).unwrap();
+    // The root kept the library's strategy.
+    let diff = decoded.nodes[0]
+        .strategy
+        .iter()
+        .zip(&library.nodes[0].strategy)
+        .map(|(a, b)| (a - b).abs())
+        .fold(0.0, f64::max);
+    assert!(diff < 1e-4, "root moved by {diff}");
+    // A cancel is an error.
+    let cancelled = run_nodelock(&request, &AtomicBool::new(true), |_| {});
+    assert_eq!(cancelled.err().as_deref(), Some("cancelled"));
+}
+
+/// A turn lock as the app addresses it (`X-X~Kd/…`), "player" with no
+/// baseline sent: the unlocked live turn is solved first and the earlier node
+/// keeps it; the chunk wraps the turn solve.
+#[test]
+fn a_turn_lock_request_solves_its_own_baseline() {
+    use std::sync::atomic::AtomicBool;
+
+    use rail_solver::nodelock::{NodelockRequest, RequestOptions, run_nodelock};
+
+    let fx = load("turn-iso");
+    let spot = spot_of(&fx);
+    let options = RequestOptions {
+        max_iterations: 20,
+        target_pct: 0.0,
+        check_from: Some(20),
+        check_every: 20,
+        dcfr: rail_solver::cfr::DcfrParams {
+            alpha: 1.5,
+            beta: 0.0,
+            gamma: 3.0,
+        },
+    };
+    let mut base_options = options_of(&fx["options"], 2);
+    base_options.run.max_iterations = 20;
+    base_options.run.check_from = Some(20);
+    base_options.run.check_every = 20;
+    let base = solve(&spot, &base_options, None, None, |_| true).unwrap();
+    let node = base
+        .result
+        .nodes
+        .iter()
+        .find(|n| !n.chance && n.player == 0 && n.path.starts_with("X-B"))
+        .unwrap();
+    let labels: Vec<&str> = node.labels.iter().map(String::as_str).collect();
+    let mut spec = uniform_lock(&format!("X-X~Kd/{}", node.path), 0, &labels, 0);
+    spec.street = "turn".into();
+    let request = NodelockRequest {
+        spot,
+        lock_set: lock_set(vec![spec], LockEarlier::Player),
+        baseline: None,
+        header: "{\"version\":\"floplib/1\",\"solver\":\"solver/1\"}".into(),
+        options,
+        threads: Some(2),
+        storage: None,
+        memory_budget: None,
+    };
+    let out = run_nodelock(&request, &AtomicBool::new(false), |_| {}).unwrap();
+    let decoded = decode(&out.chunk).unwrap();
+    let diff = decoded.nodes[0]
+        .strategy
+        .iter()
+        .zip(base.result.nodes[0].strategy.iter())
+        .map(|(a, b)| (a - f64::from(*b)).abs())
+        .fold(0.0, f64::max);
+    assert!(diff < 1e-4, "the turn root moved by {diff}");
+}

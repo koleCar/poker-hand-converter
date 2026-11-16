@@ -310,6 +310,7 @@ pub fn options_of(o: &Value, threads: usize) -> SolveOptions {
             Some("turn") => Scope::Turn,
             _ => Scope::All,
         },
+        memory_budget: None,
     }
 }
 

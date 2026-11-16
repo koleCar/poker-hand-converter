@@ -630,6 +630,24 @@ impl Solver {
         solver
     }
 
+    /// Bytes the regrets and sums of `game` take in `storage` (the bulk of a
+    /// solve's memory), before building the solver.
+    #[must_use]
+    pub fn storage_bytes(game: &Game, storage: Storage) -> usize {
+        let tree = &game.tree;
+        let n = [game.hands[0].size, game.hands[1].size];
+        let mut entries = 0;
+        for node in 0..tree.size {
+            if tree.kind[node] == ACTION {
+                entries += tree.child_count[node] as usize * n[usize::from(tree.player[node])];
+            }
+        }
+        match storage {
+            Storage::F32 => entries * 12 + tree.size * 4,
+            Storage::I16 => entries * 4 + tree.size * 8,
+        }
+    }
+
     #[must_use]
     pub fn game(&self) -> &Game {
         &self.sh.game

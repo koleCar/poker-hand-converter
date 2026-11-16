@@ -33,6 +33,9 @@ pub struct SolveOptions {
     pub storage: Storage,
     pub threads: usize,
     pub scope: Scope,
+    /// When set: float32 storage if it fits in this many bytes, else 16-bit
+    /// (`storage` is then ignored).
+    pub memory_budget: Option<usize>,
 }
 
 impl Default for SolveOptions {
@@ -43,6 +46,7 @@ impl Default for SolveOptions {
             storage: Storage::F32,
             threads: 1,
             scope: Scope::All,
+            memory_budget: None,
         }
     }
 }
@@ -56,6 +60,8 @@ pub struct Progress {
     pub exploitability_pct: f64,
     /// Whether this call follows a measurement.
     pub measured: bool,
+    /// The solver's memory, MB.
+    pub memory_mb: f64,
 }
 
 #[derive(Debug)]
@@ -68,6 +74,7 @@ pub struct Solved {
     pub boards: usize,
     pub turn_classes: usize,
     pub native_bytes: usize,
+    pub storage: Storage,
     pub threads: usize,
     pub seconds: f64,
 }
@@ -99,11 +106,16 @@ pub fn solve(
     } else {
         0
     };
+    let storage = match options.memory_budget {
+        Some(budget) if Solver::storage_bytes(&built.game, Storage::F32) <= budget => Storage::F32,
+        Some(_) => Storage::I16,
+        None => options.storage,
+    };
     let mut solver = Solver::new(
         std::mem::take(&mut built.game),
         options.dcfr,
         SolverConfig {
-            storage: options.storage,
+            storage,
             sampling: None,
             threads: options.threads,
         },
@@ -113,6 +125,7 @@ pub fn solve(
         None => Applied::default(),
     };
     let mut last = f64::NAN;
+    let memory_mb = solver.native_bytes() as f64 / 1e6;
     let run = solver.run(&options.run, |event| {
         let (iteration, measured) = match event {
             RunEvent::Iteration(t) => (t, false),
@@ -126,6 +139,7 @@ pub fn solve(
             elapsed_ms: started.elapsed().as_secs_f64() * 1000.0,
             exploitability_pct: last,
             measured,
+            memory_mb,
         })
     });
     let result = extract(&built, &mut solver, &run, options.scope);
@@ -138,7 +152,28 @@ pub fn solve(
         boards,
         turn_classes,
         native_bytes: solver.native_bytes(),
+        storage,
         threads: solver.threads(),
         seconds: started.elapsed().as_secs_f64(),
     })
+}
+
+/// A solve's decision nodes as a baseline for earlier-node freezing (what a
+/// decoded chunk gives, without encoding it).
+#[must_use]
+pub fn baseline_of(result: &SolveResult) -> DecodedSolve {
+    DecodedSolve {
+        hands: result.hands.clone(),
+        nodes: result
+            .nodes
+            .iter()
+            .filter(|n| !n.chance)
+            .map(|n| crate::chunk::DecodedNode {
+                path: n.path.clone(),
+                player: n.player as usize,
+                labels: n.labels.clone(),
+                strategy: n.strategy.iter().map(|&x| f64::from(x)).collect(),
+            })
+            .collect(),
+    }
 }
