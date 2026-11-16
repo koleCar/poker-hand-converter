@@ -4,6 +4,10 @@
  */
 export const planEn = {
   heading: "Plan",
+  earlyAccess: "Early access",
+  discount: (percent: number) => `−${percent}% for life`,
+  discountLabel: "Discount",
+  open: "Open",
   loading: "Loading your plan…",
   unavailable: "Plans are not set up on this database yet. Everything keeps working.",
   loadFailed: "Your plan could not be loaded. Reload the page to try again.",

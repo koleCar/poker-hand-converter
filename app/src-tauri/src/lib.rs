@@ -96,6 +96,7 @@ pub mod manual_import;
 pub mod players;
 pub mod policy;
 pub mod popup;
+pub mod profile;
 pub mod quarantine;
 pub mod replayer;
 pub mod reports;
@@ -425,6 +426,8 @@ pub fn run() {
         account::account_cancel_sign_in,
         account::account_sign_out,
         account::account_open_web_page,
+        profile::account_profile,
+        profile::account_set_username,
         sync::sync_status,
         sync::sync_now,
         sync::sync_set_paused,
@@ -577,6 +580,8 @@ pub fn run() {
         account::account_cancel_sign_in,
         account::account_sign_out,
         account::account_open_web_page,
+        profile::account_profile,
+        profile::account_set_username,
         sync::sync_status,
         sync::sync_now,
         sync::sync_set_paused,

@@ -363,6 +363,33 @@ export const hr: Dict = {
       signedOutLocally: "Odjava na ovom računalu je izvršena. Rail nije mogao doći do poslužitelja da ondje završi sesiju.",
       browserFailed: "Rail nije mogao otvoriti preglednik. Upotrijebi Ponovno otvori stranicu.",
     },
+    /** Settings' name row: the public name, chosen once (2026-11-16). */
+    name: {
+      label: "Ime",
+      notChosen: "Još nije odabrano",
+      hint: "Drugi vide ovo ime umjesto tvog e-maila. Biraš ga jednom: kasnije se ne može mijenjati.",
+      locked: "Tvoje javno ime. Ne može se mijenjati.",
+      choose: "Odaberi",
+      rules: "3–24 znaka: slova, brojke i podvlake.",
+      confirm: (name: string) => `Tvoje ime bit će ${name}, zauvijek.`,
+      save: "Spremi ime",
+      saving: "Spremam…",
+      saved: (name: string) => `Spremljeno. Ti si ${name}.`,
+      loadFailed: "Tvoje ime se nije moglo učitati.",
+      retry: "Pokušaj ponovno",
+      offline: "Rail ne može doći do servera. Pokušaj ponovno kad budeš online.",
+      tooShort: "Ime ima najmanje 3 znaka.",
+      tooLong: "Ime ima najviše 24 znaka.",
+      badCharacters: "Ime smije sadržavati samo slova, brojke i podvlake.",
+      badStart: "Ime počinje slovom ili brojkom.",
+      refused: {
+        taken: "To ime je zauzeto.",
+        notAvailable: "To ime nije dostupno.",
+        notAllowed: "To ime nije dopušteno.",
+        alreadySet: "Ime je već postavljeno i ne može se mijenjati.",
+        reservedPrefix: "Imena koja počinju s \"user_\" rezervirana su za nove račune.",
+      },
+    },
     yourData: {
       heading: "Tvoji podaci",
       local:

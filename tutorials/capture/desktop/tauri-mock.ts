@@ -463,6 +463,8 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
       return scene().account;
     },
     account_open_web_page: () => null,
+    account_profile: () => ({ username: 'river_rat', provisional: false }),
+    account_set_username: (args) => String(args.username),
     sync_status: () => sync(),
     sync_now: () => sync(),
     sync_set_paused: (a) => {

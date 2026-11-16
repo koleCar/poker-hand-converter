@@ -124,18 +124,18 @@ select is(
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000a');
 select throws_ok(
   $$ select public.set_username('Someone_else') $$,
-  '22023', null, 'a second change inside 30 days is refused');
-select ok(
-  (select public.set_username('BIGSTACK') ->> 'username') = 'BIGSTACK',
-  'a capitalisation-only change is allowed inside the 30 days');
+  '22023', 'Your username is already set. It cannot be changed.', 'a chosen username cannot be changed');
+select throws_ok(
+  $$ select public.set_username('BIGSTACK') $$,
+  '22023', 'Your username is already set. It cannot be changed.', '... not even its capitalisation');
 
--- Move A's clock past the limit.
+-- Support reopens A's name.
 select pg_temp.act_as_owner();
-update public.profiles set username_changed_at = now() - interval '31 days'
+update public.profiles set username_changed_at = null
  where id = '00000000-0000-0000-0000-00000000000a';
 
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000a');
-select is(public.set_username('bigstack_pro') ->> 'username', 'bigstack_pro', 'after 30 days A renames');
+select is(public.set_username('bigstack_pro') ->> 'username', 'bigstack_pro', 'reopened by support, A chooses again');
 
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000b');
 select throws_ok($$ select public.set_username('bigstack') $$, '22023', 'That username is not available.',
@@ -153,7 +153,7 @@ select is(public.set_username('river_rat') ->> 'username', 'river_rat', 'B takes
 
 -- A takes the old name back, a year's reservation being theirs to consume.
 select pg_temp.act_as_owner();
-update public.profiles set username_changed_at = now() - interval '31 days'
+update public.profiles set username_changed_at = null
  where id = '00000000-0000-0000-0000-00000000000a';
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000a');
 select is(public.set_username('Bigstack') ->> 'username', 'Bigstack', 'A reclaims their own previous name');
@@ -280,7 +280,7 @@ select is(public.is_board_moderator('22222222-2222-2222-2222-222222222222'), fal
 -- ------------------------------------------------------- deleted accounts --
 
 select pg_temp.act_as_owner();
-update public.profiles set username_changed_at = now() - interval '31 days'
+update public.profiles set username_changed_at = null
  where id = '00000000-0000-0000-0000-00000000000e';
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000e');
 select public.set_username('Leaving_soon');
@@ -292,7 +292,7 @@ select is(
      from public.username_reservations where username_lower = 'leaving_soon'),
   'deleted-account:nobody', 'a deleted account''s name is reserved for nobody');
 
-update public.profiles set username_changed_at = now() - interval '31 days'
+update public.profiles set username_changed_at = null
  where id = '00000000-0000-0000-0000-00000000000b';
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000b');
 select throws_ok($$ select public.set_username('leaving_soon') $$, '22023', 'That username is not available.',

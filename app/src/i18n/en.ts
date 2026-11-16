@@ -359,6 +359,33 @@ export const en = {
       signedOutLocally: "Signed out on this computer. Rail could not reach the server to end the session there.",
       browserFailed: "Rail could not open your browser. Use Open the page again.",
     },
+    /** Settings' name row: the public name, chosen once (2026-11-16). */
+    name: {
+      label: "Name",
+      notChosen: "Not chosen yet",
+      hint: "Others see this name instead of your email. You choose it once: it cannot be changed later.",
+      locked: "Your public name. It cannot be changed.",
+      choose: "Choose",
+      rules: "3–24 characters: letters, numbers and underscores.",
+      confirm: (name: string) => `Your name will be ${name}, for good.`,
+      save: "Save name",
+      saving: "Saving…",
+      saved: (name: string) => `Saved. You are ${name}.`,
+      loadFailed: "Your name could not be loaded.",
+      retry: "Try again",
+      offline: "Rail could not reach the server. Try again when you are online.",
+      tooShort: "Names are at least 3 characters.",
+      tooLong: "Names are at most 24 characters.",
+      badCharacters: "Names can use only letters, numbers and underscores.",
+      badStart: "Names start with a letter or a number.",
+      refused: {
+        taken: "That name is taken.",
+        notAvailable: "That name is not available.",
+        notAllowed: "That name is not allowed.",
+        alreadySet: "Your name is already set. It cannot be changed.",
+        reservedPrefix: "Names starting with \"user_\" are reserved for new accounts.",
+      },
+    },
     /** (R6.5) What this computer keeps, and the account's export and deletion on the web. */
     yourData: {
       heading: "Your data",

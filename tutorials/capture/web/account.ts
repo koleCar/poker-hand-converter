@@ -25,9 +25,9 @@ export async function capture(browser: Browser): Promise<void> {
   await settle(page, 400);
   await rec.shot(page, 'menu', {
     user: '.usermenu__trigger',
-    settings: page.getByRole('menuitem', { name: 'Settings' }),
+    settings: page.getByRole('menuitem', { name: 'Profile settings' }),
   });
-  await page.getByRole('menuitem', { name: 'Settings' }).click();
+  await page.getByRole('menuitem', { name: 'Profile settings' }).click();
   await page.waitForURL(/\/settings/);
   await settle(page, 1500);
   const section = (id: string) => page.locator('section', { has: page.locator(`#${id}`) });
@@ -35,14 +35,12 @@ export async function capture(browser: Browser): Promise<void> {
     page,
     'settings',
     {
-      heading: page.getByRole('heading', { name: 'Settings', level: 1 }),
       language: section('settings-language'),
-      username: section('settings-username'),
-      posting: section('settings-posting'),
+      username: section('settings-account'),
+      password: section('settings-account'),
       plan: 'section#plan',
-      password: section('settings-password'),
       data: 'section#your-data',
-      delete: 'section#delete-account',
+      delete: section('settings-danger'),
     },
     { fullPage: true },
   );
@@ -64,10 +62,12 @@ export async function capture(browser: Browser): Promise<void> {
     { fullPage: true },
   );
 
-  // Deleting the account: both confirmations filled in; never submitted.
-  const del = page.locator('section#delete-account');
+  // Deleting the account (its own page): both confirmations filled in; never submitted.
+  await page.locator('section', { has: page.locator('#settings-danger') }).getByRole('link').click();
+  await page.waitForURL(/\/settings\/delete-account/);
+  const del = page.locator('#delete-account');
   await del.getByLabel(/Type your username/).fill(ACCOUNTS.demo.username);
-  await del.getByLabel('Your password').fill('not-the-password');
+  await del.getByLabel('Password').fill('not-the-password');
   await settle(page, 600);
   await rec.shot(
     page,
@@ -75,9 +75,9 @@ export async function capture(browser: Browser): Promise<void> {
     {
       del,
       happens: del.getByRole('heading', { name: 'What happens' }),
-      first: del.getByRole('link', { name: 'Download your data first' }),
+      first: del.getByRole('link', { name: 'Download' }),
       confirm: del.getByLabel(/Type your username/),
-      password: del.getByLabel('Your password'),
+      password: del.getByLabel('Password'),
       button: del.getByRole('button', { name: 'Delete my account permanently' }),
     },
     { fullPage: true },

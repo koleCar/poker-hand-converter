@@ -5,11 +5,13 @@
  * `AccountPanel`.
  */
 import { Icon, type IconName } from "@rail/ui/icon/Icon";
+import { useEffect, useState, type FormEvent } from "react";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 
 import { useT, type Dict } from "../../i18n";
 import { liveDateFormat } from "../../i18n/format";
-import { ipc, type AccountStatus, type EntitlementsStatus, type SyncStatus } from "../../lib/ipc";
+
+import { errorText, ipc, type AccountProfile, type AccountStatus, type EntitlementsStatus, type SyncStatus } from "../../lib/ipc";
 import { useAccount } from "../../lib/useAccount";
 import { useEntitlements } from "../../lib/useEntitlements";
 import { useSync } from "../../lib/useSync";
@@ -24,24 +26,241 @@ function minutes(seconds: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-/** The account, the plan and sync, in Settings. */
+/** The account, its name, the plan and sync, in Settings. */
 export function Account({ account }: { account: ReturnType<typeof useAccount> }) {
   const configured = account.account !== null && account.account.state !== "notConfigured";
+  const signedInAs = account.account?.state === "signedIn" ? account.account.email : null;
+  const profile = useProfile(signedInAs);
   return (
     <>
-      <AccountTile {...account} />
+      <AccountTile {...account} name={profile.profile && !profile.profile.provisional ? profile.profile.username : null} />
       {configured && (
         <div className={styles.card}>
+          {signedInAs !== null && <NameRow {...profile} />}
           <PlanRow />
           <SyncRow />
         </div>
       )}
+      {profile.notice && <p className={`${styles.note} ${styles.success}`}>{profile.notice}</p>}
     </>
   );
 }
 
-/** Who is signed in (a round initial, the email) and Sign in / Sign out; a notice or error under it. */
-function AccountTile({ account, error, busy, run }: ReturnType<typeof useAccount>) {
+interface ProfileState {
+  profile: AccountProfile | null;
+  /** The last load failed (offline, ...): the row offers to try again. */
+  failed: boolean;
+  loading: boolean;
+  notice: string | null;
+  reload: () => void;
+  saved: (name: string) => void;
+}
+
+/** The signed-in account's public name, loaded again whenever the account changes. */
+function useProfile(signedInAs: string | null): ProfileState {
+  const n = useT().account.name;
+  const [state, setState] = useState<{ for: string | null; profile: AccountProfile | null; failed: boolean }>({
+    for: null,
+    profile: null,
+    failed: false,
+  });
+  const [notice, setNotice] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    if (signedInAs === null) return;
+    let live = true;
+    ipc
+      .accountProfile()
+      .then((profile) => {
+        if (live) setState({ for: signedInAs, profile, failed: false });
+      })
+      .catch(() => {
+        if (live) setState({ for: signedInAs, profile: null, failed: true });
+      });
+    return () => {
+      live = false;
+    };
+  }, [signedInAs, attempt]);
+
+  const current = state.for === signedInAs && signedInAs !== null;
+  return {
+    profile: current ? state.profile : null,
+    failed: current && state.failed,
+    loading: signedInAs !== null && !current,
+    notice: current ? notice : null,
+    reload: () => setAttempt((value) => value + 1),
+    saved: (name) => {
+      setState({ for: signedInAs, profile: { username: name, provisional: false }, failed: false });
+      setNotice(n.saved(name));
+    },
+  };
+}
+
+/** The shape rules, before the round trip; the server checks the rest. */
+function nameProblem(n: Dict["account"]["name"], name: string): string | null {
+  if (name.length < 3) return n.tooShort;
+  if (name.length > 24) return n.tooLong;
+  if (!/^[A-Za-z0-9_]+$/.test(name)) return n.badCharacters;
+  if (!/^[A-Za-z0-9]/.test(name)) return n.badStart;
+  return null;
+}
+
+/** The server's refusal (`set_username`'s sentences), in the app's language. */
+function refusalText(n: Dict["account"]["name"], error: string): string {
+  switch (error) {
+    case "That username is taken.":
+      return n.refused.taken;
+    case "That username is not available.":
+      return n.refused.notAvailable;
+    case "That username is not allowed.":
+      return n.refused.notAllowed;
+    case "Your username is already set. It cannot be changed.":
+      return n.refused.alreadySet;
+    case 'Names starting with "user_" are reserved for new accounts.':
+      return n.refused.reservedPrefix;
+    case "unreachable":
+    case "signedOut":
+    case "unavailable":
+      return n.offline;
+    default:
+      return error;
+  }
+}
+
+/**
+ * The public name: what others see instead of the email. Chosen: shown and
+ * locked. Still the signup's `user_xxxxxxxx`: "Choose", which opens the
+ * field in the row; saved once, for good.
+ */
+function NameRow({ profile, failed, loading, reload, saved }: ProfileState) {
+  const d = useT().account;
+  const n = d.name;
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const trimmed = value.trim();
+  const problem = trimmed ? nameProblem(n, trimmed) : null;
+
+  if (loading || failed || profile === null) {
+    return (
+      <div className={styles.row}>
+        <span className={styles.rowLabel}>{n.label}</span>
+        <span className={styles.value}>
+          {loading ? <RailLoader size="inline" label={n.label} /> : <span className={styles.muted}>{n.loadFailed}</span>}
+        </span>
+        <span className={styles.actions}>
+          {!loading && (
+            <button type="button" className="btn btn--sm" onClick={reload}>
+              {n.retry}
+            </button>
+          )}
+        </span>
+      </div>
+    );
+  }
+
+  if (!profile.provisional) {
+    return (
+      <div className={styles.row}>
+        <span className={styles.rowLabel}>{n.label}</span>
+        <span className={styles.value}>
+          <span className={`${styles.strong} ${styles.ellipsis}`}>{profile.username}</span>
+          <span className={styles.muted}>{n.locked}</span>
+        </span>
+        <span className={`${styles.actions} ${styles.muted}`} aria-hidden="true">
+          <Icon name="lock" />
+        </span>
+      </div>
+    );
+  }
+
+  if (!editing) {
+    return (
+      <div className={styles.row}>
+        <span className={styles.rowLabel}>{n.label}</span>
+        <span className={styles.value}>
+          <span className={`${styles.badge} ${styles.yellow}`}>{n.notChosen}</span>
+          <span className={styles.muted}>{n.hint}</span>
+        </span>
+        <span className={styles.actions}>
+          <button type="button" className="btn btn--primary btn--sm" onClick={() => setEditing(true)}>
+            {n.choose}
+          </button>
+        </span>
+      </div>
+    );
+  }
+
+  const save = async (event: FormEvent) => {
+    event.preventDefault();
+    const local = nameProblem(n, trimmed);
+    if (local) {
+      setError(local);
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      saved(await ipc.accountSetUsername(trimmed));
+    } catch (e) {
+      setError(refusalText(n, errorText(e)));
+      setBusy(false);
+    }
+  };
+
+  const message = error ?? problem;
+  return (
+    <form className={`${styles.row} ${styles.rowStack}`} onSubmit={(event) => void save(event)}>
+      <label className={styles.rowLabel} htmlFor="settings-name">
+        {n.label}
+      </label>
+      <span className={styles.value}>
+        <input
+          id="settings-name"
+          className={styles.input}
+          value={value}
+          onChange={(event) => {
+            setValue(event.target.value);
+            setError(null);
+          }}
+          maxLength={24}
+          autoComplete="off"
+          autoCapitalize="none"
+          spellCheck={false}
+          autoFocus
+          aria-invalid={Boolean(message)}
+          aria-describedby="settings-name-hint"
+        />
+        <span id="settings-name-hint" className={message ? styles.error : styles.muted} role={error ? "alert" : undefined}>
+          {message ?? (trimmed ? n.confirm(trimmed) : n.rules)}
+        </span>
+        <span className={styles.muted}>{n.hint}</span>
+        <span className={styles.inline}>
+          <button type="submit" className="btn btn--primary btn--sm" disabled={busy || !trimmed || Boolean(problem)}>
+            {busy ? n.saving : n.save}
+          </button>
+          <button
+            type="button"
+            className="btn btn--ghost btn--sm"
+            disabled={busy}
+            onClick={() => {
+              setEditing(false);
+              setValue("");
+              setError(null);
+            }}
+          >
+            {d.cancel}
+          </button>
+        </span>
+      </span>
+    </form>
+  );
+}
+
+/** Who is signed in (a round initial, the name and the email) and Sign in / Sign out; a notice or error under it. */
+function AccountTile({ account, error, busy, run, name }: ReturnType<typeof useAccount> & { name: string | null }) {
   const d = useT().account;
   if (account?.state === "notConfigured") {
     return <p className={styles.note}>{d.notConfigured}</p>;
@@ -55,7 +274,7 @@ function AccountTile({ account, error, busy, run }: ReturnType<typeof useAccount
           {error ? <p className={styles.error}>{d.failed(error)}</p> : <RailLoader size="inline" label={d.loading} showLabel />}
         </div>
       ) : (
-        <TileBody account={account} busy={busy} run={run} />
+        <TileBody account={account} busy={busy} run={run} name={name} />
       )}
       {notice && <p className={styles.note}>{notice}</p>}
       {account !== null && error && <p className={`${styles.note} ${styles.error}`}>{d.failed(error)}</p>}
@@ -67,10 +286,13 @@ function TileBody({
   account,
   busy,
   run,
+  name,
 }: {
   account: Exclude<AccountStatus, { state: "notConfigured" }>;
   busy: boolean;
   run: (command: () => Promise<AccountStatus>) => Promise<void>;
+  /** The chosen public name, shown over the email (null: not chosen or not loaded). */
+  name: string | null;
 }) {
   const d = useT().account;
   switch (account.state) {
@@ -78,11 +300,14 @@ function TileBody({
       return (
         <div className={styles.tile}>
           <span className={styles.avatar} aria-hidden="true">
-            {account.email.charAt(0)}
+            {(name ?? account.email).charAt(0)}
           </span>
-          <span className={styles.inline}>
-            <span className={`${styles.strong} ${styles.ellipsis}`}>{account.email}</span>
-            {!account.online && <span className={styles.pill}>{d.offlineBadge}</span>}
+          <span className={styles.value}>
+            <span className={styles.inline}>
+              <span className={`${styles.strong} ${styles.ellipsis}`}>{name ?? account.email}</span>
+              {!account.online && <span className={styles.pill}>{d.offlineBadge}</span>}
+            </span>
+            {name !== null && <span className={`${styles.muted} ${styles.ellipsis}`}>{account.email}</span>}
           </span>
           <span className={styles.actions}>
             <button type="button" className="btn btn--sm" disabled={busy} onClick={() => void run(ipc.accountSignOut)}>

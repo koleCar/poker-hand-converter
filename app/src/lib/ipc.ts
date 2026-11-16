@@ -404,6 +404,12 @@ export interface SyncStatus {
 /** (R6.5) The web pages the app opens (`account::web_page_path`). */
 export type WebPage = "your-data" | "delete-account" | "privacy";
 
+/** The account's public name (`my_profile()`): chosen once; `provisional` until then. */
+export interface AccountProfile {
+  username: string;
+  provisional: boolean;
+}
+
 /** `rail_sync::auth::AccountStatus`: the desktop account (R1.7). */
 export type AccountStatus =
   /** This build has no account service: Rail works on this computer only. */
@@ -1409,6 +1415,16 @@ export const ipc = {
   accountSignOut: () => invoke<AccountStatus>("account_sign_out"),
   /** (R6.5) The web's data export, account deletion or privacy policy, in the default browser. */
   accountOpenWebPage: (page: WebPage) => invoke<null>("account_open_web_page", { page }),
+  /**
+   * The signed-in account's public name; `null` when the server has none.
+   * Errors: `signedOut`, `unavailable`, `unreachable`.
+   */
+  accountProfile: () => invoke<AccountProfile | null>("account_profile"),
+  /**
+   * Choose the public name, once. Errors: the codes above, or the server's
+   * sentence (taken, not available, already chosen, ...).
+   */
+  accountSetUsername: (username: string) => invoke<string>("account_set_username", { username }),
   /** Sync with the web (R1.9). `null`: sync is off in this build. */
   syncStatus: () => invoke<SyncStatus | null>("sync_status"),
   syncNow: () => invoke<SyncStatus>("sync_now"),

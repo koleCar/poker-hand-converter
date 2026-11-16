@@ -257,11 +257,11 @@ for (const locale of ["en", "hr"]) {
     await report("/analysis/h/<id> from the top three");
   }
 
-  // R6.5: Settings -> Your data (the export) and Delete account. Only their
-  // own controls: the settings page around them predates the check.
+  // R6.5: Settings -> Your data (the export), and Delete account on its own page.
   await page.goto(`${BASE}/settings`);
   await page.locator("main #your-data").waitFor({ timeout: 30000 });
   await report("/settings, your data", "main #your-data");
+  await page.goto(`${BASE}/settings/delete-account`);
   await page.locator("main #delete-account").waitFor({ timeout: 30000 });
   await report("/settings, delete account", "main #delete-account");
 

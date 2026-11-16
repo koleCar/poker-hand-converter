@@ -127,6 +127,8 @@ export const paths = {
    */
   profile: (username: string) => `/u/${encodeURIComponent(username)}`,
   settings: () => "/settings",
+  /** Deleting the account: its own page, linked from Settings' danger zone and the desktop app. */
+  deleteAccount: () => "/settings/delete-account",
   /** Account -> Plan: the plan, its limits and usage (R6.2). */
   settingsPlan: () => "/settings#plan",
   /**

@@ -18,7 +18,14 @@ const NAMES: Record<Locale, { short: string; long: string }> = {
   hr: { short: "HR", long: "Hrvatski" },
 };
 
-export function LanguageSwitch({ variant = "compact" }: { variant?: "compact" | "full" }) {
+export function LanguageSwitch({
+  variant = "compact",
+  classNames,
+}: {
+  variant?: "compact" | "full";
+  /** Drawn by the caller instead (Settings' segmented control): its group and option classes. */
+  classNames?: { group: string; option: string };
+}) {
   const en = useDict();
   const current = useLocale();
   const router = useRouter();
@@ -31,13 +38,15 @@ export function LanguageSwitch({ variant = "compact" }: { variant?: "compact" | 
   }
 
   return (
-    <div className={`langswitch langswitch--${variant}`} role="group" aria-label={en.language.label} aria-busy={pending}>
+    <div
+      className={classNames ? classNames.group : `langswitch langswitch--${variant}`}
+      role="group" aria-label={en.language.label} aria-busy={pending}>
       {LOCALES.map((locale) => (
         <button
           key={locale}
           type="button"
           lang={locale}
-          className={`langswitch__option${locale === current ? " is-active" : ""}`}
+          className={classNames ? classNames.option : `langswitch__option${locale === current ? " is-active" : ""}`}
           aria-pressed={locale === current}
           title={NAMES[locale].long}
           onClick={() => choose(locale)}
