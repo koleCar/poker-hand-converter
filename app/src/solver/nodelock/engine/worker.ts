@@ -61,7 +61,7 @@ export function createNodelockWorker(scope: WorkerScope): void {
             },
           });
           turn = { key, solve };
-          post({ type: "turned", id: message.id, chunk: solve.chunk, stats: solve.stats, warm: warm !== undefined }, [solve.chunk.buffer]);
+          post({ type: "turned", id: message.id, chunk: solve.chunk, stats: solve.stats, warm: solve.stats.warm }, [solve.chunk.buffer]);
           return;
         }
       }

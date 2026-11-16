@@ -11,6 +11,7 @@ export {
   decodeChunk,
   driveAsync,
   encodeChunk,
+  LIVE_TURN,
   lockGameStreet,
   lockHash,
   NodelockError,

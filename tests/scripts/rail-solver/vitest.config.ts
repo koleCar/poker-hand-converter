@@ -9,6 +9,16 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   root: fileURLToPath(new URL("../..", import.meta.url)),
+  // The warm fixtures run the app's worker engine (`app/src/solver/nodelock/engine`):
+  // its door to the web's library, Tauri stubbed, as `tests/vitest.config.ts` has them.
+  resolve: {
+    alias: {
+      "@rail/ui": fileURLToPath(new URL("../../../packages/ui", import.meta.url)),
+      "@rail/web-lib": fileURLToPath(new URL("../../../web/src/lib", import.meta.url)),
+      "@tauri-apps/api/core": fileURLToPath(new URL("../../test/support/tauriCore.ts", import.meta.url)),
+      "@tauri-apps/api/event": fileURLToPath(new URL("../../test/support/tauriEvent.ts", import.meta.url)),
+    },
+  },
   test: {
     include: ["scripts/rail-solver/*.test.ts"],
     testTimeout: 2 * 60 * 60_000,

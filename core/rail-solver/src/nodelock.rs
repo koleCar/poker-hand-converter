@@ -11,7 +11,7 @@ use crate::cfr::{DcfrParams, RunOptions, StoppedBy, Storage};
 use crate::chunk::{decode, encode_chunk, wrap_chunk};
 use crate::lock::{LockSet, apply_plan, chunk_baseline, lock_symmetries, plan_locks};
 use crate::solve::Scope;
-use crate::spot::{SolveOptions, prepare};
+use crate::spot::{Prepared, SolveOptions, prepare};
 use crate::subgame::SpotInput;
 
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
@@ -72,6 +72,8 @@ pub struct NodelockStats {
     pub engine: &'static str,
     pub storage: &'static str,
     pub stopped_by: &'static str,
+    /// The solve went on from the last lock's solver on the same spot.
+    pub warm: bool,
 }
 
 #[derive(Debug)]
@@ -142,15 +144,78 @@ fn live_turn() -> RequestOptions {
     }
 }
 
+/// The last solve's game and solver, kept in memory for a warm start of the
+/// next lock on the same spot (§2.5, `NodelockWarm` in the TypeScript). It is
+/// keyed by the spot (its symmetry included), the solver's settings and the
+/// baseline; a request for anything else frees it first.
+pub struct NodelockWarm {
+    key: String,
+    baseline: Option<String>,
+    prepared: Prepared,
+    /// A turn game's unlocked strategies at its decisions (its earlier
+    /// nodes' baseline), once solved.
+    turn_baseline: Option<Vec<Option<Vec<f64>>>>,
+}
+
+impl NodelockWarm {
+    /// The solver's arrays, bytes.
+    #[must_use]
+    pub fn bytes(&self) -> usize {
+        self.prepared.solver.native_bytes()
+    }
+}
+
+impl std::fmt::Debug for NodelockWarm {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("NodelockWarm")
+            .field("prepared", &self.prepared)
+            .field("turn_baseline", &self.turn_baseline.is_some())
+            .finish_non_exhaustive()
+    }
+}
+
+/// What makes two requests the same game and solver: the spot as solved
+/// (symmetry included) and the solver's settings. The run's own settings
+/// (iterations, target) are not part of it.
+fn warm_key(spot: &SpotInput, options: &SolveOptions) -> Result<String, String> {
+    serde_json::to_string(&(
+        spot,
+        options.dcfr,
+        options.storage,
+        options.threads,
+        options.memory_budget,
+    ))
+    .map_err(|e| e.to_string())
+}
+
 /// Runs a nodelock solve (`solveNodelock`, the TypeScript reference, step
-/// for step). `cancel` stops it between iterations.
+/// for step), always cold. `cancel` stops it between iterations.
 ///
 /// # Errors
 /// Bad input, a lock that does not fit the tree, or a cancel (`"cancelled"`).
 pub fn run_nodelock(
     request: &NodelockRequest,
     cancel: &AtomicBool,
-    mut on_progress: impl FnMut(&NodelockProgress),
+    on_progress: impl FnMut(&NodelockProgress),
+) -> Result<NodelockOutcome, String> {
+    run_nodelock_warm(request, &mut None, cancel, on_progress)
+}
+
+/// Runs a nodelock solve, going on from `warm` when it holds the same spot
+/// (`solveNodelock` with `warm`, as the worker engine keeps it): the old
+/// locks are unfrozen, the new ones frozen, the average restarted at
+/// [`WARM_ITERATION`] and the regrets kept. Anything else in `warm` is freed
+/// before the new game is built. Afterwards `warm` holds this solve's game
+/// and solver, a cancelled or failed one's included (its regrets are as
+/// good a start as any).
+///
+/// # Errors
+/// Bad input, a lock that does not fit the tree, or a cancel (`"cancelled"`).
+pub fn run_nodelock_warm(
+    request: &NodelockRequest,
+    warm: &mut Option<NodelockWarm>,
+    cancel: &AtomicBool,
+    on_progress: impl FnMut(&NodelockProgress),
 ) -> Result<NodelockOutcome, String> {
     let flop = request.spot.board.len() == 3;
     let threads = request.threads.unwrap_or_else(default_threads).max(1);
@@ -175,10 +240,52 @@ pub fn run_nodelock(
             request.memory_budget
         },
     };
-    let mut prepared = prepare(&spot, &options)?;
+    let key = warm_key(&spot, &options)?;
+    // Another spot's solver is freed before this one is built.
+    let kept = warm
+        .take()
+        .filter(|w| w.key == key && w.baseline == request.baseline);
+    let is_warm = kept.is_some();
+    let mut state = match kept {
+        Some(mut state) => {
+            state.prepared.restart_clock();
+            state
+        }
+        None => NodelockWarm {
+            key,
+            baseline: request.baseline.clone(),
+            prepared: prepare(&spot, &options)?,
+            turn_baseline: None,
+        },
+    };
+    let outcome = solve_on(
+        request,
+        &spot,
+        &options,
+        &mut state,
+        is_warm,
+        cancel,
+        on_progress,
+    );
+    *warm = Some(state);
+    outcome
+}
+
+/// One solve on `state`'s game (warm when `is_warm`).
+fn solve_on(
+    request: &NodelockRequest,
+    spot: &SpotInput,
+    options: &SolveOptions,
+    state: &mut NodelockWarm,
+    is_warm: bool,
+    cancel: &AtomicBool,
+    mut on_progress: impl FnMut(&NodelockProgress),
+) -> Result<NodelockOutcome, String> {
+    let flop = options.scope == Scope::Flop;
+    let o = &request.options;
     let plan = plan_locks(
-        &prepared.built,
-        &prepared.solver.game().tree,
+        &state.prepared.built,
+        &state.prepared.solver.game().tree,
         &request.lock_set,
     )?;
 
@@ -186,13 +293,13 @@ pub fn run_nodelock(
     let mut peak_mb = 0.0_f64;
     let target = o.target_pct;
     let max = f64::from(o.max_iterations);
-    let mut report = |p: &crate::spot::Progress, eta: &mut Eta| {
+    let mut report = |p: &crate::spot::Progress, eta: &mut Eta, first: u32| {
         peak_mb = peak_mb.max(p.memory_mb);
         if p.measured {
             eta.points
                 .push((f64::from(p.iteration), p.exploitability_pct));
         }
-        let per_iteration = p.elapsed_ms / f64::from(p.iteration.max(1));
+        let per_iteration = p.elapsed_ms / f64::from(p.iteration.saturating_sub(first).max(1));
         let eta_ms = eta
             .iterations_to(target)
             .map(|t| (t.min(max) - f64::from(p.iteration)).max(0.0) * per_iteration);
@@ -210,6 +317,7 @@ pub fn run_nodelock(
         !cancel.load(Ordering::Relaxed)
     };
 
+    let mut warm = is_warm;
     let applied = if flop {
         let bytes = request
             .baseline
@@ -217,6 +325,7 @@ pub fn run_nodelock(
             .and_then(base64_decode)
             .ok_or("a flop lock needs the library chunk")?;
         let chunk = decode(&bytes)?;
+        let prepared = &mut state.prepared;
         let built = &prepared.built;
         // `checkBaseline`: the chunk was solved on this game.
         // (Pot and stack within float noise: the header's JSON need not parse back to the same bits.)
@@ -227,26 +336,40 @@ pub fn run_nodelock(
         {
             return Err("the library chunk was solved on other ranges than the spot's".into());
         }
+        if warm {
+            prepared.solver.unfreeze_all();
+            prepared.solver.restart_average(WARM_ITERATION);
+        }
         let lookup = chunk_baseline(&chunk, built);
         apply_plan(built, &mut prepared.solver, plan, Some(&lookup))?
     } else {
-        let mut baseline: Option<Vec<Option<Vec<f64>>>> = None;
-        if !plan.earlier.is_empty() {
+        let earlier = !plan.earlier.is_empty();
+        // Earlier nodes freeze at the unlocked turn's strategies: a warm
+        // solver that never solved it starts cold.
+        warm = is_warm && (state.turn_baseline.is_some() || !earlier);
+        if is_warm && !warm {
+            state.turn_baseline = None;
+            state.prepared = prepare(spot, options)?;
+        }
+        if warm {
+            state.prepared.solver.unfreeze_all();
+        }
+        if earlier && state.turn_baseline.is_none() {
             // The baseline: the unlocked turn, solved as the live turn solves it.
-            let run = prepared.run(&run_options(&live_turn()), |p| {
+            let run = state.prepared.run(&run_options(&live_turn()), |p| {
                 let mut ignore = Eta::default();
-                report(p, &mut ignore)
+                report(p, &mut ignore, 0)
             });
             if run.stopped_by == StoppedBy::Cancelled {
                 return Err("cancelled".into());
             }
-            let tree = &prepared.solver.game().tree;
-            baseline = Some(
+            let solver = &state.prepared.solver;
+            let tree = &solver.game().tree;
+            state.turn_baseline = Some(
                 (0..tree.size)
                     .map(|node| {
                         (tree.kind[node] == crate::tree::ACTION).then(|| {
-                            prepared
-                                .solver
+                            solver
                                 .average_strategy(node)
                                 .iter()
                                 .map(|&x| f64::from(x))
@@ -256,19 +379,24 @@ pub fn run_nodelock(
                     .collect(),
             );
         }
-        let warm = baseline.is_some();
-        let lookup = |node: usize| baseline.as_ref().and_then(|b| b[node].clone());
+        let baseline = state.turn_baseline.as_ref();
+        let lookup = |node: usize| baseline.and_then(|b| b[node].clone());
+        let prepared = &mut state.prepared;
         let applied = apply_plan(&prepared.built, &mut prepared.solver, plan, Some(&lookup))?;
-        if warm {
+        if earlier || warm {
             prepared.solver.restart_average(WARM_ITERATION);
         }
         applied
     };
-    let run = prepared.run(&options.run, |p| report(p, &mut eta));
+    // The pace counts from the iteration the run starts at (a warm one at WARM_ITERATION).
+    let first = state.prepared.solver.iterations;
+    let run = state
+        .prepared
+        .run(&options.run, |p| report(p, &mut eta, first));
     if run.stopped_by == StoppedBy::Cancelled {
         return Err("cancelled".into());
     }
-    let solved = prepared.finish(run, applied, options.scope);
+    let solved = state.prepared.finish_kept(run, applied, options.scope);
     let chunk = if flop {
         encode_chunk(&request.header, &solved.result)?
     } else {
@@ -288,6 +416,7 @@ pub fn run_nodelock(
                 Storage::I16 => "i16",
             },
             stopped_by: solved.run.stopped_by.name(),
+            warm,
         },
     })
 }

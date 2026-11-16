@@ -166,3 +166,55 @@ fn nodelock_matches_the_reference() {
         );
     }
 }
+
+/// Warm starts (§2.5): a lock, then another on the same spot, solved on one
+/// kept solver. Each step must give the TypeScript reference's chunk (its
+/// FNV hash) and the worker engine's strategies, and go
+/// on warm exactly where they did: the second flop lock, and on the turn the
+/// third ("none", then "player" starts cold for want of the unlocked
+/// baseline, then "player" warm).
+#[test]
+fn nodelock_warm_matches_the_worker_engine() {
+    use std::sync::atomic::AtomicBool;
+
+    use rail_solver::nodelock::{NodelockRequest, run_nodelock_warm};
+
+    let fx = load("nodelock-warm");
+    for threads in [1, 3] {
+        for street in ["flop", "turn"] {
+            let mut warm = None;
+            for (k, step) in fx[street].as_array().unwrap().iter().enumerate() {
+                let mut request: NodelockRequest =
+                    serde_json::from_value(step["request"].clone()).unwrap();
+                request.threads = Some(threads);
+                let out = run_nodelock_warm(&request, &mut warm, &AtomicBool::new(false), |_| {})
+                    .unwrap();
+                let e = &step["expect"];
+                let pct = f64s(&e["exploitabilityPct"])[0];
+                eprintln!(
+                    "nodelock warm {street} step {k} ({threads} threads): warm {}, iterations {}, exploitability {} vs {pct}",
+                    out.stats.warm, out.stats.iterations, out.stats.exploitability_pct
+                );
+                assert_eq!(Some(out.stats.warm), e["warm"].as_bool(), "{street} {k}");
+                assert_eq!(
+                    Some(u64::from(out.stats.iterations)),
+                    e["iterations"].as_u64()
+                );
+                assert_eq!(out.stats.exploitability_pct.to_bits(), pct.to_bits());
+                // The flop's worker chunk reports its own memory: its strategies must be ours.
+                // (A turn's is the reference's byte for byte, held below.)
+                if e["workerChunk"].is_string() {
+                    let got = rail_solver::chunk::decode(&out.chunk).unwrap();
+                    let worker = rail_solver::chunk::decode(&bytes(&e["workerChunk"])).unwrap();
+                    assert_eq!(got.nodes, worker.nodes, "{street} {k}: the worker engine's");
+                }
+                assert_eq!(
+                    Some(fnv64(&out.chunk).as_str()),
+                    e["chunkFnv"].as_str(),
+                    "{street} {k}: the reference's chunk"
+                );
+            }
+            assert!(warm.is_some_and(|w| w.bytes() > 0));
+        }
+    }
+}

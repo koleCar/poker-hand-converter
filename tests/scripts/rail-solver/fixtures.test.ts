@@ -27,20 +27,26 @@ import { parseRange } from "../../../web/src/lib/solver/combos.js";
 import { solveFlop, type FlopSpot } from "../../../web/src/lib/solver/flop.js";
 import { decodeChunk, encodeChunk, FLOPLIB_VERSION, type FlopChunkHeader } from "../../../web/src/lib/solver/flopLibrary.js";
 import { LIVE_TURN, liveTurnSpot } from "../../../web/src/lib/solver/liveTurn.js";
-import { lockPathOf, lockSymmetries, nodelockHeader, type LockSet, type NodeLockSpec } from "../../../web/src/lib/solver/nodelock.js";
+import { lockHash, lockPathOf, lockSymmetries, nodelockHeader, type LockSet, type NodeLockSpec } from "../../../web/src/lib/solver/nodelock.js";
 import { buildTurnGame } from "../../../web/src/lib/solver/subgame.js";
 import { NUM_COMBOS } from "../../../web/src/lib/solver/combos.js";
-import { nodelockFlopRun, nodelockTurnRun, nodelockTurnSpot, solveNodelock } from "../../../web/src/lib/analysis/nodelock.js";
+import { nodelockFlopRun, nodelockTurnRun, nodelockTurnSpot, solveNodelock, type NodelockSpot, type NodelockWarm } from "../../../web/src/lib/analysis/nodelock.js";
+import { createWorkerEngine } from "../../../app/src/solver/nodelock/engine/engine.js";
+import { nativeRequestOf } from "../../../app/src/solver/nodelock/engine/request.js";
+import { createNodelockWorker, type WorkerScope } from "../../../app/src/solver/nodelock/engine/worker.js";
 import { encodeSolution, SOLVER_VERSION } from "../../../web/src/lib/solver/format.js";
 import type { Game } from "../../../web/src/lib/solver/game.js";
 import { solveRiver, solveTurn, type SolveResult } from "../../../web/src/lib/solver/solve.js";
 import type { SpotInput, TurnSpot } from "../../../web/src/lib/solver/subgame.js";
 import { clairvoyanceGame, kuhnGame, leducGame } from "../../../web/src/lib/solver/toys.js";
 import { lineSpot } from "../flop-library/spots.js";
+import { SMALL_R0, SMALL_R1, smallFlopSpot } from "./small.js";
 
 const ROOT = fileURLToPath(new URL("../../..", import.meta.url));
 const SMALL = join(ROOT, "core/rail-solver/tests/fixtures");
 const BIG = join(ROOT, "target/rail-solver-fixtures");
+/** The app crate's nodelock command test (`app/src-tauri/src/nodelock_solve.rs`). */
+const APP = join(ROOT, "app/src-tauri/tests/fixtures");
 
 const b64 = (bytes: Uint8Array) => Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString("base64");
 const f64 = (xs: ArrayLike<number>) => b64(new Uint8Array(Float64Array.from(xs).buffer));
@@ -205,37 +211,19 @@ function header(flop: string, pot: number, stack: number, rake: { name: string; 
   };
 }
 
-const SMALL_R0 = "99-55, A5s-A2s, KTs+, QJs, T9s, 87s, 76s, KQo";
-const SMALL_R1 = "TT+, AQs+, AKo, K9s, 65s, 54s";
-
-function smallFlopSpot(): FlopSpot {
-  const [r0, r1] = [SMALL_R0, SMALL_R1];
-  const p = FLOP_PROFILE;
-  return {
-    board: ["Ks", "5h", "3s"],
-    ranges: [parseRange(r0), parseRange(r1)],
-    pot: 5.5,
-    stack: 97.5,
-    firstToAct: 0,
-    menus: [p.flopMenu, p.flopMenu],
-    raiseCap: p.flopRaiseCap,
-    turnMenus: [p.turnMenu, p.turnMenu],
-    turnRaiseCap: p.turnRaiseCap,
-    riverMenus: [p.riverMenu, p.riverMenu],
-    riverRaiseCap: p.riverRaiseCap,
-    allInThreshold: p.allInThreshold,
-    minBet: p.minBet,
-    rake: { percent: 0.05, cap: 3 },
-    bigBlind: 1,
-    isomorphism: true,
-  };
-}
-
 /** A lock: the first action for every other combo (by index), so it is not suit-symmetric. */
-function halfLock(street: "flop" | "turn" | "river", path: string, player: 0 | 1, actions: string[], symmetric: boolean): NodeLockSpec {
-  const strategy = actions.map((_, a) => new Array<number>(NUM_COMBOS).fill(a === 0 ? 1 : 0));
+function halfLock(street: "flop" | "turn" | "river", path: string, player: 0 | 1, actions: string[], symmetric: boolean, action = 0): NodeLockSpec {
+  const strategy = actions.map((_, a) => new Array<number>(NUM_COMBOS).fill(a === action ? 1 : 0));
   const locked = Array.from({ length: NUM_COMBOS }, (_, c) => (symmetric ? 1 : c % 2));
   return { street, path, player, actions, strategy, locked };
+}
+
+/** The small flop's library chunk: 12 iterations, 16-bit, as the library solves. */
+function smallLibrary() {
+  const p = FLOP_PROFILE;
+  const library = solveFlop(smallFlopSpot(), { maxIterations: 12, checkEvery: 6, checkFrom: 6, targetExploitability: 0, dcfr: { ...p.dcfr }, storage: "i16" });
+  const baselineBytes = encodeChunk(header("Ks5h3s", 5.5, 97.5, { name: "fixture", percent: 0.05, cap: 3 }, p.tree, p.targetPct), library.result);
+  return { baselineBytes, chunk: decodeChunk(baselineBytes) };
 }
 
 /**
@@ -245,10 +233,7 @@ function halfLock(street: "flop" | "turn" | "river", path: string, player: 0 | 1
  */
 function nodelockFixtures() {
   const spot = smallFlopSpot();
-  const p = FLOP_PROFILE;
-  const library = solveFlop(spot, { maxIterations: 12, checkEvery: 6, checkFrom: 6, targetExploitability: 0, dcfr: { ...p.dcfr }, storage: "i16" });
-  const baselineBytes = encodeChunk(header("Ks5h3s", 5.5, 97.5, { name: "fixture", percent: 0.05, cap: 3 }, p.tree, p.targetPct), library.result);
-  const chunk = decodeChunk(baselineBytes);
+  const { chunk, baselineBytes } = smallLibrary();
   const out: Record<string, unknown> = {};
 
   // Flop: player 0's node after check-bet, half its combos locked; its earlier node is the root.
@@ -302,6 +287,119 @@ function nodelockFixtures() {
     expect: { chunkLength: turnSolve.chunk.length, chunkFnv: fnv64(turnSolve.chunk), rootStrategy: f32(turnSolve.result.nodes[0].strategy), iterations: turnSolve.stats.iterations, exploitabilityPct: f64([turnSolve.stats.exploitabilityPct]) },
   };
   return out;
+}
+
+/** A worker run in this thread: messages cross by structured clone on the next tick, as a real one's do. */
+function fakeWorker(): Worker {
+  const scope: WorkerScope = {
+    onmessage: null,
+    postMessage: (message) => setTimeout(() => worker.onmessage?.({ data: structuredClone(message) } as MessageEvent)),
+  };
+  createNodelockWorker(scope);
+  let alive = true;
+  const worker = {
+    onmessage: null as ((event: MessageEvent) => void) | null,
+    onerror: null,
+    postMessage: (message: unknown) => setTimeout(() => alive && scope.onmessage?.({ data: structuredClone(message) } as MessageEvent)),
+    terminate: () => {
+      alive = false;
+    },
+  };
+  return worker as unknown as Worker;
+}
+
+/** The two chunks are one solve: the same strategies, values and exploitability (the worker's reports its own memory). */
+function sameSolve(what: string, a: Uint8Array, b: Uint8Array) {
+  const x = decodeChunk(a).result;
+  const y = decodeChunk(b).result;
+  const same = (p: ArrayLike<number>, q: ArrayLike<number>) => p.length === q.length && Array.from(p).every((v, i) => Object.is(v, q[i]));
+  if (x.exploitabilityPct !== y.exploitabilityPct || x.nodes.length !== y.nodes.length || x.nodes.some((n, k) => !same(n.strategy, y.nodes[k].strategy) || !same(n.ev, y.nodes[k].ev))) {
+    throw new Error(`${what}: the worker engine and the reference differ`);
+  }
+}
+
+/**
+ * Warm starts (`docs/NODELOCK.md` §2.5): a lock, then another on the same
+ * spot, solved by the TypeScript worker engine (`createWorkerEngine`, its
+ * workers in this thread) and held to the reference (`solveNodelock` with
+ * `warm`). The requests are the native ones (`nativeRequestOf`, as the app
+ * sends them); the Rust engine must answer the second lock warm with the
+ * reference's chunk. The turn runs three locks on one deal: "none" (no
+ * unlocked baseline solved), "player" (so it starts cold: the warm solver
+ * lacks the baseline), "player" again (warm).
+ */
+async function nodelockWarmFixtures() {
+  const spot = smallFlopSpot();
+  const { chunk, baselineBytes } = smallLibrary();
+  const engine = createWorkerEngine({
+    threads: 3,
+    makeWorker: () => fakeWorker(),
+    flopSpotOf: async (set) => ({ spot: { ...spot, symmetry: lockSymmetries(set, spot.board) }, chartsHash: "0" }),
+    now: () => Date.now(),
+  });
+  const signal = new AbortController().signal;
+  // A turn lock's chunk holds the whole turn game (megabytes): its hash is kept, and the worker's is the reference's byte for byte.
+  const solveAll = async (sets: LockSet[], spotOf: (set: LockSet) => NodelockSpot, iterations: number[], keepChunk: boolean) => {
+    const steps = [];
+    let warm: NodelockWarm | undefined;
+    for (const [k, set] of sets.entries()) {
+      const worker = await engine.solve({ lockSet: set, baseline: baselineBytes, maxIterations: iterations[k] }, () => {}, signal);
+      const reference = solveNodelock(spotOf(set), set, { baseline: chunk, maxIterations: iterations[k], warm });
+      warm = reference.warm;
+      if (worker.stats.warm !== reference.stats.warm) throw new Error(`step ${k}: warm ${worker.stats.warm} vs ${reference.stats.warm}`);
+      sameSolve(`step ${k}`, worker.chunk, reference.chunk);
+      if (!keepChunk && fnv64(worker.chunk) !== fnv64(reference.chunk)) throw new Error(`step ${k}: the worker's turn chunk differs`);
+      steps.push({
+        request: nativeRequestOf(set, baselineBytes, chunk, spotOf(set), iterations[k]),
+        expect: {
+          warm: reference.stats.warm,
+          chunkFnv: fnv64(reference.chunk),
+          workerChunk: keepChunk ? b64(worker.chunk) : null,
+          rootStrategy: f32(reference.result.nodes[0].strategy),
+          iterations: reference.stats.iterations,
+          exploitabilityPct: f64([reference.stats.exploitabilityPct]),
+        },
+      });
+    }
+    return steps;
+  };
+
+  const node = chunk.result.nodes.find((n) => n.kind === "action" && n.player === 0 && n.path.startsWith("X-B"));
+  if (!node) throw new Error("no X-B node");
+  const flopLock = (action: number): LockSet => ({
+    version: 1,
+    spot: { set: "fixture", line: "btn-bb", flop: "Ks5h3s" },
+    nodes: [halfLock("flop", node.path, 0, node.labels, false, action)],
+    earlier: "player",
+    targetPct: 1,
+  });
+  const flopSets = [flopLock(0), flopLock(1)];
+  const flopSpotOf = (set: LockSet): NodelockSpot => ({ street: "flop", spot: { ...spot, symmetry: lockSymmetries(set, spot.board) } });
+  const flop = await solveAll(flopSets, flopSpotOf, [12, 20], true);
+  if (!flop[1].expect.warm) throw new Error("the second flop lock did not go on warm");
+
+  const deal = chunk.result.nodes.findIndex((n) => n.kind === "chance" && n.path === "X-X");
+  const card = chunk.result.nodes[deal].labels[0];
+  const turnGame = buildTurnGame(liveTurnSpot(chunk, deal, card));
+  const turnInfo = turnGame.info.find((info, k) => info && info.street === "turn" && info.path.startsWith("X-B") && turnGame.game.tree.player[k] === 0);
+  if (!turnInfo) throw new Error("no turn X-B node");
+  const turnLock = (action: number, earlier: LockSet["earlier"]): LockSet => ({
+    version: 1,
+    spot: { set: "fixture", line: "btn-bb", flop: "Ks5h3s", turn: card },
+    nodes: [halfLock("turn", lockPathOf("X-X", card, turnInfo.path), 0, turnInfo.actions.map((a) => a.label), false, action)],
+    earlier,
+    targetPct: 1,
+  });
+  const turnSets = [turnLock(1, "none"), turnLock(0, "player"), turnLock(1, "player")];
+  const turn = await solveAll(turnSets, (set) => nodelockTurnSpot(chunk, set), [30, 30, 40], false);
+  if (turn.map((step) => step.expect.warm).join() !== "false,false,true") {
+    throw new Error(`turn warm starts: ${turn.map((step) => step.expect.warm).join()}`);
+  }
+  engine.release();
+
+  // The app crate's command test: the first flop lock, as `native.ts` sends it.
+  const app = { request: flop[0].request, lockHash: lockHash(flopSets[0]), next: flop[1].request, nextLockHash: lockHash(flopSets[1]) };
+  return { parity: { flop, turn }, app };
 }
 
 function flopFixture(name: string, storage: "f32" | "i16") {
@@ -408,7 +506,7 @@ function write(dir: string, name: string, data: unknown) {
 }
 
 describe("rail-solver fixtures", () => {
-  it("writes the small fixtures", () => {
+  it("writes the small fixtures", async () => {
     write(SMALL, "kuhn", gameFixture("kuhn", kuhnGame(), 300, "f32"));
     write(SMALL, "kuhn-i16", gameFixture("kuhn-i16", kuhnGame(), 300, "i16"));
     write(SMALL, "leduc", gameFixture("leduc", leducGame(), 150, "f32"));
@@ -420,6 +518,9 @@ describe("rail-solver fixtures", () => {
     write(SMALL, "flop-small", flopFixture("flop-small", "i16"));
     write(SMALL, "flop-small-f32", flopFixture("flop-small-f32", "f32"));
     write(SMALL, "nodelock", nodelockFixtures());
+    const warm = await nodelockWarmFixtures();
+    write(SMALL, "nodelock-warm", warm.parity);
+    write(APP, "nodelock-request", warm.app);
     // V8's Math.pow for the discounts, to compare with Rust's powf.
     const pows: number[] = [];
     for (let t = 1; t <= 400; t += 1) pows.push(Math.pow(t - 1, 1.5), Math.pow(t, 2), Math.pow(t, 3));

@@ -171,8 +171,20 @@ impl Prepared {
         })
     }
 
+    /// Starts the clock of a new solve on this game (a warm start: the
+    /// elapsed time and `seconds` count from here).
+    pub fn restart_clock(&mut self) {
+        self.started = Instant::now();
+    }
+
     /// Extracts the result.
     pub fn finish(mut self, run: RunResult, applied: Applied, scope: Scope) -> Solved {
+        self.finish_kept(run, applied, scope)
+    }
+
+    /// Extracts the result and keeps the game and its solver (for a warm
+    /// start of the next lock on it).
+    pub fn finish_kept(&mut self, run: RunResult, applied: Applied, scope: Scope) -> Solved {
         let result = extract(&self.built, &mut self.solver, &run, scope);
         Solved {
             result,

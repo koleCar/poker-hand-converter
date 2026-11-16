@@ -549,6 +549,7 @@ pub fn run() {
         nodelock_solve::nodelock_solve_start,
         nodelock_solve::nodelock_solve_cancel,
         nodelock_solve::nodelock_solve_result,
+        nodelock_solve::nodelock_release,
         dev::dev_pick_file,
         dev::convert_file,
     ]);
@@ -714,6 +715,7 @@ pub fn run() {
         nodelock_solve::nodelock_solve_start,
         nodelock_solve::nodelock_solve_cancel,
         nodelock_solve::nodelock_solve_result,
+        nodelock_solve::nodelock_release,
     ]);
 
     let app = builder

@@ -89,7 +89,33 @@ bounds.
 - f32 is the default when it fits two fifths of the memory, else i16
   (`nodelock_solve.rs`). i16 needs a few more iterations (its quantisation)
   but a third of the memory.
-- Not done yet: the warm start.
+
+**Native warm re-solve (2026-11-16).** Measured with
+`cargo run --release -p rail-solver --example warm -- target/rail-solver-fixtures/flop-m1-spot.json <the spot's library chunk> --threads 9 --storage f32 [--second S] --cold-too`
+on the same spot and its library chunk as the baseline. The machine was
+**not idle**: the nightly flop library ran 3 solves throughout (load average
+10–17).
+- First lock: BTN's node after BB checks, "always bet 33 %" (`B1.82`), with
+  "player" earlier nodes. Cold to 1 %: 80 iterations, 34–40 s, 3.1 GB.
+- Second lock on the same node, warm (`NODELOCK_WARM_ITERATION` = 10, as the
+  worker engine), against the same lock solved cold:
+
+| Second lock | Warm: iterations, to 1 % | Cold: iterations, to 1 % |
+|---|---|---|
+| Bet 90 %, check 10 % (a small change) | 60, **23.6 s** (0.58 %) | 80, 34.3 s |
+| Bet 50 %, check 50 % (a big change) | 100, 44.1 s (0.72 %) | 80, 37.0 s |
+
+- The warm start meets the ≤ 40 s target when the new lock is close to the
+  last one. After a big change it is slower than a cold solve: the kept
+  regrets point the wrong way for longer than ten iterations of restarted
+  averaging make up. The TS worker engine has the same semantics, so the
+  same holds there.
+- Exploitability is only measured from iteration 40, every 20, so a warm
+  solve cannot stop before 40 (30 iterations after the restart).
+- Showdowns are ~43 % of a single thread's time. Gathering the opponent's
+  reach once per showdown in strength order, so that both sweeps read it in
+  sequence, stays bit-identical but was 3–6 % slower on one thread
+  (4.6–4.7 s vs 4.8–5.0 s per iteration). It was not kept.
 
 ## 1. The lock model (shared library code, `web/src/lib/solver/nodelock.ts`)
 
@@ -266,6 +292,11 @@ interface NodelockEngine {
     Earlier turn and river nodes freeze at the **unlocked turn solve** (the
     live turn), solved first and kept in `warm.turnBaseline`. The locked
     solve then goes on from it warm.
+  - `stats.warm` says whether the solve went on from `warm`'s solver. A
+    turn game's warm solver without the unlocked baseline (its last lock had
+    `earlier: "none"`) is not used when the new lock needs that baseline: the
+    solve starts cold and says `warm: false`. The worker engine reports this
+    flag as it is.
 
 **Engine interface** (`app/src/solver/nodelock/engine/types.ts`), as §2.4
 plus:
@@ -308,6 +339,56 @@ plus:
     to the worker engine's, only as accurate.
 - **Warm start.** Within one app session the engine keeps the last solver of
   a spot in memory. A new lock on the same spot starts from it.
+
+**Native warm start and the command path as built (2026-11-16):**
+- `rail_solver::nodelock::run_nodelock_warm(req, &mut Option<NodelockWarm>,
+  cancel, on_progress)`. `run_nodelock` is the same with no warm state.
+  - `NodelockWarm` holds the built game, its solver and, for a turn game, the
+    unlocked baseline.
+  - Its key is the spot as solved (symmetry included), the DCFR parameters,
+    the storage asked for, the threads and the memory budget, plus the
+    baseline string. Run settings (iterations, target) are not part of it.
+  - Same key: the old freezes are dropped (`unfreeze_all`), the average is
+    restarted at `WARM_ITERATION` (10), the new locks are frozen, and the
+    solve goes on with the old regrets. The turn rule is the reference's
+    (above). Any other key frees the old solver before the new game is built.
+  - The state is kept after a cancel or an error too, as the worker engine
+    keeps its parts.
+- `nodelock_solve.rs` keeps it in one process-wide slot. A solve takes it out
+  while it runs and puts its own back.
+  - `nodelock_release` (the engine's `release()`) frees it. A solve running
+    at that moment does not store its solver.
+  - One solve at a time: a second `nodelock_solve_start` is refused, and
+    `native.ts` refuses a second `solve` as the worker engine does.
+  - `stats.warm` comes back in `nodelock://done` and in the engine's stats.
+- **Parity:** `core/rail-solver/tests/fixtures/nodelock-warm.json` (written
+  by `npm run solver:fixtures`). It is the TypeScript worker engine
+  (`createWorkerEngine`, its workers in-thread) checked against
+  `solveNodelock` with `warm`, on the reduced Ks5h3s flop.
+  - Flop: a lock, then a second lock on the same node, warm.
+  - Turn: on one deal, "none", then "player" (cold: no unlocked baseline
+    yet), then "player" warm.
+  - At 1 and 3 threads the native engine gives every step's chunk bytes (the
+    reference's FNV hash), the worker's strategies, the exploitability bit
+    for bit, and the same `warm` flags (`parity.rs`,
+    `nodelock_warm_matches_the_worker_engine`).
+- **The command path, end to end** (`nodelock_solve.rs`,
+  `tests::commands::a_solve_through_the_commands`). It goes through Tauri's
+  IPC on the mock runtime (`get_ipc_response`), with the request exactly as
+  `native.ts` builds it: `app/src-tauri/tests/fixtures/nodelock-request.json`,
+  from `nativeRequestOf` in `engine/request.ts`.
+  - `nodelock_engine_info`.
+  - A cold solve: progress events, then `nodelock://done` with `warm: false`.
+    `nodelock_solve_result` gives raw bytes that decode and carry the
+    lock's `lockHash`, once only.
+  - A second lock: warm, with its own `lockHash`.
+  - A second start while a long solve runs is refused.
+  - `nodelock_solve_cancel`: done with `ok: false, error: "cancelled"` and
+    no chunk.
+  - After `nodelock_release`, the next solve is cold.
+  - `tests/test/appNodelockNative.test.ts` checks that `nativeRequestOf`
+    rebuilds that fixture from the small spot, and that `nativeRequest`
+    sends the turn steps' requests of `nodelock-warm.json`.
 
 **Worker engine as built** (`app/src/solver/nodelock/engine/`, tests in
 `tests/test/appNodelockEngine.test.ts`):

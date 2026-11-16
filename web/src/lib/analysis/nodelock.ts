@@ -179,7 +179,8 @@ export interface NodelockSolve {
   solver: Solver;
   warm: NodelockWarm;
   built: BuiltSubgame;
-  stats: { iterations: number; exploitabilityPct: number; seconds: number; peakMb: number; threads: number; engine: string; stoppedBy: string };
+  /** `warm`: the solve went on from `options.warm`'s solver (a turn game's warm solver without the unlocked baseline its earlier nodes need starts cold). */
+  stats: { iterations: number; exploitabilityPct: number; seconds: number; peakMb: number; threads: number; engine: string; stoppedBy: string; warm: boolean };
 }
 
 /**
@@ -201,12 +202,14 @@ export function solveNodelock(spot: NodelockSpot, set: LockSet, options: Nodeloc
   let solver: Solver;
   let scope: "flop" | "all";
   let turnBaseline: Map<number, Float32Array> | null = null;
+  let warmed = false;
   let run;
   if (spot.street === "flop") {
     built = buildFlopGame(spot.spot);
     checkBaseline(built, options.baseline);
     const how = nodelockFlopRun(set, options.maxIterations);
     solver = options.warm?.solver ?? new Solver(built.game, how.dcfr, { storage: options.storage ?? "i16" });
+    warmed = options.warm !== undefined;
     if (options.warm) {
       solver.unfreezeAll();
       solver.restartAverage(NODELOCK_WARM_ITERATION);
@@ -222,6 +225,7 @@ export function solveNodelock(spot: NodelockSpot, set: LockSet, options: Nodeloc
     // Earlier nodes freeze at the unlocked turn's strategies: a warm solver that never solved it starts cold.
     const warm = options.warm && (turnBaseline || !earlier.length) ? options.warm.solver : null;
     solver = warm ?? new Solver(built.game, LIVE_TURN.dcfr, { storage: options.storage ?? "f32" });
+    warmed = warm !== null;
     if (warm) solver.unfreezeAll();
     if (earlier.length && !turnBaseline) {
       // The baseline: the unlocked turn, solved as the live turn solves it.
@@ -259,6 +263,7 @@ export function solveNodelock(spot: NodelockSpot, set: LockSet, options: Nodeloc
       threads: 1,
       engine: "ts",
       stoppedBy: run.stoppedBy,
+      warm: warmed,
     },
   };
 }
