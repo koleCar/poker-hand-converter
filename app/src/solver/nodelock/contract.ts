@@ -44,6 +44,8 @@ export interface NodelockEngine {
     onProgress: (p: NodelockProgress) => void,
     signal: AbortSignal,
   ): Promise<{ chunk: Uint8Array; stats: NodelockStats }>;
+  /** Frees the solver kept for a warm start (the native one holds ~1–3 GB). */
+  release?(): void;
 }
 
 /**

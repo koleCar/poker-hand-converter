@@ -17,7 +17,7 @@ import { ipc } from "../../lib/ipc";
 import { go } from "../../lib/router";
 import { decodeChunk, liveTurnId, type NodelockAt, type NodelockOverride } from "../door";
 import { solverParam } from "../param";
-import { lockHashOf, type LockSet, type NodelockProgress, type NodelockSummary } from "./contract";
+import { lockHashOf, type LockSet, type NodelockEngine, type NodelockProgress, type NodelockSummary } from "./contract";
 import { nodelockData, type NodeLockInput, type NodeLockRow } from "./data";
 import { pickEngine } from "./engine";
 
@@ -65,6 +65,22 @@ export interface NodelockSession {
 let state: NodelockSession = { editor: null, running: null, notice: null, active: null, compare: false, opened: 0, pendingEdit: null };
 const listeners = new Set<() => void>();
 let controller: AbortController | null = null;
+
+/**
+ * The engine keeps the last spot's solver for a warm start (the next lock on
+ * the same spot starts from it), which holds ~1–3 GB. It is kept while the
+ * user is still locking, and freed this long after the last solve ended.
+ */
+export const WARM_KEEP_MS = 10 * 60 * 1000;
+let releaseTimer: ReturnType<typeof setTimeout> | null = null;
+
+function keepWarm(engine: NodelockEngine): void {
+  if (releaseTimer) clearTimeout(releaseTimer);
+  releaseTimer = setTimeout(() => {
+    releaseTimer = null;
+    if (!state.running) engine.release?.();
+  }, WARM_KEEP_MS);
+}
 
 function set(next: Partial<NodelockSession>) {
   state = { ...state, ...next };
@@ -123,6 +139,10 @@ export async function startSolve(request: SolveRequest): Promise<true | "busy" |
   if (state.running) return "busy";
   const engine = await pickEngine();
   if (!engine) return "noEngine";
+  if (releaseTimer) {
+    clearTimeout(releaseTimer);
+    releaseTimer = null;
+  }
   const now = Date.now();
   const { lockSet, at } = request;
   const node = lockSet.nodes[0];
@@ -195,6 +215,7 @@ export async function startSolve(request: SolveRequest): Promise<true | "busy" |
     .catch(() => set({ running: null }))
     .finally(() => {
       controller = null;
+      keepWarm(engine);
     });
   return true;
 }
