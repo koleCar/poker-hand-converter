@@ -3,7 +3,9 @@
  * actions and the picked hand on the right (under the grid on a narrow
  * screen). The same view for a preflop chart node and a flop decision of the
  * library: the caller builds the model (`preflopModel`, `flopModel` in
- * `SolverLibrary.tsx`).
+ * `SolverLibrary.tsx`). The line is walked on the bar above (PreflopBar,
+ * PostflopBar); the action boxes here show the mix, and a click keeps one
+ * action lit in the grid.
  *
  * Each cell is the class's mix drawn as coloured columns, as tall as the
  * share of the class that reaches the decision. Hovering an action box shows
@@ -36,9 +38,6 @@ export interface ViewAction {
   colour: string;
   share: number;
   combos: number;
-  /** Why the action leads nowhere further, if it does not. */
-  ends: string | null;
-  onPick: () => void;
   /** No hand of the range takes it (`playedOptions`): left out of the action boxes and the EV rows. */
   hidden?: boolean;
 }
@@ -230,7 +229,10 @@ function Grid({
   const [focusIndex, setFocusIndex] = useState(heroIndex ?? 0);
   const [hovered, setHovered] = useState<number | null>(null);
   const [picked, setPicked] = useState<number | null>(heroIndex);
-  const [highlight, setHighlight] = useState<number | null>(null);
+  const [hoveredAction, setHoveredAction] = useState<number | null>(null);
+  /** An action box clicked: only that action stays lit in the grid until it is clicked again. */
+  const [pinned, setPinned] = useState<number | null>(null);
+  const highlight = hoveredAction ?? pinned;
   const [tile, setTile] = useState<number | null>(null);
   const buttons = useRef<Array<HTMLButtonElement | null>>([]);
   const shown = hovered ?? picked;
@@ -353,15 +355,12 @@ function Grid({
                 key={action.key}
                 type="button"
                 className={`${styles.actionBox} ${highlight === a ? styles.actionBoxOn : ""} ${highlight !== null && highlight !== a ? styles.actionBoxOff : ""}`}
-                aria-disabled={action.ends !== null}
-                title={action.ends ?? t.panel.follow(action.label)}
-                onClick={() => {
-                  if (action.ends === null) action.onPick();
-                }}
-                onPointerEnter={() => setHighlight(a)}
-                onPointerLeave={() => setHighlight(null)}
-                onFocus={() => setHighlight(a)}
-                onBlur={() => setHighlight(null)}
+                aria-pressed={pinned === a}
+                onClick={() => setPinned(pinned === a ? null : a)}
+                onPointerEnter={() => setHoveredAction(a)}
+                onPointerLeave={() => setHoveredAction(null)}
+                onFocus={() => setHoveredAction(a)}
+                onBlur={() => setHoveredAction(null)}
               >
                 <span className={styles.actionBoxLabel}>
                   <span className={`${styles.actionDot} ${action.colour}`} aria-hidden="true" />

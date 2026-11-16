@@ -173,6 +173,61 @@
   color: var(--text-primary);
 }
 
+.seatOption[aria-disabled="true"] {
+  cursor: default;
+}
+
+.seatOption[aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+/* A street's card on the bar: its name and pot over the card(s) dealt; clicked to pick another. */
+.street {
+  flex: none;
+  min-inline-size: 6rem;
+  align-content: start;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+}
+
+button.street {
+  cursor: pointer;
+}
+
+button.street:hover {
+  border-color: var(--border-hover);
+}
+
+button.street:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.streetHead {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.streetHead span {
+  color: var(--text-secondary);
+}
+
+/* The card being picked (under the bar). */
+.streetSlot {
+  display: block;
+  inline-size: 1.75rem;
+  block-size: 2.4rem;
+  border: 1px dashed var(--border-hover);
+  border-radius: var(--radius-1);
+}
+
+.streetPick {
+  color: var(--text-secondary);
+}
+
 .settings {
   display: grid;
   gap: var(--space-4);
@@ -410,43 +465,6 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
-}
-
-.boardRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-
-.history {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.stepWrap {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  color: var(--text-tertiary);
-}
-
-.step {
-  padding: 2px var(--space-2);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-1);
-  background: transparent;
-  color: var(--text-primary);
-  font: inherit;
-  cursor: pointer;
-}
-
-.step:disabled {
-  cursor: default;
-  font-weight: var(--font-weight-semibold);
 }
 
 .actionBoxes {
