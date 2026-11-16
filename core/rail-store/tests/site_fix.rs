@@ -129,8 +129,9 @@ fn as_an_older_build_stored_it(path: &Path) {
     store.close();
     let conn = Connection::open(path).expect("open");
     assert!(keys(&conn, "ggpoker").is_empty());
-    // Versions 22 (T3's `hud_settings`) and 23 (caught bluffing) come after: rewind them too.
-    conn.execute_batch("DROP TABLE IF EXISTS hud_settings;
+    // Versions 22 (T3's `hud_settings`), 23 (caught bluffing) and 24 (nodelocks)
+    // come after: rewind them too.
+    conn.execute_batch("DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings;
          ALTER TABLE hand_list DROP COLUMN hero_bluff; ALTER TABLE hand_list DROP COLUMN vs_bluff;
          ALTER TABLE recompute_list DROP COLUMN hero_bluff; ALTER TABLE recompute_list DROP COLUMN vs_bluff;")
         .expect("rewind version 22");
@@ -217,7 +218,7 @@ fn keeps_the_copy_already_stored_under_ggpoker_and_moves_the_note_to_it() {
         let conn = Connection::open(&path).expect("open");
         // Already back at 20 (`as_an_older_build_stored_it`): versions 22
         // and 23 are rewound there.
-        conn.execute_batch("DROP TABLE IF EXISTS hud_settings")
+        conn.execute_batch("DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings")
             .expect("rewind version 22");
         conn.pragma_update(None, "user_version", 21)
             .expect("version 21");
@@ -233,8 +234,9 @@ fn keeps_the_copy_already_stored_under_ggpoker_and_moves_the_note_to_it() {
     let total: i64 = conn
         .query_row("SELECT count(*) FROM hands", [], |r| r.get(0))
         .expect("count");
-    // Versions 22 (T3's `hud_settings`) and 23 (caught bluffing) come after: rewind them too.
-    conn.execute_batch("DROP TABLE IF EXISTS hud_settings;
+    // Versions 22 (T3's `hud_settings`), 23 (caught bluffing) and 24 (nodelocks)
+    // come after: rewind them too.
+    conn.execute_batch("DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings;
          ALTER TABLE hand_list DROP COLUMN hero_bluff; ALTER TABLE hand_list DROP COLUMN vs_bluff;
          ALTER TABLE recompute_list DROP COLUMN hero_bluff; ALTER TABLE recompute_list DROP COLUMN vs_bluff;")
         .expect("rewind version 22");
@@ -268,8 +270,9 @@ fn leaves_a_store_without_such_hands_as_it_was() {
     imported(&path);
     let conn = Connection::open(&path).expect("open");
     let before = (snapshot(&conn), table_rows(&conn, "kv"));
-    // Versions 22 (T3's `hud_settings`) and 23 (caught bluffing) come after: rewind them too.
-    conn.execute_batch("DROP TABLE IF EXISTS hud_settings;
+    // Versions 22 (T3's `hud_settings`), 23 (caught bluffing) and 24 (nodelocks)
+    // come after: rewind them too.
+    conn.execute_batch("DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings;
          ALTER TABLE hand_list DROP COLUMN hero_bluff; ALTER TABLE hand_list DROP COLUMN vs_bluff;
          ALTER TABLE recompute_list DROP COLUMN hero_bluff; ALTER TABLE recompute_list DROP COLUMN vs_bluff;")
         .expect("rewind version 22");

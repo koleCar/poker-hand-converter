@@ -186,6 +186,29 @@ CREATE INDEX node_locks_spot ON node_locks(set_id, line, flop);
 - **Never synced.** `rail-sync` ignores the table, and a test says so.
 - A row in `solving` at app start becomes `cancelled`.
 
+As built (workstream S):
+- Store: `rail_store::node_locks` (`NodeLockRow`, `Reader::node_locks(spot)` /
+  `node_lock(id)`, `WriterHandle::save_node_lock` / `rename_node_lock` /
+  `delete_node_locks`); `Store::open` cancels `solving` rows. Documented in
+  `core/rail-store/SCHEMA.md`.
+- Commands: `app/src-tauri/src/nodelock_store.rs`. Rows cross as JSON with the
+  column names (snake_case), `lock_json` and `summary_json` parsed, plus
+  `result_size` (`length(result)`, null without a chunk). The chunk crosses as
+  bytes: `nodelock_get` answers a raw frame and `nodelock_save` takes one
+  (u32 LE JSON length, the row's JSON, the chunk).
+- A save replaces the whole row, the chunk included: saving without one
+  clears it. A rename bumps `updated_at`.
+- `ipc.ts`:
+  ```ts
+  nodelockList(spot?: NodeLockSpot | null): Promise<NodeLockRow[]>
+  nodelockGet(id: string): Promise<NodeLock | null>            // NodeLock = NodeLockRow & { result: Uint8Array | null }
+  nodelockSave(row: NodeLockInput, result?: Uint8Array | null): Promise<NodeLockSaved>   // { id, created_at, updated_at }
+  nodelockRename(id: string, name: string): Promise<boolean>
+  nodelockDelete(ids: string[]): Promise<number>
+  ```
+  `NodeLockRow.lock_json` is `NodeLockSet` (`unknown` until U points it at
+  `LockSet`).
+
 ## 4. Suggestions (`web/src/lib/solver/nodelockSuggest.ts`, pure, tested)
 
 `suggestLocks(ctx, archetype) → { id, title, explanation, nodes: NodeLockSpec[] }`.
