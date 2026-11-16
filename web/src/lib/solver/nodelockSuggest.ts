@@ -43,23 +43,10 @@
 import type { ActionKind } from "./betting";
 import { NUM_COMBOS } from "./combos";
 import { lockedStrategy } from "./lock";
+import type { NodeLockSpec } from "./nodelock";
 
-// TODO(nodelock): import `NodeLockSpec` from "./nodelock" once workstream E
-// lands it on prestaging; this is §1's type, field for field.
-/** One locked node (`docs/NODELOCK.md` §1). */
-export interface NodeLockSpec {
-  street: "flop" | "turn" | "river";
-  /** The node's address as the Solver library's view names it: the same `node` (and `turn`/`river` cards) the route uses. */
-  path: string;
-  /** 0 = out of position, as in the chunk. */
-  player: 0 | 1;
-  /** The node's action labels, so a tree mismatch is caught. */
-  actions: string[];
-  /** [action][combo] over the 1,326 canonical combos (`combos.ts` order); rows sum to 1 where locked. */
-  strategy: number[][];
-  /** 1,326 flags: 1 = this combo's strategy is fixed; 0 = it adapts in the solve. */
-  locked: number[];
-}
+/** One locked node (`docs/NODELOCK.md` §1): the lock model's own type. */
+export type { NodeLockSpec };
 
 export type Street = NodeLockSpec["street"];
 

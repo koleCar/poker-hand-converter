@@ -28,7 +28,7 @@ import { cardCode, evaluateMasks, STANDARD } from "../equity";
 import { buildStreet, dealtPath, type BetMenu, type BettingRules, type NodeInfo } from "./betting";
 import { comboHi, comboLo, NUM_COMBOS, parseCards, SolverInputError, toRange, type RangeInput } from "./combos";
 import { handSet, showdownBoard, type Game, type Mirror, type ShowdownBoard } from "./game";
-import { cardOrbit, permuteCard, permuteCombo, spotSymmetries, symmetrize } from "./isomorphism";
+import { cardOrbit, permuteCard, permuteCombo, restrictSymmetries, spotSymmetries, symmetrize } from "./isomorphism";
 import { TreeBuilder, type Rake } from "./tree";
 
 export interface SpotInput {
@@ -71,6 +71,8 @@ export interface TurnSpot extends SpotInput {
    * four-suit turn, a quarter on a two-suit one, half on a monotone one.
    */
   isomorphism?: boolean;
+  /** With `isomorphism`: only these suit relabellings may be used (`FlopSpot.symmetry`). */
+  symmetry?: readonly (readonly number[])[];
 }
 
 /** What suit isomorphism did to a turn game. */
@@ -236,7 +238,7 @@ export function buildTurnGame(spot: TurnSpot): BuiltSubgame {
   let r0 = toRange(spot.ranges[0]);
   let r1 = toRange(spot.ranges[1]);
   // Suit isomorphism: the symmetries of the board both ranges share.
-  const group = spot.isomorphism ? spotSymmetries(board, [r0, r1]) : [[0, 1, 2, 3]];
+  const group = spot.isomorphism ? restrictSymmetries(spotSymmetries(board, [r0, r1]), spot.symmetry) : [[0, 1, 2, 3]];
   if (group.length > 1) {
     r0 = symmetrize(r0, group);
     r1 = symmetrize(r1, group);

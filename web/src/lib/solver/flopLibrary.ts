@@ -70,6 +70,13 @@ export interface FlopChunkHeader {
   rake: { name: string; percent: number; cap: number };
   /** Exploitability target the solve ran to, % of the pot. */
   targetPct: number;
+  /**
+   * A nodelock's result (desktop app, `nodelock.ts`): the hash of the lock
+   * set it was solved with. Absent from library chunks. A turn or river
+   * lock's chunk holds the deal's turn game (`street: "turn"`, every node)
+   * instead of the flop.
+   */
+  lockHash?: string;
 }
 
 export interface FlopChunk {
@@ -91,8 +98,9 @@ export function chunkPath(set: string, tree: string, line: string, flop: string)
 
 /** Encodes a chunk. Deterministic: the same solve and header give the same bytes. */
 export function encodeChunk(header: FlopChunkHeader, result: SolveResult): Uint8Array {
-  if (result.street !== "flop" || result.scope !== "flop") {
-    throw new RangeError("a flop library chunk holds a flop-level flop solve (nodes: \"flop\")");
+  const lockedTurn = header.lockHash !== undefined && result.street === "turn" && (result.scope ?? "all") === "all";
+  if (!lockedTurn && (result.street !== "flop" || result.scope !== "flop")) {
+    throw new RangeError("a flop library chunk holds a flop-level flop solve (nodes: \"flop\"), or a nodelock's whole turn game");
   }
   const json = utf8Encode(JSON.stringify(header));
   const solve = encodeSolution(result);
@@ -141,6 +149,7 @@ export function decodeChunk(input: Uint8Array | ArrayBuffer): FlopChunk {
     if (error instanceof SolutionFormatError) throw new FlopChunkFormatError(error.message);
     throw error;
   }
+  if (header.lockHash !== undefined && result.street === "turn") return { header, result: { ...result, scope: "all" } };
   if (result.street !== "flop") throw new FlopChunkFormatError(`chunk holds a ${result.street} solve`);
   return { header, result: { ...result, scope: "flop" } };
 }

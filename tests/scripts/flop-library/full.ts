@@ -25,7 +25,6 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 import { FLOP_PROFILE, flopLinesFor } from "../../../web/src/lib/analysis/flopLibrary.js";
-import { rakeOf } from "../../../web/src/lib/analysis/river.js";
 import { loadCharts } from "../../../web/src/lib/charts/index.js";
 import { Solver } from "../../../web/src/lib/solver/cfr.js";
 import { buildFlopGame } from "../../../web/src/lib/solver/flop.js";
@@ -34,8 +33,7 @@ import { encodeSolution, SOLVER_VERSION } from "../../../web/src/lib/solver/form
 import { extract, type SolvedNode, type SolveResult } from "../../../web/src/lib/solver/solve.js";
 import { ACTION, CHANCE } from "../../../web/src/lib/solver/tree.js";
 import { cardCode } from "../../../web/src/lib/equity/index.js";
-import { jobHeader, jobSpot, type Job } from "./job.js";
-import { lineSpot } from "./spots.js";
+import { jobHeader, jobOf, jobSpot, lineSpot, type Job } from "../../../web/src/lib/analysis/flopJob.js";
 
 const ROOT = resolve(process.env.FLOPLIB_ROOT ?? join(process.cwd(), ".."));
 
@@ -57,19 +55,7 @@ const charts = loadCharts(JSON.parse(readFileSync(join(ROOT, "web/src/lib/charts
 const line = flopLinesFor(charts.game.players).find((l) => l.id === lineId);
 if (!line) throw new Error(`unknown line ${lineId}`);
 const spot = lineSpot(charts, line);
-const rake = rakeOf(charts);
-const job: Job = {
-  id: `${line.id}/${flop}`,
-  line: line.id,
-  lineKey: line.key,
-  flop,
-  players: spot.players,
-  ranges: [Array.from(spot.ranges[0]), Array.from(spot.ranges[1])],
-  pot: spot.pot,
-  stack: spot.stack,
-  charts: { id: charts.id, version: charts.version, hash: charts.model.hash },
-  rake: { name: rake.name, percent: rake.percent, cap: rake.cap },
-};
+const job: Job = jobOf(charts, line, spot, flop);
 
 const dir = join(out, set, FLOP_PROFILE.tree, line.id, flop);
 mkdirSync(join(dir, "turn"), { recursive: true });
