@@ -37,6 +37,26 @@ Background:
   - a **warm start**: the next lock on the same spot continues from the last
     solve.
 
+**Measured, worker-thread split (workstream E, 2026-11-16).** Spot:
+`nlhe-cash-6max-100bb` `btn-bb` `Ks5h3s`, flop-m1, `i16`. Harness:
+`tests/scripts/nodelock/cli.mjs`, Node `worker_threads` with the app
+engine's partition (`SplitCoordinator` + `SplitPart`). The M2 Pro was not
+idle: the nightly flop library ran 3 solves the whole time, so these
+numbers are pessimistic.
+
+| Run | Wall time | Per iteration | Peak RSS |
+|---|---|---|---|
+| Sequential, 10 iterations | 125 s | 13.1 s | 1.11 GB |
+| Split, 6 threads, 10 iterations (same exploitability, 40.921 %) | 32 s | 3.34 s | 1.46 GB |
+| Split, 6 threads, to the 1 % target: 120 iterations, 0.785 % (1.018 % at the check at 100) | **356 s** | 2.97 s | 1.43 GB |
+
+- Speed-up ≈ 3.9× on 6 threads. Building the parts takes 0.3–0.6 s.
+- Sequential to the same 120 iterations ≈ 120 × 13.1 s ≈ 26 min (not run
+  to the end).
+- 9 threads on an idle machine were not measured. Estimate: 36 turn classes
+  over 9 parts gives about 2.2 s per iteration, ≈ 4.5 min to 1 %.
+- A warm re-solve was not timed on the real spot.
+
 Targets on the M2 Pro, flop lock to 1 %:
 
 | Engine | Target |
