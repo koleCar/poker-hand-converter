@@ -23,7 +23,7 @@
 
 "use client";
 
-import { useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useCallback, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { SUIT_SYMBOL, type Suit } from "../../lib/cards";
 import { useSolverDict, type StrategyCompare } from "./host";
 import type { ExploreCombo } from "../../lib/solver";
@@ -163,13 +163,22 @@ function dominant(freq: readonly number[]): number {
   return best;
 }
 
+/**
+ * A hand hovered in another tab's view: the acting player's class opens in the
+ * panel as on the grid (`index`); anything else brings its own `panel`.
+ */
+export type MainHand = { index: number } | { panel: ReactNode };
+
 interface StrategyViewProps {
   model: StrategyModel;
   overview: ReactNode;
   /** Above the grid: the tabs of a flop decision. */
   toolbar?: ReactNode;
-  /** In the grid's place: another tab's view (the Ranges tab). */
-  main?: ReactNode;
+  /**
+   * In the grid's place: another tab's view (the Ranges tab). As a function it
+   * is handed `onHand`, so hovering a hand there opens it in the panel.
+   */
+  main?: ReactNode | ((onHand: (hand: MainHand | null) => void) => ReactNode);
   /** The hand filters: the panel's last block then switches between the hand and them. */
   filters?: ReactNode;
   /** The tab was just switched: the grid (or `main`) fades in as it swaps. */
@@ -230,6 +239,8 @@ function Grid({
   /** An action box clicked: only that action stays lit in the grid until it is clicked again. */
   const [pinned, setPinned] = useState<number | null>(null);
   const highlight = hoveredAction ?? pinned;
+  /** The hand block's content brought by another tab's view (the other player's hand on the Ranges tab). */
+  const [aside, setAside] = useState<ReactNode | null>(null);
   const buttons = useRef<Array<HTMLButtonElement | null>>([]);
   const shown = hovered ?? picked;
   const detail = shown === null ? null : model.classes[shown];
@@ -238,6 +249,16 @@ function Grid({
   const showHover = (index: number) => {
     setHovered(index);
   };
+  const onHand = useCallback((hand: MainHand | null) => {
+    if (hand && "panel" in hand) {
+      setHovered(null);
+      setAside(hand.panel);
+    } else {
+      setAside(null);
+      setHovered(hand ? hand.index : null);
+    }
+  }, []);
+  const mainView = typeof main === "function" ? main(onHand) : main;
 
   const move = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     const row = Math.floor(index / 13);
@@ -266,8 +287,8 @@ function Grid({
     <>
       <div className={styles.gridWrap}>
         {toolbar}
-        {main ? (
-          fade ? <div className="rail-fade">{main}</div> : main
+        {mainView ? (
+          fade ? <div className="rail-fade">{mainView}</div> : mainView
         ) : (
         <div
           className={`${styles.grid} ${fade ? "rail-fade" : ""}`}
@@ -395,7 +416,9 @@ function Grid({
           </section>
         ) : (
         <section className={`${styles.panelBlock} ${styles.handBlock}`} aria-live="polite" aria-label={t.panel.hand}>
-          {detail && shown !== null ? (
+          {aside ? (
+            aside
+          ) : detail && shown !== null ? (
             <>
               <p className={styles.handHead}>
                 <strong className={styles.handName}>{GRID_CELLS[shown].name}</strong>

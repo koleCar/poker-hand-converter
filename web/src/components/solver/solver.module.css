@@ -999,6 +999,7 @@ button.street:focus-visible {
 /* --------------------------------------------------------- the Ranges tab */
 
 .ranges {
+  container: ranges / inline-size;
   display: grid;
   gap: var(--space-2);
   min-inline-size: 0;
@@ -1015,9 +1016,47 @@ button.street:focus-visible {
   align-items: start;
 }
 
-@media (min-width: 1100px) {
+/*
+ * The grids first and as large as the width allows: side by side with the
+ * comparison under them, and it goes between them only once each grid still
+ * gets ~30rem (cells large enough for the name and the value).
+ */
+@container ranges (min-width: 38rem) {
+  .rangesTop {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .compare {
+    order: 3;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    column-gap: var(--space-4);
+  }
+
+  .compare > select,
+  .compareList {
+    grid-column: 1 / -1;
+  }
+
+  .compareList {
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    column-gap: var(--space-4);
+  }
+}
+
+@container ranges (min-width: 76rem) {
   .rangesTop {
     grid-template-columns: minmax(0, 1fr) minmax(12rem, 15rem) minmax(0, 1fr);
+  }
+
+  .compare {
+    order: 1;
+    grid-column: auto;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .compareList {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -1051,6 +1090,7 @@ button.street:focus-visible {
 }
 
 .rangeGrid {
+  container-type: inline-size;
   display: grid;
   grid-template-columns: repeat(13, minmax(0, 1fr));
   gap: 1px;
@@ -1062,16 +1102,70 @@ button.street:focus-visible {
   cursor: default;
 }
 
+/* Text sized by the grid (a cell is ~7.6cqi wide): the name top left, the value bottom right, never on each other. */
 .rangeCell .cellName {
   inset-block-start: 2px;
   inset-inline-start: 2px;
-  font-size: clamp(0.45rem, 0.62vw, 0.75rem);
+  font-size: clamp(0.5rem, 2.3cqi, 0.85rem);
 }
 
 .rangeCell .cellEv {
   inset-block-end: 2px;
   inset-inline-end: 2px;
-  font-size: clamp(0.4rem, 0.5vw, 0.62rem);
+  font-size: clamp(0.45rem, 1.9cqi, 0.7rem);
+}
+
+/* Cells under ~1.5rem: the name only; the value is in the panel on hovering. */
+@container (max-width: 20rem) {
+  .rangeCell .cellEv {
+    display: none;
+  }
+}
+
+.rangeCellHover {
+  z-index: 2;
+  box-shadow: 0 0 0 2px var(--text-primary);
+}
+
+/* The other player's hovered hand in the panel: one row per combo. */
+.positionTag {
+  padding: 2px var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.otherCombos {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.otherCombos th,
+.otherCombos td {
+  padding: 3px var(--space-1);
+  text-align: end;
+}
+
+.otherCombos thead th {
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular, 400);
+}
+
+.otherCombos tbody th {
+  text-align: start;
+}
+
+.otherCombos tbody tr + tr {
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.otherComboOff {
+  opacity: 0.4;
 }
 
 /* One column per combo, as tall as its reach. */

@@ -164,6 +164,7 @@ export const solverHr: Dict["solver"] = {
       `${hand} · ${position}: ${num(count, 1)} kombinacija` +
       (equity === null ? "" : ` · equity ${pct1(equity)}`) +
       (ev === null ? "" : ` · EV ${num(ev, 2)} bb`),
+    otherNote: (position: string) => `${position} ovdje ne odlučuje: za svaku kombinaciju težina u rasponu, equity i EV (bb).`,
     hoverEmpty: "Prijeđi mišem preko ruke da vidiš kombinacije, equity i EV.",
     cellValue: {
       strategy: () => "",

@@ -509,7 +509,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
             ))}
           </div>
         }
-        main={tab === "ranges" && rangeData ? <RangesView data={rangeData} masks={masks} strategy={model} /> : undefined}
+        main={tab === "ranges" && rangeData ? (onHand) => <RangesView data={rangeData} masks={masks} strategy={model} onHand={onHand} /> : undefined}
         fade={swappedAt === model.id}
         filters={<HandFilters data={rangeData} filter={filter} onFilter={setFilter} colours={model.actions.map((a) => a.colour)} />}
         overview={<FlopOverview chunk={solve} index={nodeIndex} action={at && nodelock ? nodelock.nodeAction(at) : null} t={t} />}

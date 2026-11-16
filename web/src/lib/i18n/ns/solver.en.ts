@@ -167,6 +167,7 @@ export const solverEn = {
       `${hand} · ${position}: ${num(combos, 1)} combos` +
       (equity === null ? "" : ` · equity ${pct1(equity)}`) +
       (ev === null ? "" : ` · EV ${num(ev, 2)} bb`),
+    otherNote: (position: string) => `${position} does not act here: each combo's weight in the range, equity and EV (bb).`,
     hoverEmpty: "Hover a hand to see its combos, equity and EV.",
     cellValue: {
       strategy: () => "",
