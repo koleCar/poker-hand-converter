@@ -348,6 +348,34 @@ Under the Solver tab, next to the library: **My nodelocks**.
 
 All strings are EN + HR in the app's i18n.
 
+### 5.6 As built (workstream U)
+
+- **Slot** (`web/src/components/solver/host.tsx`): `SolverNodelock` with
+  `override` (`{ key: set/line/flop, id, flop, turn: { id: liveTurnId, chunk } }`),
+  `compare`, `nodeAction(at)` and `banner(at)`; `NodelockAt` says where the
+  view is. Only `app/src/screens/Solver.tsx` sets it.
+- **Files** (`app/src/solver/nodelock/`):
+  - `editor/state.ts`: the pure reducer (`tests/test/appNodelockEditor.test.ts`);
+  - `spot.ts`: the decision read off the chunk, the lock's address, the
+    suggestions' context;
+  - `Editor.tsx`, `slot.tsx` (action and banners), `History.tsx`,
+    `SidebarNodelock.tsx` (progress and "ready" on every screen);
+  - `session.ts`: the open editor, the one running solve, the notice, the
+    lock being shown;
+  - `data.ts`: the store's `ipc.nodelock*`;
+  - `engine.ts`: picks `createNativeEngine()`, else `createWorkerEngine()`,
+    from `./engine/*.ts`. With neither, the editor says this build cannot
+    solve yet.
+- **Lock path.** On the flop, the flop chunk's node path (`X-B1.82`). On a
+  turn or river, the flop chunk's deal path, the turn card and the live
+  turn's node path: `X-X~Kd/B2.5`.
+- **`summary_json`**: `{ view (SolverView, to open it again), position,
+  players, steps, shifts: [{ label, gto, locked }] }`.
+- **Routes.** My nodelocks is `#/solver/locks`; opening a lock goes to its
+  view (`#/solver/set=…`).
+- Until §1's `lockHash` lands, `lock_hash` is the sha-256 of the LockSet's
+  JSON (`contract.ts`).
+
 ## 6. Workstreams (agents)
 
 | # | Branch / worktree | Owns | Depends on |
