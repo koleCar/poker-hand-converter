@@ -12,16 +12,22 @@ const converted = (count: number) =>
 
 export const converterHr: Dict["converter"] = {
   upload: {
-    or: "ili",
-    pastePlaceholder: "Ovdje zalijepi ruku",
+    title: "Zalijepi ruku ili ispusti datoteke",
+    hint: "Lijepi bilo gdje na stranici · .txt, .zip ili cijela izvezena mapa",
+    areaLabel: "Zalijepi hand history",
+    chooseFiles: "Odaberi datoteke",
+    chooseFolder: "Odaberi mapu",
+    dropToConvert: "Ispusti za pretvaranje",
+    dropHint: "Datoteke, zipovi i mape. Sve što nije hand history se preskače.",
+    veil: "Ispusti bilo gdje za pretvaranje",
     reading: "Čitam…",
-    replayIt: "Odigraj je",
-    chooseFile: "Odaberi datoteku",
-    notRecognised: "To nije hand history koji prepoznajemo.",
+    handCount: (count: number) => `${num(count)} ${ruka(count)}`,
+    replay: "Odigraj",
+    convertAll: (count: number) => `Pretvori sve (${num(count)})`,
+    clear: "Očisti",
+    notRecognised: "To nije hand history koji prepoznajemo",
     couldNotRead: "To nije moguće pročitati.",
-    fileCouldNotRead: "Tu datoteku nije moguće pročitati.",
-    manyFound: (count: number) =>
-      `${plural(count, "Pronađena je", "Pronađene su", "Pronađeno je")} ${num(count)} ${ruka(count)} — prikazujem prvu. Za pretvaranje svih koristi okvir za učitavanje ispod.`,
+    rooms: (count: number) => `${num(count)} ${plural(count, "soba", "sobe", "soba")}`,
   },
 
   save: {
@@ -31,14 +37,6 @@ export const converterHr: Dict["converter"] = {
     failed: "Spremanje nije uspjelo.",
     button: "Spremi u moju biblioteku",
     saving: "Spremam…",
-  },
-
-  drop: {
-    veil: "Ispusti bilo gdje za pretvaranje",
-    title: "Ispusti datoteke ili cijelu izvezenu mapu",
-    chooseFiles: "Odaberi datoteke",
-    chooseFolder: "Odaberi mapu",
-    moreSites: (listed: string, more: number) => `${listed} i još ${num(more)}`,
   },
 
   batch: {

@@ -1,69 +1,231 @@
-/* -------------------------------------------------------- single hand - */
+/* The upload page's one box (`upload/UploadBox`): a pasted hand or dropped
+   files in the same place. Mobile first; the drag affordances only matter with
+   a real pointer, the buttons carry the phone. */
 
-.single {
-  display: grid;
-  gap: 12px;
+.upload {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.single__area {
+.upbox {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 240px;
+  overflow: hidden;
+  border: 1.5px dashed var(--line);
+  border-radius: 18px;
+  background: var(--bg-elev);
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.upbox:hover {
+  border-color: color-mix(in srgb, var(--fg-dim) 55%, var(--line));
+}
+
+.upbox.is-focused {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.upbox.is-filled {
+  border-style: solid;
+  border-color: var(--line);
+}
+
+.upbox.is-dragging {
+  border-style: solid;
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, var(--bg-elev));
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.upbox__field {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+}
+
+.upbox__area {
+  flex: 1 1 auto;
   width: 100%;
-  min-height: 132px;
-  padding: 12px 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--bg);
+  min-height: 236px;
+  padding: 18px 20px;
+  border: 0;
+  outline: none;
+  resize: vertical;
+  background: transparent;
   color: var(--fg);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  /* 16px stops iOS Safari zooming the page when the field takes focus. Dropped
-     to a readable monospace size once there is room for it. */
+  /* 16px stops iOS Safari zooming the page when the field takes focus. */
   font-size: 16px;
-  line-height: 1.5;
-  resize: vertical;
+  line-height: 1.55;
 }
 
 @media (min-width: 640px) {
-  .single__area {
+  .upbox__area {
     font-size: 12.5px;
   }
 }
 
-.single__area:focus-visible {
-  border-color: var(--accent);
-  outline: none;
+/* Over the empty text area; clicks fall through to it except on the buttons. */
+.upbox__hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+  pointer-events: none;
 }
 
-.single__area::placeholder {
+.upbox__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: var(--surface-inset);
+  color: var(--fg-muted);
+}
+
+.upbox.is-dragging .upbox__icon {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+.upbox__title {
+  font-size: 17px;
+  font-weight: 650;
+  color: var(--fg);
+}
+
+.upbox__sub {
+  max-width: 52ch;
+  font-size: 12px;
   color: var(--fg-dim);
-  font-family: inherit;
 }
 
-.single__actions {
+.upbox__actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
+  pointer-events: auto;
 }
 
-/* ------------------------------------------------------------ divider - */
+/* Folder picking and "drop" are pointer ideas. */
+@media not ((hover: hover) and (pointer: fine)) {
+  .upbox__actions .btn--ghost {
+    display: none;
+  }
+}
 
-/* Separates "paste one hand" from "upload a whole export". They are two jobs,
-   not two modes, so the page shows both — but back to back they read as one
-   form, and this is the cheapest way to say they are not. Rule drawn with
-   borders on the pseudo-elements so it needs no extra nodes. */
-.upload-or {
+.upbox__foot {
   display: flex;
-  gap: 14px;
+  flex-wrap: wrap;
   align-items: center;
-  margin: 0;
-  color: var(--fg-dim);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  gap: 8px 10px;
+  min-height: 56px;
+  padding: 10px 12px 10px 18px;
+  border-top: 1px solid var(--line-soft);
+  background: var(--surface-inset);
 }
 
-.upload-or::before,
-.upload-or::after {
-  flex: 1;
-  height: 1px;
-  background: var(--line-soft);
-  content: "";
+.upbox__detect {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--fg-muted);
+}
+
+.upbox__detect strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.upbox__detect i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--good);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--good) 20%, transparent);
+}
+
+.upbox__detect i.is-bad {
+  background: var(--bad);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--bad) 20%, transparent);
+}
+
+.upbox__detect i.is-wait {
+  background: var(--fg-dim);
+  box-shadow: none;
+}
+
+.upbox__dim {
+  color: var(--fg-dim);
+}
+
+.upbox__grow {
+  flex: 1 1 auto;
+}
+
+.upbox__kbd {
+  margin-left: 8px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: color-mix(in srgb, currentColor 16%, transparent);
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+@media not ((hover: hover) and (pointer: fine)) {
+  .upbox__kbd {
+    display: none;
+  }
+}
+
+/* The batch's progress, inside the box. */
+.upbox__status {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: center;
+  padding: 22px 22px;
+}
+
+.upload__under {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 0 4px;
+  font-size: 12px;
+  color: var(--fg-dim);
+}
+
+.upload__link {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--fg-muted);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.upload__link:hover {
+  color: var(--fg);
+}
+
+.upload__rooms {
+  cursor: default;
 }

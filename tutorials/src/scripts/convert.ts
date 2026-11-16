@@ -96,7 +96,7 @@ export const script: Tutorial = {
           fill: 0.85,
           highlight: 'save',
           cursor: 'save',
-          caption: 'Paste a single hand and choose Replay it: it opens in the replayer, with a button to save it.',
+          caption: 'Paste a single hand and choose Replay: it opens in the replayer, with a button to save it.',
           seconds: 5,
         },
         {

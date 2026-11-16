@@ -97,7 +97,7 @@ export function handKeyOf(hand: PhfHand): string {
 }
 
 /** Pre-rendered "$0.50/$1", or null when the blinds are unknown. */
-function stakesLabelOf(hand: PhfHand): string | null {
+export function stakesLabelOf(hand: PhfHand): string | null {
   const { smallBlind, bigBlind, unit } = hand.game;
   if (!smallBlind && !bigBlind) {
     return null;

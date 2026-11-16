@@ -4,8 +4,7 @@
  * on a phone, and a results table does not survive a 390 px viewport. So the
  * base rules describe the phone layout — buttons first, every list a stack of
  * blocks — and the media queries add the things a wide pointer-driven screen
- * can afford: the drag hint, the multi-column stat row, the single-line file
- * rows.
+ * can afford: the multi-column stat row and the single-line file rows.
  *
  * Everything is prefixed `conv-` and lives here rather than in `App.css`, which
  * belongs to the replayer. Shared primitives (`.card`, `.btn`, `.notice`,
@@ -18,133 +17,16 @@
   gap: 18px;
 }
 
-/* ------------------------------------------------------------------ input */
+/* ------------------------------------------------------------ save switch */
 
-.conv-input {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.conv-drop {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 22px 16px;
-  border: 1.5px dashed var(--line);
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--accent-fg) 3%, transparent);
-  text-align: center;
-  transition: border-color 140ms ease, background 140ms ease;
-}
-
-.conv-drop.is-dragging {
-  border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent-fg) 12%, transparent);
-  border-style: solid;
-}
-
-.conv-drop.is-busy {
-  opacity: 0.6;
-}
-
-.conv-drop__icon {
-  display: grid;
-  place-items: center;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  color: var(--accent);
-  background: color-mix(in srgb, var(--accent-fg) 12%, transparent);
-}
-
-.conv-drop__title {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 650;
-}
-
-/* Only meaningful with a real pointer; a phone user reading "drag files here"
-   is being told to do something their device cannot do. */
-.conv-drop__drag-hint {
-  display: none;
-  margin: 0;
-  font-size: 13px;
-  color: var(--fg-muted);
-}
-
-.conv-drop__actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-}
-
-.conv-drop__actions .btn {
-  flex: 1 1 auto;
-  min-width: 140px;
-  min-height: 42px;
-}
-
-.conv-drop__hint {
-  margin: 0;
-  max-width: 52ch;
-  font-size: 12px;
-  line-height: 1.55;
-  color: var(--fg-dim);
-}
-
-/* Folder picking is a desktop idea; on a phone the OS file provider has no
-   folders to hand back. */
-.conv-drop__folder {
-  display: none;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .conv-drop {
-    padding: 30px 24px;
-  }
-
-  .conv-drop__folder {
-    display: inline-flex;
-  }
-
-  .conv-drop__drag-hint {
-    display: block;
-  }
-
-  .conv-drop__actions .btn {
-    flex: 0 0 auto;
-  }
-}
-
-/* --------------------------------------------------------------- controls */
-
-.conv-controls {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 12px;
-}
-
-/* "Save to my library" and, next to it, the originals opt-in (R4.2). */
-.conv-switches {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
+/* "Save to my library", under the upload box: a plain switch and its label. */
 .conv-switch {
-  display: flex;
-  align-items: flex-start;
-  gap: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
   cursor: pointer;
-  padding: 11px 12px;
-  border: 1px solid var(--line-soft);
-  border-radius: var(--radius-sm);
-  background: var(--bg-elev-2);
+  font-size: 12px;
+  color: var(--fg-muted);
 }
 
 .conv-switch.is-disabled {
@@ -162,9 +44,8 @@
 .conv-switch__track {
   flex: 0 0 auto;
   position: relative;
-  width: 38px;
-  height: 22px;
-  margin-top: 1px;
+  width: 34px;
+  height: 20px;
   border-radius: 999px;
   background: var(--control-track);
   border: 1px solid var(--line);
@@ -175,8 +56,8 @@
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: var(--fg-muted);
   transition: transform 140ms ease, background 140ms ease;
@@ -188,7 +69,7 @@
 }
 
 .conv-switch input:checked + .conv-switch__track .conv-switch__thumb {
-  transform: translateX(16px);
+  transform: translateX(14px);
   background: var(--good);
 }
 
@@ -198,36 +79,39 @@
 }
 
 .conv-switch__text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
 }
 
 .conv-switch__text strong {
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg-muted);
 }
 
 .conv-switch__text small {
   font-size: 11.5px;
-  line-height: 1.5;
   color: var(--fg-dim);
 }
 
-@media (min-width: 720px) {
-  .conv-controls {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
+/* Notices under the box; nothing at all when there are none. */
+.conv-notices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-  .conv-switch {
-    flex: 1 1 auto;
-  }
+.conv-notices:empty {
+  display: none;
 }
 
 /* --------------------------------------------------------------- progress */
 
 .conv-progress {
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 }
 

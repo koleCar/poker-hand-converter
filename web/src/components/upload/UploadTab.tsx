@@ -1,25 +1,15 @@
 /**
- * The app's front door: paste one hand, or upload a whole export.
+ * The app's front door: one box for a pasted hand or dropped files.
  *
- * Both are on screen at once rather than behind a mode switch. They are not
- * really alternatives — one replays a hand you have in the clipboard, the other
- * converts a folder you exported from a tracker — and a person arriving with a
- * hand on their clipboard should not have to pick a mode before they can use
- * the box they came for. The paste box is open by default and first; the batch
- * drop zone sits below it, separated, for the bulk job.
- *
- * There is exactly one paste box on the page. `DropZone` used to carry its own,
- * behind a button, plus a window-level Ctrl/Cmd+V hook to make up for it being
- * hidden. With an always-open box above, both were a second target for the same
- * gesture, so they are gone.
+ * `ConverterTab` owns the box (`UploadBox`) and the batch conversion; a pasted
+ * hand the user replays is shown right under the box by `ReplayPanel`.
  */
 
 "use client";
 
-import { useDict } from "../../lib/i18n/client";
-import { SingleHandPanel } from "./SingleHandPanel";
+import { useCallback, useState } from "react";
 import { ConverterTab } from "../ConverterTab";
-import "../../styles/upload.css";
+import { ReplayPanel, type ReplayRequest } from "./ReplayPanel";
 
 interface UploadTabProps {
   /** Lets the shell refresh its stored-hand counter. */
@@ -27,16 +17,16 @@ interface UploadTabProps {
 }
 
 export function UploadTab({ onHandsSaved }: UploadTabProps) {
-  const en = useDict();
+  const [request, setRequest] = useState<ReplayRequest | null>(null);
+  const replay = useCallback((text: string) => {
+    setRequest((current) => ({ id: (current?.id ?? 0) + 1, text }));
+  }, []);
+
   return (
-    <div className="stack">
-      <SingleHandPanel onSaved={onHandsSaved} />
-
-      <p className="upload-or">
-        <span>{en.converter.upload.or}</span>
-      </p>
-
-      <ConverterTab onHandsSaved={onHandsSaved} />
-    </div>
+    <ConverterTab
+      onHandsSaved={onHandsSaved}
+      onReplay={replay}
+      replay={<ReplayPanel request={request} onSaved={onHandsSaved} />}
+    />
   );
 }

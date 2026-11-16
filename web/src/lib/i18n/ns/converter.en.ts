@@ -14,18 +14,24 @@ const num = (value: number) => value.toLocaleString("en-GB");
 const hands = (count: number) => (count === 1 ? "hand" : "hands");
 
 export const converterEn = {
-  /** `upload/UploadTab` and `upload/SingleHandPanel`. */
+  /** `upload/UploadBox` and `upload/ReplayPanel`: the one box for a pasted hand or dropped files. */
   upload: {
-    or: "or",
-    pastePlaceholder: "Paste a hand here",
+    title: "Paste a hand, or drop your files",
+    hint: "Paste anywhere on the page · .txt, .zip or a whole export folder",
+    areaLabel: "Paste a hand history",
+    chooseFiles: "Choose files",
+    chooseFolder: "Choose a folder",
+    dropToConvert: "Drop to convert",
+    dropHint: "Files, zips and folders. Anything that is not a hand history is skipped.",
+    veil: "Drop anywhere to convert",
     reading: "Reading…",
-    replayIt: "Replay it",
-    chooseFile: "Choose a file",
-    notRecognised: "That is not a hand history we recognise.",
+    handCount: (count: number) => `${num(count)} ${hands(count)}`,
+    replay: "Replay",
+    convertAll: (count: number) => `Convert all ${num(count)}`,
+    clear: "Clear",
+    notRecognised: "Not a hand history we recognise",
     couldNotRead: "That could not be read.",
-    fileCouldNotRead: "That file could not be read.",
-    manyFound: (count: number) =>
-      `${num(count)} ${hands(count)} found — showing the first. Use the upload box below to convert them all.`,
+    rooms: (count: number) => `${num(count)} rooms`,
   },
 
   /** Saving one loaded hand, from the paste box or from the library viewer. */
@@ -36,15 +42,6 @@ export const converterEn = {
     failed: "Saving failed.",
     button: "Save to my library",
     saving: "Saving…",
-  },
-
-  /** `converter/DropZone`. */
-  drop: {
-    veil: "Drop anywhere to convert",
-    title: "Drop files or a whole export folder",
-    chooseFiles: "Choose files",
-    chooseFolder: "Choose a folder",
-    moreSites: (listed: string, more: number) => `${listed} and ${num(more)} more`,
   },
 
   /** `ConverterTab`: the batch controls, the progress card and its notices. */
