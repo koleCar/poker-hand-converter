@@ -532,13 +532,16 @@ describe("the module stays importable from a worker and a test", () => {
     "../equity/multiway",
     "../equity/evaluator",
   ]);
+  // The flop library's job (nodelock, docs/NODELOCK.md §2.3) scripts a hand from a line, as the
+  // batch runner always did: the training's pure hand scripting, and only in that file.
+  const ALSO: Record<string, readonly string[]> = { "flopJob.ts": ["../training/handText", "../training/preflop"] };
   const dir = join(import.meta.dirname, "../../web/src/lib/analysis");
   const sources = readdirSync(dir).filter((name) => name.endsWith(".ts"));
 
   it.each(sources)("%s imports nothing it may not", (name) => {
     const text = readFileSync(join(dir, name), "utf8");
     const specifiers = [...text.matchAll(/(?:^|\n)\s*(?:import|export)[^;]*?from\s+"([^"]+)"/g)].map((m) => m[1]);
-    expect(specifiers.filter((s) => !s.startsWith("./") && !ALLOWED.has(s))).toEqual([]);
+    expect(specifiers.filter((s) => !s.startsWith("./") && !ALLOWED.has(s) && !ALSO[name]?.includes(s))).toEqual([]);
   });
 
   it("names no browser or server global", () => {

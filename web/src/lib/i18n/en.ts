@@ -205,15 +205,6 @@ export const en = {
     note: "Converting, previewing, downloading and replaying need no account.",
   },
 
-  convert: {
-    /**
-     * The privacy line. This is UI copy, not a marketing claim: `/convert`
-     * issues zero network requests for the conversion itself, and the assertion
-     * is repeated as a comment in `app/convert/page.tsx` so that a future change
-     * has to walk past it twice. See #24.
-     */
-    privacy: "Nothing is uploaded. Your hand histories are converted in this tab and never leave it.",
-  },
 
   notFound: {
     heading: "Page not found",

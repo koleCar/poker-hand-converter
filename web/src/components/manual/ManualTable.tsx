@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
-import type { ReplayFrame } from "../../lib/replay";
+import type { ReplayFrame, SeatFrameState } from "../../lib/replay";
 import { ReplayTable, type TableHand } from "@rail/ui/replayer/ReplayTable";
 import { DEFAULT_REPLAY_SETTINGS } from "@rail/ui/replayer/replaySettings";
 import { shapeFor, type TableShape } from "@rail/ui/replayer/seatLayout";
@@ -16,6 +16,8 @@ interface ManualTableProps {
   onSeatClick: (seat: number) => void;
   onBoardClick: () => void;
   onSeatCardsClick: (seat: number) => void;
+  /** The editor's rename-in-place, drawn where the seat's name goes. */
+  renderSeatName?: (seat: SeatFrameState, label: string) => React.ReactNode;
 }
 
 const IDENTITY = { seat: (name: string) => name, text: (value: string) => value, tableName: null };
@@ -25,7 +27,16 @@ const IDENTITY = { seat: (name: string) => name, text: (value: string) => value,
  * `.rp__stage` boxes the replayer uses, so the stylesheet treats it exactly
  * the same. The shape is measured off the stage the way `ReplayViewer` does.
  */
-export function ManualTable({ hand, frame, format, selectedSeat, onSeatClick, onBoardClick, onSeatCardsClick }: ManualTableProps) {
+export function ManualTable({
+  hand,
+  frame,
+  format,
+  selectedSeat,
+  onSeatClick,
+  onBoardClick,
+  onSeatCardsClick,
+  renderSeatName,
+}: ManualTableProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const [shape, setShape] = useState<TableShape>("classic");
 
@@ -69,6 +80,7 @@ export function ManualTable({ hand, frame, format, selectedSeat, onSeatClick, on
           onSeatClick={onSeatClick}
           onBoardClick={onBoardClick}
           onSeatCardsClick={onSeatCardsClick}
+          renderSeatName={renderSeatName}
         />
       </div>
     </div>

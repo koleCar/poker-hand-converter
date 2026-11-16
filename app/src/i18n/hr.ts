@@ -18,6 +18,20 @@ import type { Dict } from "./types";
 /** Counts in Croatian digits ("1.204"), whatever the window's language. */
 const n = countIn("hr");
 
+/** A share as a percentage, one decimal at most ("41.5%"). */
+function pct(share: number): string {
+  return `${n(Math.round(share * 1000) / 10)}%`;
+}
+
+/** Seconds as m:ss ("2:05"), or h:mm:ss. */
+function clock(seconds: number): string {
+  const s = Math.max(0, Math.round(seconds));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const ss = String(s % 60).padStart(2, "0");
+  return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${ss}` : `${m}:${ss}`;
+}
+
 /** After a number: 1 ruka, 2 ruke, 5 ruku. */
 function ruku(count: number): string {
   return `${n(count)} ${plural(count, "ruka", "ruke", "ruku")}`;
@@ -1447,6 +1461,113 @@ export const hr: Dict = {
       granted: "Dopuštenje Pristupačnost je dano: HUD vidi tvoje stolove.",
       noClient: "HUD na macOS-u: nije pokrenut nijedan podržani poker klijent.",
     },
+  },
+
+  nodelock: {
+    action: "Nodelock",
+    actionTitle: (position: string) => `Zaključaj strategiju igrača ${position} ovdje i solvaj ostatak protiv nje, na ovom računalu`,
+    editorLabel: (position: string) => `Nodelock: strategija igrača ${position}`,
+    close: "Zatvori",
+    modesLabel: "Postavi strategiju po",
+    modes: { hands: "Rukama", range: "Rangeu", classes: "Klasama ruku" },
+    viewsLabel: "Mreža prikazuje",
+    views: { range: "Range", classes: "Klase ruku", combos: "Kombinacije" },
+    undo: "Poništi",
+    redo: "Ponovi",
+    reset: "Vrati na GTO",
+    lockAll: "Zaključaj sve",
+    unlockAll: "Otključaj sve",
+    invert: "Obrni zaključavanje",
+    hold: (action: string) => `Zadrži ${action} kako jest`,
+    brush: "Boji s",
+    brushHint: "Klikni ili povuci preko ruku. Obojene ruke su zaključane, ostale se prilagode.",
+    rangeHint: "Prve se pomaknu ruke najbliže indiferenciji. Crtica je GTO.",
+    classesHint: "Odaberi klasu pa postavi koliko često igra svaku akciju.",
+    classesNone: "Nijedna ruka ove klase ne dolazi do odluke.",
+    made: "Gotove ruke",
+    draws: "Drawovi",
+    frequency: (action: string) => `${action}, % rangea`,
+    current: "Trenutna strategija",
+    locked: (locked: number, reaching: number) => `${n(locked)} od ${n(reaching)} kombinacija zaključano`,
+    cellLabel: (hand: string, mix: string, locked: boolean) => `${hand}: ${mix}${locked ? ", zaključano" : ""}`,
+    lockBadge: "Zaključano",
+    toggleLock: (hand: string) => `Zaključaj ili otključaj ${hand}`,
+    pickCell: "Odaberi ruku u mreži da vidiš njezine kombinacije.",
+    suggestions: "Prijedlozi",
+    earlierLabel: "Zaključaj ranije čvorove",
+    earlier: { none: "Nijedan", player: "Ovog igrača", all: "Sve" },
+    accuracyLabel: "Točnost",
+    accuracy: { standard: "Standardna 1%", quick: "Brza 2,5%" },
+    solve: "Solvaj na ovom računalu",
+    engineLine: (threads: number, cores: number, memoryMb: number) =>
+      `Koristi do ${n(threads)} od ${n(cores)} jezgri i oko ${memoryMb >= 1000 ? `${n(Math.round(memoryMb / 100) / 10)} GB` : `${n(Math.round(memoryMb / 10) * 10)} MB`}. Ništa ne napušta ovo računalo.`,
+    noEngine: "Ova verzija Raila još ne može solvati nodelockove.",
+    busy: "Drugi nodelock se solva. Pričekaj ga ili ga prekini.",
+    startError: "Solve se nije mogao pokrenuti. Pokušaj ponovno.",
+    nothingLocked: "Prvo zaključaj barem jednu ruku.",
+    progress: (iteration: number, accuracy: number | null, elapsedS: number, etaS: number | null) =>
+      `Iteracija ${n(iteration)}${accuracy === null ? "" : ` · ${n(Math.round(accuracy * 100) / 100)}% pota`} · ${clock(elapsedS)}${etaS === null ? "" : ` · još oko ${clock(etaS)}`}`,
+    starting: "Pokrećem solve…",
+    cancel: "Prekini",
+    solvingHere: "Solva se na ovom računalu. Nastavi učiti; Rail javi kad bude gotovo.",
+    nodelocked: "Nodelockano",
+    backToGto: "Natrag na GTO",
+    editLock: "Uredi lock",
+    compare: "Usporedi s GTO-om",
+    gto: "GTO",
+    shareDelta: (delta: number) => `${delta >= 0 ? "+" : "−"}${n(Math.round(Math.abs(delta) * 1000) / 10)} p.b.`,
+    shift: (label: string, gto: number, locked: number) => `${label} ${pct(gto)} → ${pct(locked)}`,
+    solvedTo: (accuracy: number, seconds: number, engine: string) => `${n(Math.round(accuracy * 100) / 100)}% pota · ${clock(seconds)} · ${engine}`,
+    engines: { native: "nativni engine", workers: "workeri u aplikaciji" } as Record<string, string>,
+    ready: (name: string) => `Nodelock je gotov: ${name}`,
+    failed: (name: string) => `Nodelock nije uspio: ${name}`,
+    sidebarSolving: "Nodelock se solva",
+    open: "Otvori",
+    dismiss: "Odbaci",
+    name: (who: string, board: string, ip: string, oop: string) => `${who} · ${board} · ${ip} protiv ${oop}`,
+    copyName: (name: string) => `${name} (kopija)`,
+    tabsLabel: "Solver",
+    library: "Biblioteka",
+    mine: "Moji nodelockovi",
+    search: "Traži po imenu, kartama ili liniji",
+    searchLabel: "Traži nodelockove",
+    allSpots: "Svi spotovi",
+    spotFilter: "Spot",
+    empty: "Još nema nodelockova.",
+    emptyLink: "Zaključaj odluku u biblioteci",
+    noMatch: "Nijedan nodelock ne odgovara.",
+    columns: {
+      name: "Ime",
+      spot: "Spot",
+      node: "Zaključani čvor",
+      preset: "Predložak",
+      date: "Datum",
+      status: "Stanje",
+      accuracy: "Točnost",
+      time: "Vrijeme",
+      engine: "Pokretač",
+    },
+    status: { draft: "Skica", solving: "Solva se", solved: "Solvano", failed: "Nije uspjelo", cancelled: "Prekinuto" } as Record<string, string>,
+    nodeAt: (position: string, street: string, path: string) => `${position} · ${street}${path ? ` · ${path}` : ""}`,
+    streets: { flop: "Flop", turn: "Turn", river: "River" } as Record<string, string>,
+    custom: "Vlastiti",
+    selectAll: "Odaberi sve",
+    select: (name: string) => `Odaberi ${name}`,
+    rename: "Preimenuj",
+    renameLabel: (name: string) => `Novo ime za ${name}`,
+    save: "Spremi",
+    duplicate: "Kopiraj i uredi",
+    delete: "Obriši",
+    deleteSelected: (count: number) => `Obriši ${n(count)} ${plural(count, "nodelock", "nodelocka", "nodelockova")}`,
+    deleteTitle: (count: number) => (count === 1 ? "Obrisati ovaj nodelock?" : `Obrisati ${n(count)} ${plural(count, "nodelock", "nodelocka", "nodelockova")}?`),
+    deleteBody: (count: number) =>
+      `${count === 1 ? "Lock i njegov solve brišu" : "Lockovi i njihovi solveovi brišu"} se s ovog računala. Ovo se ne može poništiti.`,
+    deleting: "Brišem…",
+    keep: "Zadrži",
+    loadError: "Nodelockovi se nisu mogli pročitati.",
+    openError: "Ovaj nodelock se nije mogao otvoriti.",
+    retry: "Pokušaj ponovno",
+    actions: (name: string) => `Akcije za ${name}`,
   },
 
   rngBox: {

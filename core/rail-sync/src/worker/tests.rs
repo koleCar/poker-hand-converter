@@ -65,6 +65,9 @@ struct Server {
     down: AtomicBool,
     /// (R3.9) `hud_layouts`.
     hud: Mutex<HudRows>,
+    /// Every request as it arrived: method, path and body (the nodelock
+    /// test reads them all).
+    requests: Mutex<Vec<String>>,
 }
 
 /// (R3.9) The server's `hud_layouts`: (user, kind, key) -> (body, updatedAt).
@@ -102,6 +105,10 @@ impl Server {
     }
 
     fn handle(&self, method: &str, path: &str, token: &str, body: &[u8]) -> (u16, String) {
+        self.requests.lock().unwrap().push(format!(
+            "{method} {path}\n{}",
+            String::from_utf8_lossy(body)
+        ));
         let Some(user) = Self::user_of(token) else {
             return (401, r#"{"code":"PGRST301","message":"JWT invalid"}"#.into());
         };
@@ -1585,4 +1592,133 @@ fn an_omaha_hand_from_the_web_is_told_apart_without_reading_it() {
     assert!(!is_omaha(&json!({"game": {"variant": "holdem"}})));
     assert!(!is_omaha(&json!({"game": {}})));
     assert!(!is_omaha(&json!("not a hand")));
+}
+
+/// (docs/NODELOCK.md §3) The user's nodelocks never leave this computer:
+/// with one saved - chunk and all - a full round of sync (the hands, the
+/// HUD's rows, a pull) sends nothing of it in any request, and leaves the
+/// row as it was.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn nodelocks_are_never_synced() {
+    use rail_store::{NodeLockRow, NodeLockStatus, NodeLockStreet};
+
+    const MARK: &str = "nodelock-never-synced-7f3a";
+    let server = Arc::new(Server::default());
+    let url = serve(Arc::clone(&server)).await;
+    let dir = scratch("nodelocks");
+    let store = Store::open(dir.join("rail.db")).unwrap();
+    import(&store, &stars_files()[..3]);
+    let writer = store.writer().unwrap();
+    writer
+        .save_hud_layout("d-0001", r#"{"version":1,"name":"Mine"}"#)
+        .unwrap();
+    writer
+        .save_node_lock(
+            NodeLockRow {
+                id: MARK.to_owned(),
+                name: format!("Tight BTN {MARK}"),
+                created_at: 0,
+                updated_at: 0,
+                set_id: format!("set-{MARK}"),
+                line: format!("line-{MARK}"),
+                flop: "AcTc6d".to_owned(),
+                turn: None,
+                river: None,
+                street: NodeLockStreet::Flop,
+                node_path: format!("node-{MARK}"),
+                lock_json: format!(r#"{{"version":1,"mark":"{MARK}"}}"#),
+                lock_hash: format!("hash-{MARK}"),
+                preset: Some(format!("preset-{MARK}")),
+                status: NodeLockStatus::Solved,
+                engine: Some("workers".to_owned()),
+                threads: Some(9),
+                iterations: Some(100),
+                exploitability_pct: Some(1.0),
+                seconds: Some(60.0),
+                peak_mb: Some(900.0),
+                summary_json: Some(format!(r#"{{"mark":"{MARK}"}}"#)),
+                result: Some(MARK.as_bytes().to_vec()),
+                result_size: None,
+            },
+            rail_store::time::now_ms(),
+        )
+        .unwrap();
+    drop(writer);
+    let before = store.reader().node_lock(MARK).unwrap().unwrap();
+    let rig = Rig::start(
+        Arc::clone(&server),
+        &url,
+        store,
+        dir,
+        FakeAccount::signed_in("a"),
+        SyncConfig {
+            pull_every: Duration::from_millis(150),
+            hud_pull_every: Duration::from_millis(150),
+            ..config()
+        },
+    );
+    rig.drained().await;
+    rig.until("the HUD row sent and a pull", |_| {
+        let pulled = server
+            .calls
+            .lock()
+            .unwrap()
+            .iter()
+            .any(|c| c.path.ends_with("/hands_since"));
+        server.hud.lock().unwrap().len() == 1
+            && rig.store().reader().hud_sync_dirty().unwrap().is_empty()
+            && pulled
+    })
+    .await;
+    let requests = server.requests.lock().unwrap().clone();
+    assert!(requests.len() >= 4, "{requests:?}");
+    for request in &requests {
+        assert!(!request.contains(MARK), "a nodelock was sent: {request}");
+        let lower = request.to_ascii_lowercase();
+        assert!(
+            !lower.contains("node_lock") && !lower.contains("nodelock"),
+            "a nodelock call: {request}"
+        );
+    }
+    let after = rig.store().reader().node_lock(MARK).unwrap().unwrap();
+    assert_eq!(after, before, "the row is as it was");
+    rig.stop().await;
+}
+
+/// (docs/NODELOCK.md §3) Nothing in this crate reads the nodelocks: no
+/// source file outside the tests names the table or its reads.
+#[test]
+fn no_sync_code_names_the_nodelocks() {
+    fn walk(dir: &Path, out: &mut Vec<PathBuf>) {
+        for entry in std::fs::read_dir(dir).unwrap() {
+            let path = entry.unwrap().path();
+            if path.is_dir() {
+                walk(&path, out);
+            } else if path.extension().is_some_and(|e| e == "rs")
+                && path.file_name().is_some_and(|n| n != "tests.rs")
+            {
+                out.push(path);
+            }
+        }
+    }
+    let mut files = Vec::new();
+    walk(
+        &Path::new(env!("CARGO_MANIFEST_DIR")).join("src"),
+        &mut files,
+    );
+    walk(
+        &Path::new(env!("CARGO_MANIFEST_DIR")).join("examples"),
+        &mut files,
+    );
+    assert!(files.len() > 10, "{files:?}");
+    for file in files {
+        let text = std::fs::read_to_string(&file).unwrap().to_ascii_lowercase();
+        for name in ["node_lock", "nodelock"] {
+            assert!(
+                !text.contains(name),
+                "{} names `{name}`: nodelocks are never synced",
+                file.display()
+            );
+        }
+    }
 }

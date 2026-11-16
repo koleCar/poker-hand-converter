@@ -147,9 +147,7 @@ choice) saves hands while they convert. The line under the progress shows how ma
 already in your library, and how many the server refused.
 
 - Saving the same files again adds nothing: duplicates are recognised.
-- **Also keep the original files** (off by default, on each visit) stores the
-  original files, compressed and private to your account. Off, only the
-  converted hands are saved.
+- Only the converted hands are saved; the original files never leave the tab.
 - Signed out, the converter keeps the finished run in the tab and offers
   **Sign in and save** (up to 20 000 hands; a bigger drop asks you to sign in
   and drop it again).

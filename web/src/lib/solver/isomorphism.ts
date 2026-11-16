@@ -247,3 +247,17 @@ export function symmetrize(range: ArrayLike<number>, group: readonly (readonly n
 export function cardOrbit(card: number, group: readonly (readonly number[])[]): number[] {
   return [...new Set(group.map((perm) => permuteCard(card, perm)))].sort((a, b) => a - b);
 }
+
+/**
+ * The permutations of `group` that `allowed` also holds (both groups, so the
+ * result is one); `group` itself when nothing restricts it.
+ */
+export function restrictSymmetries(
+  group: readonly (readonly number[])[],
+  allowed: readonly (readonly number[])[] | undefined,
+): number[][] {
+  if (!allowed) return group.map((perm) => perm.slice());
+  const keys = new Set(allowed.map((perm) => perm.join("")));
+  const kept = group.filter((perm) => keys.has(perm.join(""))).map((perm) => perm.slice());
+  return kept.length ? kept : [[0, 1, 2, 3]];
+}

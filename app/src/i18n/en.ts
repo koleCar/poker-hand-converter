@@ -25,6 +25,20 @@ import { countIn } from "./format";
 /** Counts in English digits ("1,204"), whatever the window's language. */
 const n = countIn("en");
 
+/** A share as a percentage, one decimal at most ("41.5%"). */
+function pct(share: number): string {
+  return `${n(Math.round(share * 1000) / 10)}%`;
+}
+
+/** Seconds as m:ss ("2:05"), or h:mm:ss. */
+function clock(seconds: number): string {
+  const s = Math.max(0, Math.round(seconds));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const ss = String(s % 60).padStart(2, "0");
+  return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${ss}` : `${m}:${ss}`;
+}
+
 /** "1 hand", "1,204 hands". */
 function hands(count: number): string {
   return count === 1 ? "1 hand" : `${n(count)} hands`;
@@ -1488,6 +1502,118 @@ export const en = {
       granted: "Accessibility permission granted: the HUD can see your tables.",
       noClient: "HUD on macOS: no supported poker client running.",
     },
+  },
+
+  /**
+   * The nodelock (`src/solver/nodelock/`, `docs/NODELOCK.md` §5): lock a
+   * player's strategy at a library decision and solve the rest against it,
+   * on this computer. The app only; the web has none.
+   */
+  nodelock: {
+    action: "Nodelock",
+    actionTitle: (position: string) => `Lock ${position}'s strategy here and solve the rest against it, on this computer`,
+    editorLabel: (position: string) => `Nodelock: ${position}'s strategy`,
+    close: "Close",
+    modesLabel: "Set strategy by",
+    modes: { hands: "Hands", range: "Range", classes: "Hand classes" },
+    viewsLabel: "The grid shows",
+    views: { range: "Range", classes: "Hand classes", combos: "Combos" },
+    undo: "Undo",
+    redo: "Redo",
+    reset: "Reset",
+    lockAll: "Lock all",
+    unlockAll: "Unlock all",
+    invert: "Invert locks",
+    hold: (action: string) => `Keep ${action} as it is`,
+    brush: "Paint with",
+    brushHint: "Click or drag over hands. Painted hands are locked; the others adapt.",
+    rangeHint: "Hands closest to indifference move first. The tick is GTO.",
+    classesHint: "Pick a class, then set how often it takes each action.",
+    classesNone: "No hands of this class reach the decision.",
+    made: "Made hands",
+    draws: "Draws",
+    frequency: (action: string) => `${action}, % of the range`,
+    current: "Current strategy",
+    locked: (locked: number, reaching: number) => `${n(locked)} of ${n(reaching)} combos locked`,
+    cellLabel: (hand: string, mix: string, locked: boolean) => `${hand}: ${mix}${locked ? ", locked" : ""}`,
+    lockBadge: "Locked",
+    toggleLock: (hand: string) => `Lock or unlock ${hand}`,
+    pickCell: "Pick a hand in the grid to see its combos.",
+    suggestions: "Suggestions",
+    earlierLabel: "Lock earlier nodes",
+    earlier: { none: "None", player: "This player's", all: "All" },
+    accuracyLabel: "Accuracy",
+    accuracy: { standard: "Standard 1%", quick: "Quick 2.5%" },
+    solve: "Solve on this computer",
+    engineLine: (threads: number, cores: number, memoryMb: number) =>
+      `Uses up to ${n(threads)} of ${n(cores)} cores and about ${memoryMb >= 1000 ? `${n(Math.round(memoryMb / 100) / 10)} GB` : `${n(Math.round(memoryMb / 10) * 10)} MB`}. Nothing leaves this computer.`,
+    noEngine: "This build of Rail cannot solve nodelocks yet.",
+    busy: "Another nodelock is solving. Wait for it, or cancel it.",
+    startError: "The solve could not start. Try again.",
+    nothingLocked: "Lock at least one hand first.",
+    progress: (iteration: number, accuracy: number | null, elapsedS: number, etaS: number | null) =>
+      `Iteration ${n(iteration)}${accuracy === null ? "" : ` · ${n(Math.round(accuracy * 100) / 100)}% of the pot`} · ${clock(elapsedS)}${etaS === null ? "" : ` · about ${clock(etaS)} left`}`,
+    starting: "Starting the solve…",
+    cancel: "Cancel",
+    solvingHere: "Solving on this computer. Keep studying; Rail tells you when it is ready.",
+    nodelocked: "Nodelocked",
+    backToGto: "Back to GTO",
+    editLock: "Edit lock",
+    compare: "Compare with GTO",
+    gto: "GTO",
+    shareDelta: (delta: number) => `${delta >= 0 ? "+" : "−"}${n(Math.round(Math.abs(delta) * 1000) / 10)} pp`,
+    shift: (label: string, gto: number, locked: number) => `${label} ${pct(gto)} → ${pct(locked)}`,
+    solvedTo: (accuracy: number, seconds: number, engine: string) => `${n(Math.round(accuracy * 100) / 100)}% of the pot · ${clock(seconds)} · ${engine}`,
+    engines: { native: "native engine", workers: "worker engine" } as Record<string, string>,
+    ready: (name: string) => `Nodelock ready: ${name}`,
+    failed: (name: string) => `Nodelock failed: ${name}`,
+    sidebarSolving: "Nodelock solving",
+    open: "Open",
+    dismiss: "Dismiss",
+    name: (who: string, board: string, ip: string, oop: string) => `${who} · ${board} · ${ip} vs ${oop}`,
+    copyName: (name: string) => `${name} (copy)`,
+    tabsLabel: "Solver",
+    library: "Library",
+    mine: "My nodelocks",
+    search: "Search by name, cards or line",
+    searchLabel: "Search nodelocks",
+    allSpots: "All spots",
+    spotFilter: "Spot",
+    empty: "No nodelocks yet.",
+    emptyLink: "Lock a decision in the library",
+    noMatch: "No nodelock matches.",
+    columns: {
+      name: "Name",
+      spot: "Spot",
+      node: "Locked node",
+      preset: "Preset",
+      date: "Date",
+      status: "Status",
+      accuracy: "Accuracy",
+      time: "Time",
+      engine: "Engine",
+    },
+    status: { draft: "Draft", solving: "Solving", solved: "Solved", failed: "Failed", cancelled: "Cancelled" } as Record<string, string>,
+    nodeAt: (position: string, street: string, path: string) => `${position} · ${street}${path ? ` · ${path}` : ""}`,
+    streets: { flop: "Flop", turn: "Turn", river: "River" } as Record<string, string>,
+    custom: "Custom",
+    selectAll: "Select all",
+    select: (name: string) => `Select ${name}`,
+    rename: "Rename",
+    renameLabel: (name: string) => `New name for ${name}`,
+    save: "Save",
+    duplicate: "Duplicate and edit",
+    delete: "Delete",
+    deleteSelected: (count: number) => `Delete ${count === 1 ? "1 nodelock" : `${n(count)} nodelocks`}`,
+    deleteTitle: (count: number) => (count === 1 ? "Delete this nodelock?" : `Delete ${n(count)} nodelocks?`),
+    deleteBody: (count: number) =>
+      `${count === 1 ? "Its lock and solve are" : "Their locks and solves are"} removed from this computer. This cannot be undone.`,
+    deleting: "Deleting…",
+    keep: "Keep",
+    loadError: "Nodelocks could not be read.",
+    openError: "This nodelock could not be opened.",
+    retry: "Try again",
+    actions: (name: string) => `Actions for ${name}`,
   },
 
   /** The HUD popup (R3.8): a click on a player's panel at the table. */

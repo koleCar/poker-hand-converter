@@ -70,7 +70,7 @@ async function upload(key: AccountKey, files: string[]): Promise<void> {
   await withPage(key, async (page) => {
     await open(page, '/convert');
     const save = page.locator('label.conv-switch', { hasText: 'Save to my library' }).locator('input');
-    await page.locator('.conv-drop input[type=file]').first().setInputFiles(files);
+    await page.locator('.upbox input[type=file]').first().setInputFiles(files);
     await page.waitForTimeout(1500);
     // Converting, then saving: wait for both to end.
     await page.waitForFunction(

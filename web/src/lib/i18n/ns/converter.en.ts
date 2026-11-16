@@ -14,18 +14,24 @@ const num = (value: number) => value.toLocaleString("en-GB");
 const hands = (count: number) => (count === 1 ? "hand" : "hands");
 
 export const converterEn = {
-  /** `upload/UploadTab` and `upload/SingleHandPanel`. */
+  /** `upload/UploadBox` and `upload/ReplayPanel`: the one box for a pasted hand or dropped files. */
   upload: {
-    or: "or",
-    pastePlaceholder: "Paste a hand here",
+    title: "Paste a hand, or drop your files",
+    hint: "Paste anywhere on the page · .txt, .zip or a whole export folder",
+    areaLabel: "Paste a hand history",
+    chooseFiles: "Choose files",
+    chooseFolder: "Choose a folder",
+    dropToConvert: "Drop to convert",
+    dropHint: "Files, zips and folders. Anything that is not a hand history is skipped.",
+    veil: "Drop anywhere to convert",
     reading: "Reading…",
-    replayIt: "Replay it",
-    chooseFile: "Choose a file",
-    notRecognised: "That is not a hand history we recognise.",
+    handCount: (count: number) => `${num(count)} ${hands(count)}`,
+    replay: "Replay",
+    convertAll: (count: number) => `Convert all ${num(count)}`,
+    clear: "Clear",
+    notRecognised: "Not a hand history we recognise",
     couldNotRead: "That could not be read.",
-    fileCouldNotRead: "That file could not be read.",
-    manyFound: (count: number) =>
-      `${num(count)} ${hands(count)} found — showing the first. Use the upload box below to convert them all.`,
+    rooms: (count: number) => `${num(count)} rooms`,
   },
 
   /** Saving one loaded hand, from the paste box or from the library viewer. */
@@ -36,15 +42,6 @@ export const converterEn = {
     failed: "Saving failed.",
     button: "Save to my library",
     saving: "Saving…",
-  },
-
-  /** `converter/DropZone`. */
-  drop: {
-    veil: "Drop anywhere to convert",
-    title: "Drop files or a whole export folder",
-    chooseFiles: "Choose files",
-    chooseFolder: "Choose a folder",
-    moreSites: (listed: string, more: number) => `${listed} and ${num(more)} more`,
   },
 
   /** `ConverterTab`: the batch controls, the progress card and its notices. */
@@ -78,8 +75,6 @@ export const converterEn = {
       "This browser would not start a background worker, so conversion ran on the page itself. Large files may have felt slow.",
     workerStopped: "The conversion worker stopped unexpectedly.",
     /** The Storage opt-in next to "Save to my library" (A2, R4.2). Off by default. */
-    keepOriginals: "Also keep the original files",
-    keepOriginalsHint: "Compressed, private to your account. Off: only the converted hands are saved.",
     /** Progress of a drop read as a stream (R4.2): `read` / `total` are formatted sizes. */
     progressBulk: (handsDone: number, files: number, read: string, total: string, percent: number) =>
       `${num(handsDone)} ${hands(handsDone)} converted · ${num(files)} ${files === 1 ? "file" : "files"} · ${read} of ${total} (${percent}%)`,
@@ -88,8 +83,6 @@ export const converterEn = {
       `${num(inserted)} saved to your library${duplicates ? ` · ${num(duplicates)} already there` : ""}${
         refused ? ` · ${num(refused)} refused` : ""
       }`,
-    originalsKept: (count: number, size: string) =>
-      `${num(count)} original ${count === 1 ? "file" : "files"} kept (${size})`,
     saveRetrying: (seconds: number) => `Connection trouble — trying again in ${num(seconds)} s.`,
     saveWaitingBudget: (time: string) =>
       `This account's upload budget is used up for a few minutes — continuing at ${time}.`,

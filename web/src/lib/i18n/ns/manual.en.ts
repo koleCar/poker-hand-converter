@@ -21,7 +21,6 @@ export const manualEn = {
   /** The settings bar above the table. */
   bar: {
     game: "Game",
-    players: "Players",
     stakes: (sb: string, bb: string) => `${sb}/${bb}`,
     effective: (amount: string) => `${amount} effective`,
   },
@@ -39,15 +38,19 @@ export const manualEn = {
       bet: (amount: string) => `Bet ${amount}`,
       raise: (amount: string) => `Raise ${amount}`,
     },
-    hint: "Click a player to enter their action, or the board to deal the cards.",
+    hint: "Click a player to enter their action, a name to rename it, or the board to deal the cards.",
     next: (position: string, name: string) => `Next: ${position ? `${position} ` : ""}${name}`,
     notTheirTurn: (name: string) => `It is ${name}'s turn.`,
     goToActor: "Go to the player to act",
     skipped: (list: string) => `Before them: ${list}`,
     startingStack: "Starting stack",
-    makeHero: "Hero",
-    makeButton: "Button here",
     handOver: "The hand is over. Pick the winners below if they are not decided, then replay or save it.",
+  },
+
+  /** The hero's position above the table, and renaming on the felt. */
+  hero: {
+    label: "You are",
+    rename: (name: string) => `Rename ${name}`,
   },
 
   nav: {
@@ -102,17 +105,8 @@ export const manualEn = {
   },
 
   players: {
-    heading: "Players and stacks",
-    effective: "Effective stack",
-    effectiveHint: "Hero against the deepest opponent.",
     setAll: "Every stack to",
     apply: "Apply",
-    seat: (seat: number) => `Seat ${seat}`,
-    taken: "Seat taken",
-    name: "Name",
-    stack: "Stack",
-    button: "Button",
-    hero: "Hero",
     cards: "Cards",
     unknown: "Unknown",
     setCards: "Set",

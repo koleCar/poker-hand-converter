@@ -24,17 +24,14 @@ export async function capture(browser: Browser): Promise<void> {
   page.setDefaultTimeout(60_000);
   await open(page, '/convert');
   await rec.shot(page, 'empty', {
-    privacy: page.getByText('Nothing is uploaded.'),
-    paste: '.single',
-    drop: '.conv-drop',
-    chooseFiles: page.locator('.conv-drop').getByRole('button', { name: 'Choose files' }),
-    chooseFolder: page.locator('.conv-drop').getByRole('button', { name: 'Choose a folder' }),
-    rooms: '.conv-drop__hint',
+    drop: '.upbox',
+    chooseFiles: page.locator('.upbox').getByRole('button', { name: 'Choose files' }),
+    chooseFolder: page.locator('.upbox').getByRole('button', { name: 'Choose a folder' }),
+    rooms: '.upload__rooms',
     save: page.locator('label.conv-switch', { hasText: 'Save to my library' }),
-    originals: page.locator('label.conv-switch', { hasText: 'Also keep the original files' }),
   });
 
-  await page.locator('.conv-drop input[type=file]').first().setInputFiles(drop);
+  await page.locator('.upbox input[type=file]').first().setInputFiles(drop);
   await page.locator('section.conv-results').waitFor();
   await page.waitForFunction(() => /saved to your library/.test(document.querySelector('section.conv-results')?.textContent ?? ''), undefined, {
     timeout: 120_000,
@@ -97,8 +94,9 @@ export async function capture(browser: Browser): Promise<void> {
     .split(/\r?\n\r?\n\r?\n/)
     .find((h) => h.includes('*** FLOP ***') && /RailDemo: (calls|raises|bets)/.test(h))!
     .trim();
-  await page.locator('textarea.single__area').fill(one);
-  await page.getByRole('button', { name: 'Replay it' }).click();
+  await page.getByRole('button', { name: 'Start over' }).click();
+  await page.locator('textarea.upbox__area').fill(one);
+  await page.getByRole('button', { name: /^Replay/ }).click();
   await page.locator('.rp').first().waitFor();
   await settle(page, 1500);
   await page.locator('.rp').first().scrollIntoViewIfNeeded();

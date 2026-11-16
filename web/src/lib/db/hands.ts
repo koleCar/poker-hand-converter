@@ -7,7 +7,7 @@ import { toStandardText } from "../phf/serialize";
 import type { PhfHand } from "../phf/types";
 import { currentUserId, isDatabaseConfigured, requireDb, requireUserId, rpc } from "./client";
 import { handInsertFromPhf, handKeyOf, toHandRecord, toHandSummary, type HandInsert } from "./mapping";
-import { handOfRow, storableText, type StoredHandRow } from "./storedHand";
+import { handOfRow, ingestPhfOf, storableText, type StoredHandRow } from "./storedHand";
 import type {
   HandFilterForm,
   HandFilters,
@@ -104,7 +104,9 @@ export async function saveHands(
   const seen = new Set<string>();
   const rows: HandInsert[] = [];
   for (const entry of hands) {
-    const { hand, standardText } = asInput(entry);
+    const { hand: converted, standardText } = asInput(entry);
+    // Stored without the room's original text, as the bulk save stores it.
+    const hand = ingestPhfOf(converted);
     const key = handKeyOf(hand);
     if (seen.has(key)) {
       result.duplicates += 1;

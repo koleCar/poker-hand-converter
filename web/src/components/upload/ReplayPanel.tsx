@@ -1,36 +1,24 @@
 /**
- * One hand in, one replay out.
+ * One pasted hand, replayed under the upload box.
  *
- * This used to live on the replayer tab, which put the app's most common single
- * action — "I copied a hand out of a forum thread, show me what happened" —
- * behind a tab named after the thing you do *after* uploading. It belongs on the
- * front door next to the batch converter, and the two are now modes of the same
- * tab.
- *
- * It runs the same detection and conversion the batch path uses (the
- * WebAssembly core, or the TypeScript parsers when it cannot load:
- * `lib/wasm/engine.ts`), so every registered parser works here. Only the first hand is loaded: paste a session
- * and the batch drop zone below is what you want, and the notice says so rather
- * than silently dropping the rest.
+ * The box (`UploadBox`) owns the text; this panel gets a request to replay it,
+ * runs the same detection and conversion the batch path uses (the WebAssembly
+ * core, or the TypeScript parsers when it cannot load: `lib/wasm/engine.ts`),
+ * and shows the first hand in the replayer, with Share and Save.
  */
 
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/auth";
 import { isDatabaseConfigured, rebuildStats, saveHand } from "../../lib/db";
-import { useDict, useLocale } from "../../lib/i18n/client";
-import { INTL_LOCALE } from "../../lib/i18n/dictionaries";
-import { paths } from "../../lib/routes";
+import { useDict } from "../../lib/i18n/client";
 import { getParser, toStandardText } from "../../lib/phf";
 import { conversionEngine } from "../../lib/wasm/engine";
 import type { PhfHand } from "../../lib/phf/types";
-import { describeProblem, FILE_ACCEPT, loadFile } from "../converter/inputs";
 import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
 import { ShareHandButton } from "../share/ShareHandButton";
 import { Icon } from "@rail/ui/icon/Icon";
-import { BusyLabel } from "../shell/BusyLabel";
 
 /** `standard` is our own re-import format, not a room, so it is not a label. */
 function siteLabel(id: string): string | null {
@@ -45,36 +33,38 @@ interface LoadedHand {
   storedId: string | null;
   /**
    * Parser the hand came from, for the header label. Saving does not need it:
-   * the hand carries its own site, source text and filename.
+   * the hand carries its own site and filename.
    */
   siteId: string;
 }
 
-interface SingleHandPanelProps {
+/** A text to replay; a new `id` replays it again. */
+export interface ReplayRequest {
+  id: number;
+  text: string;
+}
+
+interface ReplayPanelProps {
+  request: ReplayRequest | null;
   /** Lets the shell refresh its stored-hand counter after a save. */
   onSaved?: () => void;
 }
 
-export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
+export function ReplayPanel({ request, onSaved }: ReplayPanelProps) {
   const en = useDict();
   const t = en.converter.upload;
-  const locale = INTL_LOCALE[useLocale()];
   const auth = useAuth();
   const [loaded, setLoaded] = useState<LoadedHand | null>(null);
-  const [text, setText] = useState("");
-  const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
 
-  const loadFromText = useCallback(async (raw: string, fileName: string | null) => {
+  const loadFromText = useCallback(async (raw: string) => {
     setError(null);
     setNotice(null);
-    setBusy(true);
     try {
       const engine = await conversionEngine();
-      const result = await engine.convert(raw, { sourceFilename: fileName, validate: true });
+      const result = await engine.convert(raw, { validate: true });
       const [first] = result.hands;
       if (!first) {
         // Every parser writes a human-readable reason; the first one is the
@@ -90,20 +80,17 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
         storedId: null,
         siteId: first.meta.siteId,
       });
-      // The box has done its job; leaving eight rows of raw text above the
-      // table pushes the replayer off a phone screen entirely.
-      setText("");
-
-      if (result.hands.length > 1) {
-        setNotice(t.manyFound(result.hands.length));
-      }
     } catch (err) {
       setError(err instanceof Error ? err.message : t.couldNotRead);
       setLoaded(null);
-    } finally {
-      setBusy(false);
     }
   }, [t]);
+
+  useEffect(() => {
+    if (request) {
+      void loadFromText(request.text);
+    }
+  }, [request, loadFromText]);
 
   /** Set when save was pressed with no session, so the click survives the dialog. */
   const wantsSaveRef = useRef(false);
@@ -131,8 +118,8 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
     setError(null);
     try {
       // The canonical document goes to the database, not a re-parse of the text
-      // rendered from it: that round trip drops the original source text the
-      // hand carries and re-derives amounts through display floats.
+      // rendered from it: that round trip re-derives amounts through display
+      // floats.
       const result = await saveHand(loaded.hand, toStandardText(loaded.hand));
       setLoaded({ ...loaded, storedId: result.id });
       setNotice(result.duplicate ? en.converter.save.alreadySaved : en.converter.save.saved);
@@ -150,76 +137,8 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
 
   return (
     <>
-      <section className="card">
-        <div className="single">
-          <textarea
-            className="single__area"
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-            placeholder={t.pastePlaceholder}
-            rows={6}
-            spellCheck={false}
-            onKeyDown={(event) => {
-              if ((event.metaKey || event.ctrlKey) && event.key === "Enter" && text.trim()) {
-                event.preventDefault();
-                void loadFromText(text, null);
-              }
-            }}
-          />
-          <div className="single__actions">
-            <button
-              type="button"
-              className="btn btn--primary"
-              disabled={!text.trim() || busy}
-              onClick={() => void loadFromText(text, null)}
-            >
-              <BusyLabel busy={busy} busyLabel={t.reading}>
-                {t.replayIt}
-              </BusyLabel>
-            </button>
-            <button
-              type="button"
-              className="btn"
-              disabled={busy}
-              onClick={() => fileRef.current?.click()}
-            >
-              {t.chooseFile}
-            </button>
-            {/* No hand history at all? Build one by hand. */}
-            <Link href={paths.convertManual()} className="btn">
-              {en.manual.entry}
-            </Link>
-            <input
-              ref={fileRef}
-              type="file"
-              accept={FILE_ACCEPT}
-              hidden
-              onChange={async (event) => {
-                const file = event.target.files?.[0];
-                event.target.value = "";
-                if (!file) return;
-                setBusy(true);
-                // Shared with the batch path so this gets the same UTF-16 and
-                // Windows-1252 handling instead of `file.text()`, which would
-                // turn an 8-bit export into mojibake.
-                const [source] = await loadFile(file);
-                if (!source || source.problem) {
-                  setBusy(false);
-                  setNotice(null);
-                  setError(
-                    source?.problem ? describeProblem(source.problem, en.converter.problems, locale) : t.fileCouldNotRead,
-                  );
-                  return;
-                }
-                await loadFromText(source.text, file.name);
-              }}
-            />
-          </div>
-        </div>
-
-        {error ? <p className="notice notice--error">{error}</p> : null}
-        {notice ? <p className="notice notice--info">{notice}</p> : null}
-      </section>
+      {error ? <p className="notice notice--error">{error}</p> : null}
+      {notice ? <p className="notice notice--info">{notice}</p> : null}
 
       {loaded ? (
         <section className="card card--flush">

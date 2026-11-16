@@ -58,6 +58,7 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 17 | `0017_tournament_settings.sql` | (R5.5) `tournament_settings` (the user's payouts, field and players left per tournament, local only) and `hand_stats_tournament_idx` (a tournament's hands, for sending them back to the analysis when its settings change); empty, nothing to rebuild |
 | 20 | `0020_leak_row_table.sql` | no schema change: a flop, turn or river `analysis_leak_rows.chart_set` is now its hand's table (the web's `analysis_hand_table_set`, 20271102090000); **filled in the migration's transaction** for the rows stored before (`table_set::fill_leak_table_sets`: SQL cannot read the compressed PHF; one read of each hand with a postflop row and no set), rows whose hand no set answers keep `''`; nothing re-analysed |
 | 22 | `0022_hud_settings.sql` | (T3) `hud_settings`: the user's table tiling and RNG settings (one JSON object per kind and key, synced like the designs); empty, nothing to rebuild |
+| 24 | `0024_node_locks.sql` | (docs/NODELOCK.md §3) `node_locks` and its indexes `node_locks_updated`, `node_locks_spot`: the user's nodelocks, solved on this computer, **never synced**; empty, nothing to rebuild |
 
 No migration is reserved for a later step today; each lands as the next
 free number.
@@ -1163,3 +1164,46 @@ runner grades them again with the new settings.
 | `Reader::chart_played(query)`, `chart_examples(query, key, class, action, limit)` | the own charts' comparison over `chart_decisions` (`preflop_chart_played` / `_examples`' rules: a period counted back from the last decision; the chart's format, table and stack range) |
 | `Reader::top_leaks(version, filters, period)` (`rail_store::leaks`) | the top three's sums over `analysis_leak_rows` (the web's `analysis_top_leaks`): per spot key and chart set the decisions, those worse than Perfect, the mistakes, the EV lost and the score's sum and sum of squares - a postflop spot also per pot (`pot`: `3bp`, `4bp`, the web's `analysis_leaks`) - for the period (`30d` or `all`), the last 30 days of play and the 30 before (UTC days back from the last graded hand); filters: format, the hero's seat, pot type |
 | `Reader::leak_examples(version, filters, days, keys, scope, limit)` | the decisions behind one leak (`analysis_leak_examples`): worse than Perfect at any of its spot keys (at most 200), on its table and pot (`LeakScope`: `hu` / `9max` / `other`, `3bp` / `4bp` / `other`; none: every one), costliest first, at most 30, with the hand's stakes and cards |
+
+## Nodelocks (version 24, docs/NODELOCK.md §3)
+
+The user's nodelocks: a lock on a Solver-library spot, solved on this
+computer (the app's worker or native engine) and **kept here only**.
+`rail-sync` reads none of it and nothing marks a row dirty (its tests,
+`nodelocks_are_never_synced` and `no_sync_code_names_the_nodelocks`, say
+so).
+
+### `node_locks`
+
+| Column | Type | |
+| --- | --- | --- |
+| `id` | TEXT | PK; a uuid v4 (the app makes it) |
+| `name` | TEXT | "Tight BTN · A♣T♣6♦ · BTN vs BB"; the user can rename it (1 - 200 characters, trimmed, checked by the writer) |
+| `created_at`, `updated_at` | INTEGER | ms; `created_at` is the first save's, `updated_at` the last save's or rename's |
+| `set_id`, `line`, `flop` | TEXT | the spot (`node_locks_spot`) |
+| `turn`, `river` | TEXT NULL | the later cards of a turn or river lock |
+| `street` | TEXT | `flop`, `turn` or `river` (checked) |
+| `node_path` | TEXT | the first locked node, for the list |
+| `lock_json` | TEXT | the web's `LockSet` as JSON (an object, at most 8 MiB, checked by the writer; not read here) |
+| `lock_hash` | TEXT | `lockHash(lock)` |
+| `preset` | TEXT NULL | the suggestion it started from |
+| `status` | TEXT | `draft`, `solving`, `solved`, `failed` or `cancelled` (checked) |
+| `engine`, `threads`, `iterations`, `exploitability_pct`, `seconds`, `peak_mb` | TEXT / INTEGER / REAL NULL | how the solve ran |
+| `summary_json` | TEXT NULL | the list's headline numbers (JSON; not read here) |
+| `result` | BLOB NULL | the locked solve's chunk (~100 KB; at most 64 MiB) |
+
+Index `node_locks_updated` (`updated_at` DESC) for the history, and
+`node_locks_spot` (`set_id`, `line`, `flop`) for one spot's.
+
+A row still `solving` when the store opens was cut off by the app's last
+exit: `Store::open` makes it `cancelled` (`node_locks::cancel_solving`,
+`updated_at` kept).
+
+| Call | What |
+| --- | --- |
+| `Reader::node_locks(spot)` | the history, newest change first, without `result` (its size as `result_size`); `spot` (`set_id`, `line`, `flop`) keeps one spot's |
+| `Reader::node_lock(id)` | one row with its chunk |
+| `WriterHandle::save_node_lock(row, now)` | insert or replace the whole row, `result` included (none clears it); keeps the first `created_at` |
+| `WriterHandle::rename_node_lock(id, name, now)` | the name; `updated_at` = now |
+| `WriterHandle::delete_node_locks(ids)` | many in one transaction; unknown ids skipped |
+

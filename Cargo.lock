@@ -3735,6 +3735,7 @@ dependencies = [
  "rail-core",
  "rail-hud",
  "rail-hud-ipc",
+ "rail-solver",
  "rail-stats",
  "rail-store",
  "rail-sync",
@@ -3859,6 +3860,16 @@ dependencies = [
  "serde_json",
  "softbuffer",
  "winit",
+]
+
+[[package]]
+name = "rail-solver"
+version = "0.0.0"
+dependencies = [
+ "rail-core",
+ "rayon",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

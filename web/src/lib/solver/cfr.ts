@@ -58,6 +58,23 @@
  * **Deterministic.** Same game, same parameters, same iteration count - same
  * bits. Nothing here reads a clock or a random source, and the summation order
  * is fixed by the input order.
+ *
+ * **Frozen nodes (nodelock, `docs/NODELOCK.md` §2.1).** `freeze(node,
+ * strategy, mask)` fixes the strategy of the masked hands at a node: they play
+ * it, their regrets are never updated, and their average strategy is it. The
+ * other hands of the node regret-match as before. A best response inside
+ * `exploitability()` plays the frozen hands as frozen too (the locked game's
+ * own exploitability, which goes to zero); `bestResponse()` and
+ * `exploitability({ unconstrained: true })` let the frozen player deviate.
+ *
+ * **Split traversals (§2.2).** `setUnits` names the chance nodes whose
+ * children this solver does not walk itself (the turn deals of a flop game).
+ * A traversal is then three steps: `splitDown` walks the part above them and
+ * returns each one's opponent reach; another solver (`unitWalk`, usually one
+ * per worker, each over its own turn cards) walks the subtrees; `splitUp`
+ * walks the top part again with their values. Every number is the one the
+ * plain walk computes, added in the same order: the split solve is
+ * bit-identical to the sequential one (`split.ts`).
  */
 
 import type { Game } from "./game";
@@ -175,6 +192,36 @@ const MODE_CFR = 0;
 const MODE_BEST = 1;
 const MODE_EVAL = 2;
 
+/** One traversal of a split solve (`Solver.splitDown`, `unitWalk`): what it computes. */
+export type TraversalKind = "cfr" | "best" | "eval";
+
+/** The state a split traversal runs with, the same on the top part and in every unit walker. */
+export interface TraversalState {
+  kind: TraversalKind;
+  /** The traverser. */
+  player: 0 | 1;
+  /** The DCFR iteration (`"cfr"`). */
+  iteration: number;
+  /** `"best"`: frozen hands play their frozen strategy (the locked game's best response). */
+  bestFrozen: boolean;
+}
+
+/** The unit walkers' answer for one traversal: per walked (unit, edge), the traverser's values. */
+export interface UnitValues {
+  /** Unit ordinal (`setUnits` order) of each entry. */
+  units: Int32Array;
+  /** Edge index within the unit's chance node. */
+  edges: Int32Array;
+  /** `entries x hands` of the traverser, entry k at `k * n`. */
+  values: Float64Array;
+}
+
+/** A frozen node: the fixed `[action][hand]` strategy and which hands it holds for. */
+interface Frozen {
+  strategy: Float64Array;
+  mask: Uint8Array;
+}
+
 export class Solver {
   readonly game: Game;
   readonly params: DcfrParams;
@@ -223,7 +270,9 @@ export class Solver {
   /** `Σ_i Σ_j w0[i] w1[j] [compatible]`: the probability mass of all deals. */
   readonly normalizer: number;
   /** Sum of both players' payoffs if it is the same at every terminal (no rake), else NaN. */
-  private readonly constantSum: number;
+  private constantSum: number;
+  /** `constantSum` of this game's own terminals; null when it has none. */
+  private readonly ownSum: number | null;
 
   /** Per showdown board, per player: cards and same-combo index in strength order. */
   private readonly sorted: {
@@ -261,6 +310,19 @@ export class Solver {
   private dPos = 0;
   private dNeg = 0;
   private wStrat = 1;
+
+  /** Per node: index into `frozenList`, -1 when not frozen; null until the first `freeze`. */
+  private frozenAt: Int32Array | null = null;
+  private frozenList: Frozen[] = [];
+  /** `MODE_BEST` plays frozen hands as frozen (the locked game's best response). */
+  private bestFrozen = false;
+
+  /** Split solves: per node, the unit ordinal of a chance node the walk leaves to others, else -1. */
+  private unitOf: Int32Array | null = null;
+  private unitNodes: Int32Array = new Int32Array(0);
+  private collected: (Float64Array | null)[] = [];
+  /** `splitUp`: where each unit's values come from. */
+  private unitSource: ((unit: number, edge: number) => Float64Array | undefined) | null = null;
 
   constructor(game: Game, params: Partial<DcfrParams> = {}, config: SolverConfig = {}) {
     this.game = game;
@@ -333,7 +395,8 @@ export class Solver {
       norm += game.hands[0].weight[i] * this.rootOut[i];
     }
     this.normalizer = norm;
-    this.constantSum = constantSum(tree);
+    this.ownSum = constantSum(tree);
+    this.constantSum = this.ownSum ?? NaN;
 
     // Chance sampling strata.
     this.groups = Math.max(1, Math.min(16, Math.floor(config.sampling?.groups ?? 1)));
@@ -391,15 +454,11 @@ export class Solver {
 
   /** Runs `count` DCFR iterations (each updates both players once). */
   iterate(count = 1): void {
-    const { alpha, beta, gamma } = this.params;
     const tree = this.tree;
+    if (this.unitOf) throw new Error("a split solver iterates through split.ts");
     for (let k = 0; k < count; k += 1) {
       const t = ++this.iterations;
-      const pa = Math.pow(t - 1, alpha);
-      const pb = Math.pow(t - 1, beta);
-      this.dPos = pa / (pa + 1);
-      this.dNeg = pb / (pb + 1);
-      this.wStrat = Math.pow(t, gamma);
+      this.setIteration(t);
       this.mode = MODE_CFR;
       this.sampling = this.groups > 1 && t <= this.sampleUntil;
       if (this.sampling) {
@@ -458,9 +517,20 @@ export class Solver {
     };
   }
 
-  /** Best response and profile values for the current average strategy. */
-  exploitability(): Exploitability {
-    const br: [number, number] = [this.rootValue(0, MODE_BEST), this.rootValue(1, MODE_BEST)];
+  /**
+   * Best response and profile values for the current average strategy. With
+   * frozen nodes the best response plays the frozen hands as frozen - the
+   * locked game's exploitability, the number a nodelock solve stops on -
+   * unless `unconstrained`.
+   */
+  exploitability(options: { unconstrained?: boolean } = {}): Exploitability {
+    this.bestFrozen = this.frozenList.length > 0 && !options.unconstrained;
+    let br: [number, number];
+    try {
+      br = [this.rootValue(0, MODE_BEST), this.rootValue(1, MODE_BEST)];
+    } finally {
+      this.bestFrozen = false;
+    }
     let value: [number, number];
     if (Number.isNaN(this.constantSum)) {
       value = [this.rootValue(0, MODE_EVAL), this.rootValue(1, MODE_EVAL)];
@@ -469,16 +539,339 @@ export class Solver {
       const v0 = this.rootValue(0, MODE_EVAL);
       value = [v0, this.constantSum - v0];
     }
-    const nashConv = br[0] - value[0] + (br[1] - value[1]);
-    const exploitability = nashConv / 2;
-    return {
-      bestResponse: br,
-      value,
-      nashConv,
-      exploitability,
-      percentPot: (100 * exploitability) / this.game.pot,
-      mbb: (1000 * exploitability) / (this.game.bigBlind ?? 1),
-    };
+    return exploitabilityOf(br, value, this.game.pot, this.game.bigBlind ?? 1);
+  }
+
+  /** The constant sum of this game's own terminals (NaN: not constant; null: it has none), for `combineConstantSums`. */
+  get valueSum(): number | null {
+    return this.ownSum;
+  }
+
+  /** The game's constant sum used for values (NaN: two evaluation passes). */
+  get totalSum(): number {
+    return this.constantSum;
+  }
+
+  /**
+   * A split solve's top part holds only the top terminals: it takes the whole
+   * game's constant sum from the unit walkers (`combineConstantSums`).
+   */
+  setValueSum(sum: number): void {
+    this.constantSum = sum;
+  }
+
+  /* ---------------------------------------------------------- freezing - */
+
+  /**
+   * Freezes the masked hands of `node` at `strategy` (`[action][hand]`, the
+   * acting player's hands): they play it, their regrets stop, their average
+   * is it. A row that does not sum to a positive number leaves its hand free.
+   * `mask` defaults to every hand. Freezing a node again replaces its freeze.
+   */
+  freeze(node: number, strategy: ArrayLike<number>, mask?: ArrayLike<number>): void {
+    const tree = this.tree;
+    if (tree.type[node] !== ACTION) {
+      throw new Error(`node ${node} is not an action node`);
+    }
+    const count = tree.childCount[node];
+    const size = this.n[tree.player[node]];
+    if (strategy.length !== count * size || (mask && mask.length !== size)) {
+      throw new Error(`freeze at node ${node}: expected ${count} x ${size} strategy and ${size} flags`);
+    }
+    const fixed = new Float64Array(count * size);
+    const held = new Uint8Array(size);
+    for (let i = 0; i < size; i += 1) {
+      if (mask && !mask[i]) continue;
+      let sum = 0;
+      for (let a = 0; a < count; a += 1) sum += Math.max(0, strategy[a * size + i]);
+      if (!(sum > 0) || !Number.isFinite(sum)) continue;
+      held[i] = 1;
+      for (let a = 0; a < count; a += 1) fixed[a * size + i] = Math.max(0, strategy[a * size + i]) / sum;
+    }
+    this.frozenAt ??= new Int32Array(tree.size).fill(-1);
+    const at = this.frozenAt[node];
+    if (at >= 0) {
+      this.frozenList[at] = { strategy: fixed, mask: held };
+    } else {
+      this.frozenAt[node] = this.frozenList.length;
+      this.frozenList.push({ strategy: fixed, mask: held });
+    }
+    // The reuse cache may hold this node's unfrozen strategy.
+    this.currentStamp.fill(-2);
+  }
+
+  /** Lifts every freeze. */
+  unfreezeAll(): void {
+    this.frozenAt = null;
+    this.frozenList = [];
+    this.currentStamp.fill(-2);
+  }
+
+  /** Nodes frozen now. */
+  get frozenNodes(): number[] {
+    const out: number[] = [];
+    if (!this.frozenAt) return out;
+    for (let node = 0; node < this.frozenAt.length; node += 1) {
+      if (this.frozenAt[node] >= 0) out.push(node);
+    }
+    return out;
+  }
+
+  /**
+   * A warm start (nodelock): keeps the regrets, drops the average strategy
+   * and goes on from `iteration`, so the average is built from here on only.
+   * Not 0: the first iteration's discount (`0^α`) would wipe the regrets too.
+   */
+  restartAverage(iteration: number): void {
+    this.strategySum.fill(0);
+    this.sums16.fill(0);
+    this.sumScale.fill(0);
+    this.currentStamp.fill(-2);
+    this.iterations = Math.max(1, Math.floor(iteration));
+  }
+
+  /** Puts the frozen rows of `node` (if any) into `strat` (`[action][hand]`, `size` hands). */
+  private applyFrozen(node: number, size: number, strat: Float64Array): void {
+    const at = this.frozenAt === null ? -1 : this.frozenAt[node];
+    if (at < 0) return;
+    const { strategy, mask } = this.frozenList[at];
+    const count = this.tree.childCount[node];
+    for (let i = 0; i < size; i += 1) {
+      if (!mask[i]) continue;
+      for (let a = 0; a < count; a += 1) strat[a * size + i] = strategy[a * size + i];
+    }
+  }
+
+  /** The frozen hands' mask at `node`, or null. */
+  private frozenMask(node: number): Uint8Array | null {
+    const at = this.frozenAt === null ? -1 : this.frozenAt[node];
+    return at < 0 ? null : this.frozenList[at].mask;
+  }
+
+  /** `MODE_BEST` with frozen play: a frozen hand's value is its frozen mix, not its best action. */
+  private bestFrozenValues(node: number, count: number, n: number, cfv: Float64Array, out: Float64Array, oOff: number): void {
+    const at = this.frozenAt === null ? -1 : this.frozenAt[node];
+    if (at < 0) return;
+    const { strategy, mask } = this.frozenList[at];
+    for (let i = 0; i < n; i += 1) {
+      if (!mask[i]) continue;
+      let v = strategy[i] * cfv[i];
+      for (let a = 1; a < count; a += 1) v += strategy[a * n + i] * cfv[a * n + i];
+      out[oOff + i] = v;
+    }
+  }
+
+  /* ----------------------------------------------------- split solves - */
+
+  /**
+   * Names the chance nodes whose children this solver leaves to unit walkers
+   * (`splitDown` / `splitUp`); their order is the units' ordinals. Walkers
+   * name the same nodes of their own games in the same order.
+   */
+  setUnits(chanceNodes: readonly number[]): void {
+    const tree = this.tree;
+    const unitOf = new Int32Array(tree.size).fill(-1);
+    chanceNodes.forEach((node, k) => {
+      if (tree.type[node] !== CHANCE) throw new Error(`node ${node} is not a chance node`);
+      unitOf[node] = k;
+    });
+    this.unitOf = unitOf;
+    this.unitNodes = Int32Array.from(chanceNodes);
+  }
+
+  /** Units named by `setUnits`. */
+  get unitCount(): number {
+    return this.unitNodes.length;
+  }
+
+  /** Starts a split iteration (what `iterate` does before its two traversals); returns its number. */
+  beginIteration(): number {
+    if (this.groups > 1) throw new Error("a split solve does not sample chance");
+    this.setIteration(this.iterations + 1);
+    this.iterations += 1;
+    return this.iterations;
+  }
+
+  /**
+   * Split traversal, step 1 (the top part): sets the traversal up as `state`
+   * says and walks down to the units. Returns each unit's opponent reach as
+   * it arrives at the chance node, null where the walk never gets there.
+   */
+  splitDown(state: TraversalState): (Float64Array | null)[] {
+    if (!this.unitOf) throw new Error("splitDown needs setUnits");
+    this.setTraversal(state);
+    this.collected = new Array(this.unitNodes.length).fill(null);
+    try {
+      this.collect(this.tree.root, 0, this.game.hands[1 - state.player].weight, 0);
+    } finally {
+      this.bestFrozen = false;
+    }
+    const out = this.collected;
+    this.collected = [];
+    return out;
+  }
+
+  /**
+   * Split traversal, step 3: the top part's walk with each unit's values read
+   * from `values` (the walkers' answers, `unitValuesSource`). Regrets, sums
+   * and recorded EVs update as in the plain walk. Returns the traverser's
+   * root value, normalised as `value()` is.
+   */
+  splitUp(state: TraversalState, values: (unit: number, edge: number) => Float64Array | undefined): number {
+    this.setTraversal(state);
+    this.unitSource = values;
+    try {
+      this.walk(this.tree.root, 0, this.game.hands[1 - state.player].weight, 0, this.rootOut, 0);
+    } finally {
+      this.unitSource = null;
+      this.bestFrozen = false;
+    }
+    const p = state.player;
+    const w = this.game.hands[p].weight;
+    let sum = 0;
+    for (let i = 0; i < this.n[p]; i += 1) {
+      sum += w[i] * this.rootOut[i];
+    }
+    return sum / this.normalizer;
+  }
+
+  /**
+   * A unit walker's share of a split traversal: for each unit with reach,
+   * walks the edges this game holds (a partial game's other edges lead to an
+   * empty chance node, `isPlaceholder`) exactly as the plain walk would, and
+   * packs the traverser's values.
+   */
+  unitWalk(state: TraversalState, reach: readonly (Float64Array | null)[]): UnitValues {
+    if (!this.unitOf) throw new Error("unitWalk needs setUnits");
+    this.setTraversal(state);
+    const tree = this.tree;
+    const p = state.player;
+    const n = this.n[p];
+    const m = this.n[1 - p];
+    const theirs = this.game.hands[1 - p];
+    const oc1 = theirs.c1;
+    const oc2 = theirs.c2;
+    const units: number[] = [];
+    const edges: number[] = [];
+    const chunks: Float64Array[] = [];
+    // Depth 0's slabs are the root's, and the root is never walked here.
+    const childReach = this.reachBuf[0];
+    const cfv = this.cfvBuf[0];
+    try {
+      for (let u = 0; u < this.unitNodes.length; u += 1) {
+        const r = reach[u];
+        if (!r) continue;
+        const node = this.unitNodes[u];
+        const start = tree.childStart[node];
+        const end = start + tree.childCount[node];
+        for (let e = start; e < end; e += 1) {
+          const child = tree.children[e];
+          if (isPlaceholder(tree, child)) continue;
+          const card = tree.edgeCard[e];
+          let any = 0;
+          for (let j = 0; j < m; j += 1) {
+            const v = oc1[j] === card || oc2[j] === card ? 0 : r[j];
+            childReach[j] = v;
+            any += v;
+          }
+          if (any === 0) continue;
+          this.walk(child, 1, childReach, 0, cfv, 0);
+          units.push(u);
+          edges.push(e - start);
+          chunks.push(Float64Array.from(cfv.subarray(0, n)));
+        }
+      }
+    } finally {
+      this.bestFrozen = false;
+    }
+    const values = new Float64Array(chunks.length * n);
+    chunks.forEach((chunk, k) => values.set(chunk, k * n));
+    return { units: Int32Array.from(units), edges: Int32Array.from(edges), values };
+  }
+
+  /** Sets mode, traverser and the iteration's discounts for a split traversal. */
+  private setTraversal(state: TraversalState): void {
+    this.trav = state.player;
+    this.mode = state.kind === "cfr" ? MODE_CFR : state.kind === "best" ? MODE_BEST : MODE_EVAL;
+    this.bestFrozen = state.kind === "best" && state.bestFrozen;
+    this.sampling = false;
+    if (state.kind === "cfr") {
+      this.setIteration(state.iteration);
+      this.stamp = 2 * state.iteration + state.player;
+    }
+  }
+
+  /** The discounts and strategy weight of iteration `t` (`iterate`). */
+  private setIteration(t: number): void {
+    const { alpha, beta, gamma } = this.params;
+    const pa = Math.pow(t - 1, alpha);
+    const pb = Math.pow(t - 1, beta);
+    this.dPos = pa / (pa + 1);
+    this.dNeg = pb / (pb + 1);
+    this.wStrat = Math.pow(t, gamma);
+  }
+
+  /**
+   * `splitDown`'s walk: the opponent's reach down to the units, as the plain
+   * walk computes it, and nothing else - no values, no regrets, no sums.
+   */
+  private collect(node: number, depth: number, reach: Float64Array, rOff: number): void {
+    const tree = this.tree;
+    const type = tree.type[node];
+    if (type === FOLD || type === SHOWDOWN) return;
+    const p = this.trav;
+    const m = this.n[1 - p];
+    const start = tree.childStart[node];
+    const count = tree.childCount[node];
+    if (type === CHANCE) {
+      const unit = (this.unitOf as Int32Array)[node];
+      if (unit >= 0) {
+        this.collected[unit] = Float64Array.from(reach.subarray(rOff, rOff + m));
+        return;
+      }
+      const theirs = this.game.hands[1 - p];
+      const childReach = this.reachBuf[depth];
+      for (let e = start; e < start + count; e += 1) {
+        const card = tree.edgeCard[e];
+        let any = 0;
+        for (let j = 0; j < m; j += 1) {
+          const v = theirs.c1[j] === card || theirs.c2[j] === card ? 0 : reach[rOff + j];
+          childReach[j] = v;
+          any += v;
+        }
+        if (any !== 0) this.collect(tree.children[e], depth + 1, childReach, 0);
+      }
+      return;
+    }
+    if (tree.player[node] === p) {
+      for (let a = 0; a < count; a += 1) {
+        this.collect(tree.children[start + a], depth + 1, reach, rOff);
+      }
+      return;
+    }
+    const off = this.offset[node];
+    const strat = this.stratBuf[depth];
+    if (this.mode === MODE_CFR) {
+      if (this.compact) this.regretMatch16(off, count, m, strat);
+      else this.regretMatch(off, count, m, strat);
+    } else if (this.compact) {
+      this.average16(off, count, m, strat);
+    } else {
+      this.average(off, count, m, strat);
+    }
+    this.applyFrozen(node, m, strat);
+    const childReach = this.reachBuf[depth];
+    for (let a = 0; a < count; a += 1) {
+      const base = a * m;
+      let any = 0;
+      for (let j = 0; j < m; j += 1) {
+        const v = reach[rOff + j] * strat[base + j];
+        childReach[base + j] = v;
+        any += v;
+      }
+      if (any === 0) continue;
+      this.collect(tree.children[start + a], depth + 1, childReach, base);
+    }
   }
 
   /**
@@ -491,6 +884,26 @@ export class Solver {
    * actions' EVs for the same hand is what EV loss is.
    */
   evaluate(record?: (node: number) => boolean): { value: [number, number]; rootEv: [Float64Array, Float64Array] } {
+    this.beginEvaluate(record);
+    const value: [number, number] = [0, 0];
+    const rootEv: [Float64Array, Float64Array] = [new Float64Array(0), new Float64Array(0)];
+    try {
+      for (let p = 0; p < 2; p += 1) {
+        value[p] = this.rootValue(p, MODE_EVAL);
+        rootEv[p] = this.rootEvOf(p as 0 | 1);
+      }
+    } finally {
+      this.endEvaluate();
+    }
+    return { value, rootEv };
+  }
+
+  /**
+   * `evaluate` in pieces, for a split solve (`split.ts`): `beginEvaluate`,
+   * then per player an `"eval"` traversal followed at once by `rootEvOf`,
+   * then `endEvaluate`.
+   */
+  beginEvaluate(record?: (node: number) => boolean): void {
     const tree = this.tree;
     const evOffset = new Int32Array(tree.size).fill(-1);
     let total = 0;
@@ -503,22 +916,22 @@ export class Solver {
     this.evOffset = evOffset;
     this.ev = new Float32Array(total);
     this.recordEv = true;
-    const value: [number, number] = [0, 0];
-    const rootEv: [Float64Array, Float64Array] = [new Float64Array(this.n[0]), new Float64Array(this.n[1])];
-    try {
-      for (let p = 0; p < 2; p += 1) {
-        value[p] = this.rootValue(p, MODE_EVAL);
-        this.trav = p;
-        const cfv = Float64Array.from(this.rootOut.subarray(0, this.n[p]));
-        this.compat(this.game.hands[1 - p].weight, 0, this.normBuf, 0, 1);
-        for (let i = 0; i < this.n[p]; i += 1) {
-          rootEv[p][i] = this.normBuf[i] > 0 ? cfv[i] / this.normBuf[i] : 0;
-        }
-      }
-    } finally {
-      this.recordEv = false;
+  }
+
+  /** Player p's EV per hand at the root, from the traversal for p that just ran. */
+  rootEvOf(p: 0 | 1): Float64Array {
+    this.trav = p;
+    const cfv = Float64Array.from(this.rootOut.subarray(0, this.n[p]));
+    this.compat(this.game.hands[1 - p].weight, 0, this.normBuf, 0, 1);
+    const out = new Float64Array(this.n[p]);
+    for (let i = 0; i < this.n[p]; i += 1) {
+      out[i] = this.normBuf[i] > 0 ? cfv[i] / this.normBuf[i] : 0;
     }
-    return { value, rootEv };
+    return out;
+  }
+
+  endEvaluate(): void {
+    this.recordEv = false;
   }
 
   /** Average strategy at an action node as `[action][hand]`, rows summing to 1. */
@@ -535,6 +948,7 @@ export class Solver {
     } else {
       this.average(this.offset[node], count, size, strat);
     }
+    this.applyFrozen(node, size, strat);
     return Float32Array.from(strat.subarray(0, count * size));
   }
 
@@ -610,6 +1024,7 @@ export class Solver {
 
   /** Root value for player `p` in `mode`, normalised to an expectation over deals. */
   private rootValue(p: number, mode: number): number {
+    if (this.unitOf) throw new Error("a split solver walks through split.ts");
     this.trav = p;
     this.mode = mode;
     this.walk(this.tree.root, 0, this.game.hands[1 - p].weight, 0, this.rootOut, 0);
@@ -678,6 +1093,9 @@ export class Solver {
           }
           out[oOff + i] = best;
         }
+        if (this.bestFrozen) {
+          this.bestFrozenValues(node, count, n, cfv, out, oOff);
+        }
         return;
       }
       if (mode === MODE_CFR) {
@@ -690,9 +1108,11 @@ export class Solver {
           }
         } else {
           this.regretMatch(off, count, n, strat);
+          this.applyFrozen(node, n, strat);
         }
       } else {
         this.average(off, count, n, strat);
+        this.applyFrozen(node, n, strat);
       }
       for (let i = 0; i < n; i += 1) {
         out[oOff + i] = strat[i] * cfv[i];
@@ -707,9 +1127,19 @@ export class Solver {
         const regrets = this.regrets;
         const dPos = this.dPos;
         const dNeg = this.dNeg;
+        const frozen = this.frozenMask(node);
         for (let a = 0; a < count; a += 1) {
           const base = a * n;
           const r0 = off + base;
+          if (frozen) {
+            // A frozen hand's regrets never move.
+            for (let i = 0; i < n; i += 1) {
+              if (frozen[i]) continue;
+              const r = regrets[r0 + i];
+              regrets[r0 + i] = (r > 0 ? r * dPos : r * dNeg) + cfv[base + i] - out[oOff + i];
+            }
+            continue;
+          }
           for (let i = 0; i < n; i += 1) {
             const r = regrets[r0 + i];
             regrets[r0 + i] = (r > 0 ? r * dPos : r * dNeg) + cfv[base + i] - out[oOff + i];
@@ -733,6 +1163,7 @@ export class Solver {
     // Opponent's node.
     if (mode === MODE_CFR) {
       this.regretMatch(off, count, m, strat);
+      this.applyFrozen(node, m, strat);
       // Kept for this player's own next traversal (see above).
       const current = this.current;
       for (let k = 0; k < count * m; k += 1) {
@@ -750,6 +1181,7 @@ export class Solver {
       }
     } else {
       this.average(off, count, m, strat);
+      this.applyFrozen(node, m, strat);
     }
     const childReach = this.reachBuf[depth];
     out.fill(0, oOff, oOff + n);
@@ -815,6 +1247,9 @@ export class Solver {
           }
           out[oOff + i] = best;
         }
+        if (this.bestFrozen) {
+          this.bestFrozenValues(node, count, n, cfv, out, oOff);
+        }
         return;
       }
       if (mode === MODE_CFR) {
@@ -822,6 +1257,7 @@ export class Solver {
       } else {
         this.average16(off, count, n, strat);
       }
+      this.applyFrozen(node, n, strat);
       for (let i = 0; i < n; i += 1) {
         out[oOff + i] = strat[i] * cfv[i];
       }
@@ -840,12 +1276,14 @@ export class Solver {
         const dPos = this.dPos;
         const dNeg = this.dNeg;
         const next = this.reachBuf[depth];
+        const frozen = this.frozenMask(node);
         for (let a = 0; a < count; a += 1) {
           const base = a * n;
           const r0 = off + base;
           for (let i = 0; i < n; i += 1) {
             const r = regrets[r0 + i] * scale;
-            next[base + i] = (r > 0 ? r * dPos : r * dNeg) + cfv[base + i] - out[oOff + i];
+            // A frozen hand's regrets never move (they are only re-scaled with the block).
+            next[base + i] = frozen && frozen[i] ? r : (r > 0 ? r * dPos : r * dNeg) + cfv[base + i] - out[oOff + i];
           }
         }
         this.regretScale[node] = encodeI16(next, count * n, regrets, off);
@@ -868,6 +1306,7 @@ export class Solver {
     const childReach = this.reachBuf[depth];
     if (mode === MODE_CFR) {
       this.regretMatch16(off, count, m, strat);
+      this.applyFrozen(node, m, strat);
       const sums = this.sums16;
       const scale = this.sumScale[node];
       const w = this.wStrat;
@@ -882,6 +1321,7 @@ export class Solver {
       this.sumScale[node] = encodeU16(childReach, count * m, sums, off);
     } else {
       this.average16(off, count, m, strat);
+      this.applyFrozen(node, m, strat);
     }
     out.fill(0, oOff, oOff + n);
     for (let a = 0; a < count; a += 1) {
@@ -927,10 +1367,17 @@ export class Solver {
     const group = this.group;
     const w = tree.chanceWeight[node] * (sample ? this.groups : 1);
     const childReach = this.reachBuf[depth];
-    const cfv = this.cfvBuf[depth];
+    let cfv = this.cfvBuf[depth];
     out.fill(0, oOff, oOff + n);
-    const end = tree.childStart[node] + tree.childCount[node];
-    for (let e = tree.childStart[node]; e < end; e += 1) {
+    // A split solve's unit (`splitUp`): the children's values come from the walkers.
+    const unit = this.unitOf === null ? -1 : this.unitOf[node];
+    const source = this.unitSource;
+    if (unit >= 0 && !source) {
+      throw new Error("a unit chance node is walked through splitUp");
+    }
+    const start = tree.childStart[node];
+    const end = start + tree.childCount[node];
+    for (let e = start; e < end; e += 1) {
       if (sample && this.edgeGroup[e] !== group) {
         continue;
       }
@@ -944,7 +1391,13 @@ export class Solver {
       if (any === 0) {
         continue;
       }
-      this.walk(tree.children[e], depth + 1, childReach, 0, cfv, 0);
+      if (unit >= 0) {
+        const values = (source as (unit: number, edge: number) => Float64Array | undefined)(unit, e - start);
+        if (!values) throw new Error(`split solve: no values for unit ${unit} edge ${e - start}`);
+        cfv = values;
+      } else {
+        this.walk(tree.children[e], depth + 1, childReach, 0, cfv, 0);
+      }
       for (let i = 0; i < n; i += 1) {
         if (pc1[i] !== card && pc2[i] !== card) {
           out[oOff + i] += w * cfv[i];
@@ -1110,6 +1563,7 @@ export class Solver {
     } else {
       this.average(this.offset[node], count, n, strat);
     }
+    this.applyFrozen(node, n, strat);
     const strategy = new Float32Array(count * n);
     const ev = new Float32Array(count * n);
     const keep = this.bestKeep;
@@ -1278,8 +1732,42 @@ function encodeU16(values: Float64Array, len: number, out: Uint16Array, off: num
   return max / 65535;
 }
 
+/** The report of best-response and profile values (`Solver.exploitability`, and a split solve's). */
+export function exploitabilityOf(br: [number, number], value: [number, number], pot: number, bigBlind: number): Exploitability {
+  const nashConv = br[0] - value[0] + (br[1] - value[1]);
+  const exploitability = nashConv / 2;
+  return {
+    bestResponse: br,
+    value,
+    nashConv,
+    exploitability,
+    percentPot: (100 * exploitability) / pot,
+    mbb: (1000 * exploitability) / bigBlind,
+  };
+}
+
+/**
+ * The whole game's constant sum from the parts of a split one (each part's
+ * `valueSum`, its own terminals): NaN unless every part has the same one.
+ */
+export function combineConstantSums(sums: readonly (number | null)[]): number {
+  let value = NaN;
+  for (const x of sums) {
+    if (x === null) continue;
+    if (Number.isNaN(x)) return NaN;
+    if (Number.isNaN(value)) value = x;
+    else if (!(Math.abs(x - value) <= 1e-9 * Math.max(1, Math.abs(value)))) return NaN;
+  }
+  return value;
+}
+
+/** An empty chance node: where a partial game (a split solve's part) leaves out a subtree it does not own. */
+export function isPlaceholder(tree: FlatTree, node: number): boolean {
+  return tree.type[node] === CHANCE && tree.childCount[node] === 0;
+}
+
 /** An exploitability that was never measured (a run cancelled before its first measurement). */
-function unmeasured(): Exploitability {
+export function unmeasured(): Exploitability {
   return {
     bestResponse: [NaN, NaN],
     value: [NaN, NaN],
@@ -1335,7 +1823,7 @@ function sameIndex(game: Game, p: number): Int32Array {
  * poker subgame is constant-sum (the pot is only moved), and then one
  * evaluation pass yields both players' values.
  */
-function constantSum(tree: FlatTree): number {
+function constantSum(tree: FlatTree): number | null {
   let value = NaN;
   const same = (x: number) => {
     if (Number.isNaN(value)) {
@@ -1357,5 +1845,5 @@ function constantSum(tree: FlatTree): number {
       }
     }
   }
-  return value;
+  return Number.isNaN(value) ? null : value;
 }

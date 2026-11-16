@@ -2,27 +2,6 @@
    global (see `app/layout.tsx`). Tokens only — no literal colours — so the
    light theme and the rebrand both arrive as token changes. */
 
-.privacy {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin: 0;
-  padding: 9px 13px;
-  font-size: 12.5px;
-  line-height: var(--line-height-normal);
-  color: var(--fg-muted);
-  background: color-mix(in srgb, var(--success-fg) 7%, transparent);
-  border: 1px solid color-mix(in srgb, var(--success-fg) 26%, transparent);
-  border-radius: var(--radius-sm);
-}
-
-.privacyMark {
-  flex: none;
-  color: var(--success-fg);
-  font-size: 11px;
-  line-height: 1;
-}
-
 /* `/convert/manual`'s head: one row, so the table starts near the top. */
 .manualHead {
   display: flex;
@@ -35,10 +14,4 @@
   margin: 0;
   font-size: 18px;
   font-weight: 700;
-}
-
-.manualIntro {
-  margin: 0;
-  color: var(--fg-dim);
-  font-size: 12.5px;
 }

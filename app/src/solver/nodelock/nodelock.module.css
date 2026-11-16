@@ -1,0 +1,471 @@
+/* The nodelock outside its editor: the action on a decision's card, the
+   banners above the library's view, My nodelocks, and the sidebar's card. */
+
+.nodeAction {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.nodeAction svg {
+  inline-size: 0.85rem;
+  block-size: 0.85rem;
+}
+
+.muted {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+/* A solve running at this spot: a quiet line, the view stays usable. */
+.progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+}
+
+.progressText {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-inline-size: 0;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.spinner {
+  flex: none;
+  inline-size: 1rem;
+  block-size: 1rem;
+  border: 2px solid var(--border-default);
+  border-block-start-color: var(--warning-fg);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* The Nodelocked banner: amber, the lock's summary, the way back. */
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-2);
+  background: var(--warning-bg);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--warning-fg);
+  color: var(--surface-base);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.tag svg {
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+}
+
+.bannerText {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-inline-size: 14rem;
+  font-size: var(--font-size-sm);
+}
+
+.shifts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-3);
+  color: var(--warning-on-tint);
+  font-variant-numeric: tabular-nums;
+}
+
+.bannerTools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.pressed {
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+
+/* The Solver tab's switch: the library, My nodelocks. */
+.screen {
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.switch {
+  display: inline-flex;
+  justify-self: start;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+}
+
+.switchTab {
+  padding: var(--space-1) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-1);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.switchTab:hover {
+  color: var(--text-primary);
+}
+
+.switchTab[aria-selected="true"] {
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-1);
+}
+
+/* My nodelocks. */
+.history {
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.historyBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.search {
+  inline-size: min(100%, 22rem);
+}
+
+.select {
+  max-inline-size: 18rem;
+}
+
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  padding: var(--space-10) var(--space-4);
+  color: var(--text-secondary);
+}
+
+.empty p {
+  margin: 0;
+}
+
+.link {
+  color: var(--text-link);
+}
+
+.error {
+  margin: 0;
+  color: var(--danger-fg);
+  font-size: var(--font-size-sm);
+}
+
+.table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.table th {
+  padding: var(--space-1) var(--space-2);
+  border-block-end: 1px solid var(--border-subtle);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-align: start;
+  white-space: nowrap;
+}
+
+.table td {
+  padding: var(--space-2);
+  border-block-end: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+
+.row {
+  transition: background-color 0.12s ease;
+}
+
+.rowOpen {
+  cursor: pointer;
+}
+
+.rowOpen:hover {
+  background: var(--surface-hover);
+}
+
+.rowOpen:hover .nameButton {
+  color: var(--text-link);
+}
+
+.rowActive {
+  background: var(--warning-bg);
+}
+
+.check {
+  inline-size: 2rem;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+  white-space: nowrap;
+}
+
+.table th.num {
+  text-align: end;
+}
+
+.nameCell {
+  max-inline-size: 22rem;
+}
+
+.nameButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  font-weight: var(--font-weight-medium);
+  text-align: start;
+  cursor: pointer;
+}
+
+.rename {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.rename input {
+  min-inline-size: 12rem;
+}
+
+.spot {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+.status {
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+}
+
+.status[data-status="solved"] {
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+.status[data-status="solving"] {
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+
+.status[data-status="failed"] {
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+.rowTools {
+  white-space: nowrap;
+  text-align: end;
+}
+
+.row .rowTools > * {
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.row:hover .rowTools > *,
+.row:focus-within .rowTools > * {
+  opacity: 1;
+}
+
+.danger {
+  color: var(--danger-fg);
+}
+
+.dangerSolid {
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+.dialogBody {
+  margin: 0 0 var(--space-4);
+  color: var(--text-secondary);
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* The sidebar's card (`SidebarNodelock`), like a newer Rail's. */
+.side {
+  position: relative;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: auto;
+  margin-bottom: var(--space-2);
+  padding: var(--space-3);
+  overflow: hidden;
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-3);
+  background: var(--warning-bg);
+  font-size: var(--font-size-sm);
+}
+
+.sideHead {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  color: var(--warning-fg);
+}
+
+.sideHead svg {
+  flex: none;
+  inline-size: 16px;
+  block-size: 16px;
+  margin-top: 2px;
+}
+
+.sideLine {
+  min-inline-size: 0;
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.sideTools {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.sideBar {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  block-size: 3px;
+  overflow: hidden;
+  background: var(--border-subtle);
+}
+
+.sideFill,
+.sideFillBusy {
+  display: block;
+  block-size: 100%;
+  background: var(--warning-fg);
+  transition: inline-size 300ms ease;
+}
+
+.sideFillBusy {
+  inline-size: 30%;
+  animation: slide 1.4s ease-in-out infinite;
+}
+
+@keyframes slide {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(340%);
+  }
+}
+
+.sideCompact {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 36px;
+  margin-top: auto;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--warning-fg);
+  cursor: pointer;
+}
+
+.sideCompact:hover {
+  background: var(--surface-hover);
+}
+
+.sideCompact svg {
+  inline-size: 18px;
+  block-size: 18px;
+}
+
+.sideDot,
+.sideDotBusy {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--warning-fg);
+}
+
+.sideDotBusy {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner,
+  .sideFillBusy,
+  .sideDotBusy {
+    animation: none;
+  }
+}

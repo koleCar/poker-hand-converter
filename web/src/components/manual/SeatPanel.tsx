@@ -23,8 +23,9 @@ interface SeatPanelProps {
 }
 
 /**
- * The seat picked on the felt: name, starting stack, cards, hero and button.
- * The player's action is not here; it is in the bubble beside the seat.
+ * The seat picked on the felt: starting stack and cards. The name is renamed
+ * on the felt itself, the hero's position is picked above the table, and the
+ * player's action is in the bubble beside the seat.
  */
 export function SeatPanel({ seat, state, update, engine, onPickCards, mode, unit, bigBlind }: SeatPanelProps) {
   const dict = useDict().manual;
@@ -50,10 +51,6 @@ export function SeatPanel({ seat, state, update, engine, onPickCards, mode, unit
 
       <div className={styles.seatEdit}>
         <label className="field field--narrow">
-          <span className="field__label">{players.name}</span>
-          <input type="text" value={entry.name} maxLength={40} onChange={(event) => setSeat({ name: event.target.value })} />
-        </label>
-        <label className="field field--narrow">
           <span className="field__label">{t.startingStack}</span>
           <AmountInput value={entry.stack} onChange={(stack) => setSeat({ stack })} mode={mode} unit={unit} bigBlind={bigBlind} />
         </label>
@@ -62,21 +59,6 @@ export function SeatPanel({ seat, state, update, engine, onPickCards, mode, unit
           <button type="button" className={styles.cardsBtn} onClick={() => onPickCards({ kind: "seat", seat })}>
             {entry.cards.length > 0 ? <CardRow cards={entry.cards} size="xs" /> : <span className={styles.dim}>{players.setCards}</span>}
           </button>
-        </div>
-        <div className={styles.row}>
-          <label className="switch">
-            <input type="radio" name="manual-seat-hero" checked={state.heroSeat === seat} onChange={() => update({ heroSeat: seat })} />
-            {t.makeHero}
-          </label>
-          <label className="switch">
-            <input
-              type="radio"
-              name="manual-seat-button"
-              checked={state.buttonSeat === seat}
-              onChange={() => update({ buttonSeat: seat })}
-            />
-            {t.makeButton}
-          </label>
         </div>
       </div>
     </section>

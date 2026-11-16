@@ -38,7 +38,7 @@ import { buildStreet, dealtPath, type BetMenu, type NodeInfo } from "./betting";
 import { Solver, type RunResult } from "./cfr";
 import { NUM_COMBOS, parseCards, SolverInputError, toRange } from "./combos";
 import { handSet, showdownBoard, type Game, type Mirror, type ShowdownBoard } from "./game";
-import { cardOrbit, permuteCard, permuteCombo, spotSymmetries, symmetrize } from "./isomorphism";
+import { cardOrbit, permuteCard, permuteCombo, restrictSymmetries, spotSymmetries, symmetrize } from "./isomorphism";
 import { extract, type SolveOptions, type SolveResult } from "./solve";
 import { handsOf, rulesOf, strengths, type BuiltSubgame, type FlopIsomorphism, type SpotInput } from "./subgame";
 import { TreeBuilder } from "./tree";
@@ -60,12 +60,29 @@ export interface FlopSpot extends SpotInput {
    * flop's nodes are described, which is all a flop-level result reads.
    */
   deepInfo?: boolean;
+  /**
+   * With `isomorphism`: only these suit relabellings may be used (with the
+   * spot's own symmetries). A nodelock that is not suit-symmetric keeps the
+   * relabellings it is invariant under (`nodelock.ts`).
+   */
+  symmetry?: readonly (readonly number[])[];
+}
+
+/** How much of a flop game to build. */
+export interface FlopBuildOptions {
+  /**
+   * A partial game (a split solve's part, `split.ts`): only the turn cards
+   * this keeps get their subtree; the others lead to an empty chance node.
+   * Everything else - the flop, the hands, the deals' edges - is the whole
+   * game's.
+   */
+  keepTurn?: (card: number) => boolean;
 }
 
 const key = (perm: readonly number[]) => perm.join("");
 
 /** Builds the flop game for a spot: flop betting, the turn, turn betting, the river, river betting. */
-export function buildFlopGame(spot: FlopSpot): BuiltSubgame {
+export function buildFlopGame(spot: FlopSpot, options: FlopBuildOptions = {}): BuiltSubgame {
   const board = parseCards(spot.board);
   if (board.length !== 3) {
     throw new SolverInputError(`expected a 3-card board, got ${board.length}`);
@@ -81,7 +98,7 @@ export function buildFlopGame(spot: FlopSpot): BuiltSubgame {
 
   let r0 = toRange(spot.ranges[0]);
   let r1 = toRange(spot.ranges[1]);
-  const group = spot.isomorphism ? spotSymmetries(board, [r0, r1]) : [[0, 1, 2, 3]];
+  const group = spot.isomorphism ? restrictSymmetries(spotSymmetries(board, [r0, r1]), spot.symmetry) : [[0, 1, 2, 3]];
   if (group.length > 1) {
     r0 = symmetrize(r0, group);
     r1 = symmetrize(r1, group);
@@ -203,11 +220,14 @@ export function buildFlopGame(spot: FlopSpot): BuiltSubgame {
     return id;
   };
 
+  const keepTurn = options.keepTurn;
   const turnDeal = (c0: number, c1: number, allIn: boolean, path: string): number => {
     const edges = turns.map(({ card }) => ({
       label: cardCode(card),
       card,
-      child: allIn
+      child: keepTurn && !keepTurn(card)
+        ? builder.chance(0, [])
+        : allIn
         ? riverDeal(card, c0, c1, true, dealtPath(path, card))
         : buildStreet(
             {
