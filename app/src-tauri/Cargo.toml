@@ -36,6 +36,8 @@ rail-store = { path = "../../core/rail-store" }
 # The displayed statistics (R2.4 definitions, R2.5 reliability) of the
 # Today and Reports screens (R2.7b).
 rail-stats = { path = "../../core/rail-stats" }
+# Nodelock solves on this computer (docs/NODELOCK.md §2.5, `nodelock_solve.rs`).
+rail-solver = { path = "../../core/rail-solver" }
 rail-watch = { path = "../../core/rail-watch" }
 # The Import screen's pool of import threads (`manual_import.rs`). The
 # version rail-watch pins.

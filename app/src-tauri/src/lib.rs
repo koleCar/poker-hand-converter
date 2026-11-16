@@ -72,6 +72,8 @@
 //!   only; no plugin permission for the window).
 //! - the user's nodelocks ([`nodelock_store`], docs/NODELOCK.md §3): the
 //!   history of locked solves, kept in the store on this computer only.
+//! - nodelock solves on this computer ([`nodelock_solve`], docs/NODELOCK.md
+//!   §2.5): the native engine (`core/rail-solver`) on its own threads.
 
 use std::sync::Mutex;
 
@@ -95,6 +97,7 @@ pub mod hotkeys;
 pub mod hud;
 pub mod hud_editor;
 pub mod manual_import;
+pub mod nodelock_solve;
 pub mod nodelock_store;
 pub mod players;
 pub mod policy;
@@ -542,6 +545,10 @@ pub fn run() {
         nodelock_store::nodelock_save,
         nodelock_store::nodelock_rename,
         nodelock_store::nodelock_delete,
+        nodelock_solve::nodelock_engine_info,
+        nodelock_solve::nodelock_solve_start,
+        nodelock_solve::nodelock_solve_cancel,
+        nodelock_solve::nodelock_solve_result,
         dev::dev_pick_file,
         dev::convert_file,
     ]);
@@ -703,6 +710,10 @@ pub fn run() {
         nodelock_store::nodelock_save,
         nodelock_store::nodelock_rename,
         nodelock_store::nodelock_delete,
+        nodelock_solve::nodelock_engine_info,
+        nodelock_solve::nodelock_solve_start,
+        nodelock_solve::nodelock_solve_cancel,
+        nodelock_solve::nodelock_solve_result,
     ]);
 
     let app = builder
