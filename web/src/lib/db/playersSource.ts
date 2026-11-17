@@ -72,6 +72,7 @@ export function webPlayersSource(standardFormat: string): PlayersSource {
           site: query.site ?? null,
           kind: query.kind ?? "all",
           noted: query.noted ?? null,
+          sort: query.sort ?? null,
           limit: query.limit ?? 200,
           statsVersion: STATS_VERSION,
         },

@@ -8,7 +8,9 @@
 --     per kind, written out here over the villain and hero rows themselves
 --     (not over `player_stats`), for every filter - room, kind, a name's
 --     prefix (with LIKE's own characters taken literally), "with a note",
---     the limit - with the mixed-kind refusal, the opaque-id opponents
+--     the limit, the order the reader picked (every column both ways, a
+--     missing result or date last, ties most hands first, sorted before
+--     the limit cuts) - with the mixed-kind refusal, the opaque-id opponents
 --     counted, and after deletes (first and last seen read again);
 --   * `player_profile` sums the opponent's rows of a kind - in total and by
 --     position, stake, game and table size - with the summary line, the
@@ -21,7 +23,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
 
-select plan(46);
+select plan(56);
 insert into auth.users (id, email, email_confirmed_at, created_at) values
   ('00000000-0000-0000-0000-0000000045a1', 'summaries.a@example.com', now(), now()),
   ('00000000-0000-0000-0000-0000000045b1', 'summaries.b@example.com', now(), now());
@@ -239,6 +241,8 @@ declare
   v_search text := lower(coalesce(p_query ->> 'search', ''));
   v_noted  boolean := (p_query ->> 'noted')::boolean;
   v_limit  integer := coalesce((p_query ->> 'limit')::integer, 200);
+  v_col    text := p_query #>> '{sort,column}';
+  v_desc   boolean := coalesce((p_query #>> '{sort,descending}')::boolean, false);
   v_cash   bigint;
   v_chips  bigint;
   v_mixed  boolean;
@@ -266,11 +270,26 @@ begin
            'moneyHands', case v_kind when 'cash' then t.cash_money when 'chips' then t.chips_money
                                      else t.cash_money + t.chips_money end,
            'firstPlayedAt', t.first_seen, 'lastPlayedAt', t.last_seen, 'hasNote', t.has_note)
-         order by t.together desc, t.player, t.site), '[]'::jsonb)
+         order by t.o), '[]'::jsonb)
     into v_rows
-    from (select * from ls
-          where together > 0 and starts_with(lower(player), v_search) and (v_noted is null or has_note = v_noted)
-          order by together desc, player, site limit v_limit) t;
+    from (select k.*, row_number() over (
+                   order by case when v_desc then null else k.key_text end,
+                            case when v_desc then k.key_text end desc,
+                            case when v_desc then null else k.key_num end,
+                            case when v_desc then k.key_num end desc nulls last,
+                            case when v_desc then null else k.key_time end,
+                            case when v_desc then k.key_time end desc nulls last,
+                            k.together desc, k.player, k.site) as o
+          from (select l.*,
+                       case v_col when 'name' then lower(l.player) when 'room' then l.site end as key_text,
+                       case v_col when 'hands' then l.together
+                                  when 'result' then case when v_mixed then null when v_kind = 'cash' then l.cash_net
+                                                          when v_kind = 'chips' then l.chips_net
+                                                          else l.cash_net + l.chips_net end end as key_num,
+                       case v_col when 'lastSeen' then l.last_seen end as key_time
+                from ls l
+                where together > 0 and starts_with(lower(player), v_search) and (v_noted is null or has_note = v_noted)) k
+          order by o limit v_limit) t;
   select coalesce(sum(1), 0) into v_hidden
     from public.hand_stats v
     where v.owner_id = p_owner and v.stats_version = 'stats/9' and not v.is_hero and not v.is_bomb_pot
@@ -303,7 +322,13 @@ insert into queries (q) values
   ('{}'), ('{"kind":"cash"}'), ('{"kind":"chips"}'), ('{"site":"pokerstars"}'),
   ('{"site":"winamax","kind":"cash"}'), ('{"search":"P0"}'), ('{"search":"p1"}'),
   ('{"noted":true}'), ('{"noted":false,"kind":"cash"}'), ('{"limit":3}'), ('{"site":"ggpoker"}'),
-  ('{"site":"ignition"}'), ('{"search":"%"}'), ('{"search":"_0"}');
+  ('{"site":"ignition"}'), ('{"search":"%"}'), ('{"search":"_0"}'),
+  ('{"sort":{"column":"name","descending":false}}'), ('{"sort":{"column":"name","descending":true},"limit":3}'),
+  ('{"sort":{"column":"room","descending":true}}'), ('{"sort":{"column":"hands","descending":false},"kind":"cash"}'),
+  ('{"sort":{"column":"result","descending":true},"kind":"cash"}'),
+  ('{"sort":{"column":"result","descending":false},"kind":"chips","limit":2}'),
+  ('{"sort":{"column":"result","descending":true}}'),
+  ('{"sort":{"column":"lastSeen","descending":true}}'), ('{"sort":{"column":"lastSeen","descending":false},"limit":3}');
 grant select on queries to authenticated;
 
 -- The oracle as postgres (it reads every row), the function as A.
@@ -332,6 +357,8 @@ select pg_temp.act_as('00000000-0000-0000-0000-0000000045a1');
 select is(public.player_sites('stats/9'), '["pokerstars", "winamax"]'::jsonb,
           'player_sites: the rooms with listed opponents');
 select throws_ok($$ select public.players_list('{"kind":"spin"}') $$, '22023', null, 'an unknown kind is refused');
+select throws_ok($$ select public.players_list('{"sort":{"column":"vpip","descending":true}}') $$, '22023', null,
+                 'an unknown sort column is refused');
 select is(jsonb_array_length(public.players_list('{"limit":100000,"statsVersion":"stats/9"}') -> 'rows'),
           (select (e ->> 'matching')::int from expected where n = 1), 'the limit is capped at 500, not refused');
 select pg_temp.as_postgres();

@@ -8,13 +8,16 @@
 
 mod common;
 
+use std::cmp::Ordering;
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
 use rail_store::hand_list::{HandCursor, HandFilter, HandRow, PlayerRef};
 use rail_store::import::ImportOptions;
-use rail_store::players::{self, GameKind, LABELS_MAX, NOTE_MAX_CHARS, PlayerQuery};
+use rail_store::players::{
+    self, GameKind, LABELS_MAX, NOTE_MAX_CHARS, PlayerQuery, PlayerSort, PlayerSortColumn,
+};
 use rail_store::{Error, Store, Totals, background, import_file};
 use rusqlite::Connection;
 
@@ -177,6 +180,91 @@ fn the_list_is_the_opponents_of_rooms_with_names() {
             row.player
         );
     }
+    store.close();
+}
+
+/// Every column sorts the list, both ways; equal values keep most hands
+/// first; a missing result or date goes last either way; the sort comes
+/// before the cut, so a short list is the head of the long one.
+#[test]
+fn every_column_sorts_the_list() {
+    let store = Store::open(corpus_store()).expect("open");
+    let reader = store.reader();
+    let sorted = |kind: GameKind, column: PlayerSortColumn, descending: bool, limit: u32| {
+        reader
+            .player_list(&PlayerQuery {
+                sort: Some(PlayerSort { column, descending }),
+                limit,
+                ..everyone(kind)
+            })
+            .expect("list")
+            .rows
+    };
+    let columns = [
+        PlayerSortColumn::Name,
+        PlayerSortColumn::Room,
+        PlayerSortColumn::Hands,
+        PlayerSortColumn::Result,
+        PlayerSortColumn::LastSeen,
+    ];
+    for column in columns {
+        for descending in [false, true] {
+            let rows = sorted(GameKind::Cash, column, descending, players::LIST_MAX);
+            assert!(rows.len() > 10, "{column:?}");
+            for pair in rows.windows(2) {
+                let (a, b) = (&pair[0], &pair[1]);
+                let ordering = match column {
+                    PlayerSortColumn::Name => a.player.to_lowercase().cmp(&b.player.to_lowercase()),
+                    PlayerSortColumn::Room => a.site.cmp(&b.site),
+                    PlayerSortColumn::Hands => a.hands.cmp(&b.hands),
+                    PlayerSortColumn::Result => a.net_bb_milli.cmp(&b.net_bb_milli),
+                    PlayerSortColumn::LastSeen => {
+                        if a.seen.last_played_at.is_none() {
+                            assert!(b.seen.last_played_at.is_none(), "no date last");
+                            continue;
+                        }
+                        if b.seen.last_played_at.is_none() {
+                            continue;
+                        }
+                        a.seen.last_played_at.cmp(&b.seen.last_played_at)
+                    }
+                };
+                let ordering = if descending {
+                    ordering.reverse()
+                } else {
+                    ordering
+                };
+                assert_ne!(
+                    ordering,
+                    Ordering::Greater,
+                    "{column:?} {descending}: {a:?} {b:?}"
+                );
+                if ordering == Ordering::Equal {
+                    assert!(
+                        (a.hands, &b.player) >= (b.hands, &a.player),
+                        "{column:?}: equal values keep most hands first"
+                    );
+                }
+            }
+            // The store sorts, then cuts.
+            let head = sorted(GameKind::Cash, column, descending, 7);
+            assert_eq!(head, rows[..7], "{column:?} {descending}");
+        }
+    }
+    // Both kinds at once in a mixed corpus: no result, so the list's own order.
+    let mixed = sorted(
+        GameKind::All,
+        PlayerSortColumn::Result,
+        true,
+        players::LIST_MAX,
+    );
+    assert_eq!(
+        mixed,
+        reader
+            .player_list(&everyone(GameKind::All))
+            .expect("list")
+            .rows
+    );
     store.close();
 }
 
