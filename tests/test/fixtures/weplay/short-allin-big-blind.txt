@@ -1,0 +1,44 @@
+Weplay Hand #92428216: Tournament (The Predator)#11418969, $15+$3 Hold'em No Limit - Level XIV (1000/2000) - 2026/11/12 21:32:27 UTC
+Table '11418969 4'(11874460) 7-max Seat #3 is the button
+Seat 1: Yensoh (19700 in chips)
+Seat 2: IIGORBELGICAA (193381 in chips)
+Seat 3: kole1992 (22605 in chips)
+Seat 4: PaulDeTE (89180 in chips)
+Seat 5: Mariannev (1860 in chips)
+Seat 6: sStoneSand (30594 in chips)
+Seat 7: LLinneyaa (29581 in chips)
+Yensoh: posts the ante 300
+IIGORBELGICAA: posts the ante 300
+kole1992: posts the ante 300
+PaulDeTE: posts the ante 300
+Mariannev: posts the ante 300
+sStoneSand: posts the ante 300
+LLinneyaa: posts the ante 300
+PaulDeTE: posts small blind 1000
+Mariannev: posts big blind 1560 and is all-in
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 3s]
+sStoneSand: folds
+LLinneyaa: folds
+Yensoh: folds
+IIGORBELGICAA: folds
+kole1992: folds
+PaulDeTE: calls 1000
+Uncalled bet (440) returned to PaulDeTE
+*** FLOP *** [Th 4s 8c]
+*** TURN *** [Th 4s 8c] [Ks]
+*** RIVER *** [Th 4s 8c Ks] [Jh]
+*** SHOW DOWN ***
+PaulDeTE: shows [3h 8s] (a pair of Eights)
+Mariannev: shows [Ts 9c] (a pair of Tens)
+Mariannev collected 5220 from pot
+*** SUMMARY ***
+Total pot 5220 | Rake 0 
+Board [Th 4s 8c Ks Jh]
+Seat 1: Yensoh folded before Flop 
+Seat 2: IIGORBELGICAA folded before Flop 
+Seat 3: kole1992 (button) folded before Flop 
+Seat 4: PaulDeTE (small blind) showed [3h 8s] and lost with a pair of Eights
+Seat 5: Mariannev (big blind) showed [Ts 9c] and won (5220) with a pair of Tens
+Seat 6: sStoneSand folded before Flop 
+Seat 7: LLinneyaa folded before Flop

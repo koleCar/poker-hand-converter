@@ -1,0 +1,125 @@
+/* A statistic's hover box (`StatTip.tsx`): name and label, the value, what
+   it counts, then one line per number, each under its own small heading. */
+
+.tip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-tooltip);
+  visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  width: max-content;
+  max-width: min(300px, calc(100vw - 16px));
+  padding: var(--space-3) var(--space-3);
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-3);
+  box-shadow: var(--shadow-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  white-space: normal;
+  pointer-events: none;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.name {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.label {
+  flex: none;
+  padding: 1px 6px;
+  border-radius: var(--radius-1);
+  background: var(--surface-raised-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.04em;
+}
+
+.value {
+  color: var(--text-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.value[data-sign="profit"] {
+  color: var(--profit-fg);
+}
+
+.value[data-sign="loss"] {
+  color: var(--loss-fg);
+}
+
+.description {
+  margin: 0;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.row dt {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.row dd {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.row dd.note {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+}
+
+.dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.dot[data-level="low"] {
+  background: var(--warning-fg);
+}
+
+.dot[data-level="insufficient"] {
+  background: var(--grade-mistake);
+}

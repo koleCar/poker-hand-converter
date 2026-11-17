@@ -31,6 +31,7 @@ import { HandMatrix } from "@rail/ui/reports/HandMatrix";
 import { BREAKDOWN_COLUMNS, type Report, type ReportSource, type StatGroup } from "@rail/ui/reports/model";
 import { ReportStats } from "@rail/ui/reports/ReportStats";
 import { ReportsScreen } from "@rail/ui/reports/ReportsScreen";
+import { StatTipCard } from "@rail/ui/stats/StatTip";
 import { hasBothKinds } from "@rail/ui/hands/gameKind";
 import { handsUiEn } from "@rail/ui/strings/hands.en";
 import { handsUiHr } from "@rail/ui/strings/hands.hr";
@@ -58,6 +59,7 @@ function strings(locale: "en" | "hr"): UiStrings {
     replayer: locale === "en" ? replayerEn : replayerHr,
     statTile: (locale === "en" ? statsUiEn : statsUiHr).tile,
     statTable: { ...(locale === "en" ? statsUiEn : statsUiHr).table, sampleOnly: (locale === "en" ? statsUiEn : statsUiHr).sampleOnly },
+    statTip: (locale === "en" ? statsUiEn : statsUiHr).tip,
   } as unknown as UiStrings;
 }
 
@@ -424,6 +426,40 @@ function everyStat(hands: number): Shown[] {
   return STANDARD_STATS.map((stat) => showStat(stat, sums, null));
 }
 
+describe("a statistic's hover box", () => {
+  const vpip = statById(STANDARD_STATS, "vpip");
+  const shownAt = (hands: number) => everyStat(hands)[STANDARD_STATS.indexOf(vpip)];
+  const box = (locale: "en" | "hr", subject: Parameters<typeof StatTipCard>[0]["subject"]) =>
+    render(locale, createElement(StatTipCard, { subject }));
+
+  it("the full name and label, made out of chances and the ideal range; no sample line once it is enough", () => {
+    const html = box("en", { definition: vpip.def, shown: shownAt(300), context: "BTN" });
+    expect(html).toContain(`${vpip.def.name.en} · BTN`);
+    expect(html).toContain(`>${vpip.def.label.en}<`);
+    expect(html).toContain(vpip.def.description.en);
+    expect(html).toContain("75 / 300");
+    expect(html).toContain(statsUiEn.tip.idealRange);
+    expect(html).not.toContain(statsUiEn.tip.sampleNeeded);
+    expect(html).not.toContain("CI");
+  });
+
+  it("the sample it needs while the sample is short", () => {
+    const html = box("hr", { definition: vpip.def, shown: shownAt(20) });
+    expect(html).toContain("5 / 20");
+    expect(html).toContain(statsUiHr.tip.sampleNeeded);
+    expect(html).toContain(statsUiHr.tip.chances(vpip.def.sample.min));
+    expect(html).toContain(statsUiHr.tip.short.insufficient);
+  });
+
+  it("a name alone: what it counts, its ideal range and the sample it needs", () => {
+    const html = box("en", { definition: vpip.def });
+    expect(html).toContain(vpip.def.description.en);
+    expect(html).toContain(statsUiEn.tip.idealRange);
+    expect(html).toContain(statsUiEn.tip.chances(vpip.def.sample.min));
+    expect(html).not.toContain(statsUiEn.tip.short.insufficient);
+  });
+});
+
 describe("the statistics matrices, rendered", () => {
   const ids = STANDARD_STATS.map((stat) => stat.def.id);
   const report: Report = {
@@ -442,7 +478,8 @@ describe("the statistics matrices, rendered", () => {
       const r = locale === "en" ? reportsUiEn : reportsUiHr;
       const threeBet = statById(STANDARD_STATS, "three_bet").def;
       expect(html).toContain(`>${threeBet.label[locale]}</abbr>`);
-      expect(html).toContain(`title="${threeBet.name[locale]}`);
+      // The full name is in the hover box (`StatTip`), not a native tooltip.
+      expect(html).not.toContain(`title="`);
       expect(html).toContain(`>${r.stats.streetRows.cbet.short}</abbr>`);
       expect(html).toContain(r.stats.sections.steal);
       expect(html.indexOf(">BTN<")).toBeLessThan(html.indexOf(">SB<"));

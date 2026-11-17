@@ -36,6 +36,22 @@ export const statsUiEn = {
     noSample: "no sample",
   },
 
+  /** A statistic's hover box (`StatTip`). */
+  tip: {
+    sample: "Sample",
+    idealRange: "Ideal range",
+    sampleNeeded: "Sample needed",
+    chances: (count: number) => `${num(count)} ${count === 1 ? "chance" : "chances"}`,
+    hands,
+    actions: (count: number) => `${num(count)} ${count === 1 ? "action" : "actions"}`,
+    atLeast: (bound: string) => `${bound} or more`,
+    below: (bound: string) => `below ${bound}`,
+    short: {
+      low: "Not enough yet — the decimal is not reliable.",
+      insufficient: "Too few yet — read it as a hint.",
+    },
+  },
+
   table: {
     statistic: "Statistic",
     value: "Value",

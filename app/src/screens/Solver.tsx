@@ -7,51 +7,96 @@
  * poker table is open (A10, `duringPlay.ts`).
  *
  * The app adds the nodelock (`solver/nodelock/`, `docs/NODELOCK.md` §5),
- * solved on this computer: the library's slot (the Nodelock action, the
- * banner, a locked solution in place of the library's), the editor, and My
- * nodelocks beside the library (`#/solver/locks`).
+ * solved on this computer, under two tabs:
+ *
+ * - Library: always the clean solve, with the Nodelock action on a decision.
+ * - My nodelocks: the list (`#/solver/locks`), and a solved lock opened on
+ *   its spot (`#/solver/lock=<id>&set=…`): the locked solution, its banner.
  */
-import { useCallback, useMemo, useState } from "react";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { useT } from "../i18n";
 import { replaceParam, useRouteParam } from "../lib/router";
 import { SolverHostProvider, SolverLibrary, type SolverView } from "../solver/door";
 import { useSolverHost } from "../solver/host";
 import { Editor } from "../solver/nodelock/Editor";
-import { History, LOCKS_PARAM, SolverTabs } from "../solver/nodelock/History";
+import { History, SolverTabs } from "../solver/nodelock/History";
 import styles from "../solver/nodelock/nodelock.module.css";
-import { useNodelockSession } from "../solver/nodelock/session";
+import {
+  LOCKS_PARAM,
+  lockIdOf,
+  lockParam,
+  openLock,
+  useNodelockSession,
+  viewParam,
+  type ActiveLock,
+} from "../solver/nodelock/session";
 import { useNodelockSlot } from "../solver/nodelock/slot";
 import { parseSolverParam, solverParam } from "../solver/param";
 
 /** The library's last view, for the switch back from My nodelocks. */
 let lastView: string | null = null;
+/** My nodelocks' last place (the list, or a lock open on its spot), for the switch back from the library. */
+let lastLocks: string = LOCKS_PARAM;
 
 export function Solver() {
   const param = useRouteParam();
   const session = useNodelockSession();
   const base = useSolverHost();
-  const locks = param === LOCKS_PARAM;
+  const lockId = lockIdOf(param);
+  const locks = param === LOCKS_PARAM || lockId !== null;
+  useEffect(() => {
+    if (locks && param) lastLocks = param;
+  }, [locks, param]);
   return (
     <div className={styles.screen}>
-      <SolverTabs locks={locks} libraryParam={lastView} />
-      {/* Opening a nodelock mounts the library again on the view it names. */}
-      {locks ? <History libraryParam={lastView} /> : <Library key={session.opened} />}
+      <SolverTabs locks={locks} libraryParam={lastView} locksParam={lastLocks} solving={session.running !== null} />
+      {lockId ? <OpenLock id={lockId} /> : locks ? <History libraryParam={lastView} /> : <Library key={session.opened} lock={null} />}
       {session.editor ? <Editor open={session.editor} solverT={base.t} /> : null}
     </div>
   );
 }
 
-function Library() {
+/** My nodelocks on one lock: read from the store when the route names one not open yet (the app reopened on it). */
+function OpenLock({ id }: { id: string }) {
+  const t = useT().nodelock;
+  const session = useNodelockSession();
+  const active = session.active?.row.id === id ? session.active : null;
+  const asked = useRef<string | null>(null);
+  useEffect(() => {
+    if (active || asked.current === id) return;
+    asked.current = id;
+    void openLock(id, { navigate: false }).then((ok) => {
+      if (!ok) replaceParam("solver", LOCKS_PARAM);
+    });
+  }, [id, active]);
+  if (!active) return <RailLoader label={t.opening} centered />;
+  return <Library key={session.opened} lock={active} />;
+}
+
+function Library({ lock }: { lock: ActiveLock | null }) {
   const base = useSolverHost();
-  const nodelock = useNodelockSlot();
-  const host = useMemo(() => ({ ...base, nodelock }), [base, nodelock]);
   const param = useRouteParam();
   // Read once: afterwards the library owns the view and only writes it back.
   const [initial] = useState(() => parseSolverParam(param));
-  const onView = useCallback((view: SolverView) => {
-    lastView = solverParam(view);
-    replaceParam("solver", lastView);
-  }, []);
+  const shown = useRef(lock ? viewParam(lock.summary) : (lastView ?? ""));
+  const view = useCallback(() => shown.current, []);
+  const nodelock = useNodelockSlot(lock, view);
+  const host = useMemo(() => ({ ...base, nodelock }), [base, nodelock]);
+  const lockId = lock?.row.id ?? null;
+  const onView = useCallback(
+    (next: SolverView) => {
+      shown.current = solverParam(next);
+      if (lockId) {
+        replaceParam("solver", lockParam(lockId, shown.current));
+      } else {
+        lastView = shown.current;
+        replaceParam("solver", lastView);
+      }
+    },
+    [lockId],
+  );
   return (
     <SolverHostProvider host={host}>
       <SolverLibrary

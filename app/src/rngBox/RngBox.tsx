@@ -11,8 +11,20 @@
  * window follows through `rng_box_place`, and where it ended is saved,
  * `rng_box_save_frame`), a press that does not is a click (a new number).
  * Locked, a press is always a click.
+ *
+ * A right-click opens the RNG panel beside the box (`RngPanel.tsx`: the
+ * lock, "Reposition", the look) or closes it. Every new number comes in
+ * with a short pop (none with reduced motion, only a fade).
  */
-import { type CSSProperties, type PointerEvent, useCallback, useEffect, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  type MouseEvent,
+  type PointerEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { useT } from "../i18n";
 import { inApp, ipc, onRngBoxRolled, onRngBoxStyle, type RngFrame, type RngSettings } from "../lib/ipc";
@@ -40,6 +52,8 @@ interface Gesture {
 export function RngBoxWindow() {
   const t = useT().rngBox;
   const [number, setNumber] = useState<number | null>(null);
+  /** New numbers shown since the box opened: the animation's key. */
+  const [rolls, setRolls] = useState(0);
   const [look, setLook] = useState<RngSettings | null>(null);
   const gesture = useRef<Gesture | null>(null);
   /** The click that ends a drag rolls nothing. */
@@ -56,7 +70,10 @@ export function RngBoxWindow() {
       .getRngSettings()
       .then((s) => live && setLook(s))
       .catch(() => undefined);
-    const stopRoll = onRngBoxRolled(setNumber);
+    const stopRoll = onRngBoxRolled((n) => {
+      setNumber(n);
+      setRolls((r) => r + 1);
+    });
     const stopStyle = onRngBoxStyle(setLook);
     return () => {
       live = false;
@@ -72,8 +89,16 @@ export function RngBoxWindow() {
     }
     ipc
       .rngBoxRoll()
-      .then(setNumber)
+      .then((n) => {
+        setNumber(n);
+        setRolls((r) => r + 1);
+      })
       .catch(() => undefined);
+  }, []);
+
+  const panel = useCallback((e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    ipc.rngPanelToggle().catch(() => undefined);
   }, []);
 
   const locked = look?.locked ?? true;
@@ -129,7 +154,11 @@ export function RngBoxWindow() {
       g,
       g.kind === "move"
         ? { ...s, x: Math.round(s.x + dx), y: Math.round(s.y + dy) }
-        : { ...s, width: Math.round(s.width + dx), height: Math.round(s.height + dy) },
+        : {
+            ...s,
+            width: Math.round(s.width + dx),
+            height: Math.round(s.height + dy),
+          },
     );
   };
 
@@ -159,12 +188,15 @@ export function RngBoxWindow() {
       title={locked ? t.hint : t.hintUnlocked}
       aria-label={t.label(number)}
       onClick={roll}
+      onContextMenu={panel}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerEnd}
       onPointerCancel={onPointerEnd}
     >
-      <span aria-live="polite">{number ?? "…"}</span>
+      <span key={rolls} className={rolls > 0 ? styles.rolled : styles.number} aria-live="polite">
+        {number ?? "…"}
+      </span>
       {!locked && <span className={styles.grip} data-grip aria-hidden="true" />}
     </button>
   );

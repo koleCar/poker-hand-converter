@@ -1,12 +1,14 @@
 /**
  * My nodelocks (`docs/NODELOCK.md` §5.5): every lock solved on this
  * computer, newest first, in the Solver tab beside the library
- * (`#/solver/locks`). A row says what was locked, where, how and how well;
- * a click opens a solved one in the library. Search, a spot filter, rename,
+ * (`#/solver/locks`). A solve running shows its progress on top. A row says
+ * what was locked, where, how and how well; a click opens a solved one on its
+ * spot, still in My nodelocks (`#/solver/lock=<id>&…`). Search, a spot filter, rename,
  * duplicate and edit, delete (one or the selected), all local.
  */
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { Dialog } from "@rail/ui/dialog/Dialog";
+import { Icon } from "@rail/ui/icon/Icon";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -16,7 +18,8 @@ import { go } from "../../lib/router";
 import { nodelockSuggestEn, nodelockSuggestHr, type Archetype } from "../door";
 import { nodelockData, onNodelocksChanged, type NodeLockRow } from "./data";
 import styles from "./nodelock.module.css";
-import { editLock, openLock, parseRow, useNodelockSession } from "./session";
+import { editLock, LOCKS_PARAM, openLock, parseRow, useNodelockSession } from "./session";
+import { SolveProgress } from "./slot";
 
 const DATE = liveDateFormat({ day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
@@ -86,9 +89,11 @@ export function History({ libraryParam }: { libraryParam: string | null }) {
       </div>
     );
   }
+  const progress = session.running ? <SolveProgress running={session.running} /> : null;
   if (!rows.length) {
     return (
       <div className={styles.empty}>
+        {progress}
         <p>{t.empty}</p>
         <a className={styles.link} href={`#/solver${libraryParam ? `/${encodeURIComponent(libraryParam)}` : ""}`}>
           {t.emptyLink}
@@ -131,6 +136,7 @@ export function History({ libraryParam }: { libraryParam: string | null }) {
 
   return (
     <div className={styles.history}>
+      {progress}
       <div className={styles.historyBar}>
         <input
           type="search"
@@ -285,20 +291,53 @@ export function History({ libraryParam }: { libraryParam: string | null }) {
   );
 }
 
-/** The switch between the library and My nodelocks, above both. */
-export function SolverTabs({ locks, libraryParam }: { locks: boolean; libraryParam: string | null }) {
+/**
+ * The switch between the library (the clean solve) and My nodelocks, above
+ * both: one joined pill like Cash | Tournaments, the active side filled. Each
+ * side goes back to where it was left; a spinner while a lock is solving.
+ */
+export function SolverTabs({
+  locks,
+  libraryParam,
+  locksParam,
+  solving,
+}: {
+  locks: boolean;
+  libraryParam: string | null;
+  locksParam: string;
+  solving: boolean;
+}) {
   const t = useT().nodelock;
   return (
     <div className={styles.switch} role="tablist" aria-label={t.tabsLabel}>
-      <button type="button" role="tab" aria-selected={!locks} className={styles.switchTab} onClick={() => go("solver", libraryParam)}>
+      <button
+        type="button"
+        role="tab"
+        aria-selected={!locks}
+        className={styles.switchTab}
+        title={t.libraryHint}
+        onClick={() => {
+          if (locks) go("solver", libraryParam);
+        }}
+      >
         {t.library}
       </button>
-      <button type="button" role="tab" aria-selected={locks} className={styles.switchTab} onClick={() => go("solver", LOCKS_PARAM)}>
+      <button
+        type="button"
+        role="tab"
+        aria-selected={locks}
+        className={styles.switchTab}
+        title={t.mineHint}
+        onClick={() => {
+          if (!locks) go("solver", locksParam);
+        }}
+      >
+        <Icon name="lock" />
         {t.mine}
+        {solving ? <span className={styles.tabSpinner} aria-label={t.sidebarSolving} /> : null}
       </button>
     </div>
   );
 }
 
-/** The Solver tab's parameter for My nodelocks (`#/solver/locks`). */
-export const LOCKS_PARAM = "locks";
+export { LOCKS_PARAM };

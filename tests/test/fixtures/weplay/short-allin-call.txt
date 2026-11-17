@@ -1,0 +1,43 @@
+Weplay Hand #90171190: Tournament ($22 Bounty Blitz Turbo)#11388668, $10+$2 Hold'em No Limit - Level XVI (1500/3000) - 2026/10/02 19:23:30 UTC
+Table '11388668 1'(11827810) 7-max Seat #7 is the button
+Seat 2: kole1992 (11121 in chips)
+Seat 3: AbetakeSgadd (64694 in chips)
+Seat 4: LA870 (91490 in chips)
+Seat 5: Papismirk8 (82489 in chips)
+Seat 6: DRaleguadual (71213 in chips)
+Seat 7: BlackjackClaque (109170 in chips)
+kole1992: posts the ante 450
+AbetakeSgadd: posts the ante 450
+LA870: posts the ante 450
+Papismirk8: posts the ante 450
+DRaleguadual: posts the ante 450
+BlackjackClaque: posts the ante 450
+kole1992: posts small blind 1500
+AbetakeSgadd: posts big blind 3000
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Kh]
+LA870: folds
+Papismirk8: folds
+DRaleguadual: raises 6000 to 6000
+BlackjackClaque: folds
+kole1992: raises 7500 to 9000
+AbetakeSgadd: folds
+DRaleguadual: raises 64763 to 70763 and is all-in
+kole1992: calls 1671 and is all-in
+Uncalled bet (60092) returned to DRaleguadual
+*** FLOP *** [5c 9s 6h]
+*** TURN *** [5c 9s 6h] [9h]
+*** RIVER *** [5c 9s 6h 9h] [2s]
+*** SHOW DOWN ***
+kole1992: shows [8d Kh] (a pair of Nines)
+DRaleguadual: shows [As 6d] (two pair, Nines and Sixes)
+DRaleguadual collected 27042 from pot
+*** SUMMARY ***
+Total pot 27042 | Rake 0 
+Board [5c 9s 6h 9h 2s]
+Seat 2: kole1992 (small blind) showed [8d Kh] and lost with a pair of Nines
+Seat 3: AbetakeSgadd (big blind) folded before Flop 
+Seat 4: LA870 folded before Flop 
+Seat 5: Papismirk8 folded before Flop 
+Seat 6: DRaleguadual showed [As 6d] and won (27042) with two pair, Nines and Sixes
+Seat 7: BlackjackClaque (button) folded before Flop

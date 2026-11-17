@@ -831,7 +831,9 @@ export const hr: Dict = {
       background: "Pozadina",
       color: "Boja broja",
       theme: "Tema",
-      dragHint: "Otključan box povuci da ga pomakneš, a za kut da mu promijeniš veličinu.",
+      dragHint: "Otključan box povuci da ga pomakneš, a za kut da mu promijeniš veličinu. Desni klik na box otvara ove postavke.",
+      panelTitle: "RNG",
+      close: "Zatvori",
       resetLook: "Vrati izgled",
     },
     startup: {
@@ -1554,6 +1556,11 @@ export const hr: Dict = {
     tabsLabel: "Solver",
     library: "Biblioteka",
     mine: "Moji nodelockovi",
+    libraryHint: "Čisti GTO solve, bez nodelockova",
+    mineHint: "Tvoji nodelockani spotovi, solvani na ovom računalu",
+    opening: "Otvaram nodelock…",
+    offSpot: "Ovaj prikaz je GTO: lock mijenja drugu odluku.",
+    toLockedSpot: "Idi na zaključani spot",
     search: "Traži po imenu, kartama ili liniji",
     searchLabel: "Traži nodelockove",
     allSpots: "Svi spotovi",
@@ -1597,8 +1604,8 @@ export const hr: Dict = {
 
   rngBox: {
     label: (n) => (n === null ? "Slučajni broj" : `Slučajni broj ${n}. Klikni za novi.`),
-    hint: "Klikni za novi broj",
-    hintUnlocked: "Klikni za novi broj, povuci za pomicanje, povuci kut za veličinu",
+    hint: "Klikni za novi broj, desni klik za postavke",
+    hintUnlocked: "Klikni za novi broj, povuci za pomicanje, povuci kut za veličinu, desni klik za postavke",
   },
 
   hudPopup: {

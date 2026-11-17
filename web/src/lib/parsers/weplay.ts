@@ -22,7 +22,7 @@ import {
 import { parseStandardHand } from "../phf/serialize";
 import type { PhfHand } from "../phf/types";
 
-export const WEPLAY_PARSER_VERSION = "2.1.0";
+export const WEPLAY_PARSER_VERSION = "2.2.0";
 
 const HAND_SPLIT_REGEX = /(?=^Weplay Hand #\d+:)/gm;
 const AMOUNT = String.raw`(?:\$|€|£)?(\d+(?:\.\d+)?)`;
@@ -37,7 +37,6 @@ const PLAYER_ACTION_REGEX =
   /^(.+?): (?:posts|raises|calls|bets|folds|checks|shows|mucks|doesn't show)/;
 const COLLECTED_REGEX = /^(.+?) collected /;
 const UNCALLED_REGEX = new RegExp(String.raw`^Uncalled bet \(${AMOUNT}\) returned to (.+)$`);
-const HEADER_STAKES_REGEX = new RegExp(String.raw`\(${AMOUNT}\/${AMOUNT}\)`);
 
 /** Minor units. Cash hands are in cents; tournament chips are already whole. */
 function parseUnits(raw: string, minorUnits: number): number {
@@ -161,20 +160,6 @@ function isBombPotHand(chunk: string): boolean {
 
 function isAllInOrFoldTable(chunk: string): boolean {
   return /All-in or Fold/i.test(chunk);
-}
-
-function parseHeaderStakes(
-  header: string,
-  money: MoneyContext,
-): { sb: number; bb: number } | null {
-  const match = header.match(HEADER_STAKES_REGEX);
-  if (!match) {
-    return null;
-  }
-  return {
-    sb: parseUnits(match[1], money.minorUnits),
-    bb: parseUnits(match[2], money.minorUnits),
-  };
 }
 
 function normalizeShowsLine(line: string): string {
@@ -311,7 +296,7 @@ interface Skip {
 }
 
 /** Cheap structural checks that can be made before any rewriting happens. */
-function getEarlySkip(chunk: string, header: string, money: MoneyContext): Skip | null {
+function getEarlySkip(chunk: string): Skip | null {
   if (isAllInOrFoldTable(chunk)) {
     return { reason: "all-in-or-fold-table", message: "All-in or Fold table." };
   }
@@ -320,31 +305,9 @@ function getEarlySkip(chunk: string, header: string, money: MoneyContext): Skip 
   // the button and the big blind is empty), not a broken hand: it is played
   // out like any other and positioned from the button (`assignPositions`).
 
-  const stakes = parseHeaderStakes(header, money);
-  if (stakes) {
-    const shortSb = chunk.matchAll(
-      new RegExp(String.raw`: posts small blind ${AMOUNT} and is all-in`, "gi"),
-    );
-    for (const match of shortSb) {
-      if (parseUnits(match[1], money.minorUnits) < stakes.sb) {
-        return {
-          reason: "short-allin-small-blind",
-          message: "Small blind posted all-in for less than the stated blind.",
-        };
-      }
-    }
-    const shortBb = chunk.matchAll(
-      new RegExp(String.raw`: posts big blind ${AMOUNT} and is all-in`, "gi"),
-    );
-    for (const match of shortBb) {
-      if (parseUnits(match[1], money.minorUnits) < stakes.bb) {
-        return {
-          reason: "short-allin-big-blind",
-          message: "Big blind posted all-in for less than the stated blind.",
-        };
-      }
-    }
-  }
+  // A blind posted all-in for less than the stated blind is a short stack,
+  // not a broken hand: the blind is what the player had, and the hand is
+  // played out like any other (the pot's maths take the posted amount).
 
   const seats = extractSeatedPlayers(chunk.split(/\r?\n/));
   const zeroStackPlayers = new Set<string>();
@@ -371,11 +334,9 @@ function getEarlySkip(chunk: string, header: string, money: MoneyContext): Skip 
 }
 
 /** Structural checks that only make sense after the rewrites are applied. */
-function findIntegritySkip(lines: string[], header: string, money: MoneyContext): Skip | null {
+function findIntegritySkip(lines: string[], money: MoneyContext): Skip | null {
   const seats = extractSeatedPlayers(lines);
   const seatedNames = new Set(seats.keys());
-  const stakes = parseHeaderStakes(header, money);
-
   let sawFlop = false;
   let sawTurn = false;
   let sawFirstFlop = false;
@@ -384,7 +345,6 @@ function findIntegritySkip(lines: string[], header: string, money: MoneyContext)
   let sawSecondTurn = false;
   let inSummary = false;
   let currentBet = 0;
-  let preflop = true;
   const commitment = new Map<string, number>();
 
   for (const line of lines) {
@@ -406,7 +366,6 @@ function findIntegritySkip(lines: string[], header: string, money: MoneyContext)
       }
       currentBet = 0;
       commitment.clear();
-      preflop = false;
       continue;
     }
     if (/^\*\*\* (?:FIRST |SECOND )?TURN\b/.test(line)) {
@@ -501,14 +460,7 @@ function findIntegritySkip(lines: string[], header: string, money: MoneyContext)
     );
     if (callMatch) {
       const amount = parseUnits(callMatch[2], money.minorUnits);
-      const allIn = Boolean(callMatch[3]);
       addCommitment(commitment, callMatch[1], amount);
-      if (preflop && allIn && stakes && amount < stakes.bb) {
-        return {
-          reason: "short-allin-call",
-          message: "An all-in call preflop is smaller than the big blind.",
-        };
-      }
       continue;
     }
 
@@ -585,7 +537,7 @@ export function normalizeWeplayChunk(
     };
   }
 
-  const early = getEarlySkip(chunk, header, money);
+  const early = getEarlySkip(chunk);
   if (early) {
     return { skip: early };
   }
@@ -656,7 +608,7 @@ export function normalizeWeplayChunk(
   }
 
   const cleaned = stripPhantomWalkBoards(normalized);
-  const integrity = findIntegritySkip(cleaned, header, money);
+  const integrity = findIntegritySkip(cleaned, money);
   if (integrity) {
     return { skip: integrity };
   }

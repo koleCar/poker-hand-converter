@@ -19,6 +19,7 @@ import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
 import { useLocale, useT } from "../../i18n";
+import { go } from "../../lib/router";
 import {
   actionColours,
   availableArchetypes,
@@ -38,7 +39,7 @@ import type { LockEarlier, LockSet, NodelockSummary } from "./contract";
 import { editorReducer, fromLockArrays, initialState, lockedCount, sharesOf, type EditorAction, type EditorState } from "./editor/state";
 import { engineInfo, type EngineInfo } from "./engine";
 import styles from "./Editor.module.css";
-import { boardText, closeEditor, startSolve, useNodelockSession, type EditorOpen } from "./session";
+import { boardText, closeEditor, LOCKS_PARAM, startSolve, useNodelockSession, type EditorOpen } from "./session";
 import { lockSpec, lockTarget, suggestContext, type LockTarget } from "./spot";
 
 type Mode = "hands" | "range" | "classes";
@@ -204,6 +205,8 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
     setSubmitting(true);
     const started = await startSolve({ at, lockSet, name, preset: state.preset, summary }).finally(() => setSubmitting(false));
     if (started === "noEngine" || started === "failed") setMessage(started === "noEngine" ? t.noEngine : t.startError);
+    // The library stays the clean solve: the lock's progress, then the lock, are in My nodelocks.
+    else go("solver", LOCKS_PARAM);
   };
 
   /* ------------------------------------------------------------- pieces - */

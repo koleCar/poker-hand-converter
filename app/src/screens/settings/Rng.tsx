@@ -7,6 +7,11 @@
  * number colours. Everything is `RngSettings`, stored and synced as
  * before; the box takes it as soon as it is saved. While this section is
  * on screen the box shows (switch on), so what is styled is seen.
+ *
+ * The RNG panel (a right-click on the box, `rngBox/RngPanel.tsx`) shows
+ * the same rows without the switch (`panel`). Each reads again when
+ * another window saved (`onRngSettingsSaved`): the panel, Settings, or the
+ * box's drag.
  */
 import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 
@@ -15,6 +20,7 @@ import {
   errorText,
   inApp,
   ipc,
+  onRngSettingsSaved,
   onTilingSettingsChanged,
   RNG_BOX,
   RNG_NUMBER,
@@ -36,7 +42,17 @@ function themeHex(token: string): string {
   return /^#[0-9a-f]{6}$/i.test(out) ? out : "#000000";
 }
 
-function Row({ label, htmlFor, hint, children }: { label: string; htmlFor?: string; hint?: string; children: ReactNode }) {
+function Row({
+  label,
+  htmlFor,
+  hint,
+  children,
+}: {
+  label: string;
+  htmlFor?: string;
+  hint?: string;
+  children: ReactNode;
+}) {
   return (
     <div className={`${styles.row} ${styles.rowWide}`} title={hint}>
       <label htmlFor={htmlFor}>{label}</label>
@@ -47,6 +63,7 @@ function Row({ label, htmlFor, hint, children }: { label: string; htmlFor?: stri
 
 function Slider({
   id,
+  narrow = false,
   value,
   min,
   max,
@@ -54,6 +71,7 @@ function Slider({
   onChange,
 }: {
   id?: string;
+  narrow?: boolean;
   value: number;
   min: number;
   max: number;
@@ -65,7 +83,7 @@ function Slider({
       <input
         id={id}
         type="range"
-        className={styles.range}
+        className={narrow ? styles.rangeNarrow : styles.range}
         min={min}
         max={max}
         step={1}
@@ -78,17 +96,34 @@ function Slider({
   );
 }
 
-export function Rng() {
+/** `panel`: in the RNG panel's window - no switch, no preview, narrower. */
+export function Rng({ panel = false }: { panel?: boolean }) {
+  /** This window's label (`rng_box::RngSaved.from`): its own saves are not read again. */
+  const self = panel ? "rng-panel" : "main";
   const t = useT().settings;
-  const ids = { show: useId(), lock: useId(), width: useId(), number: useId(), bg: useId(), fg: useId() };
+  const ids = {
+    show: useId(),
+    lock: useId(),
+    width: useId(),
+    number: useId(),
+    bg: useId(),
+    fg: useId(),
+  };
   const [rng, setRng] = useState<RngSettings | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [generation, setGeneration] = useState(0);
   const section = useRef<HTMLDivElement>(null);
   const pending = useRef<number | null>(null);
 
-  // Read again when a sync brought another computer's settings, or the box was dragged.
+  // Read again when a sync brought another computer's settings, or another window saved (the box dragged).
   useEffect(() => onTilingSettingsChanged(() => setGeneration((g) => g + 1)), []);
+  useEffect(
+    () =>
+      onRngSettingsSaved((from) => {
+        if (from !== self) setGeneration((g) => g + 1);
+      }),
+    [self],
+  );
   useEffect(() => {
     let live = true;
     ipc
@@ -103,7 +138,7 @@ export function Rng() {
   // The box shows while this section is on screen.
   useEffect(() => {
     const node = section.current;
-    if (!inApp || !node) return;
+    if (!inApp || !node || panel) return;
     let shown = false;
     const tell = (on: boolean) => {
       if (on === shown) return;
@@ -116,7 +151,7 @@ export function Rng() {
       observer.disconnect();
       tell(false);
     };
-  }, []);
+  }, [panel]);
 
   useEffect(
     () => () => {
@@ -163,19 +198,21 @@ export function Rng() {
 
   return (
     <div ref={section}>
-      <div className={styles.card}>
-        <div className={`${styles.row} ${styles.rowWide}`} title={t.rng.hint}>
-          <label htmlFor={ids.show}>{t.rng.show}</label>
-          <Toggle
-            id={ids.show}
-            checked={rng?.enabled ?? false}
-            disabled={rng === null}
-            onChange={(on) => change({ enabled: on })}
-          />
+      {!panel && (
+        <div className={styles.card}>
+          <div className={`${styles.row} ${styles.rowWide}`} title={t.rng.hint}>
+            <label htmlFor={ids.show}>{t.rng.show}</label>
+            <Toggle
+              id={ids.show}
+              checked={rng?.enabled ?? false}
+              disabled={rng === null}
+              onChange={(on) => change({ enabled: on })}
+            />
+          </div>
         </div>
-      </div>
-      {rng?.enabled && (
-        <div className={`${styles.card} ${styles.cardAfter}`}>
+      )}
+      {rng && (rng.enabled || panel) && (
+        <div className={panel ? styles.card : `${styles.card} ${styles.cardAfter}`}>
           <Row label={t.rng.lock} htmlFor={ids.lock} hint={t.rng.lockHint}>
             <Toggle id={ids.lock} checked={rng.locked} onChange={(on) => change({ locked: on })} />
           </Row>
@@ -187,6 +224,7 @@ export function Rng() {
           <Row label={t.rng.boxSize} htmlFor={ids.width}>
             <Slider
               id={ids.width}
+              narrow={panel}
               label={t.rng.width}
               value={rng.width}
               min={RNG_BOX.min}
@@ -195,6 +233,7 @@ export function Rng() {
             />
             <span className={styles.muted}>×</span>
             <Slider
+              narrow={panel}
               label={t.rng.height}
               value={rng.height}
               min={RNG_BOX.min}
@@ -205,6 +244,7 @@ export function Rng() {
           <Row label={t.rng.numberSize} htmlFor={ids.number}>
             <Slider
               id={ids.number}
+              narrow={panel}
               value={rng.numberSize}
               min={RNG_NUMBER.min}
               max={RNG_NUMBER.max}
@@ -240,7 +280,8 @@ export function Rng() {
             />
           </Row>
           <div className={`${styles.row} ${styles.rowWide}`}>
-            <span className={styles.muted}>{t.rng.dragHint}</span>
+            {!panel && <span className={styles.muted}>{t.rng.dragHint}</span>}
+            {panel && <span />}
             <button type="button" className="btn btn--ghost btn--sm" onClick={resetLook}>
               {t.rng.resetLook}
             </button>

@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "83a361d3d50f9edfd51d543309ac801764ab84888d7d73ce202d28943e6bf402",
+      "handId": "HD90171190",
+      "index": 0,
+      "phf": "81189b888f45bee59cf0528e5c4b9ad4354afde4b03c9914775013f28899d3b6",
+      "reason": null,
+      "row": "e86584d3c5a5c01602576a93ede09e6462ffc294db9ec4e00f73d28bc55aa84a"
+    }
+  ],
+  "input": {
+    "bytes": 1631,
+    "path": "tests/test/fixtures/weplay/short-allin-call.txt",
+    "sha256": "2c28723cb0ed0c5fb0e5533eedd13a1771a8f6f5807e853055470c5fab59fed1"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -266,
+    "ev_net_bb_milli": -89
+  }
+}

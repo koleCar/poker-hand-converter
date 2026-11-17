@@ -594,6 +594,11 @@ button.pill:hover {
   accent-color: var(--accent-fg);
 }
 
+.rangeNarrow {
+  inline-size: 84px;
+  accent-color: var(--accent-fg);
+}
+
 /* A second card under the first in one group. */
 .cardAfter {
   margin-top: var(--space-3);

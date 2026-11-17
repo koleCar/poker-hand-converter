@@ -178,6 +178,7 @@ pub fn get_rng_settings(store: State<'_, StoreState>) -> RngSettings {
 #[tauri::command]
 pub async fn set_rng_settings<R: Runtime>(
     app: AppHandle<R>,
+    window: tauri::Window<R>,
     store: State<'_, StoreState>,
     hud: State<'_, HudState>,
     settings: RngSettings,
@@ -185,6 +186,8 @@ pub async fn set_rng_settings<R: Runtime>(
     write_rng(&writer(&store)?, &settings)?;
     hud.rng_written(settings);
     crate::rng_box::restyle(&app);
+    // Settings and the RNG panel read again what the other saved.
+    crate::rng_box::tell_saved(&app, window.label());
     Ok(())
 }
 

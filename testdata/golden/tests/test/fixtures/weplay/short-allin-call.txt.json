@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD90171190",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "81189b888f45bee59cf0528e5c4b9ad4354afde4b03c9914775013f28899d3b6",
+      "standardText": "94e0a7bf42b6a2181a2d98ce1bc242c4232d11e3136f4e6395a460386cab32f0",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1631,
+    "path": "tests/test/fixtures/weplay/short-allin-call.txt",
+    "sha256": "2c28723cb0ed0c5fb0e5533eedd13a1771a8f6f5807e853055470c5fab59fed1"
+  },
+  "refusals": [],
+  "standardTextFile": "94e0a7bf42b6a2181a2d98ce1bc242c4232d11e3136f4e6395a460386cab32f0",
+  "stats": {
+    "bySite": {
+      "weplay": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

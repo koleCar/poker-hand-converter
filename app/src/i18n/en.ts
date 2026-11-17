@@ -841,7 +841,9 @@ export const en = {
       background: "Background",
       color: "Number colour",
       theme: "Theme",
-      dragHint: "Unlocked, drag the box to move it and its corner to resize it.",
+      dragHint: "Unlocked, drag the box to move it and its corner to resize it. Right-click the box for these settings.",
+      panelTitle: "RNG",
+      close: "Close",
       resetLook: "Reset look",
     },
     startup: {
@@ -1601,6 +1603,11 @@ export const en = {
     tabsLabel: "Solver",
     library: "Library",
     mine: "My nodelocks",
+    libraryHint: "The clean GTO solve, no nodelocks",
+    mineHint: "The spots you nodelocked, solved on this computer",
+    opening: "Opening the nodelock…",
+    offSpot: "This view is GTO: the lock changes another decision.",
+    toLockedSpot: "Go to the locked spot",
     search: "Search by name, cards or line",
     searchLabel: "Search nodelocks",
     allSpots: "All spots",
@@ -1646,8 +1653,8 @@ export const en = {
   /** The RNG box (`src/rngBox/RngBox.tsx`). */
   rngBox: {
     label: (n: number | null) => (n === null ? "Random number" : `Random number ${n}. Click for a new one.`),
-    hint: "Click for a new number",
-    hintUnlocked: "Click for a new number, drag to move, drag the corner to resize",
+    hint: "Click for a new number, right-click for settings",
+    hintUnlocked: "Click for a new number, drag to move, drag the corner to resize, right-click for settings",
   },
 
   hudPopup: {

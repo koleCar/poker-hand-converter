@@ -17,6 +17,7 @@ import { useMemo, useState } from "react";
 
 import { useUiStrings } from "../i18n";
 import type { Shown, StatDefinition } from "../model/stats";
+import { useStatTip } from "../stats/StatTip";
 import { StatValue } from "../stats/StatValue";
 import { textLocale } from "./definitions";
 import type { StatGroup } from "./model";
@@ -53,6 +54,7 @@ export function HandMatrix({ rows, columns }: HandMatrixProps) {
   const t = useUiStrings();
   const m = t.reports.matrix;
   const locale = textLocale(t.intlLocale);
+  const tip = useStatTip();
   const [metric, setMetric] = useState<Metric>("bb_per_100");
   const [selected, setSelected] = useState<string | null>(null);
   const byClass = useMemo(() => new Map(rows.map((row) => [row.key, row])), [rows]);
@@ -138,6 +140,7 @@ export function HandMatrix({ rows, columns }: HandMatrixProps) {
       </div>
       {selected !== null ? (
         <div className={styles.cellDetail} role="status">
+          {tip.layer}
           <strong>{m.selected(selected)}</strong>
           {chosen ? (
             <dl>
@@ -145,9 +148,9 @@ export function HandMatrix({ rows, columns }: HandMatrixProps) {
                 const value = chosen.stats[index];
                 return entry && value ? (
                   <div key={entry.id}>
-                    <dt title={entry.name[locale]}>{entry.label[locale]}</dt>
+                    <dt {...tip.on({ definition: entry })}>{entry.label[locale]}</dt>
                     <dd>
-                      <StatValue shown={value} unit={entry.format.unit} />
+                      <StatValue shown={value} unit={entry.format.unit} definition={entry} context={selected} />
                     </dd>
                   </div>
                 ) : null;
