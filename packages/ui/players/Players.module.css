@@ -336,6 +336,46 @@
   text-transform: uppercase;
 }
 
+/* A header sorts the list by its column; its direction beside it (as Live's). */
+.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.sort:hover,
+.sorted {
+  color: var(--text-primary);
+}
+
+.sortMark {
+  opacity: 0;
+  font-size: var(--font-size-sm);
+}
+
+.sort:hover .sortMark,
+.sort:focus-visible .sortMark {
+  opacity: 0.6;
+}
+
+.sorted .sortMark {
+  opacity: 1;
+  color: var(--accent-fg);
+}
+
+.gridHead .number .sort {
+  flex-direction: row-reverse;
+}
+
 .gridBody {
   position: relative;
   min-width: 46rem;

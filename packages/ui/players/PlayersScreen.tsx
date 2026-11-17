@@ -34,6 +34,7 @@ import { RailLoader } from "../loader/RailLoader";
 import type { Definition } from "../reports/model";
 import {
   PLAYER_COLOURS,
+  nextPlayerSort,
   playerKey,
   reasonText,
   SHOWN_KINDS,
@@ -66,6 +67,7 @@ let lastQuery: Query = {
   colours: [],
   labels: [],
   noted: null,
+  sort: null,
 };
 
 export interface PlayersScreenProps {
@@ -188,9 +190,10 @@ export function PlayersScreen({
       colours: hasColours ? query.colours : [],
       labels: hasLabels ? query.labels : [],
       noted: query.noted,
+      sort: query.sort,
       limit,
     }),
-    [debounced, query.site, kind, query.colours, query.labels, query.noted, limit, hasColours, hasLabels],
+    [debounced, query.site, kind, query.colours, query.labels, query.noted, query.sort, limit, hasColours, hasLabels],
   );
   const askKey = JSON.stringify(ask);
   const shapeKey = JSON.stringify({ ...ask, limit: 0 });
@@ -262,6 +265,8 @@ export function PlayersScreen({
           // Enter on a row: into the profile (rendered by then, or on the next frame).
           window.requestAnimationFrame(() => panelRef.current?.querySelector<HTMLElement>("section")?.focus())
         }
+        sort={query.sort}
+        onSort={(column) => update({ sort: nextPlayerSort(query.sort, column) })}
         more={list.matching > list.rows.length && limit < MAX_ROWS}
         onMore={() => setLimit((n) => Math.min(MAX_ROWS, n + PAGE))}
       />

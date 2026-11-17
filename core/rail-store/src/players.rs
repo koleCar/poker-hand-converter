@@ -33,6 +33,7 @@
 //!   opponent in a room with real names: never on a seat label, never on a
 //!   session's token. Local only for now.
 
+use std::cmp::Ordering;
 use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 
@@ -80,6 +81,54 @@ impl GameKind {
     }
 }
 
+/// A column the list can be sorted by.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PlayerSortColumn {
+    /// The name, any case.
+    Name,
+    /// The room (`segments.site`).
+    Room,
+    /// Hands together in the list's kind.
+    Hands,
+    /// The hero's result against them (none: last).
+    Result,
+    /// The last hand seen (none: last).
+    LastSeen,
+}
+
+impl PlayerSortColumn {
+    /// `name`, `room`, `hands`, `result`, `lastSeen`.
+    pub fn parse(text: &str) -> Option<Self> {
+        match text {
+            "name" => Some(Self::Name),
+            "room" => Some(Self::Room),
+            "hands" => Some(Self::Hands),
+            "result" => Some(Self::Result),
+            "lastSeen" => Some(Self::LastSeen),
+            _ => None,
+        }
+    }
+}
+
+/// The order the reader picked.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PlayerSort {
+    pub column: PlayerSortColumn,
+    pub descending: bool,
+}
+
+/// `a` before `b` in `descending` or rising order, a missing value last
+/// either way.
+fn missing_last<T: Ord>(a: Option<T>, b: Option<T>, descending: bool) -> Ordering {
+    match (a, b) {
+        (Some(a), Some(b)) if descending => b.cmp(&a),
+        (Some(a), Some(b)) => a.cmp(&b),
+        (Some(_), None) => Ordering::Less,
+        (None, Some(_)) => Ordering::Greater,
+        (None, None) => Ordering::Equal,
+    }
+}
+
 /// What the list shows.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct PlayerQuery {
@@ -94,6 +143,9 @@ pub struct PlayerQuery {
     pub labels: Vec<String>,
     /// Only players with a note (`true`), or only those without (`false`).
     pub noted: Option<bool>,
+    /// The order; none: most hands together first. Equal values keep that
+    /// order (then the name, then the room).
+    pub sort: Option<PlayerSort>,
     /// At most this many rows (capped at [`LIST_MAX`]).
     pub limit: u32,
 }
@@ -394,19 +446,47 @@ impl Reader {
                 matched.push(line);
             }
             list.matching = u64::try_from(matched.len()).unwrap_or(u64::MAX);
-            let by = |line: &&Line| together(&line.seen, query.kind);
-            if matched.len() > limit {
-                matched.select_nth_unstable_by(limit, |a, b| {
-                    by(b).cmp(&by(a)).then_with(|| a.player.cmp(&b.player))
-                });
-                matched.truncate(limit);
-            }
-            matched.sort_by(|a, b| {
+            let by = |line: &Line| together(&line.seen, query.kind);
+            let net = |line: &Line| result(&line.seen, query.kind, list.mixed_kind).0;
+            let most_hands = |a: &Line, b: &Line| {
                 by(b)
                     .cmp(&by(a))
                     .then_with(|| a.player.cmp(&b.player))
                     .then_with(|| a.site.cmp(&b.site))
-            });
+            };
+            let order = |a: &&Line, b: &&Line| {
+                let Some(sort) = query.sort else {
+                    return most_hands(a, b);
+                };
+                let rising = match sort.column {
+                    PlayerSortColumn::Name => a.lower.cmp(&b.lower),
+                    PlayerSortColumn::Room => a.site.cmp(&b.site),
+                    PlayerSortColumn::Hands => by(a).cmp(&by(b)),
+                    PlayerSortColumn::Result => {
+                        return missing_last(net(a), net(b), sort.descending)
+                            .then_with(|| most_hands(a, b));
+                    }
+                    PlayerSortColumn::LastSeen => {
+                        return missing_last(
+                            a.seen.last_played_at.as_deref(),
+                            b.seen.last_played_at.as_deref(),
+                            sort.descending,
+                        )
+                        .then_with(|| most_hands(a, b));
+                    }
+                };
+                let keyed = if sort.descending {
+                    rising.reverse()
+                } else {
+                    rising
+                };
+                keyed.then_with(|| most_hands(a, b))
+            };
+            if matched.len() > limit {
+                matched.select_nth_unstable_by(limit, order);
+                matched.truncate(limit);
+            }
+            matched.sort_by(order);
             list.rows = matched
                 .into_iter()
                 .map(|line| {
