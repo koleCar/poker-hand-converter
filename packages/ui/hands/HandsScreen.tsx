@@ -85,6 +85,11 @@ export interface HandsScreenProps {
    * ones (in the list's order) to the surface's menu (the desktop's).
    */
   onRowsMenu?: (handKeys: string[], at: MenuPoint) => void;
+  /**
+   * The chosen hands' own actions (the desktop's bar at the window's foot),
+   * given the chosen hands in the list's order and how to let them go.
+   */
+  renderChosen?: (handKeys: string[], clear: () => void) => ReactNode;
 }
 
 export function HandsScreen({
@@ -110,6 +115,7 @@ export function HandsScreen({
   panelRef,
   fill = false,
   onRowsMenu,
+  renderChosen,
 }: HandsScreenProps) {
   const t = useUiStrings().hands;
   // Big blinds or each hand's money, for the list's results (as on Live).
@@ -256,6 +262,12 @@ export function HandsScreen({
           ) : null}
         </div>
       </div>
+      {renderChosen && onRowsMenu
+        ? renderChosen(
+            list.rows.filter((candidate) => selection.checked.has(candidate.handKey)).map((candidate) => candidate.handKey),
+            selection.clear,
+          )
+        : null}
     </HandSessionsContext.Provider>
   );
 }

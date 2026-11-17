@@ -250,6 +250,22 @@ export interface StatTileStrings {
   noSample: string;
 }
 
+/** A statistic's hover box (`StatTip`): the headings of its lines and their words. */
+export interface StatTipStrings {
+  sample: string;
+  idealRange: string;
+  sampleNeeded: string;
+  /** A count in a sample's unit, formatted: "9,850 chances", "4,210 hands", "9,320 actions". */
+  chances: (count: number) => string;
+  hands: (count: number) => string;
+  actions: (count: number) => string;
+  /** A range open on one side, its bound already formatted: "45% or more", "below 20%". */
+  atLeast: (bound: string) => string;
+  below: (bound: string) => string;
+  /** Under "Sample needed", by the reliability level of a short sample. */
+  short: { low: string; insufficient: string };
+}
+
 /** A table of statistics (`StatTable`); its tooltips reuse `StatTileStrings`. */
 export interface StatTableStrings {
   /** Column headings. */
@@ -347,6 +363,7 @@ export interface UiStrings {
   replayer: ReplayerStrings;
   statTile: StatTileStrings;
   statTable: StatTableStrings;
+  statTip: StatTipStrings;
   winrateGraph: WinrateGraphStrings;
   hands: HandsStrings;
   reports: ReportsStrings;

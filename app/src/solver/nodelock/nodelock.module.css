@@ -65,6 +65,12 @@
   background: var(--warning-bg);
 }
 
+/* Off the locked decision in My nodelocks: the view is GTO, said quietly. */
+.bannerOff {
+  border-color: var(--border-subtle);
+  background: var(--surface-raised);
+}
+
 .tag {
   display: inline-flex;
   align-items: center;
@@ -119,24 +125,38 @@
   min-inline-size: 0;
 }
 
+/* One joined pill, like Cash | Tournaments (`KindToggle.module.css`), a
+   size up: the two sides with a line between, the active one filled. */
 .switch {
   display: inline-flex;
   justify-self: start;
-  gap: 2px;
-  padding: 2px;
-  border-radius: var(--radius-2);
-  background: var(--surface-inset);
+  overflow: hidden;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
 }
 
 .switchTab {
-  padding: var(--space-1) var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
   border: 0;
-  border-radius: var(--radius-1);
+  border-radius: 0;
   background: transparent;
   color: var(--text-secondary);
   font: inherit;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-base);
   cursor: pointer;
+}
+
+.switchTab + .switchTab {
+  border-inline-start: 1px solid var(--border-default);
+}
+
+.switchTab svg {
+  inline-size: 0.9rem;
+  block-size: 0.9rem;
 }
 
 .switchTab:hover {
@@ -144,9 +164,20 @@
 }
 
 .switchTab[aria-selected="true"] {
-  background: var(--surface-raised);
-  color: var(--text-primary);
-  box-shadow: var(--shadow-1);
+  background: var(--surface-selected);
+  color: var(--text-on-selected);
+  font-weight: var(--font-weight-semibold);
+  cursor: default;
+}
+
+.tabSpinner {
+  inline-size: 0.8rem;
+  block-size: 0.8rem;
+  border: 2px solid currentColor;
+  border-block-start-color: var(--warning-fg);
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: spin 0.9s linear infinite;
 }
 
 /* My nodelocks. */
@@ -381,6 +412,19 @@
 .sideTools {
   display: flex;
   gap: var(--space-1);
+}
+
+/* The locked board, the one thing that says which solve this is. */
+.sideBoard {
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+/* "1 of 3 done" under the buttons when more than one solve was asked for. */
+.sideCount {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
 }
 
 .sideBar {

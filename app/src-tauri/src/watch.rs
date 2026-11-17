@@ -12,6 +12,11 @@
 //! (`folders.rs`, R1.4) and later by Settings → Folders (R1.5). A folder
 //! found for a room reads only the room's files (`files.glob` of the
 //! shipped `sites.json`, [`WatchConfig::file_globs`]).
+//!
+//! At start the watcher reads again the files whose hands an older parser
+//! version refused (`Watcher::retry_refused`, the Refused screen's "Try
+//! again after an update"), so an app update that teaches a parser a hand
+//! brings those hands in by itself.
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, PoisonError};
@@ -99,6 +104,19 @@ impl WatcherState {
         match started {
             Ok(watcher) => {
                 log::info!("watcher started");
+                // A newer parser may read what an older one refused (WePlay
+                // 2.1.0 reads the dead-small-blind hands 2.0.0 refused as
+                // `bb-only-walk`): "Try again after an update" runs by itself
+                // once per start, so those hands reach the database without
+                // a click. Refusals today's parsers still refuse are recorded
+                // again with today's version and are not retried next time.
+                match watcher.retry_refused(None) {
+                    Ok(0) => {}
+                    Ok(files) => log::info!(
+                        "{files} files with refusals by an older parser read again at start"
+                    ),
+                    Err(error) => log::warn!("retrying older refusals at start: {error}"),
+                }
                 Self {
                     watcher: Mutex::new(Some(watcher)),
                     error: None,

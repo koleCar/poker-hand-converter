@@ -567,3 +567,39 @@ button.pill:hover {
 .live:empty {
   display: none;
 }
+
+/* A colour field drawn as a swatch (the RNG box's colours). */
+.swatch {
+  inline-size: 36px;
+  block-size: 24px;
+  padding: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: none;
+  cursor: pointer;
+}
+
+.swatch::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.swatch::-webkit-color-swatch {
+  border: none;
+  border-radius: calc(var(--radius-2) - 1px);
+}
+
+/* A range field in a row (the RNG box's sizes). */
+.range {
+  inline-size: 120px;
+  accent-color: var(--accent-fg);
+}
+
+.rangeNarrow {
+  inline-size: 84px;
+  accent-color: var(--accent-fg);
+}
+
+/* A second card under the first in one group. */
+.cardAfter {
+  margin-top: var(--space-3);
+}

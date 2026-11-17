@@ -6,13 +6,15 @@
  * it took highlighted - clicking its head shows that decision's range in the
  * grid, clicking another option takes it instead; the decision to make lists
  * its options to pick; after it, dashed, the decisions later seats would face
- * if everyone between folded.
+ * if everyone between folded. The postflop line (`after`, PostflopBar) goes on
+ * after them on the same bar, and the bar scrolls to keep the card being
+ * decided in view.
  */
 
 "use client";
 
 import { Overlay } from "@rail/ui/overlay/Overlay";
-import { useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { playedOptions } from "../analysis/chartSpots";
 import { useSolverDict } from "./host";
 import type { PreflopState } from "./preflop";
@@ -38,14 +40,28 @@ interface PreflopBarProps {
   /** The line of the past decision the grid shows instead of the one to make (null: the one to make). */
   viewing?: string | null;
   onView?: (line: string | null) => void;
+  /** The cards after preflop: the flop's and the postflop decisions (PostflopBar). */
+  after?: ReactNode;
 }
 
-export function PreflopBar({ tables, table, onTable, state, onLine, viewing = null, onView }: PreflopBarProps) {
+export function PreflopBar({ tables, table, onTable, state, onLine, viewing = null, onView, after }: PreflopBarProps) {
   const t = useSolverDict();
   const [settings, setSettings] = useState(false);
+  const bar = useRef<HTMLDivElement>(null);
+
+  // The card being decided stays in view as the line grows past the bar's width.
+  useEffect(() => {
+    const element = bar.current;
+    const current = element?.querySelector<HTMLElement>("[data-current]");
+    if (!element || !current) return;
+    const outer = element.getBoundingClientRect();
+    const inner = current.getBoundingClientRect();
+    if (inner.right > outer.right) element.scrollLeft += inner.right - outer.right + 8;
+    else if (inner.left < outer.left) element.scrollLeft -= outer.left - inner.left + 8;
+  });
 
   return (
-    <div className={styles.bar}>
+    <div className={styles.bar} ref={bar}>
       <div className={styles.tableCard}>
         <span className={styles.tableKind}>{t.settings.cash}</span>
         <strong>
@@ -70,6 +86,7 @@ export function PreflopBar({ tables, table, onTable, state, onLine, viewing = nu
           return (
             <div
               key={`${card.kind}:${card.line}`}
+              data-current={card.kind === "current" || undefined}
               className={`${styles.seat} ${shown ? styles.seatActing : ""} ${card.kind === "ahead" ? styles.seatLater : ""}`}
             >
               <button
@@ -105,6 +122,7 @@ export function PreflopBar({ tables, table, onTable, state, onLine, viewing = nu
             </div>
           );
         })}
+        {after}
       </div>
 
       {settings ? (

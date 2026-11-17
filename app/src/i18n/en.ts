@@ -244,6 +244,8 @@ export const en = {
       previous: "Previous page",
       next: "Next page",
       page: (page: number) => `Page ${page}`,
+      perPage: "Hands per page",
+      all: "All",
       range: (from: number, to: number, total: number) => `${n(from)}–${n(to)} of ${n(total)}`,
     },
     empty: {
@@ -825,7 +827,24 @@ export const en = {
     /** The RNG box (`rng_box.rs`): its switch. */
     rng: {
       show: "Show the RNG while you play",
-      hint: "One number from 1 to 100 in the top-right corner of your screen while a session is live. Click it for a new one.",
+      hint: "One number from 1 to 100 on your screen while a session is live. Click it for a new one.",
+      lock: "Lock RNG",
+      lockHint: "Locked, the box stays where it is: it can't be dragged or resized. Clicks still roll.",
+      placedInCorner: "Top-right corner",
+      placedByYou: "Where you put it",
+      reposition: "Reposition",
+      repositionHint: "Brings the box to the middle of the screen and unlocks it, so you can drag it where you want.",
+      boxSize: "Box size",
+      width: "Width",
+      height: "Height",
+      numberSize: "Number size",
+      background: "Background",
+      color: "Number colour",
+      theme: "Theme",
+      dragHint: "Unlocked, drag the box to move it and its corner to resize it. Right-click the box for these settings.",
+      panelTitle: "RNG",
+      close: "Close",
+      resetLook: "Reset look",
     },
     startup: {
       heading: "Startup",
@@ -1006,11 +1025,18 @@ export const en = {
       label: (count: number) => (count === 1 ? "Hand" : hands(count)),
       replay: (count: number) => (count === 1 ? "Replay hand" : `Replay ${hands(count)}`),
       export: (count: number) => (count === 1 ? "Export hand to .txt" : `Export ${hands(count)} to .txt`),
-      /** The "Mark" submenu: markers (tags) put on or taken off the chosen hands. */
-      mark: "Mark",
+      /** The "Tag" submenu: tags put on or taken off the chosen hands. */
+      mark: "Tag",
+      /** The bar at the window's foot while two or more hands are chosen. */
+      bar: {
+        replay: "Replay",
+        tag: "Tag",
+        export: "Export .txt",
+        clear: "Clear the selection",
+      },
       markers: {
-        label: "Markers",
-        /** The ready-made markers, by the name stored (`components/markers.ts`). */
+        label: "Tags",
+        /** The ready-made tags, by the name stored (`components/markers.ts`). */
         presets: {
           Review: "Review",
           Mistake: "Mistake",
@@ -1019,10 +1045,10 @@ export const en = {
           "Hero call": "Hero call",
         } as Record<string, string>,
         reviewTitle: "Solved first in the next solver run, unless the spot is solved already",
-        placeholder: "Custom marker",
+        placeholder: "Custom tag",
         add: (tag: string) => `Add “${tag}”`,
         loading: "Loading…",
-        failed: (reason: string) => `The marker was not saved: ${reason}`,
+        failed: (reason: string) => `The tag was not saved: ${reason}`,
       },
       /** The suggested file name, without ".txt". */
       fileName: (date: string) => `Rail hands ${date}`,
@@ -1548,11 +1574,13 @@ export const en = {
     engineLine: (threads: number, cores: number, memoryMb: number) =>
       `Uses up to ${n(threads)} of ${n(cores)} cores and about ${memoryMb >= 1000 ? `${n(Math.round(memoryMb / 100) / 10)} GB` : `${n(Math.round(memoryMb / 10) * 10)} MB`}. Nothing leaves this computer.`,
     noEngine: "This build of Rail cannot solve nodelocks yet.",
-    busy: "Another nodelock is solving. Wait for it, or cancel it.",
+    queued: "Another nodelock is solving: this one starts right after it.",
     startError: "The solve could not start. Try again.",
     nothingLocked: "Lock at least one hand first.",
-    progress: (iteration: number, accuracy: number | null, elapsedS: number, etaS: number | null) =>
-      `Iteration ${n(iteration)}${accuracy === null ? "" : ` · ${n(Math.round(accuracy * 100) / 100)}% of the pot`} · ${clock(elapsedS)}${etaS === null ? "" : ` · about ${clock(etaS)} left`}`,
+    progress: (share: number | null, etaS: number | null) =>
+      share === null ? "Estimating the time…" : `${Math.floor(share * 100)}%${etaS === null ? "" : ` · about ${clock(etaS)} left`}`,
+    batch: (done: number, total: number) => `${n(done)} of ${n(total)} done`,
+    cancelAll: "Cancel all",
     starting: "Starting the solve…",
     cancel: "Cancel",
     solvingHere: "Solving on this computer. Keep studying; Rail tells you when it is ready.",
@@ -1575,6 +1603,11 @@ export const en = {
     tabsLabel: "Solver",
     library: "Library",
     mine: "My nodelocks",
+    libraryHint: "The clean GTO solve, no nodelocks",
+    mineHint: "The spots you nodelocked, solved on this computer",
+    opening: "Opening the nodelock…",
+    offSpot: "This view is GTO: the lock changes another decision.",
+    toLockedSpot: "Go to the locked spot",
     search: "Search by name, cards or line",
     searchLabel: "Search nodelocks",
     allSpots: "All spots",
@@ -1620,7 +1653,8 @@ export const en = {
   /** The RNG box (`src/rngBox/RngBox.tsx`). */
   rngBox: {
     label: (n: number | null) => (n === null ? "Random number" : `Random number ${n}. Click for a new one.`),
-    hint: "Click for a new number",
+    hint: "Click for a new number, right-click for settings",
+    hintUnlocked: "Click for a new number, drag to move, drag the corner to resize, right-click for settings",
   },
 
   hudPopup: {

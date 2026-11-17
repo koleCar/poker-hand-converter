@@ -305,10 +305,42 @@ fn weplay_parses_a_played_hand_with_a_dead_small_blind_and_a_post_fold_flash() {
 }
 
 #[test]
-fn weplay_records_a_short_all_in_small_blind_as_a_failure() {
+fn weplay_validates_a_short_all_in_small_blind_like_any_hand() {
+    // A short blind is no reason to refuse. This export is refused all the
+    // same: its pot ($0.29) is not what the players put in.
     let result = fixture_default("short-sb-allin.txt");
     assert!(result.hands().is_empty());
-    assert!(result.reasons().contains(&"short-allin-small-blind"));
+    assert_eq!(result.reasons(), ["chip-mismatch"]);
+}
+
+#[test]
+fn weplay_parses_a_preflop_all_in_call_smaller_than_the_big_blind() {
+    // Hand #90171190: kole1992 has 9000 in and calls the last 1671 all-in.
+    // The call is short of the big blind; the commitment is not.
+    let result = convert_fixture("short-allin-call.txt", false, true);
+    assert!(result.reasons().is_empty());
+    assert_eq!(result.hands().len(), 1);
+    assert!(result.text.contains("kole1992: calls 1671 and is all-in"));
+    assert!(result.text.contains("Total pot 27042 |"));
+}
+
+#[test]
+fn weplay_parses_a_big_blind_posted_all_in_for_less_than_the_blind() {
+    // Hand #92428216: a 1000/2000 big blind posted all-in for 1560.
+    let result = convert_fixture("short-allin-big-blind.txt", false, true);
+    assert!(result.reasons().is_empty());
+    assert_eq!(result.hands().len(), 1);
+    assert!(
+        result
+            .text
+            .contains("Mariannev: posts big blind 1560 and is all-in")
+    );
+    assert!(
+        result
+            .text
+            .contains("Uncalled bet (440) returned to PaulDeTE")
+    );
+    assert!(result.text.contains("Total pot 5220 |"));
 }
 
 #[test]

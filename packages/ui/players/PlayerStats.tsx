@@ -13,10 +13,11 @@
  */
 import { useUiStrings } from "../i18n";
 import type { Shown, StatDefinition } from "../model/stats";
-import { shownOf, textLocale } from "../reports/definitions";
+import { shownOf } from "../reports/definitions";
 import { countIn } from "../stats/format";
 import { StatCards } from "../stats/StatCards";
-import { decimalMark, shownText, shownTitle } from "../stats/StatValue";
+import { useStatTip } from "../stats/StatTip";
+import { decimalMark, shownText } from "../stats/StatValue";
 import { POSITION_CLASSES, type PlayerProfile as Profile } from "./model";
 import styles from "../stats/StatMatrix.module.css";
 
@@ -101,14 +102,15 @@ export function PlayerStats({ profile, definitions }: { profile: Profile; defini
   const locale = all.intlLocale;
   const count = countIn(locale);
   const mark = decimalMark(locale);
-  const text = textLocale(locale);
   const lookup: Lookup = (id, stats) => shownOf(definitions, stats, id);
+  const tip = useStatTip();
 
   const columns = profile.positionStats ?? [];
   const byPosition = new Map(columns.map((column) => [column.key, column.stats]));
   const positions = POSITION_CLASSES.filter((position) => byPosition.has(position));
 
-  const value = (id: string | null, stats: readonly Shown[] | undefined, key: string) => {
+  /** A cell; `context` is its position, after the name in the hover box. */
+  const value = (id: string | null, stats: readonly Shown[] | undefined, key: string, context?: string) => {
     if (id === null || stats === undefined) return <td key={key} className={styles.matrixEmpty} />;
     if (id === PLANNED) {
       return (
@@ -122,7 +124,7 @@ export function PlayerStats({ profile, definitions }: { profile: Profile; defini
     const { definition, shown } = found;
     const thin = shown.reliability.level !== "ok" && shown.sample !== null && shown.sample > 0;
     return (
-      <td key={key} data-tone={shown.tone ?? undefined} title={shownTitle(shown, all, count)}>
+      <td key={key} data-tone={shown.tone ?? undefined} {...tip.on({ definition, shown, context })}>
         <span style={{ opacity: shown.reliability.opacity }}>{shownText(shown, definition.format.unit, mark, count)}</span>
         {thin ? <sub className={styles.matrixSample}>{count(shown.sample ?? 0)}</sub> : null}
       </td>
@@ -152,17 +154,26 @@ export function PlayerStats({ profile, definitions }: { profile: Profile; defini
               {t.rows.hands}
             </th>
             {value("hands", profile.stats, "total")}
-            {positions.map((position) => value("hands", byPosition.get(position), position))}
+            {positions.map((position) => value("hands", byPosition.get(position), position, position))}
           </tr>
         ) : null}
         {rows.map((row) => (
           <tr key={row.label} className={row.id === PLANNED ? styles.matrixPlannedRow : undefined}>
-            <th scope="row" className={styles.matrixLabel} title={row.id === PLANNED ? t.planned : definitionText(row.id)}>
+            <th
+              scope="row"
+              className={styles.matrixLabel}
+              {...(row.id === PLANNED ? { title: t.planned } : tip.on({ definition: definitionOf(row.id) }))}
+            >
               {t.rows[row.label]}
             </th>
             {value(row.id, profile.stats, "total")}
             {positions.map((position) =>
-              value(row.only && !row.only.includes(position) ? null : row.id, byPosition.get(position), position),
+              value(
+                row.only && !row.only.includes(position) ? null : row.id,
+                byPosition.get(position),
+                position,
+                position,
+              ),
             )}
           </tr>
         ))}
@@ -170,9 +181,8 @@ export function PlayerStats({ profile, definitions }: { profile: Profile; defini
     </table>
   );
 
-  function definitionText(id: string): string | undefined {
-    const definition = definitions.find((entry) => entry.id === id);
-    return definition?.description[text];
+  function definitionOf(id: string): StatDefinition | undefined {
+    return definitions.find((entry) => entry.id === id);
   }
 
   const streets = [t.streets.all, t.streets.flop, t.streets.turn, t.streets.river];
@@ -218,6 +228,7 @@ export function PlayerStats({ profile, definitions }: { profile: Profile; defini
           {positionTable(t.sections.showdown, SHOWDOWN, false)}
         </div>
       </div>
+      {tip.layer}
     </div>
   );
 }

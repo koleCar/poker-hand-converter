@@ -29,7 +29,7 @@ import { UiStringsProvider, type UiStrings } from "@rail/ui/i18n";
 import { ProfileBody } from "@rail/ui/players/PlayerProfile";
 import { PlayersScreen } from "@rail/ui/players/PlayersScreen";
 import { PlayerTable } from "@rail/ui/players/PlayerTable";
-import type { PlayerProfile, PlayerRow, PlayersSource } from "@rail/ui/players/model";
+import { nextPlayerSort, type PlayerProfile, type PlayerRow, type PlayersSource } from "@rail/ui/players/model";
 import { BREAKDOWN_COLUMNS, type StatGroup } from "@rail/ui/reports/model";
 import { handsUiEn } from "@rail/ui/strings/hands.en";
 import { handsUiHr } from "@rail/ui/strings/hands.hr";
@@ -59,6 +59,7 @@ function strings(locale: "en" | "hr"): UiStrings {
     players: locale === "en" ? playersUiEn : playersUiHr,
     statTile: stats.tile,
     statTable: { ...stats.table, sampleOnly: stats.sampleOnly },
+    statTip: stats.tip,
   } as unknown as UiStrings;
 }
 
@@ -126,12 +127,20 @@ describe("the web's PlayersSource over the opponent summaries", () => {
     const source = webPlayersSource("Standard format");
     const list = await source.list({ search: "vil", site: null, kind: "cash", noted: true, limit: 200, colours: ["red"], labels: ["fish"] });
     expect(rpc).toHaveBeenCalledWith("players_list", {
-      p_query: { search: "vil", site: null, kind: "cash", noted: true, limit: 200, statsVersion: "stats/2" },
+      p_query: { search: "vil", site: null, kind: "cash", noted: true, sort: null, limit: 200, statsVersion: "stats/2" },
     });
     expect(source.features).toEqual({ colours: false, labels: false });
     expect(list.rows[0]).toMatchObject({ siteName: "PokerStars", player: "villain_one", hands: 120, netBbMilli: -15500, colour: null, labels: [], hasNote: true });
     expect(list.rows[1]?.netBbMilli).toBeNull();
     expect(list).toMatchObject({ matching: 2, players: 9, hiddenHands: 77, mixedKind: false });
+  });
+
+  it("asks players_list for the reader's order", async () => {
+    rpc.mockResolvedValueOnce(LIST);
+    await webPlayersSource("Standard format").list({ kind: "cash", sort: { column: "lastSeen", descending: true } });
+    expect(rpc).toHaveBeenCalledWith("players_list", {
+      p_query: expect.objectContaining({ sort: { column: "lastSeen", descending: true } }),
+    });
   });
 
   it("a profile: every statistic showStat over their sums, the hero's own and money withheld", async () => {
@@ -202,6 +211,27 @@ describe("the web's PlayersSource over the opponent summaries", () => {
     expect(await source.labels()).toEqual([]);
     await expect(source.setColour("pokerstars", "villain_one", "red")).rejects.toThrow();
     await expect(source.addLabel("pokerstars", "villain_one", "fish")).rejects.toThrow();
+  });
+});
+
+describe("a header click", () => {
+  it("sorts by its column: the most / newest first (names and rooms A to Z), then the other way, then the list's own order", () => {
+    for (const column of ["hands", "result", "lastSeen"] as const) {
+      const first = nextPlayerSort(null, column);
+      expect(first).toEqual({ column, descending: true });
+      const second = nextPlayerSort(first, column);
+      expect(second).toEqual({ column, descending: false });
+      expect(nextPlayerSort(second, column)).toBeNull();
+    }
+    for (const column of ["name", "room"] as const) {
+      const first = nextPlayerSort(null, column);
+      expect(first).toEqual({ column, descending: false });
+      const second = nextPlayerSort(first, column);
+      expect(second).toEqual({ column, descending: true });
+      expect(nextPlayerSort(second, column)).toBeNull();
+    }
+    // Another column starts over in its own first direction.
+    expect(nextPlayerSort({ column: "name", descending: true }, "hands")).toEqual({ column: "hands", descending: true });
   });
 });
 
@@ -380,9 +410,15 @@ describe("the screen, rendered", () => {
             onOpen: () => undefined,
             more: false,
             onMore: () => undefined,
+            sort: { column: "result", descending: true },
+            onSort: () => undefined,
           }),
         );
         expect(html).toContain("villain_one");
+        // Every column a sort button; the sorted one says its direction.
+        expect(html.match(/<button type="button"[^>]*>/g)?.length).toBe(5);
+        expect(html.match(/aria-sort="none"/g)?.length).toBe(4);
+        expect(html).toContain(`aria-sort="descending"`);
         expect(html).toContain(p.columns.hands);
         expect(html).toContain(`aria-label="${p.hasNote}"`);
         expect(html).toContain(`aria-selected="true"`);

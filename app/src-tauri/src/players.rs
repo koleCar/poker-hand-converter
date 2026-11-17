@@ -55,7 +55,16 @@ pub struct PlayerQueryDto {
     colours: Vec<String>,
     labels: Vec<String>,
     noted: Option<bool>,
+    sort: Option<PlayerSortDto>,
     limit: Option<u32>,
+}
+
+/// The order the reader picked: `{column: name|room|hands|result|lastSeen, descending}`.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PlayerSortDto {
+    column: String,
+    descending: bool,
 }
 
 impl PlayerQueryDto {
@@ -71,6 +80,17 @@ impl PlayerQueryDto {
                 .filter_map(|label| players::normalize_label(label))
                 .collect(),
             noted: self.noted,
+            sort: self
+                .sort
+                .map(|sort| {
+                    players::PlayerSortColumn::parse(&sort.column)
+                        .map(|column| players::PlayerSort {
+                            column,
+                            descending: sort.descending,
+                        })
+                        .ok_or_else(|| format!("No such column: {}.", sort.column))
+                })
+                .transpose()?,
             limit: self.limit.unwrap_or(200),
         })
     }
@@ -595,7 +615,7 @@ pub async fn player_remove_label(
 #[cfg(test)]
 mod tests {
     use super::PlayerQueryDto;
-    use rail_store::players::GameKind;
+    use rail_store::players::{GameKind, PlayerSort, PlayerSortColumn};
 
     /// The window's query JSON: camelCase, every field optional; labels
     /// normalised; an unknown kind refused.
@@ -615,6 +635,22 @@ mod tests {
         assert_eq!(empty.query().expect("valid").kind, GameKind::All);
         let bad: PlayerQueryDto = serde_json::from_str(r#"{"kind":"spin"}"#).expect("parses");
         assert!(bad.query().is_err());
+        let sorted: PlayerQueryDto =
+            serde_json::from_str(r#"{"sort":{"column":"lastSeen","descending":true}}"#)
+                .expect("sorted");
+        assert_eq!(
+            sorted.query().expect("valid").sort,
+            Some(PlayerSort {
+                column: PlayerSortColumn::LastSeen,
+                descending: true
+            })
+        );
+        let unsorted: PlayerQueryDto = serde_json::from_str(r#"{"sort":null}"#).expect("null");
+        assert_eq!(unsorted.query().expect("valid").sort, None);
+        let unknown: PlayerQueryDto =
+            serde_json::from_str(r#"{"sort":{"column":"vpip","descending":false}}"#)
+                .expect("parses");
+        assert!(unknown.query().is_err());
     }
 
     /// A profile over a fixture file (a cash table, the hero in every hand): every definition in order, the

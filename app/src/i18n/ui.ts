@@ -37,6 +37,7 @@ function uiStrings(
     replayer,
     statTile: stats.tile,
     statTable: { ...stats.table, sampleOnly: stats.sampleOnly },
+    statTip: stats.tip,
     winrateGraph: {
       ...stats.graph,
       notEnough: dict.reports.graph.notEnough,

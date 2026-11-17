@@ -35,7 +35,7 @@ use crate::phf::PhfHand;
 use crate::phf::serialize::{StandardContext, parse_standard_hand};
 
 /// `WEPLAY_PARSER_VERSION`.
-pub const WEPLAY_PARSER_VERSION: &str = "2.1.0";
+pub const WEPLAY_PARSER_VERSION: &str = "2.2.0";
 
 /// `AMOUNT`.
 const AMOUNT: &str = r"(?:\$|€|£)?(\d+(?:\.\d+)?)";
@@ -72,7 +72,6 @@ static PLAYER_ACTION: LazyLock<Regex> = crate::js_regex_lazy!(
 static COLLECTED: LazyLock<Regex> = crate::js_regex_lazy!(r"^(.+?) collected ", "");
 static UNCALLED: LazyLock<Regex> =
     amount_regex_lazy!(r"^Uncalled bet \(${AMOUNT}\) returned to (.+)$", "");
-static HEADER_STAKES: LazyLock<Regex> = amount_regex_lazy!(r"\(${AMOUNT}\/${AMOUNT}\)", "");
 
 static TOURNAMENT: LazyLock<Regex> = crate::js_regex_lazy!(r"Tournament", "i");
 static TABLE_ID: LazyLock<Regex> = crate::js_regex_lazy!(r"\(\d+\)", "");
@@ -101,10 +100,6 @@ static BLIND_AMOUNT: LazyLock<Regex> =
     amount_regex_lazy!(r": posts (?:small|big) blind ${AMOUNT}", "");
 static POST_AMOUNT: LazyLock<Regex> = amount_regex_lazy!(r": posts ${AMOUNT}", "");
 static BET_AMOUNT: LazyLock<Regex> = amount_regex_lazy!(r": bets ${AMOUNT}", "");
-static SHORT_SB: LazyLock<Regex> =
-    amount_regex_lazy!(r": posts small blind ${AMOUNT} and is all-in", "gi");
-static SHORT_BB: LazyLock<Regex> =
-    amount_regex_lazy!(r": posts big blind ${AMOUNT} and is all-in", "gi");
 static ZERO_STACK: LazyLock<Regex> = crate::js_regex_lazy!(r"^[$€£]?0(?:\.0+)?$", "");
 static FLOP_MARKER: LazyLock<Regex> =
     crate::js_regex_lazy!(r"^\*\*\* (?:FIRST |SECOND )?FLOP\b", "");
@@ -275,12 +270,6 @@ pub fn is_bomb_pot_hand(chunk: &str) -> bool {
     POSTS_ANTE.is_match(chunk) && !POSTS_BLIND.is_match(chunk)
 }
 
-/// `parseHeaderStakes`.
-fn parse_header_stakes(header: &str, money: &Money) -> Option<(JsNumber, JsNumber)> {
-    let c = HEADER_STAKES.captures(header)?;
-    Some((parse_units(&c[1], money), parse_units(&c[2], money)))
-}
-
 /// `normalizeShowsLine`: a showdown reveal with a hidden `##` card is no
 /// reveal, and `X: shows [] (…)` - a folded player flashing a hand after the
 /// fact - is dropped (the empty line is skipped), as the summary already drops
@@ -423,7 +412,7 @@ fn refuse(reason: SkipReason, message: impl Into<String>) -> ParseSkip {
 }
 
 /// `getEarlySkip`: cheap structural checks made before any rewriting.
-fn early_skip(chunk: &str, header: &str, money: &Money) -> Option<ParseSkip> {
+fn early_skip(chunk: &str) -> Option<ParseSkip> {
     if ALL_IN_OR_FOLD.is_match(chunk) {
         return Some(refuse(
             SkipReason::AllInOrFoldTable,
@@ -436,24 +425,9 @@ fn early_skip(chunk: &str, header: &str, money: &Money) -> Option<ParseSkip> {
     // played out like any other and positioned from the button
     // (`assign_positions`).
 
-    if let Some((small_blind, big_blind)) = parse_header_stakes(header, money) {
-        for c in SHORT_SB.captures_iter(chunk) {
-            if parse_units(&c[1], money).less_than(small_blind) {
-                return Some(refuse(
-                    SkipReason::ShortAllinSmallBlind,
-                    "Small blind posted all-in for less than the stated blind.",
-                ));
-            }
-        }
-        for c in SHORT_BB.captures_iter(chunk) {
-            if parse_units(&c[1], money).less_than(big_blind) {
-                return Some(refuse(
-                    SkipReason::ShortAllinBigBlind,
-                    "Big blind posted all-in for less than the stated blind.",
-                ));
-            }
-        }
-    }
+    // A blind posted all-in for less than the stated blind is a short stack,
+    // not a broken hand: the blind is what the player had, and the hand is
+    // played out like any other (the pot's maths take the posted amount).
 
     let lines = split_lines(chunk);
     let zero_stack: Vec<String> = extract_seated_players(&lines)
@@ -476,13 +450,11 @@ fn early_skip(chunk: &str, header: &str, money: &Money) -> Option<ParseSkip> {
 
 /// `findIntegritySkip`: structural checks on the rewritten lines.
 #[allow(clippy::too_many_lines)]
-fn integrity_skip(lines: &[String], header: &str, money: &Money) -> Option<ParseSkip> {
+fn integrity_skip(lines: &[String], money: &Money) -> Option<ParseSkip> {
     let seated: HashSet<String> = extract_seated_players(lines)
         .into_iter()
         .map(|(name, _)| name)
         .collect();
-    let stakes = parse_header_stakes(header, money);
-
     let mut saw_flop = false;
     let mut saw_turn = false;
     let mut saw_first_flop = false;
@@ -491,7 +463,6 @@ fn integrity_skip(lines: &[String], header: &str, money: &Money) -> Option<Parse
     let mut saw_second_turn = false;
     let mut in_summary = false;
     // `currentBet` is tracked by the TypeScript too, and never read here.
-    let mut preflop = true;
     let mut commitment: HashMap<String, JsNumber> = HashMap::new();
     let committed = |map: &HashMap<String, JsNumber>, player: &str| {
         map.get(player).copied().unwrap_or(JsNumber::ZERO)
@@ -516,7 +487,6 @@ fn integrity_skip(lines: &[String], header: &str, money: &Money) -> Option<Parse
                 saw_second_flop = true;
             }
             commitment.clear();
-            preflop = false;
             continue;
         }
         if TURN_MARKER.is_match(line) {
@@ -612,19 +582,8 @@ fn integrity_skip(lines: &[String], header: &str, money: &Money) -> Option<Parse
 
         if let Some(c) = CALL.captures(line) {
             let amount = parse_units(&c[2], money);
-            let all_in = c.get(3).is_some();
             let total = committed(&commitment, &c[1]) + amount;
             commitment.insert(c[1].to_owned(), total);
-            if preflop
-                && all_in
-                && let Some((_, big_blind)) = stakes
-                && amount.less_than(big_blind)
-            {
-                return Some(refuse(
-                    SkipReason::ShortAllinCall,
-                    "An all-in call preflop is smaller than the big blind.",
-                ));
-            }
             continue;
         }
 
@@ -689,7 +648,7 @@ pub fn normalize_weplay_chunk(chunk: &str) -> Result<Normalized, ParseSkip> {
         ));
     }
 
-    if let Some(skip) = early_skip(chunk, &header, &money) {
+    if let Some(skip) = early_skip(chunk) {
         return Err(skip);
     }
 
@@ -722,7 +681,7 @@ pub fn normalize_weplay_chunk(chunk: &str) -> Result<Normalized, ParseSkip> {
     }
 
     let cleaned = strip_phantom_walk_boards(normalized);
-    if let Some(skip) = integrity_skip(&cleaned, &header, &money) {
+    if let Some(skip) = integrity_skip(&cleaned, &money) {
         return Err(skip);
     }
     Ok(Normalized {

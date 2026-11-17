@@ -322,8 +322,12 @@ import type { Position, Street } from "../phf/types";
  *               (`libraryLine`, `x-<key>`: cold calls, squeezes, blind
  *               3-bets). A chunk is read while its line's chart nodes are
  *               unchanged (`chartLineHash`), not only while the whole set is.
+ *   analysis/44 The GTO Wizard 6-max 100bb classic set is complete (1,050
+ *               decisions): blind vs blind after folds to the small blind
+ *               and the five rare lines are captured, so `model.missing` is
+ *               empty and those hands are graded on the charts.
  */
-export const ANALYSIS_VERSION = "analysis/43" as const;
+export const ANALYSIS_VERSION = "analysis/44" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */

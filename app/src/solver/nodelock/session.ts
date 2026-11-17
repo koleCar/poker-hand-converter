@@ -8,8 +8,11 @@
  * ```
  * Solve on this computer ─▶ a row saved `solving` at once ─▶ the engine, progress here
  *   ─▶ `solved` with the chunk and the stats (or `failed` / `cancelled`) ─▶ the sidebar's notice ─▶ Open
- * Open (notice, history) ─▶ the row's chunk ─▶ the library's override, the Solver tab on its view
+ * Open (notice, history) ─▶ the row's chunk ─▶ My nodelocks on its spot (`#/solver/lock=<id>&…`)
  * ```
+ *
+ * The library tab is always the clean solve: a locked solution shows only in
+ * My nodelocks, never on the library's own view.
  */
 import { useSyncExternalStore } from "react";
 
@@ -27,7 +30,31 @@ export interface RunningSolve {
   /** `set/line/flop` of the chunk, and the live turn's id on a turn lock: where the banner shows progress. */
   key: string;
   startedAt: number;
+  /** The locked board in cards (`Q♠6♥3♦`, and the turn on a turn lock). */
+  board: string;
   progress: NodelockProgress | null;
+  /** How far the solve is, 0–1 (elapsed over elapsed + ETA); never goes back. Null until the engine has an ETA. */
+  share: number | null;
+}
+
+/** The solves started since the queue was last empty: the sidebar's "1 of 3 done". */
+export interface SolveBatch {
+  done: number;
+  total: number;
+}
+
+const SUIT_SIGN: Record<string, string> = { s: "♠", h: "♥", d: "♦", c: "♣" };
+
+/** Cards as text with suit signs: `Q♠6♥3♦`. */
+export function boardText(cards: readonly string[]): string {
+  return cards.map((card) => `${card[0]}${SUIT_SIGN[card[1]] ?? card[1]}`).join("");
+}
+
+/** A solve's share done from its progress, held at or above `previous` and below 1 until it ends. */
+export function shareOf(progress: NodelockProgress, previous: number | null): number | null {
+  if (progress.etaMs === null) return previous;
+  const share = progress.elapsedMs / Math.max(1, progress.elapsedMs + progress.etaMs);
+  return Math.min(0.99, Math.max(previous ?? 0, share));
 }
 
 export interface SolveNotice {
@@ -53,6 +80,9 @@ export interface EditorOpen {
 export interface NodelockSession {
   editor: EditorOpen | null;
   running: RunningSolve | null;
+  /** Solves asked for while another runs: they start one after another. */
+  queue: SolveRequest[];
+  batch: SolveBatch;
   notice: SolveNotice | null;
   active: ActiveLock | null;
   compare: boolean;
@@ -62,7 +92,19 @@ export interface NodelockSession {
   pendingEdit: { view: NodelockSummary["view"]; from: NonNullable<EditorOpen["from"]> } | null;
 }
 
-let state: NodelockSession = { editor: null, running: null, notice: null, active: null, compare: false, opened: 0, pendingEdit: null };
+let state: NodelockSession = {
+  editor: null,
+  running: null,
+  queue: [],
+  batch: { done: 0, total: 0 },
+  notice: null,
+  active: null,
+  compare: false,
+  opened: 0,
+  pendingEdit: null,
+};
+/** Set from the moment a solve is taken on until the queue is empty (`running` is set only once its row is saved). */
+let busy = false;
 const listeners = new Set<() => void>();
 let controller: AbortController | null = null;
 
@@ -118,8 +160,24 @@ export function setCompare(compare: boolean): void {
   set({ compare });
 }
 
-export function backToGto(): void {
-  set({ active: null, compare: false });
+/** My nodelocks, the list (`#/solver/locks`). */
+export const LOCKS_PARAM = "locks";
+
+/** My nodelocks on one solved lock, at `view` (a library view's param). */
+export function lockParam(id: string, view: string): string {
+  return `lock=${encodeURIComponent(id)}${view ? `&${view}` : ""}`;
+}
+
+/** The lock a Solver param opens, or null (the library, or the list). */
+export function lockIdOf(param: string | null): string | null {
+  if (!param || !param.startsWith("lock=")) return null;
+  return new URLSearchParams(param).get("lock") || null;
+}
+
+/** Leaves the locked solution for the library's clean solve, on the same view. */
+export function backToGto(view: string): void {
+  set({ compare: false });
+  go("solver", view);
 }
 
 export function dismissNotice(): void {
@@ -134,11 +192,46 @@ export interface SolveRequest {
   summary: NodelockSummary;
 }
 
-/** Starts a solve on this computer: true, or why not. */
-export async function startSolve(request: SolveRequest): Promise<true | "busy" | "noEngine" | "failed"> {
-  if (state.running) return "busy";
+/**
+ * Starts a solve on this computer: true, "queued" when another is solving
+ * (it starts right after, one at a time: each takes every core and up to
+ * ~3 GB), or why not.
+ */
+export async function startSolve(request: SolveRequest): Promise<true | "queued" | "noEngine" | "failed"> {
   const engine = await pickEngine();
   if (!engine) return "noEngine";
+  if (busy) {
+    set({ queue: [...state.queue, request], batch: { ...state.batch, total: state.batch.total + 1 }, editor: null });
+    return "queued";
+  }
+  busy = true;
+  set({ batch: { done: 0, total: 1 } });
+  const started = await run(engine, request);
+  if (!started) idle();
+  return started ? true : "failed";
+}
+
+/** The queue is done: nothing solving, the counter back to nothing. */
+function idle(): void {
+  busy = false;
+  set({ running: null, batch: { done: 0, total: 0 } });
+}
+
+/** One solve ended (any way): count it, then start the next in the queue, or end. */
+async function next(engine: NodelockEngine): Promise<void> {
+  set({ running: null, batch: { ...state.batch, done: state.batch.done + 1 } });
+  while (state.queue.length) {
+    const [request, ...rest] = state.queue;
+    set({ queue: rest });
+    if (await run(engine, request)) return;
+    // It could not start: counted, and its notice says so.
+    set({ batch: { ...state.batch, done: state.batch.done + 1 }, notice: { id: "", name: request.name, status: "failed" } });
+  }
+  idle();
+}
+
+/** Saves the solve's row and sets the engine going; false when it could not start. */
+async function run(engine: NodelockEngine, request: SolveRequest): Promise<boolean> {
   if (releaseTimer) {
     clearTimeout(releaseTimer);
     releaseTimer = null;
@@ -174,18 +267,22 @@ export async function startSolve(request: SolveRequest): Promise<true | "busy" |
     baseline = new Uint8Array(await ipc.flopLibraryFile(`${at.set}/${at.library.header.tree}/${at.line}/${at.flop}.bin`));
     id = await nodelockData.save(row);
   } catch {
-    return "failed";
+    return false;
   }
   const saved = { ...row, id };
   controller = new AbortController();
   const signal = controller.signal;
-  set({ running: { id, name: row.name, key: lockKey(at), startedAt: now, progress: null }, editor: null });
+  set({
+    running: { id, name: row.name, key: lockKey(at), startedAt: now, board: boardText(at.board), progress: null, share: null },
+    editor: null,
+  });
 
   void engine
     .solve(
       { lockSet, baseline },
       (progress) => {
-        if (state.running?.id === id) set({ running: { ...state.running, progress } });
+        const running = state.running;
+        if (running?.id === id) set({ running: { ...running, progress, share: shareOf(progress, running.share) } });
       },
       signal,
     )
@@ -204,23 +301,31 @@ export async function startSolve(request: SolveRequest): Promise<true | "busy" |
           },
           chunk,
         );
-        set({ running: null, notice: { id, name: row.name, status: "solved" } });
+        set({ notice: { id, name: row.name, status: "solved" } });
       },
       async () => {
         const status = signal.aborted ? "cancelled" : "failed";
         await nodelockData.save({ ...saved, status }).catch(() => undefined);
-        set({ running: null, notice: status === "failed" ? { id, name: row.name, status: "failed" } : state.notice });
+        if (status === "failed") set({ notice: { id, name: row.name, status: "failed" } });
       },
     )
-    .catch(() => set({ running: null }))
+    .catch(() => undefined)
     .finally(() => {
       controller = null;
       keepWarm(engine);
+      void next(engine);
     });
   return true;
 }
 
+/** Cancels the solve running now; the queue goes on with the next. */
 export function cancelSolve(): void {
+  controller?.abort();
+}
+
+/** Cancels the solve running now and every one waiting. */
+export function cancelAll(): void {
+  set({ queue: [], batch: { ...state.batch, total: state.batch.total - state.queue.length } });
   controller?.abort();
 }
 
@@ -237,11 +342,12 @@ export function viewParam(summary: NodelockSummary): string {
 }
 
 /**
- * Shows a solved nodelock in the library: its chunk replaces the library's
- * (a flop lock) or one live turn's (a turn or river lock), and the Solver
- * tab opens on the view it was made from. False when it cannot be read.
+ * Shows a solved nodelock in My nodelocks: its chunk replaces the library's
+ * (a flop lock) or one live turn's (a turn or river lock), on the view it was
+ * made from. `navigate: false` when the route already names it (the app
+ * reopened on it). False when it cannot be read.
  */
-export async function openLock(id: string): Promise<boolean> {
+export async function openLock(id: string, { navigate = true }: { navigate?: boolean } = {}): Promise<boolean> {
   const row = await nodelockData.get(id).catch(() => null);
   const bytes = row?.result ?? null;
   const parsed = row ? parseRow(row) : null;
@@ -261,8 +367,8 @@ export async function openLock(id: string): Promise<boolean> {
     lockSet.nodes[0].street === "flop" || !turnId
       ? { key, id: row.id, flop: chunk, turn: null }
       : { key, id: row.id, flop: null, turn: { id: turnId, chunk } };
-  // The route first: the Solver tab mounts the library on the view it names.
-  go("solver", viewParam(summary));
+  // The route first: My nodelocks mounts the locked view it names.
+  if (navigate) go("solver", lockParam(row.id, viewParam(summary)));
   set({
     active: { row: listed, lockSet, summary, override },
     notice: state.notice?.id === id ? null : state.notice,

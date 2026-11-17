@@ -31,6 +31,21 @@ export const statsUiHr = {
     noSample: "nema uzorka",
   },
 
+  tip: {
+    sample: "Uzorak",
+    idealRange: "Idealni raspon",
+    sampleNeeded: "Potreban uzorak",
+    chances: (count: number) => `${num(count)} ${plural(count, "prilika", "prilike", "prilika")}`,
+    hands,
+    actions: (count: number) => `${num(count)} ${plural(count, "akcija", "akcije", "akcija")}`,
+    atLeast: (bound: string) => `${bound} ili više`,
+    below: (bound: string) => `ispod ${bound}`,
+    short: {
+      low: "Još nije dovoljno — decimala nije pouzdana.",
+      insufficient: "Još premalo — čitaj ovo kao naznaku.",
+    },
+  },
+
   table: {
     statistic: "Statistika",
     value: "Vrijednost",

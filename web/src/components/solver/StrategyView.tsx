@@ -3,14 +3,16 @@
  * actions and the picked hand on the right (under the grid on a narrow
  * screen). The same view for a preflop chart node and a flop decision of the
  * library: the caller builds the model (`preflopModel`, `flopModel` in
- * `SolverLibrary.tsx`).
+ * `SolverLibrary.tsx`). The line is walked on the bar above (PreflopBar,
+ * PostflopBar); the action boxes here show the mix, and a click keeps one
+ * action lit in the grid.
  *
  * Each cell is the class's mix drawn as coloured columns, as tall as the
  * share of the class that reaches the decision. Hovering an action box shows
  * only that action in the grid. The picked (or hovered) hand opens as tiles,
  * one per combo, each filled bottom-up with its own mix and as tall as its
- * weight: what every combo does at a glance, the exact numbers on hovering a
- * tile. A combo the board (or a hand filter) takes out stays as a hatched
+ * weight, with every action's frequency and EV for that combo written on
+ * it. A combo the board (or a hand filter) takes out stays as a hatched
  * tile, so the blockers show. The hero's hand, when the view comes from one
  * of their decisions, is marked in the grid and on its tile.
  *
@@ -21,7 +23,7 @@
 
 "use client";
 
-import { useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
+import { useCallback, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { SUIT_SYMBOL, type Suit } from "../../lib/cards";
 import { useSolverDict, type StrategyCompare } from "./host";
 import type { ExploreCombo } from "../../lib/solver";
@@ -36,9 +38,6 @@ export interface ViewAction {
   colour: string;
   share: number;
   combos: number;
-  /** Why the action leads nowhere further, if it does not. */
-  ends: string | null;
-  onPick: () => void;
   /** No hand of the range takes it (`playedOptions`): left out of the action boxes and the EV rows. */
   hidden?: boolean;
 }
@@ -51,8 +50,6 @@ export interface ViewClass {
   freq: number[];
   ev: number[];
   value: number;
-  /** The reach line of the detail. */
-  reach: string;
 }
 
 export interface StrategyModel {
@@ -63,7 +60,6 @@ export interface StrategyModel {
   classes: ViewClass[];
   /** A class's combos (flop decisions only), in the picked suits. */
   combos?: (classIndex: number) => ExploreCombo[];
-  note: string;
 }
 
 /** The hero's hand, when the view comes from one of their decisions: marked where `position` acts. */
@@ -167,13 +163,22 @@ function dominant(freq: readonly number[]): number {
   return best;
 }
 
+/**
+ * A hand hovered in another tab's view: the acting player's class opens in the
+ * panel as on the grid (`index`); anything else brings its own `panel`.
+ */
+export type MainHand = { index: number } | { panel: ReactNode };
+
 interface StrategyViewProps {
   model: StrategyModel;
   overview: ReactNode;
   /** Above the grid: the tabs of a flop decision. */
   toolbar?: ReactNode;
-  /** In the grid's place: another tab's view (the Ranges tab). */
-  main?: ReactNode;
+  /**
+   * In the grid's place: another tab's view (the Ranges tab). As a function it
+   * is handed `onHand`, so hovering a hand there opens it in the panel.
+   */
+  main?: ReactNode | ((onHand: (hand: MainHand | null) => void) => ReactNode);
   /** The hand filters: the panel's last block then switches between the hand and them. */
   filters?: ReactNode;
   /** The tab was just switched: the grid (or `main`) fades in as it swaps. */
@@ -230,8 +235,12 @@ function Grid({
   const [focusIndex, setFocusIndex] = useState(heroIndex ?? 0);
   const [hovered, setHovered] = useState<number | null>(null);
   const [picked, setPicked] = useState<number | null>(heroIndex);
-  const [highlight, setHighlight] = useState<number | null>(null);
-  const [tile, setTile] = useState<number | null>(null);
+  const [hoveredAction, setHoveredAction] = useState<number | null>(null);
+  /** An action box clicked: only that action stays lit in the grid until it is clicked again. */
+  const [pinned, setPinned] = useState<number | null>(null);
+  const highlight = hoveredAction ?? pinned;
+  /** The hand block's content brought by another tab's view (the other player's hand on the Ranges tab). */
+  const [aside, setAside] = useState<ReactNode | null>(null);
   const buttons = useRef<Array<HTMLButtonElement | null>>([]);
   const shown = hovered ?? picked;
   const detail = shown === null ? null : model.classes[shown];
@@ -239,8 +248,17 @@ function Grid({
   const labels = model.actions.map((a) => a.label);
   const showHover = (index: number) => {
     setHovered(index);
-    setTile(null);
   };
+  const onHand = useCallback((hand: MainHand | null) => {
+    if (hand && "panel" in hand) {
+      setHovered(null);
+      setAside(hand.panel);
+    } else {
+      setAside(null);
+      setHovered(hand ? hand.index : null);
+    }
+  }, []);
+  const mainView = typeof main === "function" ? main(onHand) : main;
 
   const move = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     const row = Math.floor(index / 13);
@@ -259,22 +277,18 @@ function Grid({
     event.preventDefault();
     setFocusIndex(next);
     setPicked(next);
-    setTile(null);
     buttons.current[next]?.focus();
   };
 
   const showFilters = Boolean(filters) && panelTab === "filters";
   const isHeroTile = (cards: string) => shown === heroIndex && !!hero && sameCombo(hero.cards, cards);
-  const focused = tile !== null ? tiles[tile]?.combo ?? null : null;
-  const live = tiles.filter((x) => x.combo && x.combo.weight > 0).length;
-  const columns = tiles.length <= 4 ? 2 : tiles.length <= 6 ? 3 : 4;
 
   return (
     <>
       <div className={styles.gridWrap}>
         {toolbar}
-        {main ? (
-          fade ? <div className="rail-fade">{main}</div> : main
+        {mainView ? (
+          fade ? <div className="rail-fade">{mainView}</div> : mainView
         ) : (
         <div
           className={`${styles.grid} ${fade ? "rail-fade" : ""}`}
@@ -313,7 +327,6 @@ function Grid({
                       onClick={() => {
                         setFocusIndex(index);
                         setPicked(index === picked ? null : index);
-                        setTile(null);
                       }}
                       onFocus={() => setFocusIndex(index)}
                       onKeyDown={(event) => move(event, index)}
@@ -353,15 +366,12 @@ function Grid({
                 key={action.key}
                 type="button"
                 className={`${styles.actionBox} ${highlight === a ? styles.actionBoxOn : ""} ${highlight !== null && highlight !== a ? styles.actionBoxOff : ""}`}
-                aria-disabled={action.ends !== null}
-                title={action.ends ?? t.panel.follow(action.label)}
-                onClick={() => {
-                  if (action.ends === null) action.onPick();
-                }}
-                onPointerEnter={() => setHighlight(a)}
-                onPointerLeave={() => setHighlight(null)}
-                onFocus={() => setHighlight(a)}
-                onBlur={() => setHighlight(null)}
+                aria-pressed={pinned === a}
+                onClick={() => setPinned(pinned === a ? null : a)}
+                onPointerEnter={() => setHoveredAction(a)}
+                onPointerLeave={() => setHoveredAction(null)}
+                onFocus={() => setHoveredAction(a)}
+                onBlur={() => setHoveredAction(null)}
               >
                 <span className={styles.actionBoxLabel}>
                   <span className={`${styles.actionDot} ${action.colour}`} aria-hidden="true" />
@@ -406,7 +416,9 @@ function Grid({
           </section>
         ) : (
         <section className={`${styles.panelBlock} ${styles.handBlock}`} aria-live="polite" aria-label={t.panel.hand}>
-          {detail && shown !== null ? (
+          {aside ? (
+            aside
+          ) : detail && shown !== null ? (
             <>
               <p className={styles.handHead}>
                 <strong className={styles.handName}>{GRID_CELLS[shown].name}</strong>
@@ -421,56 +433,16 @@ function Grid({
               {detail.state === "absent" ? (
                 <p className={analysis.muted}>{t.absent}</p>
               ) : (
-                <>
-                  <span className={styles.mixBar} aria-hidden="true">
-                    {detail.freq.map((f, a) => (
-                      <span key={a} className={model.actions[a].colour} style={{ inlineSize: `${f * 100}%` }} />
-                    ))}
-                  </span>
-                  <EvRows actions={model.actions} ev={detail.ev} freq={detail.freq} base={compare?.classes[shown].ev} />
-                  <ul
-                    className={styles.tiles}
-                    style={{ "--tile-columns": columns } as CSSProperties}
-                    aria-label={t.combosLabel}
-                    onPointerLeave={() => setTile(null)}
-                  >
-                    {tiles.map((x, i) => (
-                      <ComboTile
-                        key={x.cards}
-                        tile={x}
-                        actions={model.actions}
-                        hero={isHeroTile(x.cards)}
-                        onHover={() => setTile(i)}
-                      />
-                    ))}
-                  </ul>
-                  <p className={styles.tileInfo}>
-                    {focused ? (
-                      <>
-                        <ComboText cards={focused.cards} />
-                        {focused.weight < 0.995 ? <span>{t.inRange(focused.weight)}</span> : null}
-                      </>
-                    ) : (
-                      <span>{t.combosCount(live)}</span>
-                    )}
-                    {(focused ?? detail).freq.map((f, a) =>
-                      f >= SHOWN_FREQ ? (
-                        <span key={a} className={styles.tilePart}>
-                          <span className={`${analysis.swatch} ${model.actions[a].colour}`} aria-hidden="true" />
-                          {model.actions[a].label} <strong>{t.freq(f)}</strong>
-                        </span>
-                      ) : null,
-                    )}
-                    <span className={styles.tileEv}>{t.value(focused ? focused.value : detail.value)}</span>
-                  </p>
-                  <p className={analysis.muted}>{detail.reach}</p>
-                </>
+                <ul className={styles.tiles} aria-label={t.combosLabel}>
+                  {tiles.map((x) => (
+                    <ComboTile key={x.cards} tile={x} actions={model.actions} hero={isHeroTile(x.cards)} />
+                  ))}
+                </ul>
               )}
             </>
           ) : (
             <p className={analysis.muted}>{t.detailEmpty}</p>
           )}
-          <p className={analysis.muted}>{model.note}</p>
         </section>
         )}
       </aside>
@@ -478,49 +450,20 @@ function Grid({
   );
 }
 
-/** What each action is worth for the shown hand, as bars from zero; the best one stands out. */
-function EvRows({ actions, ev, freq, base }: { actions: ViewAction[]; ev: number[]; freq: number[]; base?: number[] }) {
-  const t = useSolverDict();
-  const shown = ev.filter((_, a) => !actions[a].hidden);
-  const lo = Math.min(0, ...shown);
-  const hi = Math.max(0, ...shown);
-  const span = hi - lo || 1;
-  const zero = (-lo / span) * 100;
-  const best = ev.indexOf(Math.max(...shown));
-  return (
-    <ul className={styles.evRows}>
-      {actions.map((action, a) => {
-        if (action.hidden) return null;
-        const width = (Math.abs(ev[a]) / span) * 100;
-        return (
-          <li key={action.key} className={a === best ? styles.evBest : ""}>
-            <span>{action.label}</span>
-            <span className={styles.evBar} aria-hidden="true">
-              <span className={styles.evZero} style={{ insetInlineStart: `${zero}%` }} />
-              <span
-                className={action.colour}
-                style={{ insetInlineStart: `${ev[a] >= 0 ? zero : zero - width}%`, inlineSize: `${width}%`, opacity: freq[a] >= SHOWN_FREQ ? 1 : 0.5 }}
-              />
-            </span>
-            <span className={analysis.num}>
-              {t.signedBb(ev[a])}
-              {base ? <small className={styles.compareDelta}> {t.signedBb(ev[a] - base[a])}</small> : null}
-            </span>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-function ComboTile({ tile, actions, hero, onHover }: { tile: Tile; actions: ViewAction[]; hero: boolean; onHover: () => void }) {
+/**
+ * One combo: its mix as the fill (bottom-up, as tall as its reach) and, over
+ * it, every action the range plays with this combo's frequency and EV.
+ */
+function ComboTile({ tile, actions, hero }: { tile: Tile; actions: ViewAction[]; hero: boolean }) {
   const t = useSolverDict();
   const combo = tile.combo;
   if (!combo) {
     return (
       <li className={`${styles.tile} ${styles.tileOff}`} aria-label={`${tile.cards}: ${t.comboOff}`}>
-        <span className={styles.tileCards}>
-          <ComboText cards={tile.cards} />
+        <span className={styles.tileHead}>
+          <span className={styles.tileCards}>
+            <ComboText cards={tile.cards} />
+          </span>
         </span>
         <span className={styles.tileOffText}>{t.comboOff}</span>
       </li>
@@ -532,20 +475,28 @@ function ComboTile({ tile, actions, hero, onHover }: { tile: Tile; actions: View
     <li
       className={`${styles.tile} ${combo.weight === 0 ? styles.tileFaint : ""} ${hero ? styles.tileHero : ""}`}
       aria-label={t.tileLabel(tile.cards, parts, t.value(combo.value))}
-      onPointerEnter={onHover}
     >
       <span className={styles.tileFill} aria-hidden="true" style={{ blockSize: `${combo.weight > 0 ? Math.max(10, combo.weight * 100) : 10}%` }}>
         {combo.freq.map((f, a) => (
           <span key={a} className={actions[a].colour} style={{ blockSize: `${f * 100}%` }} />
         ))}
       </span>
-      <span className={styles.tileCards}>
-        <ComboText cards={tile.cards} />
+      <span className={styles.tileHead}>
+        <span className={styles.tileCards}>
+          <ComboText cards={tile.cards} />
+        </span>
+        {hero ? <span className={styles.tileYou}>{t.you}</span> : null}
       </span>
-      {hero ? <span className={styles.tileYou}>{t.you}</span> : null}
-      <span className={styles.tileTop}>
-        {t.freq(combo.freq[top])}
-        <small>{actions[top].label}</small>
+      <span className={styles.tileActs} aria-hidden="true">
+        {actions.map((action, a) =>
+          action.hidden ? null : (
+            <span key={action.key} className={`${styles.tileAct} ${a === top ? styles.tileActTop : ""} ${combo.freq[a] < SHOWN_FREQ ? styles.tileActNone : ""}`}>
+              <span className={styles.tileActLabel}>{action.label}</span>
+              <span>{t.freq(combo.freq[a])}</span>
+              <span>{t.signedBb(combo.ev[a])}</span>
+            </span>
+          ),
+        )}
       </span>
     </li>
   );

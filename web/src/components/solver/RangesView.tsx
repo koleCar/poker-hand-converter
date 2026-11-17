@@ -14,11 +14,15 @@
  * coloured by the picked measure (red low, green high), so a class's spread
  * shows; the strategy view is the Strategy tab's cell. Everything counts only
  * the combos that pass the hand filter (`masks`); the chart marks them.
+ *
+ * Hovering a hand opens it in the panel on the right (`onHand`): the player to
+ * act's as on the Strategy tab, each combo with its own mix; the other's as a
+ * list of its combos with their weight, equity and EV.
  */
 
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useSolverDict, type SolverDict } from "./host";
 import { DRAWS, EQ_BANDS, EQ_BUCKETS, filterId, MADE_HANDS, comboIds, type FilterGroup } from "../../lib/solver";
@@ -26,7 +30,7 @@ import { GRID_CELLS } from "../analysis/chartSpots";
 import analysis from "../analysis/analysis.module.css";
 import { filterLabel } from "./HandFilters";
 import type { RangeData } from "./rangeData";
-import type { StrategyModel } from "./StrategyView";
+import { ComboText, type MainHand, type StrategyModel } from "./StrategyView";
 import styles from "./solver.module.css";
 
 type Pair<T> = [T, T];
@@ -99,7 +103,17 @@ function sideView(data: RangeData, p: 0 | 1, mask: Uint8Array | null): SideView 
   };
 }
 
-export function RangesView({ data, masks, strategy }: { data: RangeData; masks: Pair<Uint8Array> | null; strategy: StrategyModel }) {
+export function RangesView({
+  data,
+  masks,
+  strategy,
+  onHand,
+}: {
+  data: RangeData;
+  masks: Pair<Uint8Array> | null;
+  strategy: StrategyModel;
+  onHand?: (hand: MainHand | null) => void;
+}) {
   const t = useSolverDict();
   // By role, not by seat: the player to act opens on the strategy, the other on EV.
   const [modes, setModes] = useState<{ actor: Mode; other: Mode }>({ actor: "strategy", other: "ev" });
@@ -162,6 +176,15 @@ export function RangesView({ data, masks, strategy }: { data: RangeData; masks: 
     .map((id) => ({ id, a: views[0].shares.get(id) ?? 0, b: views[1].shares.get(id) ?? 0 }))
     .filter((row) => row.a > 0 || row.b > 0);
 
+  // The hovered hand in the panel; re-sent as the equity comes in or the filter changes, cleared on leaving the tab.
+  useEffect(() => {
+    if (!onHand) return;
+    if (!hover) onHand(null);
+    else if (hover.p === ranges.actor) onHand({ index: hover.k });
+    else onHand({ panel: <OtherHand data={data} view={views[hover.p]} p={hover.p} k={hover.k} /> });
+  }, [onHand, hover, data, views, ranges.actor]);
+  useEffect(() => () => onHand?.(null), [onHand]);
+
   const hovered = hover ? hoverLine(data, views, hover.p, hover.k, t) : null;
   const missingEv = ranges.sides.find((side) => !side.ev);
 
@@ -188,11 +211,19 @@ export function RangesView({ data, masks, strategy }: { data: RangeData; masks: 
                 ))}
               </select>
             </div>
-            <RangeGrid data={data} view={views[p]} p={p} mode={modeOf(p)} strategy={strategy} onHover={(k) => setHover(k === null ? null : { p, k })} />
+            <RangeGrid
+              data={data}
+              view={views[p]}
+              p={p}
+              mode={modeOf(p)}
+              strategy={strategy}
+              hovered={hover?.p === p ? hover.k : null}
+              onHover={(k) => setHover(k === null ? null : { p, k })}
+            />
           </div>
         ))}
 
-        <section className={styles.compare} aria-label={t.ranges.compare} style={{ order: 1 }}>
+        <section className={styles.compare} aria-label={t.ranges.compare}>
           {rows.map((row) => (
             <CompareRow key={row.label} {...row} />
           ))}
@@ -252,6 +283,60 @@ function hoverLine(data: RangeData, views: Pair<SideView>, p: 0 | 1, k: number, 
   );
 }
 
+/** The other player's hovered hand, for the panel: each combo's weight, equity and EV (they do not act here). */
+function OtherHand({ data, view, p, k }: { data: RangeData; view: SideView; p: 0 | 1; k: number }) {
+  const t = useSolverDict();
+  const side = data.ranges.sides[p];
+  const eq = data.equity?.[p] ?? null;
+  const hands = data.byClass[p][k];
+  let combos = 0;
+  let ev = 0;
+  for (const i of hands) {
+    const r = view.reach[i];
+    combos += r;
+    if (side.ev) ev += r * side.ev[i];
+  }
+  return (
+    <>
+      <p className={styles.handHead}>
+        <strong className={styles.handName}>{GRID_CELLS[k].name}</strong>
+        <span className={styles.positionTag}>{side.position}</span>
+        {side.ev && combos > 0 ? <span className={styles.handValue}>{t.value(ev / combos)}</span> : null}
+      </p>
+      {hands.length === 0 ? (
+        <p className={analysis.muted}>{t.absent}</p>
+      ) : (
+        <table className={styles.otherCombos}>
+          <thead>
+            <tr>
+              <th />
+              <th>{t.ranges.modes.range}</th>
+              <th>{t.ranges.equity}</th>
+              <th>{t.ranges.ev}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {hands.map((i) => {
+              const e = eq ? eq[i] : Number.NaN;
+              return (
+                <tr key={i} className={view.reach[i] > 0 ? undefined : styles.otherComboOff}>
+                  <th scope="row">
+                    <ComboText cards={data.cards[p][i]} />
+                  </th>
+                  <td>{t.ranges.share(view.reach[i])}</td>
+                  <td>{Number.isNaN(e) ? t.ranges.noEv : t.ranges.share(e)}</td>
+                  <td>{side.ev ? t.ranges.bb(side.ev[i]) : t.ranges.noEv}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
+      <p className={analysis.muted}>{t.ranges.otherNote(side.position)}</p>
+    </>
+  );
+}
+
 function CompareRow({ label, left, right, a, b, note }: { label: string; left: ReactNode; right: ReactNode; a: number; b: number; note?: string }) {
   const total = Math.max(0, a) + Math.max(0, b);
   const share = total > 0 ? Math.max(0, a) / total : 0.5;
@@ -275,6 +360,7 @@ function RangeGrid({
   p,
   mode,
   strategy,
+  hovered,
   onHover,
 }: {
   data: RangeData;
@@ -282,6 +368,7 @@ function RangeGrid({
   p: 0 | 1;
   mode: Mode;
   strategy: StrategyModel;
+  hovered: number | null;
   onHover: (k: number | null) => void;
 }) {
   const t = useSolverDict();
@@ -328,7 +415,7 @@ function RangeGrid({
         return (
           <div
             key={cell.name}
-            className={`${styles.cell} ${styles.rangeCell} ${combos === 0 ? styles.cellFaint : ""}`}
+            className={`${styles.cell} ${styles.rangeCell} ${combos === 0 ? styles.cellFaint : ""} ${k === hovered ? styles.rangeCellHover : ""}`}
             title={t.ranges.cellLabel(cell.name, combos, label || null)}
             onPointerEnter={() => onHover(k)}
           >

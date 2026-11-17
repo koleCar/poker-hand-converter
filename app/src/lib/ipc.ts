@@ -965,33 +965,36 @@ export interface HotkeyStatus {
   state: "active" | "taken" | "failed" | "paused";
 }
 
-/** `rail_hud_ipc::settings::RngBand`: the numbers up to `upTo` in `colour` (`#rrggbb`). */
-export interface RngBand {
-  upTo: number;
-  colour: string;
-  label?: string | null;
-}
-
-/** `rail_hud_ipc::settings::RngTriggers`. */
-export interface RngTriggers {
-  newHand: boolean;
-  click: boolean;
-  /** Every this many seconds; absent: no timer. */
-  timerSecs?: number | null;
-}
-
-/** `rail_hud_ipc::settings::RngSettings` (T3). */
+/**
+ * `rail_hud_ipc::settings::RngSettings`: the RNG box's switch (2026-11-16)
+ * and its look and place (2026-11-17). Sizes are points; colours `#rrggbb`,
+ * absent: the theme's; no position: the primary monitor's top-right corner.
+ */
 export interface RngSettings {
   enabled: boolean;
-  min: number;
-  max: number;
-  bands: RngBand[];
-  triggers: RngTriggers;
-  perRoom: Record<string, boolean>;
-  /** (T5 follow-up) The widget's size, percent (50 - 200); the Rust side fills in 100 when a stored row has none. */
-  scale?: number;
-  /** (T5 follow-up) Its opacity, percent (30 - 100); 100 when none is stored. */
-  opacity?: number;
+  /** The box, `RNG_BOX_MIN` - `RNG_BOX_MAX`. */
+  width: number;
+  height: number;
+  /** The number, `RNG_NUMBER_MIN` - `RNG_NUMBER_MAX`. */
+  numberSize: number;
+  background?: string | null;
+  color?: string | null;
+  /** The box's top-left corner on the screen, points. */
+  position?: { x: number; y: number } | null;
+  /** Locked: not dragged or resized (a click still rolls). */
+  locked: boolean;
+}
+
+/** The bounds `rail_hud_ipc::settings` checks (`RNG_BOX_*`, `RNG_NUMBER_*`). */
+export const RNG_BOX = { min: 32, max: 480, initial: 56 } as const;
+export const RNG_NUMBER = { min: 10, max: 320, initial: 20 } as const;
+
+/** `rng_box::RngFrame`: the box's place and size now, points. */
+export interface RngFrame {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 /** `rail_config::model::SiteKind`. */
@@ -1633,6 +1636,17 @@ export const ipc = {
   /** The RNG box (`rng_box.rs`): the number it shows, and a new one (a click). */
   rngBoxNumber: () => invoke<number>("rng_box_number"),
   rngBoxRoll: () => invoke<number>("rng_box_roll"),
+  /** (2026-11-17) Dragging and resizing the box: where it is, moving it (not saved), saving where it ended. */
+  rngBoxFrame: () => invoke<RngFrame>("rng_box_frame"),
+  rngBoxPlace: (frame: RngFrame) => invoke<null>("rng_box_place", { ...frame }),
+  rngBoxSaveFrame: () => invoke<RngSettings>("rng_box_save_frame"),
+  /** Settings' "Reposition": the box in the middle of the primary monitor, unlocked. */
+  rngBoxReposition: () => invoke<RngSettings>("rng_box_reposition"),
+  /** Settings' RNG section on screen: the box shows to be styled and placed. */
+  rngBoxPreview: (on: boolean) => invoke<null>("rng_box_preview", { on }),
+  /** A right-click on the box: its panel (lock, reposition, look) opens beside it, or closes. */
+  rngPanelToggle: () => invoke<null>("rng_panel_toggle"),
+  rngPanelClose: () => invoke<null>("rng_panel_close"),
   retileTables: () => invoke<boolean>("retile_tables"),
   captureTilingLayout: () => invoke<TilingSlot[]>("capture_tiling_layout"),
   /** (T7) The global hotkeys: how each binding stands, and letting every key go while one is recorded. */
@@ -1819,6 +1833,16 @@ export function onTilingSettingsChanged(onChange: () => void): () => void {
 /** The RNG box's number changed outside it (the "Roll the RNG" hotkey). */
 export function onRngBoxRolled(onRoll: (n: number) => void): () => void {
   return onAppEvent<number>("rng-box-rolled", onRoll);
+}
+
+/** The RNG settings were saved; `from` is the window that saved them ("main", "rng-panel", "rng-box"). */
+export function onRngSettingsSaved(onSaved: (from: string) => void): () => void {
+  return onAppEvent<{ from: string }>("rng-settings-changed", (payload) => onSaved(payload.from));
+}
+
+/** The RNG box's look or place changed (Settings saved, a sync pull). */
+export function onRngBoxStyle(onStyle: (settings: RngSettings) => void): () => void {
+  return onAppEvent<RngSettings>("rng-box-style", onStyle);
 }
 
 /** (T7) A hotkey was bound, found taken, or paused: ask `hotkeyStatus` again. */

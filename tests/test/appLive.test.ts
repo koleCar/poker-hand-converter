@@ -2,7 +2,7 @@
  * The desktop app's Live screen helpers (`app/src/screens/live/model.ts`):
  * every statistic it shows exists, a statistic's target range is its
  * definition's "normal" band (a percentage only), a value's band places it
- * against the target, and the hands table's page buttons.
+ * against the target, and the hands table's page buttons and page sizes.
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -13,7 +13,10 @@ import {
   LIVE_STATS,
   minutesBetween,
   nextSort,
+  pageForRow,
   pageList,
+  pageSizeText,
+  parsePageSize,
   perHundred,
   placeOf,
   rangeBar,
@@ -84,6 +87,23 @@ describe("Live: the hands table's pages", () => {
     expect(pageList(1, 20)).toEqual([1, 2, 3, 4, null, 20]);
     expect(pageList(10, 20)).toEqual([1, null, 9, 10, 11, null, 20]);
     expect(pageList(20, 20)).toEqual([1, null, 17, 18, 19, 20]);
+  });
+});
+
+describe("Live: the hands table's page size", () => {
+  it("reads back what it stored, ten for anything else", () => {
+    for (const size of [10, 25, 100, null] as const) expect(parsePageSize(pageSizeText(size))).toBe(size);
+    expect(parsePageSize(null)).toBe(10);
+    expect(parsePageSize("50")).toBe(10);
+    expect(parsePageSize("")).toBe(10);
+  });
+
+  it("keeps the first shown row on the page a new size lands on", () => {
+    expect(pageForRow(0, 25)).toBe(1);
+    expect(pageForRow(30, 25)).toBe(2);
+    expect(pageForRow(30, 10)).toBe(4);
+    expect(pageForRow(90, 100)).toBe(1);
+    expect(pageForRow(90, null)).toBe(1);
   });
 });
 

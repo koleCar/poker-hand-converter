@@ -571,6 +571,49 @@
   font-weight: var(--font-weight-semibold);
 }
 
+/* The page buttons, then the page size. */
+.pagerEnd {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* 10 · 25 · 100 · All, one segmented control. */
+.sizes {
+  display: inline-flex;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  overflow: hidden;
+}
+
+.sizeButton {
+  min-width: 36px;
+  height: 28px;
+  padding: 0 var(--space-2);
+  border: 0;
+  background: transparent;
+  color: var(--text-tertiary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.sizeButton + .sizeButton {
+  border-left: 1px solid var(--border-default);
+}
+
+.sizeButton:hover:not([aria-pressed="true"]) {
+  background: var(--surface-hover);
+  color: var(--text-secondary);
+}
+
+.sizeButton[aria-pressed="true"] {
+  background: var(--surface-selected);
+  color: var(--text-on-selected);
+  font-weight: var(--font-weight-semibold);
+  cursor: default;
+}
+
 .gap {
   padding: 0 var(--space-1);
   color: var(--text-tertiary);

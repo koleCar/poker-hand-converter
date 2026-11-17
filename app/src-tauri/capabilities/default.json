@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "The main window, the replayer window, the HUD popups (R3.8, hud-popup-<n>) and the RNG box (rng-box): core APIs only. Rail's own commands (src/commands.rs) are allowed without a permission entry; no plugin API is reachable from the web side.",
-  "windows": ["main", "replayer", "hud-popup-*", "rng-box"],
+  "description": "The main window, the replayer window, the HUD popups (R3.8, hud-popup-<n>) and the RNG box (rng-box) and its panel (rng-panel): core APIs only. Rail's own commands (src/commands.rs) are allowed without a permission entry; no plugin API is reachable from the web side.",
+  "windows": ["main", "replayer", "hud-popup-*", "rng-box", "rng-panel"],
   "permissions": ["core:default"]
 }

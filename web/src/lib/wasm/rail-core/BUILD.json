@@ -4,7 +4,7 @@
   "rustToolchain": "1.99.0",
   "wasmBindgen": "0.2.129",
   "profile": "wasm-release",
-  "gzip": 767905,
+  "gzip": 767596,
   "files": {
     "rail_core_wasm.js": {
       "bytes": 10997,
@@ -15,8 +15,8 @@
       "sha256": "b1929036a1c7cb2d05ca71a52a76c49a3dcd1d26e21954103c8a8c4b3df4c49e"
     },
     "rail_core_wasm_bg.wasm": {
-      "bytes": 2276729,
-      "sha256": "c99afbf6809fc206c0dd719961c600e39aa99daf90cd44cbb52707ee2dee8b53"
+      "bytes": 2274358,
+      "sha256": "ce27886a57badd5e833eecabe6b47abe762f8fccc5fb0ba8b25f991dd5e18070"
     },
     "rail_core_wasm_bg.wasm.d.ts": {
       "bytes": 923,

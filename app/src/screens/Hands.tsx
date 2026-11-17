@@ -14,10 +14,10 @@
  * and keep the keyboard in the list. Closing the window lets go of the
  * hand; a tag or note changed there shows on its row here.
  *
- * Several hands can be chosen (Cmd/Ctrl or Shift + click); a right click
- * replays them - the window steps through them in its sidebar, and the row
- * of the hand it shows is marked here - or saves them as a .txt
- * (`components/HandActions`).
+ * Several hands can be chosen (Cmd/Ctrl or Shift + click); a bar at the
+ * window's foot, or a right click, replays them - the window steps through
+ * them in its sidebar, and the row of the hand it shows is marked here -
+ * tags them, or saves them as a .txt (`components/HandActions`).
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { HandsScreen } from "@rail/ui/hands/HandsScreen";
@@ -165,6 +165,7 @@ export function Hands() {
       notice={<RecomputeNotice status={rebuild} filling={t.hands.rebuilding} className={styles.notice} />}
       renderState={(kind, text) => <StateMessage kind={kind}>{text}</StateMessage>}
       onRowsMenu={actions.openMenu}
+      renderChosen={actions.bar}
     />
     {actions.element}
     </>

@@ -871,6 +871,24 @@ Until parser 2.0.0 they were all refused as `bb-only-walk`; since 2.1.0 they
 parse, and positions name the button BTN and drop the small blind slot
 (`assignPositions`): five players are BB, UTG, HJ, CO, BTN.
 
+### 13.15 Short all-ins are hands
+
+```
+Mariannev: posts big blind 1560 and is all-in        (blinds 1000/2000)
+kole1992: calls 1671 and is all-in                   (9000 already in)
+```
+
+A blind posted all-in for less than the stated blind, and an all-in call
+whose increment is smaller than the big blind, are a short stack, not a
+broken hand. Until parser 2.1.0 they were refused as
+`short-allin-small-blind`, `short-allin-big-blind` and `short-allin-call`
+(the last one compared the call's increment, not the player's commitment,
+with the big blind). Since 2.2.0 they parse like any other hand, and the
+validator's pot check is what decides: the two hands above balance to the
+chip, while `fixtures/…/short-sb-allin.txt` (a $0.13 small blind all-in,
+the big blind folding, a reported pot of $0.29 against $0.95 put in) is
+refused as `chip-mismatch`.
+
 ---
 
 ## 14. Sample index

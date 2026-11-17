@@ -178,13 +178,16 @@ pub fn get_rng_settings(store: State<'_, StoreState>) -> RngSettings {
 #[tauri::command]
 pub async fn set_rng_settings<R: Runtime>(
     app: AppHandle<R>,
+    window: tauri::Window<R>,
     store: State<'_, StoreState>,
     hud: State<'_, HudState>,
     settings: RngSettings,
 ) -> Result<(), String> {
     write_rng(&writer(&store)?, &settings)?;
     hud.rng_written(settings);
-    crate::rng_box::refresh(&app);
+    crate::rng_box::restyle(&app);
+    // Settings and the RNG panel read again what the other saved.
+    crate::rng_box::tell_saved(&app, window.label());
     Ok(())
 }
 
@@ -229,6 +232,8 @@ pub fn pulled<R: Runtime>(app: &AppHandle<R>) {
     if hud.settings_pulled(now) {
         // (T7) Another computer's hotkeys, bound here too.
         crate::hotkeys::apply_bindings(app, &hotkeys);
+        // Another computer's RNG box look and place.
+        crate::rng_box::restyle(app);
         if let Err(error) = app.emit(SETTINGS_EVENT, ()) {
             log::debug!("{SETTINGS_EVENT}: {error}");
         }
@@ -264,7 +269,15 @@ mod tests {
             ..TilingSettings::default()
         };
         write_tiling(&w, &tiling).expect("saved");
-        let rng = RngSettings { enabled: true };
+        let rng = RngSettings {
+            enabled: true,
+            width: 90,
+            number_size: 40,
+            background: Some("#202830".into()),
+            position: Some(rail_hud_ipc::settings::RngPosition { x: 10, y: -20 }),
+            locked: true,
+            ..RngSettings::default()
+        };
         write_rng(&w, &rng).expect("saved");
         let read = read_store(&store);
         assert_eq!(read.tiling, tiling);
