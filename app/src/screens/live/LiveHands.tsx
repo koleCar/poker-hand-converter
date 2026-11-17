@@ -1,9 +1,11 @@
 /**
  * The Live screen's hands: every hand of the session, newest first, ten to
- * a page - the hero's cards, the board, the position, and the pot and the
+ * a page (or 25, 100 or all of them, the reader's choice, remembered across
+ * starts) - the hero's cards, the board, the position, and the pot and the
  * result both in the screen's unit (big blinds or the hand's money). The
- * whole row opens the hand (a click, or Enter on the row's link); a hovered
- * row says so with its background, an accent edge and an arrow at its end.
+ * whole row opens the hand in the replayer's own window, and the Live
+ * screen stays (a click, or Enter on the row's link); a hovered row says so
+ * with its background, an accent edge and an arrow at its end.
  *
  * The session's hands are read whole (the store's pages of up to 500,
  * following its cursor; a session is hundreds of hands, not thousands) and
@@ -31,9 +33,22 @@ import { StateMessage } from "../../components/StateMessage";
 import { useT } from "../../i18n";
 import { liveNumberFormat } from "../../i18n/format";
 import { errorText, ipc, type HandCursor, type HandRow, type Session } from "../../lib/ipc";
-import { go, screenHref } from "../../lib/router";
+import { screenHref } from "../../lib/router";
+import { openInReplayer } from "../analysis/openHand";
 import { bigBlinds, money, signedMoney, unitOf } from "../hands/format";
-import { HANDS_PER_PAGE, nextSort, pageList, sortHands, type LiveSort, type LiveSortColumn } from "./model";
+import {
+  HANDS_PER_PAGE,
+  PAGE_SIZES,
+  nextSort,
+  pageForRow,
+  pageList,
+  pageSizeText,
+  parsePageSize,
+  sortHands,
+  type LiveSort,
+  type LiveSortColumn,
+  type PageSize,
+} from "./model";
 import type { LiveUnit } from "./units";
 import styles from "./Live.module.css";
 
@@ -45,6 +60,24 @@ const MAX_ROWS = 5000;
 const BB = liveNumberFormat({ maximumFractionDigits: 1, minimumFractionDigits: 1 });
 
 const NO_ROWS: HandRow[] = [];
+
+const PAGE_SIZE_KEY = "rail.live.pageSize";
+
+function readPageSize(): PageSize {
+  try {
+    return parsePageSize(window.localStorage.getItem(PAGE_SIZE_KEY));
+  } catch {
+    return HANDS_PER_PAGE;
+  }
+}
+
+function writePageSize(size: PageSize): void {
+  try {
+    window.localStorage.setItem(PAGE_SIZE_KEY, pageSizeText(size));
+  } catch {
+    // A webview without storage: the next start shows ten to a page.
+  }
+}
 
 /** Every hand of `kind` since `from`, newest first. */
 async function sessionHands(from: string, kind: GameKind): Promise<HandRow[]> {
@@ -85,6 +118,7 @@ export function LiveHands({ session, kind, unit }: { session: Session; kind: Gam
   const d = t.live.handList;
   const { rows, error } = useSessionHands(session.startedAt, session.hands, kind);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<PageSize>(readPageSize);
   const [sort, setSort] = useState<LiveSort | null>(null);
   const sorted = useMemo(() => (rows === null ? null : sortHands(rows, sort, unit, POSITION_ORDER)), [rows, sort, unit]);
   const selection = useHandSelection(sorted ?? NO_ROWS);
@@ -110,10 +144,17 @@ export function LiveHands({ session, kind, unit }: { session: Session; kind: Gam
         </StateMessage>
       );
   } else {
-    const pages = Math.max(1, Math.ceil(rows.length / HANDS_PER_PAGE));
+    const size = pageSize ?? Math.max(1, rows.length);
+    const pages = Math.max(1, Math.ceil(rows.length / size));
     const current = Math.min(page, pages);
-    const first = (current - 1) * HANDS_PER_PAGE;
-    const shown = sorted.slice(first, first + HANDS_PER_PAGE);
+    const first = (current - 1) * size;
+    const shown = sorted.slice(first, first + size);
+    // A new size keeps the first row the reader saw on the page they land on.
+    const resize = (next: PageSize) => {
+      setPageSize(next);
+      writePageSize(next);
+      setPage(pageForRow(first, next));
+    };
     const newestKey = rows[0]?.handKey;
     body = (
       <div className={styles.tableCard}>
@@ -145,49 +186,66 @@ export function LiveHands({ session, kind, unit }: { session: Session; kind: Gam
             </tbody>
           </table>
         </div>
-        {pages > 1 ? (
+        {rows.length > PAGE_SIZES[0] ? (
           <nav className={styles.pager} aria-label={d.pages}>
             <span className={styles.muted}>
-              {d.range(first + 1, Math.min(first + HANDS_PER_PAGE, rows.length), rows.length)}
+              {d.range(first + 1, Math.min(first + size, rows.length), rows.length)}
               {selection.size > 1 ? ` · ${t.hands.chosen(selection.size)}` : null}
             </span>
-            <span className={styles.pages}>
-              <button
-                type="button"
-                className={styles.pageButton}
-                aria-label={d.previous}
-                disabled={current === 1}
-                onClick={() => setPage(current - 1)}
-              >
-                ‹
-              </button>
-              {pageList(current, pages).map((item, index) =>
-                item === null ? (
-                  <span key={`gap-${index}`} className={styles.gap} aria-hidden="true">
-                    …
-                  </span>
-                ) : (
+            <span className={styles.pagerEnd}>
+              {pages > 1 ? (
+                <span className={styles.pages}>
                   <button
-                    key={item}
                     type="button"
                     className={styles.pageButton}
-                    aria-label={d.page(item)}
-                    aria-current={item === current ? "page" : undefined}
-                    onClick={() => setPage(item)}
+                    aria-label={d.previous}
+                    disabled={current === 1}
+                    onClick={() => setPage(current - 1)}
                   >
-                    {item}
+                    ‹
                   </button>
-                ),
-              )}
-              <button
-                type="button"
-                className={styles.pageButton}
-                aria-label={d.next}
-                disabled={current === pages}
-                onClick={() => setPage(current + 1)}
-              >
-                ›
-              </button>
+                  {pageList(current, pages).map((item, index) =>
+                    item === null ? (
+                      <span key={`gap-${index}`} className={styles.gap} aria-hidden="true">
+                        …
+                      </span>
+                    ) : (
+                      <button
+                        key={item}
+                        type="button"
+                        className={styles.pageButton}
+                        aria-label={d.page(item)}
+                        aria-current={item === current ? "page" : undefined}
+                        onClick={() => setPage(item)}
+                      >
+                        {item}
+                      </button>
+                    ),
+                  )}
+                  <button
+                    type="button"
+                    className={styles.pageButton}
+                    aria-label={d.next}
+                    disabled={current === pages}
+                    onClick={() => setPage(current + 1)}
+                  >
+                    ›
+                  </button>
+                </span>
+              ) : null}
+              <span className={styles.sizes} role="group" aria-label={d.perPage}>
+                {PAGE_SIZES.map((option) => (
+                  <button
+                    key={pageSizeText(option)}
+                    type="button"
+                    className={styles.sizeButton}
+                    aria-pressed={option === pageSize}
+                    onClick={() => resize(option)}
+                  >
+                    {option === null ? d.all : option}
+                  </button>
+                ))}
+              </span>
             </span>
           </nav>
         ) : null}
@@ -198,6 +256,10 @@ export function LiveHands({ session, kind, unit }: { session: Session; kind: Gam
   return (
     <section className={styles.section} aria-label={d.label}>
       {body}
+      {actions.bar(
+        (sorted ?? NO_ROWS).filter((row) => selection.checked.has(row.handKey)).map((row) => row.handKey),
+        selection.clear,
+      )}
       {actions.element}
     </section>
   );
@@ -271,12 +333,12 @@ function HandLine({
     : row.heroNetBbMilli !== null
       ? d.bb(bigBlinds(row.heroNetBbMilli))
       : "—";
-  const open = () => go("hands", row.handKey);
+  const open = () => openInReplayer(row.handKey);
   // A plain click opens the hand; with Cmd/Ctrl or Shift it only chooses.
   const click = (event: MouseEvent) => {
     if (!selection.click(row.handKey, event)) open();
   };
-  // A plain click leaves the screen, so a chosen row was chosen with a modifier.
+  // A plain click chooses this row alone and opens it in the replayer.
   const chosen = selection.checked.has(row.handKey);
   return (
     <tr

@@ -69,14 +69,7 @@ function Banner({ at, session }: { at: NodelockAt | null; session: NodelockSessi
           <div className={styles.progressText}>
             <strong>{running.name}</strong>
             <span>
-              {running.progress
-                ? t.progress(
-                    running.progress.iteration,
-                    running.progress.exploitabilityPct,
-                    running.progress.elapsedMs / 1000,
-                    running.progress.etaMs === null ? null : running.progress.etaMs / 1000,
-                  )
-                : t.starting}
+              {running.progress ? t.progress(running.share, running.progress.etaMs === null ? null : running.progress.etaMs / 1000) : t.starting}
             </span>
             <span className={styles.muted}>{t.solvingHere}</span>
           </div>

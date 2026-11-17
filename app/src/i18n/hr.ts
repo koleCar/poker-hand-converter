@@ -256,6 +256,8 @@ export const hr: Dict = {
       previous: "Prethodna stranica",
       next: "Sljedeća stranica",
       page: (page) => `Stranica ${page}`,
+      perPage: "Ruku po stranici",
+      all: "Sve",
       range: (from, to, total) => `${n(from)}–${n(to)} od ${n(total)}`,
     },
     empty: {
@@ -815,7 +817,22 @@ export const hr: Dict = {
 
     rng: {
       show: "Prikaži RNG dok igraš",
-      hint: "Jedan broj od 1 do 100 u gornjem desnom kutu ekrana dok traje sesija. Klikni ga za novi.",
+      hint: "Jedan broj od 1 do 100 na ekranu dok traje sesija. Klikni ga za novi.",
+      lock: "Zaključaj RNG",
+      lockHint: "Zaključan box ostaje gdje je: ne može se pomicati ni mijenjati mu veličinu. Klik i dalje daje novi broj.",
+      placedInCorner: "Gornji desni kut",
+      placedByYou: "Gdje si ga postavio",
+      reposition: "Vrati na sredinu",
+      repositionHint: "Vraća box na sredinu ekrana i otključava ga, da ga povučeš gdje želiš.",
+      boxSize: "Veličina boxa",
+      width: "Širina",
+      height: "Visina",
+      numberSize: "Veličina broja",
+      background: "Pozadina",
+      color: "Boja broja",
+      theme: "Tema",
+      dragHint: "Otključan box povuci da ga pomakneš, a za kut da mu promijeniš veličinu.",
+      resetLook: "Vrati izgled",
     },
     startup: {
       heading: "Pokretanje",
@@ -984,6 +1001,12 @@ export const hr: Dict = {
       replay: (count) => (count === 1 ? "Pogledaj ruku u replayeru" : `Pogledaj ${rukuAcc(count)} u replayeru`),
       export: (count) => (count === 1 ? "Izvezi ruku u .txt" : `Izvezi ${rukuAcc(count)} u .txt`),
       mark: "Označi",
+      bar: {
+        replay: "Pogledaj u replayeru",
+        tag: "Označi",
+        export: "Izvezi .txt",
+        clear: "Poništi odabir",
+      },
       markers: {
         label: "Oznake",
         presets: {
@@ -1502,11 +1525,13 @@ export const hr: Dict = {
     engineLine: (threads: number, cores: number, memoryMb: number) =>
       `Koristi do ${n(threads)} od ${n(cores)} jezgri i oko ${memoryMb >= 1000 ? `${n(Math.round(memoryMb / 100) / 10)} GB` : `${n(Math.round(memoryMb / 10) * 10)} MB`}. Ništa ne napušta ovo računalo.`,
     noEngine: "Ova verzija Raila još ne može solvati nodelockove.",
-    busy: "Drugi nodelock se solva. Pričekaj ga ili ga prekini.",
+    queued: "Drugi nodelock se solva: ovaj kreće odmah nakon njega.",
     startError: "Solve se nije mogao pokrenuti. Pokušaj ponovno.",
     nothingLocked: "Prvo zaključaj barem jednu ruku.",
-    progress: (iteration: number, accuracy: number | null, elapsedS: number, etaS: number | null) =>
-      `Iteracija ${n(iteration)}${accuracy === null ? "" : ` · ${n(Math.round(accuracy * 100) / 100)}% pota`} · ${clock(elapsedS)}${etaS === null ? "" : ` · još oko ${clock(etaS)}`}`,
+    progress: (share: number | null, etaS: number | null) =>
+      share === null ? "Procjenjujem vrijeme…" : `${Math.floor(share * 100)} %${etaS === null ? "" : ` · još oko ${clock(etaS)}`}`,
+    batch: (done: number, total: number) => `${n(done)} od ${n(total)} gotovo`,
+    cancelAll: "Prekini sve",
     starting: "Pokrećem solve…",
     cancel: "Prekini",
     solvingHere: "Solva se na ovom računalu. Nastavi učiti; Rail javi kad bude gotovo.",
@@ -1573,6 +1598,7 @@ export const hr: Dict = {
   rngBox: {
     label: (n) => (n === null ? "Slučajni broj" : `Slučajni broj ${n}. Klikni za novi.`),
     hint: "Klikni za novi broj",
+    hintUnlocked: "Klikni za novi broj, povuci za pomicanje, povuci kut za veličinu",
   },
 
   hudPopup: {

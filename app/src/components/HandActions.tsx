@@ -1,13 +1,16 @@
 /**
- * A hand list's right-click menu (Hands, Live): the chosen hands replayed
- * in the replayer window - several with their list beside it - marked
- * (`MarkPanel`: markers are tags; "Review" queues the spot for the solver),
- * or saved as one hand-history .txt (`export.rs`), the text Rail and the
- * web read back.
+ * What a table of hands does with the hands chosen in it (Hands, Live,
+ * Analysis; 2026-11-16, the owner: every table chooses several hands and
+ * replays and tags them): a right-click menu, and with two or more chosen a
+ * bar at the window's foot with the same actions in view. The hands are
+ * replayed in the replayer window - several with their list beside it -
+ * tagged (`MarkPanel`: a dropdown of the tags, presets first, and a field
+ * for a tag of one's own; "Review" queues the spot for the solver), or saved
+ * as one hand-history .txt (`export.rs`), the text Rail and the web read back.
  * What a save did is said for a few seconds at the window's foot.
  */
 import { ContextMenu, type MenuPoint } from "@rail/ui/hands/ContextMenu";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useT } from "../i18n";
 import { errorText, ipc } from "../lib/ipc";
@@ -27,6 +30,11 @@ function today(): string {
 export interface HandActions {
   /** Open the menu for these hands (in the list's order) at the pointer. */
   openMenu: (handKeys: string[], at: MenuPoint) => void;
+  /**
+   * The bar for the chosen hands (in the list's order), shown while two or
+   * more are chosen; `clear` lets them go.
+   */
+  bar: (handKeys: readonly string[], clear: () => void) => ReactNode;
   /** The menu and the message, rendered once by the screen. */
   element: ReactNode;
 }
@@ -47,11 +55,11 @@ export function useHandActions(): HandActions {
   }, []);
   const close = useCallback(() => setMenu(null), []);
 
-  const replay = (keys: string[]) => {
+  const replay = useCallback((keys: string[]) => {
     ipc.replayerOpenList(keys, true).catch((error: unknown) => setNotice({ text: errorText(error), error: true }));
-  };
+  }, []);
 
-  const save = (keys: string[]) => {
+  const save = useCallback((keys: string[]) => {
     ipc
       .handsExport(keys, t.fileName(today()))
       .then((done) => {
@@ -62,7 +70,13 @@ export function useHandActions(): HandActions {
         setNotice({ text, error: false });
       })
       .catch((error: unknown) => setNotice({ text: t.exportFailed(errorText(error)), error: true }));
-  };
+  }, [t]);
+
+  const bar = useCallback(
+    (keys: readonly string[], clear: () => void) =>
+      keys.length > 1 ? <ChosenBar handKeys={keys} onClear={clear} onReplay={replay} onSave={save} /> : null,
+    [replay, save],
+  );
 
   const element = (
     <>
@@ -89,5 +103,86 @@ export function useHandActions(): HandActions {
     </>
   );
 
-  return { openMenu, element };
+  return { openMenu, bar, element };
+}
+
+/**
+ * The chosen hands' actions, in view while two or more are chosen: how
+ * many, Replay, Tag (the tags as a dropdown, a field for a new one), Export,
+ * and × to let them go (Escape does too, in the list).
+ */
+function ChosenBar({
+  handKeys,
+  onClear,
+  onReplay,
+  onSave,
+}: {
+  handKeys: readonly string[];
+  onClear: () => void;
+  onReplay: (keys: string[]) => void;
+  onSave: (keys: string[]) => void;
+}) {
+  const ui = useT().hands;
+  const t = ui.actions;
+  const [tagging, setTagging] = useState(false);
+  const tagBox = useRef<HTMLDivElement>(null);
+  // The same hands keep the same list, so the tag panel does not read its
+  // tags again each time the screen draws.
+  const joined = handKeys.join("\n");
+  const keys = useMemo(() => joined.split("\n"), [joined]);
+
+  useEffect(() => {
+    if (!tagging) return;
+    tagBox.current?.querySelector<HTMLElement>("[data-autofocus]")?.focus();
+    const onDown = (event: PointerEvent) => {
+      if (!tagBox.current?.contains(event.target as Node)) setTagging(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      setTagging(false);
+      tagBox.current?.querySelector<HTMLElement>("button")?.focus();
+    };
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey, true);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey, true);
+    };
+  }, [tagging]);
+
+  return (
+    <div className={styles.bar} role="toolbar" aria-label={t.label(keys.length)}>
+      <span className={styles.count}>{ui.chosen(keys.length)}</span>
+      <button type="button" className={styles.action} onClick={() => onReplay(keys)}>
+        {t.bar.replay}
+      </button>
+      <div ref={tagBox} className={styles.tagBox}>
+        <button
+          type="button"
+          className={`${styles.action} ${tagging ? styles.open : ""}`.trim()}
+          aria-haspopup="menu"
+          aria-expanded={tagging}
+          onClick={() => setTagging((open) => !open)}
+        >
+          {t.bar.tag}
+          <span className={styles.caret} aria-hidden="true">
+            ▾
+          </span>
+        </button>
+        {tagging ? (
+          <div className={styles.dropdown} role="menu" aria-label={t.markers.label}>
+            <MarkPanel handKeys={keys} />
+          </div>
+        ) : null}
+      </div>
+      <button type="button" className={styles.action} onClick={() => onSave(keys)}>
+        {t.bar.export}
+      </button>
+      <button type="button" className={styles.dismiss} aria-label={t.bar.clear} title={t.bar.clear} onClick={onClear}>
+        ×
+      </button>
+    </div>
+  );
 }

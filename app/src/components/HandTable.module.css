@@ -1,0 +1,10 @@
+/* A hand chosen in a table (HandTable.tsx): the Hands list's tint and
+   accent edge, over whatever the table's rows look like. The class is
+   repeated so it outweighs a table's own row rules (`.body > .row:hover`
+   is three selectors' weight), whichever stylesheet loads last. */
+
+.chosen.chosen.chosen,
+.chosen.chosen.chosen:hover {
+  background: var(--accent-subtle);
+  box-shadow: inset 3px 0 0 var(--accent-fg);
+}

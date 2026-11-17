@@ -14,6 +14,11 @@
  *   ─▶ a turn card ─▶ the turn's decisions ─▶ a river card ─▶ the river's
  * ```
  *
+ * The whole line is one bar, as a solver's viewer strings it: the preflop
+ * cards, then the flop's card and a card per postflop decision, the turn's
+ * and the river's cards between them (PostflopBar). Actions are picked there;
+ * the action boxes beside the grid only show the mix.
+ *
  * The turn comes from a full solve's turn file when one is served
  * (fullSolve.ts, local), and otherwise is solved here, in a worker, from the
  * chunk's ranges at the deal (liveTurn.ts): a few seconds, nothing stored.
@@ -32,7 +37,6 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { flopLinesFor } from "../../lib/analysis/flopLibrary";
 import { followWalk, parseWalk, type WalkStep } from "../../lib/analysis/solverWalk";
@@ -40,8 +44,6 @@ import { preflopChartSet } from "../../lib/chartSet";
 import { CHART_SETS, chartSetKind, DEFAULT_CHART_SET, type ChartNode, type ChartSet } from "../../lib/charts";
 import {
   classCombos,
-  dealtCards,
-  exploreHistory,
   exploreNode,
   flopCards,
   EMPTY_FILTER,
@@ -61,6 +63,7 @@ import { loadFullSolve, type FullSolve } from "./fullSolve";
 import { HandFilters } from "./HandFilters";
 import { useSolverHost, type NodelockAt, type SolverDict, type StrategyCompare } from "./host";
 import { liveTurnCached, liveTurnId, parseLiveTurnId, solveTurnLive } from "./liveTurn";
+import { DealPicker, FlopCard, PostflopCards, type Where } from "./PostflopBar";
 import { PreflopBar, type TableOption } from "./PreflopBar";
 import { preflopState } from "./preflop";
 import { filterMasks, useRangeData } from "./rangeData";
@@ -329,9 +332,17 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     goNode(next);
     setTurn(null);
   };
-  const goDeal = (next: number) => {
+  /** A deal of the shown solve (from decision `from`): its card is picked. */
+  const goDeal = (from: number, chance: number) => {
     settle();
-    setDeal(next);
+    setPath(null);
+    setNode(from);
+    setDeal(chance);
+  };
+  /** The flop's deal, from a turn too: the turn card is (re)picked. */
+  const goFlopDeal = (from: number, chance: number) => {
+    goDeal(from, chance);
+    setTurn(null);
   };
 
   // The view, for the host to keep (the web's address bar), so a link lands here.
@@ -385,13 +396,22 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
         }
       : null;
 
+  // The line after preflop, on the same bar: the flop's card (or the prompt to pick one), then its decisions, the turn's, the river's.
+  const lineAtFlop = end?.kind === "flop" && solved.length > 0;
+  const flopPot = flopSolve ? exploreNode(flopSolve, 0).pot : null;
+  let postflop: ReactNode = lineAtFlop ? (
+    <FlopCard board={flopKey && flop ? flop : null} pot={flopKey ? flopPot : null} onChange={() => setPicker(true)} t={t} />
+  ) : null;
+  /** The turn's (or the river's) cards to pick from, under the bar. */
+  let dealPicker: ReactNode = null;
+
   let body: ReactNode;
   if (!state || !manifest) {
     body = <RailLoader label={t.loadingLibrary} showLabel centered />;
   } else if (looked ?? state.node) {
-    // A past decision looked back at, else the one to make. Picking an action on it rewrites the line from there.
+    // A past decision looked back at, else the one to make. Its actions are picked on the bar.
     const shown = looked ?? state.node!;
-    const model = preflopModel(shown, looked ? viewing! : state.line, goLine, t);
+    const model = preflopModel(shown, looked ? viewing! : state.line, t);
     body = <StrategyView model={model} hero={hero} overview={<PreflopOverview node={shown} t={t} />} />;
   } else if (end?.kind === "folded") {
     body = <p className={styles.message}>{t.preflop.folded(end.winner)}</p>;
@@ -434,8 +454,35 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     }
     const where: Where = { flop: flopSolve, turn: turn ? solve : null, turnChance, full: fullSolve };
     const include = masks ? masks[solve.result.nodes[nodeIndex].player] : undefined;
-    const source = fullSolve ? t.fullNote : turn ? t.liveNote : "";
-    const model = flopModel(solve, nodeIndex, picked, goNode, goDeal, source, t, include);
+    const model = flopModel(solve, nodeIndex, picked, t, include);
+    postflop = (
+      <>
+        {postflop}
+        <PostflopCards
+          where={where}
+          index={nodeIndex}
+          deal={shownDeal}
+          picked={picked}
+          moves={{ flopNode: goFlop, flopDeal: goFlopDeal, node: goNode, deal: goDeal, changeFlop: () => setPicker(true) }}
+          t={t}
+        />
+      </>
+    );
+    if (shownDeal !== null) {
+      dealPicker = (
+        <DealPicker
+          where={where}
+          deal={shownDeal}
+          picked={picked}
+          onTurn={(file) => {
+            goNode(0);
+            setTurn(file);
+          }}
+          onNode={goNode}
+          t={t}
+        />
+      );
+    }
     const compare = at?.locked && nodelock?.compare ? compareWith(at, chunkKey, include, nodelock.compareLabel, nodelock.shareDelta) : null;
     body = (
       <StrategyView
@@ -462,27 +509,10 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
             ))}
           </div>
         }
-        main={tab === "ranges" && rangeData ? <RangesView data={rangeData} masks={masks} strategy={model} /> : undefined}
+        main={tab === "ranges" && rangeData ? (onHand) => <RangesView data={rangeData} masks={masks} strategy={model} onHand={onHand} /> : undefined}
         fade={swappedAt === model.id}
         filters={<HandFilters data={rangeData} filter={filter} onFilter={setFilter} colours={model.actions.map((a) => a.colour)} />}
-        overview={
-          <FlopOverview
-            where={where}
-            index={nodeIndex}
-            board={flop}
-            picked={picked}
-            deal={shownDeal}
-            onGo={goNode}
-            onFlop={goFlop}
-            onTurn={(file, next) => {
-              goNode(next);
-              setTurn(file);
-            }}
-            onChange={() => setPicker(true)}
-            action={at && nodelock ? nodelock.nodeAction(at) : null}
-            t={t}
-          />
-        }
+        overview={<FlopOverview chunk={solve} index={nodeIndex} action={at && nodelock ? nodelock.nodeAction(at) : null} t={t} />}
       />
     );
   } else if (live) {
@@ -507,7 +537,9 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
         onLine={goLine}
         viewing={looked ? viewing : null}
         onView={setViewing}
+        after={postflop}
       />
+      {dealPicker}
       {nodelock ? nodelock.banner(at) : null}
       {body}
       {pickerOpen ? (
@@ -533,7 +565,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
 
 /* ------------------------------------------------------------ the models - */
 
-function preflopModel(node: ChartNode, line: string, goLine: (line: string) => void, t: Dict): StrategyModel {
+function preflopModel(node: ChartNode, line: string, t: Dict): StrategyModel {
   const classes = node.range.length;
   const totals = actionTotals(node);
   const played = playedOptions(node);
@@ -547,8 +579,6 @@ function preflopModel(node: ChartNode, line: string, goLine: (line: string) => v
       colour: colours[a],
       share: totals[a].share,
       combos: totals[a].combos,
-      ends: null,
-      onPick: () => goLine(line + option.code),
       hidden: !played[a],
     })),
     classes: GRID_CELLS.map((cell) => {
@@ -562,10 +592,8 @@ function preflopModel(node: ChartNode, line: string, goLine: (line: string) => v
         freq,
         ev,
         value: freq.reduce((sum, f, a) => sum + f * ev[a], 0),
-        reach: t.reachesShare(range),
       };
     }),
-    note: t.chartNote,
   };
 }
 
@@ -573,19 +601,12 @@ function flopModel(
   chunk: FlopChunk,
   index: number,
   picked: PickedFlop,
-  onGo: (node: number) => void,
-  onDeal: (deal: number) => void,
-  /** Where the turn comes from, for the note: a full solve's, a live one's, or "" on a library flop. */
-  source: string,
   t: Dict,
   include?: Uint8Array,
 ): StrategyModel {
   const view = exploreNode(chunk, index, include);
   const whole = include ? exploreNode(chunk, index) : view;
-  const unfiltered = whole.reach;
   const colours = actionColours(view.actions);
-  // The turn and the river are dealt, not the end of the walk - unless the flop went all-in (nothing left to solve).
-  const dealable = (deal: number) => deal >= 0 && (chunk.result.street === "turn" || turnDeal(chunk, deal) !== null);
   return {
     id: `flop|${chunk.header.line}|${chunk.header.flop}|${chunk.result.board.join("")}|${index}`,
     actor: view.position,
@@ -595,13 +616,6 @@ function flopModel(
       colour: colours[a],
       share: view.totals[a].share,
       combos: view.totals[a].combos,
-      ends:
-        // A deal stays clickable: it opens the card picker.
-        action.ends === "street" ? (dealable(action.deal) ? null : t.panel.showdown) : action.ends ? t.panel.ends[action.ends] : null,
-      onPick: () => {
-        if (action.child >= 0) onGo(action.child);
-        else if (dealable(action.deal)) onDeal(action.deal);
-      },
       // Judged on the whole range: a hand filter never hides an action.
       hidden: whole.totals[a].combos < 0.5,
     })),
@@ -613,7 +627,6 @@ function flopModel(
         freq: c.freq,
         ev: c.ev,
         value: c.value,
-        reach: t.reaches(c.weight, c.combos),
       };
     }),
     combos: (k) =>
@@ -621,9 +634,6 @@ function flopModel(
         ...combo,
         cards: `${picked.toPicked(combo.cards.slice(0, 2))}${picked.toPicked(combo.cards.slice(2, 4))}`,
       })),
-    note:
-      (include ? `${view.reach > 0 ? t.filters.note(view.reach, view.reach / unfiltered) : t.filters.none} ` : "") +
-      `${t.rangeValue(view.reach, view.value)} · ${t.solvedTo(chunk.result.exploitabilityPct, chunk.result.iterations)} ${source}${t.flopNote}`,
   };
 }
 
@@ -670,143 +680,17 @@ function PreflopOverview({ node, t }: { node: ChartNode; t: Dict }) {
   );
 }
 
-/** Where the walk is: the flop's solve, and on a turn that turn's solve and the flop's deal it came from. */
-interface Where {
-  flop: FlopChunk;
-  turn: FlopChunk | null;
-  turnChance: number | null;
-  /** A full solve, when one is served: its turn files are picked instead of solving live. */
-  full: FullSolve | null;
-}
-
-function FlopOverview({
-  where,
-  index,
-  board,
-  picked,
-  deal,
-  onGo,
-  onFlop,
-  onTurn,
-  onChange,
-  action,
-  t,
-}: {
-  where: Where;
-  index: number;
-  board: readonly string[];
-  picked: PickedFlop;
-  deal: number | null;
-  onGo: (node: number) => void;
-  onFlop: (node: number) => void;
-  onTurn: (file: string, node: number) => void;
-  onChange: () => void;
-  /** The app's Nodelock action for this decision, or null. */
-  action: ReactNode;
-  t: Dict;
-}) {
-  const chunk = where.turn ?? where.flop;
+/** The decision shown: who acts, the pot, and the app's Nodelock action. The line itself is on the bar. */
+function FlopOverview({ chunk, index, action, t }: { chunk: FlopChunk; index: number; action: ReactNode; t: Dict }) {
   const view = exploreNode(chunk, index);
-  const history = exploreHistory(chunk, index);
-  const shown = (card: string) => picked.toPicked(card);
-  const label = (step: { position: string; action: { kind: string; sizePot: number; amount: number } }) =>
-    t.panel.step(step.position, t.action(step.action.kind, step.action.sizePot, step.action.amount));
-
-  // On a turn: the flop's decisions that led to it, then the turn card.
-  let flopSteps: Array<{ node: number; text: string }> = [];
-  const chance = where.turnChance;
-  if (where.turn && chance !== null) {
-    const nodes = where.flop.result.nodes;
-    const last = nodes[chance].parent;
-    flopSteps = [
-      ...exploreHistory(where.flop, last).map((step) => ({ node: step.node, text: label(step) })),
-      { node: last, text: label({ position: where.flop.header.players[nodes[last].player], action: exploreNode(where.flop, last).actions[nodes[chance].parentEdge] }) },
-    ];
-  }
-  const river = history.find((step) => step.card)?.card;
-  const cards = [...board, ...(where.turn ? [shown(where.turn.result.board[3])] : []), ...(river ? [shown(river)] : [])];
-
-  // The card being picked: the turn (a deal of the flop's solve) or a river (a deal inside the turn file).
-  let options: Array<{ card: string; go: () => void }> = [];
-  if (deal !== null) {
-    if (!where.turn && where.full) {
-      const path = where.flop.result.nodes[deal]?.path;
-      options = where.full.manifest.turns
-        .filter((x) => x.flopPath === path)
-        .map((x) => ({ card: x.card, go: () => onTurn(x.file, 0) }));
-    } else if (!where.turn) {
-      // No full solve: the picked card's turn is solved here.
-      options = dealtCards(where.flop, deal).map((x) => ({ card: x.card, go: () => onTurn(`live:${liveTurnId(deal, x.card)}`, 0) }));
-    } else {
-      options = dealtCards(where.turn, deal)
-        .filter((x) => x.node >= 0)
-        .map((x) => ({ card: x.card, go: () => onGo(x.node) }));
-    }
-    options.sort((a, b) => "AKQJT98765432".indexOf(a.card[0]) - "AKQJT98765432".indexOf(b.card[0]) || a.card.localeCompare(b.card));
-  }
-
   return (
     <div className={styles.overview}>
-      <div className={styles.boardRow}>
-        <CardRow cards={cards} size="sm" />
-        <button type="button" className="btn btn--sm" onClick={onChange}>
-          {t.flop.change}
-        </button>
-      </div>
       <div className={styles.overviewHead}>
         <p className={styles.overviewTitle}>
           <strong>{t.panel.toAct(view.position)}</strong> <span className={analysis.muted}>{t.panel.pot(view.pot, view.toCall)}</span>
         </p>
         {action}
       </div>
-      <nav className={styles.history} aria-label={t.panel.history}>
-        <button type="button" className={styles.step} disabled={!where.turn && index === 0} onClick={() => onFlop(0)}>
-          {t.panel.start}
-        </button>
-        {flopSteps.map((step) => (
-          <span key={`f${step.node}`} className={styles.stepWrap}>
-            <span aria-hidden="true">›</span>
-            <button type="button" className={styles.step} onClick={() => onFlop(step.node)}>
-              {step.text}
-            </button>
-          </span>
-        ))}
-        {where.turn ? (
-          <span className={styles.stepWrap}>
-            <span aria-hidden="true">›</span>
-            <button type="button" className={styles.step} disabled={index === 0} onClick={() => onGo(0)}>
-              {t.panel.street("turn", shown(where.turn.result.board[3]))}
-            </button>
-          </span>
-        ) : null}
-        {history.map((step) => (
-          <span key={step.node} className={styles.stepWrap}>
-            <span aria-hidden="true">›</span>
-            <button type="button" className={styles.step} onClick={() => onGo(step.node)}>
-              {label(step)}
-            </button>
-            {step.card ? (
-              <>
-                <span aria-hidden="true">›</span>
-                <span className={styles.step}>{t.panel.street("river", shown(step.card))}</span>
-              </>
-            ) : null}
-          </span>
-        ))}
-      </nav>
-      {options.length ? (
-        <div className={styles.dealRow} role="group" aria-label={t.panel.dealPick(where.turn ? "river" : "turn")}>
-          <p className={analysis.muted}>{t.panel.dealPick(where.turn ? "river" : "turn")}</p>
-          <div className={styles.dealCards}>
-            {options.map((x) => (
-              <button key={x.card} type="button" className={styles.dealCard} onClick={x.go} aria-label={shown(x.card)}>
-                <CardRow cards={[shown(x.card)]} size="xs" />
-              </button>
-            ))}
-          </div>
-          <p className={analysis.muted}>{t.panel.isomorphic}</p>
-        </div>
-      ) : null}
     </div>
   );
 }

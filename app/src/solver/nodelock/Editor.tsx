@@ -38,19 +38,13 @@ import type { LockEarlier, LockSet, NodelockSummary } from "./contract";
 import { editorReducer, fromLockArrays, initialState, lockedCount, sharesOf, type EditorAction, type EditorState } from "./editor/state";
 import { engineInfo, type EngineInfo } from "./engine";
 import styles from "./Editor.module.css";
-import { closeEditor, startSolve, useNodelockSession, type EditorOpen } from "./session";
+import { boardText, closeEditor, startSolve, useNodelockSession, type EditorOpen } from "./session";
 import { lockSpec, lockTarget, suggestContext, type LockTarget } from "./spot";
 
 type Mode = "hands" | "range" | "classes";
 type View = "range" | "classes" | "combos";
 /** A hand class of the classes mode and view: a made hand or a draw (`MADE_HANDS`, `DRAWS`). */
 type ClassId = { group: "made" | "draw"; index: number };
-
-const SUIT_SIGN: Record<string, string> = { s: "♠", h: "♥", d: "♦", c: "♣" };
-
-function boardText(cards: readonly string[]): string {
-  return cards.map((card) => `${card[0]}${SUIT_SIGN[card[1]] ?? card[1]}`).join("");
-}
 
 const pctText = (share: number) => `${Math.round(share * 1000) / 10}%`;
 
@@ -99,6 +93,8 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
   const [info, setInfo] = useState<EngineInfo | null>(null);
   const [suggested, setSuggested] = useState<NodelockSuggestion | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  /** The Solve click being handed over: a second click must not queue the same lock again. */
+  const [submitting, setSubmitting] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const painting = useRef(false);
   const sliding = useRef(false);
@@ -205,8 +201,9 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
     };
     const who = state.preset ? `${suggestDict.names[state.preset as Archetype] ?? state.preset} ${target.position}` : target.position;
     const name = open.from?.name ?? t.name(who, boardText(at.board), target.players[1], target.players[0]);
-    const started = await startSolve({ at, lockSet, name, preset: state.preset, summary });
-    if (started !== true) setMessage(started === "busy" ? t.busy : started === "noEngine" ? t.noEngine : t.startError);
+    setSubmitting(true);
+    const started = await startSolve({ at, lockSet, name, preset: state.preset, summary }).finally(() => setSubmitting(false));
+    if (started === "noEngine" || started === "failed") setMessage(started === "noEngine" ? t.noEngine : t.startError);
   };
 
   /* ------------------------------------------------------------- pieces - */
@@ -611,11 +608,11 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
           ))}
         </div>
         <div className={styles.solve}>
-          <button type="button" className="btn btn--primary" disabled={Boolean(running) || info?.kind === null} onClick={() => void solve()}>
+          <button type="button" className="btn btn--primary" disabled={submitting || info?.kind === null} onClick={() => void solve()}>
             {t.solve}
           </button>
           <p className={styles.engineLine}>
-            {message ?? (running ? t.busy : info === null ? "" : info.kind === null ? t.noEngine : t.engineLine(info.threads, info.cores, memoryMb))}
+            {message ?? (running ? t.queued : info === null ? "" : info.kind === null ? t.noEngine : t.engineLine(info.threads, info.cores, memoryMb))}
           </p>
         </div>
       </footer>

@@ -246,16 +246,44 @@ describe("the Solver's bar on the ante set", () => {
   });
 });
 
-describe("a partial capture: the 6-max 100bb classic set", () => {
+describe("the 6-max 100bb classic set, captured in full", () => {
   const CLASSIC = "nlhe-cash-6max-100bb";
   const set = chartSet(CLASSIC);
   const lines = flopLinesFor(6);
-  // Everything after folds to the small blind, and five rare lines, are still to capture.
-  const GAPS = ["ffff", "rfrffr", "rfccfrf", "rfccrfa", "rfcfrrf", "ffrrffrra"];
+  // The decisions the first, partial capture left out (2026-11-13): blind vs blind and five rare lines.
+  const CAPTURED_LATER = ["ffff", "rfrffr", "rfccfrf", "rfccrfa", "rfcfrrf", "ffrrffrra"];
 
-  it("is registered and lists its gaps by Rail line, none of them in the set", () => {
+  it("is registered with no gaps, the blind vs blind lines and the rare lines in it", () => {
     expect(CHART_SETS.find((s) => s.id === CLASSIC)).toMatchObject({ players: 6, stackBb: 100 });
-    expect(set.model.missing).toEqual(GAPS);
+    expect(set.model.missing).toBeUndefined();
+    for (const line of CAPTURED_LATER) {
+      expect(set.nodes.has(line)).toBe(true);
+      expect(uncapturedLine(set, line)).toBeNull();
+    }
+  });
+
+  it("reads blind vs blind on the charts", () => {
+    const library = chartLibrary([set, ...TEST_CHART_SETS.filter((s) => s.id !== CLASSIC).map((s) => (s.id === ANTE_SET ? chartSet(s.id) : fixtureSet(s.id)))], TEST_CHART_SETS);
+    expect(lookupPreflop(library, spot("SB"), "AKs")).toMatchObject({ ok: true, node: { line: "ffff", actor: "SB" } });
+    const actions = [...spot("SB").actions, { position: "SB" as const, type: "raise" as const, toBb: 3 }];
+    expect(lookupPreflop(library, spot("BB", { actions }), "AKs")).toMatchObject({ ok: true, node: { actor: "BB" } });
+    expect(preflopState(set, "ffff", lines).node).toMatchObject({ line: "ffff", actor: "SB" });
+  });
+});
+
+describe("a partial capture: the classic set with blind vs blind left out", () => {
+  const CLASSIC = "nlhe-cash-6max-100bb";
+  const full = chartSet(CLASSIC);
+  const lines = flopLinesFor(6);
+  const GAPS = ["ffff", "rfrffr"];
+  // What the converter writes for a capture whose `errors` or `queue` still hold those decisions.
+  const set: typeof full = {
+    ...full,
+    model: { ...full.model, missing: GAPS },
+    nodes: new Map([...full.nodes].filter(([line]) => !GAPS.some((gap) => line.startsWith(gap)))),
+  };
+
+  it("lists its gaps by Rail line, none of them in the set", () => {
     for (const gap of GAPS) {
       expect(set.nodes.has(gap)).toBe(false);
       expect(uncapturedLine(set, gap)).toBe(gap);
@@ -290,3 +318,4 @@ describe("a partial capture: the 6-max 100bb classic set", () => {
     expect(btn.cards.map((c) => `${c.kind}:${c.node.actor}`)).toEqual(["past:UTG", "past:HJ", "past:CO", "current:BTN"]);
   });
 });
+

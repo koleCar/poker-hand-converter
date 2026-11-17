@@ -243,6 +243,17 @@ describe("the quick filters and the set groups", () => {
     expect(threeBet!.toggle(on).potTypes).toEqual(["limped"]);
   });
 
+  it("the For review quick filter takes the Review tag on and off, keeping the other tags, where the surface keeps tags", () => {
+    const review = QUICK_FILTERS.find((quick) => quick.id === "review");
+    expect(review).toBeDefined();
+    const on = review!.toggle({ ...EMPTY_FILTER, tags: ["river"] });
+    expect(on.tags).toEqual(["river", "Review"]);
+    expect(review!.on(on)).toBe(true);
+    expect(review!.toggle(on).tags).toEqual(["river"]);
+    expect(quickFor(["date", "tags"]).map((quick) => quick.id)).toEqual(["week", "review"]);
+    expect(quickFor(["date"]).map((quick) => quick.id)).toEqual(["week"]);
+  });
+
   it("a kind the Cash / Tournaments toggle set is no chip, and Clear all keeps it", () => {
     const both: HandFacets = {
       total: 3,

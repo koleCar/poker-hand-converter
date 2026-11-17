@@ -173,6 +173,61 @@
   color: var(--text-primary);
 }
 
+.seatOption[aria-disabled="true"] {
+  cursor: default;
+}
+
+.seatOption[aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+/* A street's card on the bar: its name and pot over the card(s) dealt; clicked to pick another. */
+.street {
+  flex: none;
+  min-inline-size: 6rem;
+  align-content: start;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+}
+
+button.street {
+  cursor: pointer;
+}
+
+button.street:hover {
+  border-color: var(--border-hover);
+}
+
+button.street:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.streetHead {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.streetHead span {
+  color: var(--text-secondary);
+}
+
+/* The card being picked (under the bar). */
+.streetSlot {
+  display: block;
+  inline-size: 1.75rem;
+  block-size: 2.4rem;
+  border: 1px dashed var(--border-hover);
+  border-radius: var(--radius-1);
+}
+
+.streetPick {
+  color: var(--text-secondary);
+}
+
 .settings {
   display: grid;
   gap: var(--space-4);
@@ -412,43 +467,6 @@
   gap: var(--space-2);
 }
 
-.boardRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-
-.history {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.stepWrap {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  color: var(--text-tertiary);
-}
-
-.step {
-  padding: 2px var(--space-2);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-1);
-  background: transparent;
-  color: var(--text-primary);
-  font: inherit;
-  cursor: pointer;
-}
-
-.step:disabled {
-  cursor: default;
-  font-weight: var(--font-weight-semibold);
-}
-
 .actionBoxes {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(7rem, 100%), 1fr));
@@ -586,77 +604,10 @@
   font-variant-numeric: tabular-nums;
 }
 
-.mixBar {
-  display: flex;
-  block-size: 8px;
-  border-radius: var(--radius-pill);
-  background: var(--surface-inset);
-  overflow: hidden;
-}
-
-.mixBar > span {
-  display: block;
-  block-size: 100%;
-  transition: inline-size 0.4s var(--ease-out);
-}
-
-.evRows {
-  display: grid;
-  gap: var(--space-1);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: var(--font-size-xs);
-}
-
-.evRows li {
-  display: grid;
-  grid-template-columns: minmax(4.5rem, auto) minmax(0, 1fr) minmax(3.5rem, auto);
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--text-secondary);
-}
-
-.evRows li > :last-child {
-  text-align: end;
-}
-
-.evBest {
-  color: var(--text-primary);
-  font-weight: var(--font-weight-semibold);
-}
-
-.evRows li.evBest {
-  color: var(--text-primary);
-}
-
-.evBar {
-  position: relative;
-  block-size: 6px;
-  border-radius: var(--radius-pill);
-  background: var(--surface-inset);
-}
-
-.evBar > span:last-child {
-  position: absolute;
-  inset-block: 0;
-  border-radius: var(--radius-pill);
-  transition:
-    inset-inline-start 0.4s var(--ease-out),
-    inline-size 0.4s var(--ease-out);
-}
-
-.evZero {
-  position: absolute;
-  inset-block: -3px;
-  inline-size: 1px;
-  background: var(--border-strong);
-}
-
-/* One tile per combo: two, three or four across for suited, pairs and offsuit. */
+/* One tile per combo, two across: every action's frequency and EV fit on it. */
 .tiles {
   display: grid;
-  grid-template-columns: repeat(var(--tile-columns, 2), minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
   margin: 0;
   padding: 0;
@@ -665,16 +616,16 @@
 
 .tile {
   position: relative;
-  block-size: 4.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-block-size: 5.5rem;
+  padding: var(--space-2);
   border-radius: var(--radius-2);
   background: var(--surface-inset);
   overflow: hidden;
   animation: strategy-pop 0.3s ease both;
-  transition: box-shadow 0.15s ease;
-}
-
-.tile:hover {
-  box-shadow: 0 0 0 2px var(--text-primary);
 }
 
 @keyframes strategy-pop {
@@ -692,7 +643,7 @@
   opacity: 0.45;
 }
 
-/* The combo's mix, bottom-up, as tall as its weight. */
+/* The combo's mix, bottom-up, as tall as its weight, behind the text. */
 .tileFill {
   position: absolute;
   inset-inline: 0;
@@ -708,10 +659,15 @@
   transition: block-size 0.5s var(--ease-out);
 }
 
+.tileHead {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1);
+}
+
 .tileCards {
-  position: absolute;
-  inset-block-start: var(--space-2);
-  inset-inline-start: var(--space-2);
   padding: 2px 6px;
   border-radius: var(--radius-1);
   background: var(--surface-raised);
@@ -719,31 +675,42 @@
 }
 
 .tileYou {
-  position: absolute;
-  inset-block-start: var(--space-2);
-  inset-inline-end: var(--space-2);
   font-size: 0.625rem;
 }
 
-.tileTop {
-  position: absolute;
-  inset-block-end: var(--space-2);
-  inset-inline-start: var(--space-2);
+/* Action, frequency, EV: one row per action the range plays. */
+.tileActs {
+  position: relative;
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 1px var(--space-2);
   color: var(--text-primary);
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-xs);
   font-variant-numeric: tabular-nums;
-  font-weight: var(--font-weight-semibold);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  line-height: 1.3;
   text-shadow: 0 1px 3px var(--surface-scrim);
 }
 
-.tileTop small {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  letter-spacing: 0;
-  opacity: 0.9;
+.tileAct {
+  display: contents;
+}
+
+.tileAct > span:not(:first-child) {
+  text-align: end;
+}
+
+.tileActLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tileActTop {
+  font-weight: var(--font-weight-semibold);
+}
+
+.tileActNone > span {
+  opacity: 0.6;
 }
 
 /* A combo the board (or a filter) takes out: hatched, so the blockers show. */
@@ -757,44 +724,14 @@
 }
 
 .tileOffText {
-  position: absolute;
-  inset-block-end: var(--space-2);
-  inset-inline-start: var(--space-2);
   color: var(--text-tertiary);
   font-size: var(--font-size-xs);
-}
-
-.tileInfo {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-1) var(--space-3);
-  min-block-size: 1.5rem;
-  color: var(--text-secondary);
-  font-size: var(--font-size-xs);
-  font-variant-numeric: tabular-nums;
-}
-
-.tileInfo strong {
-  color: var(--text-primary);
-}
-
-.tilePart {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.tileEv {
-  margin-inline-start: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .cell,
   .cellFill > span,
   .actionBox,
-  .mixBar > span,
-  .evBar > span:last-child,
   .tileFill,
   .tileFill > span {
     transition: none;
@@ -1062,6 +999,7 @@
 /* --------------------------------------------------------- the Ranges tab */
 
 .ranges {
+  container: ranges / inline-size;
   display: grid;
   gap: var(--space-2);
   min-inline-size: 0;
@@ -1078,9 +1016,47 @@
   align-items: start;
 }
 
-@media (min-width: 1100px) {
+/*
+ * The grids first and as large as the width allows: side by side with the
+ * comparison under them, and it goes between them only once each grid still
+ * gets ~30rem (cells large enough for the name and the value).
+ */
+@container ranges (min-width: 38rem) {
+  .rangesTop {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .compare {
+    order: 3;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    column-gap: var(--space-4);
+  }
+
+  .compare > select,
+  .compareList {
+    grid-column: 1 / -1;
+  }
+
+  .compareList {
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    column-gap: var(--space-4);
+  }
+}
+
+@container ranges (min-width: 76rem) {
   .rangesTop {
     grid-template-columns: minmax(0, 1fr) minmax(12rem, 15rem) minmax(0, 1fr);
+  }
+
+  .compare {
+    order: 1;
+    grid-column: auto;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .compareList {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -1114,6 +1090,7 @@
 }
 
 .rangeGrid {
+  container-type: inline-size;
   display: grid;
   grid-template-columns: repeat(13, minmax(0, 1fr));
   gap: 1px;
@@ -1125,16 +1102,70 @@
   cursor: default;
 }
 
+/* Text sized by the grid (a cell is ~7.6cqi wide): the name top left, the value bottom right, never on each other. */
 .rangeCell .cellName {
   inset-block-start: 2px;
   inset-inline-start: 2px;
-  font-size: clamp(0.45rem, 0.62vw, 0.75rem);
+  font-size: clamp(0.5rem, 2.3cqi, 0.85rem);
 }
 
 .rangeCell .cellEv {
   inset-block-end: 2px;
   inset-inline-end: 2px;
-  font-size: clamp(0.4rem, 0.5vw, 0.62rem);
+  font-size: clamp(0.45rem, 1.9cqi, 0.7rem);
+}
+
+/* Cells under ~1.5rem: the name only; the value is in the panel on hovering. */
+@container (max-width: 20rem) {
+  .rangeCell .cellEv {
+    display: none;
+  }
+}
+
+.rangeCellHover {
+  z-index: 2;
+  box-shadow: 0 0 0 2px var(--text-primary);
+}
+
+/* The other player's hovered hand in the panel: one row per combo. */
+.positionTag {
+  padding: 2px var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.otherCombos {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.otherCombos th,
+.otherCombos td {
+  padding: 3px var(--space-1);
+  text-align: end;
+}
+
+.otherCombos thead th {
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular, 400);
+}
+
+.otherCombos tbody th {
+  text-align: start;
+}
+
+.otherCombos tbody tr + tr {
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.otherComboOff {
+  opacity: 0.4;
 }
 
 /* One column per combo, as tall as its reach. */

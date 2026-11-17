@@ -183,8 +183,9 @@ describe("the range reference", () => {
     for (const node of nodes) {
       const plain = rangeReference(charts, node, { cardRemoval: false }).freq;
       const removed = rangeReference(charts, node).freq;
-      // (0.2 deep: GTO Wizard's 5-bet lines are narrower than Rail's were.)
-      const bound = node.scenario === "rfi" || node.scenario === "vs-open" ? 0.03 : 0.2;
+      // (0.2 deep: GTO Wizard's 5-bet lines are narrower than Rail's were; 0.35 once someone is all-in, where
+      // the big blind's cold 4-bet lines leave three narrow ranges and removal moves up to ~0.3 of a decision.)
+      const bound = node.scenario === "rfi" || node.scenario === "vs-open" ? 0.03 : node.scenario === "vs-allin" || node.line.includes("a") ? 0.35 : 0.2;
       for (const action of CHART_ACTIONS) expect(Math.abs(plain[action] - removed[action]), node.line).toBeLessThan(bound);
     }
   });
