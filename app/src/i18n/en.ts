@@ -1572,11 +1572,13 @@ export const en = {
     engineLine: (threads: number, cores: number, memoryMb: number) =>
       `Uses up to ${n(threads)} of ${n(cores)} cores and about ${memoryMb >= 1000 ? `${n(Math.round(memoryMb / 100) / 10)} GB` : `${n(Math.round(memoryMb / 10) * 10)} MB`}. Nothing leaves this computer.`,
     noEngine: "This build of Rail cannot solve nodelocks yet.",
-    busy: "Another nodelock is solving. Wait for it, or cancel it.",
+    queued: "Another nodelock is solving: this one starts right after it.",
     startError: "The solve could not start. Try again.",
     nothingLocked: "Lock at least one hand first.",
-    progress: (iteration: number, accuracy: number | null, elapsedS: number, etaS: number | null) =>
-      `Iteration ${n(iteration)}${accuracy === null ? "" : ` · ${n(Math.round(accuracy * 100) / 100)}% of the pot`} · ${clock(elapsedS)}${etaS === null ? "" : ` · about ${clock(etaS)} left`}`,
+    progress: (share: number | null, etaS: number | null) =>
+      share === null ? "Estimating the time…" : `${Math.floor(share * 100)}%${etaS === null ? "" : ` · about ${clock(etaS)} left`}`,
+    batch: (done: number, total: number) => `${n(done)} of ${n(total)} done`,
+    cancelAll: "Cancel all",
     starting: "Starting the solve…",
     cancel: "Cancel",
     solvingHere: "Solving on this computer. Keep studying; Rail tells you when it is ready.",
