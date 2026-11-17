@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD92428216",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "09e16fab0020f62ae147566d20759829eb665c84f48a93ebc47b19ec1759f611",
+      "standardText": "001437da06460d22032f0143d8b333300a52e9d5db8a08c351244a537de33475",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1559,
+    "path": "tests/test/fixtures/weplay/short-allin-big-blind.txt",
+    "sha256": "94cbe94e018ffbe9b0ff7b8b4cccbd53cfeea8065e539ea7393bce39632a5cc9"
+  },
+  "refusals": [],
+  "standardTextFile": "001437da06460d22032f0143d8b333300a52e9d5db8a08c351244a537de33475",
+  "stats": {
+    "bySite": {
+      "weplay": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

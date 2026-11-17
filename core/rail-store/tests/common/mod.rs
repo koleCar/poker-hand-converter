@@ -82,7 +82,7 @@ pub fn repo_root() -> PathBuf {
 }
 
 /// Every corpus file the goldens cover (testdata/golden/<path>.json is the
-/// golden of <path>), sorted, as absolute paths. 557 files.
+/// golden of <path>), sorted, as absolute paths. 559 files.
 pub fn corpus_files() -> Vec<PathBuf> {
     let root = repo_root();
     let golden = root.join("testdata/golden");

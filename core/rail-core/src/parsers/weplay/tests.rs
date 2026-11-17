@@ -59,12 +59,9 @@ const TEMPLATES: &[&str] = &[
     r"(?:\$|€|£)?(\d+(?:\.\d+)?)",
     r"^(.+?): raises ${AMOUNT} to ${AMOUNT}( and is all-in)?$",
     r"^Uncalled bet \(${AMOUNT}\) returned to (.+)$",
-    r"\(${AMOUNT}\/${AMOUNT}\)",
     r": posts (?:small|big) blind ${AMOUNT}",
     r": posts ${AMOUNT}",
     r": bets ${AMOUNT}",
-    r": posts small blind ${AMOUNT} and is all-in",
-    r": posts big blind ${AMOUNT} and is all-in",
     r"^(.+?): posts the ante ${AMOUNT}",
     r"^(.+?): posts (small|big) blind ${AMOUNT}( and is all-in)?$",
     r"^(.+?): calls ${AMOUNT}( and is all-in)?$",
@@ -83,8 +80,8 @@ fn patterns_are_the_typescript_source() {
         );
     }
     assert_eq!(TEMPLATES[0], AMOUNT);
-    // The two `gi` probes.
-    assert_eq!(SOURCE.matches(r#"and is all-in`, "gi")"#).count(), 2);
+    // The short all-in blind probes are gone: a short blind is a hand.
+    assert!(!SOURCE.contains("short-allin"));
     assert!(SOURCE.contains(&format!(
         "export const WEPLAY_PARSER_VERSION = \"{WEPLAY_PARSER_VERSION}\";"
     )));
@@ -98,8 +95,6 @@ fn patterns_are_the_typescript_source() {
     // The messages of every refusal, verbatim.
     for message in [
         "All-in or Fold table.",
-        "Small blind posted all-in for less than the stated blind.",
-        "Big blind posted all-in for less than the stated blind.",
         "`A player with a zero stack acted (${name}).`",
         "A turn was dealt without a flop.",
         "A second turn was dealt without a flop.",
@@ -108,7 +103,6 @@ fn patterns_are_the_typescript_source() {
         "`Uncalled bet is larger than what ${player} committed.`",
         "`Ante posted by an unseated player (${player}).`",
         "`An unseated player acted (${actor}).`",
-        "An all-in call preflop is smaller than the big blind.",
         "Omaha is not supported yet; the hand is kept for a future parser.",
         "Tournament hand skipped because the converter is in cash-only mode.",
         "Bomb pot hand skipped by request.",

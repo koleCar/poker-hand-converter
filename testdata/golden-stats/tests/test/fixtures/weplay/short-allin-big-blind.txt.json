@@ -1,0 +1,48 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "HD92428216",
+      "index": 0,
+      "phf": "09e16fab0020f62ae147566d20759829eb665c84f48a93ebc47b19ec1759f611",
+      "rows": "c587ba456cf7aacb0777f591b1918c608f540e2653352271720baec27ef81368",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1559,
+    "path": "tests/test/fixtures/weplay/short-allin-big-blind.txt",
+    "sha256": "94cbe94e018ffbe9b0ff7b8b4cccbd53cfeea8065e539ea7393bce39632a5cc9"
+  },
+  "rows": 7,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 5220,
+    "flop_seen": 2,
+    "hands": 7,
+    "limp": 1,
+    "limp_opp": 6,
+    "pfr_opp": 6,
+    "rfi_opp": 6,
+    "river_seen": 2,
+    "steal_opp": 3,
+    "turn_seen": 2,
+    "vpip": 1,
+    "vpip_opp": 6,
+    "won": 5220,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

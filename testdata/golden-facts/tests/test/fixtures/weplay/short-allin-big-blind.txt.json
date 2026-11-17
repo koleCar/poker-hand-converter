@@ -1,0 +1,43 @@
+{
+  "format": "rail-facts-golden/1",
+  "hands": [
+    {
+      "facts": {
+        "betPct": [
+          null,
+          null,
+          null
+        ],
+        "bluff": [
+          0,
+          0
+        ],
+        "bounty": false,
+        "buyInCents": 1800,
+        "draws": [
+          0,
+          0
+        ],
+        "heroIp": null,
+        "kicker": [
+          null,
+          null,
+          null
+        ],
+        "level": 14,
+        "made": [
+          0,
+          0,
+          0
+        ],
+        "openTenths": null,
+        "playersFlop": 2,
+        "vsPositions": " SB BB ",
+        "vsSeats": " 4 5 "
+      },
+      "handId": "HD92428216",
+      "index": 0
+    }
+  ],
+  "input": "tests/test/fixtures/weplay/short-allin-big-blind.txt"
+}

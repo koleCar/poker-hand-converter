@@ -149,10 +149,31 @@ describe("WePlay parser, hard-won edge cases", () => {
     expect(hand.results.heroNet).toBe(-5632);
   });
 
-  it("records a short all-in small blind as a failure", async () => {
+  it("validates a short all-in small blind like any hand", async () => {
+    // A short blind is no reason to refuse. This export is refused all the
+    // same: its pot ($0.29) is not what the players put in.
     const result = await convert("short-sb-allin.txt");
     expect(result.hands).toHaveLength(0);
-    expect(result.reasons).toContain("short-allin-small-blind");
+    expect(result.reasons).toEqual(["chip-mismatch"]);
+  });
+
+  it("parses a preflop all-in call smaller than the big blind", async () => {
+    // Hand #90171190: kole1992 has 9000 in and calls the last 1671 all-in.
+    const result = await convert("short-allin-call.txt", { cashOnly: false });
+    expect(result.reasons).toEqual([]);
+    expect(result.hands).toHaveLength(1);
+    expect(result.text).toContain("kole1992: calls 1671 and is all-in");
+    expect(result.text).toContain("Total pot 27042 |");
+  });
+
+  it("parses a big blind posted all-in for less than the blind", async () => {
+    // Hand #92428216: a 1000/2000 big blind posted all-in for 1560.
+    const result = await convert("short-allin-big-blind.txt", { cashOnly: false });
+    expect(result.reasons).toEqual([]);
+    expect(result.hands).toHaveLength(1);
+    expect(result.text).toContain("Mariannev: posts big blind 1560 and is all-in");
+    expect(result.text).toContain("Uncalled bet (440) returned to PaulDeTE");
+    expect(result.text).toContain("Total pot 5220 |");
   });
 
   it("keeps Omaha for a future parser instead of mangling it", async () => {
