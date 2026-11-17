@@ -827,7 +827,22 @@ export const en = {
     /** The RNG box (`rng_box.rs`): its switch. */
     rng: {
       show: "Show the RNG while you play",
-      hint: "One number from 1 to 100 in the top-right corner of your screen while a session is live. Click it for a new one.",
+      hint: "One number from 1 to 100 on your screen while a session is live. Click it for a new one.",
+      lock: "Lock RNG",
+      lockHint: "Locked, the box stays where it is: it can't be dragged or resized. Clicks still roll.",
+      placedInCorner: "Top-right corner",
+      placedByYou: "Where you put it",
+      reposition: "Reposition",
+      repositionHint: "Brings the box to the middle of the screen and unlocks it, so you can drag it where you want.",
+      boxSize: "Box size",
+      width: "Width",
+      height: "Height",
+      numberSize: "Number size",
+      background: "Background",
+      color: "Number colour",
+      theme: "Theme",
+      dragHint: "Unlocked, drag the box to move it and its corner to resize it.",
+      resetLook: "Reset look",
     },
     startup: {
       heading: "Startup",
@@ -1630,6 +1645,7 @@ export const en = {
   rngBox: {
     label: (n: number | null) => (n === null ? "Random number" : `Random number ${n}. Click for a new one.`),
     hint: "Click for a new number",
+    hintUnlocked: "Click for a new number, drag to move, drag the corner to resize",
   },
 
   hudPopup: {

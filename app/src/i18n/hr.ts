@@ -817,7 +817,22 @@ export const hr: Dict = {
 
     rng: {
       show: "Prikaži RNG dok igraš",
-      hint: "Jedan broj od 1 do 100 u gornjem desnom kutu ekrana dok traje sesija. Klikni ga za novi.",
+      hint: "Jedan broj od 1 do 100 na ekranu dok traje sesija. Klikni ga za novi.",
+      lock: "Zaključaj RNG",
+      lockHint: "Zaključan box ostaje gdje je: ne može se pomicati ni mijenjati mu veličinu. Klik i dalje daje novi broj.",
+      placedInCorner: "Gornji desni kut",
+      placedByYou: "Gdje si ga postavio",
+      reposition: "Vrati na sredinu",
+      repositionHint: "Vraća box na sredinu ekrana i otključava ga, da ga povučeš gdje želiš.",
+      boxSize: "Veličina boxa",
+      width: "Širina",
+      height: "Visina",
+      numberSize: "Veličina broja",
+      background: "Pozadina",
+      color: "Boja broja",
+      theme: "Tema",
+      dragHint: "Otključan box povuci da ga pomakneš, a za kut da mu promijeniš veličinu.",
+      resetLook: "Vrati izgled",
     },
     startup: {
       heading: "Pokretanje",
@@ -1581,6 +1596,7 @@ export const hr: Dict = {
   rngBox: {
     label: (n) => (n === null ? "Slučajni broj" : `Slučajni broj ${n}. Klikni za novi.`),
     hint: "Klikni za novi broj",
+    hintUnlocked: "Klikni za novi broj, povuci za pomicanje, povuci kut za veličinu",
   },
 
   hudPopup: {

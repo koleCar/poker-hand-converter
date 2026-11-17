@@ -226,7 +226,7 @@ to be granted again.
 | Module | What it does |
 | --- | --- |
 | `protocol.rs` | The messages, one JSON object each, `type` in snake_case, fields camelCase, `PROTOCOL_VERSION` 1. Unknown types read as `Unknown` and unknown fields are ignored, so additions are not protocol changes |
-| `settings.rs` | (T3) The user's table tiling settings (`TilingSettings`, the layouts) and the RNG box's switch (`RngSettings`): the one model the app stores (`hud_layouts` kinds `tiling` / `rng`); tiling's it sends and the HUD applies; camelCase, every field defaulted; validation both sides run |
+| `settings.rs` | (T3) The user's table tiling settings (`TilingSettings`, the layouts) and the RNG box's switch, look and place (`RngSettings`): the one model the app stores (`hud_layouts` kinds `tiling` / `rng`); tiling's it sends and the HUD applies; camelCase, every field defaulted; validation both sides run |
 | `hotkeys.rs` | (T7) The global hotkeys' bindings (`TilingSettings.hotkeys`: an action and `Ctrl+Alt+Shift+Super+<code>` keys), their validation (no key that hijacks typing, each action and each combination once) and `dispatch`: what a key does with the settings in force |
 | `frame.rs` | 4-byte big-endian length, then the JSON; zero-length and oversized frames refused before allocating (`MAX_FRAME` 1 MiB, 1 KiB until the handshake is done) |
 | `auth.rs` | A fresh 256-bit token per HUD process on its standard input; a mutual HMAC-SHA256 challenge-response (`client_hello`, `server_hello`, `client_proof`, `welcome`) with constant-time comparison |

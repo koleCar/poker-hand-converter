@@ -12,7 +12,7 @@
 //!   ([`crate::hotkeys`]). Whether a room may be tiled at all is the
 //!   policy's (T0's `TilingPermit`), never this.
 //! - [`RngSettings`]: the switch of the app's RNG box (2026-11-16), off by
-//!   default. It never reaches the HUD.
+//!   default, and its look and place (2026-11-17). It never reaches the HUD.
 //!
 //! [`TilingSettings::validate`] and [`RngSettings::validate`] are what the
 //! app checks before it stores or sends, and what the HUD checks again on
@@ -335,21 +335,105 @@ impl TilingSettings {
 // ---------------------------------------------------------------------
 // RNG.
 
-/// The user's RNG switch (`hud_layouts` kind `rng`): whether the app shows
-/// its RNG box (2026-11-16, `app/src-tauri/src/rng_box.rs`). Rows an older
-/// Rail wrote also carry the per-table overlay's range, bands, triggers,
-/// rooms, size and opacity: they are read past. An older Rail reads this
-/// object with its own defaults for the rest.
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+/// The user's RNG box (`hud_layouts` kind `rng`): whether the app shows
+/// it (2026-11-16, `app/src-tauri/src/rng_box.rs`), and how it looks and
+/// where it sits (2026-11-17). Rows an older Rail wrote also carry the
+/// per-table overlay's range, bands, triggers, rooms, size and opacity:
+/// they are read past. Every field has a default, so a row with only the
+/// switch reads as the box in its corner, at its first size. An older Rail
+/// reads this object with its own defaults for the rest.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
 pub struct RngSettings {
     pub enabled: bool,
+    /// The box's width and height, points ([`RNG_BOX_MIN`] - [`RNG_BOX_MAX`]).
+    pub width: u32,
+    pub height: u32,
+    /// The number's size, points ([`RNG_NUMBER_MIN`] - [`RNG_NUMBER_MAX`]).
+    pub number_size: u32,
+    /// The box's background and the number's colour, `#rrggbb`; absent:
+    /// the app's theme.
+    pub background: Option<String>,
+    pub color: Option<String>,
+    /// Where the user put the box: its top-left corner, points on the
+    /// screen; absent: the primary monitor's top-right corner.
+    pub position: Option<RngPosition>,
+    /// Locked: the box cannot be dragged or resized (a click still rolls).
+    pub locked: bool,
+}
+
+/// The box's top-left corner, points on the screen (may be negative: a
+/// monitor left of or above the primary one).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RngPosition {
+    pub x: i32,
+    pub y: i32,
+}
+
+/// The box's side at first, and the smallest and largest it may be.
+pub const RNG_BOX_DEFAULT: u32 = 56;
+pub const RNG_BOX_MIN: u32 = 32;
+pub const RNG_BOX_MAX: u32 = 480;
+/// The number's size at first, and the smallest and largest.
+pub const RNG_NUMBER_DEFAULT: u32 = 20;
+pub const RNG_NUMBER_MIN: u32 = 10;
+pub const RNG_NUMBER_MAX: u32 = 320;
+/// How far off the screen's origin a position may be, points.
+pub const RNG_POSITION_MAX: i32 = 100_000;
+
+impl Default for RngSettings {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            width: RNG_BOX_DEFAULT,
+            height: RNG_BOX_DEFAULT,
+            number_size: RNG_NUMBER_DEFAULT,
+            background: None,
+            color: None,
+            position: None,
+            locked: false,
+        }
+    }
+}
+
+/// `#rrggbb`.
+fn is_hex_colour(text: &str) -> bool {
+    text.len() == 7 && text.starts_with('#') && text[1..].bytes().all(|b| b.is_ascii_hexdigit())
 }
 
 impl RngSettings {
-    /// What the app checks before it stores it: the size every settings
+    /// What the app checks before it stores it: sizes in range, colours
+    /// `#rrggbb`, a position near the screens, and the size every settings
     /// object is held to.
     pub fn validate(&self) -> Result<(), Invalid> {
+        for (value, what) in [
+            (self.width, "the box's width"),
+            (self.height, "the box's height"),
+        ] {
+            if !(RNG_BOX_MIN..=RNG_BOX_MAX).contains(&value) {
+                return invalid(format!("{what}: {RNG_BOX_MIN} to {RNG_BOX_MAX}"));
+            }
+        }
+        if !(RNG_NUMBER_MIN..=RNG_NUMBER_MAX).contains(&self.number_size) {
+            return invalid(format!(
+                "the number's size: {RNG_NUMBER_MIN} to {RNG_NUMBER_MAX}"
+            ));
+        }
+        for (colour, what) in [
+            (&self.background, "the background"),
+            (&self.color, "the number's colour"),
+        ] {
+            if let Some(colour) = colour
+                && !is_hex_colour(colour)
+            {
+                return invalid(format!("{what}: #rrggbb, not {colour:?}"));
+            }
+        }
+        if let Some(RngPosition { x, y }) = self.position
+            && (x.abs() > RNG_POSITION_MAX || y.abs() > RNG_POSITION_MAX)
+        {
+            return invalid(format!("the box's position: within {RNG_POSITION_MAX}"));
+        }
         check_size(self, "the RNG settings")
     }
 }
@@ -591,22 +675,97 @@ mod tests {
         assert_eq!(t.auto_switch[1].min_tables, 2);
     }
 
-    /// (2026-11-16) The RNG is a switch: an older Rail's row (the
-    /// per-table overlay's fields) reads as its switch, and what this build
-    /// writes is the switch alone.
+    /// (2026-11-16) An older Rail's row (the per-table overlay's fields)
+    /// reads as its switch, with the box at its first look and place; an
+    /// empty object reads as the defaults.
     #[test]
-    fn rng_is_a_switch() {
+    fn rng_reads_older_rows() {
         let old = r##"{"enabled":true,"min":1,"max":100,"bands":[{"upTo":50,"colour":"#112233"},{"upTo":100,"colour":"#445566"}],"triggers":{"newHand":true,"click":false},"perRoom":{"acr":false},"scale":150,"opacity":40}"##;
         let r: RngSettings = serde_json::from_str(old).expect("reads");
-        assert_eq!(r, RngSettings { enabled: true });
         assert_eq!(
-            serde_json::to_string(&r).expect("json"),
-            r#"{"enabled":true}"#
+            r,
+            RngSettings {
+                enabled: true,
+                ..RngSettings::default()
+            }
         );
         assert_eq!(
             serde_json::from_str::<RngSettings>("{}").expect("defaults"),
             RngSettings::default()
         );
+        assert_eq!(
+            serde_json::from_str::<RngSettings>(r#"{"enabled":true}"#).expect("reads"),
+            r,
+            "the switch alone (2026-11-16's rows)"
+        );
         assert_eq!(r.validate(), Ok(()));
+    }
+
+    /// (2026-11-17) The box's look and place: camelCase on the wire, and
+    /// sizes, colours and positions checked.
+    #[test]
+    fn rng_box_look_and_place() {
+        let r = RngSettings {
+            enabled: true,
+            width: 120,
+            height: 80,
+            number_size: 48,
+            background: Some("#1a2B3c".into()),
+            color: Some("#ffffff".into()),
+            position: Some(RngPosition { x: -1200, y: 40 }),
+            locked: true,
+        };
+        assert_eq!(r.validate(), Ok(()));
+        let json = serde_json::to_string(&r).expect("json");
+        assert!(
+            json.contains(r#""numberSize":48"#)
+                && json.contains(r#""position":{"x":-1200,"y":40}"#),
+            "{json}"
+        );
+        assert_eq!(
+            serde_json::from_str::<RngSettings>(&json).expect("reads"),
+            r
+        );
+
+        let refused = [
+            RngSettings {
+                width: RNG_BOX_MIN - 1,
+                ..r.clone()
+            },
+            RngSettings {
+                height: RNG_BOX_MAX + 1,
+                ..r.clone()
+            },
+            RngSettings {
+                number_size: RNG_NUMBER_MIN - 1,
+                ..r.clone()
+            },
+            RngSettings {
+                number_size: RNG_NUMBER_MAX + 1,
+                ..r.clone()
+            },
+            RngSettings {
+                background: Some("red".into()),
+                ..r.clone()
+            },
+            RngSettings {
+                color: Some("#12345".into()),
+                ..r.clone()
+            },
+            RngSettings {
+                color: Some("#12345g".into()),
+                ..r.clone()
+            },
+            RngSettings {
+                position: Some(RngPosition {
+                    x: RNG_POSITION_MAX + 1,
+                    y: 0,
+                }),
+                ..r.clone()
+            },
+        ];
+        for settings in refused {
+            assert!(settings.validate().is_err(), "{settings:?}");
+        }
     }
 }

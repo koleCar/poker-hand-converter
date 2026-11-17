@@ -1,12 +1,16 @@
-/* The RNG box: the whole window is one button with one number. */
+/* The RNG box: the whole window is one button with one number. Its size,
+   the number's size and its colours are the user's (inline, from
+   `RngSettings`); these are the theme's defaults. */
 
 .box {
+  position: relative;
   display: grid;
   place-items: center;
   inline-size: 100%;
   block-size: 100%;
   margin: 0;
   padding: 0;
+  overflow: hidden;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-2);
   background: var(--surface-raised);
@@ -15,15 +19,43 @@
   font-size: var(--font-size-2xl);
   font-variant-numeric: tabular-nums;
   font-weight: var(--font-weight-semibold);
+  line-height: 1;
   cursor: pointer;
   user-select: none;
+  touch-action: none;
 }
 
 .box:hover {
-  background: var(--surface-hover);
+  filter: brightness(1.08);
 }
 
 .box:focus-visible {
   outline: 2px solid var(--border-focus);
   outline-offset: -2px;
+}
+
+/* Unlocked: it can be dragged. */
+.unlocked {
+  cursor: grab;
+}
+
+.unlocked:active {
+  cursor: grabbing;
+}
+
+/* The resize grip in the bottom-right corner, while unlocked. */
+.grip {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  inline-size: 12px;
+  block-size: 12px;
+  background: linear-gradient(135deg, transparent 50%, currentcolor 50%);
+  opacity: 0;
+  cursor: nwse-resize;
+  transition: opacity var(--duration-fast, 120ms) ease;
+}
+
+.box:hover .grip {
+  opacity: 0.5;
 }
