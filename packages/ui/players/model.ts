@@ -33,6 +33,35 @@ export type ShownKind = Exclude<GameKind, "all">;
 
 export const SHOWN_KINDS: ShownKind[] = ["cash", "chips"];
 
+/** A column of the list the reader can sort it by. */
+export type PlayerSortColumn = "name" | "room" | "hands" | "result" | "lastSeen";
+
+/** The list's order the reader picked; none: most hands together first. */
+export interface PlayerSort {
+  column: PlayerSortColumn;
+  descending: boolean;
+}
+
+/** A first click's direction: the most / the newest first, names and rooms A to Z. */
+const FIRST_DESCENDING: Record<PlayerSortColumn, boolean> = {
+  name: false,
+  room: false,
+  hands: true,
+  result: true,
+  lastSeen: true,
+};
+
+/**
+ * A header click: another column sorts by it in its first direction, the
+ * same column the other way round, and a third click goes back to the
+ * list's own order (most hands together first).
+ */
+export function nextPlayerSort(sort: PlayerSort | null, column: PlayerSortColumn): PlayerSort | null {
+  const first = FIRST_DESCENDING[column];
+  if (sort === null || sort.column !== column) return { column, descending: first };
+  return sort.descending === first ? { column, descending: !first } : null;
+}
+
 /** `players::PlayerQueryDto`. */
 export interface PlayerQuery {
   /** A prefix of the name, any case. */
@@ -42,6 +71,12 @@ export interface PlayerQuery {
   colours?: string[];
   labels?: string[];
   noted?: boolean | null;
+  /**
+   * The order (the store sorts before it cuts the list); none: most hands
+   * together first. Equal values keep that order; players without a result
+   * or a date go last either way.
+   */
+  sort?: PlayerSort | null;
   limit?: number;
 }
 
