@@ -1,8 +1,10 @@
 /**
  * The opponents as a virtualised grid (R2.8; a plain table in R2.7c): colour
  * (where the surface keeps colours), name with labels and a note mark, room,
- * hands together, your result against them in big blinds, last seen. The
- * store sorts and cuts the list (500 rows at most, "show more" asks for the
+ * hands together, your result against them in big blinds, last seen. A
+ * header click sorts by its column (`nextPlayerSort`: the first click the
+ * most / newest first, names and rooms A to Z; the second the other way
+ * round; the third back to most hands first). The store sorts and cuts the list (500 rows at most, "show more" asks for the
  * next 200), and only the rows in view are in the DOM, as in the Hands list:
  * rows are `--row` tall (the density's `--density-row` on the desktop,
  * taller on a narrow list), read back from the stylesheet through `.probe`,
@@ -18,7 +20,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import { handFormat } from "../hands/format";
 import { useUiStrings } from "../i18n";
 import { useListEnter } from "../loader/useListEnter";
-import type { PlayerRef, PlayerRow } from "./model";
+import type { PlayerRef, PlayerRow, PlayerSort, PlayerSortColumn } from "./model";
 import styles from "./Players.module.css";
 
 /** Rows rendered above and below the visible ones. */
@@ -36,6 +38,8 @@ export function PlayerTable({
   onOpen,
   more,
   onMore,
+  sort,
+  onSort,
   densityKey,
   enterKey,
 }: {
@@ -48,6 +52,10 @@ export function PlayerTable({
   onOpen: (row: PlayerRow) => void;
   more: boolean;
   onMore: () => void;
+  /** The order the reader picked; null: most hands together first. */
+  sort: PlayerSort | null;
+  /** A header click on this column. */
+  onSort: (column: PlayerSortColumn) => void;
   /** Changes when the surface changes the row height without resizing the list (the desktop's density). */
   densityKey?: unknown;
   /** Names the list shown (its query): a new value lets the rows in view arrive again. */
@@ -167,15 +175,11 @@ export function PlayerTable({
       >
         <div ref={probeRef} className={styles.probe} aria-hidden="true" />
         <div className={`${styles.gridRow} ${styles.gridHead}`} role="row" aria-rowindex={1}>
-          <span role="columnheader">{p.columns.name}</span>
-          <span role="columnheader">{p.columns.room}</span>
-          <span role="columnheader" className={styles.number}>
-            {p.columns.hands}
-          </span>
-          <span role="columnheader" className={styles.number}>
-            {p.columns.result}
-          </span>
-          <span role="columnheader">{p.columns.lastSeen}</span>
+          <SortHeader column="name" label={p.columns.name} sort={sort} onSort={onSort} />
+          <SortHeader column="room" label={p.columns.room} sort={sort} onSort={onSort} />
+          <SortHeader column="hands" label={p.columns.hands} sort={sort} onSort={onSort} number />
+          <SortHeader column="result" label={p.columns.result} sort={sort} onSort={onSort} number />
+          <SortHeader column="lastSeen" label={p.columns.lastSeen} sort={sort} onSort={onSort} />
         </div>
         <div
           key={enter.enterKey}
@@ -243,5 +247,43 @@ export function PlayerTable({
         </button>
       ) : null}
     </div>
+  );
+}
+
+/** A column header: a button that sorts by the column, its direction beside it (as Live's and the Hands list's). */
+function SortHeader({
+  column,
+  label,
+  sort,
+  onSort,
+  number = false,
+}: {
+  column: PlayerSortColumn;
+  label: string;
+  sort: PlayerSort | null;
+  onSort: (column: PlayerSortColumn) => void;
+  number?: boolean;
+}) {
+  const t = useUiStrings().hands;
+  const active = sort !== null && sort.column === column;
+  const mark = !active ? "↕" : sort.descending ? "↓" : "↑";
+  return (
+    <span
+      role="columnheader"
+      className={number ? styles.number : undefined}
+      aria-sort={!active ? "none" : sort.descending ? "descending" : "ascending"}
+    >
+      <button
+        type="button"
+        className={active ? `${styles.sort} ${styles.sorted}` : styles.sort}
+        title={!active ? t.sortable(label) : t.sortBy(label, sort.descending ? t.descending : t.ascending)}
+        onClick={() => onSort(column)}
+      >
+        {label}
+        <span className={styles.sortMark} aria-hidden="true">
+          {mark}
+        </span>
+      </button>
+    </span>
   );
 }
