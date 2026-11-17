@@ -1510,11 +1510,13 @@ export const hr: Dict = {
     engineLine: (threads: number, cores: number, memoryMb: number) =>
       `Koristi do ${n(threads)} od ${n(cores)} jezgri i oko ${memoryMb >= 1000 ? `${n(Math.round(memoryMb / 100) / 10)} GB` : `${n(Math.round(memoryMb / 10) * 10)} MB`}. Ništa ne napušta ovo računalo.`,
     noEngine: "Ova verzija Raila još ne može solvati nodelockove.",
-    busy: "Drugi nodelock se solva. Pričekaj ga ili ga prekini.",
+    queued: "Drugi nodelock se solva: ovaj kreće odmah nakon njega.",
     startError: "Solve se nije mogao pokrenuti. Pokušaj ponovno.",
     nothingLocked: "Prvo zaključaj barem jednu ruku.",
-    progress: (iteration: number, accuracy: number | null, elapsedS: number, etaS: number | null) =>
-      `Iteracija ${n(iteration)}${accuracy === null ? "" : ` · ${n(Math.round(accuracy * 100) / 100)}% pota`} · ${clock(elapsedS)}${etaS === null ? "" : ` · još oko ${clock(etaS)}`}`,
+    progress: (share: number | null, etaS: number | null) =>
+      share === null ? "Procjenjujem vrijeme…" : `${Math.floor(share * 100)} %${etaS === null ? "" : ` · još oko ${clock(etaS)}`}`,
+    batch: (done: number, total: number) => `${n(done)} od ${n(total)} gotovo`,
+    cancelAll: "Prekini sve",
     starting: "Pokrećem solve…",
     cancel: "Prekini",
     solvingHere: "Solva se na ovom računalu. Nastavi učiti; Rail javi kad bude gotovo.",

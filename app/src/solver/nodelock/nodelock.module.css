@@ -383,6 +383,19 @@
   gap: var(--space-1);
 }
 
+/* The locked board, the one thing that says which solve this is. */
+.sideBoard {
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+/* "1 of 3 done" under the buttons when more than one solve was asked for. */
+.sideCount {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
 .sideBar {
   position: absolute;
   inset-inline: 0;
