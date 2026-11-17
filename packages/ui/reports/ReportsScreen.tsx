@@ -37,10 +37,11 @@ import { KindToggle } from "../hands/KindToggle";
 import type { HandFacets, HandFilter } from "../hands/model";
 import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
+import { useStatTip } from "../stats/StatTip";
 import { StatValue } from "../stats/StatValue";
 import { WinrateGraph, type WinrateGraphMoney } from "../stats/WinrateGraph";
 import { Breakdown, isTab, needsBreakdowns, type Tab } from "./Breakdown";
-import { shownOf, textLocale } from "./definitions";
+import { shownOf } from "./definitions";
 import type { Definition, Report, ReportSource, Units } from "./model";
 import styles from "./Reports.module.css";
 import { ReportStats } from "./ReportStats";
@@ -235,7 +236,7 @@ function ReportBody({
 }) {
   const ui = useUiStrings();
   const r = ui.reports;
-  const locale = textLocale(ui.intlLocale);
+  const tip = useStatTip();
   const { units } = report;
   // The hands and the result are the graph's end - every hand whose money
   // moved, bomb pots included - so the figures and the curve agree. The
@@ -279,21 +280,22 @@ function ReportBody({
           </div>
           {bb100 ? (
             <div className={styles.tile}>
-              <dt title={bb100.definition.description[locale]}>{r.summary.bb100}</dt>
+              <dt {...tip.on({ definition: bb100.definition })}>{r.summary.bb100}</dt>
               <dd className={tone(bb100.shown.value)}>
-                <StatValue shown={bb100.shown} unit={bb100.definition.format.unit} />
+                <StatValue shown={bb100.shown} unit={bb100.definition.format.unit} definition={bb100.definition} />
               </dd>
             </div>
           ) : null}
           {ev100 ? (
             <div className={styles.tile}>
-              <dt title={ev100.definition.description[locale]}>{r.summary.evBb100}</dt>
+              <dt {...tip.on({ definition: ev100.definition })}>{r.summary.evBb100}</dt>
               <dd className={tone(ev100.shown.value)}>
-                <StatValue shown={ev100.shown} unit={ev100.definition.format.unit} />
+                <StatValue shown={ev100.shown} unit={ev100.definition.format.unit} definition={ev100.definition} />
               </dd>
             </div>
           ) : null}
         </dl>
+        {tip.layer}
       </section>
 
       {afterSummary ? afterSummary(report) : null}

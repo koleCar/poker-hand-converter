@@ -16,7 +16,8 @@ import type { Shown, StatDefinition } from "../model/stats";
 import { shownOf, textLocale } from "../reports/definitions";
 import { countIn } from "./format";
 import { rangeBar, rangeColour, rangeScore, targetRange, type RangeBar } from "./range";
-import { decimalMark, shownText, shownTitle } from "./StatValue";
+import { useStatTip } from "./StatTip";
+import { decimalMark, shownText } from "./StatValue";
 import styles from "./StatCards.module.css";
 
 export function StatCards({
@@ -34,6 +35,7 @@ export function StatCards({
   const count = countIn(locale);
   const mark = decimalMark(locale);
   const text = textLocale(locale);
+  const tip = useStatTip();
 
   const present = ids.filter((id) => shownOf(definitions, stats, id) !== null);
   // Rows of even length: all in one, else halves, else thirds (`StatCards.module.css`).
@@ -60,13 +62,8 @@ export function StatCards({
           } else if (value !== null && value !== 0 && definition.format.unit === "bb_per_100") {
             colour = value > 0 ? "var(--profit-fg)" : "var(--loss-fg)";
           }
-          const tip = shownTitle(shown, all, count);
           return (
-            <li
-              key={id}
-              className={styles.card}
-              title={tip ? `${definition.name[text]}\n${tip}` : definition.name[text]}
-            >
+            <li key={id} className={styles.card} {...tip.on({ definition, shown })}>
               <span className={styles.label}>{definition.label[text]}</span>
               <span
                 className={styles.value}
@@ -99,6 +96,7 @@ export function StatCards({
           );
         })}
       </ul>
+      {tip.layer}
     </div>
   );
 }

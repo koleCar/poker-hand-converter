@@ -9,6 +9,8 @@ import { reportsUiEn } from "@rail/ui/strings/reports.en";
 import { reportsUiHr } from "@rail/ui/strings/reports.hr";
 import { reviewUiEn } from "@rail/ui/strings/review.en";
 import { reviewUiHr } from "@rail/ui/strings/review.hr";
+import { statsUiEn } from "@rail/ui/strings/stats.en";
+import { statsUiHr } from "@rail/ui/strings/stats.hr";
 import { DICTIONARIES, INTL_LOCALE } from "./dictionaries";
 import type { Locale } from "./types";
 
@@ -33,6 +35,7 @@ function uiStrings(locale: Locale): UiStrings {
     replayer: dict.replayer,
     statTile: dict.stats.tile,
     statTable: { ...dict.stats.table, sampleOnly: dict.stats.hud.sample },
+    statTip: locale === "hr" ? statsUiHr.tip : statsUiEn.tip,
     winrateGraph: {
       ...dict.stats.graph,
       hands: dict.stats.common.hands,

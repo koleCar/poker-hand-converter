@@ -26,6 +26,7 @@ import type { HandFacets } from "../hands/model";
 import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
 import type { StatDefinition } from "../model/stats";
+import { useStatTip } from "../stats/StatTip";
 import { StatValue } from "../stats/StatValue";
 import { textLocale } from "./definitions";
 import { HandMatrix } from "./HandMatrix";
@@ -271,15 +272,17 @@ export function GroupTable({
   label: (row: StatGroup) => string;
 }) {
   const locale = textLocale(useUiStrings().intlLocale);
+  const tip = useStatTip();
   return (
     <div className={styles.tableWrap}>
+      {tip.layer}
       <table className={styles.table}>
         <thead>
           <tr>
             <th scope="col">{head}</th>
             {columns.map((definition, index) =>
               definition ? (
-                <th key={definition.id} scope="col" className={styles.number} title={definition.name[locale]}>
+                <th key={definition.id} scope="col" className={styles.number} {...tip.on({ definition })}>
                   {definition.label[locale]}
                 </th>
               ) : (
@@ -296,7 +299,14 @@ export function GroupTable({
                 const definition = columns[index];
                 return (
                   <td key={definition?.id ?? index} className={styles.number}>
-                    {definition ? <StatValue shown={shown} unit={definition.format.unit} /> : null}
+                    {definition ? (
+                      <StatValue
+                        shown={shown}
+                        unit={definition.format.unit}
+                        definition={definition}
+                        context={label(row)}
+                      />
+                    ) : null}
                   </td>
                 );
               })}

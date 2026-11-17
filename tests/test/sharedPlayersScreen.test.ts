@@ -59,6 +59,7 @@ function strings(locale: "en" | "hr"): UiStrings {
     players: locale === "en" ? playersUiEn : playersUiHr,
     statTile: stats.tile,
     statTable: { ...stats.table, sampleOnly: stats.sampleOnly },
+    statTip: stats.tip,
   } as unknown as UiStrings;
 }
 

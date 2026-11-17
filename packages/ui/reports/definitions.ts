@@ -35,6 +35,7 @@ export function statRows(
         id: definition.id,
         label: definition.name[locale],
         description: definition.description[locale],
+        definition,
         unit: definition.format.unit,
         shown,
       });

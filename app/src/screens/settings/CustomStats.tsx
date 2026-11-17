@@ -17,6 +17,7 @@ import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { Dialog } from "@rail/ui/dialog/Dialog";
 import type { StatDefinition, StatGroup, StatTone, StatUnit } from "@rail/ui/model/stats";
+import { useStatTip } from "@rail/ui/stats/StatTip";
 import { StatValue } from "@rail/ui/stats/StatValue";
 
 import { RecomputeNotice, useRecompute } from "../../components/RecomputeNotice";
@@ -663,6 +664,7 @@ function Editor({
 }
 
 export function CustomStats() {
+  const tip = useStatTip();
   const t = useT();
   const c = t.settings.custom;
   const locale = useLocale();
@@ -745,7 +747,7 @@ export function CustomStats() {
               const d = stat.definition;
               return (
                 <tr key={d.id}>
-                  <th scope="row" title={d.description[locale]}>
+                  <th scope="row" {...tip.on({ definition: d })}>
                     <span className={styles.statName}>{d.name[locale]}</span>
                     <span className={`${styles.hint} ${styles.mono}`}> {d.label[locale]}</span>
                     {stat.problems.length > 0 ? (
@@ -755,7 +757,7 @@ export function CustomStats() {
                       </span>
                     ) : null}
                   </th>
-                  <td className={styles.value}>{stat.shown ? <StatValue shown={stat.shown} unit={d.format.unit} /> : "—"}</td>
+                  <td className={styles.value}>{stat.shown ? <StatValue shown={stat.shown} unit={d.format.unit} definition={d} /> : "—"}</td>
                   <td className={styles.hint}>
                     {stat.remaining === null || stat.total === null
                       ? c.formulaOnly
@@ -790,6 +792,7 @@ export function CustomStats() {
           </tbody>
         </table>
       ) : null}
+      {tip.layer}
       {list && editing === undefined ? (
         <button type="button" className={styles.button} onClick={() => setEditing(null)}>
           {c.add}

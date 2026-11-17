@@ -21,7 +21,8 @@ import { useUiStrings } from "../i18n";
 import type { Shown, StatDefinition } from "../model/stats";
 import { countIn } from "../stats/format";
 import styles from "../stats/StatMatrix.module.css";
-import { decimalMark, shownText, shownTitle } from "../stats/StatValue";
+import { useStatTip } from "../stats/StatTip";
+import { decimalMark, shownText } from "../stats/StatValue";
 import { shownOf, textLocale } from "./definitions";
 import type { Definition, Report } from "./model";
 
@@ -122,6 +123,7 @@ export function ReportStats({ report, definitions }: { report: Report; definitio
   const count = countIn(locale);
   const mark = decimalMark(locale);
   const text = textLocale(locale);
+  const tip = useStatTip();
   const { summary } = report;
 
   const total = (id: string) => shownOf(definitions, summary.stats, id, summary.ids);
@@ -143,26 +145,29 @@ export function ReportStats({ report, definitions }: { report: Report; definitio
     const { definition, shown } = found;
     const thin = !quiet && shown.reliability.level !== "ok" && shown.sample !== null && shown.sample > 0;
     return (
-      <td key={key} data-tone={shown.tone ?? undefined} title={shownTitle(shown, all, count)}>
+      <td
+        key={key}
+        data-tone={shown.tone ?? undefined}
+        {...tip.on({ definition, shown, context: positions.includes(key) ? key : undefined })}
+      >
         <span style={{ opacity: shown.reliability.opacity }}>{shownText(shown, definition.format.unit, mark, count)}</span>
         {thin ? <sub className={styles.matrixSample}>{count(shown.sample ?? 0)}</sub> : null}
       </td>
     );
   };
 
-  /** A short name with the full one (and what it counts) on hover. */
-  const name = (short: string, full: string, description?: string): ReactNode => {
-    const title = description ? `${full}\n${description}` : full;
+  /** A short name with the full one, what it counts and its ideal range on hover. */
+  const name = (short: string, full: string, definition?: StatDefinition): ReactNode => {
+    const on = tip.on({ definition, name: full, label: short });
     return short === full ? (
-      <span title={description}>{short}</span>
+      <span {...on}>{short}</span>
     ) : (
-      <abbr className={styles.abbr} title={title}>
+      <abbr className={styles.abbr} {...on}>
         {short}
       </abbr>
     );
   };
-  const definitionName = (definition: StatDefinition) =>
-    name(definition.label[text], definition.name[text], definition.description[text]);
+  const definitionName = (definition: StatDefinition) => name(definition.label[text], definition.name[text], definition);
 
   const head = (labels: readonly string[]) => (
     <thead>
@@ -227,7 +232,7 @@ export function ReportStats({ report, definitions }: { report: Report; definitio
           const { definition, shown } = found;
           return (
             <div key={id} className={styles.keyStat} data-tone={shown.tone ?? undefined}>
-              <dd style={{ opacity: shown.reliability.opacity }} title={shownTitle(shown, all, count)}>
+              <dd style={{ opacity: shown.reliability.opacity }} {...tip.on({ definition, shown })}>
                 {shownText(shown, definition.format.unit, mark, count)}
               </dd>
               <dt>{definitionName(definition)}</dt>
@@ -276,6 +281,7 @@ export function ReportStats({ report, definitions }: { report: Report; definitio
           ) : null}
         </div>
       </div>
+      {tip.layer}
     </div>
   );
 }
