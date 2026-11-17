@@ -8,8 +8,11 @@
  * ```
  * Solve on this computer ─▶ a row saved `solving` at once ─▶ the engine, progress here
  *   ─▶ `solved` with the chunk and the stats (or `failed` / `cancelled`) ─▶ the sidebar's notice ─▶ Open
- * Open (notice, history) ─▶ the row's chunk ─▶ the library's override, the Solver tab on its view
+ * Open (notice, history) ─▶ the row's chunk ─▶ My nodelocks on its spot (`#/solver/lock=<id>&…`)
  * ```
+ *
+ * The library tab is always the clean solve: a locked solution shows only in
+ * My nodelocks, never on the library's own view.
  */
 import { useSyncExternalStore } from "react";
 
@@ -157,8 +160,24 @@ export function setCompare(compare: boolean): void {
   set({ compare });
 }
 
-export function backToGto(): void {
-  set({ active: null, compare: false });
+/** My nodelocks, the list (`#/solver/locks`). */
+export const LOCKS_PARAM = "locks";
+
+/** My nodelocks on one solved lock, at `view` (a library view's param). */
+export function lockParam(id: string, view: string): string {
+  return `lock=${encodeURIComponent(id)}${view ? `&${view}` : ""}`;
+}
+
+/** The lock a Solver param opens, or null (the library, or the list). */
+export function lockIdOf(param: string | null): string | null {
+  if (!param || !param.startsWith("lock=")) return null;
+  return new URLSearchParams(param).get("lock") || null;
+}
+
+/** Leaves the locked solution for the library's clean solve, on the same view. */
+export function backToGto(view: string): void {
+  set({ compare: false });
+  go("solver", view);
 }
 
 export function dismissNotice(): void {
@@ -323,11 +342,12 @@ export function viewParam(summary: NodelockSummary): string {
 }
 
 /**
- * Shows a solved nodelock in the library: its chunk replaces the library's
- * (a flop lock) or one live turn's (a turn or river lock), and the Solver
- * tab opens on the view it was made from. False when it cannot be read.
+ * Shows a solved nodelock in My nodelocks: its chunk replaces the library's
+ * (a flop lock) or one live turn's (a turn or river lock), on the view it was
+ * made from. `navigate: false` when the route already names it (the app
+ * reopened on it). False when it cannot be read.
  */
-export async function openLock(id: string): Promise<boolean> {
+export async function openLock(id: string, { navigate = true }: { navigate?: boolean } = {}): Promise<boolean> {
   const row = await nodelockData.get(id).catch(() => null);
   const bytes = row?.result ?? null;
   const parsed = row ? parseRow(row) : null;
@@ -347,8 +367,8 @@ export async function openLock(id: string): Promise<boolean> {
     lockSet.nodes[0].street === "flop" || !turnId
       ? { key, id: row.id, flop: chunk, turn: null }
       : { key, id: row.id, flop: null, turn: { id: turnId, chunk } };
-  // The route first: the Solver tab mounts the library on the view it names.
-  go("solver", viewParam(summary));
+  // The route first: My nodelocks mounts the locked view it names.
+  if (navigate) go("solver", lockParam(row.id, viewParam(summary)));
   set({
     active: { row: listed, lockSet, summary, override },
     notice: state.notice?.id === id ? null : state.notice,

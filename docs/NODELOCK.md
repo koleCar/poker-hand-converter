@@ -572,9 +572,15 @@ A full-screen overlay laid out like GTOW's.
 - A row is saved as `solving` at once, then `solved` with its result.
 
 ### 5.4 The result
-- The Solver view switches to the locked solution behind a clear amber
-  **Nodelocked** banner. It shows the lock summary, Back to GTO, Edit lock,
-  and Compare (GTO vs locked at any node: frequency and EV deltas).
+- The Solver's two tabs, Library | My nodelocks, are one joined pill like
+  Cash | Tournaments. **Library is always the clean solve**: no banner, no
+  locked chunk, only the Nodelock action. Starting a solve switches to My
+  nodelocks, where its progress shows above the list.
+- A solved lock opens in **My nodelocks**, on its spot, behind a clear amber
+  **Nodelocked** banner. It shows the lock summary, Back to GTO (the Library
+  tab on the same view), Edit lock, and Compare (GTO vs locked at any node:
+  frequency and EV deltas). Off the locked decision the banner turns quiet,
+  says the view is GTO, and offers Go to the locked spot.
 - Live turns from a locked chunk work as today.
 
 ### 5.5 History
@@ -625,8 +631,9 @@ All strings are EN + HR in the app's i18n.
   turn's node path: `X-X~Kd/B2.5`.
 - **`summary_json`**: `{ view (SolverView, to open it again), position,
   players, steps, shifts: [{ label, gto, locked }] }`.
-- **Routes.** My nodelocks is `#/solver/locks`; opening a lock goes to its
-  view (`#/solver/set=…`).
+- **Routes.** My nodelocks is `#/solver/locks`; an open lock is
+  `#/solver/lock=<id>&set=…` (reopened from the store after a restart); the
+  library is `#/solver/set=…`.
 - `lock_hash` is §1's `lockHash` (canonical-JSON sha-256). `contract.ts`
   re-exports §1's `LockSet`, `NodeLockSpec` and `LockEarlier`, and `ipc.ts`'s
   `NodeLockSet` is `LockSet`.
