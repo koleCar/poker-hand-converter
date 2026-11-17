@@ -1644,6 +1644,9 @@ export const ipc = {
   rngBoxReposition: () => invoke<RngSettings>("rng_box_reposition"),
   /** Settings' RNG section on screen: the box shows to be styled and placed. */
   rngBoxPreview: (on: boolean) => invoke<null>("rng_box_preview", { on }),
+  /** A right-click on the box: its panel (lock, reposition, look) opens beside it, or closes. */
+  rngPanelToggle: () => invoke<null>("rng_panel_toggle"),
+  rngPanelClose: () => invoke<null>("rng_panel_close"),
   retileTables: () => invoke<boolean>("retile_tables"),
   captureTilingLayout: () => invoke<TilingSlot[]>("capture_tiling_layout"),
   /** (T7) The global hotkeys: how each binding stands, and letting every key go while one is recorded. */
@@ -1830,6 +1833,11 @@ export function onTilingSettingsChanged(onChange: () => void): () => void {
 /** The RNG box's number changed outside it (the "Roll the RNG" hotkey). */
 export function onRngBoxRolled(onRoll: (n: number) => void): () => void {
   return onAppEvent<number>("rng-box-rolled", onRoll);
+}
+
+/** The RNG settings were saved; `from` is the window that saved them ("main", "rng-panel", "rng-box"). */
+export function onRngSettingsSaved(onSaved: (from: string) => void): () => void {
+  return onAppEvent<{ from: string }>("rng-settings-changed", (payload) => onSaved(payload.from));
 }
 
 /** The RNG box's look or place changed (Settings saved, a sync pull). */
