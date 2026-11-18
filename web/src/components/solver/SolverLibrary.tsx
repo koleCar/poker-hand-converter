@@ -14,18 +14,24 @@
  *   ─▶ a turn card ─▶ the turn's decisions ─▶ a river card ─▶ the river's
  * ```
  *
- * The whole line is one bar, as a solver's viewer strings it: the preflop
- * cards, then the flop's card and a card per postflop decision, the turn's
- * and the river's cards between them (PostflopBar). Actions are picked there;
- * the action boxes beside the grid only show the mix.
+ * The screen ("Studio", SV-A), top to bottom: the top row (the host's `top`,
+ * the table, a copy-link button), the action strip - the whole line as one
+ * row of position cards, as a solver's viewer strings it: the preflop cards
+ * (folded into one once the flop is reached), then the flop's card and a card
+ * per postflop decision, the turn's and the river's cards between them
+ * (PreflopBar, PostflopBar); actions are picked there - then the toolbar
+ * (`Strategy + EV | Ranges`, the active hand filters, the nodelock slot's
+ * tools at its right end), and the decision: the grid and the panel beside
+ * it (StrategyView).
  *
  * The turn comes from a full solve's turn file when one is served
  * (fullSolve.ts, local), and otherwise is solved here, in a worker, from the
  * chunk's ranges at the deal (liveTurn.ts): a few seconds, nothing stored.
  *
  * A flop decision has two tabs: the actor's strategy (StrategyView) and both
- * ranges side by side (RangesView). The hand filters (HandFilters) sit in the
- * panel beside either and stay set while the line is walked.
+ * ranges side by side (RangesView, coloured by the toolbar's measure). The
+ * hand filters (HandFilters) sit in the panel beside either and stay set
+ * while the line is walked.
  *
  * Public, like the preflop chart browser: nothing here reads an account. The
  * chunks are the public bucket's, the same files the analysis grades with.
@@ -36,7 +42,9 @@
 
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { CardRow } from "@rail/ui/cards/PlayingCard";
+import { Icon } from "@rail/ui/icon/Icon";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { flopLinesFor } from "../../lib/analysis/flopLibrary";
 import { followWalk, parseWalk, type WalkStep } from "../../lib/analysis/solverWalk";
@@ -44,10 +52,13 @@ import { preflopChartSet } from "../../lib/chartSet";
 import { CHART_SETS, chartSetKind, DEFAULT_CHART_SET, type ChartNode, type ChartSet } from "../../lib/charts";
 import {
   classCombos,
+  comboIds,
   exploreNode,
   flopCards,
   EMPTY_FILTER,
+  filterActive,
   flopFeatures,
+  LIVE_TURN,
   pickedFlop,
   nodeAt,
   turnDeal,
@@ -60,15 +71,16 @@ import { actionTotals, GRID_CELLS, OFF_RANGE_WEIGHT, playedOptions } from "../an
 import analysis from "../analysis/analysis.module.css";
 import { FlopPicker } from "./FlopPicker";
 import { loadFullSolve, type FullSolve } from "./fullSolve";
-import { HandFilters } from "./HandFilters";
+import { ActiveFilters, filterLabel, HandFilters } from "./HandFilters";
 import { useSolverHost, type NodelockAt, type SolverDict, type StrategyCompare } from "./host";
 import { liveTurnCached, liveTurnId, parseLiveTurnId, solveTurnLive } from "./liveTurn";
 import { DealPicker, FlopCard, PostflopCards, type Where } from "./PostflopBar";
-import { PreflopBar, type TableOption } from "./PreflopBar";
+import { PreflopCards, Strip, TableSelect, type TableOption } from "./PreflopBar";
 import { preflopState } from "./preflop";
-import { filterMasks, useRangeData } from "./rangeData";
-import { RangesView } from "./RangesView";
+import { filterMasks, useRangeData, type RangeData } from "./rangeData";
+import { RANGE_MODES, RangesView, type RangeMode } from "./RangesView";
 import { actionColours, StrategyView, type StrategyHero, type StrategyModel } from "./StrategyView";
+import { IconButton, Segmented } from "./ui";
 import styles from "./solver.module.css";
 
 type Dict = SolverDict;
@@ -141,7 +153,7 @@ export function SolverLibrary(props: SolverLibraryProps) {
 }
 
 function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTurn, initialPath, initialWalk, onView, hero = null }: SolverLibraryProps) {
-  const { t, loader, fullSolveBase, nodelock } = useSolverHost();
+  const { t, loader, fullSolveBase, nodelock, top, link } = useSolverHost();
   const [setId, setSetId] = useState<string>(
     initialSet && SOLVER_SETS.includes(initialSet) ? initialSet : SOLVER_SETS.includes(DEFAULT_CHART_SET) ? DEFAULT_CHART_SET : SOLVER_SETS[0],
   );
@@ -169,6 +181,11 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
   /** A street's betting is over and its card is being picked: the deal's node (flop chunk: the turn; turn file: the river). */
   const [deal, setDeal] = useState<number | null>(null);
   const [tab, setTab] = useState<"strategy" | "ranges">("strategy");
+  /** What the Ranges tab's grids are coloured by (the toolbar's second segment). */
+  const [rangeMode, setRangeMode] = useState<RangeMode>("equity");
+  /** The preflop cards opened from their summary (the line is at the flop): until the line changes. */
+  const [preflopOpen, setPreflopOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   /**
    * The decision the tab was last switched on: its view fades in (`.rail-fade`).
    * Walking to another decision does not replay it - that is a click through
@@ -346,16 +363,33 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
   };
 
   // The view, for the host to keep (the web's address bar), so a link lands here.
+  const view = useMemo<SolverView | null>(
+    () =>
+      state
+        ? {
+            set: setId,
+            line: state.line,
+            flop: flopKey && flop ? flop.join("") : undefined,
+            node: flopKey ? nodeIndex : 0,
+            turn: flopKey && turn ? turn.replace(/^live:/, "").replace(/^turn\//, "").replace(/\.bin$/, "") : undefined,
+          }
+        : null,
+    [setId, state, flop, flopKey, nodeIndex, turn],
+  );
   useEffect(() => {
-    if (!state || !onView || walkPending) return;
-    onView({
-      set: setId,
-      line: state.line,
-      flop: flopKey && flop ? flop.join("") : undefined,
-      node: flopKey ? nodeIndex : 0,
-      turn: flopKey && turn ? turn.replace(/^live:/, "").replace(/^turn\//, "").replace(/\.bin$/, "") : undefined,
-    });
-  }, [onView, setId, state, flop, flopKey, nodeIndex, turn, walkPending]);
+    if (view && onView && !walkPending) onView(view);
+  }, [onView, view, walkPending]);
+  const shareLink = view && link ? link(view) : null;
+  const copy = () => {
+    if (!shareLink) return;
+    void navigator.clipboard.writeText(shareLink).then(
+      () => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      },
+      () => undefined,
+    );
+  };
 
   // A line that ends on a solved flop line with no flop yet asks for one, once.
   const lineKey = `${setId}|${line}`;
@@ -364,8 +398,20 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     setPicker(false);
     setDismissed(lineKey);
   };
+  /** The strip's box and its flop card: the picker opens under the card, and a click on the card is not outside it. */
+  const stripBox = useRef<HTMLDivElement>(null);
+  const flopAnchor = useRef<HTMLElement | null>(null);
+  const [pickerLeft, setPickerLeft] = useState(0);
+  useLayoutEffect(() => {
+    if (!pickerOpen) return;
+    const box = stripBox.current;
+    const card = box?.querySelector<HTMLElement>("[data-flop]") ?? null;
+    flopAnchor.current = card;
+    if (box && card) setPickerLeft(card.getBoundingClientRect().left - box.getBoundingClientRect().left);
+  }, [pickerOpen]);
 
   const goLine = (next: string) => {
+    setPreflopOpen(false);
     setViewing(null);
     setWalk(null);
     setLine(next);
@@ -399,11 +445,19 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
   // The line after preflop, on the same bar: the flop's card (or the prompt to pick one), then its decisions, the turn's, the river's.
   const lineAtFlop = end?.kind === "flop" && solved.length > 0;
   const flopPot = flopSolve ? exploreNode(flopSolve, 0).pot : null;
-  let postflop: ReactNode = lineAtFlop ? (
-    <FlopCard board={flopKey && flop ? flop : null} pot={flopKey ? flopPot : null} onChange={() => setPicker(true)} t={t} />
+  const flopCard = lineAtFlop ? (
+    <FlopCard
+      board={flopKey && flop ? flop : null}
+      pot={flopKey ? flopPot : null}
+      onChange={() => (pickerOpen ? closePicker() : setPicker(true))}
+      t={t}
+    />
   ) : null;
-  /** The turn's (or the river's) cards to pick from, under the bar. */
+  let postflop: ReactNode = flopCard;
+  /** The turn's (or the river's) cards to pick from, under the strip. */
   let dealPicker: ReactNode = null;
+  /** The row between the strip and the decision: the tabs, the active filters, the nodelock's tools. */
+  let toolbar: ReactNode = null;
 
   let body: ReactNode;
   if (!state || !manifest) {
@@ -412,7 +466,13 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     // A past decision looked back at, else the one to make. Its actions are picked on the bar.
     const shown = looked ?? state.node!;
     const model = preflopModel(shown, looked ? viewing! : state.line, t);
-    body = <StrategyView model={model} hero={hero} overview={<PreflopOverview node={shown} t={t} />} />;
+    body = (
+      <StrategyView
+        model={model}
+        hero={hero}
+        overview={<Overview actor={shown.actor} pot={shown.potBb} toCall={Math.max(0, shown.toMatchBb - shown.inBb)} t={t} />}
+      />
+    );
   } else if (end?.kind === "folded") {
     body = <p className={styles.message}>{t.preflop.folded(end.winner)}</p>;
   } else if (end?.kind === "uncaptured") {
@@ -429,8 +489,8 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     );
   } else if (!flopKey) {
     body = (
-      <div className={styles.message}>
-        <button type="button" className="btn btn--primary" onClick={() => setPicker(true)}>
+      <div className={styles.empty}>
+        <button type="button" className={styles.link} onClick={() => setPicker(true)}>
           {t.flop.pick}
         </button>
       </div>
@@ -454,7 +514,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     }
     const where: Where = { flop: flopSolve, turn: turn ? solve : null, turnChance, full: fullSolve };
     const include = masks ? masks[solve.result.nodes[nodeIndex].player] : undefined;
-    const model = flopModel(solve, nodeIndex, picked, t, include);
+    const model = flopModel(solve, nodeIndex, picked, t, include, rangeData, masks);
     // The app's lock marks (§7.3): on the flop's decisions and a live turn's; the web sets none.
     const marks = nodelock?.lockMark && librarySolve && (!turn || live) ? { library: librarySolve, turn: live ? { chance: live.chance, card: live.card } : null } : null;
     const mark = marks && nodelock?.lockMark ? nodelock.lockMark({ ...marks, flop: flopSolve, chunk: solve, node: nodeIndex, picked }) : null;
@@ -488,43 +548,95 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
       );
     }
     const compare = at?.locked && nodelock?.compare ? compareWith(at, chunkKey, include, nodelock.compareLabel, nodelock.shareDelta) : null;
+    const ranges = tab === "ranges" && rangeData;
+    toolbar = (
+      <div className={styles.tools}>
+        <Segmented
+          tabs
+          label={t.tabs.label}
+          value={tab}
+          options={(["strategy", "ranges"] as const).map((x) => ({ value: x, label: t.tabs[x] }))}
+          onChange={(x) => {
+            setTab(x);
+            setSwappedAt(model.id);
+          }}
+        />
+        {ranges ? (
+          <Segmented
+            size="sm"
+            label={t.tabs.rangeModes}
+            value={rangeMode}
+            options={RANGE_MODES.map((m) => ({ value: m, label: t.ranges.modes[m] }))}
+            onChange={setRangeMode}
+          />
+        ) : null}
+        <ActiveFilters filter={filter} onFilter={setFilter} />
+        <span className={styles.spacer} />
+        {at && nodelock ? nodelock.nodeAction(at) : null}
+        {nodelock?.tabTools ? nodelock.tabTools(at) : null}
+      </div>
+    );
+    const decision = exploreNode(solve, nodeIndex);
     body = (
       <StrategyView
         model={model}
         compare={compare}
         actionMark={mark ? (key) => (mark.actions.has(key) ? mark.render(key) : null) : undefined}
         hero={hero}
-        toolbar={
-          <div className={styles.viewTabs} role="tablist" aria-label={t.tabs.label}>
-            {(["strategy", "ranges"] as const).map((x) => (
-              <button
-                key={x}
-                type="button"
-                role="tab"
-                aria-selected={tab === x}
-                className={styles.viewTab}
-                onClick={() => {
-                  if (x === tab) return;
-                  setTab(x);
-                  setSwappedAt(model.id);
-                }}
-              >
-                {t.tabs[x]}
+        main={ranges ? (onHand) => <RangesView data={rangeData} masks={masks} mode={rangeMode} onHand={onHand} /> : undefined}
+        empty={
+          include && filterActive(filter) && (model.reach ?? 1) <= 0 ? (
+            <div className={styles.empty}>
+              <p>{t.filters.none(model.actor)}</p>
+              <button type="button" className={styles.link} onClick={() => setFilter(EMPTY_FILTER)}>
+                {t.filters.clearFilter}
               </button>
-            ))}
-            {nodelock?.tabTools ? nodelock.tabTools(at) : null}
-          </div>
+            </div>
+          ) : undefined
         }
-        main={tab === "ranges" && rangeData ? (onHand) => <RangesView data={rangeData} masks={masks} strategy={model} onHand={onHand} /> : undefined}
         fade={swappedAt === model.id}
         filters={<HandFilters data={rangeData} filter={filter} onFilter={setFilter} colours={model.actions.map((a) => a.colour)} />}
-        overview={<FlopOverview chunk={solve} index={nodeIndex} action={at && nodelock ? nodelock.nodeAction(at) : null} t={t} />}
+        overview={<Overview actor={decision.position} pot={decision.pot} toCall={decision.toCall} t={t} />}
       />
     );
   } else if (live) {
-    // The turn is being solved here.
+    // The turn is being solved here: the strip runs to the turn's card with the progress, the solve's card below.
     const shown = progress?.key === turnKey ? progress : null;
-    body = <RailLoader label={t.solvingTurn(shown?.iteration ?? 0, shown?.exploitabilityPct ?? null)} showLabel centered />;
+    const share = shown
+      ? Math.min(0.99, Math.max(shown.iteration / LIVE_TURN.maxIterations, shown.exploitabilityPct ? LIVE_TURN.targetPct / shown.exploitabilityPct : 0))
+      : 0;
+    const card = picked ? picked.toPicked(live.card) : live.card;
+    if (flopSolve && picked && flopSolve.result.nodes[live.chance]?.kind === "chance") {
+      const where: Where = { flop: flopSolve, turn: null, turnChance: null, full: null };
+      postflop = (
+        <>
+          {postflop}
+          <PostflopCards
+            where={where}
+            index={flopSolve.result.nodes[live.chance].parent}
+            deal={live.chance}
+            picked={picked}
+            moves={{ flopNode: goFlop, flopDeal: goFlopDeal, node: goFlop, deal: goFlopDeal, changeFlop: () => setPicker(true) }}
+            marks={nodelock?.lockMark && librarySolve ? { library: librarySolve, turn: null } : null}
+            solving={{ card, share }}
+            t={t}
+          />
+        </>
+      );
+    }
+    body = (
+      <div className={styles.solve} role="status">
+        <span className={styles.spinner} aria-hidden="true" />
+        <strong className={styles.solveTitle}>
+          {t.solving.title("turn")} · <CardRow cards={[card]} size="xs" />
+        </strong>
+        <span className={styles.solveBar} aria-hidden="true">
+          <span style={{ inlineSize: `${Math.round(share * 100)}%` }} />
+        </span>
+        <span className={styles.solveLine}>{t.solving.progress(shown?.iteration ?? 0, shown?.exploitabilityPct ?? null)}</span>
+        <span className={styles.solveNote}>{t.solving.note}</span>
+      </div>
+    );
   } else {
     // The flop's (or the turn's) solve is downloading.
     body = <RailLoader label={t.loadingSolve} showLabel centered />;
@@ -532,59 +644,108 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
 
   return (
     <div className={styles.solver}>
-      <PreflopBar
-        tables={TABLES}
-        table={table}
-        onTable={(id) => {
-          setSetId(id);
-          goLine("");
-        }}
-        state={state}
-        onLine={goLine}
-        viewing={looked ? viewing : null}
-        onView={setViewing}
-        after={postflop}
-      />
-      {dealPicker}
-      {nodelock ? nodelock.banner(at) : null}
-      {body}
-      {pickerOpen ? (
-        <FlopPicker
-          open
-          onClose={closePicker}
-          solved={solved}
-          current={flopKey ? flop : null}
-          onPick={(cards) => {
-            setWalk(null);
-            setFlop(cards);
-            setTurn(null);
-            setDeal(null);
-            setPath(null);
-            setNode(0);
-            closePicker();
+      <div className={styles.top}>
+        {top}
+        <TableSelect
+          tables={TABLES}
+          table={table}
+          onTable={(id) => {
+            setSetId(id);
+            goLine("");
           }}
         />
-      ) : null}
+        <span className={styles.spacer} />
+        {shareLink ? (
+          <IconButton label={copied ? t.top.copied : t.top.link} onClick={copy}>
+            <Icon name={copied ? "check" : "link"} />
+          </IconButton>
+        ) : null}
+      </div>
+      <div className={styles.stripBox} ref={stripBox}>
+        <Strip label={t.preflop.label}>
+          <PreflopCards
+            state={state}
+            onLine={goLine}
+            viewing={looked ? viewing : null}
+            onView={setViewing}
+            folded={lineAtFlop && !preflopOpen && !looked}
+            onUnfold={() => setPreflopOpen(true)}
+          />
+          {postflop}
+        </Strip>
+        {pickerOpen ? (
+          <FlopPicker
+            onClose={closePicker}
+            solved={solved}
+            current={flopKey ? flop : null}
+            anchor={flopAnchor}
+            left={pickerLeft}
+            onPick={(cards) => {
+              setWalk(null);
+              setFlop(cards);
+              setTurn(null);
+              setDeal(null);
+              setPath(null);
+              setNode(0);
+              closePicker();
+            }}
+          />
+        ) : null}
+      </div>
+      {dealPicker}
+      {nodelock ? nodelock.banner(at) : null}
+      {toolbar}
+      {body}
     </div>
   );
 }
 
 /* ------------------------------------------------------------ the models - */
 
+/** Combos of a grid class: 6 of a pair, 4 suited, 12 offsuit. */
+function classSize(name: string): number {
+  return name.length === 2 ? 6 : name.endsWith("s") ? 4 : 12;
+}
+
+/** Each action's EV over the hands that take it: their weight times the frequency, the class's EV for the action. */
+function actionEvs(actions: number, classes: ReadonlyArray<{ weight: number; freq: readonly number[]; ev: readonly number[] }>): Array<number | null> {
+  return Array.from({ length: actions }, (_, a) => {
+    let weight = 0;
+    let sum = 0;
+    for (const c of classes) {
+      const w = c.weight * (c.freq[a] ?? 0);
+      if (w <= 0 || !Number.isFinite(c.ev[a])) continue;
+      weight += w;
+      sum += w * c.ev[a];
+    }
+    return weight > 1e-9 ? sum / weight : null;
+  });
+}
+
 function preflopModel(node: ChartNode, line: string, t: Dict): StrategyModel {
   const classes = node.range.length;
   const totals = actionTotals(node);
   const played = playedOptions(node);
   const colours = actionColours(node.options.map((o) => ({ kind: o.action, amount: o.toBb })));
+  const evs = actionEvs(
+    node.options.length,
+    GRID_CELLS.map((cell) => ({
+      weight: node.range[cell.index] * classSize(cell.name),
+      freq: node.options.map((_, a) => node.freq[a * classes + cell.index]),
+      ev: node.options.map((_, a) => node.ev[a * classes + cell.index]),
+    })),
+  );
   return {
     id: `pre|${line}`,
     actor: node.actor,
     actions: node.options.map((option, a) => ({
       key: option.code,
       label: t.preflop.action(option.action, option.toBb),
+      short: t.short(option.action, 0, option.toBb),
       colour: colours[a],
       share: totals[a].share,
       combos: totals[a].combos,
+      ev: evs[a],
       hidden: !played[a],
     })),
     classes: GRID_CELLS.map((cell) => {
@@ -609,19 +770,27 @@ function flopModel(
   picked: PickedFlop,
   t: Dict,
   include?: Uint8Array,
+  ranges?: RangeData | null,
+  masks?: [Uint8Array, Uint8Array] | null,
 ): StrategyModel {
   const view = exploreNode(chunk, index, include);
   const whole = include ? exploreNode(chunk, index) : view;
   const colours = actionColours(view.actions);
+  const evs = actionEvs(view.actions.length, view.classes);
   return {
     id: `flop|${chunk.header.line}|${chunk.header.flop}|${chunk.result.board.join("")}|${index}`,
     actor: view.position,
+    reach: view.reach,
+    board: chunk.result.board.map((card) => picked.toPicked(card)),
+    category: ranges ? (k) => classCategory(ranges, masks ?? null, k, t) : undefined,
     actions: view.actions.map((action, a) => ({
       key: action.label,
       label: t.action(action.kind, action.sizePot, action.amount),
+      short: t.short(action.kind, action.sizePot, action.amount),
       colour: colours[a],
       share: view.totals[a].share,
       combos: view.totals[a].combos,
+      ev: evs[a],
       // Judged on the whole range: a hand filter never hides an action.
       hidden: whole.totals[a].combos < 0.5,
     })),
@@ -672,31 +841,33 @@ function compareWith(
   };
 }
 
-/* --------------------------------------------------------- the overviews - */
-
-function PreflopOverview({ node, t }: { node: ChartNode; t: Dict }) {
-  return (
-    <div className={styles.overview}>
-      <p className={styles.overviewTitle}>
-        <strong>{t.panel.toAct(node.actor)}</strong>{" "}
-        <span className={analysis.muted}>{t.panel.pot(node.potBb, Math.max(0, node.toMatchBb - node.inBb))}</span>
-      </p>
-      <p className={analysis.muted}>{t.preflop.label}</p>
-    </div>
-  );
+/**
+ * What a class makes on the board, as most of its combos at the decision
+ * do (the acting player's, through the hand filter): a made-hand label.
+ */
+function classCategory(data: RangeData, masks: [Uint8Array, Uint8Array] | null, k: number, t: Dict): string | null {
+  const p = data.ranges.actor;
+  const side = data.ranges.sides[p];
+  const weights = new Map<string, number>();
+  for (const i of data.byClass[p][k]) {
+    const r = masks && !masks[p][i] ? 0 : side.reach[i];
+    if (r <= 0) continue;
+    const made = comboIds(data.cards[p][i], data.features[p][i], data.equity ? data.equity[p][i] : Number.NaN).find((id) => id.startsWith("made:"));
+    if (made) weights.set(made, (weights.get(made) ?? 0) + r);
+  }
+  let best: string | null = null;
+  for (const [id, w] of weights) if (best === null || w > weights.get(best)!) best = id;
+  return best ? filterLabel(best, t) : null;
 }
 
-/** The decision shown: who acts, the pot, and the app's Nodelock action. The line itself is on the bar. */
-function FlopOverview({ chunk, index, action, t }: { chunk: FlopChunk; index: number; action: ReactNode; t: Dict }) {
-  const view = exploreNode(chunk, index);
+/* ---------------------------------------------------------- the overview - */
+
+/** The panel's first line: who acts and the pot. The line itself is on the strip. */
+function Overview({ actor, pot, toCall, t }: { actor: string; pot: number; toCall: number; t: Dict }) {
   return (
-    <div className={styles.overview}>
-      <div className={styles.overviewHead}>
-        <p className={styles.overviewTitle}>
-          <strong>{t.panel.toAct(view.position)}</strong> <span className={analysis.muted}>{t.panel.pot(view.pot, view.toCall)}</span>
-        </p>
-        {action}
-      </div>
-    </div>
+    <p className={styles.over}>
+      <strong>{t.panel.toAct(actor)}</strong>
+      <span>{t.panel.pot(pot, toCall)}</span>
+    </p>
   );
 }

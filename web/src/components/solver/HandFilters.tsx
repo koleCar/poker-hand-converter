@@ -8,7 +8,9 @@
  * picked categories add up; across groups a combo has to match each. Every row
  * shows the share of the acting player's range it holds here and, as a bar,
  * how that part of the range plays (the actions' colours); its ▲ picks it and
- * every row above it (a hand and everything stronger).
+ * every row above it (a hand and everything stronger). The active filters
+ * show as chips on the view's toolbar (`ActiveFilters`), each removed by a
+ * click.
  */
 
 "use client";
@@ -28,6 +30,7 @@ import {
 } from "../../lib/solver";
 import analysis from "../analysis/analysis.module.css";
 import type { RangeData } from "./rangeData";
+import { Chip, MixBar, Segmented, ToolButton } from "./ui";
 import styles from "./solver.module.css";
 
 type Dict = SolverDict;
@@ -58,6 +61,27 @@ export function filterLabel(id: string, t: Dict): string {
     default:
       return t.filters.suit(SUIT_SYMBOL[value[1] as Suit], value[0] === "s");
   }
+}
+
+/** The active filters as chips (the view's toolbar): a click removes one. */
+export function ActiveFilters({ filter, onFilter }: { filter: HandFilter; onFilter: (next: HandFilter) => void }) {
+  const t = useSolverDict();
+  const active = [...filter.include.map((id) => ({ id, mode: "include" as const })), ...filter.exclude.map((id) => ({ id, mode: "exclude" as const }))];
+  if (!active.length) return null;
+  return (
+    <>
+      {active.map(({ id, mode }) => (
+        <Chip
+          key={`${mode}${id}`}
+          out={mode === "exclude"}
+          label={t.filters.remove(filterLabel(id, t))}
+          onRemove={() => onFilter({ ...filter, [mode]: filter[mode].filter((x) => x !== id) })}
+        >
+          {t.filters.active(mode)} {filterLabel(id, t)}
+        </Chip>
+      ))}
+    </>
+  );
 }
 
 export function HandFilters({
@@ -126,41 +150,24 @@ export function HandFilters({
     ...(river ? [] : [{ group: "draw" as const, list: rows("draw", DRAWS) }]),
     { group: "band", list: data.equity ? rows("band", EQ_BANDS) : [] },
   ];
-  const active = [...filter.include.map((id) => ({ id, mode: "include" as const })), ...filter.exclude.map((id) => ({ id, mode: "exclude" as const }))];
+  const active = filter.include.length + filter.exclude.length;
 
   return (
     <div className={styles.filters}>
       <div className={styles.filterTop}>
-        <div className={styles.segmented} role="group" aria-label={t.filters.title}>
-          {(["include", "exclude"] as const).map((m) => (
-            <button key={m} type="button" aria-pressed={mode === m} className={styles.segment} onClick={() => setMode(m)}>
-              {t.filters[m]}
-            </button>
-          ))}
-        </div>
-        {active.length ? (
-          <button type="button" className="btn btn--sm" onClick={() => onFilter({ include: [], exclude: [] })}>
+        <Segmented
+          label={t.filters.title}
+          size="sm"
+          value={mode}
+          options={(["include", "exclude"] as const).map((m) => ({ value: m, label: t.filters[m] }))}
+          onChange={setMode}
+        />
+        {active ? (
+          <ToolButton size="sm" onClick={() => onFilter({ include: [], exclude: [] })}>
             {t.filters.clear}
-          </button>
+          </ToolButton>
         ) : null}
       </div>
-
-      {active.length ? (
-        <ul className={styles.chips}>
-          {active.map(({ id, mode: m }) => (
-            <li key={`${m}${id}`}>
-              <button
-                type="button"
-                className={`${styles.chip} ${m === "exclude" ? styles.chipOut : ""}`}
-                aria-label={t.filters.remove(filterLabel(id, t))}
-                onClick={() => onFilter({ ...filter, [m]: filter[m].filter((x) => x !== id) })}
-              >
-                {t.filters.active(m)} {filterLabel(id, t)} <span aria-hidden="true">×</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
 
       <div className={styles.suitRow}>
         {([false, true] as const).map((suited) => (
@@ -210,12 +217,8 @@ export function HandFilters({
                         onClick={() => toggle(row.id)}
                       >
                         <span className={styles.filterName}>{row.label}</span>
-                        <span className={analysis.num}>{t.filters.share(row.share)}</span>
-                        <span className={styles.filterBar} aria-hidden="true">
-                          {row.mix.map((m, a) =>
-                            m > 0 ? <span key={a} className={colours[a]} style={{ inlineSize: `${m * 100}%` }} /> : null,
-                          )}
-                        </span>
+                        <span className={styles.filterShare}>{t.filters.share(row.share)}</span>
+                        <MixBar mix={row.mix} colours={colours} thin />
                       </button>
                       <button
                         type="button"

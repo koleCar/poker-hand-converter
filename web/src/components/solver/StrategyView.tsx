@@ -1,20 +1,22 @@
 /**
- * One decision as a solver's viewer shows it: the 13×13 grid on the left, the
- * actions and the picked hand on the right (under the grid on a narrow
- * screen). The same view for a preflop chart node and a flop decision of the
- * library: the caller builds the model (`preflopModel`, `flopModel` in
- * `SolverLibrary.tsx`). The line is walked on the bar above (PreflopBar,
- * PostflopBar); the action boxes here show the mix, and a click keeps one
- * action lit in the grid.
+ * One decision as a solver's viewer shows it ("Studio"): the 13×13 grid on
+ * the left, the panel on the right (under the grid on a narrow screen). The
+ * same view for a preflop chart node and a flop decision of the library: the
+ * caller builds the model (`preflopModel`, `flopModel` in
+ * `SolverLibrary.tsx`). The line is walked on the action strip above
+ * (PreflopBar, PostflopBar).
  *
  * Each cell is the class's mix drawn as coloured columns, as tall as the
- * share of the class that reaches the decision. Hovering an action box shows
- * only that action in the grid. The picked (or hovered) hand opens as tiles,
- * one per combo, each filled bottom-up with its own mix and as tall as its
- * weight, with every action's frequency and EV for that combo written on
- * it. A combo the board (or a hand filter) takes out stays as a hatched
- * tile, so the blockers show. The hero's hand, when the view comes from one
- * of their decisions, is marked in the grid and on its tile.
+ * share of the class that reaches the decision. The panel: who acts and the
+ * pot (`overview`), the strategy as one stacked bar, and a row per action -
+ * its colour, its name (a lock mark, GTO's share when comparing), the combos,
+ * the share and its EV, signed. Hovering a row shows only that action in the
+ * grid, a click keeps it lit. Under them `Hand | Filters`: the hovered (or
+ * picked) hand - its name, what it makes on the board, its EV - as tiles, one
+ * per combo, three across, each with its mix as a bar (as long as its reach)
+ * and every action's frequency and EV; a combo the board takes out stays as
+ * a hatched tile, so the blockers show. The hero's hand, when the view comes
+ * from one of their decisions, is marked in the grid and on its tile.
  *
  * Accessibility as in the chart browser's grid: one tab stop with arrow
  * keys, every cell a button that reads its mix in words, the detail a polite
@@ -29,15 +31,20 @@ import { useSolverDict, type StrategyCompare } from "./host";
 import type { ExploreCombo } from "../../lib/solver";
 import { GRID_CELLS } from "../analysis/chartSpots";
 import analysis from "../analysis/analysis.module.css";
+import { MixBar, SignedBb } from "./ui";
 import styles from "./solver.module.css";
 
 export interface ViewAction {
   key: string;
   label: string;
+  /** As a combo tile writes it: `X`, `B33`, `R8.5`. */
+  short: string;
   /** `actionColours`. */
   colour: string;
   share: number;
   combos: number;
+  /** EV of the action over the hands that take it, bb; null when none does. */
+  ev: number | null;
   /** No hand of the range takes it (`playedOptions`): left out of the action boxes and the EV rows. */
   hidden?: boolean;
 }
@@ -60,6 +67,12 @@ export interface StrategyModel {
   classes: ViewClass[];
   /** A class's combos (flop decisions only), in the picked suits. */
   combos?: (classIndex: number) => ExploreCombo[];
+  /** Combos of the range that reach the decision, through the hand filter (postflop): none leaves the grid empty. */
+  reach?: number;
+  /** The board in the picked suits (postflop): a combo it takes out reads "blocked by the board". */
+  board?: readonly string[];
+  /** What a class makes on the board, most of its combos (postflop), or null. */
+  category?: (classIndex: number) => string | null;
 }
 
 /** The hero's hand, when the view comes from one of their decisions: marked where `position` acts. */
@@ -71,7 +84,7 @@ export interface StrategyHero {
 
 /** Below this an action rounds to nothing (it reads `<0.1%`): left out of a cell's spoken mix. */
 const SHOWN_FREQ = 0.0005;
-/** An action box being hovered leaves the others this faint in the grid. */
+/** An action row being hovered leaves the others this faint in the grid. */
 const DIMMED = 0.12;
 const RANKS = "AKQJT98765432";
 const SUITS: Suit[] = ["s", "h", "d", "c"];
@@ -171,14 +184,15 @@ export type MainHand = { index: number } | { panel: ReactNode };
 
 interface StrategyViewProps {
   model: StrategyModel;
+  /** The panel's first line: who acts and the pot. */
   overview: ReactNode;
-  /** Above the grid: the tabs of a flop decision. */
-  toolbar?: ReactNode;
   /**
    * In the grid's place: another tab's view (the Ranges tab). As a function it
    * is handed `onHand`, so hovering a hand there opens it in the panel.
    */
   main?: ReactNode | ((onHand: (hand: MainHand | null) => void) => ReactNode);
+  /** In the grid's place when the hand filter leaves no hand: the message and its way out. */
+  empty?: ReactNode;
   /** The hand filters: the panel's last block then switches between the hand and them. */
   filters?: ReactNode;
   /** The tab was just switched: the grid (or `main`) fades in as it swaps. */
@@ -191,7 +205,7 @@ interface StrategyViewProps {
   actionMark?: (key: string) => ReactNode;
 }
 
-export function StrategyView({ model, overview, toolbar, main, filters, fade = false, hero = null, compare = null, actionMark }: StrategyViewProps) {
+export function StrategyView({ model, overview, main, empty, filters, fade = false, hero = null, compare = null, actionMark }: StrategyViewProps) {
   // Kept across decisions: the panel stays on the filters while the line is walked.
   const [panelTab, setPanelTab] = useState<"hand" | "filters">("hand");
   // `rail-fade` plays once, when the view first replaces a loader or a message;
@@ -202,8 +216,8 @@ export function StrategyView({ model, overview, toolbar, main, filters, fade = f
         key={model.id}
         model={model}
         overview={overview}
-        toolbar={toolbar}
         main={main}
+        empty={empty}
         filters={filters}
         fade={fade}
         hero={hero}
@@ -219,8 +233,8 @@ export function StrategyView({ model, overview, toolbar, main, filters, fade = f
 function Grid({
   model,
   overview,
-  toolbar,
   main,
+  empty,
   filters,
   fade,
   hero,
@@ -240,7 +254,7 @@ function Grid({
   const [hovered, setHovered] = useState<number | null>(null);
   const [picked, setPicked] = useState<number | null>(heroIndex);
   const [hoveredAction, setHoveredAction] = useState<number | null>(null);
-  /** An action box clicked: only that action stays lit in the grid until it is clicked again. */
+  /** An action row clicked: only that action stays lit in the grid until it is clicked again. */
   const [pinned, setPinned] = useState<number | null>(null);
   const highlight = hoveredAction ?? pinned;
   /** The hand block's content brought by another tab's view (the other player's hand on the Ranges tab). */
@@ -250,9 +264,7 @@ function Grid({
   const detail = shown === null ? null : model.classes[shown];
   const tiles = useMemo(() => (shown === null ? [] : tilesOf(model, shown)), [model, shown]);
   const labels = model.actions.map((a) => a.label);
-  const showHover = (index: number) => {
-    setHovered(index);
-  };
+  const colours = model.actions.map((a) => a.colour);
   const onHand = useCallback((hand: MainHand | null) => {
     if (hand && "panel" in hand) {
       setHovered(null);
@@ -286,90 +298,93 @@ function Grid({
 
   const showFilters = Boolean(filters) && panelTab === "filters";
   const isHeroTile = (cards: string) => shown === heroIndex && !!hero && sameCombo(hero.cards, cards);
+  const visible = model.actions.map((action) => (action.hidden ? 0 : action.share));
+  const category = shown !== null && detail?.state !== "absent" ? (model.category?.(shown) ?? null) : null;
+
+  let left: ReactNode;
+  if (mainView) left = fade ? <div className="rail-fade">{mainView}</div> : mainView;
+  else if (empty) left = empty;
+  else
+    left = (
+      <div
+        className={`${styles.grid} ${fade ? "rail-fade" : ""}`}
+        role="grid"
+        aria-label={t.gridLabel(model.actor)}
+        onPointerLeave={() => setHovered(null)}
+      >
+        {Array.from({ length: 13 }, (_, row) => (
+          <div key={row} role="row" className={styles.gridRow}>
+            {GRID_CELLS.slice(row * 13, row * 13 + 13).map((cell, col) => {
+              const index = row * 13 + col;
+              const data = model.classes[index];
+              const name = t.cellLabel(
+                cell.name,
+                data.freq.map((freq, a) => t.part(labels[a], freq)).filter((_, a) => data.freq[a] >= SHOWN_FREQ),
+                data.state === "absent",
+              );
+              const classes = [
+                styles.cell,
+                data.state !== "in" ? styles.cellFaint : "",
+                index === picked ? styles.cellPicked : "",
+                index === heroIndex ? styles.cellHero : "",
+              ];
+              return (
+                <div key={cell.name} role="gridcell" className={styles.gridCellWrap}>
+                  <button
+                    ref={(element) => {
+                      buttons.current[index] = element;
+                    }}
+                    type="button"
+                    tabIndex={index === focusIndex ? 0 : -1}
+                    className={classes.filter(Boolean).join(" ")}
+                    aria-label={index === heroIndex ? `${name} · ${t.yourHand}` : name}
+                    aria-pressed={index === picked}
+                    onClick={() => {
+                      setFocusIndex(index);
+                      setPicked(index === picked ? null : index);
+                    }}
+                    onFocus={() => setFocusIndex(index)}
+                    onKeyDown={(event) => move(event, index)}
+                    onPointerEnter={() => setHovered(index)}
+                  >
+                    {data.state === "absent" ? null : (
+                      <span className={styles.cellFill} aria-hidden="true" style={{ blockSize: `${Math.max(10, data.fill * 100)}%` }}>
+                        {data.freq.map((freq, a) =>
+                          freq > 0 ? (
+                            <span
+                              key={a}
+                              className={model.actions[a].colour}
+                              style={{ inlineSize: `${freq * 100}%`, opacity: highlight === null || highlight === a ? 1 : DIMMED }}
+                            />
+                          ) : null,
+                        )}
+                      </span>
+                    )}
+                    <span className={styles.cellName}>{cell.name}</span>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    );
 
   return (
     <>
-      <div className={styles.gridWrap}>
-        {toolbar}
-        {mainView ? (
-          fade ? <div className="rail-fade">{mainView}</div> : mainView
-        ) : (
-        <div
-          className={`${styles.grid} ${fade ? "rail-fade" : ""}`}
-          role="grid"
-          aria-label={t.gridLabel(model.actor)}
-          onPointerLeave={() => setHovered(null)}
-        >
-          {Array.from({ length: 13 }, (_, row) => (
-            <div key={row} role="row" className={styles.gridRow}>
-              {GRID_CELLS.slice(row * 13, row * 13 + 13).map((cell, col) => {
-                const index = row * 13 + col;
-                const data = model.classes[index];
-                const name = t.cellLabel(
-                  cell.name,
-                  data.freq.map((freq, a) => t.part(labels[a], freq)).filter((_, a) => data.freq[a] >= SHOWN_FREQ),
-                  data.state === "absent",
-                );
-                const classes = [
-                  styles.cell,
-                  data.state !== "in" ? styles.cellFaint : "",
-                  index === hovered ? styles.cellHover : "",
-                  index === picked && index !== hovered ? styles.cellPicked : "",
-                  index === heroIndex ? styles.cellHero : "",
-                ];
-                return (
-                  <div key={cell.name} role="gridcell" className={styles.gridCellWrap}>
-                    <button
-                      ref={(element) => {
-                        buttons.current[index] = element;
-                      }}
-                      type="button"
-                      tabIndex={index === focusIndex ? 0 : -1}
-                      className={classes.filter(Boolean).join(" ")}
-                      aria-label={index === heroIndex ? `${name} · ${t.yourHand}` : name}
-                      aria-pressed={index === picked}
-                      onClick={() => {
-                        setFocusIndex(index);
-                        setPicked(index === picked ? null : index);
-                      }}
-                      onFocus={() => setFocusIndex(index)}
-                      onKeyDown={(event) => move(event, index)}
-                      onPointerEnter={() => showHover(index)}
-                    >
-                      {data.state === "absent" ? null : (
-                        <span className={styles.cellFill} aria-hidden="true" style={{ blockSize: `${Math.max(8, data.fill * 100)}%` }}>
-                          {data.freq.map((freq, a) =>
-                            freq > 0 ? (
-                              <span
-                                key={a}
-                                className={model.actions[a].colour}
-                                style={{ inlineSize: `${freq * 100}%`, opacity: highlight === null || highlight === a ? 1 : DIMMED }}
-                              />
-                            ) : null,
-                          )}
-                        </span>
-                      )}
-                      <span className={styles.cellName}>{cell.name}</span>
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-        </div>
-        )}
-      </div>
+      <div className={styles.gridWrap}>{left}</div>
 
       <aside className={styles.panel}>
-        <section className={styles.panelBlock}>{overview}</section>
+        {overview}
+        <MixBar mix={visible} colours={colours} />
 
-        <section className={styles.panelBlock} aria-label={t.panel.actions}>
-          <div className={styles.actionBoxes}>
-            {model.actions.map((action, a) => action.hidden ? null : (
+        <div className={styles.acts} role="group" aria-label={t.panel.actions}>
+          {model.actions.map((action, a) =>
+            action.hidden ? null : (
               <button
                 key={action.key}
                 type="button"
-                className={`${styles.actionBox} ${highlight === a ? styles.actionBoxOn : ""} ${highlight !== null && highlight !== a ? styles.actionBoxOff : ""}`}
+                className={`${styles.act} ${highlight === a ? styles.actOn : ""} ${highlight !== null && highlight !== a ? styles.actOff : ""}`}
                 aria-pressed={pinned === a}
                 onClick={() => setPinned(pinned === a ? null : a)}
                 onPointerEnter={() => setHoveredAction(a)}
@@ -377,26 +392,23 @@ function Grid({
                 onFocus={() => setHoveredAction(a)}
                 onBlur={() => setHoveredAction(null)}
               >
-                <span className={styles.actionBoxLabel}>
-                  <span className={`${styles.actionDot} ${action.colour}`} aria-hidden="true" />
+                <span className={`${styles.actDot} ${action.colour}`} aria-hidden="true" />
+                <span className={styles.actLabel}>
                   {action.label}
                   {actionMark ? actionMark(action.key) : null}
+                  {compare ? (
+                    <span className={styles.actGto} title={compare.shareDelta(action.share - (compare.shares[a] ?? 0))}>
+                      {compare.label} {t.shareOnly(compare.shares[a] ?? 0)}
+                    </span>
+                  ) : null}
                 </span>
-                <strong className={styles.actionBoxShare}>{t.shareOnly(action.share)}</strong>
-                <span className={styles.actionBoxCombos}>{t.combosCount(action.combos)}</span>
-                {compare ? (
-                  <span className={styles.actionBoxCompare}>
-                    {compare.label} {t.shareOnly(compare.shares[a] ?? 0)}{" "}
-                    <strong>{compare.shareDelta(action.share - (compare.shares[a] ?? 0))}</strong>
-                  </span>
-                ) : null}
-                <span className={styles.actionTrack} aria-hidden="true">
-                  <span className={action.colour} style={{ inlineSize: `${action.share * 100}%` }} />
-                </span>
+                <span className={styles.actCombos}>{t.count(action.combos)}</span>
+                <span className={styles.actShare}>{t.shareOnly(action.share)}</span>
+                {action.ev === null ? <span /> : <SignedBb className={styles.actEv} value={action.ev} text={t.signed(action.ev)} />}
               </button>
-            ))}
-          </div>
-        </section>
+            ),
+          )}
+        </div>
 
         {filters ? (
           <div className={styles.panelTabs} role="tablist" aria-label={t.filters.title}>
@@ -416,39 +428,49 @@ function Grid({
         ) : null}
 
         {showFilters ? (
-          <section className={styles.panelBlock} aria-label={t.filters.title}>
-            {filters}
-          </section>
+          <section aria-label={t.filters.title}>{filters}</section>
         ) : (
-        <section className={`${styles.panelBlock} ${styles.handBlock}`} aria-live="polite" aria-label={t.panel.hand}>
-          {aside ? (
-            aside
-          ) : detail && shown !== null ? (
-            <>
-              <p className={styles.handHead}>
-                <strong className={styles.handName}>{GRID_CELLS[shown].name}</strong>
-                {shown === heroIndex ? <span className={styles.youTag}>{t.yourHand}</span> : null}
-                {detail.state === "absent" ? null : (
-                  <span className={styles.handValue}>
-                    {t.value(detail.value)}
-                    {compare ? <small className={styles.compareDelta}> {t.signedBb(detail.value - compare.classes[shown].value)}</small> : null}
-                  </span>
+          <section className={styles.handBlock} aria-live="polite" aria-label={t.panel.hand}>
+            {aside ? (
+              aside
+            ) : detail && shown !== null ? (
+              <>
+                <p className={styles.handHead}>
+                  <strong className={styles.handName}>{GRID_CELLS[shown].name}</strong>
+                  {category ? <span className={styles.handCat}>{category}</span> : null}
+                  {shown === heroIndex ? <span className={styles.youTag}>{t.yourHand}</span> : null}
+                  {detail.state === "absent" ? null : (
+                    <>
+                      <SignedBb className={styles.handValue} value={detail.value} text={t.signedBb(detail.value)} />
+                      {compare ? (
+                        <span className={styles.handDelta}>
+                          {t.vsBase(t.signedBb(detail.value - compare.classes[shown].value), compare.label)}
+                        </span>
+                      ) : null}
+                    </>
+                  )}
+                </p>
+                {detail.state === "absent" ? (
+                  <p className={analysis.muted}>{t.absent}</p>
+                ) : (
+                  <ul className={styles.tiles} aria-label={t.combosLabel}>
+                    {tiles.map((x) => (
+                      <ComboTile
+                        key={x.cards}
+                        tile={x}
+                        actions={model.actions}
+                        colours={colours}
+                        board={model.board ?? null}
+                        hero={isHeroTile(x.cards)}
+                      />
+                    ))}
+                  </ul>
                 )}
-              </p>
-              {detail.state === "absent" ? (
-                <p className={analysis.muted}>{t.absent}</p>
-              ) : (
-                <ul className={styles.tiles} aria-label={t.combosLabel}>
-                  {tiles.map((x) => (
-                    <ComboTile key={x.cards} tile={x} actions={model.actions} hero={isHeroTile(x.cards)} />
-                  ))}
-                </ul>
-              )}
-            </>
-          ) : (
-            <p className={analysis.muted}>{t.detailEmpty}</p>
-          )}
-        </section>
+              </>
+            ) : (
+              <p className={analysis.muted}>{t.detailEmpty}</p>
+            )}
+          </section>
         )}
       </aside>
     </>
@@ -456,21 +478,35 @@ function Grid({
 }
 
 /**
- * One combo: its mix as the fill (bottom-up, as tall as its reach) and, over
- * it, every action the range plays with this combo's frequency and EV.
+ * One combo: its cards, its mix as a bar (as long as its reach) and every
+ * action the range plays with this combo's frequency and EV.
  */
-function ComboTile({ tile, actions, hero }: { tile: Tile; actions: ViewAction[]; hero: boolean }) {
+function ComboTile({
+  tile,
+  actions,
+  colours,
+  board,
+  hero,
+}: {
+  tile: Tile;
+  actions: ViewAction[];
+  colours: readonly string[];
+  board: readonly string[] | null;
+  hero: boolean;
+}) {
   const t = useSolverDict();
   const combo = tile.combo;
   if (!combo) {
+    const blocked = board !== null && (board.includes(tile.cards.slice(0, 2)) || board.includes(tile.cards.slice(2, 4)));
+    const why = blocked ? t.blocked : t.comboOff;
     return (
-      <li className={`${styles.tile} ${styles.tileOff}`} aria-label={`${tile.cards}: ${t.comboOff}`}>
+      <li className={`${styles.tile} ${styles.tileOff}`} aria-label={`${tile.cards}: ${why}`}>
         <span className={styles.tileHead}>
           <span className={styles.tileCards}>
             <ComboText cards={tile.cards} />
           </span>
         </span>
-        <span className={styles.tileOffText}>{t.comboOff}</span>
+        <span className={styles.tileOffText}>{why}</span>
       </li>
     );
   }
@@ -481,24 +517,24 @@ function ComboTile({ tile, actions, hero }: { tile: Tile; actions: ViewAction[];
       className={`${styles.tile} ${combo.weight === 0 ? styles.tileFaint : ""} ${hero ? styles.tileHero : ""}`}
       aria-label={t.tileLabel(tile.cards, parts, t.value(combo.value))}
     >
-      <span className={styles.tileFill} aria-hidden="true" style={{ blockSize: `${combo.weight > 0 ? Math.max(10, combo.weight * 100) : 10}%` }}>
-        {combo.freq.map((f, a) => (
-          <span key={a} className={actions[a].colour} style={{ blockSize: `${f * 100}%` }} />
-        ))}
-      </span>
       <span className={styles.tileHead}>
         <span className={styles.tileCards}>
           <ComboText cards={tile.cards} />
         </span>
         {hero ? <span className={styles.tileYou}>{t.you}</span> : null}
       </span>
-      <span className={styles.tileActs} aria-hidden="true">
+      <MixBar mix={combo.freq} colours={colours} thin reach={combo.weight > 0 ? combo.weight : 1} />
+      <span className={styles.tileLines} aria-hidden="true">
         {actions.map((action, a) =>
           action.hidden ? null : (
-            <span key={action.key} className={`${styles.tileAct} ${a === top ? styles.tileActTop : ""} ${combo.freq[a] < SHOWN_FREQ ? styles.tileActNone : ""}`}>
-              <span className={styles.tileActLabel}>{action.label}</span>
-              <span>{t.freq(combo.freq[a])}</span>
-              <span>{t.signedBb(combo.ev[a])}</span>
+            <span
+              key={action.key}
+              className={`${styles.tileLine} ${a === top ? styles.tileLineTop : ""} ${combo.freq[a] < SHOWN_FREQ ? styles.tileLineNone : ""}`}
+            >
+              <span>
+                {action.short} {t.freq(combo.freq[a])}
+              </span>
+              <SignedBb value={combo.ev[a]} text={t.signed(combo.ev[a])} />
             </span>
           ),
         )}

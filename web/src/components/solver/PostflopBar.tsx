@@ -1,27 +1,31 @@
 /**
- * The postflop half of the Solver library's line, laid out as the preflop
- * cards before it (PreflopBar): a card for the flop (the board, clicked to
- * change it), one card per decision taken on it, then the turn's card and its
- * decisions, then the river's - as a solver's viewer strings the whole hand
- * along one bar.
+ * The postflop half of the Solver library's action strip, after the preflop
+ * cards (PreflopBar): a card for the flop (the board, clicked to change it),
+ * one card per decision taken on it, then the turn's card and its decisions,
+ * then the river's - as a solver's viewer strings the whole hand along one
+ * bar.
  *
- * A past decision's card lists every option the seat had, the one taken
- * highlighted: its head goes back to that decision, another option takes it
- * instead. The decision to make is the highlighted card, and its options walk
- * the line on. An action that ends the street adds the next street's card,
- * whose card is picked under the bar (`DealPicker`); a dealt card is clicked
- * to pick another.
+ * A decision's card lists every option the seat had, each with its colour
+ * and its share of the range, the one taken highlighted: its head goes back
+ * to that decision, another option takes it instead. The decision to make is
+ * the highlighted card, and its options walk the line on. A locked decision
+ * (the desktop app's nodelock, `lockMark`) marks its locked options and has a
+ * lock button in its corner. An action that ends the street adds the next
+ * street's card - dashed while its card is picked under the strip
+ * (`DealPicker`), with the progress while a turn is solved here; a dealt card
+ * is clicked to pick another.
  */
 
 "use client";
 
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import type { ReactNode } from "react";
+import { SUIT_SYMBOL, type Suit } from "../../lib/cards";
 import { dealtCards, exploreHistory, exploreNode, turnDeal, type ExploreAction, type FlopChunk, type PickedFlop } from "../../lib/solver";
-import analysis from "../analysis/analysis.module.css";
 import type { FullSolve } from "./fullSolve";
 import { useSolverHost, type NodelockNode, type SolverDict } from "./host";
 import { liveTurnId } from "./liveTurn";
+import { actionColours } from "./StrategyView";
 import styles from "./solver.module.css";
 
 /** Where the walk is: the flop's solve, and on a turn that turn's solve and the flop's deal it came from. */
@@ -68,9 +72,10 @@ export function FlopCard({ board, pot, onChange, t }: { board: readonly string[]
       title={board ? t.flop.change : t.flop.pick}
       onClick={onChange}
       acting={!board}
+      flop
       t={t}
     >
-      {board ? null : <span className={styles.streetPick}>{t.flop.pick}</span>}
+      {board ? null : <span className={styles.pcardLine}>{t.flop.pick}</span>}
     </StreetCard>
   );
 }
@@ -86,6 +91,7 @@ export function PostflopCards({
   picked,
   moves,
   marks = null,
+  solving = null,
   t,
 }: {
   where: Where;
@@ -96,6 +102,8 @@ export function PostflopCards({
   moves: PostflopMoves;
   /** Where the lock marks look (the app's nodelock only), or null. */
   marks?: MarkWhere | null;
+  /** The card of `deal` being solved here (picked suits) and how far along, 0..1: the end card shows it. */
+  solving?: { card: string; share: number } | null;
   t: SolverDict;
 }) {
   const shown = (card: string) => picked.toPicked(card);
@@ -209,12 +217,40 @@ export function PostflopCards({
   );
   if (deal !== null) {
     const street = where.turn ? "river" : "turn";
-    cards.push(<StreetCard key="deal" name={t.panel.streetName(street)} pot={null} cards={null} title={t.panel.dealPick(street)} acting t={t} />);
+    cards.push(
+      <div key="deal" className={`${styles.pcard} ${styles.pcardEnd}`} data-current>
+        <span className={styles.pcardHead}>
+          {t.panel.streetName(street)}
+          <span className={styles.pcardPot}>{t.preflop.stack(dealtPot(chunk, deal))}</span>
+        </span>
+        {solving ? (
+          <>
+            <span className={styles.pcardBoard}>
+              <CardRow cards={[solving.card]} size="xs" />
+              <span className={styles.pcardQuiet}>{t.solving.short(solving.share)}</span>
+            </span>
+            <span className={styles.miniBar} aria-hidden="true">
+              <span style={{ inlineSize: `${Math.round(solving.share * 100)}%` }} />
+            </span>
+          </>
+        ) : (
+          <span className={`${styles.pcardLine} ${styles.pcardQuiet}`}>{t.solving.pickBelow}</span>
+        )}
+      </div>,
+    );
   }
   return <>{cards}</>;
 }
 
-/** One decision: the actor and their options, the one taken highlighted (none on the decision to make). */
+/** The pot once a street's betting is over at a deal: the deal's parent's pot plus what the closing call put in. */
+function dealtPot(chunk: FlopChunk, deal: number): number {
+  const node = chunk.result.nodes[deal];
+  const before = exploreNode(chunk, node.parent);
+  const action = before.actions[node.parentEdge];
+  return before.pot + (action?.kind === "call" ? before.toCall : 0);
+}
+
+/** One decision: the actor and their options with their shares, the one taken highlighted (none on the decision to make). */
 function DecisionCard({
   chunk,
   node,
@@ -239,53 +275,56 @@ function DecisionCard({
   const { nodelock } = useSolverHost();
   const mark = markAt && nodelock?.lockMark ? nodelock.lockMark(markAt) : null;
   const view = exploreNode(chunk, node);
+  const colours = actionColours(view.actions);
   const go = (action: ExploreAction) => {
     if (action.child >= 0) onNode(action.child);
     else if (dealable(chunk, action.deal)) onDeal(node, action.deal);
   };
   return (
-    <div className={`${styles.seat} ${acting ? styles.seatActing : ""}`} data-current={acting || undefined}>
+    <div className={`${styles.pcard} ${acting ? styles.pcardActing : ""} ${mark ? styles.pcardLocked : ""}`} data-current={acting || undefined}>
       <button
         type="button"
-        className={styles.seatHead}
+        className={styles.pcardHead}
         aria-pressed={acting}
-        title={taken ? t.preflop.rewind(view.position) : undefined}
+        title={taken ? t.preflop.rewind(view.position) : t.preflop.stack(chunk.result.nodes[node].behind)}
         onClick={() => onNode(node)}
       >
-        <strong>{view.position}</strong>
-        <span>{t.preflop.stack(chunk.result.nodes[node].behind)}</span>
+        {view.position}
+        <span className={styles.pcardPot}>{t.preflop.stack(view.pot)}</span>
       </button>
-      {mark ? mark.render(null) : null}
-      <div className={styles.seatOptions}>
-        {view.actions.map((action, a) => {
-          const isTaken = action.label === taken;
-          // An option no hand takes is not one to offer - unless the line took it.
-          if (!isTaken && view.totals[a].combos < 0.5) return null;
-          const open = action.child >= 0 || dealable(chunk, action.deal);
-          const ends = open ? null : action.ends === "fold" ? t.panel.ends.fold : t.panel.showdown;
-          return (
-            <button
-              key={action.label}
-              type="button"
-              className={`${styles.seatOption} ${isTaken ? styles.seatTaken : ""} ${taken !== null && !isTaken ? styles.seatAhead : ""}`}
-              aria-pressed={taken !== null ? isTaken : undefined}
-              aria-disabled={ends !== null}
-              title={ends ?? undefined}
-              onClick={() => {
-                if (ends === null) go(action);
-              }}
-            >
+      {view.actions.map((action, a) => {
+        const isTaken = action.label === taken;
+        // An option no hand takes is not one to offer - unless the line took it.
+        if (!isTaken && view.totals[a].combos < 0.5) return null;
+        const open = action.child >= 0 || dealable(chunk, action.deal);
+        const ends = open ? null : action.ends === "fold" ? t.panel.ends.fold : t.panel.showdown;
+        return (
+          <button
+            key={action.label}
+            type="button"
+            className={`${styles.opt} ${isTaken ? styles.optTaken : ""} ${taken !== null && !isTaken ? styles.optOther : ""}`}
+            aria-pressed={taken !== null ? isTaken : undefined}
+            aria-disabled={ends !== null}
+            title={ends ?? undefined}
+            onClick={() => {
+              if (ends === null) go(action);
+            }}
+          >
+            <span className={`${styles.optDot} ${colours[a]}`} aria-hidden="true" />
+            <span className={styles.optLabel}>
               {t.action(action.kind, action.sizePot, action.amount)}
               {mark?.actions.has(action.label) ? mark.render(action.label) : null}
-            </button>
-          );
-        })}
-      </div>
+            </span>
+            <span className={styles.optShare}>{t.shareOnly(view.totals[a].share)}</span>
+          </button>
+        );
+      })}
+      {mark ? mark.render(null) : null}
     </div>
   );
 }
 
-/** A street's card: its name, the pot, the card(s) dealt - or, while it is picked, an empty slot. */
+/** A street's card: its name, the pot, the card(s) dealt; clicked to pick another. */
 function StreetCard({
   name,
   pot,
@@ -293,6 +332,7 @@ function StreetCard({
   title,
   onClick,
   acting = false,
+  flop = false,
   children,
   t,
 }: {
@@ -302,21 +342,37 @@ function StreetCard({
   title: string;
   onClick?: () => void;
   acting?: boolean;
+  /** The flop's card: the anchor of the flop picker. */
+  flop?: boolean;
   children?: ReactNode;
   t: SolverDict;
 }) {
   const body = (
     <>
-      <span className={styles.streetHead}>
-        <strong>{name}</strong>
-        {pot !== null ? <span>{t.panel.pot(pot, 0)}</span> : null}
+      <span className={styles.pcardHead}>
+        {name}
+        {pot !== null ? <span className={styles.pcardPot}>{t.preflop.stack(pot)}</span> : null}
       </span>
-      {cards ? <CardRow cards={[...cards]} size="xs" /> : children ?? <span className={styles.streetSlot} aria-hidden="true" />}
+      {cards ? (
+        <span className={styles.pcardBoard}>
+          <CardRow cards={[...cards]} size="sm" />
+        </span>
+      ) : (
+        children
+      )}
     </>
   );
-  const className = `${styles.seat} ${styles.street} ${acting ? styles.seatActing : ""}`;
+  const className = `${styles.pcard} ${styles.pcardStreet} ${acting ? styles.pcardActing : ""}`;
   return onClick ? (
-    <button type="button" className={className} title={title} aria-label={title} onClick={onClick} data-current={acting || undefined}>
+    <button
+      type="button"
+      className={className}
+      title={title}
+      aria-label={title}
+      onClick={onClick}
+      data-current={acting || undefined}
+      data-flop={flop || undefined}
+    >
       {body}
     </button>
   ) : (
@@ -326,7 +382,58 @@ function StreetCard({
   );
 }
 
-/** The cards a deal can deal, under the bar while the turn (or the river) is picked. */
+const RANKS = "AKQJT98765432";
+const SUITS: readonly Suit[] = ["s", "h", "d", "c"];
+
+/** Every relabelling of the suits. */
+function suitPermutations(): Array<Record<string, string>> {
+  const out: Array<Record<string, string>> = [];
+  const walk = (left: Suit[], into: Suit[]) => {
+    if (!left.length) {
+      out.push(Object.fromEntries(SUITS.map((s, i) => [s, into[i]])));
+      return;
+    }
+    left.forEach((s, i) => walk([...left.slice(0, i), ...left.slice(i + 1)], [...into, s]));
+  };
+  walk([...SUITS], []);
+  return out;
+}
+const PERMUTATIONS = suitPermutations();
+
+/**
+ * For each card of the deck, the dealt card it plays as: itself when it is
+ * one, else one a relabelling of the suits that keeps the board takes it to
+ * (the solve deals one card of each such set). Board cards are left out.
+ */
+function playsAs(board: readonly string[], dealt: ReadonlySet<string>): Map<string, string> {
+  const onBoard = new Set(board);
+  const keeps = PERMUTATIONS.filter((p) => board.every((card) => onBoard.has(`${card[0]}${p[card[1]]}`)));
+  const out = new Map<string, string>();
+  for (const rank of RANKS) {
+    for (const suit of SUITS) {
+      const card = `${rank}${suit}`;
+      if (onBoard.has(card)) continue;
+      if (dealt.has(card)) {
+        out.set(card, card);
+        continue;
+      }
+      for (const p of keeps) {
+        const image = `${rank}${p[suit]}`;
+        if (dealt.has(image)) {
+          out.set(card, image);
+          break;
+        }
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * The next street's card, under the strip while it is picked: the deck as four
+ * rows of thirteen. A card the solve deals opens its street; a card that plays
+ * the same up to suits opens the one it plays as; the board's are off.
+ */
 export function DealPicker({
   where,
   deal,
@@ -357,20 +464,38 @@ export function DealPicker({
       .filter((x) => x.node >= 0)
       .map((x) => ({ card: x.card, go: () => onNode(x.node) }));
   }
-  options.sort((a, b) => "AKQJT98765432".indexOf(a.card[0]) - "AKQJT98765432".indexOf(b.card[0]) || a.card.localeCompare(b.card));
   if (!options.length) return null;
+  const board = (where.turn ?? where.flop).result.board.map(shown);
+  const byCard = new Map(options.map((x) => [shown(x.card), x.go]));
+  const map = playsAs(board, new Set(byCard.keys()));
   const street = where.turn ? "river" : "turn";
+  const text = (card: string) => `${card[0]}${SUIT_SYMBOL[card[1] as Suit]}`;
   return (
-    <div className={styles.dealRow} role="group" aria-label={t.panel.dealPick(street)}>
-      <p className={analysis.muted}>{t.panel.dealPick(street)}</p>
-      <div className={styles.dealCards}>
-        {options.map((x) => (
-          <button key={x.card} type="button" className={styles.dealCard} onClick={x.go} aria-label={shown(x.card)}>
-            <CardRow cards={[shown(x.card)]} size="xs" />
-          </button>
-        ))}
-      </div>
-      <p className={analysis.muted}>{t.panel.isomorphic}</p>
+    <div className={styles.deal} role="group" aria-label={t.panel.dealPick(street)} title={t.panel.isomorphic}>
+      <span className={styles.dealHead}>{t.panel.dealPick(street)}</span>
+      {SUITS.map((suit) => (
+        <div key={suit} className={styles.deckRow}>
+          {[...RANKS].map((rank) => {
+            const card = `${rank}${suit}`;
+            const as = map.get(card);
+            const go = as ? byCard.get(as) : undefined;
+            const label = !as ? (board.includes(card) ? t.panel.onBoard(text(card)) : text(card)) : as === card ? text(card) : t.panel.playsAs(text(as));
+            return (
+              <button
+                key={card}
+                type="button"
+                className={`${styles.pc} ${styles[`pc${suit.toUpperCase()}`]} ${as && as !== card ? styles.pcAlias : ""}`}
+                disabled={!go}
+                aria-label={as && as !== card ? `${text(card)}: ${label}` : label}
+                title={label}
+                onClick={go}
+              >
+                {text(card)}
+              </button>
+            );
+          })}
+        </div>
+      ))}
     </div>
   );
 }
