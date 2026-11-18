@@ -15,8 +15,8 @@
  *              (the turn or river card picker under it)
  * banner       nodelock.banner(at)
  * toolbar      [Strategy + EV | Ranges] [range mode] [filter chips] ··· nodelock.nodeAction(at) nodelock.tabTools(at)
- * body         grid                         │ panel: who acts · pot, the mix bar, a row per action (lockMark,
- *                                           │ GTO's share when comparing), then Hand | Filters
+ * body         [side] │ grid                │ panel: who acts · pot, the mix bar, a row per action (lockMark,
+ *                     │                     │ GTO's share when comparing), then Hand | Filters
  * ```
  *
  * The slot's controls should use the library's own (`ui.tsx`: `ToolButton`
@@ -48,6 +48,8 @@ export interface SolverHost {
   nodelock?: SolverNodelock;
   /** The start of the top row, before the table selector: the app's `Library | My nodelocks` switch. */
   top?: ReactNode;
+  /** A column left of the body, under the toolbar: the app's My nodelocks tree. */
+  side?: ReactNode;
   /** A link to a view, for the top row's copy button; none (no button) when the host has no address to give. */
   link?: (view: SolverView) => string | null;
 }

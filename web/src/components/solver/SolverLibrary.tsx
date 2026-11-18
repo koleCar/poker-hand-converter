@@ -153,7 +153,7 @@ export function SolverLibrary(props: SolverLibraryProps) {
 }
 
 function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTurn, initialPath, initialWalk, onView, hero = null }: SolverLibraryProps) {
-  const { t, loader, fullSolveBase, nodelock, top, link } = useSolverHost();
+  const { t, loader, fullSolveBase, nodelock, top, side, link } = useSolverHost();
   const [setId, setSetId] = useState<string>(
     initialSet && SOLVER_SETS.includes(initialSet) ? initialSet : SOLVER_SETS.includes(DEFAULT_CHART_SET) ? DEFAULT_CHART_SET : SOLVER_SETS[0],
   );
@@ -695,7 +695,14 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
       {dealPicker}
       {nodelock ? nodelock.banner(at) : null}
       {toolbar}
-      {body}
+      {side ? (
+        <div className={styles.withSide}>
+          {side}
+          <div className={styles.withSideMain}>{body}</div>
+        </div>
+      ) : (
+        body
+      )}
     </div>
   );
 }

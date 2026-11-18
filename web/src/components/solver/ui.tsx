@@ -83,12 +83,14 @@ export function IconButton({
   children,
   size = "md",
   pressed,
+  disabled,
 }: {
   label: string;
   onClick: () => void;
   children: ReactNode;
   size?: "sm" | "md";
   pressed?: boolean;
+  disabled?: boolean;
 }) {
   return (
     <button
@@ -97,6 +99,7 @@ export function IconButton({
       aria-label={label}
       title={label}
       aria-pressed={pressed}
+      disabled={disabled}
       onClick={onClick}
     >
       {children}
@@ -111,12 +114,14 @@ export function ToolButton({
   tone = "plain",
   size = "md",
   title,
+  disabled,
 }: {
   onClick: () => void;
   children: ReactNode;
   tone?: "plain" | "lock" | "primary";
   size?: "sm" | "md";
   title?: string;
+  disabled?: boolean;
 }) {
   const toneClass = tone === "lock" ? styles.toolButtonLock : tone === "primary" ? styles.toolButtonPrimary : "";
   return (
@@ -124,6 +129,7 @@ export function ToolButton({
       type="button"
       className={`${styles.toolButton} ${toneClass} ${size === "sm" ? styles.toolButtonSm : ""}`}
       title={title}
+      disabled={disabled}
       onClick={onClick}
     >
       {children}

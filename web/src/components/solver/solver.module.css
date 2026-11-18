@@ -171,7 +171,7 @@
   cursor: pointer;
 }
 
-.iconButton:hover {
+.iconButton:hover:not(:disabled) {
   border-color: var(--border-strong);
   color: var(--text-primary);
 }
@@ -205,7 +205,7 @@
   cursor: pointer;
 }
 
-.toolButton:hover {
+.toolButton:hover:not(:disabled) {
   border-color: var(--border-strong);
   background: var(--surface-hover);
 }
@@ -221,7 +221,7 @@
   color: var(--warning-fg);
 }
 
-.toolButtonLock:hover {
+.toolButtonLock:hover:not(:disabled) {
   border-color: var(--warning-fg);
   background: var(--warning-bg);
 }
@@ -232,7 +232,7 @@
   color: var(--text-on-accent);
 }
 
-.toolButtonPrimary:hover {
+.toolButtonPrimary:hover:not(:disabled) {
   border-color: var(--accent-bg-hover);
   background: var(--accent-bg-hover);
 }
@@ -241,6 +241,12 @@
   block-size: 26px;
   padding: 0 9px;
   font-size: var(--font-size-sm);
+}
+
+.iconButton:disabled,
+.toolButton:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .switch {
@@ -869,6 +875,20 @@ button.pcardHead:focus-visible {
 }
 
 /* ------------------------------------------------------------ the toolbar */
+
+/* The host's column beside the body (the app's My nodelocks tree); the body is laid out by its own width. */
+.withSide {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  min-inline-size: 0;
+}
+
+.withSideMain {
+  min-inline-size: 0;
+  container-type: inline-size;
+}
 
 .tools {
   display: flex;
