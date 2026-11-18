@@ -1,0 +1,526 @@
+/* My nodelocks (§7.1): the tree beside the open lock's solve. */
+
+.split {
+  display: grid;
+  gap: var(--space-4);
+  align-items: start;
+  min-inline-size: 0;
+}
+
+/* The tree's column: stays in view while the solve scrolls. */
+.side {
+  position: sticky;
+  top: 0;
+  display: flex;
+  min-inline-size: 0;
+  block-size: calc(100vh - 7.5rem);
+  border-inline-end: 1px solid var(--border-subtle);
+}
+
+.strip {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block-start: var(--space-1);
+}
+
+.handle {
+  flex: none;
+  inline-size: 6px;
+  margin-inline-end: -3px;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.handle:hover,
+.handle:focus-visible {
+  outline: none;
+  background: var(--border-default);
+}
+
+.solve {
+  min-inline-size: 0;
+}
+
+.pick {
+  margin: 0;
+  padding: var(--space-10) var(--space-4);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+.tree {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-inline-size: 0;
+  padding-inline-end: var(--space-2);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.toolbarGap {
+  flex: 1;
+}
+
+.tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 28px;
+  block-size: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.tool svg {
+  inline-size: 16px;
+  block-size: 16px;
+}
+
+.tool:hover,
+.tool:focus-visible {
+  outline: none;
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.tool[aria-pressed="true"] {
+  color: var(--text-primary);
+}
+
+.search {
+  inline-size: 100%;
+}
+
+.error {
+  margin: 0;
+  color: var(--danger-fg);
+  font-size: var(--font-size-sm);
+}
+
+.list {
+  flex: 1;
+  min-block-size: 0;
+  overflow: hidden auto;
+  border-radius: var(--radius-2);
+  outline: none;
+  padding-block-end: var(--space-6);
+}
+
+.dropTop {
+  box-shadow: inset 0 0 0 1px var(--accent-border);
+}
+
+.quiet {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3) var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+/* A row: one line, never wrapping. */
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  block-size: 28px;
+  padding-inline-end: var(--space-1);
+  border-radius: var(--radius-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.row:hover {
+  background: var(--surface-hover);
+}
+
+.row:focus-visible {
+  outline: 1px solid var(--accent-border);
+  outline-offset: -1px;
+}
+
+.selected {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+/* The open lock: the one shown beside the tree. */
+.opened,
+.opened:hover {
+  background: var(--surface-selected);
+  color: var(--text-on-selected);
+}
+
+.unsolved .name {
+  color: var(--text-tertiary);
+}
+
+.dragged {
+  opacity: 0.5;
+}
+
+.row[data-drop="into"] {
+  box-shadow: inset 0 0 0 1px var(--accent-border);
+  background: var(--accent-subtle);
+}
+
+.row[data-drop="before"]::before,
+.row[data-drop="after"]::after {
+  position: absolute;
+  inset-inline: var(--space-1) 0;
+  block-size: 2px;
+  border-radius: 1px;
+  background: var(--accent-bg);
+  content: "";
+}
+
+.row[data-drop="before"]::before {
+  top: -1px;
+}
+
+.row[data-drop="after"]::after {
+  bottom: -1px;
+}
+
+.twisty {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: 16px;
+  block-size: 16px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.twisty svg {
+  inline-size: 12px;
+  block-size: 12px;
+  transition: transform 0.12s ease;
+}
+
+.twistyOpen svg {
+  transform: rotate(90deg);
+}
+
+.mark {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: 16px;
+  block-size: 16px;
+  color: var(--text-tertiary);
+}
+
+.mark svg {
+  inline-size: 14px;
+  block-size: 14px;
+}
+
+.dot {
+  inline-size: 7px;
+  block-size: 7px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+}
+
+.dot[data-status="failed"] {
+  background: var(--danger-fg);
+}
+
+.dot[data-status="draft"] {
+  border: 1px solid var(--text-tertiary);
+  background: transparent;
+}
+
+.spinner {
+  inline-size: 12px;
+  block-size: 12px;
+  border: 2px solid var(--border-default);
+  border-block-start-color: var(--warning-fg);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.name {
+  flex: 1;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.renameInput {
+  flex: 1;
+  min-inline-size: 0;
+  block-size: 22px;
+  padding: 0 var(--space-1);
+  font-size: var(--font-size-sm);
+}
+
+.meta {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.opened .meta {
+  color: var(--text-on-selected);
+  opacity: 0.75;
+}
+
+.share {
+  color: var(--warning-fg);
+}
+
+.board {
+  letter-spacing: 0.02em;
+}
+
+.locks {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.locks svg {
+  inline-size: 11px;
+  block-size: 11px;
+}
+
+/* The row's `⋯`: on hover, focus, or while its row is chosen. */
+.more {
+  display: none;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: 22px;
+  block-size: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-1);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.more svg {
+  inline-size: 16px;
+  block-size: 16px;
+}
+
+.row:hover .more,
+.row:focus-within .more {
+  display: inline-flex;
+}
+
+.row:hover .meta,
+.row:focus-within .meta {
+  display: none;
+}
+
+.more:hover {
+  background: var(--surface-hover);
+}
+
+/* A child lock dragged out of its parent: refused. */
+.shake {
+  animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+  20%,
+  60% {
+    transform: translateX(-4px);
+  }
+  40%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.ghost {
+  position: fixed;
+  z-index: var(--z-tooltip);
+  max-inline-size: 16rem;
+  padding: var(--space-1) var(--space-2);
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-2);
+  background: var(--surface-overlay);
+  box-shadow: var(--shadow-2);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.ghost[data-refused] {
+  color: var(--text-tertiary);
+}
+
+/* Move to…'s folders. */
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-block-size: 20rem;
+  overflow-y: auto;
+}
+
+.pickerItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-block-size: 30px;
+  padding-inline-end: var(--space-3);
+  border: 0;
+  border-radius: var(--radius-3);
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  text-align: start;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.pickerItem svg {
+  flex: none;
+  inline-size: 14px;
+  block-size: 14px;
+  color: var(--text-tertiary);
+}
+
+.pickerItem:hover,
+.pickerItem:focus-visible {
+  outline: none;
+  background: var(--surface-hover);
+}
+
+/* A lock's full summary on hover. */
+.card {
+  position: fixed;
+  z-index: var(--z-tooltip);
+  display: grid;
+  gap: var(--space-1);
+  inline-size: max-content;
+  max-inline-size: 22rem;
+  padding: var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-3);
+  background: var(--surface-overlay);
+  box-shadow: var(--shadow-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.cardName {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.cardLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-2);
+}
+
+.cardBoard {
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.cardNode {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-link);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.cardNode:disabled {
+  color: var(--text-secondary);
+  cursor: default;
+}
+
+.cardNode:not(:disabled):hover {
+  text-decoration: underline;
+}
+
+.cardShifts {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  color: var(--text-primary);
+  list-style: none;
+}
+
+.cardMuted {
+  color: var(--text-tertiary);
+}
+
+.dialogBody {
+  margin: 0 0 var(--space-4);
+  color: var(--text-secondary);
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.dangerSolid {
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner,
+  .shake {
+    animation: none;
+  }
+}

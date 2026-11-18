@@ -618,7 +618,7 @@ All strings are EN + HR in the app's i18n.
   - `editor/state.ts`: the pure reducer (`tests/test/appNodelockEditor.test.ts`);
   - `spot.ts`: the decision read off the chunk, the lock's address, the
     suggestions' context;
-  - `Editor.tsx`, `slot.tsx` (action and banners), `History.tsx`,
+  - `Editor.tsx`, `slot.tsx` (action and banners), `History.tsx` (since v2 the tree, §7.1),
     `SidebarNodelock.tsx` (progress and "ready" on every screen);
   - `session.ts`: the open editor, the one running solve, the notice, the
     lock being shown;
@@ -708,6 +708,47 @@ nodes with GTO → locked shifts, accuracy, time, engine, date.
   lock deletes its whole branch; deleting a folder deletes everything in it.
   A lock that is solving is cancelled first.
 - Expanded folders and the tree width persist (localStorage).
+
+#### As built (U1)
+
+- **Files** (`app/src/solver/nodelock/tree/`):
+  - `model.ts`, pure (`tests/test/appNodelockTree.test.ts`): `buildTree`
+    (folders, root locks by `folder_id`, children by `parent_id`; siblings by
+    `sort`, then folders first, then id, as the store; orphans and cycles go to the top
+    level), `visibleRows`, `filterTree` (every word, any case; matches keep
+    their ancestors), `rangeKeys`, `topmost`, `deleteArgs`, `locksUnder`,
+    `canMove` / `planDrop` (the drop rules), `folderHere`, `folderChoices`,
+    `boardCards`. Row keys are `f:<id>` / `l:<id>`.
+  - `NodelockTree.tsx`: the tree, toolbar, menu, rename, delete confirm;
+    `HoverCard.tsx`: the row's summary; `NodelockSplit.tsx`: the two
+    columns, resize handle and hidden strip; `persist.ts`: localStorage
+    (`rail.nodelockTree.open` / `.width` / `.hidden`, try/catch).
+  - `History.tsx` is gone; `SolverTabs` moved to `SolverTabs.tsx`.
+- **Drag** is pointer-based, not HTML drag and drop (a webview can take that
+  for file drops). A folder row splits top 25 % before / middle into /
+  bottom 25 % after (an open folder: no "after", it means into); a lock row
+  splits in halves. Held 0.7 s over a closed folder, it opens. A child lock
+  chosen together with its root moves with the branch; alone it is refused
+  and shakes. A drop that changes nothing is no drop.
+- **Moves** go through `nodelockData.move`: `before` an item, no anchor for
+  the top of the folder, and S2's `after` anchor (the last item that stays)
+  for its end. A new folder is saved with a `sort` below its siblings' (the
+  top) and opens for renaming.
+- **Delete** sends the topmost chosen rows (`deleteArgs`) to
+  `nodelockFolderDelete` and `nodelockDelete`; the question's counts are
+  `nodelockDeletePreview`'s (`locks + descendants` nodelocks, `folders`,
+  `descendants` "built on them"), or the tree's own count if the preview
+  fails. A lock solving in the branch is cancelled first and the delete waits
+  until the session has saved its `cancelled` row, so the save cannot bring
+  the row back.
+- **Rows.** The running solve (`useNodelockSession().running`): spinner and
+  `%`. Failed: red dot; cancelled / an old `solving`: grey dot; draft:
+  hollow. Solved: nothing. Queued solves have no row yet (the session saves a
+  row when a solve starts), so they show only in the sidebar.
+- **Open lock.** Clicking a solved lock calls `openLock`; the route's lock is
+  selected and its ancestors opened once (they can be closed again). The
+  right side is `OpenLock` as before, keyed by the lock id; with nothing
+  open, one quiet line.
 
 ### 7.2 No banner
 

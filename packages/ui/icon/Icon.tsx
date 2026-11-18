@@ -218,6 +218,21 @@ const PATHS = {
       <path d="M21 20H3" />
     </>
   ),
+  folder: <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />,
+  folderPlus: (
+    <>
+      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <path d="M12 10v6" />
+      <path d="M9 13h6" />
+    </>
+  ),
+  /** Collapse all: two chevrons meeting. */
+  collapseAll: (
+    <>
+      <path d="m7 4 5 5 5-5" />
+      <path d="m7 20 5-5 5 5" />
+    </>
+  ),
   chevronLeft: <path d="m15 18-6-6 6-6" />,
   chevronRight: <path d="m9 18 6-6-6-6" />,
 } as const;

@@ -10,8 +10,9 @@
  * solved on this computer, under two tabs:
  *
  * - Library: always the clean solve, with the Nodelock action on a decision.
- * - My nodelocks: the list (`#/solver/locks`), and a solved lock opened on
- *   its spot (`#/solver/lock=<id>&set=…`): the locked solution, its banner.
+ * - My nodelocks: the tree of the user's locks on the left (§7.1), and beside
+ *   it the open lock on its spot (`#/solver/lock=<id>&set=…`), or one quiet
+ *   line when none is open (`#/solver/locks`).
  */
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -21,7 +22,6 @@ import { replaceParam, useRouteParam } from "../lib/router";
 import { SolverHostProvider, SolverLibrary, type SolverView } from "../solver/door";
 import { useSolverHost } from "../solver/host";
 import { Editor } from "../solver/nodelock/Editor";
-import { History, SolverTabs } from "../solver/nodelock/History";
 import styles from "../solver/nodelock/nodelock.module.css";
 import {
   LOCKS_PARAM,
@@ -33,14 +33,18 @@ import {
   type ActiveLock,
 } from "../solver/nodelock/session";
 import { useNodelockSlot } from "../solver/nodelock/slot";
+import { SolverTabs } from "../solver/nodelock/SolverTabs";
+import { NodelockSplit } from "../solver/nodelock/tree/NodelockSplit";
+import treeStyles from "../solver/nodelock/tree/tree.module.css";
 import { parseSolverParam, solverParam } from "../solver/param";
 
 /** The library's last view, for the switch back from My nodelocks. */
 let lastView: string | null = null;
-/** My nodelocks' last place (the list, or a lock open on its spot), for the switch back from the library. */
+/** My nodelocks' last place (nothing open, or a lock open on its spot), for the switch back from the library. */
 let lastLocks: string = LOCKS_PARAM;
 
 export function Solver() {
+  const t = useT().nodelock;
   const param = useRouteParam();
   const session = useNodelockSession();
   const base = useSolverHost();
@@ -52,7 +56,13 @@ export function Solver() {
   return (
     <div className={styles.screen}>
       <SolverTabs locks={locks} libraryParam={lastView} locksParam={lastLocks} solving={session.running !== null} />
-      {lockId ? <OpenLock id={lockId} /> : locks ? <History libraryParam={lastView} /> : <Library key={session.opened} lock={null} />}
+      {locks ? (
+        <NodelockSplit openId={lockId}>
+          {lockId ? <OpenLock key={lockId} id={lockId} /> : <p className={treeStyles.pick}>{t.tree.pick}</p>}
+        </NodelockSplit>
+      ) : (
+        <Library key={session.opened} lock={null} />
+      )}
       {session.editor ? <Editor open={session.editor} solverT={base.t} /> : null}
     </div>
   );
