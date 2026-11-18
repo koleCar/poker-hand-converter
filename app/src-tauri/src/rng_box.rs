@@ -531,8 +531,9 @@ pub fn rng_box_save_frame<R: Runtime>(app: AppHandle<R>) -> Result<RngSettings, 
 
 /// Settings' "Reposition": the box in the middle of the primary monitor,
 /// unlocked, to be dragged where the user wants it. The new settings.
+/// `async` because it may open the box ([`rng_box_preview`] says why).
 #[tauri::command]
-pub fn rng_box_reposition<R: Runtime>(
+pub async fn rng_box_reposition<R: Runtime>(
     app: AppHandle<R>,
     window: tauri::Window<R>,
 ) -> Result<RngSettings, String> {
@@ -550,10 +551,22 @@ pub fn rng_box_reposition<R: Runtime>(
 
 /// Settings' RNG section came on screen (`true`) or went: while on screen
 /// the box shows (the switch on), to be styled and placed.
+///
+/// `async`, never a plain command: a plain one runs on the main thread
+/// inside WebView2's message handler, where [`refresh`] runs at once and
+/// builds the box's window - on Windows that deadlocks (the Tauri
+/// `WebviewWindowBuilder::build` note), and the app hangs as Settings
+/// opens. Off the main thread, `refresh` queues the window for the event
+/// loop instead.
 #[tauri::command]
-pub fn rng_box_preview<R: Runtime>(app: AppHandle<R>, state: State<'_, RngBoxState>, on: bool) {
+pub async fn rng_box_preview<R: Runtime>(
+    app: AppHandle<R>,
+    state: State<'_, RngBoxState>,
+    on: bool,
+) -> Result<(), String> {
     state.preview.store(on, Ordering::SeqCst);
     refresh(&app);
+    Ok(())
 }
 
 /// The panel's top-left corner beside the box (`frame`), in the work area
