@@ -59,6 +59,7 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 20 | `0020_leak_row_table.sql` | no schema change: a flop, turn or river `analysis_leak_rows.chart_set` is now its hand's table (the web's `analysis_hand_table_set`, 20271102090000); **filled in the migration's transaction** for the rows stored before (`table_set::fill_leak_table_sets`: SQL cannot read the compressed PHF; one read of each hand with a postflop row and no set), rows whose hand no set answers keep `''`; nothing re-analysed |
 | 22 | `0022_hud_settings.sql` | (T3) `hud_settings`: the user's table tiling and RNG settings (one JSON object per kind and key, synced like the designs); empty, nothing to rebuild |
 | 24 | `0024_node_locks.sql` | (docs/NODELOCK.md §3) `node_locks` and its indexes `node_locks_updated`, `node_locks_spot`: the user's nodelocks, solved on this computer, **never synced**; empty, nothing to rebuild |
+| 25 | `0025_node_lock_tree.sql` | (docs/NODELOCK.md §7.5) the My nodelocks tree: `node_lock_folders` and `node_lock_folders_parent`; `node_locks.folder_id`, `parent_id`, `sort` and `node_locks_parent`, `node_locks_folder`. Existing rows: no folder, no parent, `sort` = -`updated_at` (newest first); **never synced** |
 
 No migration is reserved for a later step today; each lands as the next
 free number.
@@ -1165,7 +1166,7 @@ runner grades them again with the new settings.
 | `Reader::top_leaks(version, filters, period)` (`rail_store::leaks`) | the top three's sums over `analysis_leak_rows` (the web's `analysis_top_leaks`): per spot key and chart set the decisions, those worse than Perfect, the mistakes, the EV lost and the score's sum and sum of squares - a postflop spot also per pot (`pot`: `3bp`, `4bp`, the web's `analysis_leaks`) - for the period (`30d` or `all`), the last 30 days of play and the 30 before (UTC days back from the last graded hand); filters: format, the hero's seat, pot type |
 | `Reader::leak_examples(version, filters, days, keys, scope, limit)` | the decisions behind one leak (`analysis_leak_examples`): worse than Perfect at any of its spot keys (at most 200), on its table and pot (`LeakScope`: `hu` / `9max` / `other`, `3bp` / `4bp` / `other`; none: every one), costliest first, at most 30, with the hand's stakes and cards |
 
-## Nodelocks (version 24, docs/NODELOCK.md §3)
+## Nodelocks (version 24, docs/NODELOCK.md §3; the tree: version 25, §7.5)
 
 The user's nodelocks: a lock on a Solver-library spot, solved on this
 computer (the app's worker or native engine) and **kept here only**.
@@ -1191,9 +1192,34 @@ so).
 | `engine`, `threads`, `iterations`, `exploitability_pct`, `seconds`, `peak_mb` | TEXT / INTEGER / REAL NULL | how the solve ran |
 | `summary_json` | TEXT NULL | the list's headline numbers (JSON; not read here) |
 | `result` | BLOB NULL | the locked solve's chunk (~100 KB; at most 64 MiB) |
+| `folder_id` | TEXT NULL | (25) a root lock's folder (`node_lock_folders.id`, no foreign key); NULL: the top level, and always for a child |
+| `parent_id` | TEXT NULL | (25) the lock this one is built on (§7.4; no foreign key, so a version-24 store opens unchanged); NULL: on the library. Set by the first save, never changed |
+| `sort` | REAL | (25) its place in its list, ascending (default 0; migrated rows -`updated_at`) |
 
-Index `node_locks_updated` (`updated_at` DESC) for the history, and
-`node_locks_spot` (`set_id`, `line`, `flop`) for one spot's.
+Index `node_locks_updated` (`updated_at` DESC) for the history,
+`node_locks_spot` (`set_id`, `line`, `flop`) for one spot's, and (25)
+`node_locks_parent`, `node_locks_folder` for the tree.
+
+### `node_lock_folders` (25)
+
+| Column | Type | |
+| --- | --- | --- |
+| `id` | TEXT | PK; a uuid v4 (the app makes it) |
+| `name` | TEXT | 1 - 200 characters, trimmed (checked by the writer) |
+| `parent_id` | TEXT NULL | the folder it sits in (FK, `ON DELETE CASCADE`); NULL: the top level |
+| `sort` | REAL | its place in its list, ascending |
+| `created_at`, `updated_at` | INTEGER | ms; `updated_at` the last save or move |
+
+Index `node_lock_folders_parent` (`parent_id`).
+
+**The tree.** A list is either a folder's subfolders and root locks
+together (`parent_id IS ?` on the folders, `parent_id IS NULL AND
+folder_id IS ?` on the locks; NULL: the top level) or one lock's children
+(`node_locks.parent_id = ?`). Each is ordered by `sort` ascending (ties:
+folders first, then id). `sort` is a fractional index: a move takes the
+gap between its neighbours; when a gap would get below 1e-6 (or a double
+cannot split it, as between the migrated ~1e12 values), the list is
+renumbered 0, 1, 2, ... in one transaction.
 
 A row still `solving` when the store opens was cut off by the app's last
 exit: `Store::open` makes it `cancelled` (`node_locks::cancel_solving`,
@@ -1205,5 +1231,11 @@ exit: `Store::open` makes it `cancelled` (`node_locks::cancel_solving`,
 | `Reader::node_lock(id)` | one row with its chunk |
 | `WriterHandle::save_node_lock(row, now)` | insert or replace the whole row, `result` included (none clears it); keeps the first `created_at` |
 | `WriterHandle::rename_node_lock(id, name, now)` | the name; `updated_at` = now |
-| `WriterHandle::delete_node_locks(ids)` | many in one transaction; unknown ids skipped |
+| `WriterHandle::save_node_lock(row, now)` (25) | a new row's place: under `parent_id` (must exist, else refused) or, for a root, in `folder_id` (unknown: the top level), at the top of its list; a later save keeps `folder_id`, `parent_id`, `sort` |
+| `WriterHandle::delete_node_locks(ids)` | many in one transaction, (25) each with its branch (every lock down `parent_id`); unknown ids skipped; returns the rows deleted |
+| `Reader::node_lock_folders()` (25) | every folder, by parent then `sort` |
+| `WriterHandle::save_node_lock_folder(input, now)` (25) | insert or update (name, parent, sort; no sort: the top of a new list, else kept); refuses a parent that is unknown, the folder itself or inside it |
+| `WriterHandle::move_node_locks(items, to, now)` (25) | root locks and folders into `to.folder_id`, before `to.before`, else after `to.after`, else at the top; false and nothing changed for a child lock, a folder into its own subtree, an unknown item, target or anchor |
+| `WriterHandle::delete_node_lock_folders(ids)` (25) | the folders, their subfolders, every lock in them and their branches, in one transaction; returns `{ folders, locks }` |
+| `Reader::node_lock_delete_preview(locks, folders)` (25) | what the two deletes would take: `{ folders, locks, descendants }` (`descendants`: deleted locks whose parent is deleted too) |
 

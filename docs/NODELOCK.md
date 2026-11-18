@@ -887,6 +887,47 @@ nodelockDeletePreview(locks: string[], folders: string[]): Promise<{ folders: nu
 `nodelockSave` takes `parent_id` (and `folder_id` for a root); `nodelockMove`
 refuses a child lock, a folder into its own subtree, and returns false.
 
+**As built (S2).** `rail_store::node_locks` (`NodeLockFolder`,
+`NodeLockItem`, `NodeLockPlace`, `NodeLockDeleted`, `NodeLockDeletePreview`),
+commands in `app/src-tauri/src/nodelock_store.rs` (all `async`), wrappers
+and types in `ipc.ts` as above; `core/rail-store/SCHEMA.md`. Where it
+differs from or adds to the spec:
+- **The place is the first save's.** `nodelockSave` reads `parent_id` /
+  `folder_id` for a **new** row only and puts it at the **top** of its list;
+  a later save of the same id (the solve's end, an edit) keeps `folder_id`,
+  `parent_id` and `sort` as stored, whatever it sends, so a move made while a
+  lock solves is not undone. `sort` is ignored on a save. In `NodeLockInput`
+  `parent_id` and `folder_id` are **optional** (absent: a root on the top
+  level), so a v1 caller still type-checks.
+- A new row whose `parent_id` does not exist is **refused** (an error): a
+  branch deleted while its solve ran is not brought back as an orphan. A
+  child's `folder_id` is always stored NULL. An unknown `folder_id` puts a
+  new root on the top level.
+- **One list per folder:** a folder's subfolders and root locks share one
+  `sort` space (ties: folders first, then id), so a move's anchor can be
+  either kind. A lock's children are a list of their own.
+- `nodelockMove(items, to)`: `to` also takes `after?: { kind, id } | null`
+  (used when `before` is absent), so a drop below the last row can say so;
+  neither: the **top** of the folder. Several items land together in the
+  given order. Besides a child lock and a folder into its own subtree, it
+  returns false (nothing changed) for an unknown item, target folder or
+  anchor, an anchor that is not in the target folder or is being moved, or
+  no items. A moved folder's `updated_at` changes, a moved lock's does not.
+- **Renumbering**: also when a double cannot split the gap, not only below
+  1e-6: migrated sorts are ~-1.7e12, where a double steps by ~2e-4, so a
+  dozen halvings between two of them would collide first. The list becomes
+  0, 1, 2, … in the move's transaction.
+- `nodelockFolderSave` rejects (an error, not false) a name that is empty or
+  over 200 characters, a parent that is unknown, the folder itself or inside
+  it. No `sort`: the top of the list for a new folder or one that changes
+  parent, else where it was. An extra index `node_lock_folders_parent`.
+- `nodelockDeletePreview` counts: `folders` (subfolders included), `locks`
+  (each deleted lock whose parent is not deleted) and `descendants` (the
+  rest); `locks + descendants` is what `nodelockDelete` /
+  `nodelockFolderDelete` return as rows. `nodelockFolderDelete` returns
+  `locks` as every lock row, branches included.
+- `nodelockList` still orders by `updated_at`; the tree sorts by `sort`.
+
 ### 7.6 Workstreams (v2 agents)
 
 Each in its own worktree from `origin/prestaging`, local checks for what it

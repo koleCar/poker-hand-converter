@@ -1594,13 +1594,13 @@ fn an_omaha_hand_from_the_web_is_told_apart_without_reading_it() {
     assert!(!is_omaha(&json!("not a hand")));
 }
 
-/// (docs/NODELOCK.md §3) The user's nodelocks never leave this computer:
-/// with one saved - chunk and all - a full round of sync (the hands, the
-/// HUD's rows, a pull) sends nothing of it in any request, and leaves the
-/// row as it was.
+/// (docs/NODELOCK.md §3, §7.5) The user's nodelocks never leave this
+/// computer: with one saved - chunk and all, in a folder of My nodelocks -
+/// a full round of sync (the hands, the HUD's rows, a pull) sends nothing
+/// of it in any request, and leaves the row and the folder as they were.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn nodelocks_are_never_synced() {
-    use rail_store::{NodeLockRow, NodeLockStatus, NodeLockStreet};
+    use rail_store::{NodeLockFolderInput, NodeLockRow, NodeLockStatus, NodeLockStreet};
 
     const MARK: &str = "nodelock-never-synced-7f3a";
     let server = Arc::new(Server::default());
@@ -1611,6 +1611,17 @@ async fn nodelocks_are_never_synced() {
     let writer = store.writer().unwrap();
     writer
         .save_hud_layout("d-0001", r#"{"version":1,"name":"Mine"}"#)
+        .unwrap();
+    writer
+        .save_node_lock_folder(
+            NodeLockFolderInput {
+                id: format!("folder-{MARK}"),
+                name: format!("Folder {MARK}"),
+                parent_id: None,
+                sort: None,
+            },
+            rail_store::time::now_ms(),
+        )
         .unwrap();
     writer
         .save_node_lock(
@@ -1639,12 +1650,20 @@ async fn nodelocks_are_never_synced() {
                 summary_json: Some(format!(r#"{{"mark":"{MARK}"}}"#)),
                 result: Some(MARK.as_bytes().to_vec()),
                 result_size: None,
+                folder_id: Some(format!("folder-{MARK}")),
+                parent_id: None,
+                sort: 0.0,
             },
             rail_store::time::now_ms(),
         )
         .unwrap();
     drop(writer);
     let before = store.reader().node_lock(MARK).unwrap().unwrap();
+    let folders = store.reader().node_lock_folders().unwrap();
+    assert_eq!(
+        before.folder_id.as_deref(),
+        Some(&*format!("folder-{MARK}"))
+    );
     let rig = Rig::start(
         Arc::clone(&server),
         &url,
@@ -1682,6 +1701,11 @@ async fn nodelocks_are_never_synced() {
     }
     let after = rig.store().reader().node_lock(MARK).unwrap().unwrap();
     assert_eq!(after, before, "the row is as it was");
+    assert_eq!(
+        rig.store().reader().node_lock_folders().unwrap(),
+        folders,
+        "the folders are as they were"
+    );
     rig.stop().await;
 }
 
