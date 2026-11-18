@@ -146,6 +146,16 @@ export function NodelockTree({ openId, onHide }: { openId: string | null; onHide
     if (!up.every((key) => open.has(key))) setOpen(new Set([...open, ...up]));
   }
 
+  // A solve that starts opens its branch once, so its row (and progress) shows under its parent.
+  const runningId = session.running?.id ?? null;
+  const revealedRun = useRef<string | null>(null);
+  useEffect(() => {
+    if (!runningId || revealedRun.current === runningId || !tree.byKey.has(`l:${runningId}`)) return;
+    revealedRun.current = runningId;
+    const up = ancestors(tree, `l:${runningId}`);
+    setOpen((was) => (up.every((key) => was.has(key)) ? was : new Set([...was, ...up])));
+  }, [runningId, tree]);
+
   // Keyboard moves bring the focused row into view and focus.
   useEffect(() => {
     if (!focusRow.current || !focus) return;

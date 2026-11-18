@@ -230,7 +230,8 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
     const started = await startSolve({ at, lockSet, name, preset: state.preset, summary, ...(plan ? { plan } : {}) }).finally(() => setSubmitting(false));
     if (started === "noEngine" || started === "failed") setMessage(started === "noEngine" ? t.noEngine : t.startError);
     // The library stays the clean solve: the lock's progress, then the lock, are in My nodelocks.
-    else go("solver", LOCKS_PARAM);
+    // Inside an open lock the view stays where it is; the new lock's row shows under it in the tree.
+    else if (!open.within) go("solver", LOCKS_PARAM);
   };
 
   /* ------------------------------------------------------------- pieces - */
