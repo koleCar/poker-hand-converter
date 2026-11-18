@@ -1518,8 +1518,17 @@ button.pcardHead:focus-visible {
   display: grid;
   gap: 10px;
   align-content: start;
+  align-items: start;
   min-inline-size: 0;
   font-size: var(--font-size-sm);
+}
+
+/* The group picker and its list stay one column when the numbers wrap into several. */
+.statGroup {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  min-inline-size: 0;
 }
 
 .statTable {

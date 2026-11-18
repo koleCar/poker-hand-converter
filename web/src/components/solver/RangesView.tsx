@@ -210,17 +210,19 @@ export function RangesView({
           ))}
         </div>
         <EquityCurves data={data} masks={masks} />
-        <select className={styles.modeSelect} aria-label={t.ranges.groupPick} value={shownGroup} onChange={(event) => setGroup(event.target.value as Group)}>
-          {groups.map((g) => (
-            <option key={g.group} value={g.group}>
-              {t.ranges.groups[g.group]}
-            </option>
-          ))}
-        </select>
-        <div className={`${styles.statTable} ${styles.statList}`}>
-          {categories.map((row) => (
-            <StatRow key={row.id} label={filterLabel(row.id, t)} left={t.ranges.share(row.a)} right={t.ranges.share(row.b)} a={row.a} b={row.b} />
-          ))}
+        <div className={styles.statGroup}>
+          <select className={styles.modeSelect} aria-label={t.ranges.groupPick} value={shownGroup} onChange={(event) => setGroup(event.target.value as Group)}>
+            {groups.map((g) => (
+              <option key={g.group} value={g.group}>
+                {t.ranges.groups[g.group]}
+              </option>
+            ))}
+          </select>
+          <div className={`${styles.statTable} ${styles.statList}`}>
+            {categories.map((row) => (
+              <StatRow key={row.id} label={filterLabel(row.id, t)} left={t.ranges.share(row.a)} right={t.ranges.share(row.b)} a={row.a} b={row.b} />
+            ))}
+          </div>
         </div>
       </section>
     </div>
