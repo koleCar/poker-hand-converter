@@ -19,12 +19,15 @@ const EDGE = 8;
 
 export function HoverCard({
   row,
+  progress = null,
   anchor,
   onGo,
   onEnter,
   onLeave,
 }: {
   row: NodeLockRow;
+  /** The solve running on this row, in words (`progressLine`), or null. */
+  progress?: string | null;
   /** The row's box, in the window's pixels. */
   anchor: DOMRect;
   /** Opens the lock on its locked spot. */
@@ -99,7 +102,7 @@ export function HoverCard({
           {t.solvedTo(row.exploitability_pct, row.seconds, row.engine ? (t.engines[row.engine] ?? row.engine) : "")}
         </div>
       ) : (
-        <div className={styles.cardMuted}>{t.status[row.status] ?? row.status}</div>
+        <div className={progress ? styles.cardProgress : styles.cardMuted}>{progress ?? t.status[row.status] ?? row.status}</div>
       )}
       <div className={styles.cardMuted}>{DATE.format(row.created_at)}</div>
     </div>

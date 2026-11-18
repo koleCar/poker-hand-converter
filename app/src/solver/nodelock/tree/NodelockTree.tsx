@@ -12,6 +12,8 @@
  *   the drop is refused and the row shakes.
  * - Right-click or the row's `⋯`: Open, Rename, New folder here, Move to…,
  *   Duplicate and edit, Delete. The toolbar: New folder, Search, Collapse all.
+ * - The solve running shows on its row (a bar, its progress on hover); the
+ *   solves waiting after it are listed under the tree.
  *
  * The pure part (the tree, search, drop rules) is `./model.ts`.
  */
@@ -22,7 +24,9 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 
 import { useT } from "../../../i18n";
 import { go } from "../../../lib/router";
+import { solverStyles, ToolButton } from "../../door";
 import { nodelockData, onNodelocksChanged, type NodeLockFolder, type NodeLockRow } from "../data";
+import { progressLine } from "../progress";
 import { boardText, cancelSolve, editLock, LOCKS_PARAM, nodelockSession, openLock, parseRow, useNodelockSession } from "../session";
 import { HoverCard } from "./HoverCard";
 import {
@@ -681,7 +685,7 @@ export function NodelockTree({ openId, onHide }: { openId: string | null; onHide
           {node.kind === "folder" ? (
             <Icon name="folder" />
           ) : solving ? (
-            <span className={styles.spinner} aria-label={tt.solving(running?.share ?? null)} />
+            <span className={styles.spinner} role="img" aria-label={tt.solving(running?.share ?? null)} />
           ) : status && status !== "solved" ? (
             <span className={styles.dot} data-status={status} />
           ) : null}
@@ -741,6 +745,14 @@ export function NodelockTree({ openId, onHide }: { openId: string | null; onHide
           >
             <Icon name="more" />
           </button>
+        ) : null}
+        {solving && running ? (
+          <span className={styles.rowBar} title={progressLine(t, running)} aria-hidden="true">
+            <span
+              className={running.share === null ? styles.rowFillBusy : styles.rowFill}
+              style={running.share === null ? undefined : { inlineSize: `${running.share * 100}%` }}
+            />
+          </span>
         ) : null}
       </div>
     );
@@ -824,9 +836,9 @@ export function NodelockTree({ openId, onHide }: { openId: string | null; onHide
         {loaded.status === "loading" ? null : loaded.status === "error" ? (
           <div className={styles.quiet}>
             <span>{t.loadError}</span>
-            <button type="button" className="btn btn--sm btn--ghost" onClick={() => setAttempt((n) => n + 1)}>
+            <ToolButton size="sm" onClick={() => setAttempt((n) => n + 1)}>
               {t.retry}
-            </button>
+            </ToolButton>
           </div>
         ) : empty ? (
           <p className={styles.quiet}>{tt.none}</p>
@@ -836,6 +848,21 @@ export function NodelockTree({ openId, onHide }: { openId: string | null; onHide
           <p className={styles.quiet}>{tt.noMatch}</p>
         )}
       </div>
+      {session.queue.length ? (
+        <ul className={styles.queue} aria-label={tt.queued}>
+          {session.queue.map((request, index) => (
+            <li key={index} className={styles.queueRow} title={tt.queued}>
+              <span className={styles.mark}>
+                <span className={styles.dot} data-status="queued" />
+              </span>
+              <span className={styles.name}>{request.name}</span>
+              <span className={styles.meta}>
+                <span className={styles.board}>{boardText(request.at.board)}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
 
       {drag ? (
         <div className={styles.ghost} style={{ top: drag.y + 12, left: drag.x + 12 }} data-refused={drag.at && !drag.landing ? "" : undefined}>
@@ -850,6 +877,7 @@ export function NodelockTree({ openId, onHide }: { openId: string | null; onHide
       {hovered?.kind === "lock" && hover && !drag && !menu ? (
         <HoverCard
           row={hovered.item}
+          progress={running?.id === hovered.id ? progressLine(t, running) : null}
           anchor={hover.rect}
           onGo={() => {
             setHover(null);
@@ -876,10 +904,10 @@ export function NodelockTree({ openId, onHide }: { openId: string | null; onHide
             {deleting.solving ? ` ${tt.deleteSolving}` : ""}
           </p>
           <div className={styles.dialogActions}>
-            <button type="button" className="btn" disabled={busy} onClick={() => setDeleting(null)}>
+            <ToolButton disabled={busy} onClick={() => setDeleting(null)}>
               {t.keep}
-            </button>
-            <button type="button" className={`btn ${styles.dangerSolid}`} disabled={busy} onClick={() => void confirmDelete()}>
+            </ToolButton>
+            <button type="button" className={`${solverStyles.toolButton} ${styles.danger}`} disabled={busy} onClick={() => void confirmDelete()}>
               {busy ? t.deleting : t.delete}
             </button>
           </div>
