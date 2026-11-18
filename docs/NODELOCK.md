@@ -545,7 +545,13 @@ As built (workstream S):
     place of the library chunk.
 
 ### 5.2 The editor
-A full-screen overlay laid out like GTOW's.
+A full-screen overlay laid out like GTOW's. Since the Studio restyle
+(2026-11-18, SV-A / NE-A) it sits over the library under its action strip
+(the line stays in view), the grid on the left and Set strategy in the
+library's panel on the right, a slim bar at the bottom; the controls are the
+library's (`Segmented`, `ToolButton`), each action a slider with GTO's tick.
+With the native engine the bar says about how long the solve takes
+(`≈`: a flop game ~75 s at 1 %, a turn game ~3 s, × (1 / accuracy)^0.75).
 
 - **Left: Set strategy.**
   - Modes **Hands / Range / Hand classes**.

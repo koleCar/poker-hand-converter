@@ -1,14 +1,15 @@
 /**
- * The nodelock editor (`docs/NODELOCK.md` §5.2), laid out like GTO Wizard's,
- * in Rail's own look: a full-window overlay.
+ * The nodelock editor (`docs/NODELOCK.md` §5.2), in the Solver library's
+ * look ("Studio", SV-A; NE-A): over the library under its action strip, so
+ * the line being locked stays in view above it.
  *
  * ```
- * ┌ board · who acts · pot ─────────────────────────── Undo Redo Reset  × ┐
- * │ Set strategy                  │ Range | Hand classes | Combos  ⊞ ⊟ ⇄ │
- * │  Hands | Range | Hand classes │ current strategy, GTO ticks           │
- * │  sliders / brush / classes    │ 13×13 grid (paint, lock badges)       │
- * │  Suggestions (opponent types) │ or the classes, or one hand's combos  │
- * ├ Lock earlier nodes · Accuracy ─────── engine line · Solve on this computer ┤
+ * ┌ 🔒 BB to act · board · pot ·········· 312 of 1,081 locked  ↶ ↷ Reset × ┐
+ * │ [Range | Hand classes | Combos] ··· Lock all … │ [Range | Hands | Hand classes] │
+ * │ the range's mix, GTO's ticks                   │ an action per row: a slider    │
+ * │ 13×13 grid (paint, lock badges)                │ with GTO's tick, the typed %,  │
+ * │ or the classes, or one hand's combos           │ hold; Suggestions              │
+ * ├ Earlier nodes [..] · Accuracy [..] · the plan, the engine · ≈ time [Solve] ┤
  * ```
  *
  * The state is `editor/state.ts`'s reducer; this file draws it and turns the
@@ -16,7 +17,7 @@
  */
 import { Icon } from "@rail/ui/icon/Icon";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
-import { useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
 import { useLocale, useT } from "../../i18n";
 import { go } from "../../lib/router";
@@ -26,11 +27,17 @@ import {
   ComboText,
   DRAWS,
   HAND_CLASSES,
+  IconButton,
   liveTurnId,
+  LockGlyph,
   MADE_HANDS,
+  MixBar,
   nodelockSuggestEn,
   nodelockSuggestHr,
+  Segmented,
+  solverStyles,
   suggestLocks,
+  ToolButton,
   type Archetype,
   type NodelockSuggestion,
   type SolverDict,
@@ -70,6 +77,55 @@ function mixOf(target: LockTarget, state: EditorState, hands: readonly number[])
   return { mix: reach > 0 ? mix.map((x) => x / reach) : mix, reach };
 }
 
+/**
+ * Where the editor sits: under the library's action strip, across its width,
+ * to the window's bottom; the whole window when the strip is not on screen
+ * or leaves too little room under it.
+ */
+function useFrame(): CSSProperties {
+  const [frame, setFrame] = useState<CSSProperties>({});
+  useLayoutEffect(() => {
+    const measure = () => {
+      const strip = document.querySelector(`.${CSS.escape(solverStyles.stripBox)}`);
+      const box = strip?.getBoundingClientRect();
+      const top = box ? Math.max(8, Math.round(box.bottom + 6)) : 0;
+      if (!box || window.innerHeight - top < 460) {
+        setFrame({});
+        return;
+      }
+      setFrame({
+        "--editor-top": `${top}px`,
+        "--editor-left": `${Math.max(8, Math.round(box.left))}px`,
+        "--editor-right": `${Math.max(8, Math.round(window.innerWidth - box.right))}px`,
+      } as CSSProperties);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+  return frame;
+}
+
+/**
+ * About how long the solve takes, in seconds, with the native engine (the
+ * workers' pace depends too much on the computer to say): a flop game ≈ 75 s
+ * at 1 % of the pot, a turn game on the flop's result ≈ 3 s, each scaled by
+ * (1 / accuracy)^0.75. Null for the workers, or before the engine is known.
+ */
+function estimateSeconds(info: EngineInfo | null, game: "flop" | "turn", accuracy: number): number | null {
+  if (info?.kind !== "native" || !(accuracy > 0)) return null;
+  return (game === "flop" ? 75 : 3) * (1 / accuracy) ** 0.75;
+}
+
+/** Undo (back) and Redo: a curved arrow. */
+function TurnGlyph({ back }: { back: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={solverStyles.glyph}>
+      <path d={back ? "M9 14L4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3" : "M15 14l5-5-5-5M20 9H9a5 5 0 0 0 0 10h3"} />
+    </svg>
+  );
+}
+
 export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDict }) {
   const t = useT().nodelock;
   const locale = useLocale();
@@ -99,6 +155,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
   /** The Solve click being handed over: a second click must not queue the same lock again. */
   const [submitting, setSubmitting] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
+  const frame = useFrame();
   const painting = useRef(false);
   const sliding = useRef(false);
 
@@ -236,13 +293,39 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
 
   /* ------------------------------------------------------------- pieces - */
 
-  const sliderRow = (a: number, value: number, onValue: (v: number, merge: boolean) => void, gto: number, hold: boolean) => (
-    <div key={target.actions[a].label} className={styles.sliderRow}>
-      <span className={styles.sliderName}>
-        <span className={`${styles.dot} ${colours[a]}`} aria-hidden="true" />
-        {target.actions[a].name}
-      </span>
-      <span className={styles.slider} style={{ "--gto": `${gto * 100}%` } as CSSProperties}>
+  /** An action's row: its name, GTO's share, the typed %, hold; under it the slider with GTO's tick (none: the brush). */
+  const sliderRow = (a: number, value: number, onValue: (v: number, merge: boolean) => void, gto: number | null, hold: boolean) => (
+    <div key={target.actions[a].label} className={styles.slider}>
+      <div className={styles.sliderHead}>
+        <span className={`${solverStyles.actDot} ${colours[a]}`} aria-hidden="true" />
+        <span className={styles.sliderName}>{target.actions[a].name}</span>
+        {gto !== null ? <span className={solverStyles.actGto}>{`${t.gto} ${pctText(gto)}`}</span> : null}
+        <input
+          className={styles.number}
+          type="number"
+          min={0}
+          max={100}
+          step={0.1}
+          value={Math.round(value * 1000) / 10}
+          aria-label={t.frequency(target.actions[a].name)}
+          onChange={(event) => onValue(Math.min(100, Math.max(0, Number(event.target.value) || 0)) / 100, false)}
+        />
+        {hold ? (
+          <button
+            type="button"
+            className={`${styles.hold} ${held[a] ? styles.holdOn : ""}`}
+            aria-pressed={held[a]}
+            title={t.hold(target.actions[a].name)}
+            aria-label={t.hold(target.actions[a].name)}
+            onClick={() => setHeld(held.map((x, k) => (k === a ? !x : x)))}
+          >
+            <LockGlyph />
+          </button>
+        ) : null}
+      </div>
+      <span className={styles.range} style={{ "--v": value, "--g": gto ?? 0 } as CSSProperties}>
+        <span className={`${styles.rangeFill} ${colours[a]}`} aria-hidden="true" />
+        {gto !== null ? <span className={styles.rangeTick} aria-hidden="true" /> : null}
         <input
           type="range"
           min={0}
@@ -258,32 +341,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
             sliding.current = true;
           }}
         />
-        {mode !== "hands" ? <span className={styles.gtoTick} aria-hidden="true" /> : null}
       </span>
-      <input
-        className={styles.number}
-        type="number"
-        min={0}
-        max={100}
-        step={0.1}
-        value={Math.round(value * 1000) / 10}
-        aria-label={t.frequency(target.actions[a].name)}
-        onChange={(event) => onValue(Math.min(100, Math.max(0, Number(event.target.value) || 0)) / 100, false)}
-      />
-      {hold ? (
-        <button
-          type="button"
-          className={`${styles.iconButton} ${held[a] ? styles.on : ""}`}
-          aria-pressed={held[a]}
-          title={t.hold(target.actions[a].name)}
-          aria-label={t.hold(target.actions[a].name)}
-          onClick={() => setHeld(held.map((x, k) => (k === a ? !x : x)))}
-        >
-          <Icon name="lock" />
-        </button>
-      ) : (
-        <span />
-      )}
     </div>
   );
 
@@ -292,25 +350,22 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
     left = (
       <>
         <p className={styles.label}>{t.brush}</p>
-        <div className={styles.brushPresets}>
+        <div className={styles.chips}>
           {target.actions.map((action, a) => (
             <button
               key={action.label}
               type="button"
-              className={`${styles.chip} ${brush[a] === 100 ? styles.on : ""}`}
+              className={styles.chip}
+              aria-pressed={brush[a] === 100}
               onClick={() => setBrush(target.actions.map((_, k) => (k === a ? 100 : 0)))}
             >
-              <span className={`${styles.dot} ${colours[a]}`} aria-hidden="true" />
+              <span className={`${solverStyles.optDot} ${colours[a]}`} aria-hidden="true" />
               {action.name}
             </button>
           ))}
         </div>
-        {target.actions.map((_, a) => sliderRow(a, brush[a] / 100, (v) => setBrush(brush.map((x, k) => (k === a ? v * 100 : x))), 0, false))}
-        <span className={styles.mixBar} aria-hidden="true">
-          {brush.map((x, a) => (
-            <span key={a} className={colours[a]} style={{ flexGrow: x }} />
-          ))}
-        </span>
+        {target.actions.map((_, a) => sliderRow(a, brush[a] / 100, (v) => setBrush(brush.map((x, k) => (k === a ? v * 100 : x))), null, false))}
+        <MixBar mix={brush} colours={colours} />
         <p className={styles.hint}>{t.brushHint}</p>
       </>
     );
@@ -372,9 +427,14 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
   );
 
   const grid = (
-    <div className={styles.grid} role="grid" aria-label={t.editorLabel(target.position)} onPointerLeave={() => (painting.current = false)}>
+    <div
+      className={`${solverStyles.grid} ${styles.grid}`}
+      role="grid"
+      aria-label={t.editorLabel(target.position)}
+      onPointerLeave={() => (painting.current = false)}
+    >
       {Array.from({ length: 13 }, (_, row) => (
-        <div key={row} role="row" className={styles.gridRow}>
+        <div key={row} role="row" className={solverStyles.gridRow}>
           {cells.slice(row * 13, row * 13 + 13).map((c, col) => {
             const k = row * 13 + col;
             const { mix, reach } = mixOf(target, state, c.hands);
@@ -382,10 +442,18 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
             const allLocked = c.hands.length > 0 && lockedHere === c.hands.length;
             const fill = c.all > 0 ? reach / c.all : 0;
             return (
-              <div key={c.name} role="gridcell" className={styles.cellWrap}>
+              <div key={c.name} role="gridcell" className={`${solverStyles.gridCellWrap} ${styles.cellWrap}`}>
                 <button
                   type="button"
-                  className={`${styles.cell} ${c.hands.length ? "" : styles.cellOff} ${cell === k ? styles.cellPicked : ""}`}
+                  className={[
+                    solverStyles.cell,
+                    styles.cell,
+                    c.hands.length ? "" : solverStyles.cellFaint,
+                    cell === k ? solverStyles.cellPicked : "",
+                    allLocked ? styles.cellLocked : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
                   aria-label={t.cellLabel(c.name, mixLabel(mix), allLocked)}
                   aria-pressed={cell === k}
                   disabled={!c.hands.length}
@@ -405,14 +473,14 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
                   }}
                 >
                   {c.hands.length ? (
-                    <span className={styles.cellFill} style={{ blockSize: `${Math.max(8, fill * 100)}%` }} aria-hidden="true">
+                    <span className={solverStyles.cellFill} style={{ blockSize: `${Math.max(8, fill * 100)}%` }} aria-hidden="true">
                       {mix.map((x, a) => (x > 0 ? <span key={a} className={colours[a]} style={{ inlineSize: `${x * 100}%` }} /> : null))}
                     </span>
                   ) : null}
-                  <span className={styles.cellName}>{c.name}</span>
+                  <span className={solverStyles.cellName}>{c.name}</span>
                   {lockedHere ? (
                     <span className={`${styles.badge} ${allLocked ? "" : styles.badgePart}`} aria-hidden="true">
-                      <Icon name="lock" />
+                      <LockGlyph />
                     </span>
                   ) : null}
                 </button>
@@ -433,9 +501,9 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
     </div>
   );
 
-  let right: ReactNode;
+  let main: ReactNode;
   if (view === "classes") {
-    right = (
+    main = (
       <ClassList
         classes={classes}
         state={state}
@@ -458,8 +526,8 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
       />
     );
   } else {
-    right = (
-      <div className={view === "combos" ? styles.gridWithCombos : undefined}>
+    main = (
+      <div className={view === "combos" ? styles.gridWithCombos : styles.gridOnly}>
         {grid}
         {view === "combos" ? (
           cell !== null && cells[cell].hands.length ? (
@@ -484,7 +552,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
                       </span>
                       {state.locked[i] ? (
                         <span className={styles.badge} aria-hidden="true">
-                          <Icon name="lock" />
+                          <LockGlyph />
                         </span>
                       ) : null}
                     </button>
@@ -502,11 +570,15 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
 
   const running = session.running;
   const memoryMb = info?.memoryMb ?? 0;
+  // The game the solve runs: a flop lock's flop, else the turn's (a river lock solves the turn's game too).
+  const game = footer ? (footer.kind === "builds" ? "turn" : footer.street) : target.street === "flop" ? "flop" : "turn";
+  const estimate = estimateSeconds(info, game, accuracy);
 
   return (
     <dialog
       ref={dialog}
       className={styles.editor}
+      style={frame}
       aria-label={t.editorLabel(target.position)}
       onCancel={(event) => {
         event.preventDefault();
@@ -514,81 +586,49 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
       }}
     >
       <header className={styles.head}>
-        <CardRow cards={[...target.at.board]} size="sm" />
-        <p className={styles.where}>
-          <strong>{solverT.panel.toAct(target.position)}</strong> <span>{solverT.panel.pot(target.pot, target.toCall)}</span>
-        </p>
-        <div className={styles.headTools}>
-          <button type="button" className="btn btn--sm btn--ghost" disabled={!state.past.length} onClick={() => dispatch({ type: "undo" })}>
-            {t.undo}
-          </button>
-          <button type="button" className="btn btn--sm btn--ghost" disabled={!state.future.length} onClick={() => dispatch({ type: "redo" })}>
-            {t.redo}
-          </button>
-          <button type="button" className="btn btn--sm btn--ghost" disabled={!counts.locked} onClick={() => dispatch({ type: "reset" })}>
-            {t.reset}
-          </button>
-          <button type="button" className="btn btn--icon btn--ghost" aria-label={t.close} title={t.close} onClick={closeEditor}>
-            <Icon name="close" />
-          </button>
-        </div>
+        <span className={styles.headLock} aria-hidden="true">
+          <LockGlyph />
+        </span>
+        <strong>{solverT.panel.toAct(target.position)}</strong>
+        <CardRow cards={[...target.at.board]} size="xs" />
+        <span className={styles.headPot}>{solverT.panel.pot(target.pot, target.toCall)}</span>
+        <span className={solverStyles.spacer} />
+        <span className={styles.headCount}>{t.locked(counts.locked, counts.reaching)}</span>
+        <IconButton size="sm" label={t.undo} disabled={!state.past.length} onClick={() => dispatch({ type: "undo" })}>
+          <TurnGlyph back />
+        </IconButton>
+        <IconButton size="sm" label={t.redo} disabled={!state.future.length} onClick={() => dispatch({ type: "redo" })}>
+          <TurnGlyph back={false} />
+        </IconButton>
+        <ToolButton size="sm" disabled={!counts.locked} onClick={() => dispatch({ type: "reset" })}>
+          {t.reset}
+        </ToolButton>
+        <IconButton size="sm" label={t.close} onClick={closeEditor}>
+          <Icon name="close" />
+        </IconButton>
       </header>
 
       <div className={styles.body}>
-        <aside className={styles.left}>
-          <div className={styles.tabs} role="tablist" aria-label={t.modesLabel}>
-            {(["hands", "range", "classes"] as const).map((m) => (
-              <button key={m} type="button" role="tab" aria-selected={mode === m} className={styles.tab} onClick={() => setMode(m)}>
-                {t.modes[m]}
-              </button>
-            ))}
-          </div>
-          <div className={styles.leftBody}>{left}</div>
-          {archetypes.length ? (
-            <section className={styles.suggestions} aria-label={t.suggestions}>
-              <p className={styles.label}>{t.suggestions}</p>
-              <div className={styles.chips}>
-                {archetypes.map((archetype) => (
-                  <button
-                    key={archetype}
-                    type="button"
-                    className={`${styles.chip} ${state.preset === archetype ? styles.on : ""}`}
-                    title={suggestDict.explanation(archetype, ctx.nodeKind, ctx.street)}
-                    onClick={() => pickSuggestion(archetype)}
-                  >
-                    {suggestDict.names[archetype]}
-                  </button>
-                ))}
-              </div>
-              {suggested && state.preset === suggested.id ? (
-                <p className={styles.hint}>
-                  <strong>{suggested.title}</strong> {suggested.explanation}
-                </p>
-              ) : null}
-            </section>
-          ) : null}
-        </aside>
-
-        <section className={styles.right}>
-          <div className={styles.toolbar}>
-            <div className={styles.tabs} role="tablist" aria-label={t.viewsLabel}>
-              {(["range", "classes", "combos"] as const).map((v) => (
-                <button key={v} type="button" role="tab" aria-selected={view === v} className={styles.tab} onClick={() => setView(v)}>
-                  {t.views[v]}
-                </button>
-              ))}
-            </div>
-            <div className={styles.lockTools}>
-              <button type="button" className="btn btn--sm" onClick={() => dispatch({ type: "lockAll" })}>
-                <Icon name="lock" /> {t.lockAll}
-              </button>
-              <button type="button" className="btn btn--sm" disabled={!counts.locked} onClick={() => dispatch({ type: "unlockAll" })}>
-                {t.unlockAll}
-              </button>
-              <button type="button" className="btn btn--sm" onClick={() => dispatch({ type: "invert" })}>
-                {t.invert}
-              </button>
-            </div>
+        <section className={styles.main}>
+          <div className={solverStyles.tools}>
+            <Segmented
+              size="sm"
+              label={t.viewsLabel}
+              value={view}
+              options={(["range", "classes", "combos"] as const).map((v) => ({ value: v, label: t.views[v] }))}
+              onChange={setView}
+            />
+            <span className={solverStyles.spacer} />
+            <ToolButton size="sm" tone="lock" onClick={() => dispatch({ type: "lockAll" })}>
+              <LockGlyph />
+              {t.lockAll}
+            </ToolButton>
+            <ToolButton size="sm" disabled={!counts.locked} onClick={() => dispatch({ type: "unlockAll" })}>
+              {t.unlockAll}
+            </ToolButton>
+            <ToolButton size="sm" onClick={() => dispatch({ type: "invert" })}>
+              {t.invert}
+            </ToolButton>
           </div>
           <div className={styles.current} aria-label={t.current}>
             <span className={styles.currentBar}>
@@ -607,43 +647,86 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
             <span className={styles.currentLegend}>
               {target.actions.map((action, a) => (
                 <span key={action.label}>
-                  <span className={`${styles.dot} ${colours[a]}`} aria-hidden="true" />
+                  <span className={`${solverStyles.optDot} ${colours[a]}`} aria-hidden="true" />
                   {action.name} <strong>{pctText(shares[a])}</strong> <small>{`${t.gto} ${pctText(gtoShares[a])}`}</small>
                 </span>
               ))}
-              <span className={styles.lockedCount}>{t.locked(counts.locked, counts.reaching)}</span>
             </span>
           </div>
-          {right}
+          {main}
         </section>
+
+        <aside className={`${solverStyles.panel} ${styles.panel}`}>
+          <Segmented
+            tabs
+            label={t.modesLabel}
+            value={mode}
+            options={(["range", "hands", "classes"] as const).map((m) => ({ value: m, label: t.modes[m] }))}
+            onChange={setMode}
+            className={styles.modes}
+          />
+          <div className={styles.modeBody}>{left}</div>
+          {archetypes.length ? (
+            <section className={styles.suggestions} aria-label={t.suggestions}>
+              <p className={styles.label}>{t.suggestions}</p>
+              <div className={styles.chips}>
+                {archetypes.map((archetype) => (
+                  <button
+                    key={archetype}
+                    type="button"
+                    className={styles.chip}
+                    aria-pressed={state.preset === archetype}
+                    title={suggestDict.explanation(archetype, ctx.nodeKind, ctx.street)}
+                    onClick={() => pickSuggestion(archetype)}
+                  >
+                    {suggestDict.names[archetype]}
+                  </button>
+                ))}
+              </div>
+              {suggested && state.preset === suggested.id ? (
+                <p className={styles.hint}>
+                  <strong>{suggested.title}</strong> {suggested.explanation}
+                </p>
+              ) : null}
+            </section>
+          ) : null}
+        </aside>
       </div>
 
       <footer className={styles.foot}>
-        <div className={styles.footGroup} role="radiogroup" aria-label={t.earlierLabel}>
+        <div className={styles.footGroup}>
           <span className={styles.label}>{t.earlierLabel}</span>
-          {(["none", "player", "all"] as const).map((x) => (
-            <button key={x} type="button" role="radio" aria-checked={earlier === x} className={styles.seg} onClick={() => setEarlier(x)}>
-              {t.earlier[x]}
-            </button>
-          ))}
+          <Segmented
+            size="sm"
+            label={t.earlierLabel}
+            value={earlier}
+            options={(["none", "player", "all"] as const).map((x) => ({ value: x, label: t.earlier[x] }))}
+            onChange={setEarlier}
+          />
         </div>
-        <div className={styles.footGroup} role="radiogroup" aria-label={t.accuracyLabel}>
+        <div className={styles.footGroup}>
           <span className={styles.label}>{t.accuracyLabel}</span>
-          {([1, 2.5] as const).map((x) => (
-            <button key={x} type="button" role="radio" aria-checked={accuracy === x} className={styles.seg} onClick={() => setAccuracy(x)}>
-              {x === 1 ? t.accuracy.standard : t.accuracy.quick}
-            </button>
-          ))}
+          <Segmented
+            size="sm"
+            label={t.accuracyLabel}
+            value={String(accuracy)}
+            options={[
+              { value: "1", label: t.accuracy.standard },
+              { value: "2.5", label: t.accuracy.quick },
+            ]}
+            onChange={(x) => setAccuracy(Number(x))}
+          />
         </div>
-        <div className={styles.solve}>
-          <button type="button" className="btn btn--primary" disabled={submitting || info?.kind === null} onClick={() => void solve()}>
-            {t.solve}
-          </button>
-          {footer ? <p className={styles.engineLine}>{footerLine(t, footer)}</p> : null}
-          <p className={styles.engineLine}>
+        <div className={styles.footText}>
+          {footer ? <p className={styles.planLine}>{footerLine(t, footer)}</p> : null}
+          <p className={message ? styles.message : styles.engineLine} role={message ? "alert" : undefined}>
             {message ?? (running ? t.queued : info === null ? "" : info.kind === null ? t.noEngine : t.engineLine(info.threads, info.cores, memoryMb))}
           </p>
         </div>
+        {estimate !== null ? <span className={styles.estimate}>{t.estimate(estimate)}</span> : null}
+        <ToolButton tone="primary" disabled={submitting || info?.kind === null} onClick={() => void solve()}>
+          {t.solve}
+        </ToolButton>
       </footer>
     </dialog>
   );
@@ -694,29 +777,25 @@ function ClassList({
                 const on = picked?.group === c.id.group && picked.index === c.id.index;
                 return (
                   <li key={`${group}${c.id.index}`} className={styles.classRow}>
-                    <button type="button" className={`${styles.classPick} ${on ? styles.on : ""}`} aria-pressed={on} onClick={() => onPick(c.id)}>
+                    <button type="button" className={styles.classPick} aria-pressed={on} onClick={() => onPick(c.id)}>
                       <span className={styles.className}>{c.name}</span>
                       <span className={styles.classCombos}>{Math.round(reach * 10) / 10}</span>
-                      <span className={styles.mixBar} aria-hidden="true">
-                        {mix.map((x, a) => (
-                          <span key={a} className={colours[a]} style={{ flexGrow: x }} />
-                        ))}
-                      </span>
+                      <MixBar mix={mix} colours={colours} thin />
                     </button>
                     {onLock && lockLabel ? (
                       <button
                         type="button"
-                        className={`${styles.iconButton} ${locked === c.hands.length ? styles.on : ""}`}
+                        className={`${styles.hold} ${locked === c.hands.length ? styles.holdOn : ""}`}
                         aria-pressed={locked === c.hands.length}
                         title={lockLabel(c.name)}
                         aria-label={lockLabel(c.name)}
                         onClick={() => onLock(c.hands)}
                       >
-                        <Icon name="lock" />
+                        <LockGlyph />
                       </button>
                     ) : locked ? (
                       <span className={styles.classLocked} aria-hidden="true">
-                        <Icon name="lock" />
+                        <LockGlyph />
                       </span>
                     ) : null}
                   </li>
