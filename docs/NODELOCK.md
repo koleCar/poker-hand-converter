@@ -826,6 +826,27 @@ then it shows the icon too, with `0 %`).
   that does not take the action; the card's corner lock is a real button.
   Ancestors are read from `nodelock_list` by `parent_id`; an inherited mark
   says "From *name*" with a link that opens that lock.
+- **Locks on locks, the UI** (§7.4): inside an open lock the slot's
+  `nodeAction` shows **Nodelock** on every decision. The editor opens with
+  `EditorOpen.within` (`{ open, ancestors, edit }`, `session.ts`), on the
+  node's current lock when one in the chain has it (`lockOwner`). Its Solve
+  plans with `planChildLock` (or `planEditLock` for Edit lock) and hands the
+  plan to `startSolve`; Edit lock's sibling is named with `siblingName`
+  (`<name> (2)`). Remove this lock is `planRemoveLock` + `startSolve` with
+  the owner's summary, straight from the popover (disabled when the plan is
+  null: the owner's only node). Edit lock on a decision not on screen goes
+  there first (`editInLock`: the route, then `pendingEdit` with `within`;
+  `arrivedAt` accepts a locked view for it). The footer's quiet line is the
+  plan's `footer` (`planAdds` / `planBuilds` / `planSibling` /
+  `planLibrary`), shown only inside a lock; no time estimate yet.
+- Inside a lock the editor reads the decision off the chunk on screen, so
+  its "GTO" ticks are the open lock's result at that node (for a turn under
+  a flop lock that is the right base; for a same-game re-lock it is the
+  current locked solve, not the library's GTO).
+- **The action strip in a narrow view** (1280 px with the tree open): the bar
+  scrolls to keep the decision in view, so a card was cut at its left edge
+  and read as broken. `PreflopBar` now marks a scrolled-off side
+  (`data-more`) and the cut card fades out there (web and app alike).
 
 ### 7.4 Locks on locks
 

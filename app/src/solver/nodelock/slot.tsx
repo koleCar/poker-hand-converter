@@ -7,13 +7,14 @@
  * - My nodelocks on one lock: the locked chunk in place of the library's, a
  *   lock icon on every locked action (`LockMark`, its popover says how it is
  *   locked), the Compare with GTO toggle at the end of the view's tabs, and
- *   the Nodelock action on every decision (a lock on the lock, §7.4). No
+ *   the Nodelock action on every decision (a lock on the lock, §7.4, planned
+ *   by `lineage.ts`; Edit lock and Remove this lock make siblings). No
  *   banner: which lock is open is the tree's selected row.
  *
  * A solve's progress shows in My nodelocks (`SolveProgress`) and the sidebar.
  */
 import { Icon } from "@rail/ui/icon/Icon";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 
 import { useLocale, useT, type Dict } from "../../i18n";
 import {
@@ -22,6 +23,7 @@ import {
   exploreHistory,
   exploreNode,
   liveTurnCached,
+  liveTurnId,
   nodelockSuggestEn,
   nodelockSuggestHr,
   rangesAt,
@@ -33,25 +35,30 @@ import {
   type SolverDict,
   type SolverNodelock,
 } from "../door";
+import { go } from "../../lib/router";
 import { useSolverHost } from "../host";
-import type { LockSet } from "./contract";
-import { nodelockData, onNodelocksChanged, type NodeLockRow } from "./data";
+import type { NodelockSummary } from "./contract";
+import { nodelockData } from "./data";
 import { closeLockPopover, LockMark, type LockPopoverData } from "./LockMark";
 import { markIndex, markPath, nodeMark, type MarkedNode, type NodeMark } from "./marks";
 import styles from "./nodelock.module.css";
+import { lockOwner, planRemoveLock, siblingName } from "./lineage";
 import {
   arrivedAt,
   boardText,
   cancelSolve,
-  editLock,
+  editInLock,
+  LOCKS_PARAM,
   openEditor,
   openLock,
   parseRow,
   setCompare,
+  startSolve,
   useNodelockSession,
   type ActiveLock,
   type RunningSolve,
 } from "./session";
+import { lockPath } from "./spot";
 
 type NodelockDict = Dict["nodelock"];
 
@@ -61,11 +68,10 @@ export function useNodelockSlot(lock: ActiveLock | null, view: () => string): So
   const t = useT().nodelock;
   const solverT = useSolverHost().t;
   const names = (useLocale() === "hr" ? nodelockSuggestHr : nodelockSuggestEn).names;
-  const ancestors = useAncestors(lock?.row ?? null);
   const compare = lock ? session.compare : false;
   const marks = useMemo(
-    () => (lock ? lockMarks(lock, ancestors, { solver: solverT, t, preset: (id) => names[id as Archetype] ?? id }) : null),
-    [lock, ancestors, solverT, t, names],
+    () => (lock ? lockMarks(lock, { solver: solverT, t, preset: (id) => names[id as Archetype] ?? id }) : null),
+    [lock, solverT, t, names],
   );
   return useMemo<SolverNodelock>(
     () => ({
@@ -73,7 +79,8 @@ export function useNodelockSlot(lock: ActiveLock | null, view: () => string): So
       compare,
       compareLabel: t.gto,
       shareDelta: t.shareDelta,
-      nodeAction: (at) => (lock ? null : <NodeAction at={at} />),
+      // Inside a lock every decision can be locked too: a lock on the lock (§7.4).
+      nodeAction: (at) => <NodeAction at={at} lock={lock} />,
       banner: (at) => <PendingEdit at={at} />,
       tabTools: (at) => (lock && at?.locked ? <CompareToggle on={compare} /> : null),
       lockMark: marks ?? undefined,
@@ -82,11 +89,18 @@ export function useNodelockSlot(lock: ActiveLock | null, view: () => string): So
   );
 }
 
-function NodeAction({ at }: { at: NodelockAt }) {
+function NodeAction({ at, lock }: { at: NodelockAt; lock: ActiveLock | null }) {
   const t = useT().nodelock;
   const position = at.chunk.header.players[at.chunk.result.nodes[at.node].player];
+  const open = () => {
+    if (!lock) return openEditor(at);
+    const within = { open: { row: lock.row, set: lock.lockSet }, ancestors: lock.ancestors, edit: false };
+    // A decision already locked in the chain opens on its lock (re-locking it replaces it).
+    const owner = lockOwner(within.open, within.ancestors, lockPath(at));
+    openEditor(at, owner ? { lockSet: owner.set, preset: null, name: null } : null, within);
+  };
   return (
-    <button type="button" className={`btn btn--sm ${styles.nodeAction}`} title={t.actionTitle(position)} onClick={() => openEditor(at)}>
+    <button type="button" className={`btn btn--sm ${styles.nodeAction}`} title={t.actionTitle(position)} onClick={open}>
       <Icon name="lock" />
       {t.action}
     </button>
@@ -107,6 +121,9 @@ function CompareToggle({ on }: { on: boolean }) {
 /** Above the view: nothing shown, but a saved lock being edited opens the editor once its decision is on screen. */
 function PendingEdit({ at }: { at: NodelockAt | null }) {
   const pending = useNodelockSession().pendingEdit;
+  useEffect(() => {
+    shownAt = at;
+  }, [at]);
   useEffect(() => {
     if (at && pending) arrivedAt(at);
   }, [at, pending]);
@@ -136,52 +153,8 @@ export function SolveProgress({ running }: { running: RunningSolve }) {
 
 /* ----------------------------------------------------------- lock marks - */
 
-export interface Ancestor {
-  id: string;
-  name: string;
-  set: LockSet;
-  preset: string | null;
-}
-
-/** The lock a row is built on (§7.5 `parent_id`), or null: on the library. */
-export function parentOf(row: NodeLockRow): string | null {
-  return (row as NodeLockRow & { parent_id?: string | null }).parent_id ?? null;
-}
-
-const NONE: Ancestor[] = [];
-
-/** The open lock's chain to its root, nearest first; read again when a lock changes here. */
-function useAncestors(row: NodeLockRow | null): Ancestor[] {
-  const [chain, setChain] = useState<{ id: string; list: Ancestor[] }>({ id: "", list: NONE });
-  const id = row?.id ?? "";
-  const parent = row ? parentOf(row) : null;
-  useEffect(() => {
-    if (!parent) return;
-    let live = true;
-    const read = () =>
-      void nodelockData
-        .list()
-        .then((rows) => {
-          const byId = new Map(rows.map((x) => [x.id, x]));
-          const list: Ancestor[] = [];
-          const seen = new Set<string>();
-          for (let at = byId.get(parent); at && !seen.has(at.id); at = byId.get(parentOf(at) ?? "")) {
-            seen.add(at.id);
-            const parsed = parseRow(at);
-            if (parsed) list.push({ id: at.id, name: at.name, set: parsed.lockSet, preset: at.preset });
-          }
-          if (live) setChain({ id, list });
-        })
-        .catch(() => undefined);
-    read();
-    const stop = onNodelocksChanged(read);
-    return () => {
-      live = false;
-      stop();
-    };
-  }, [id, parent]);
-  return parent && chain.id === id ? chain.list : NONE;
-}
+/** The decision on screen, for Edit lock and Remove this lock in a lock popover. */
+let shownAt: NodelockAt | null = null;
 
 /** On a turn chunk: a river decision once a deal lies between it and the root. */
 function streetOf(node: NodelockNode): "flop" | "turn" | "river" {
@@ -232,13 +205,16 @@ interface Marked {
 /** The slot's `lockMark` for an open lock: the decisions it (or an ancestor) locks, each with its icon and popover. */
 function lockMarks(
   lock: ActiveLock,
-  ancestors: Ancestor[],
   words: { solver: SolverDict; t: NodelockDict; preset: (id: string) => string },
 ): (node: NodelockNode) => NodelockMark | null {
   const { solver: solverT, t } = words;
-  const index = markIndex(lock.lockSet, ancestors);
-  const presets = new Map(ancestors.map((x) => [x.id, x.preset]));
-  const based = Boolean((lock.lockSet as LockSet & { base?: unknown }).base);
+  const open = { row: lock.row, set: lock.lockSet };
+  const index = markIndex(
+    lock.lockSet,
+    lock.ancestors.map((x) => ({ id: x.row.id, name: x.row.name, set: x.set })),
+  );
+  const presets = new Map(lock.ancestors.map((x) => [x.row.id, x.row.preset]));
+  const based = Boolean(lock.lockSet.base);
   /** Per chunk and decision: its mark's numbers, worked out once. */
   const cache = new WeakMap<FlopChunk, Map<number, Marked | null>>();
 
@@ -293,7 +269,7 @@ function lockMarks(
       gto: summaryGto,
       preset: preset ? words.preset(preset) : null,
       from: marked.from,
-      only: marked.from !== null || lock.lockSet.nodes.length <= 1,
+      only: planRemoveLock(open, lock.ancestors, marked.spec.path) === null,
     };
   };
 
@@ -310,11 +286,52 @@ function lockMarks(
           id={id}
           action={action}
           data={() => popover(node, value)}
-          onEdit={() => editLock(lock.row, null)}
-          onRemove={() => undefined}
+          onEdit={() => editAt(lock, node, marked)}
+          onRemove={() => void removeAt(lock, marked, t)}
           onOpenFrom={(from) => void openLock(from)}
         />
       ),
     };
   };
+}
+
+/** The view of a decision on the action strip, to go to it. */
+function viewOf(lock: ActiveLock, node: NodelockNode): NodelockSummary["view"] {
+  const { set, line, flop } = lock.summary.view;
+  return { set, line, flop, node: node.node, ...(node.turn ? { turn: liveTurnId(node.turn.chance, node.turn.card) } : {}) };
+}
+
+/**
+ * Edit lock (§7.3): the editor on this decision with its lock loaded; the
+ * solve is a sibling of the lock that owns it. A decision not on screen is
+ * gone to first.
+ */
+function editAt(lock: ActiveLock, node: NodelockNode, marked: MarkedNode): void {
+  const within = { open: { row: lock.row, set: lock.lockSet }, ancestors: lock.ancestors, edit: true };
+  const owner = lockOwner(within.open, within.ancestors, marked.spec.path);
+  const from = { lockSet: owner?.set ?? lock.lockSet, preset: owner?.row.preset ?? null, name: null };
+  const at = shownAt;
+  if (at && at.chunk === node.chunk && at.node === node.node) openEditor(at, from, within);
+  else editInLock(lock.row.id, viewOf(lock, node), from, within);
+}
+
+/** Remove this lock (§7.3): the owner's lock without this decision, solved as its sibling `<name> (2)`. */
+async function removeAt(lock: ActiveLock, marked: MarkedNode, t: NodelockDict): Promise<void> {
+  const at = shownAt;
+  const open = { row: lock.row, set: lock.lockSet };
+  const plan = planRemoveLock(open, lock.ancestors, marked.spec.path);
+  const owner = lockOwner(open, lock.ancestors, marked.spec.path);
+  const parsed = owner ? parseRow(owner.row) : null;
+  if (!at || !plan || !owner || !parsed) return;
+  const names = await nodelockData.list().then((rows) => rows.map((row) => row.name), () => []);
+  const started = await startSolve({
+    at,
+    lockSet: plan.set,
+    name: siblingName(owner.row.name, names),
+    preset: owner.row.preset,
+    summary: parsed.summary,
+    plan,
+  });
+  if (started === true || started === "queued") go("solver", LOCKS_PARAM);
+  else window.alert(started === "noEngine" ? t.noEngine : t.startError);
 }

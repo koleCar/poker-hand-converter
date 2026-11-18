@@ -61,6 +61,19 @@
   padding-block-end: 2px;
 }
 
+/* Scrolled: the card cut at an edge fades out there. */
+.bar[data-more="left"] {
+  mask-image: linear-gradient(to right, transparent, black 3rem);
+}
+
+.bar[data-more="right"] {
+  mask-image: linear-gradient(to left, transparent, black 3rem);
+}
+
+.bar[data-more="both"] {
+  mask-image: linear-gradient(to right, transparent, black 3rem, black calc(100% - 3rem), transparent);
+}
+
 .tableCard {
   display: grid;
   align-content: start;

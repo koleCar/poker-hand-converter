@@ -83,6 +83,18 @@ export interface EditorOpen {
   at: NodelockAt;
   /** A saved lock being edited (or duplicated): its lock fills the editor. */
   from: { lockSet: LockSet; preset: string | null; name: string | null } | null;
+  /**
+   * Opened inside a lock (§7.4): the open lock and its chain, for
+   * `planChildLock`. `edit`: Edit lock, a sibling of the lock that owns the
+   * node (`planEditLock`). Absent: a lock on the library.
+   */
+  within?: EditorWithin | null;
+}
+
+export interface EditorWithin {
+  open: LockRef;
+  ancestors: LockRef[];
+  edit: boolean;
 }
 
 export interface NodelockSession {
@@ -97,7 +109,7 @@ export interface NodelockSession {
   /** Counts Opens: the Solver tab reads its view again from the route. */
   opened: number;
   /** A saved lock to edit (Edit lock, Duplicate and edit): the editor opens once the library shows its decision. */
-  pendingEdit: { view: NodelockSummary["view"]; from: NonNullable<EditorOpen["from"]> } | null;
+  pendingEdit: { view: NodelockSummary["view"]; from: NonNullable<EditorOpen["from"]>; within?: EditorWithin | null } | null;
 }
 
 let state: NodelockSession = {
@@ -156,8 +168,8 @@ export function lockKey(at: Pick<NodelockAt, "set" | "line" | "flop" | "turn">):
   return at.turn ? `${chunk}/${liveTurnId(at.turn.chance, at.turn.card)}` : chunk;
 }
 
-export function openEditor(at: NodelockAt, from: EditorOpen["from"] = null): void {
-  set({ editor: { at, from } });
+export function openEditor(at: NodelockAt, from: EditorOpen["from"] = null, within: EditorWithin | null = null): void {
+  set({ editor: { at, from, within } });
 }
 
 export function closeEditor(): void {
@@ -451,12 +463,22 @@ export function editLock(row: NodeLockRow, name: string | null): boolean {
   return true;
 }
 
-/** The library shows `at`: a pending edit made at this decision opens the editor here. */
+/**
+ * Edits a decision of the open lock that is not on screen (Edit lock in a
+ * lock popover, §7.3): My nodelocks moves to it, and the editor opens there
+ * on its lock once the view shows it.
+ */
+export function editInLock(lockId: string, view: NodelockSummary["view"], from: NonNullable<EditorOpen["from"]>, within: EditorWithin): void {
+  go("solver", lockParam(lockId, solverParam(view)));
+  set({ editor: null, opened: state.opened + 1, pendingEdit: { view, from, within } });
+}
+
+/** The view shows `at`: a pending edit made at this decision opens the editor here (on the library, or in a lock for an edit inside it). */
 export function arrivedAt(at: NodelockAt): void {
   const pending = state.pendingEdit;
-  if (!pending || at.locked) return;
+  if (!pending || (at.locked && !pending.within)) return;
   const view = pending.view;
   const turn = at.turn ? liveTurnId(at.turn.chance, at.turn.card) : undefined;
   if (at.set !== view.set || at.preflop !== view.line || at.node !== view.node || turn !== view.turn) return;
-  set({ pendingEdit: null, editor: { at, from: pending.from } });
+  set({ pendingEdit: null, editor: { at, from: pending.from, within: pending.within ?? null } });
 }

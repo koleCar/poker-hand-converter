@@ -39,7 +39,9 @@ import type { LockEarlier, LockSet, NodelockSummary } from "./contract";
 import { editorReducer, fromLockArrays, initialState, lockedCount, sharesOf, type EditorAction, type EditorState } from "./editor/state";
 import { engineInfo, type EngineInfo } from "./engine";
 import styles from "./Editor.module.css";
-import { boardText, closeEditor, LOCKS_PARAM, startSolve, useNodelockSession, type EditorOpen } from "./session";
+import { nodelockData } from "./data";
+import { planChildLock, planEditLock, siblingName, type LockFooter, type LockPlan } from "./lineage";
+import { boardText, closeEditor, LOCKS_PARAM, startSolve, useNodelockSession, type EditorOpen, type EditorWithin } from "./session";
 import { lockSpec, lockTarget, suggestContext, type LockTarget } from "./spot";
 
 type Mode = "hands" | "range" | "classes";
@@ -124,6 +126,16 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
   }, []);
 
   const colours = useMemo(() => actionColours(target.actions.map((a) => ({ kind: a.kind, amount: a.amount }))), [target]);
+  /** Inside a lock: what the solve will be (§7.4), for the footer's line; the strategy does not change it. */
+  const footer = useMemo(() => {
+    if (!open.within) return null;
+    const stub = { street: target.street, path: target.path, player: target.player, actions: target.actions.map((a) => a.label), strategy: [], locked: [] };
+    try {
+      return planOf(open.within, spotOf(open.at, target.river), stub).footer;
+    } catch {
+      return null;
+    }
+  }, [open.within, open.at, target]);
   const gtoShares = useMemo(() => sharesOf(target.spot, target.spot.gto.map((row) => Array.from(row))), [target]);
   const shares = sharesOf(target.spot, state.strategy);
   const counts = lockedCount(target.spot, state);
@@ -183,10 +195,18 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
       return;
     }
     const { at } = target;
-    const spot: LockSet["spot"] = { set: at.set, line: at.line, flop: at.flop };
-    if (at.turn) spot.turn = at.turn.card;
-    if (target.river) spot.river = target.river;
-    const lockSet: LockSet = { version: 1, spot, nodes: [lockSpec(target, state)], earlier, targetPct: accuracy };
+    const spot = spotOf(at, target.river);
+    const spec = lockSpec(target, state);
+    let plan: LockPlan | null = null;
+    if (open.within) {
+      try {
+        plan = planOf(open.within, spot, spec, { earlier, targetPct: accuracy });
+      } catch {
+        setMessage(t.startError);
+        return;
+      }
+    }
+    const lockSet: LockSet = plan?.set ?? { version: 1, spot, nodes: [spec], earlier, targetPct: accuracy };
     const summary: NodelockSummary = {
       view: {
         set: at.set,
@@ -201,9 +221,13 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
       shifts: target.actions.map((a, k) => ({ label: a.name, gto: gtoShares[k], locked: shares[k] })),
     };
     const who = state.preset ? `${suggestDict.names[state.preset as Archetype] ?? state.preset} ${target.position}` : target.position;
-    const name = open.from?.name ?? t.name(who, boardText(at.board), target.players[1], target.players[0]);
     setSubmitting(true);
-    const started = await startSolve({ at, lockSet, name, preset: state.preset, summary }).finally(() => setSubmitting(false));
+    // Edit lock makes a sibling of the lock that owns the node: `<name> (2)`.
+    const name =
+      plan?.footer.kind === "sibling"
+        ? siblingName(plan.footer.of, await nodelockData.list().then((rows) => rows.map((row) => row.name), () => []))
+        : (open.from?.name ?? t.name(who, boardText(at.board), target.players[1], target.players[0]));
+    const started = await startSolve({ at, lockSet, name, preset: state.preset, summary, ...(plan ? { plan } : {}) }).finally(() => setSubmitting(false));
     if (started === "noEngine" || started === "failed") setMessage(started === "noEngine" ? t.noEngine : t.startError);
     // The library stays the clean solve: the lock's progress, then the lock, are in My nodelocks.
     else go("solver", LOCKS_PARAM);
@@ -614,6 +638,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
           <button type="button" className="btn btn--primary" disabled={submitting || info?.kind === null} onClick={() => void solve()}>
             {t.solve}
           </button>
+          {footer ? <p className={styles.engineLine}>{footerLine(t, footer)}</p> : null}
           <p className={styles.engineLine}>
             {message ?? (running ? t.queued : info === null ? "" : info.kind === null ? t.noEngine : t.engineLine(info.threads, info.cores, memoryMb))}
           </p>
@@ -702,4 +727,46 @@ function ClassList({
       })}
     </div>
   );
+}
+
+/** The new lock's spot, as the decision names it: the flop, and the turn and river on a later street. */
+function spotOf(at: EditorOpen["at"], river: string | null): LockSet["spot"] {
+  const spot: LockSet["spot"] = { set: at.set, line: at.line, flop: at.flop };
+  if (at.turn) spot.turn = at.turn.card;
+  if (river) spot.river = river;
+  return spot;
+}
+
+/** A lock made inside an open one (§7.4): a child of it (the Nodelock action), or a sibling of the node's owner (Edit lock). */
+function planOf(within: EditorWithin, spot: LockSet["spot"], spec: Parameters<typeof planChildLock>[3], settings?: { earlier: LockEarlier; targetPct: number }): LockPlan {
+  return (
+    (within.edit ? planEditLock(within.open, within.ancestors, spot, spec, settings) : null) ??
+    planChildLock(within.open, within.ancestors, spot, spec, settings)
+  );
+}
+
+/** The footer's line: what the solve will be, the lock it builds on in italics. */
+function footerLine(t: ReturnType<typeof useT>["nodelock"], footer: LockFooter): ReactNode {
+  const named = (text: string, name: string) => {
+    const at = text.indexOf(name);
+    return at < 0 ? (
+      text
+    ) : (
+      <>
+        {text.slice(0, at)}
+        <em>{name}</em>
+        {text.slice(at + name.length)}
+      </>
+    );
+  };
+  switch (footer.kind) {
+    case "adds":
+      return named(t.planAdds(footer.parent, footer.street), footer.parent);
+    case "builds":
+      return named(t.planBuilds(footer.parent), footer.parent);
+    case "sibling":
+      return named(t.planSibling(footer.of, footer.street), footer.of);
+    case "library":
+      return t.planLibrary(footer.street);
+  }
 }

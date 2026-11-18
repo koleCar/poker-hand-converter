@@ -1559,6 +1559,11 @@ export const hr: Dict = {
     markAllFixed: "Sve kombinacije fiksne",
     markRange: "Range",
     markPainted: "Obojene ruke",
+    planAdds: (parent: string, street: "flop" | "turn") =>
+      `Dodaje se lockovima od ${parent} na ${street === "flop" ? "flopu" : "turnu"}: ${street} se ponovno solva`,
+    planBuilds: (parent: string) => `Gradi na ${parent}: turn se solva iz njegovog rezultata`,
+    planSibling: (of: string, street: "flop" | "turn") => `Novi lock uz ${of}: ${street} se ponovno solva`,
+    planLibrary: (street: "flop" | "turn") => `Novi lock na solveu biblioteke: ${street} se solva od GTO-a`,
     markOnlyNode: "Jedina zaključana odluka: prvo zaključaj drugu ili se vrati na GTO u Biblioteci",
     gto: "GTO",
     shareDelta: (delta: number) => `${delta >= 0 ? "+" : "−"}${n(Math.round(Math.abs(delta) * 1000) / 10)} p.b.`,

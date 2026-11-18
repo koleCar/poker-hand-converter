@@ -44,6 +44,20 @@ interface PreflopBarProps {
   after?: ReactNode;
 }
 
+/**
+ * Marks the bar's scrolled-off sides (`data-more`): the cut card fades out
+ * there, so a narrow bar reads as scrolled, not broken.
+ */
+function edges(element: HTMLElement) {
+  const left = element.scrollLeft > 1;
+  const right = element.scrollLeft + element.clientWidth < element.scrollWidth - 1;
+  const more = left && right ? "both" : left ? "left" : right ? "right" : "";
+  if ((element.dataset.more ?? "") !== more) {
+    if (more) element.dataset.more = more;
+    else delete element.dataset.more;
+  }
+}
+
 export function PreflopBar({ tables, table, onTable, state, onLine, viewing = null, onView, after }: PreflopBarProps) {
   const t = useSolverDict();
   const [settings, setSettings] = useState(false);
@@ -58,10 +72,11 @@ export function PreflopBar({ tables, table, onTable, state, onLine, viewing = nu
     const inner = current.getBoundingClientRect();
     if (inner.right > outer.right) element.scrollLeft += inner.right - outer.right + 8;
     else if (inner.left < outer.left) element.scrollLeft -= outer.left - inner.left + 8;
+    edges(element);
   });
 
   return (
-    <div className={styles.bar} ref={bar}>
+    <div className={styles.bar} ref={bar} onScroll={(event) => edges(event.currentTarget)}>
       <div className={styles.tableCard}>
         <span className={styles.tableKind}>{t.settings.cash}</span>
         <strong>
