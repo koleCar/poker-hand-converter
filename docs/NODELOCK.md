@@ -655,3 +655,213 @@ Every workstream follows `CLAUDE.md`:
 - no PRs and no batch PRs.
 
 The web must build and show no nodelock.
+
+## 7. Nodelock v2: the tree, lock marks, locks on locks (owner, 2026-11-18)
+
+The owner's brief, looking at a solved lock in My nodelocks:
+
+- There is no way back to earlier nodelocks. My nodelocks needs a **tree of
+  the solves we have**, which the user can **arrange, group and delete**.
+- The amber **Nodelocked banner goes**.
+- In a nodelocked solve, a **locked action carries a lock icon**. Hovering it
+  (or clicking, which pins it) shows **how the action is locked**.
+- **More than one lock.** In a locked solve every other decision can be
+  locked too. Lock the flop, get the result, then lock an action on the turn
+  of that result, and so on.
+
+### 7.1 My nodelocks is a tree beside the solve
+
+The My nodelocks tab is two columns: the **tree** on the left (resizable,
+~260 px, collapsible like the app sidebar) and the **open lock's solve** on
+the right. Opening a lock no longer leaves the list, so going back to an older
+lock is one click. With nothing open, the right side shows one quiet line
+("Pick a nodelock, or lock a decision in the Library") — no titles.
+
+**What the tree holds.**
+- **Folders**, made by the user, nested, any depth. A new user has none.
+- **Locks.** A lock made on top of another lock (§7.4) is that lock's
+  **child** and always sits under it: the tree shows how the solves were
+  built. Only a root lock (one made on the library) lives in a folder;
+  children move with their root.
+- Order is the user's (`sort`), new items go to the top of where they land.
+
+**A row** (one line, no wrapping): status dot or spinner with % while
+solving / queued / failed / cancelled; the name; on the right, muted, the
+board (`Q♠6♥3♦`, turn card added for a turn lock) and how many nodes are
+locked (`2🔒`). Hover shows the row's full summary: spot, line, locked
+nodes with GTO → locked shifts, accuracy, time, engine, date.
+
+**Actions.**
+- Click opens. Arrow keys move, Enter opens, F2 / double-click renames in
+  place, Delete deletes.
+- Multi-select: Cmd/Ctrl-click, Shift-click.
+- Drag and drop: a lock or folder onto a folder moves it in; between rows
+  reorders; onto the tree's empty area moves to the top level. A child lock
+  cannot be dragged out of its parent (the drop is refused, the row shakes).
+- Right-click menu (and a `⋯` button on hover): Open, Rename, New folder
+  here, Move to… (folder picker), Duplicate and edit, Delete.
+- Toolbar above the tree, icons only with titles: New folder, Search
+  (filters by name, board, line; matching rows keep their ancestors),
+  Collapse all.
+- **Delete** asks once, saying exactly what goes and that it cannot be
+  undone: "Delete 3 nodelocks (1 folder, 2 locks built on them)?" Deleting a
+  lock deletes its whole branch; deleting a folder deletes everything in it.
+  A lock that is solving is cancelled first.
+- Expanded folders and the tree width persist (localStorage).
+
+### 7.2 No banner
+
+The amber banner and the quiet "off the locked spot" banner are removed.
+What they carried moves:
+- **Which lock is open**: the selected row in the tree.
+- **Back to GTO**: the Library tab, as today (it opens the same view).
+- **Compare with GTO**: a quiet toggle at the right end of the
+  `Strategy + EV | Ranges` tab row, shown only in My nodelocks.
+- **Edit lock**: in the lock popover (§7.3).
+- Accuracy / time / engine: the row's hover card.
+- **Go to the locked spot**: clicking a locked node in the tree's hover card,
+  or the popover.
+- A solve's progress: its row in the tree (and the sidebar, as today).
+
+### 7.3 Lock marks and the lock popover
+
+In My nodelocks, every **locked decision** marks its locked actions:
+- in the action strip (the position cards along the top, flop/turn/river
+  cards included): a small lock icon after each locked action's label, and a
+  lock on the card's corner;
+- in the strategy panel's action rows on the right ("Check 100%"): the same
+  icon after the label.
+
+An action counts as locked when the node is in the lock set and at least one
+locked combo plays it with weight > 0 (or the editor held it at 0 %:
+then it shows the icon too, with `0 %`).
+
+**Popover** on hover (pinned by click, Esc / click outside closes):
+- the node: `BB · Flop · Q♠6♥3♦ · after BTN bet 33 %`;
+- per action: `GTO 46.0 % → locked 75.0 %`, bars in the action colours;
+- `312 of 1,081 combos fixed · the rest adapt` (or `all combos fixed`);
+- a 13×13 mini grid of the locked strategy (locked cells full, unlocked
+  dimmed);
+- where the lock came from: the preset name, or "Hands painted" / "Range";
+- **Edit lock** (opens the editor on this node with this lock loaded; the
+  result is a new sibling, §7.4) and **Remove this lock** (a new sibling
+  without this node; disabled when it is the only node).
+- Locks inherited from a parent lock (§7.4) are marked too, with the
+  parent's name in the popover ("from *Passive BB*") and a link to open it.
+
+### 7.4 Locks on locks
+
+Inside an open lock **every** decision (flop, turn, river, either player)
+offers the **Nodelock** action on its card, exactly as the Library does. The
+new lock is always a **new row, child of the open one**; nothing is ever
+re-solved in place. What it solves depends on the decision's **game**
+(`lockGameStreet`: the flop, or one turn card with its rivers):
+
+| The new node is in… | The child's lock set | Base chunk it solves on |
+|---|---|---|
+| the open lock's own game | the open lock's nodes + the new one | the same base as the open lock (the library, or its own base) |
+| a later game (a turn under a flop lock, a river already counts as the turn's game) | only the new node | **the open lock's result chunk** (`base`) |
+| an earlier game (the flop while a turn lock is open) | the flop ancestor's nodes + the new one, child of that ancestor (or a new root when the ancestor is the library) | as row 1 for that ancestor |
+
+So "lock flop → solve → lock turn → solve" is row 2: the turn game is
+re-solved from the *locked* flop result's ranges at that deal, with the flop
+strategy as the parent solved it.
+
+- Re-locking a node already in the set (Edit lock) replaces that node's spec
+  in the child's set. The editor opens on the current locked spec.
+- **Edit lock** and **Remove this lock** follow the same table and always
+  make a **sibling** (same parent as the open lock), named `<name> (2)`.
+- The editor's footer says what the solve will be, one quiet line:
+  "Builds on *Passive BB*: the turn is solved from its result" /
+  "Adds to *Passive BB*'s flop locks: the flop is solved again (~1–2 min)".
+- Lock path, symmetries and `lockGameStreet` are unchanged: one lock set is
+  still one game. Chaining is what spans streets.
+
+**Lock model** (`web/src/lib/solver/nodelock.ts`, §1):
+
+```ts
+export interface LockBase {
+  /** The parent lock's `lock_hash`: the chunk this set is solved on. */
+  lockHash: string;
+  /** Its street game, for checking. */
+  street: "flop" | "turn";
+}
+export interface LockSet {
+  version: 1;               // unchanged: `base` is optional
+  spot: …;
+  nodes: NodeLockSpec[];
+  earlier: LockEarlier;
+  targetPct: number;
+  /** Absent: solved on the library chunk (every v1 lock). */
+  base?: LockBase;
+}
+```
+- `lockHash` includes `base`, so the same turn lock on two parents differs.
+- `earlier` on a based set freezes ancestors at the **base** chunk's
+  strategy, not the library's.
+- `planChildLock(open: { row: NodeLockRow; set: LockSet } , ancestors, at, spec)
+  → { parentId: string | null; set: LockSet; baseRowId: string | null; kind: "same" | "later" | "earlier" }`
+  in `app/src/solver/nodelock/lineage.ts` (pure, tested) implements the
+  table. `ancestors` is the open lock's chain to the root.
+
+**Engine.** A based solve gets the base row's chunk where it would get the
+library chunk: `nodelockSpotOf(lockSet, baseChunk, charts)` for the ranges
+at the deal, `baseline` = the base chunk's bytes for the earlier nodes. Both
+engines (workers and native) already take these as inputs; the app passes
+the parent's chunk instead of the served library file. A based chunk's
+header carries `lockHash` (its own) and `baseHash`.
+
+### 7.5 Storage (migration `0025_node_lock_tree.sql`)
+
+```sql
+CREATE TABLE node_lock_folders (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  parent_id TEXT REFERENCES node_lock_folders(id) ON DELETE CASCADE,
+  sort REAL NOT NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+ALTER TABLE node_locks ADD COLUMN folder_id TEXT;   -- root locks only; NULL = top level
+ALTER TABLE node_locks ADD COLUMN parent_id TEXT;   -- the lock this one is built on; NULL = on the library
+ALTER TABLE node_locks ADD COLUMN sort REAL NOT NULL DEFAULT 0;
+CREATE INDEX node_locks_parent ON node_locks(parent_id);
+CREATE INDEX node_locks_folder ON node_locks(folder_id);
+```
+- Existing rows: `folder_id` NULL, `parent_id` NULL, `sort` = −`updated_at`
+  (newest first, as the list showed them).
+- `sort` is a fractional index: moving between two rows takes the midpoint;
+  the store renumbers a sibling list when gaps get below 1e-6.
+- Deleting a lock deletes its descendants (the store walks `parent_id`; no FK,
+  so a v1 store opens unchanged). Deleting a folder deletes its subfolders
+  and every lock (and branch) in them. Both in one transaction.
+- Still never synced.
+
+Tauri commands / `ipc.ts` (additions; existing ones unchanged, `NodeLockRow`
+gains `folder_id`, `parent_id`, `sort`):
+```ts
+nodelockFolders(): Promise<NodeLockFolder[]>          // { id, name, parent_id, sort, created_at, updated_at }
+nodelockFolderSave(f: { id?: string; name: string; parent_id: string | null; sort?: number }): Promise<NodeLockFolder>
+nodelockFolderDelete(ids: string[]): Promise<{ folders: number; locks: number }>
+nodelockMove(items: { kind: "lock" | "folder"; id: string }[], to: { folder_id: string | null; before?: { kind: "lock" | "folder"; id: string } | null }): Promise<boolean>
+nodelockDelete(ids: string[]): Promise<number>        // now: with descendants; returns rows deleted
+nodelockDeletePreview(locks: string[], folders: string[]): Promise<{ folders: number; locks: number; descendants: number }>
+```
+`nodelockSave` takes `parent_id` (and `folder_id` for a root); `nodelockMove`
+refuses a child lock, a folder into its own subtree, and returns false.
+
+### 7.6 Workstreams (v2 agents)
+
+Each in its own worktree from `origin/prestaging`, local checks for what it
+touched, rebase, push to `prestaging` (CLAUDE.md). No PRs.
+
+| # | Worktree | Owns |
+|---|---|---|
+| S2 | `nodelock-tree-store` | §7.5: migration 0025, `rail_store::node_locks` folders/move/delete-with-descendants, Tauri commands, `ipc.ts` types + wrappers, SCHEMA.md, tests |
+| E2 | `nodelock-chain` | §7.4: `LockBase` + hash, based solves in `nodelock.ts`/both engines (`baseHash` header, earlier nodes from the base), `lineage.ts` `planChildLock` + tests, `session.ts` `startSolve` taking a parent (base chunk from the store, `parent_id` saved) |
+| U1 | `nodelock-tree-ui` | §7.1: the tree (`app/src/solver/nodelock/tree/`), the two-column My nodelocks in `Solver.tsx`, `History.tsx` replaced, drag/drop, menus, delete confirm, search, persistence, EN+HR strings |
+| U2 | `nodelock-marks` | §7.2–7.3 and the UI of §7.4: banner removed, Compare toggle, lock marks + popover (slot additions in `web/src/components/solver/host.tsx` + `StrategyView` / action strip, web shows none), the Nodelock action inside a lock, Edit/Remove as siblings, the editor's footer line, EN+HR strings |
+
+U1 and U2 build against this section's interfaces until S2 and E2 land, then
+rebase onto them. `i18n/en.ts`/`hr.ts` conflicts are expected: keep both
+sides.
