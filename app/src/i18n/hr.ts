@@ -12,11 +12,13 @@ import { playersUiHr } from "@rail/ui/strings/players.hr";
 import { reportsUiHr } from "@rail/ui/strings/reports.hr";
 import { plural } from "@rail/ui/strings/plural";
 
-import { countIn } from "./format";
+import { countIn, monthIn } from "./format";
 import type { Dict } from "./types";
 
 /** Counts in Croatian digits ("1.204"), whatever the window's language. */
 const n = countIn("hr");
+const monthLong = monthIn("hr", "long");
+const monthShort = monthIn("hr", "short");
 
 /** A share as a percentage, one decimal at most ("41.5%"). */
 function pct(share: number): string {
@@ -1235,6 +1237,15 @@ export const hr: Dict = {
       error: (message: string) => `Zadnja stranica nije dovršena: ${message}`,
       pause: "Pauziraj",
       resume: "Nastavi",
+      analysing: (month) => (month ? `Analiziram: ${monthLong(month)}` : "Analiziram ruke bez datuma"),
+      month: (month) => (month ? monthShort(month) : "Bez datuma"),
+      months: "Mjeseci",
+      monthsLabel: "Analiza po mjesecima",
+      monthDone: "gotovo",
+      monthFirst: (month) => `Sljedeće analiziraj: ${month ? monthLong(month) : "ruke bez datuma"}`,
+      inAll: "Ukupno",
+      hide: "Sakrij napredak analize",
+      show: "Prikaži napredak analize",
     },
     session: {
       notAnalysed: "Analizira se u pozadini",

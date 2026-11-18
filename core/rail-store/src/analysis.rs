@@ -198,6 +198,17 @@ impl AnalysisCounts {
     }
 }
 
+/// How far the analysis is in one month (`played_at`'s UTC `YYYY-MM`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MonthCounts {
+    /// `YYYY-MM`; '' for hands without a date.
+    pub month: String,
+    /// Hands of the month in the hand list.
+    pub hands: u64,
+    /// Of those, hands with a row at the version.
+    pub current: u64,
+}
+
 /// An opponent's counters, as the web's `villain_counters` returns them.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VillainCounters {
@@ -901,6 +912,40 @@ impl Reader {
                 offline,
                 not_analysable,
             })
+        })
+    }
+
+    /// How far the analysis is at `version`, month by month, newest first
+    /// (hands without a date last, as ''). Read from the hand list (one
+    /// narrow row a hand), so a hand the statistics have not listed yet is
+    /// in [`Reader::analysis_counts`] but in no month.
+    pub fn analysis_months(&self, version: &str) -> Result<Vec<MonthCounts>> {
+        self.with(|conn| {
+            let mut stmt = conn.prepare_cached(
+                "SELECT substr(l.played_at, 1, 7) AS m, count(*), count(a.hand_key)
+                 FROM hand_list l
+                 LEFT JOIN hand_analysis a
+                   ON a.hand_key = l.hand_key AND a.analysis_version = ?1
+                 GROUP BY m
+                 ORDER BY m = '', m DESC",
+            )?;
+            let rows = stmt.query_map([version], |row| {
+                Ok((
+                    row.get::<_, String>(0)?,
+                    row.get::<_, i64>(1)?,
+                    row.get::<_, i64>(2)?,
+                ))
+            })?;
+            let mut out = Vec::new();
+            for row in rows {
+                let (month, hands, current) = row?;
+                out.push(MonthCounts {
+                    month,
+                    hands: u64::try_from(hands).map_err(|_| Error::OutOfRange("count"))?,
+                    current: u64::try_from(current).map_err(|_| Error::OutOfRange("count"))?,
+                });
+            }
+            Ok(out)
         })
     }
 

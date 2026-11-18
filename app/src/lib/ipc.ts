@@ -1763,6 +1763,9 @@ export const ipc = {
   /** Rows in `rail_store::HandAnalysisIn`'s shape (`analysis/rows.ts`). */
   analysisSave: (rows: unknown[]) => invoke<{ saved: number; missing: number }>("analysis_save", { rows }),
   analysisCounts: (version: string) => invoke<AnalysisCounts>("analysis_counts", { version }),
+  /** The counts month by month (`played_at`'s UTC `YYYY-MM`), newest first. */
+  analysisMonths: (version: string) =>
+    invoke<{ month: string; hands: number; current: number }[]>("analysis_months", { version }),
   /** A hand's stored analysis in the web's `analysis_hand` shape; `null` when none. */
   handAnalysis: (handKey: string) => invoke<Record<string, unknown> | null>("hand_analysis", { handKey }),
   analysisVillains: (players: { site: string; player: string }[], minHands: number) =>

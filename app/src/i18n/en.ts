@@ -20,10 +20,12 @@
 import { handsUiEn } from "@rail/ui/strings/hands.en";
 import { playersUiEn } from "@rail/ui/strings/players.en";
 import { reportsUiEn } from "@rail/ui/strings/reports.en";
-import { countIn } from "./format";
+import { countIn, monthIn } from "./format";
 
 /** Counts in English digits ("1,204"), whatever the window's language. */
 const n = countIn("en");
+const monthLong = monthIn("en", "long");
+const monthShort = monthIn("en", "short");
 
 /** A share as a percentage, one decimal at most ("41.5%"). */
 function pct(share: number): string {
@@ -1268,6 +1270,18 @@ export const en = {
       error: (message: string) => `The last page did not finish: ${message}`,
       pause: "Pause",
       resume: "Resume",
+      /** (2026-11-18) The hands under way: one month at a time, newest first. */
+      analysing: (month: string) => (month ? `Analysing ${monthLong(month)}` : "Analysing hands without a date"),
+      /** A month in the list under the bar. */
+      month: (month: string) => (month ? monthShort(month) : "No date"),
+      months: "Months",
+      monthsLabel: "The analysis month by month",
+      monthDone: "done",
+      monthFirst: (month: string) => `Analyse ${month ? monthLong(month) : "these hands"} next`,
+      /** Every hand: what is left of how many, about how long. */
+      inAll: "In all",
+      hide: "Hide the analysis progress",
+      show: "Show the analysis progress",
     },
     session: {
       notAnalysed: "Analysed in the background",

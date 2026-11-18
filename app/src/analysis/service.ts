@@ -70,6 +70,7 @@ export async function tournamentSettings(): Promise<TournamentSettingsMap | null
 export const appDeps: RunnerDeps = {
   gate: () => ipc.analysisGate(),
   counts: (version) => ipc.analysisCounts(version),
+  months: (version) => ipc.analysisMonths(version),
   pending: (version, after, limit) => ipc.analysisPending(version, after, limit),
   offline: (version, limit) => ipc.analysisOffline(version, limit),
   reachable: () => ipc.flopLibraryReachable().catch(() => false),
@@ -100,6 +101,11 @@ export function startAnalysis(): void {
 export async function setAnalysisPaused(paused: boolean): Promise<void> {
   await ipc.analysisSetPaused(paused);
   runner.paused(paused);
+}
+
+/** Analyse `month` (`YYYY-MM`) next; null: newest first again. */
+export function focusAnalysisMonth(month: string | null): void {
+  runner.focus(month);
 }
 
 /** The runner's status, for a screen. */

@@ -78,8 +78,8 @@ pub mod time;
 pub mod writer;
 
 pub use analysis::{
-    AnalysisCounts, ChartSetRow, DecisionRowIn, HandAnalysisIn, PendingCursor, PendingHand,
-    PreflopFields, SaveOutcome, VillainCounters,
+    AnalysisCounts, ChartSetRow, DecisionRowIn, HandAnalysisIn, MonthCounts, PendingCursor,
+    PendingHand, PreflopFields, SaveOutcome, VillainCounters,
 };
 pub use background::{Activity, StatsWorker, WorkerStatus};
 pub use batch::{

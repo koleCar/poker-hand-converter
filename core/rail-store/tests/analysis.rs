@@ -221,6 +221,41 @@ fn pending_walks_every_hand_once_newest_first() {
         (counts.current, counts.missing()),
         (done.len() as u64, left.len() as u64)
     );
+    // Month by month: newest first, the same hands, the same analysed ones.
+    let months = store.reader().analysis_months(V1).expect("months");
+    assert!(months.len() > 1, "the corpus spans months: {months:?}");
+    assert!(
+        months
+            .windows(2)
+            .all(|w| w[1].month.is_empty() || w[0].month > w[1].month)
+    );
+    assert!(
+        months
+            .iter()
+            .all(|m| m.month.is_empty() || m.month.len() == 7)
+    );
+    assert_eq!(
+        months.iter().map(|m| m.hands).sum::<u64>(),
+        expected.len() as u64
+    );
+    assert_eq!(
+        months.iter().map(|m| m.current).sum::<u64>(),
+        done.len() as u64
+    );
+    let newest = &months[0].month;
+    let in_newest = expected
+        .iter()
+        .filter(|key| {
+            conn.query_row(
+                "SELECT substr(played_at, 1, 7) FROM hand_list WHERE hand_key = ?1",
+                [key.as_str()],
+                |row| row.get::<_, String>(0),
+            )
+            .expect("listed")
+                == *newest
+        })
+        .count();
+    assert_eq!(months[0].hands, in_newest as u64);
 
     // A version bump: every hand is pending again, the old rows are stale.
     assert_eq!(walk(&store, V2, 200), expected);
