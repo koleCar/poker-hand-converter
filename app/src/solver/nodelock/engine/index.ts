@@ -7,4 +7,4 @@
  * ```
  */
 export { createWorkerEngine, defaultThreads, etaOf, type WorkerEngineOptions } from "./engine";
-export { lockHash, type LockEarlier, type LockSet, type NodeLockSpec, type NodelockEngine, type NodelockProgress, type NodelockRequest, type NodelockResult, type NodelockStats } from "./types";
+export { lockHash, type LockBase, type LockEarlier, type LockSet, type NodeLockSpec, type NodelockEngine, type NodelockProgress, type NodelockRequest, type NodelockResult, type NodelockStats } from "./types";

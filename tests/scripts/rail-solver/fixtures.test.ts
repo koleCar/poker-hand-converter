@@ -25,7 +25,7 @@ import { loadCharts } from "../../../web/src/lib/charts/index.js";
 import { Solver, type DcfrParams } from "../../../web/src/lib/solver/cfr.js";
 import { parseRange } from "../../../web/src/lib/solver/combos.js";
 import { solveFlop, type FlopSpot } from "../../../web/src/lib/solver/flop.js";
-import { decodeChunk, encodeChunk, FLOPLIB_VERSION, type FlopChunkHeader } from "../../../web/src/lib/solver/flopLibrary.js";
+import { decodeChunk, encodeChunk, FLOPLIB_VERSION, type FlopChunk, type FlopChunkHeader } from "../../../web/src/lib/solver/flopLibrary.js";
 import { LIVE_TURN, liveTurnSpot } from "../../../web/src/lib/solver/liveTurn.js";
 import { lockHash, lockPathOf, lockSymmetries, nodelockHeader, type LockSet, type NodeLockSpec } from "../../../web/src/lib/solver/nodelock.js";
 import { buildTurnGame } from "../../../web/src/lib/solver/subgame.js";
@@ -326,7 +326,9 @@ function sameSolve(what: string, a: Uint8Array, b: Uint8Array) {
  * sends them); the Rust engine must answer the second lock warm with the
  * reference's chunk. The turn runs three locks on one deal: "none" (no
  * unlocked baseline solved), "player" (so it starts cold: the warm solver
- * lacks the baseline), "player" again (warm).
+ * lacks the baseline), "player" again (warm). `based` (§7.4) runs a turn lock
+ * on the library, then on the first flop lock's result (cold: other ranges at
+ * the same deal), then another on that result (warm); `base` is that chunk.
  */
 async function nodelockWarmFixtures() {
   const spot = smallFlopSpot();
@@ -339,18 +341,24 @@ async function nodelockWarmFixtures() {
   });
   const signal = new AbortController().signal;
   // A turn lock's chunk holds the whole turn game (megabytes): its hash is kept, and the worker's is the reference's byte for byte.
-  const solveAll = async (sets: LockSet[], spotOf: (set: LockSet) => NodelockSpot, iterations: number[], keepChunk: boolean) => {
+  // `on`: the chunk each lock is solved on (default the library's; a based lock's base, §7.4).
+  const solveAll = async (sets: LockSet[], spotOf: (set: LockSet) => NodelockSpot, iterations: number[], keepChunk: boolean, on: (set: LockSet) => { bytes: Uint8Array; chunk: FlopChunk } = () => ({ bytes: baselineBytes, chunk })) => {
     const steps = [];
     let warm: NodelockWarm | undefined;
+    let solvedOn: Uint8Array | null = null;
     for (const [k, set] of sets.entries()) {
-      const worker = await engine.solve({ lockSet: set, baseline: baselineBytes, maxIterations: iterations[k] }, () => {}, signal);
-      const reference = solveNodelock(spotOf(set), set, { baseline: chunk, maxIterations: iterations[k], warm });
+      const { bytes: baseBytes, chunk: baseChunk } = on(set);
+      // The reference's warm start is the caller's to keep to one game: another base is another game.
+      if (solvedOn !== baseBytes) warm = undefined;
+      solvedOn = baseBytes;
+      const worker = await engine.solve({ lockSet: set, baseline: baseBytes, maxIterations: iterations[k] }, () => {}, signal);
+      const reference = solveNodelock(spotOf(set), set, { baseline: baseChunk, maxIterations: iterations[k], warm });
       warm = reference.warm;
       if (worker.stats.warm !== reference.stats.warm) throw new Error(`step ${k}: warm ${worker.stats.warm} vs ${reference.stats.warm}`);
       sameSolve(`step ${k}`, worker.chunk, reference.chunk);
       if (!keepChunk && fnv64(worker.chunk) !== fnv64(reference.chunk)) throw new Error(`step ${k}: the worker's turn chunk differs`);
       steps.push({
-        request: nativeRequestOf(set, baselineBytes, chunk, spotOf(set), iterations[k]),
+        request: nativeRequestOf(set, baseBytes, baseChunk, spotOf(set), iterations[k]),
         expect: {
           warm: reference.stats.warm,
           chunkFnv: fnv64(reference.chunk),
@@ -395,11 +403,25 @@ async function nodelockWarmFixtures() {
   if (turn.map((step) => step.expect.warm).join() !== "false,false,true") {
     throw new Error(`turn warm starts: ${turn.map((step) => step.expect.warm).join()}`);
   }
+
+  // Locks on locks (§7.4): the same turn lock on the library, then built on the first flop lock's
+  // result (its ranges at the deal differ: a cold start, though the deal and card are the same),
+  // then another built on it (warm). From a fresh engine, as the reference starts.
+  engine.release();
+  const flopBase = solveNodelock(flopSpotOf(flopSets[0]), flopSets[0], { baseline: chunk, maxIterations: 12 });
+  const base = { bytes: flopBase.chunk, chunk: decodeChunk(flopBase.chunk) };
+  const on = { lockHash: lockHash(flopSets[0]), street: "flop" as const };
+  const basedSets = [turnLock(0, "player"), { ...turnLock(0, "player"), base: on }, { ...turnLock(1, "player"), base: on }];
+  const onBase = (set: LockSet) => (set.base ? base : { bytes: baselineBytes, chunk });
+  const based = await solveAll(basedSets, (set) => nodelockTurnSpot(onBase(set).chunk, set), [30, 30, 40], false, onBase);
+  if (based.map((step) => step.expect.warm).join() !== "false,false,true") {
+    throw new Error(`based warm starts: ${based.map((step) => step.expect.warm).join()}`);
+  }
   engine.release();
 
   // The app crate's command test: the first flop lock, as `native.ts` sends it.
   const app = { request: flop[0].request, lockHash: lockHash(flopSets[0]), next: flop[1].request, nextLockHash: lockHash(flopSets[1]) };
-  return { parity: { flop, turn }, app };
+  return { parity: { flop, turn, based, base: b64(flopBase.chunk) }, app };
 }
 
 function flopFixture(name: string, storage: "f32" | "i16") {

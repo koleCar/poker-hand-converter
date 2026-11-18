@@ -26,7 +26,7 @@ export interface NativeRequest {
   /** The game: `nodelockSpotOf`'s spot, its ranges as `rangeBits`. */
   spot: Record<string, unknown> & { ranges: [string, string] };
   lockSet: LockSet;
-  /** Base64 of the library chunk (a flop lock's earlier nodes); null for a turn or river lock, whose baseline the engine solves. */
+  /** Base64 of the chunk the lock is solved on (a flop lock's earlier nodes): the library's, or a based lock's base (§7.4); null for a turn or river lock, whose baseline the engine solves. */
   baseline: string | null;
   /** The result chunk's header (`nodelockHeader`, `lockHash` in it), as `JSON.stringify` writes it. */
   header: string;
@@ -35,7 +35,9 @@ export interface NativeRequest {
 
 /**
  * The native request of a lock on `spot` (`nodelockSpotOf(lockSet, chunk,
- * charts)`), the library chunk `baseline` (its bytes, `chunk` decoded).
+ * charts)`), solved on `baseline` (its bytes, `chunk` decoded): the library
+ * chunk, or for a based lock (`lockSet.base`, §7.4) its base lock's result.
+ * The header names the base (`baseHash`).
  */
 export function nativeRequestOf(lockSet: LockSet, baseline: Uint8Array, chunk: FlopChunk, spot: NodelockSpot, maxIterations?: number): NativeRequest {
   const header = JSON.stringify(nodelockHeader(chunk.header, lockSet));

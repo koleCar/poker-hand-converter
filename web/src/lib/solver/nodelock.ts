@@ -48,15 +48,32 @@ export interface NodeLockSpec {
   locked: number[];
 }
 
+/**
+ * The lock a set is built on (`docs/NODELOCK.md` §7.4): its result chunk is
+ * what the set is solved on, in place of the library chunk.
+ */
+export interface LockBase {
+  /** The parent lock's `lockHash` (its row's `lock_hash`): the chunk this set is solved on. */
+  lockHash: string;
+  /** That chunk's game: "flop" (a flop lock's flop-level chunk) or "turn" (a turn lock's turn game). */
+  street: "flop" | "turn";
+}
+
 export interface LockSet {
   version: 1;
   spot: { set: string; line: string; flop: string; turn?: string; river?: string };
   /** One or more nodes, either player. */
   nodes: NodeLockSpec[];
-  /** Freeze the ancestors' strategies at the baseline solve. */
+  /** Freeze the ancestors' strategies at the baseline solve (the base chunk's, for a based set). */
   earlier: LockEarlier;
   /** 1 = standard, 2.5 = quick. */
   targetPct: number;
+  /**
+   * The lock this set is solved on (§7.4): a turn lock made inside a solved
+   * flop lock is solved from that lock's result. Absent: solved on the
+   * library chunk (every v1 lock), and the hash is exactly v1's.
+   */
+  base?: LockBase;
 }
 
 /** A lock that does not fit the game it is applied to (another tree, a node that is not there). */
@@ -76,7 +93,11 @@ export function canonicalJson(value: unknown): string {
   return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${canonicalJson(v)}`).join(",")}}`;
 }
 
-/** SHA-256 hex of a lock set's canonical JSON: the same lock always hashes the same. */
+/**
+ * SHA-256 hex of a lock set's canonical JSON: the same lock always hashes the
+ * same. `base` is part of it (the same turn lock on two parents differs); a
+ * set without one hashes as it did before `base` existed.
+ */
 export function lockHash(set: LockSet): string {
   return sha256Hex(utf8Encode(canonicalJson(set)));
 }
@@ -356,11 +377,17 @@ export function chunkBaseline(chunk: FlopChunk, built: BuiltSubgame): BaselineSt
 }
 
 /**
- * The header of a nodelock's result chunk: the library chunk's, with the
- * lock's hash and target. A reader tells a locked chunk by `lockHash`.
+ * The header of a nodelock's result chunk: the chunk it was solved on (the
+ * library's, or the base lock's), with the lock's hash and target, and for a
+ * based set the base's hash (`baseHash`). A reader tells a locked chunk by
+ * `lockHash`. A set without `base` gives exactly the header it always did.
  */
 export function nodelockHeader(baseline: FlopChunkHeader, set: LockSet): FlopChunkHeader {
-  return { ...baseline, targetPct: set.targetPct, lockHash: lockHash(set) };
+  const { baseHash: _baseHash, ...rest } = baseline;
+  void _baseHash;
+  const header: FlopChunkHeader = { ...rest, targetPct: set.targetPct, lockHash: lockHash(set) };
+  if (set.base) header.baseHash = set.base.lockHash;
+  return header;
 }
 
 /** The flop of a lock set's spot as card indices (`spot.flop` is a flop key, e.g. `Ks5h3s`). */

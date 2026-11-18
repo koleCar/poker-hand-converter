@@ -5,7 +5,7 @@
  */
 import type { LockSet } from "./door";
 
-export type { LockEarlier, LockSet, NodeLockSpec } from "./door";
+export type { LockBase, LockEarlier, LockSet, NodeLockSpec } from "./door";
 
 export interface NodelockProgress {
   iteration: number;
@@ -21,10 +21,12 @@ export interface NodelockProgress {
 export interface NodelockRequest {
   lockSet: LockSet;
   /**
-   * The library chunk of the lock's spot (`lockSet.spot`): the bytes the
-   * Solver library shows. A flop lock freezes its earlier nodes at its
-   * strategies and checks it was solved on the same ranges; a turn or river
-   * lock takes the ranges at the deal from it.
+   * The chunk the lock is solved on: the library chunk of the lock's spot
+   * (`lockSet.spot`), the bytes the Solver library shows, or for a based
+   * lock (`lockSet.base`, §7.4) its base lock's result chunk as stored. A
+   * flop lock freezes its earlier nodes at its strategies and checks it was
+   * solved on the same ranges; a turn or river lock takes the ranges at the
+   * deal from it.
    */
   baseline: Uint8Array;
   /** Default: the library profile's cap (flop), the live turn's (turn and river). */

@@ -13,12 +13,15 @@
  *   sequential reference (`solveNodelock`).
  * - **Turn locks** re-solve the deal's turn game and come back as a chunk
  *   that decodes, with the lock's hash.
- * - **The hash** is SHA-256 of the canonical JSON.
+ * - **The hash** is SHA-256 of the canonical JSON; a set without `base`
+ *   hashes as v1 did (pinned).
+ * - **Based locks** (§7.4): a turn lock built on a locked flop is solved
+ *   from that chunk's ranges, its header naming the base.
  */
 
 import { describe, expect, it } from "vitest";
 
-import { checkBaseline, NODELOCK_WARM_ITERATION, nodelockFlopRun, nodelockTurnSpot, solveNodelock } from "../../../web/src/lib/analysis/nodelock.js";
+import { checkBase, checkBaseline, NODELOCK_WARM_ITERATION, nodelockFlopRun, nodelockSpotOf, nodelockTurnSpot, solveNodelock } from "../../../web/src/lib/analysis/nodelock.js";
 import { FLOP_PROFILE } from "../../../web/src/lib/analysis/flopLibrary.js";
 import {
   applyNodelock,
@@ -35,10 +38,12 @@ import {
   kuhnGame,
   leducGame,
   lockedStrategy,
+  liveTurnSpot,
   lockHash,
   lockPathOf,
   lockSymmetries,
   NodelockError,
+  nodelockHeader,
   NUM_COMBOS,
   ownReach,
   parseCombo,
@@ -171,6 +176,41 @@ describe("the lock model", () => {
     expect(lockHash(reordered)).toBe(lockHash(set));
     expect(lockHash({ ...set, targetPct: 2.5 })).not.toBe(lockHash(set));
     expect(lockHash(set)).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it("hashes a set without a base exactly as v1 did, and a base into the hash", () => {
+    // Pinned before `base` existed: the hashes of every stored v1 lock must not move.
+    expect(lockHash(set)).toBe("b0a70bc7495b5e83388d6a995ae394376eec0bc98d179a3f0f350b3ecfb668f1");
+    const row = (v: number) => Array.from({ length: NUM_COMBOS }, (_, c) => (c % 3 === 0 ? v : 1 - v));
+    const turn: LockSet = {
+      version: 1,
+      spot: { set: "s", line: "btn-bb", flop: "Ks8s2d", turn: "7h" },
+      nodes: [{ street: "turn", path: "X-X~7h/B2.5", player: 1, actions: ["F", "C"], strategy: [row(0.25), row(0.75)], locked: Array.from({ length: NUM_COMBOS }, (_, c) => c % 2) }],
+      earlier: "all",
+      targetPct: 2.5,
+    };
+    expect(lockHash(turn)).toBe("5f8006790edf6323840a43c835b985e3ffd44cc8e7bf49aadbb9de172dff343e");
+    expect(lockHash({ ...turn, base: undefined })).toBe(lockHash(turn));
+    const onA = { ...turn, base: { lockHash: "a".repeat(64), street: "flop" as const } };
+    const onB = { ...turn, base: { lockHash: "b".repeat(64), street: "flop" as const } };
+    expect(lockHash(onA)).not.toBe(lockHash(turn));
+    expect(lockHash(onA)).not.toBe(lockHash(onB));
+    expect(lockHash({ ...onA, base: { street: "flop" as const, lockHash: "a".repeat(64) } })).toBe(lockHash(onA));
+  });
+
+  it("names the base in a based result's header, and only there", () => {
+    const library = { charts: { id: "s", version: "1", hash: "h" }, flop: "Ks8s2d", targetPct: 0.5 } as FlopChunkHeader;
+    expect(nodelockHeader(library, set)).toEqual({ ...library, targetPct: 1, lockHash: lockHash(set) });
+    expect(JSON.stringify(nodelockHeader(library, set))).toBe(JSON.stringify({ ...library, targetPct: 1, lockHash: lockHash(set) }));
+    const parent = nodelockHeader(library, set);
+    const based: LockSet = { ...set, base: { lockHash: lockHash(set), street: "flop" } };
+    const header = nodelockHeader(parent, based);
+    expect(header.lockHash).toBe(lockHash(based));
+    expect(header.baseHash).toBe(lockHash(set));
+    // A grandchild names its own base, not its parent's.
+    const deeper: LockSet = { ...set, targetPct: 2.5, base: { lockHash: lockHash(based), street: "flop" } };
+    expect(nodelockHeader(header, deeper).baseHash).toBe(lockHash(based));
+    expect(nodelockHeader(header, set).baseHash).toBeUndefined();
   });
 
   it("cuts a path at its deals", () => {
@@ -353,5 +393,91 @@ describe("a locked turn solve", () => {
     expect(turnRoot.frequency[bet]).toBeCloseTo(1, 4);
     // River decisions are there for the view.
     expect(decoded.result.nodes.some((n) => n.street === "river" && n.kind === "action")).toBe(true);
+  });
+});
+
+describe("a turn lock built on a locked flop (§7.4)", () => {
+  const library = baselineChunk();
+  const root = library.result.nodes[0];
+  const check = root.labels.indexOf("X");
+  const ipAfterCheck = library.result.nodes[root.children[check]];
+  const bet = ipAfterCheck.labels.findIndex((l) => l.startsWith("B"));
+  const facing = library.result.nodes[ipAfterCheck.children[bet]];
+  // The flop lock: OOP folds to every bet after checking, so IP bets more and the checked-through range changes.
+  const flopSet: LockSet = {
+    version: 1,
+    spot: { set: "test", line: "btn-bb", flop: "Ks8s2d" },
+    nodes: [lockOf(library, facing.path, () => facing.labels.indexOf("F"))],
+    earlier: "player",
+    targetPct: 1,
+  };
+  const flop = solveNodelock({ street: "flop", spot: SPOT }, flopSet, { baseline: library, maxIterations: 30 });
+  const base = decodeChunk(flop.chunk);
+  const xx = library.result.nodes[ipAfterCheck.children[ipAfterCheck.labels.indexOf("X")]];
+  const card = xx.labels[0];
+  const deal = base.result.nodes.findIndex((n) => n.kind === "chance" && n.path === xx.path);
+
+  const turnSet = (on: LockSet["base"], earlier: LockSet["earlier"] = "player"): LockSet => {
+    const probe: LockSet = { version: 1, spot: { ...flopSet.spot, turn: card }, nodes: [{ street: "turn", path: lockPathOf(xx.path, card, ""), player: 0, actions: [], strategy: [], locked: [] }], earlier, targetPct: 1, base: on };
+    const tree = buildTurnGame(nodelockTurnSpot(on ? base : library, probe).spot).game.tree;
+    // IP after the turn checks to it: always bets (an earlier node, OOP's root, is the other player's).
+    const ipNode = tree.children[tree.childStart[tree.root]];
+    const actions = tree.edgeLabel.slice(tree.childStart[ipNode], tree.childStart[ipNode] + tree.childCount[ipNode]);
+    const path = lockPathOf(xx.path, card, "X");
+    const strategy = actions.map((label) => new Array<number>(NUM_COMBOS).fill(label.startsWith("B") ? 1 : 0));
+    return { ...probe, nodes: [{ street: "turn", path, player: 1, actions, strategy, locked: new Array<number>(NUM_COMBOS).fill(1) }] };
+  };
+  const on = { lockHash: lockHash(flopSet), street: "flop" as const };
+
+  it("deals the turn from the locked flop's ranges, and names its base", () => {
+    expect(xx.kind).toBe("chance");
+    expect(deal).toBeGreaterThanOrEqual(0);
+    const set = turnSet(on);
+    const spot = nodelockSpotOf(set, base);
+    if (spot.street !== "turn") throw new Error("not a turn spot");
+    const fromBase = liveTurnSpot(base, deal, card);
+    const fromLibrary = liveTurnSpot(library, deal, card);
+    expect(Array.from(spot.spot.ranges[1] as ArrayLike<number>)).toEqual(Array.from(fromBase.ranges[1] as ArrayLike<number>));
+    const moved = Array.from(fromBase.ranges[1] as ArrayLike<number>).some((w, k) => Math.abs(w - (fromLibrary.ranges[1] as ArrayLike<number>)[k]) > 1e-6);
+    expect(moved, "the flop lock changed IP's checked-through range").toBe(true);
+
+    const solved = solveNodelock(spot, set, { baseline: base, maxIterations: 30 });
+    const decoded = decodeChunk(solved.chunk);
+    expect(decoded.header.lockHash).toBe(lockHash(set));
+    expect(decoded.header.baseHash).toBe(lockHash(flopSet));
+    expect(decoded.result.street).toBe("turn");
+    const { lockHash: _l, baseHash: _b, targetPct: _t, ...rest } = decoded.header;
+    const { lockHash: _l2, targetPct: _t2, ...libraryRest } = library.header;
+    void [_l, _b, _t, _l2, _t2];
+    expect(rest).toEqual(libraryRest);
+    // The lock holds: IP bets every hand after the turn checks to it.
+    const ip = decoded.result.nodes.find((n) => n.kind === "action" && n.path === "X");
+    expect(ip?.frequency[ip.labels.findIndex((l) => l.startsWith("B"))]).toBeCloseTo(1, 4);
+    // Earlier nodes ("player": none of IP's before it on the turn) - OOP's root adapts, and differs from the same lock on the library.
+    const onLibrary = solveNodelock(nodelockSpotOf(turnSet(undefined), library), turnSet(undefined), { baseline: library, maxIterations: 30 });
+    expect(Array.from(decoded.result.nodes[0].strategy)).not.toEqual(Array.from(onLibrary.result.nodes[0].strategy));
+  });
+
+  it("freezes the earlier turn decisions at the unlocked turn solved from the base", () => {
+    const set = turnSet(on, "all");
+    const spot = nodelockSpotOf(set, base);
+    const solved = solveNodelock(spot, set, { baseline: base, maxIterations: 30 });
+    // The unlocked turn on the locked flop, solved first as the live turn solves it: OOP's root is frozen at it.
+    const baseline = solved.warm.turnBaseline;
+    expect(baseline).not.toBeNull();
+    const rootStrategy = baseline?.get(solved.built.game.tree.root);
+    const got = decodeChunk(solved.chunk).result.nodes[0].strategy;
+    expect(rootStrategy).toBeDefined();
+    for (let k = 0; k < got.length; k += 1) expect(Math.abs(got[k] - (rootStrategy as Float32Array)[k])).toBeLessThan(1e-4);
+  });
+
+  it("is refused on any other chunk", () => {
+    const set = turnSet(on);
+    expect(() => nodelockSpotOf(set, library)).toThrow(NodelockError);
+    expect(() => checkBase({ ...set, base: undefined }, base)).toThrow(NodelockError);
+    expect(() => checkBase({ ...set, base: { ...on, lockHash: "0".repeat(64) } }, base)).toThrow(NodelockError);
+    expect(() => checkBase({ ...set, base: { ...on, street: "turn" } }, base)).toThrow(NodelockError);
+    expect(() => checkBase(set, base)).not.toThrow();
+    expect(() => checkBase({ ...set, base: undefined }, library)).not.toThrow();
   });
 });

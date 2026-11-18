@@ -20,8 +20,10 @@ export {
   SplitCoordinator,
   SplitPart,
   splitCards,
+  splitLockPath,
   type FlopChunk,
   type FlopSpot,
+  type LockBase,
   type LockSet,
   type NodeLockSpec,
   type LockEarlier,
@@ -31,6 +33,7 @@ export {
   type UnitValues,
 } from "@rail/web-lib/solver";
 export {
+  checkBase,
   checkBaseline,
   NODELOCK_WARM_ITERATION,
   nodelockFlopRun,

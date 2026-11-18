@@ -54,7 +54,9 @@ interface DoneEvent {
  * the reference's game (`nodelockSpotOf`: the library job's flop spot from
  * the chart set, or the deal's live turn), its run settings and the result's
  * header (`nodelockHeader`), the library chunk as the flop's baseline
- * (`nativeRequestOf`).
+ * (`nativeRequestOf`). A based lock (§7.4) passes its base lock's chunk as
+ * `baseline`: the deal's ranges and the earlier nodes come from it, and Rust
+ * needs no change (its warm key holds the spot's ranges and the baseline).
  */
 export async function nativeRequest(lockSet: LockSet, baseline: Uint8Array, maxIterations?: number): Promise<NativeRequest> {
   const chunk = decodeChunk(baseline);

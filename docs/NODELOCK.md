@@ -889,6 +889,91 @@ engines (workers and native) already take these as inputs; the app passes
 the parent's chunk instead of the served library file. A based chunk's
 header carries `lockHash` (its own) and `baseHash`.
 
+**As built (E2)** — tests in `tests/test/solver/nodelock.test.ts` (a turn
+lock on a locked flop), `tests/test/appNodelockLineage.test.ts`,
+`tests/test/appNodelockNative.test.ts` and the Rust parity test:
+
+- **Lock model** (`web/src/lib/solver/nodelock.ts`, `@rail/web-lib/solver`):
+  `LockBase` and `LockSet.base?` as above. `lockHash` hashes `base` with the
+  rest; a set without it hashes exactly as v1 (pinned in the test).
+  `nodelockHeader(baseline, set)` adds `baseHash: set.base.lockHash` for a
+  based set (`FlopChunkHeader.baseHash?`) and drops a `baseHash` it would
+  inherit from the chunk it is solved on; v1 headers are byte-for-byte as
+  before.
+- **Which chunk** (`web/src/lib/analysis/nodelock.ts`): `checkBase(set,
+  baseline)` runs in `nodelockSpotOf`, `solveNodelock` and the worker
+  engine's flop path. A set without `base` is solved on the library chunk
+  (no `lockHash` in its header). A based set is solved on the chunk whose
+  `lockHash` is `base.lockHash`. A base is always a flop-level chunk
+  (`base.street: "flop"`): a lock inside a turn lock adds to its nodes and
+  never builds on its result, so a `"turn"` base is refused.
+- **Earlier nodes on a based set.** Nothing new in the engines: a based flop
+  lock's earlier nodes freeze at `chunkBaseline(base chunk)`. A based turn
+  lock's ranges at the deal come from the base chunk (`liveTurnSpot`), and
+  its earlier turn and river nodes freeze at the unlocked turn solved from
+  those ranges: the live turn the user saw on the parent's flop.
+- **Engines.** Both take the base chunk as `NodelockRequest.baseline`. The
+  worker engine's turn warm key now includes the chunk's `lockHash`, so the
+  same deal on the library and on a locked flop never share a solver.
+  Native: no Rust change. The window builds the spot from the base chunk
+  (`nativeRequest`), the header carries `baseHash`, and the Rust warm key
+  already holds the spot's ranges and the baseline. Parity:
+  `nodelock-warm.json` `based` steps (a turn lock on the library, the same
+  lock built on a flop lock's result, which starts cold, then another,
+  which goes on warm) are bit-identical between the reference, the worker
+  engine and `rail_solver` at 1 and 3 threads
+  (`nodelock_warm_matches_the_worker_engine`); `base` is the flop lock's
+  chunk.
+- **Lineage** (`app/src/solver/nodelock/lineage.ts`, pure):
+  ```ts
+  interface LockRef { row: NodeLockRow; set: LockSet }
+  type LockPlanKind = "same" | "later" | "earlier" | "root" | "sibling";
+  type LockFooter =
+    | { kind: "adds"; parent: string; street: "flop" | "turn" }   // "Adds to *parent*'s flop locks: …"
+    | { kind: "builds"; parent: string }                           // "Builds on *parent*: the turn is solved from its result"
+    | { kind: "library"; street: "flop" | "turn" }                 // a new lock on the library
+    | { kind: "sibling"; of: string; street: "flop" | "turn" };    // Edit / Remove: beside *of*
+  interface LockPlan { parentId: string | null; baseRowId: string | null; folderId: string | null;
+                       set: LockSet; kind: LockPlanKind; footer: LockFooter }
+  planChildLock(open: LockRef | null, ancestors: readonly LockRef[], at: LockSet["spot"],
+                spec: NodeLockSpec, settings?: Partial<{ earlier: LockEarlier; targetPct: number }>): LockPlan
+  planEditLock(open, ancestors, at, spec, settings?): LockPlan | null
+  planRemoveLock(open, ancestors, path): LockPlan | null      // null: not locked, or its lock's only node
+  lockOwner(open, ancestors, path): LockRef | null            // whose lock a (maybe inherited) node is
+  lockChain(rows: NodeLockRow[], id): LockRef[] | null        // [open, parent, …, root] by parent_id
+  siblingName(name, taken?): string                           // "<name> (2)", next free number
+  nodeGame(spec), setGame(set), withNode(nodes, spec)
+  ```
+  - `ancestors` is nearest first. `at` is the new node's spot as the editor
+    builds it; the plan's set keeps the river only when every node is on it.
+  - The table, generalised to the chain `[open, ...ancestors]`: the first
+    lock in the same game gets the new node (replacing a node at the same
+    path), the plan is its child on its base (`same` when it is the open
+    lock, else `earlier`). Otherwise a turn node goes on the first flop
+    lock's result (`later`, or `earlier` from a turn lock on another card).
+    Otherwise it is a new root on the library (`root` with nothing open,
+    else `earlier`, in the chain root's folder).
+  - Settings default to the lock the plan adds to, else `"player"` and 1 %.
+  - Edit and Remove act on the lock that owns the node (the open lock, or
+    the ancestor an inherited lock comes from) and make its sibling: same
+    parent and base, a root's folder.
+  - The footer is a value; its words are U2's i18n.
+- **Session** (`app/src/solver/nodelock/session.ts`):
+  - `startSolve(request: SolveRequest)` is unchanged except for an optional
+    `plan?: Pick<LockPlan, "parentId" | "baseRowId" | "folderId">`, with
+    `lockSet: plan.set`.
+  - A based set's baseline is the base row's stored chunk
+    (`nodelockData.get(baseRowId)`, solved, its `lock_hash` checked), not the
+    served library file.
+  - The row is saved with `parent_id` and `folder_id` (null for a child).
+    Until S2's store lands, those fields are optional on `NodeLockRow` and the
+    store ignores them.
+  - `openLock` reads the chain from `nodelockList()` (`lockChain`).
+    `ActiveLock.ancestors` is `planChildLock`'s `ancestors`. A based turn
+    lock opens with the base's chunk as `override.flop` and its own as
+    `override.turn`, so its flop is the parent's locked flop. Without
+    `parent_id` the base is found by its hash.
+
 ### 7.5 Storage (migration `0025_node_lock_tree.sql`)
 
 ```sql
