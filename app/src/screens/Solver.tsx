@@ -10,12 +10,13 @@
  * solved on this computer, under two tabs:
  *
  * - Library: always the clean solve, with the Nodelock action on a decision.
+ *   The switch sits at the start of the library's top row (`SolverHost.top`).
  * - My nodelocks: the tree of the user's locks on the left (§7.1), and beside
  *   it the open lock on its spot (`#/solver/lock=<id>&set=…`), or one quiet
  *   line when none is open (`#/solver/locks`).
  */
 import { RailLoader } from "@rail/ui/loader/RailLoader";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useT } from "../i18n";
 import { replaceParam, useRouteParam } from "../lib/router";
@@ -53,15 +54,18 @@ export function Solver() {
   useEffect(() => {
     if (locks && param) lastLocks = param;
   }, [locks, param]);
+  const tabs = <SolverTabs locks={locks} libraryParam={lastView} locksParam={lastLocks} solving={session.running !== null} />;
   return (
     <div className={styles.screen}>
-      <SolverTabs locks={locks} libraryParam={lastView} locksParam={lastLocks} solving={session.running !== null} />
       {locks ? (
-        <NodelockSplit openId={lockId}>
-          {lockId ? <OpenLock key={lockId} id={lockId} /> : <p className={treeStyles.pick}>{t.tree.pick}</p>}
-        </NodelockSplit>
+        <>
+          {tabs}
+          <NodelockSplit openId={lockId}>
+            {lockId ? <OpenLock key={lockId} id={lockId} /> : <p className={treeStyles.pick}>{t.tree.pick}</p>}
+          </NodelockSplit>
+        </>
       ) : (
-        <Library key={session.opened} lock={null} />
+        <Library key={session.opened} lock={null} top={tabs} />
       )}
       {session.editor ? <Editor open={session.editor} solverT={base.t} /> : null}
     </div>
@@ -85,7 +89,8 @@ function OpenLock({ id }: { id: string }) {
   return <Library key={session.opened} lock={active} />;
 }
 
-function Library({ lock }: { lock: ActiveLock | null }) {
+/** `top`: the start of the library's top row (the Library | My nodelocks switch). */
+function Library({ lock, top = null }: { lock: ActiveLock | null; top?: ReactNode }) {
   const base = useSolverHost();
   const param = useRouteParam();
   // Read once: afterwards the library owns the view and only writes it back.
@@ -93,7 +98,7 @@ function Library({ lock }: { lock: ActiveLock | null }) {
   const shown = useRef(lock ? viewParam(lock.summary) : (lastView ?? ""));
   const view = useCallback(() => shown.current, []);
   const nodelock = useNodelockSlot(lock, view);
-  const host = useMemo(() => ({ ...base, nodelock }), [base, nodelock]);
+  const host = useMemo(() => ({ ...base, nodelock, top }), [base, nodelock, top]);
   const lockId = lock?.row.id ?? null;
   const onView = useCallback(
     (next: SolverView) => {

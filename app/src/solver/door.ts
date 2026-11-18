@@ -22,6 +22,9 @@ export { solverLinkOf } from "@rail/web-lib/analysis/solverWalk";
 // library's slot, the decision's data the editor reads, and the suggestions.
 export type { NodelockAt, NodelockMark, NodelockNode, NodelockOverride, SolverNodelock } from "@rail/web-solver/host";
 export { actionColours, ComboText } from "@rail/web-solver/StrategyView";
+// The library's own controls and stylesheet ("Studio"), so the slot's tools read as part of the screen.
+export { ChevronDown, Chip, IconButton, LockGlyph, MixBar, Popover, Segmented, SignedBb, Switch, ToolButton } from "@rail/web-solver/ui";
+export { default as solverStyles } from "@rail/web-solver/solver.module.css";
 export { liveTurnCached, liveTurnId } from "@rail/web-solver/liveTurn";
 export {
   classOfCombo,
