@@ -273,21 +273,22 @@
   gap: 6px;
 }
 
-/* The sidebar's card (`SidebarNodelock`), like a newer Rail's. */
+/* The sidebar's card (`SidebarNodelock`), like a newer Rail's, in the lock colours. */
 .side {
   position: relative;
   display: flex;
   flex: none;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 6px;
   margin-top: auto;
   margin-bottom: var(--space-2);
-  padding: var(--space-3);
+  padding: 10px 12px 12px;
   overflow: hidden;
   border: 1px solid var(--warning-border);
-  border-radius: var(--radius-3);
+  border-radius: var(--radius-4);
   background: var(--warning-bg);
   font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
 }
 
 .sideHead {
@@ -313,7 +314,48 @@
 
 .sideTools {
   display: flex;
-  gap: var(--space-1);
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* The Solver library's small tool button (`ToolButton size="sm"`). */
+.sideButton {
+  display: inline-flex;
+  align-items: center;
+  block-size: 26px;
+  padding: 0 9px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised-2);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sideButton:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+}
+
+.sideButton:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.sideButtonLock,
+.sideButtonLock:hover {
+  border-color: var(--warning-fg);
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+
+.sideButtonQuiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-secondary);
 }
 
 /* The locked board, the one thing that says which solve this is. */
