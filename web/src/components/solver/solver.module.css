@@ -1186,10 +1186,12 @@ button.pcardHead:focus-visible {
   border-radius: 3px;
 }
 
+/* The GTO figure (compare) drops under the label when the panel is narrow, never over the combos. */
 .actLabel {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 5px;
+  gap: 0 5px;
   min-inline-size: 0;
   font-weight: var(--font-weight-medium);
   white-space: nowrap;
