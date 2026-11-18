@@ -1502,6 +1502,7 @@ export const hr: Dict = {
   nodelock: {
     action: "Nodelock",
     actionTitle: (position: string) => `Zaključaj strategiju igrača ${position} ovdje i solvaj ostatak protiv nje, na ovom računalu`,
+    lockActor: (position: string) => `Zaključaj ${position}`,
     editorLabel: (position: string) => `Nodelock: strategija igrača ${position}`,
     close: "Zatvori",
     modesLabel: "Postavi strategiju po",
@@ -1543,6 +1544,9 @@ export const hr: Dict = {
     nothingLocked: "Prvo zaključaj barem jednu ruku.",
     progress: (share: number | null, etaS: number | null) =>
       share === null ? "Procjenjujem vrijeme…" : `${Math.floor(share * 100)} %${etaS === null ? "" : ` · još oko ${clock(etaS)}`}`,
+    iterations: (iteration: number, exploitabilityPct: number | null) =>
+      `Iteracija ${n(iteration)}${exploitabilityPct === null ? "" : ` · ${n(Math.round(exploitabilityPct * 100) / 100)}% pota`}`,
+    estimate: (seconds: number) => `≈ ${seconds < 60 ? `${n(Math.max(1, Math.round(seconds)))} s` : `${n(Math.round(seconds / 60))} min`} na ovom računalu`,
     batch: (done: number, total: number) => `${n(done)} od ${n(total)} gotovo`,
     cancelAll: "Prekini sve",
     starting: "Pokrećem solve…",
@@ -1617,6 +1621,7 @@ export const hr: Dict = {
       menuMany: (count: number) => `${n(count)} ${plural(count, "stavka", "stavke", "stavki")}`,
       childStays: "Lock izgrađen na drugome ostaje ispod njega",
       solving: (share: number | null) => (share === null ? "Solva se" : `Solva se · ${Math.floor(share * 100)} %`),
+      queued: "Čeka: kreće kad prethodni solve završi",
       lockedNodes: (count: number) => `${n(count)} ${plural(count, "zaključan čvor", "zaključana čvora", "zaključanih čvorova")}`,
       deleteQuestion: (folders: number, locks: number, built: number) => {
         const extra = [

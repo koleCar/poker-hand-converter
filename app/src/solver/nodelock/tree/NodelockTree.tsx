@@ -18,7 +18,7 @@
 import { ContextMenu, type MenuItem, type MenuPoint } from "@rail/ui/hands/ContextMenu";
 import { Dialog } from "@rail/ui/dialog/Dialog";
 import { Icon } from "@rail/ui/icon/Icon";
-import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent as ReactPointerEvent } from "react";
 
 import { useT } from "../../../i18n";
 import { go } from "../../../lib/router";
@@ -60,6 +60,18 @@ const HOVER_DELAY_MS = 450;
 
 const rowId = (key: string) => `nodelock-tree-${key.replace(":", "-")}`;
 
+/**
+ * What outlives the tree: the library shows it beside the open lock and
+ * mounts it again with every lock opened, so the rows read last, the search
+ * and the scroll stay as they were.
+ */
+const kept: { loaded: Loaded; searching: boolean; query: string; scrollTop: number } = {
+  loaded: { status: "loading" },
+  searching: false,
+  query: "",
+  scrollTop: 0,
+};
+
 /** What search matches: the name, the board (both ways of writing it), the line and the table. */
 function searchText(node: Node): string {
   if (node.kind === "folder") return node.item.name;
@@ -80,15 +92,15 @@ export function NodelockTree({ openId, onHide }: { openId: string | null; onHide
   const t = useT().nodelock;
   const tt = t.tree;
   const session = useNodelockSession();
-  const [loaded, setLoaded] = useState<Loaded>({ status: "loading" });
+  const [loaded, setLoaded] = useState<Loaded>(kept.loaded);
   const [attempt, setAttempt] = useState(0);
   const [open, setOpen] = useState<Set<string>>(readOpen);
   const [selected, setSelected] = useState<Set<string>>(() => new Set(openId ? [`l:${openId}`] : []));
   const [anchor, setAnchor] = useState<string | null>(openId ? `l:${openId}` : null);
   const [focus, setFocus] = useState<string | null>(openId ? `l:${openId}` : null);
   const [renaming, setRenaming] = useState<{ key: string; name: string } | null>(null);
-  const [searching, setSearching] = useState(false);
-  const [query, setQuery] = useState("");
+  const [searching, setSearching] = useState(kept.searching);
+  const [query, setQuery] = useState(kept.query);
   const [menu, setMenu] = useState<{ at: MenuPoint; keys: string[] } | null>(null);
   const [deleting, setDeleting] = useState<{ keys: string[]; question: string; solving: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -129,6 +141,19 @@ export function NodelockTree({ openId, onHide }: { openId: string | null; onHide
   const rows = useMemo(() => visibleRows(roots, (key) => filtering || open.has(key)), [roots, filtering, open]);
 
   useEffect(() => writeOpen(open), [open]);
+  useEffect(() => {
+    kept.loaded = loaded;
+    kept.searching = searching;
+    kept.query = query;
+  }, [loaded, searching, query]);
+  // Back where it was scrolled to, once the rows are there.
+  const scrolled = useRef(false);
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    if (scrolled.current || !list || loaded.status !== "ready") return;
+    scrolled.current = true;
+    list.scrollTop = kept.scrollTop;
+  }, [loaded]);
 
   // The open lock is the selected row, its branch open (once per lock opened: it can be closed again).
   const [shown, setShown] = useState<{ id: string | null; revealed: boolean }>({ id: openId, revealed: false });
@@ -785,6 +810,9 @@ export function NodelockTree({ openId, onHide }: { openId: string | null; onHide
         aria-label={tt.label}
         aria-multiselectable="true"
         onKeyDown={onKeyDown}
+        onScroll={(event) => {
+          kept.scrollTop = event.currentTarget.scrollTop;
+        }}
         onContextMenu={(event) => {
           event.preventDefault();
           openMenu({ x: event.clientX, y: event.clientY }, null);

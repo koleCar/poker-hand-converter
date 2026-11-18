@@ -720,8 +720,10 @@ nodes with GTO → locked shifts, accuracy, time, engine, date.
     `canMove` / `planDrop` (the drop rules), `folderHere`, `folderChoices`,
     `boardCards`. Row keys are `f:<id>` / `l:<id>`.
   - `NodelockTree.tsx`: the tree, toolbar, menu, rename, delete confirm;
-    `HoverCard.tsx`: the row's summary; `NodelockSplit.tsx`: the two
-    columns, resize handle and hidden strip; `persist.ts`: localStorage
+    `HoverCard.tsx`: the row's summary; `NodelockSplit.tsx`
+    (`NodelockSide`): the tree's column left of the open lock's grid and
+    panel, under the library's toolbar (`SolverHost.side`, SV-A), its resize
+    handle and hidden strip; `persist.ts`: localStorage
     (`rail.nodelockTree.open` / `.width` / `.hidden`, try/catch).
   - `History.tsx` is gone; `SolverTabs` moved to `SolverTabs.tsx`.
 - **Drag** is pointer-based, not HTML drag and drop (a webview can take that

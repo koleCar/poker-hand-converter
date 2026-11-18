@@ -1552,6 +1552,7 @@ export const en = {
   nodelock: {
     action: "Nodelock",
     actionTitle: (position: string) => `Lock ${position}'s strategy here and solve the rest against it, on this computer`,
+    lockActor: (position: string) => `Lock ${position}`,
     editorLabel: (position: string) => `Nodelock: ${position}'s strategy`,
     close: "Close",
     modesLabel: "Set strategy by",
@@ -1593,6 +1594,9 @@ export const en = {
     nothingLocked: "Lock at least one hand first.",
     progress: (share: number | null, etaS: number | null) =>
       share === null ? "Estimating the time…" : `${Math.floor(share * 100)}%${etaS === null ? "" : ` · about ${clock(etaS)} left`}`,
+    iterations: (iteration: number, exploitabilityPct: number | null) =>
+      `Iteration ${n(iteration)}${exploitabilityPct === null ? "" : ` · ${n(Math.round(exploitabilityPct * 100) / 100)}% of the pot`}`,
+    estimate: (seconds: number) => `≈ ${seconds < 60 ? `${n(Math.max(1, Math.round(seconds)))} s` : `${n(Math.round(seconds / 60))} min`} on this computer`,
     batch: (done: number, total: number) => `${n(done)} of ${n(total)} done`,
     cancelAll: "Cancel all",
     starting: "Starting the solve…",
@@ -1666,6 +1670,7 @@ export const en = {
       menuMany: (count: number) => `${n(count)} items`,
       childStays: "A lock built on another one stays under it",
       solving: (share: number | null) => (share === null ? "Solving" : `Solving · ${Math.floor(share * 100)}%`),
+      queued: "Waiting: starts when the solve before it ends",
       lockedNodes: (count: number) => (count === 1 ? "1 locked node" : `${n(count)} locked nodes`),
       deleteQuestion: (folders: number, locks: number, built: number) => {
         const extra = [

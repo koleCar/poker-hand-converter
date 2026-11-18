@@ -8,12 +8,18 @@
  * The icon after an action's label lives inside that action's button, so it
  * is a pointer target only (a click on it does not take the action); the
  * corner's is a real button, the keyboard's way in.
+ *
+ * In the library's look ("Studio", SV-A): its lock glyph, the popover as its
+ * panels (a bar per action with GTO's tick, `GTO x → y`), its buttons. The
+ * popover is the window's (a portal), not the library's `Popover`: the strip
+ * it opens from scrolls sideways and would clip it.
  */
 import { Icon } from "@rail/ui/icon/Icon";
 import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 import { useT } from "../../i18n";
+import { IconButton, LockGlyph, ToolButton } from "../door";
 import type { NodeMark } from "./marks";
 import styles from "./nodelock.module.css";
 
@@ -142,7 +148,7 @@ export function LockMark({ id, action, data, onEdit, onRemove, onOpenFrom }: Loc
             toggle();
           }}
         >
-          <Icon name="lock" />
+          <LockGlyph />
         </button>
         {popover}
       </>
@@ -166,7 +172,7 @@ export function LockMark({ id, action, data, onEdit, onRemove, onOpenFrom }: Loc
           toggle();
         }}
       >
-        <Icon name="lock" />
+        <LockGlyph />
       </span>
       {popover}
     </>
@@ -175,7 +181,7 @@ export function LockMark({ id, action, data, onEdit, onRemove, onOpenFrom }: Loc
 
 /* ---------------------------------------------------------- the popover - */
 
-const POPOVER_WIDTH = 300;
+const POPOVER_WIDTH = 320;
 
 function pct(x: number): string {
   return `${(Math.round(x * 1000) / 10).toFixed(1)} %`;
@@ -243,6 +249,7 @@ function Popover({
   const { mark } = info;
   const gto = mark.gto ?? info.gto;
   const origin = info.preset ?? (mark.origin === "range" ? t.markRange : t.markPainted);
+  const fixed = mark.fixed >= mark.reaching ? t.markAllFixed : t.markFixed(mark.fixed, mark.reaching);
   return createPortal(
     <div
       ref={box}
@@ -258,10 +265,15 @@ function Popover({
       }}
       onPointerLeave={closeSoon}
     >
-      <p className={styles.popTitle}>
-        <Icon name="lock" />
-        <span>{info.title}</span>
-      </p>
+      <div className={styles.popHead}>
+        <span className={styles.popLock}>
+          <LockGlyph />
+        </span>
+        <strong className={styles.popTitle}>{info.title}</strong>
+        <IconButton size="sm" label={t.close} onClick={() => setOpen(null)}>
+          <Icon name="close" />
+        </IconButton>
+      </div>
       {info.from ? (
         <p className={styles.popFrom}>
           {t.markFrom}{" "}
@@ -275,8 +287,16 @@ function Popover({
           <li key={action.label} className={mark.locked[a] ? "" : styles.popFree}>
             <span className={styles.popName}>
               <span className={`${styles.popDot} ${action.colour}`} aria-hidden="true" />
-              {action.name}
-              {mark.locked[a] ? <Icon name="lock" /> : null}
+              <span className={styles.popLabel}>{action.name}</span>
+              {mark.locked[a] ? (
+                <span className={styles.popLocked}>
+                  <LockGlyph />
+                </span>
+              ) : null}
+            </span>
+            <span className={styles.popBar} aria-hidden="true">
+              <span className={action.colour} style={{ inlineSize: `${mark.shares[a] * 100}%` }} />
+              {gto ? <span className={styles.popTick} style={{ insetInlineStart: `${(gto[a] ?? 0) * 100}%` }} /> : null}
             </span>
             <span className={styles.popNums}>
               {gto ? (
@@ -287,29 +307,24 @@ function Popover({
                 <strong>{pct(mark.shares[a])}</strong>
               )}
             </span>
-            <span className={styles.popBars} aria-hidden="true">
-              {gto ? (
-                <span className={styles.popBar}>
-                  <span className={action.colour} style={{ inlineSize: `${(gto[a] ?? 0) * 100}%`, opacity: 0.45 }} />
-                </span>
-              ) : null}
-              <span className={styles.popBar}>
-                <span className={action.colour} style={{ inlineSize: `${mark.shares[a] * 100}%` }} />
-              </span>
-            </span>
           </li>
         ))}
       </ul>
-      <p className={styles.popMuted}>{mark.fixed >= mark.reaching ? t.markAllFixed : t.markFixed(mark.fixed, mark.reaching)}</p>
-      <MiniGrid mark={mark} colours={info.actions.map((a) => a.colour)} />
-      <p className={styles.popMuted}>{origin}</p>
+      <div className={styles.popMore}>
+        <MiniGrid mark={mark} colours={info.actions.map((a) => a.colour)} />
+        <p className={styles.popMuted}>
+          {fixed}
+          <br />
+          {origin}
+        </p>
+      </div>
       <div className={styles.popTools}>
-        <button type="button" className="btn btn--sm" onClick={onEdit}>
+        <ToolButton size="sm" tone="lock" onClick={onEdit}>
           {t.editLock}
-        </button>
-        <button type="button" className="btn btn--sm" disabled={info.only} title={info.only ? t.markOnlyNode : undefined} onClick={onRemove}>
+        </ToolButton>
+        <ToolButton size="sm" disabled={info.only} title={info.only ? t.markOnlyNode : undefined} onClick={onRemove}>
           {t.removeLock}
-        </button>
+        </ToolButton>
       </div>
     </div>,
     document.body,

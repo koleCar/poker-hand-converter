@@ -1,51 +1,17 @@
-/* The nodelock outside its editor: the action on a decision's card, the
-   Compare toggle, the lock marks and their popover, My nodelocks, and the
-   sidebar's card. */
+/* The nodelock outside its editor, in the Solver library's look ("Studio",
+   SV-A): the lock marks and their popover, the Library | My nodelocks
+   switch's spinner, and the sidebar's card. The toolbar's controls are the
+   library's own (`ToolButton`, `Switch`). */
 
-.nodeAction {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.nodeAction svg {
-  inline-size: 0.85rem;
-  block-size: 0.85rem;
+.screen {
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
 }
 
 .muted {
   color: var(--text-tertiary);
   font-size: var(--font-size-sm);
-}
-
-/* A solve running at this spot: a quiet line, the view stays usable. */
-.progress {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-2);
-  background: var(--surface-raised);
-}
-
-.progressText {
-  display: grid;
-  flex: 1;
-  gap: 2px;
-  min-inline-size: 0;
-  font-size: var(--font-size-sm);
-  font-variant-numeric: tabular-nums;
-}
-
-.spinner {
-  flex: none;
-  inline-size: 1rem;
-  block-size: 1rem;
-  border: 2px solid var(--border-default);
-  border-block-start-color: var(--warning-fg);
-  border-radius: 50%;
-  animation: spin 0.9s linear infinite;
 }
 
 @keyframes spin {
@@ -54,92 +20,42 @@
   }
 }
 
-/* Compare with GTO (§7.2): a quiet toggle at the right end of the view's tabs. */
-.compareToggle {
-  display: inline-flex;
-  align-items: center;
-  align-self: center;
-  gap: var(--space-2);
-  margin-inline-start: auto;
-  padding: 2px var(--space-1);
-  border: 0;
-  border-radius: var(--radius-1);
-  background: transparent;
-  color: var(--text-tertiary);
-  font: inherit;
-  font-size: var(--font-size-xs);
-  cursor: pointer;
-}
-
-.compareToggle:hover {
-  color: var(--text-primary);
-}
-
-.compareToggle:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 1px;
-}
-
-.compareToggle[aria-pressed="true"] {
-  color: var(--text-primary);
-}
-
-.compareSwitch {
-  position: relative;
-  inline-size: 1.6rem;
-  block-size: 0.9rem;
-  border-radius: var(--radius-pill);
-  background: var(--border-default);
-  transition: background-color 0.12s ease;
-}
-
-.compareSwitch::after {
-  position: absolute;
-  inset-block-start: 2px;
-  inset-inline-start: 2px;
-  inline-size: calc(0.9rem - 4px);
-  block-size: calc(0.9rem - 4px);
+/* My nodelocks' tab while a lock solves. */
+.tabSpinner {
+  inline-size: 11px;
+  block-size: 11px;
+  border: 2px solid color-mix(in srgb, var(--warning-fg) 30%, transparent);
+  border-block-start-color: var(--warning-fg);
   border-radius: 50%;
-  background: var(--surface-base);
-  content: "";
-  transition: transform 0.12s ease;
+  animation: spin 0.9s linear infinite;
 }
 
-.compareToggle[aria-pressed="true"] .compareSwitch {
-  background: var(--warning-fg);
-}
-
-.compareToggle[aria-pressed="true"] .compareSwitch::after {
-  transform: translateX(0.7rem);
-}
-
-/* A locked action's icon (§7.3): after its label, and on the decision card's corner. */
+/* A locked action's lock (§7.3): after its label on the strip and in the panel. */
 .mark {
   display: inline-flex;
   flex: none;
   align-items: center;
-  margin-inline-start: 0.3em;
+  margin-inline-start: 4px;
   color: var(--warning-fg);
-  vertical-align: -0.1em;
   cursor: help;
 }
 
 .mark svg {
-  inline-size: 0.8em;
-  block-size: 0.8em;
-  stroke-width: 2.25;
+  inline-size: 11px;
+  block-size: 11px;
+  stroke-width: 2.4;
 }
 
-/* The bottom corner: the card's head holds the seat and its stack, and the bar clips anything outside the card. */
+/* The locked card's corner (the card keeps room for it: `pcardLocked`). */
 .markCorner {
   position: absolute;
-  inset-block-end: 4px;
-  inset-inline-end: 4px;
+  inset-block-end: 5px;
+  inset-inline-end: 5px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  inline-size: 1.15rem;
-  block-size: 1.15rem;
+  inline-size: 19px;
+  block-size: 19px;
   padding: 0;
   border: 1px solid var(--warning-border);
   border-radius: 50%;
@@ -149,9 +65,9 @@
 }
 
 .markCorner svg {
-  inline-size: 0.65rem;
-  block-size: 0.65rem;
-  stroke-width: 2.25;
+  inline-size: 10px;
+  block-size: 10px;
+  stroke-width: 2.4;
 }
 
 .markCorner:focus-visible {
@@ -160,7 +76,7 @@
 }
 
 .mark:hover,
-.markOn {
+.mark.markOn {
   color: var(--text-primary);
 }
 
@@ -169,17 +85,18 @@
   border-color: var(--warning-fg);
 }
 
-/* The lock popover: how a decision is locked. */
+/* The lock popover: how a decision is locked, as the library's panels. */
 .popover {
   position: fixed;
   z-index: var(--z-tooltip);
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-3);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-2);
-  background: var(--surface-overlay);
-  box-shadow: var(--shadow-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-4);
+  background: var(--surface-raised-2);
+  box-shadow: var(--elevation-3);
   color: var(--text-primary);
   font-size: var(--font-size-sm);
 }
@@ -188,19 +105,27 @@
   margin: 0;
 }
 
-.popTitle {
+.popHead {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
-  font-weight: var(--font-weight-semibold);
+  gap: 6px;
 }
 
-.popTitle svg,
-.popName svg {
+.popLock {
+  display: inline-flex;
   flex: none;
-  inline-size: 0.8rem;
-  block-size: 0.8rem;
   color: var(--warning-fg);
+}
+
+.popLock svg {
+  inline-size: 13px;
+  block-size: 13px;
+}
+
+.popTitle {
+  flex: 1;
+  min-inline-size: 0;
+  font-weight: var(--font-weight-semibold);
 }
 
 .popFrom,
@@ -223,18 +148,25 @@
   text-decoration: underline;
 }
 
+.popLink:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
 .popActions {
   display: grid;
-  gap: var(--space-2);
+  gap: 6px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/* An action: its name, its share as a bar with GTO's tick, `GTO x → y`. */
 .popActions li {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 2px var(--space-2);
+  grid-template-columns: 5.5rem minmax(0, 1fr) 6.25rem;
+  gap: var(--space-2);
+  align-items: center;
 }
 
 .popFree {
@@ -244,14 +176,57 @@
 .popName {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: 6px;
+  min-inline-size: 0;
+}
+
+.popLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.popLocked {
+  display: inline-flex;
+  flex: none;
+  color: var(--warning-fg);
+}
+
+.popLocked svg {
+  inline-size: 10px;
+  block-size: 10px;
 }
 
 .popDot {
   flex: none;
-  inline-size: 0.5rem;
-  block-size: 0.5rem;
+  inline-size: 8px;
+  block-size: 8px;
   border-radius: 2px;
+}
+
+.popBar {
+  position: relative;
+  display: block;
+  block-size: 6px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--control-track);
+}
+
+.popBar > span:first-child {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  border-radius: 3px;
+}
+
+.popTick {
+  position: absolute;
+  inset-block: -1px;
+  inline-size: 2px;
+  margin-inline-start: -1px;
+  background: var(--text-primary);
+  opacity: 0.7;
 }
 
 .popNums {
@@ -259,37 +234,26 @@
   font-size: var(--font-size-xs);
   font-variant-numeric: tabular-nums;
   text-align: end;
+  white-space: nowrap;
 }
 
 .popNums strong {
   color: var(--text-primary);
 }
 
-.popBars {
-  display: grid;
-  grid-column: 1 / -1;
-  gap: 2px;
-}
-
-.popBar {
-  display: block;
-  block-size: 4px;
-  overflow: hidden;
-  border-radius: 2px;
-  background: var(--surface-inset);
-}
-
-.popBar > span {
-  display: block;
-  block-size: 100%;
+.popMore {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-end;
 }
 
 .miniGrid {
   display: grid;
+  flex: none;
   grid-template-columns: repeat(13, 1fr);
   gap: 1px;
-  inline-size: 11rem;
-  aspect-ratio: 1;
+  inline-size: 9.5rem;
+  aspect-ratio: 1.15;
 }
 
 .miniCell {
@@ -306,69 +270,7 @@
 .popTools {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-1);
-}
-
-/* The Solver tab's switch: the library, My nodelocks. */
-.screen {
-  display: grid;
-  gap: var(--space-3);
-  min-inline-size: 0;
-}
-
-/* One joined pill, like Cash | Tournaments (`KindToggle.module.css`), a
-   size up: the two sides with a line between, the active one filled. */
-.switch {
-  display: inline-flex;
-  justify-self: start;
-  overflow: hidden;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-pill);
-  background: var(--surface-raised);
-}
-
-.switchTab {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-5);
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: var(--font-size-base);
-  cursor: pointer;
-}
-
-.switchTab + .switchTab {
-  border-inline-start: 1px solid var(--border-default);
-}
-
-.switchTab svg {
-  inline-size: 0.9rem;
-  block-size: 0.9rem;
-}
-
-.switchTab:hover {
-  color: var(--text-primary);
-}
-
-.switchTab[aria-selected="true"] {
-  background: var(--surface-selected);
-  color: var(--text-on-selected);
-  font-weight: var(--font-weight-semibold);
-  cursor: default;
-}
-
-.tabSpinner {
-  inline-size: 0.8rem;
-  block-size: 0.8rem;
-  border: 2px solid currentColor;
-  border-block-start-color: var(--warning-fg);
-  border-radius: 50%;
-  opacity: 0.8;
-  animation: spin 0.9s linear infinite;
+  gap: 6px;
 }
 
 /* The sidebar's card (`SidebarNodelock`), like a newer Rail's. */
@@ -507,7 +409,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spinner,
+  .tabSpinner,
   .sideFillBusy,
   .sideDotBusy {
     animation: none;

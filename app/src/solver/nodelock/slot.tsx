@@ -2,18 +2,19 @@
  * The app's side of the Solver library's nodelock slot (`SolverHost.nodelock`,
  * `docs/NODELOCK.md` §5.1, §7.2–7.4), in two modes:
  *
- * - the Library tab: the clean solve. Only the Nodelock action on a
- *   decision's card; no locked chunk, no marks, whatever lock is open.
+ * - the Library tab: the clean solve. Only the `Lock BB` action at the
+ *   toolbar's right end; no locked chunk, no marks, whatever lock is open.
  * - My nodelocks on one lock: the locked chunk in place of the library's, a
  *   lock icon on every locked action (`LockMark`, its popover says how it is
- *   locked), the Compare with GTO toggle at the end of the view's tabs, and
- *   the Nodelock action on every decision (a lock on the lock, §7.4, planned
- *   by `lineage.ts`; Edit lock and Remove this lock make siblings). No
- *   banner: which lock is open is the tree's selected row.
+ *   locked), the Compare with GTO switch at the toolbar's end, and the
+ *   `Lock BB` action on every decision (a lock on the lock, §7.4, planned by
+ *   `lineage.ts`; Edit lock and Remove this lock make siblings). No banner:
+ *   which lock is open is the tree's selected row.
  *
- * A solve's progress shows in My nodelocks (`SolveProgress`) and the sidebar.
+ * The slot's controls are the library's own (`ToolButton`, `Switch`), so they
+ * read as part of its toolbar ("Studio", SV-A). A solve's progress shows in
+ * the tree's row and the sidebar.
  */
-import { Icon } from "@rail/ui/icon/Icon";
 import { useEffect, useMemo } from "react";
 
 import { useLocale, useT, type Dict } from "../../i18n";
@@ -24,9 +25,12 @@ import {
   exploreNode,
   liveTurnCached,
   liveTurnId,
+  LockGlyph,
   nodelockSuggestEn,
   nodelockSuggestHr,
   rangesAt,
+  Switch,
+  ToolButton,
   type Archetype,
   type FlopChunk,
   type NodelockAt,
@@ -41,12 +45,10 @@ import type { NodelockSummary } from "./contract";
 import { nodelockData } from "./data";
 import { closeLockPopover, LockMark, type LockPopoverData } from "./LockMark";
 import { markIndex, markPath, nodeMark, type MarkedNode, type NodeMark } from "./marks";
-import styles from "./nodelock.module.css";
 import { lockOwner, planRemoveLock, siblingName } from "./lineage";
 import {
   arrivedAt,
   boardText,
-  cancelSolve,
   editInLock,
   LOCKS_PARAM,
   openEditor,
@@ -56,7 +58,6 @@ import {
   startSolve,
   useNodelockSession,
   type ActiveLock,
-  type RunningSolve,
 } from "./session";
 import { lockPath } from "./spot";
 
@@ -100,21 +101,20 @@ function NodeAction({ at, lock }: { at: NodelockAt; lock: ActiveLock | null }) {
     openEditor(at, owner ? { lockSet: owner.set, preset: null, name: null } : null, within);
   };
   return (
-    <button type="button" className={`btn btn--sm ${styles.nodeAction}`} title={t.actionTitle(position)} onClick={open}>
-      <Icon name="lock" />
-      {t.action}
-    </button>
+    <ToolButton tone="lock" title={t.actionTitle(position)} onClick={open}>
+      <LockGlyph />
+      {t.lockActor(position)}
+    </ToolButton>
   );
 }
 
-/** Compare with GTO: a quiet toggle at the right end of the view's tabs (§7.2). */
+/** Compare with GTO (§7.2): the library's switch at the toolbar's end. */
 function CompareToggle({ on }: { on: boolean }) {
   const t = useT().nodelock;
   return (
-    <button type="button" className={styles.compareToggle} aria-pressed={on} onClick={() => setCompare(!on)}>
-      <span className={styles.compareSwitch} aria-hidden="true" />
+    <Switch on={on} onChange={setCompare}>
       {t.compare}
-    </button>
+    </Switch>
   );
 }
 
@@ -131,24 +131,6 @@ function PendingEdit({ at }: { at: NodelockAt | null }) {
   const where = at ? `${at.set}/${at.line}/${at.flop}/${at.node}/${at.turn?.card ?? ""}` : "";
   useEffect(() => closeLockPopover, [where]);
   return null;
-}
-
-/** A solve running on this computer: a quiet line with its progress and Cancel. */
-export function SolveProgress({ running }: { running: RunningSolve }) {
-  const t = useT().nodelock;
-  return (
-    <div className={styles.progress} role="status">
-      <span className={styles.spinner} aria-hidden="true" />
-      <div className={styles.progressText}>
-        <strong>{running.name}</strong>
-        <span>{running.progress ? t.progress(running.share, running.progress.etaMs === null ? null : running.progress.etaMs / 1000) : t.starting}</span>
-        <span className={styles.muted}>{t.solvingHere}</span>
-      </div>
-      <button type="button" className="btn btn--sm" onClick={cancelSolve}>
-        {t.cancel}
-      </button>
-    </div>
-  );
 }
 
 /* ----------------------------------------------------------- lock marks - */

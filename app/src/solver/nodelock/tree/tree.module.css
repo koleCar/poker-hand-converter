@@ -1,35 +1,39 @@
-/* My nodelocks (§7.1): the tree beside the open lock's solve. */
+/* My nodelocks (§7.1): the tree's column left of the open lock's grid and
+   panel (the library's `side`), as the library's panels ("Studio", SV-A). */
 
-.split {
-  display: grid;
-  gap: var(--space-4);
-  align-items: start;
-  min-inline-size: 0;
-}
-
-/* The tree's column: stays in view while the solve scrolls. */
+/* Stays in view while the solve scrolls; as tall as the library's grid. */
 .side {
   position: sticky;
-  top: 0;
+  inset-block-start: var(--space-3);
   display: flex;
   min-inline-size: 0;
-  block-size: calc(100vh - 7.5rem);
-  border-inline-end: 1px solid var(--border-subtle);
+  block-size: max(20rem, calc(100dvh - 17rem));
+  padding: 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-4);
+  background: var(--surface-raised);
 }
 
+/* Hidden: one button where the column was. */
 .strip {
   position: sticky;
-  top: 0;
+  inset-block-start: var(--space-3);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-block-start: var(--space-1);
+  padding: 4px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-4);
+  background: var(--surface-raised);
 }
 
+/* In the gap right of the column. */
 .handle {
-  flex: none;
+  position: absolute;
+  inset-block: 8px;
+  inset-inline-end: -10px;
   inline-size: 6px;
-  margin-inline-end: -3px;
+  border-radius: 3px;
   cursor: col-resize;
   touch-action: none;
 }
@@ -40,15 +44,18 @@
   background: var(--border-default);
 }
 
-.solve {
-  min-inline-size: 0;
-}
-
+/* No lock open: the library's empty box beside the tree. */
 .pick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 26rem;
   margin: 0;
-  padding: var(--space-10) var(--space-4);
-  color: var(--text-tertiary);
-  font-size: var(--font-size-sm);
+  padding: var(--space-6);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-4);
+  color: var(--text-secondary);
+  font-size: var(--font-size-md);
   text-align: center;
 }
 
