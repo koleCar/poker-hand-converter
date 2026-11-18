@@ -56,6 +56,28 @@ const MAX_ROWS = 500;
 const SEARCH_DEBOUNCE_MS = 120;
 /** At most once per this many ms after an import. */
 const ARRIVAL_THROTTLE_MS = 2000;
+/**
+ * The hidden-names notice is shown once (the owner's rule, 2026-11-18): the
+ * first time it appears it is marked seen here, it stays until the user
+ * closes it or leaves, and it does not come back on later visits.
+ */
+const HIDDEN_NOTICE_KEY = "rail.players.hiddenNoticeSeen";
+
+function hiddenNoticeSeen(): boolean {
+  try {
+    return typeof window !== "undefined" && window.localStorage.getItem(HIDDEN_NOTICE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function markHiddenNoticeSeen(): void {
+  try {
+    window.localStorage.setItem(HIDDEN_NOTICE_KEY, "1");
+  } catch {
+    // Private mode / disabled storage: the notice simply shows again next time.
+  }
+}
 
 type Query = Required<Omit<PlayerQuery, "limit" | "kind">> & { kind: ShownKind | null };
 
@@ -139,6 +161,15 @@ export function PlayersScreen({
   const [debounced, setDebounced] = useState(query.search);
   const panelRef = useRef<HTMLDivElement>(null);
   const { colours: hasColours, labels: hasLabels } = source.features;
+  // Read once per visit: a notice already seen on an earlier visit stays away.
+  const [hiddenNoticeOpen, setHiddenNoticeOpen] = useState(() => !hiddenNoticeSeen());
+  const showHiddenNotice = hiddenNoticeOpen && list !== null && list.hiddenHands > 0;
+
+  useEffect(() => {
+    if (showHiddenNotice) {
+      markHiddenNoticeSeen();
+    }
+  }, [showHiddenNotice]);
 
   const update = (change: Partial<Query>) => {
     const next = { ...query, ...change };
@@ -379,7 +410,20 @@ export function PlayersScreen({
         ) : null}
       </div>
 
-      {list && list.hiddenHands > 0 ? <p className={styles.notice}>{p.hidden(list.hiddenHands)}</p> : null}
+      {showHiddenNotice && list ? (
+        <div className={`${styles.notice} ${styles.dismissible}`}>
+          <p>{p.hidden(list.hiddenHands)}</p>
+          <button
+            type="button"
+            className={styles.dismiss}
+            aria-label={p.hiddenDismiss}
+            title={p.hiddenDismiss}
+            onClick={() => setHiddenNoticeOpen(false)}
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
       {notice}
 
       <div className={selected === null ? styles.body : `${styles.body} ${styles.split}`}>
