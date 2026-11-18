@@ -765,12 +765,16 @@ What they carried moves:
 - **Which lock is open**: the selected row in the tree.
 - **Back to GTO**: the Library tab, as today (it opens the same view).
 - **Compare with GTO**: a quiet toggle at the right end of the
-  `Strategy + EV | Ranges` tab row, shown only in My nodelocks.
+  `Strategy + EV | Ranges` tab row, shown only in My nodelocks (since the
+  Studio restyle the library's `Switch`, after the `Lock BB` button).
 - **Edit lock**: in the lock popover (§7.3).
 - Accuracy / time / engine: the row's hover card.
 - **Go to the locked spot**: clicking a locked node in the tree's hover card,
   or the popover.
-- A solve's progress: its row in the tree (and the sidebar, as today).
+- A solve's progress: its row in the tree (and the sidebar, as today): a
+  thin bar on the row; before the engine has a pace, the iteration and the
+  exploitability instead of "Estimating the time…" (`progress.ts`). Solves
+  waiting after it are listed under the tree.
 
 ### 7.3 Lock marks and the lock popover
 

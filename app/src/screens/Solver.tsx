@@ -57,7 +57,14 @@ export function Solver() {
   useEffect(() => {
     if (locks && param) lastLocks = param;
   }, [locks, param]);
-  const tabs = <SolverTabs locks={locks} libraryParam={lastView} locksParam={lastLocks} solving={session.running !== null} />;
+  const solving = session.running !== null;
+  // Kept while nothing it shows changes: the library's host is rebuilt when it does (a solve's progress must not).
+  const libraryParam = lastView;
+  const locksParam = lastLocks;
+  const tabs = useMemo(
+    () => <SolverTabs locks={locks} libraryParam={libraryParam} locksParam={locksParam} solving={solving} />,
+    [locks, libraryParam, locksParam, solving],
+  );
   return (
     <div className={styles.screen}>
       {lockId ? (
@@ -100,7 +107,7 @@ function OpenLock({ id, top }: { id: string; top: ReactNode }) {
       if (!ok) replaceParam("solver", LOCKS_PARAM);
     });
   }, [id, active]);
-  const side = <NodelockSide openId={id} />;
+  const side = useMemo(() => <NodelockSide openId={id} />, [id]);
   if (!active) {
     return (
       <Shell top={top} side={side}>
