@@ -20,7 +20,7 @@ import type { ReactNode } from "react";
 import { dealtCards, exploreHistory, exploreNode, turnDeal, type ExploreAction, type FlopChunk, type PickedFlop } from "../../lib/solver";
 import analysis from "../analysis/analysis.module.css";
 import type { FullSolve } from "./fullSolve";
-import type { SolverDict } from "./host";
+import { useSolverHost, type NodelockNode, type SolverDict } from "./host";
 import { liveTurnId } from "./liveTurn";
 import styles from "./solver.module.css";
 
@@ -31,6 +31,12 @@ export interface Where {
   turnChance: number | null;
   /** A full solve, when one is served: its turn files are picked instead of solving live. */
   full: FullSolve | null;
+}
+
+/** For the app's lock marks: the library's flop chunk and, on a live turn, its deal and card (chunk suits). */
+export interface MarkWhere {
+  library: FlopChunk;
+  turn: { chance: number; card: string } | null;
 }
 
 /** How the bar moves the view. */
@@ -79,6 +85,7 @@ export function PostflopCards({
   deal,
   picked,
   moves,
+  marks = null,
   t,
 }: {
   where: Where;
@@ -87,6 +94,8 @@ export function PostflopCards({
   deal: number | null;
   picked: PickedFlop;
   moves: PostflopMoves;
+  /** Where the lock marks look (the app's nodelock only), or null. */
+  marks?: MarkWhere | null;
   t: SolverDict;
 }) {
   const shown = (card: string) => picked.toPicked(card);
@@ -95,6 +104,18 @@ export function PostflopCards({
   // While a card is picked, the decision before the deal is the last card, its action taken.
   const last = deal !== null ? nodes[deal].parent : index;
   const cards: ReactNode[] = [];
+  /** A decision's address for its lock mark: in the flop's chunk, or the shown (turn) one's. */
+  const at = (onFlop: boolean, node: number): NodelockNode | null =>
+    marks
+      ? {
+          library: marks.library,
+          flop: where.flop,
+          chunk: onFlop ? where.flop : chunk,
+          node,
+          turn: onFlop ? null : marks.turn,
+          picked,
+        }
+      : null;
 
   // On a turn: the flop's decisions that led to it, then the turn's card.
   const chance = where.turnChance;
@@ -103,7 +124,16 @@ export function PostflopCards({
     const before = flopNodes[chance].parent;
     for (const step of exploreHistory(where.flop, before)) {
       cards.push(
-        <DecisionCard key={`f${step.node}`} chunk={where.flop} node={step.node} taken={step.action.label} onNode={moves.flopNode} onDeal={moves.flopDeal} t={t} />,
+        <DecisionCard
+          key={`f${step.node}`}
+          chunk={where.flop}
+          node={step.node}
+          taken={step.action.label}
+          onNode={moves.flopNode}
+          onDeal={moves.flopDeal}
+          mark={at(true, step.node)}
+          t={t}
+        />,
       );
     }
     cards.push(
@@ -114,6 +144,7 @@ export function PostflopCards({
         taken={exploreNode(where.flop, before).actions[flopNodes[chance].parentEdge]?.label ?? null}
         onNode={moves.flopNode}
         onDeal={moves.flopDeal}
+        mark={at(true, before)}
         t={t}
       />,
     );
@@ -133,7 +164,18 @@ export function PostflopCards({
   // The shown solve's decisions, a river's card after the action that dealt it.
   const history = exploreHistory(chunk, last);
   history.forEach((step, i) => {
-    cards.push(<DecisionCard key={`s${step.node}`} chunk={chunk} node={step.node} taken={step.action.label} onNode={moves.node} onDeal={moves.deal} t={t} />);
+    cards.push(
+      <DecisionCard
+        key={`s${step.node}`}
+        chunk={chunk}
+        node={step.node}
+        taken={step.action.label}
+        onNode={moves.node}
+        onDeal={moves.deal}
+        mark={at(!where.turn, step.node)}
+        t={t}
+      />,
+    );
     if (step.card) {
       const next = history[i + 1]?.node ?? last;
       cards.push(
@@ -153,7 +195,17 @@ export function PostflopCards({
   // The decision shown: to make, or made with the next street's card being picked.
   const dealing = deal !== null ? (exploreNode(chunk, last).actions[nodes[deal].parentEdge]?.label ?? null) : null;
   cards.push(
-    <DecisionCard key={`s${last}`} chunk={chunk} node={last} taken={dealing} acting={deal === null} onNode={moves.node} onDeal={moves.deal} t={t} />,
+    <DecisionCard
+      key={`s${last}`}
+      chunk={chunk}
+      node={last}
+      taken={dealing}
+      acting={deal === null}
+      onNode={moves.node}
+      onDeal={moves.deal}
+      mark={at(!where.turn, last)}
+      t={t}
+    />,
   );
   if (deal !== null) {
     const street = where.turn ? "river" : "turn";
@@ -170,6 +222,7 @@ function DecisionCard({
   acting = false,
   onNode,
   onDeal,
+  mark: markAt = null,
   t,
 }: {
   chunk: FlopChunk;
@@ -179,8 +232,12 @@ function DecisionCard({
   acting?: boolean;
   onNode: (node: number) => void;
   onDeal: (from: number, chance: number) => void;
+  /** This decision's address for the app's lock marks, or null. */
+  mark?: NodelockNode | null;
   t: SolverDict;
 }) {
+  const { nodelock } = useSolverHost();
+  const mark = markAt && nodelock?.lockMark ? nodelock.lockMark(markAt) : null;
   const view = exploreNode(chunk, node);
   const go = (action: ExploreAction) => {
     if (action.child >= 0) onNode(action.child);
@@ -198,6 +255,7 @@ function DecisionCard({
         <strong>{view.position}</strong>
         <span>{t.preflop.stack(chunk.result.nodes[node].behind)}</span>
       </button>
+      {mark ? mark.render(null) : null}
       <div className={styles.seatOptions}>
         {view.actions.map((action, a) => {
           const isTaken = action.label === taken;
@@ -218,6 +276,7 @@ function DecisionCard({
               }}
             >
               {t.action(action.kind, action.sizePot, action.amount)}
+              {mark?.actions.has(action.label) ? mark.render(action.label) : null}
             </button>
           );
         })}

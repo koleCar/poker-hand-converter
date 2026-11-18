@@ -455,6 +455,9 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     const where: Where = { flop: flopSolve, turn: turn ? solve : null, turnChance, full: fullSolve };
     const include = masks ? masks[solve.result.nodes[nodeIndex].player] : undefined;
     const model = flopModel(solve, nodeIndex, picked, t, include);
+    // The app's lock marks (§7.3): on the flop's decisions and a live turn's; the web sets none.
+    const marks = nodelock?.lockMark && librarySolve && (!turn || live) ? { library: librarySolve, turn: live ? { chance: live.chance, card: live.card } : null } : null;
+    const mark = marks && nodelock?.lockMark ? nodelock.lockMark({ ...marks, flop: flopSolve, chunk: solve, node: nodeIndex, picked }) : null;
     postflop = (
       <>
         {postflop}
@@ -464,6 +467,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
           deal={shownDeal}
           picked={picked}
           moves={{ flopNode: goFlop, flopDeal: goFlopDeal, node: goNode, deal: goDeal, changeFlop: () => setPicker(true) }}
+          marks={marks}
           t={t}
         />
       </>
@@ -488,6 +492,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
       <StrategyView
         model={model}
         compare={compare}
+        actionMark={mark ? (key) => (mark.actions.has(key) ? mark.render(key) : null) : undefined}
         hero={hero}
         toolbar={
           <div className={styles.viewTabs} role="tablist" aria-label={t.tabs.label}>
@@ -507,6 +512,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
                 {t.tabs[x]}
               </button>
             ))}
+            {nodelock?.tabTools ? nodelock.tabTools(at) : null}
           </div>
         }
         main={tab === "ranges" && rangeData ? (onHand) => <RangesView data={rangeData} masks={masks} strategy={model} onHand={onHand} /> : undefined}

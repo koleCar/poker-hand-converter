@@ -14,6 +14,7 @@ export {
   LIVE_TURN,
   lockGameStreet,
   lockHash,
+  lockPathOf,
   NodelockError,
   nodelockHeader,
   SplitCoordinator,

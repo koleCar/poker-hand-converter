@@ -749,6 +749,43 @@ then it shows the icon too, with `0 %`).
 - Locks inherited from a parent lock (§7.4) are marked too, with the
   parent's name in the popover ("from *Passive BB*") and a link to open it.
 
+**As built (U2)**:
+- **Slot** (`web/src/components/solver/host.tsx`): `SolverNodelock` gains
+  `tabTools(at)` (rendered at the right end of the `Strategy + EV | Ranges`
+  row) and `lockMark(node: NodelockNode) → NodelockMark | null`.
+  `NodelockNode` is any decision on the action strip or in the panel
+  (`library`, the shown `flop`, the `chunk` it is in, `node`, `turn` as in
+  `NodelockAt`, `picked`); `NodelockMark` is `{ actions: Set<label>,
+  render(action | null) }`. `PostflopBar`'s `DecisionCard` draws
+  `render(label)` after each locked option and `render(null)` in the card
+  (bottom corner: the head holds the seat and stack, and the bar clips
+  anything outside the card); `StrategyView` takes `actionMark(key)` after an
+  action box's label. The web sets neither, so it renders nothing new (`.seat`
+  only gained `position: relative`). `banner(at)` stays for the pending
+  edit but draws nothing.
+- **Banner removed** (`slot.tsx`, its CSS and strings). Compare is
+  `CompareToggle` in `tabTools`, shown in My nodelocks while the view is the
+  lock's solve (`at.locked`).
+- **Marks** (`app/src/solver/nodelock/marks.ts`, pure,
+  `tests/test/appNodelockMarks.test.ts`): `markPath` builds a decision's
+  lock path, `markIndex(own, ancestors)` maps every locked path to its spec
+  (own nodes first, then the nearest ancestor's), `nodeMark(spec, spot)` gives
+  per action `locked` (a fixed combo plays it, or the lock took GTO's share
+  of the fixed combos to 0 %), `gto` and locked `shares` (fixed combos at the
+  lock, the rest at GTO), `fixed` / `reaching` combos, `origin` ("range"
+  when every reaching combo is fixed, else "painted") and the 169 grid cells.
+- **GTO at hand** (`slot.tsx`): the library's flop chunk; on a turn the
+  library's live turn when it was solved this session (`liveTurnCached`);
+  else, for the row's own first node, `summary.shifts`; else the popover
+  shows only the locked shares. A based lock's own nodes have no GTO here.
+- **Popover** (`LockMark.tsx`): one open at a time (a small store), hover
+  opens, click pins, Esc / outside click closes, closes when the view moves.
+  Rendered in a portal, placed under (or over) the icon. The icon after an
+  action's label sits inside that action's button, so it is a pointer target
+  that does not take the action; the card's corner lock is a real button.
+  Ancestors are read from `nodelock_list` by `parent_id`; an inherited mark
+  says "From *name*" with a link that opens that lock.
+
 ### 7.4 Locks on locks
 
 Inside an open lock **every** decision (flop, turn, river, either player)

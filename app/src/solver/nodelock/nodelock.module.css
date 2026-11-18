@@ -1,5 +1,6 @@
 /* The nodelock outside its editor: the action on a decision's card, the
-   banners above the library's view, My nodelocks, and the sidebar's card. */
+   Compare toggle, the lock marks and their popover, My nodelocks, and the
+   sidebar's card. */
 
 .nodeAction {
   display: inline-flex;
@@ -53,69 +54,259 @@
   }
 }
 
-/* The Nodelocked banner: amber, the lock's summary, the way back. */
-.banner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-4);
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--warning-border);
-  border-radius: var(--radius-2);
-  background: var(--warning-bg);
-}
-
-/* Off the locked decision in My nodelocks: the view is GTO, said quietly. */
-.bannerOff {
-  border-color: var(--border-subtle);
-  background: var(--surface-raised);
-}
-
-.tag {
+/* Compare with GTO (§7.2): a quiet toggle at the right end of the view's tabs. */
+.compareToggle {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
-  padding: 2px var(--space-2);
-  border-radius: var(--radius-pill);
-  background: var(--warning-fg);
-  color: var(--surface-base);
+  align-self: center;
+  gap: var(--space-2);
+  margin-inline-start: auto;
+  padding: 2px var(--space-1);
+  border: 0;
+  border-radius: var(--radius-1);
+  background: transparent;
+  color: var(--text-tertiary);
+  font: inherit;
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: var(--letter-spacing-wide);
-  text-transform: uppercase;
+  cursor: pointer;
 }
 
-.tag svg {
-  inline-size: 0.75rem;
-  block-size: 0.75rem;
+.compareToggle:hover {
+  color: var(--text-primary);
 }
 
-.bannerText {
+.compareToggle:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.compareToggle[aria-pressed="true"] {
+  color: var(--text-primary);
+}
+
+.compareSwitch {
+  position: relative;
+  inline-size: 1.6rem;
+  block-size: 0.9rem;
+  border-radius: var(--radius-pill);
+  background: var(--border-default);
+  transition: background-color 0.12s ease;
+}
+
+.compareSwitch::after {
+  position: absolute;
+  inset-block-start: 2px;
+  inset-inline-start: 2px;
+  inline-size: calc(0.9rem - 4px);
+  block-size: calc(0.9rem - 4px);
+  border-radius: 50%;
+  background: var(--surface-base);
+  content: "";
+  transition: transform 0.12s ease;
+}
+
+.compareToggle[aria-pressed="true"] .compareSwitch {
+  background: var(--warning-fg);
+}
+
+.compareToggle[aria-pressed="true"] .compareSwitch::after {
+  transform: translateX(0.7rem);
+}
+
+/* A locked action's icon (§7.3): after its label, and on the decision card's corner. */
+.mark {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  margin-inline-start: 0.3em;
+  color: var(--warning-fg);
+  vertical-align: -0.1em;
+  cursor: help;
+}
+
+.mark svg {
+  inline-size: 0.8em;
+  block-size: 0.8em;
+  stroke-width: 2.25;
+}
+
+/* The bottom corner: the card's head holds the seat and its stack, and the bar clips anything outside the card. */
+.markCorner {
+  position: absolute;
+  inset-block-end: 4px;
+  inset-inline-end: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.15rem;
+  block-size: 1.15rem;
+  padding: 0;
+  border: 1px solid var(--warning-border);
+  border-radius: 50%;
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+  cursor: pointer;
+}
+
+.markCorner svg {
+  inline-size: 0.65rem;
+  block-size: 0.65rem;
+  stroke-width: 2.25;
+}
+
+.markCorner:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.mark:hover,
+.markOn {
+  color: var(--text-primary);
+}
+
+.markCorner:hover,
+.markCorner.markOn {
+  border-color: var(--warning-fg);
+}
+
+/* The lock popover: how a decision is locked. */
+.popover {
+  position: fixed;
+  z-index: var(--z-tooltip);
   display: grid;
-  flex: 1;
-  gap: 2px;
-  min-inline-size: 14rem;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-overlay);
+  box-shadow: var(--shadow-2);
+  color: var(--text-primary);
   font-size: var(--font-size-sm);
 }
 
-.shifts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 var(--space-3);
-  color: var(--warning-on-tint);
-  font-variant-numeric: tabular-nums;
+.popover p {
+  margin: 0;
 }
 
-.bannerTools {
+.popTitle {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  font-weight: var(--font-weight-semibold);
+}
+
+.popTitle svg,
+.popName svg {
+  flex: none;
+  inline-size: 0.8rem;
+  block-size: 0.8rem;
+  color: var(--warning-fg);
+}
+
+.popFrom,
+.popMuted {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.popLink {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-link);
+  font: inherit;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.popLink:hover {
+  text-decoration: underline;
+}
+
+.popActions {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.popActions li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px var(--space-2);
+}
+
+.popFree {
+  opacity: 0.6;
+}
+
+.popName {
+  display: inline-flex;
+  align-items: center;
   gap: var(--space-1);
 }
 
-.pressed {
-  border-color: var(--warning-border);
-  background: var(--warning-bg);
-  color: var(--warning-fg);
+.popDot {
+  flex: none;
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-radius: 2px;
+}
+
+.popNums {
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.popNums strong {
+  color: var(--text-primary);
+}
+
+.popBars {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 2px;
+}
+
+.popBar {
+  display: block;
+  block-size: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--surface-inset);
+}
+
+.popBar > span {
+  display: block;
+  block-size: 100%;
+}
+
+.miniGrid {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  gap: 1px;
+  inline-size: 11rem;
+  aspect-ratio: 1;
+}
+
+.miniCell {
+  display: flex;
+  overflow: hidden;
+  border-radius: 1px;
+  background: var(--surface-inset);
+}
+
+.miniCell > span {
+  block-size: 100%;
+}
+
+.popTools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
 }
 
 /* The Solver tab's switch: the library, My nodelocks. */

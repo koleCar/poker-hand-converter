@@ -187,9 +187,11 @@ interface StrategyViewProps {
   hero?: StrategyHero | null;
   /** A baseline at the same decision (the app's nodelock: GTO beside the locked solve): its deltas show. */
   compare?: StrategyCompare | null;
+  /** After an action's label (by its `key`): the app's nodelock marks a locked action. */
+  actionMark?: (key: string) => ReactNode;
 }
 
-export function StrategyView({ model, overview, toolbar, main, filters, fade = false, hero = null, compare = null }: StrategyViewProps) {
+export function StrategyView({ model, overview, toolbar, main, filters, fade = false, hero = null, compare = null, actionMark }: StrategyViewProps) {
   // Kept across decisions: the panel stays on the filters while the line is walked.
   const [panelTab, setPanelTab] = useState<"hand" | "filters">("hand");
   // `rail-fade` plays once, when the view first replaces a loader or a message;
@@ -206,6 +208,7 @@ export function StrategyView({ model, overview, toolbar, main, filters, fade = f
         fade={fade}
         hero={hero}
         compare={compare}
+        actionMark={actionMark}
         panelTab={panelTab}
         onPanelTab={setPanelTab}
       />
@@ -222,6 +225,7 @@ function Grid({
   fade,
   hero,
   compare,
+  actionMark,
   panelTab,
   onPanelTab,
 }: StrategyViewProps & { panelTab: "hand" | "filters"; onPanelTab: (tab: "hand" | "filters") => void }) {
@@ -376,6 +380,7 @@ function Grid({
                 <span className={styles.actionBoxLabel}>
                   <span className={`${styles.actionDot} ${action.colour}`} aria-hidden="true" />
                   {action.label}
+                  {actionMark ? actionMark(action.key) : null}
                 </span>
                 <strong className={styles.actionBoxShare}>{t.shareOnly(action.share)}</strong>
                 <span className={styles.actionBoxCombos}>{t.combosCount(action.combos)}</span>

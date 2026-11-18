@@ -20,9 +20,9 @@ export { solverLinkOf } from "@rail/web-lib/analysis/solverWalk";
 
 // The desktop app's nodelock (`docs/NODELOCK.md` §5, `./nodelock/`): the
 // library's slot, the decision's data the editor reads, and the suggestions.
-export type { NodelockAt, NodelockOverride, SolverNodelock } from "@rail/web-solver/host";
+export type { NodelockAt, NodelockMark, NodelockNode, NodelockOverride, SolverNodelock } from "@rail/web-solver/host";
 export { actionColours, ComboText } from "@rail/web-solver/StrategyView";
-export { liveTurnId } from "@rail/web-solver/liveTurn";
+export { liveTurnCached, liveTurnId } from "@rail/web-solver/liveTurn";
 export {
   classOfCombo,
   comboText,

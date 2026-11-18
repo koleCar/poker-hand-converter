@@ -174,12 +174,6 @@ export function lockIdOf(param: string | null): string | null {
   return new URLSearchParams(param).get("lock") || null;
 }
 
-/** Leaves the locked solution for the library's clean solve, on the same view. */
-export function backToGto(view: string): void {
-  set({ compare: false });
-  go("solver", view);
-}
-
 export function dismissNotice(): void {
   set({ notice: null });
 }

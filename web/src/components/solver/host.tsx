@@ -77,6 +77,31 @@ export interface StrategyCompare {
   classes: Array<{ freq: number[]; ev: number[]; value: number }>;
 }
 
+/**
+ * A decision on the action strip or in the strategy panel, for the lock marks
+ * (§7.3): any decision of the shown solve, not only the one on screen.
+ */
+export interface NodelockNode {
+  /** The library's own flop chunk, and the flop's chunk as shown (the library's or a locked one). */
+  library: FlopChunk;
+  flop: FlopChunk;
+  /** The chunk the decision is in: `flop`, or a live turn's. */
+  chunk: FlopChunk;
+  node: number;
+  /** In a live turn's chunk: the flop chunk's deal and the card (chunk suits); null on the flop. */
+  turn: { chance: number; card: string } | null;
+  /** The flop as picked: the chunk's cards in the suits on screen. */
+  picked: PickedFlop;
+}
+
+/** A locked decision's mark: which of its actions are locked, and the lock icon (with its popover) to draw. */
+export interface NodelockMark {
+  /** The locked actions' tree labels (`B1.82`). */
+  actions: ReadonlySet<string>;
+  /** The icon after a locked action's label (`action`), or on the decision card's corner (null). */
+  render: (action: string | null) => ReactNode;
+}
+
 export interface SolverNodelock {
   /** The locked solution being shown, or null: the library's own. */
   override: NodelockOverride | null;
@@ -87,8 +112,12 @@ export interface SolverNodelock {
   shareDelta: (delta: number) => string;
   /** The Nodelock action on the node card. */
   nodeAction: (at: NodelockAt) => ReactNode;
-  /** Above the view (the Nodelocked banner); `at` is null off a flop or turn decision. */
+  /** Above the view; `at` is null off a flop or turn decision. */
   banner: (at: NodelockAt | null) => ReactNode;
+  /** At the right end of the `Strategy + EV | Ranges` tab row (the Compare toggle in My nodelocks). */
+  tabTools?: (at: NodelockAt | null) => ReactNode;
+  /** A decision's lock mark, or null when none of its actions is locked (§7.3). */
+  lockMark?: (node: NodelockNode) => NodelockMark | null;
 }
 
 const HostContext = createContext<SolverHost | null>(null);
