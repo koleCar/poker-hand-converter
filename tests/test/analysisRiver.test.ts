@@ -529,7 +529,7 @@ describe("the range walk", () => {
     expect(rangeWeight(start.hero)).toBeLessThan(rangeWeight(atFlop.hero));
   });
 
-  it("solves a pot three players saw the flop of from where it became heads-up (A9)", () => {
+  it("solves a pot three players saw the flop of from where it became heads-up (A9), only when multiway postflop is on (analysis/46)", () => {
     const text = [
       "Poker Hand #RVM: Hold'em No Limit ($0.5/$1) - 2026/01/01 12:00:00",
       "Table 'Rv' 6-max Seat #1 is the button",
@@ -561,7 +561,12 @@ describe("the range walk", () => {
       "*** SUMMARY ***",
       `Total pot $20 ${FEES}`,
     ].join("\n");
-    const analysis = analyse(parseStandardHand(text, CTX)!);
+    const hand = parseStandardHand(text, CTX)!;
+    // analysis/46: by default no decision after a flop three saw is graded, the heads-up river included.
+    const excluded = river(analyse(hand), "call");
+    expect(excluded).toMatchObject({ status: "not-analysed", reason: "multiway", grade: null, evLoss: null, options: [] });
+    expect(excluded.approximations).not.toContain("multiway-history");
+    const analysis = analyzeHand(structuredClone(hand), { charts: CHARTS, multiwayPostflop: true });
     const call = river(analysis, "call");
     // The heads-up walk alone still refuses it; the multiway walk hands the
     // heads-up turn and river to the solvers (`multiway-history`).

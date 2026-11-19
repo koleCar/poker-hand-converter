@@ -7,9 +7,12 @@
  *   past them all): its spot, exact when the library graded it.
  * - A turn or river the library cannot follow onto (a representative flop):
  *   the hero's last flop decision there (`flop`).
- * - A postflop decision the library has no tree for - multiway, a preflop line
+ * - A heads-up postflop decision the library has no tree for - a preflop line
  *   or table it does not solve: the hero's last preflop decision in the
  *   charts, the ranges the hand went to the flop with (`preflop`).
+ * - A flop three or more saw (analysis/46): nothing after it. Nothing solves
+ *   such a pot and it plays very differently, so the Solver is not offered
+ *   past the flop; the hand's preflop decisions still open their charts.
  *
  * A table at a depth no set covers is read on the nearest charted one (the
  * analysis does that itself); `depth` names the set's when it is not the
@@ -58,6 +61,11 @@ function setDepth(set: string | null): number | null {
   return match ? Number(match[1]) : null;
 }
 
+/** Three or more saw the flop: the analysis grades none of its postflop decisions (analysis/46). */
+export function multiwayFlop(decisions: readonly DecisionAnalysis[]): boolean {
+  return decisions.some((d) => d.street !== "preflop" && (d.reason === "multiway" || d.facts.players > 2));
+}
+
 export function handSpotOf(decisions: readonly DecisionAnalysis[], hand: unknown, position: ReplayPosition | null): HandSpot | null {
   const decision = decisionAt(decisions, position);
   if (!decision) return null;
@@ -79,10 +87,11 @@ export function handSpotOf(decisions: readonly DecisionAnalysis[], hand: unknown
     };
   };
 
+  if (decision.street !== "preflop" && multiwayFlop(decisions)) return null;
   const own = done(solverSpotOf(decisions, decision, hand), decision, "exact");
   if (own) return own;
   if (decision.street === "preflop") return null;
-  // Postflop with no tree: the ranges the hand went to the flop with.
+  // Heads-up postflop with no tree: the ranges the hand went to the flop with.
   const preflop = decisions.filter((d) => d.street === "preflop" && d.order < decision.order && d.facts.chart);
   const last = preflop[preflop.length - 1];
   return last ? done(solverSpotOf(decisions, last, hand), last, "preflop") : null;

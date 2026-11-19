@@ -1095,14 +1095,14 @@ export const hr: Dict = {
       openInSolver: "Solver",
       openInSolverTitle: "Otvori Solver na ovom spotu ruke",
       solverLooking: "Tražim spot…",
-      solverNone: "Solver nema spot za ovu ruku: ni stol ni linija nisu u chartovima.",
+      solverNone: "Solver ovdje nema spot: flop su vidjela tri ili više igrača, ili ni stol ni linija ruke nisu u chartovima.",
       spotNote: {
         flop: "≈ zadnja odluka na flopu",
         flopTitle:
           "Library nema turn ni river ovog flopa (pročitan je sa sličnog flopa): ovo je heroova zadnja odluka na flopu.",
         preflop: "≈ preflop rangeovi",
         preflopTitle:
-          "Library nema solve ovog spota nakon flopa (multiway, ili linija koju ne solva): ovo su rangeovi s kojima je ruka došla na flop.",
+          "Library nema solve ovog heads-up spota nakon flopa (linija koju ne solva): ovo su rangeovi s kojima je ruka došla na flop.",
         depth: (set, hand) => `≈ ${set}bb (ruka ${hand}bb)`,
         depthTitle: "Nema chart seta na dubini stacka ove ruke: prikazan je najbliži.",
       },

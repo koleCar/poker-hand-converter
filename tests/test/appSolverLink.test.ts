@@ -63,10 +63,22 @@ describe("handSpotOf", () => {
     expect(route).toMatchObject({ set: SET, line: "f", hero: { cards: "AhKd", position: "BTN" }, approx: null, handDepth: null });
   });
 
-  it("stands in for a multiway flop with the preflop ranges", () => {
-    const spot = handSpotOf([open, flopMultiway, turn], undefined, { kind: "action", actionIndex: 14 });
+  it("stands in for a heads-up flop the library has no tree for with the preflop ranges", () => {
+    const flopHeadsUp = decision(1, 9, "flop", { board: ["Qs", "7h", "2c"], players: 2 });
+    const spot = handSpotOf([open, flopHeadsUp], undefined, { kind: "action", actionIndex: 9 });
     expect(spot?.approx).toBe("preflop");
     expect(parseSolverParam(spot?.param ?? null)).toMatchObject({ set: SET, line: "f", approx: "preflop" });
+  });
+
+  it("offers nothing after a flop three or more saw, and still the preflop chart (analysis/46)", () => {
+    const all = [open, flopMultiway, turn];
+    expect(handSpotOf(all, undefined, { kind: "action", actionIndex: 14 })).toBeNull();
+    expect(handSpotOf(all, undefined, { kind: "street", street: "flop" })).toBeNull();
+    // Heads-up by the turn, but the flop was three-way: the analysis says so on every postflop decision.
+    const huTurn = decision(2, 14, "turn", { board: ["Qs", "7h", "2c", "9d"], players: 2, reason: undefined });
+    const flopMarked = { ...decision(1, 9, "flop", { players: 2 }), reason: "multiway" } as DecisionAnalysis;
+    expect(handSpotOf([open, flopMarked, huTurn], undefined, { kind: "end" })).toBeNull();
+    expect(handSpotOf(all, undefined, { kind: "start" })?.approx).toBe("exact");
   });
 
   it("names the hand's depth when the set is another", () => {

@@ -1134,7 +1134,7 @@ export const en = {
       openInSolver: "Solver",
       openInSolverTitle: "Open the Solver at this spot of the hand",
       solverLooking: "Finding the spot…",
-      solverNone: "The Solver has no spot for this hand: no table or line of it is in the charts.",
+      solverNone: "The Solver has no spot here: three or more saw the flop, or no table or line of the hand is in the charts.",
       /** The Solver tab opened from a hand on a spot that stands in for it (`solver/handSpot.ts`). */
       spotNote: {
         flop: "≈ last flop decision",
@@ -1142,7 +1142,7 @@ export const en = {
           "The library has no turn or river of this flop (it was read from a similar flop): this is the hero's last flop decision.",
         preflop: "≈ preflop ranges",
         preflopTitle:
-          "The library has no solve of this spot after the flop (multiway, or a line it does not solve): these are the ranges the hand went to the flop with.",
+          "The library has no solve of this heads-up spot after the flop (a line it does not solve): these are the ranges the hand went to the flop with.",
         depth: (set: number, hand: number) => `≈ ${set}bb (hand ${hand}bb)`,
         depthTitle: "No chart set at the hand's stack depth: the nearest one is shown.",
       },

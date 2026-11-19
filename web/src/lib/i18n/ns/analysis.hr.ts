@@ -259,7 +259,7 @@ const turnReasons = {
 /** Kraj rečenice "Bez ocjene: …" za multiway odluku (A9), po `MULTIWAY_SKIP_REASONS`. */
 const multiwayReasons = {
   multiway:
-    "u potu su tri ili više igrača, a nijedan solver ne modelira tri raspona odjednom; približnu ocjenu dobiva samo call ili fold na flopu, turnu ili riveru protiv beta",
+    "flop su vidjela tri ili više igrača: takav pot ništa ne solva, a igra se sasvim drukčije od heads-upa, pa nijedna odluka nakon flopa nema ocjenu",
   "multiway-side-pot": "side pot (all-in za manje) dijeli showdown, a približni call to ne modelira",
   "multiway-crowded": "na bet je trebalo odgovoriti više od tri igrača",
   "multiway-range-unknown": "raspon jednog igrača nije se mogao provesti kroz ruku",
@@ -840,7 +840,7 @@ export const analysisHr: Dict["analysis"] = {
     "bomb-pot": "Bomb pot s dvije ploče",
     "hero-cards-unknown": "Tvoje karte nisu poznate",
     "no-decisions": "Nisi imao/la nijednu odluku",
-    multiway: "Multiway: samo činjenice i bilješke",
+    multiway: "Multiway: bez ocjene",
     "multiway-side-pot": "Multiway: side pot",
     "multiway-crowded": "Multiway: četiri ili više na potezu",
     "multiway-range-unknown": "Multiway: raspon se nije mogao provesti",

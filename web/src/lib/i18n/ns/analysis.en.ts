@@ -299,7 +299,7 @@ const riverReasons = {
 /** Why a multiway decision has no grade (A9). Keyed by `MULTIWAY_SKIP_REASONS`. */
 const multiwayReasons = {
   multiway:
-    "three or more players are in the pot, and no solver models three ranges at once; only a call or fold facing a bet gets an approximate grade",
+    "three or more players saw the flop: nothing solves such a pot, and it plays very differently from a heads-up one, so no decision after the flop is graded",
   "multiway-side-pot": "a side pot (an all-in for less) splits the showdown, which the approximate call does not model",
   "multiway-crowded": "more than three players were still to answer the bet",
   "multiway-range-unknown": "a player's range could not be walked through the hand",
@@ -866,7 +866,7 @@ export const analysisEn = {
     "bomb-pot": "Bomb pot on two boards",
     "hero-cards-unknown": "Your cards are unknown",
     "no-decisions": "You had no decision",
-    multiway: "Multiway: facts and notes only",
+    multiway: "Multiway: not graded",
     "multiway-side-pot": "Multiway: a side pot",
     "multiway-crowded": "Multiway: four or more to answer",
     "multiway-range-unknown": "Multiway: a range could not be walked",
