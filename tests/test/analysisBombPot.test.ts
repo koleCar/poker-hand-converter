@@ -5,14 +5,17 @@
  * is narrowed by the multiway heuristic; a call or fold facing a bet gets the
  * multiway approximate grade, a street that began heads-up the heads-up
  * solve (`multiway-history`); every decision carries `bomb-pot` (not
- * `antes`) and no grade is worse than Mistake unless the move is dominated.
- * A bomb pot on two boards stays refused.
+ * `antes`). Since analysis/45 a bomb pot is its own postflop role (`bomb`,
+ * never "limped") and no grade there is worse than Inaccurate: no bomb pot
+ * was ever solved. A bomb pot on two boards stays refused.
  */
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
+import { en } from "../../web/src/lib/i18n/en.js";
+import { hr } from "../../web/src/lib/i18n/hr.js";
 import { analyzeHand, gradeRank, heroSeatOf, rangeWeight, walkMultiway, type HandAnalysis } from "../../web/src/lib/analysis/index.js";
 import { convertAny } from "../../web/src/lib/parsers/index.js";
 import type { PhfHand } from "../../web/src/lib/phf/types.js";
@@ -67,8 +70,46 @@ Board [Ac 7d 2s 9h 3c]
 Seat 4: Allinfans72 showed [Qc Qh] and lost
 Seat 8: kole1992 (button) showed [Ah Kd] and won ($72)`;
 
-const notWorseThanMistake = (analysis: HandAnalysis) => {
-  for (const d of analysis.decisions) if (d.grade) expect(gradeRank(d.grade)).toBeLessThanOrEqual(gradeRank("mistake"));
+/** Four anted; heads-up from the turn, the hero folds top pair top kicker to a river bet (what the solver calls a big loss). */
+const RIVER_FOLD = `Weplay Hand #90000202:  Hold'em No Limit ($0.50/$1) - 2026/01/03 15:05:00 UTC
+Table 'Nish Bomb Pot 1 (3BB)'(11506800) 8-max (Money 3) Seat #8 is the button
+Seat 2: Pbomb ($100 in chips)
+Seat 4: Allinfans72 ($100 in chips)
+Seat 6: ryzenn ($100 in chips)
+Seat 8: kole1992 ($100 in chips)
+Pbomb: posts the ante $3
+Allinfans72: posts the ante $3
+ryzenn: posts the ante $3
+kole1992: posts the ante $3
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Kd]
+*** FLOP *** [Ac 7d 2s]
+Pbomb: checks
+Allinfans72: checks
+ryzenn: checks
+kole1992: bets $4
+Pbomb: folds
+Allinfans72: calls $4
+ryzenn: folds
+*** TURN *** [Ac 7d 2s] [9h]
+Allinfans72: checks
+kole1992: checks
+*** RIVER *** [Ac 7d 2s 9h] [3c]
+Allinfans72: bets $10
+kole1992: folds
+Uncalled bet ($10) returned to Allinfans72
+Allinfans72 collected $20 from pot
+*** SUMMARY ***
+Total pot $20 | Rake $0
+Board [Ac 7d 2s 9h 3c]
+Seat 4: Allinfans72 collected ($20)
+Seat 8: kole1992 (button) folded on the River`;
+
+const notWorseThanInaccurate = (analysis: HandAnalysis) => {
+  for (const d of analysis.decisions) {
+    if (d.grade) expect(gradeRank(d.grade)).toBeLessThanOrEqual(gradeRank("inaccurate"));
+    if (d.grade && d.score !== null) expect(d.score).toBeGreaterThanOrEqual(80);
+  }
 };
 
 describe("bomb pots (analysis/28)", () => {
@@ -105,7 +146,7 @@ describe("bomb pots (analysis/28)", () => {
     expect(fold.facts.multiway?.opponents.every((o) => o.range.startsWith("unknown:"))).toBe(true);
     // 8-high with no draw on a paired board, folding to a third of the pot: the fold is right.
     expect(fold.grade).toBe("perfect");
-    notWorseThanMistake(analysis);
+    notWorseThanInaccurate(analysis);
   });
 
   it("solves a river that began heads-up after a multiway bomb-pot flop", async () => {
@@ -117,7 +158,32 @@ describe("bomb pots (analysis/28)", () => {
     expect(river?.source).toBe("solver");
     expect(river?.approximations).toEqual(expect.arrayContaining(["bomb-pot", "multiway-history"]));
     for (const d of analysis.decisions) expect(d.approximations).toContain("bomb-pot");
-    notWorseThanMistake(analysis);
+    notWorseThanInaccurate(analysis);
+  });
+
+  it("reads a bomb pot as its own role, not a limped pot, and caps a costly fold at Inaccurate (analysis/45)", async () => {
+    const analysis = analyzeHand(await weplay(RIVER_FOLD), { charts: CHARTS, turn: false });
+    expect(analysis.potType).toBe("bomb");
+    const fold = analysis.decisions.find((d) => d.street === "river" && d.action === "fold");
+    expect(fold?.status).toBe("analysed");
+    expect(fold?.source).toBe("solver");
+    expect(fold?.facts.role).toBe("bomb");
+    expect(fold?.facts.scenario).toMatch(/^bomb-/);
+    // The solver's numbers call this fold a real loss; the bomb pot grade is a guide, not a verdict.
+    expect(fold?.evLossPot ?? 0).toBeGreaterThan(0.02);
+    expect(fold?.grade).toBe("inaccurate");
+    expect(analysis.grade).toBe("inaccurate");
+    notWorseThanInaccurate(analysis);
+    for (const d of analysis.decisions) expect(d.facts.role).toBe("bomb");
+    const textEn = en.analysis.explain(fold!).join(" ");
+    expect(textEn).toContain("Bomb pot");
+    expect(textEn).not.toContain("Limped pot");
+    expect(textEn).not.toContain("capped at Mistake");
+    expect(textEn).toContain("capped at Inaccurate");
+    const textHr = hr.analysis.explain(fold!).join(" ");
+    expect(textHr).toContain("Bomb pot");
+    expect(textHr).not.toContain("Limpani pot");
+    expect(textHr).not.toContain("ograničena na Grešku");
   });
 
   it("still refuses a bomb pot on two boards", async () => {

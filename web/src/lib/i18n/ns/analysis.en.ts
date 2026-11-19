@@ -105,8 +105,11 @@ const preflopScenarios = {
   "vs-4bet": "Facing a 4-bet or more",
 } as Record<string, string>;
 
-const roles = { pfr: "Preflop raiser", caller: "Preflop caller", limped: "Limped pot" } as Record<string, string>;
+const roles = { pfr: "Preflop raiser", caller: "Preflop caller", limped: "Limped pot", bomb: "Bomb pot" } as Record<string, string>;
 const facing = { first: "first to bet", "vs-bet": "facing a bet", "vs-raise": "facing a raise" } as Record<string, string>;
+
+/** A bomb pot decision (analysis/45: role `bomb`; earlier rows carry only the approximation). */
+const isBombPot = (decision: DecisionAnalysis): boolean => decision.facts.role === "bomb" || decision.approximations.includes("bomb-pot");
 
 /** "Preflop raiser, in position, facing a bet" / "Facing an open". */
 function scenarioLabel(facts: Pick<SpotFacts, "preflopScenario" | "role" | "facing" | "inPosition" | "scenario" | "players">): string {
@@ -383,7 +386,7 @@ function approxSentences(decision: DecisionAnalysis): string[] {
       ? "Players still to act call or fold about as often as players behind a call do in stored multiway hands (the narrowing model picks which hands), never re-raise, and raising is not one of the options compared: read this as an estimate, not a solved answer."
       : "Players still to act call or fold by the narrowing model and never re-raise, and raising is not one of the options compared: read this as an estimate, not a solved answer.",
   );
-  if (ev.capped) {
+  if (ev.capped && !isBombPot(decision)) {
     out.push(
       `On these numbers alone this would be a ${gradeWords[ev.capped] ?? ev.capped}. Ranges narrowed by a heuristic model cannot carry that verdict, so the grade is capped at Mistake.`,
     );
@@ -510,7 +513,7 @@ function turnSentences(decision: DecisionAnalysis): string[] {
   if (decision.approximations.includes("size-translated")) {
     out.push("A bet size in this turn line was read as the nearest of the solver's sizes (75% of the pot and all-in, raises 75% and all-in, plus the sizes this hand used).");
   }
-  if (turn.capped) {
+  if (turn.capped && !isBombPot(decision)) {
     out.push(
       `On the solver's numbers alone this would be a ${gradeWords[turn.capped] ?? turn.capped}. Ranges narrowed by a heuristic model on the flop cannot carry that verdict, so the grade is capped at Mistake — only a move that loses whatever the opponent holds is called a Blunder.`,
     );
@@ -580,7 +583,7 @@ function riverSentences(decision: DecisionAnalysis): string[] {
   if (decision.approximations.includes("size-translated")) {
     out.push("Bet sizes in this river line were read as the nearest of the solver's sizes (33%, 75%, 150% of the pot, all-in).");
   }
-  if (river.capped) {
+  if (river.capped && !isBombPot(decision)) {
     out.push(
       `On the solver's numbers alone this would be a ${gradeWords[river.capped] ?? river.capped}. Ranges narrowed by a heuristic model cannot carry that verdict, so the grade is capped at Mistake — only a move that loses whatever the opponent holds is called a Blunder.`,
     );
@@ -713,6 +716,11 @@ function explain(decision: DecisionAnalysis): string[] {
   out.push(...chartSentences(decision));
   out.push(...icmSentencesEn(decision));
   out.push(...approxSentences(decision));
+  if (isBombPot(decision) && decision.grade) {
+    out.push(
+      "A bomb pot: everyone put in the ante and went straight to the flop with any two cards, deep and multiway. Rail has no solved bomb pots, so the numbers above are a rough guide from its multiway model, not a verdict: the grade is capped at Inaccurate.",
+    );
+  }
   out.push(...turnSentences(decision));
   out.push(...riverSentences(decision));
   out.push(...multiwaySentences(decision));
@@ -944,7 +952,7 @@ export const analysisEn = {
     "posted-blind":
       "A player posted a big blind to sit in and checked: read as a one-big-blind limp, though a poster holds any two cards and the charts' limper does not; graded no worse than Inaccurate",
     "bomb-pot":
-      "A bomb pot: everyone anted and saw the flop, so every range starts from any two cards and is narrowed by Rail's multiway model, not a solver; only calls and folds facing a bet, and heads-up turns and rivers, are graded, never worse than Mistake",
+      "A bomb pot: everyone anted and saw the flop, so every range starts from any two cards and is narrowed by Rail's multiway model, not a solver; only calls and folds facing a bet, and heads-up turns and rivers, are graded, never worse than Inaccurate: Rail has no solved bomb pots",
     ...icmApproximationsEn,
   } as Record<string, string>,
 

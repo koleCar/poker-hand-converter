@@ -107,7 +107,10 @@ const preflopScenarios = {
   "vs-4bet": "Protiv 4-beta ili više",
 } as Record<string, string>;
 
-const roles = { pfr: "Preflop raiser", caller: "Preflop caller", limped: "Limpani pot" } as Record<string, string>;
+/** Odluka u bomb potu (analysis/45: uloga `bomb`; stariji retci nose samo aproksimaciju). */
+const isBombPot = (decision: DecisionAnalysis): boolean => decision.facts.role === "bomb" || decision.approximations.includes("bomb-pot");
+
+const roles = { pfr: "Preflop raiser", caller: "Preflop caller", limped: "Limpani pot", bomb: "Bomb pot" } as Record<string, string>;
 const facing = { first: "prvi na betu", "vs-bet": "protiv beta", "vs-raise": "protiv raisea" } as Record<string, string>;
 
 function scenarioLabel(facts: Pick<SpotFacts, "preflopScenario" | "role" | "facing" | "inPosition" | "scenario" | "players">): string {
@@ -337,7 +340,7 @@ function approxSentences(decision: DecisionAnalysis): string[] {
       ? "Igrači koji su još na potezu callaju ili foldaju otprilike onoliko često koliko to čine igrači iza calla u spremljenim multiway rukama (model sužavanja bira koje ruke), nikad ne re-raiseaju, a raise nije među uspoređenim opcijama: čitaj ovo kao procjenu, ne kao riješen odgovor."
       : "Igrači koji su još na potezu callaju ili foldaju prema modelu sužavanja i nikad ne re-raiseaju, a raise nije među uspoređenim opcijama: čitaj ovo kao procjenu, ne kao riješen odgovor.",
   );
-  if (ev.capped) {
+  if (ev.capped && !isBombPot(decision)) {
     out.push(
       `Samo po ovim brojevima ovo bi bila ${gradeWords[ev.capped] ?? ev.capped}. Rasponi suženi heurističkim modelom ne mogu nositi tu presudu, pa je ocjena ograničena na Grešku.`,
     );
@@ -449,7 +452,7 @@ function turnSentences(decision: DecisionAnalysis): string[] {
   if (decision.approximations.includes("size-translated")) {
     out.push("Veličina beta u ovoj turn liniji pročitana je kao najbliža solverova veličina (75 % pota i all-in, raise 75 % i all-in, uz veličine iz ove ruke).");
   }
-  if (turn.capped) {
+  if (turn.capped && !isBombPot(decision)) {
     out.push(
       `Samo po solverovim brojevima ovo bi bila ocjena ${gradeWords[turn.capped] ?? turn.capped}. Rasponi koje je na flopu suzio heuristički model ne mogu nositi takvu presudu, pa je ocjena ograničena na Grešku — Gruba greška je samo potez koji gubi što god protivnik drži.`,
     );
@@ -519,7 +522,7 @@ function riverSentences(decision: DecisionAnalysis): string[] {
   if (decision.approximations.includes("size-translated")) {
     out.push("Veličine betova u ovoj river liniji pročitane su kao najbliže solverove veličine (33 %, 75 %, 150 % pota, all-in).");
   }
-  if (river.capped) {
+  if (river.capped && !isBombPot(decision)) {
     out.push(
       `Samo po solverovim brojevima ovo bi bila ocjena ${gradeWords[river.capped] ?? river.capped}. Rasponi suženi heurističkim modelom ne mogu nositi takvu presudu, pa je ocjena ograničena na Grešku — Gruba greška je samo potez koji gubi što god protivnik drži.`,
     );
@@ -692,6 +695,11 @@ function explain(decision: DecisionAnalysis): string[] {
   out.push(...chartSentences(decision));
   out.push(...icmSentencesHr(decision));
   out.push(...approxSentences(decision));
+  if (isBombPot(decision) && decision.grade) {
+    out.push(
+      "Bomb pot: svi su uložili ante i otišli ravno na flop s bilo koje dvije karte, duboko i multiway. Rail nema riješene bomb potove, pa su brojke iznad gruba procjena iz modela za multiway, ne presuda: ocjena je ograničena na Netočno.",
+    );
+  }
   out.push(...turnSentences(decision));
   out.push(...riverSentences(decision));
   out.push(...multiwaySentences(decision));
@@ -918,7 +926,7 @@ export const analysisHr: Dict["analysis"] = {
     "posted-blind":
       "Igrač je postao big blind da uđe u igru i checkao: čitano kao limp od jednog big blinda, iako takav igrač ima bilo koje dvije karte, a limper iz chartova nema; ocjena nije gora od Netočno",
     "bomb-pot":
-      "Bomb pot: svi su uložili ante i vidjeli flop, pa svaki raspon kreće od bilo koje dvije karte i sužava ga Railov model za multiway, ne solver; ocjenjuju se samo call i fold protiv beta te heads-up turn i river, nikad gore od Greška",
+      "Bomb pot: svi su uložili ante i vidjeli flop, pa svaki raspon kreće od bilo koje dvije karte i sužava ga Railov model za multiway, ne solver; ocjenjuju se samo call i fold protiv beta te heads-up turn i river, nikad gore od Netočno: Rail nema riješene bomb potove",
     ...icmApproximationsHr,
   } as Record<string, string>,
 

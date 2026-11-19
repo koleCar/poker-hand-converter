@@ -62,7 +62,17 @@ import { equityVsRange, parseRange, strongestOfRange, type ClassWeights, type We
 import type { PhfHand, Position } from "../phf/types";
 import { buildContext, type StatsContext } from "../stats/context";
 import { potTypeOf } from "../stats/derive";
-import { gradeRank, meanScore, sensitivityGrade, SENSITIVE_FROM, worstGrade, worstSeverity, type SensitivityResult } from "./grading";
+import {
+  gradeRank,
+  INACCURATE_MAX_EV_LOSS_POT,
+  meanScore,
+  SCORE_PER_POT,
+  sensitivityGrade,
+  SENSITIVE_FROM,
+  worstGrade,
+  worstSeverity,
+  type SensitivityResult,
+} from "./grading";
 import { heuristicFlags } from "./heuristics";
 import { halved, heuristicModel, weightedCombos, type NarrowingModel } from "./narrowing";
 import { chartsModelAnte, chartsModelStraddle, gradePreflop } from "./preflop";
@@ -327,6 +337,8 @@ function preflopScenario(spot: Spot, context: StatsContext, hero: number): Prefl
 }
 
 function postflopRole(context: StatsContext, hero: number): PostflopRole {
+  // analysis/45: a bomb pot has no preflop betting, so it is not a limped pot.
+  if (context.isBombPot) return "bomb";
   if (context.preflopAggressor === null) return "limped";
   return context.preflopAggressor === hero ? "pfr" : "caller";
 }
@@ -905,6 +917,21 @@ function handRiver(
   };
 
   return { grade, line };
+}
+
+/** The score at the top of the Inaccurate band (2% of the pot lost): a bomb pot's floor. */
+const BOMB_POT_SCORE_FLOOR = 100 - SCORE_PER_POT * INACCURATE_MAX_EV_LOSS_POT;
+
+/**
+ * The bomb pot cap (analysis/45, `bomb-pot`): every range starts from any two
+ * cards and is narrowed by the multiway heuristic, and no bomb pot was ever
+ * solved, so a grade there is never worse than Inaccurate and its score never
+ * below that band's. The EV numbers stay as computed: they are what the
+ * approximate reference says, shown with the bomb pot note.
+ */
+function capBombPot(decision: DecisionAnalysis): void {
+  if (decision.grade !== null && gradeRank(decision.grade) > gradeRank("inaccurate")) decision.grade = "inaccurate";
+  if (decision.score !== null && decision.score < BOMB_POT_SCORE_FLOOR) decision.score = BOMB_POT_SCORE_FLOOR;
 }
 
 /**
@@ -1566,6 +1593,8 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     };
   });
 
+  // analysis/45: Rail has no solved bomb pot, so its grades there are a guide, not a verdict.
+  if (context.isBombPot) decisions.forEach(capBombPot);
   if (decisions.length === 0) {
     return emptyAnalysis("no-decisions", hero, potType);
   }
