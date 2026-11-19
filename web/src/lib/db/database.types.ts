@@ -2195,6 +2195,54 @@ export type Database = {
           },
         ]
       }
+      hand_tombstones: {
+        Row: {
+          all_before: string | null
+          deleted_at: string
+          hand_id: string | null
+          hand_key: string | null
+          owner_id: string
+          seq: number
+        }
+        Insert: {
+          all_before?: string | null
+          deleted_at?: string
+          hand_id?: string | null
+          hand_key?: string | null
+          owner_id: string
+          seq?: never
+        }
+        Update: {
+          all_before?: string | null
+          deleted_at?: string
+          hand_id?: string | null
+          hand_key?: string | null
+          owner_id?: string
+          seq?: never
+        }
+        Relationships: []
+      }
+      hand_wipes: {
+        Row: {
+          before: string
+          owner_id: string
+          rebuild: boolean
+          started_at: string
+        }
+        Insert: {
+          before: string
+          owner_id: string
+          rebuild?: boolean
+          started_at?: string
+        }
+        Update: {
+          before?: string
+          owner_id?: string
+          rebuild?: boolean
+          started_at?: string
+        }
+        Relationships: []
+      }
       hands: {
         Row: {
           ante: number | null
@@ -5120,10 +5168,13 @@ export type Database = {
         }
         Returns: Json
       }
+      delete_all_hands: { Args: { p_confirm: string }; Returns: Json }
       delete_comment: {
         Args: { p_post_public_id: string; p_seq: number }
         Returns: boolean
       }
+      delete_hands: { Args: { p_ids: string[] }; Returns: Json }
+      delete_hands_by_key: { Args: { p_keys: string[] }; Returns: Json }
       delete_post: { Args: { p_public_id: string }; Returns: boolean }
       drill_due_by_spot: {
         Args: { p_kind?: string; p_until?: string; p_version: string }
@@ -5289,6 +5340,13 @@ export type Database = {
         Args: { p_post_public_id: string; p_seq?: number }
         Returns: Json
       }
+      hand_delete_owned: {
+        Args: { p_ids: string[]; p_owner: string }
+        Returns: {
+          hand_key: string
+          id: string
+        }[]
+      }
       hand_facts_missing: { Args: { p_facts_version: string }; Returns: number }
       hand_phf_matches: {
         Args: {
@@ -5363,6 +5421,21 @@ export type Database = {
         Args: { p_owner: string; p_rows: number }
         Returns: undefined
       }
+      hand_tombstones_since: {
+        Args: { p_after_at?: string; p_after_seq?: number; p_limit?: number }
+        Returns: {
+          all_before: string
+          deleted_at: string
+          hand_id: string
+          hand_key: string
+          seq: number
+        }[]
+      }
+      hand_wipe_continue: {
+        Args: { p_owner: string; p_rebuild?: boolean; p_until: string }
+        Returns: Json
+      }
+      hand_wipe_finish: { Args: { p_owner: string }; Returns: undefined }
       hands_needing_analysis: {
         Args: { p_after?: string; p_limit?: number; p_version: string }
         Returns: {
