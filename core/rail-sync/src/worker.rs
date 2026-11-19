@@ -25,7 +25,16 @@
 //!   (an hour for the daily one), then send a single hand as a probe before
 //!   full batches again;
 //! - a `401` after one refresh, or a refused call (a bug): logged, backed off,
-//!   never a tight loop.
+//!   never a tight loop;
+//! - (Free tier) the plan's caps (`PT402` `daily_cap` / `hand_cap`): no
+//!   attempt counted, the hands stay queued. The day's cap holds uploads
+//!   until the server's `resetsAt` (00:00 UTC) and then they go by
+//!   themselves ([`SyncPhase::DailyCap`]); a full web library holds them
+//!   until it has room ([`SyncPhase::LibraryFull`]: a new check, "Sync
+//!   now"). What the plan has room for ([`PlanRoom`], from the app's last
+//!   check and every refusal's numbers) sizes the batches, so a batch that
+//!   would not fit is not sent. The pull and the HUD's layouts go on.
+//!   Importing and the local store are never capped.
 //!
 //! Everything that must survive a restart is in the store (outbox, attempts,
 //! retry times, rejected hands, source ids, the pull cursor, pause): the
@@ -75,9 +84,10 @@ use tokio::sync::Notify;
 use tokio::time::Instant;
 
 use crate::auth::{Account, ApiError, AuthApi, Secret};
+use crate::entitlements::next_utc_midnight_ms;
 use crate::ingest::{
-    Batch, IngestClient, IngestError, IngestReport, IngestRow, RateWindow, RejectReason, RowError,
-    RowStatus, SourceId, SourceRegistration, TokenSource,
+    Batch, CapRefusal, IngestClient, IngestError, IngestReport, IngestRow, RateWindow,
+    RejectReason, RowError, RowStatus, SourceId, SourceRegistration, TokenSource,
 };
 
 /// The default upload cap while a backfill is large: 1 MiB/s.
@@ -242,9 +252,86 @@ pub enum SyncPhase {
     /// unharmed; sync resumes by itself when the plan allows it (a new
     /// check, "Sync now", another account).
     PlanRequired { feature: String },
+    /// (Free tier) Today's hands are saved (`cap` a UTC day, the web and the
+    /// desktop together): the rest waits in the outbox and goes by itself
+    /// after `resets_at_ms` (00:00 UTC). Pulling goes on.
+    DailyCap { cap: Option<u64>, resets_at_ms: i64 },
+    /// (Free tier) The web library holds `cap` hands and is full: nothing
+    /// more is sent until it has room (a new plan, hands deleted). The
+    /// hands stay here and in the outbox.
+    LibraryFull { cap: Option<u64> },
     /// Something that needs a look (a session the server refuses, a store
     /// error); retried later.
     Failed { message: String, retry_at_ms: i64 },
+}
+
+/// (Free tier) What the account's plan has room for, as far as the app
+/// knows: from its last check (`my_entitlements()`'s limits and usage) and
+/// the numbers of every cap refusal since. `None` caps are unlimited.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PlanRoom {
+    /// The account it is about; another account's is ignored.
+    pub user_id: String,
+    /// The check it comes from (Unix ms; 0: from a refusal). The same check
+    /// again changes nothing, so the hands sent since stay counted.
+    pub checked_at_ms: i64,
+    /// Hands a UTC day, and saved today.
+    pub daily_cap: Option<u64>,
+    pub saved_today: u64,
+    /// When the day's count starts again (Unix ms).
+    pub resets_at_ms: Option<i64>,
+    /// Hands the web library holds, and stored now.
+    pub library_cap: Option<u64>,
+    pub stored: u64,
+}
+
+impl PlanRoom {
+    fn empty(user_id: String) -> Self {
+        Self {
+            user_id,
+            checked_at_ms: 0,
+            daily_cap: None,
+            saved_today: 0,
+            resets_at_ms: None,
+            library_cap: None,
+            stored: 0,
+        }
+    }
+
+    /// At `now`: the hands that may be sent (`Ok(None)`: no limit), or the
+    /// phase that holds them. A day that ended starts the count again.
+    fn left(&mut self, now: i64) -> Result<Option<u64>, SyncPhase> {
+        let mut left: Option<u64> = None;
+        if let Some(cap) = self.library_cap {
+            let room = cap.saturating_sub(self.stored);
+            if room == 0 {
+                return Err(SyncPhase::LibraryFull {
+                    cap: Some(cap).filter(|cap| *cap > 0),
+                });
+            }
+            left = Some(room);
+        }
+        if let Some(cap) = self.daily_cap {
+            let resets = *self
+                .resets_at_ms
+                .get_or_insert_with(|| next_utc_midnight_ms(now));
+            if resets <= now {
+                self.saved_today = 0;
+                self.resets_at_ms = Some(next_utc_midnight_ms(now));
+            }
+            let room = cap.saturating_sub(self.saved_today);
+            if room == 0 {
+                return Err(SyncPhase::DailyCap {
+                    cap: Some(cap).filter(|cap| *cap > 0),
+                    resets_at_ms: self
+                        .resets_at_ms
+                        .unwrap_or_else(|| next_utc_midnight_ms(now)),
+                });
+            }
+            left = Some(left.map_or(room, |left| left.min(room)));
+        }
+        Ok(left)
+    }
 }
 
 /// Refused hands of one reason.
@@ -375,6 +462,8 @@ struct Shared {
     /// (R6.4) Set when the plan was re-checked and allows sync: forget a
     /// server refusal and try again.
     plan_retry: AtomicBool,
+    /// (Free tier) What the plan has room for ([`SyncWorker::set_plan_room`]).
+    room: Mutex<Option<PlanRoom>>,
     on_change: Box<dyn Fn() + Send + Sync>,
     /// (R3.9) Called when a pull changed the HUD's layouts here.
     on_hud: Mutex<Option<Arc<dyn Fn() + Send + Sync>>>,
@@ -449,6 +538,7 @@ impl SyncWorker {
             retry_rejected: AtomicBool::new(false),
             plan_allows: AtomicBool::new(true),
             plan_retry: AtomicBool::new(false),
+            room: Mutex::new(None),
             on_change,
             on_hud: Mutex::new(None),
         });
@@ -568,6 +658,35 @@ impl SyncWorker {
             self.shared.plan_retry.store(true, Ordering::SeqCst);
         }
         if before != allows {
+            self.shared.poke();
+        }
+    }
+
+    /// (Free tier) The app's last check of the plan's room: the caps and
+    /// the account's usage. A new check replaces what was known; the same
+    /// check again (`checked_at_ms`) keeps it, with the hands sent since and
+    /// the server's refusals counted. `None` (everything open, or no check):
+    /// no limit known - the server's refusals tell.
+    pub fn set_plan_room(&self, room: Option<PlanRoom>) {
+        let replaced = {
+            let mut kept = self
+                .shared
+                .room
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner);
+            let same = match (kept.as_ref(), room.as_ref()) {
+                (Some(kept), Some(room)) => {
+                    kept.user_id == room.user_id && kept.checked_at_ms == room.checked_at_ms
+                }
+                (None, None) => true,
+                _ => false,
+            };
+            if !same {
+                *kept = room;
+            }
+            !same
+        };
+        if replaced {
             self.shared.poke();
         }
     }
@@ -808,6 +927,17 @@ impl<A: SyncAccount> SyncTask<A> {
             self.pull_at = None;
             self.probe = false;
             self.plan_refused = None;
+            // A full library is tried once more (hands may have been
+            // deleted on the web); the server's answer says again.
+            if let Some(room) = self
+                .shared
+                .room
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .as_mut()
+            {
+                room.library_cap = None;
+            }
             let at = now_ms();
             if let Err(error) =
                 blocking(&self.store, move |s| s.writer()?.outbox_retry_now(at)).await
@@ -852,11 +982,14 @@ impl<A: SyncAccount> SyncTask<A> {
         {
             return Halt::Until(at);
         }
-        if outbox.is_some_and(|n| n > 0) {
-            self.set_phase(SyncPhase::Syncing);
-        }
-        if let Some(halt) = self.push(&user).await {
-            return halt;
+        // (Free tier) The plan's caps hold the upload, not the pull.
+        if self.room_now(&user).is_ok() {
+            if outbox.is_some_and(|n| n > 0) {
+                self.set_phase(SyncPhase::Syncing);
+            }
+            if let Some(halt) = self.push(&user).await {
+                return halt;
+            }
         }
         let pull_due = self.pull_at.is_none_or(|at| at <= Instant::now());
         if pull_due {
@@ -875,10 +1008,10 @@ impl<A: SyncAccount> SyncTask<A> {
         {
             return Halt::Until(self.retry_at.unwrap_or_else(|| self.idle()));
         }
-        self.set_phase(if outbox == 0 {
-            SyncPhase::UpToDate
-        } else {
-            SyncPhase::Syncing
+        self.set_phase(match self.room_now(&user) {
+            _ if outbox == 0 => SyncPhase::UpToDate,
+            Err(held) => held,
+            Ok(_) => SyncPhase::Syncing,
         });
         let mut next = self.idle();
         if let Some(pull_at) = self.pull_at {
@@ -888,6 +1021,88 @@ impl<A: SyncAccount> SyncTask<A> {
             next = next.min(hud_pull_at.max(self.hud_at.unwrap_or(hud_pull_at)));
         }
         Halt::Until(next)
+    }
+
+    /// (Free tier) The hands `user`'s plan has room for now (`Ok(None)`:
+    /// no limit known), or the phase that holds the upload.
+    fn room_now(&self, user: &SyncUser) -> Result<Option<u64>, SyncPhase> {
+        let mut room = self
+            .shared
+            .room
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        match room.as_mut() {
+            Some(room) if room.user_id == user.user_id => room.left(now_ms()),
+            _ => Ok(None),
+        }
+    }
+
+    /// (Free tier) `inserted` new hands reached the account: they count
+    /// against the day and the library.
+    fn count_saved(&self, inserted: u64) {
+        if inserted == 0 {
+            return;
+        }
+        if let Some(room) = self
+            .shared
+            .room
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .as_mut()
+        {
+            room.saved_today = room.saved_today.saturating_add(inserted);
+            room.stored = room.stored.saturating_add(inserted);
+        }
+    }
+
+    /// (Free tier) The server refused a batch over a cap (`daily_cap`,
+    /// `hand_cap`) with its numbers: what is left, so the next batch fits,
+    /// or nothing (held until the reset, or until the library has room).
+    fn capped(&self, feature: &str, limit: &CapRefusal, sent: u64) {
+        let Some(user) = self.account.user() else {
+            return;
+        };
+        let now = now_ms();
+        let mut kept = self
+            .shared
+            .room
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        let room = match kept.as_mut() {
+            Some(room) if room.user_id == user.user_id => room,
+            _ => kept.insert(PlanRoom::empty(user.user_id)),
+        };
+        let daily = feature == "daily_cap";
+        let known = if daily {
+            room.daily_cap
+        } else {
+            room.library_cap
+        };
+        let cap = limit.cap.or(known).unwrap_or(0);
+        // What the server counts already; a batch it says would have fit
+        // (never sent smaller than what is left) reads as full, so a
+        // refusal can never repeat in a loop.
+        let mut used = limit.used.unwrap_or(cap).min(cap);
+        if cap.saturating_sub(used) >= sent.max(1) {
+            used = cap;
+        }
+        if daily {
+            room.daily_cap = Some(cap);
+            room.saved_today = used;
+            room.resets_at_ms = Some(
+                limit
+                    .resets_at_ms
+                    .filter(|at| *at > now)
+                    .unwrap_or_else(|| next_utc_midnight_ms(now)),
+            );
+        } else {
+            room.library_cap = Some(cap);
+            room.stored = used;
+        }
+        log::info!(
+            "sync: the plan's {feature} ({cap}) is reached with {used}; {} more fit",
+            cap - used
+        );
     }
 
     fn status(&self) -> SyncStatus {
@@ -1008,11 +1223,17 @@ impl<A: SyncAccount> SyncTask<A> {
                     () = self.shared.interrupt.notified() => return Some(Halt::Again),
                 }
             }
-            let limit = if self.probe {
+            let mut limit = if self.probe {
                 1
             } else {
                 self.config.batch_hands
             };
+            // (Free tier) At most what the plan has room for; none: done.
+            match self.room_now(user) {
+                Ok(Some(left)) => limit = limit.min(u32::try_from(left).unwrap_or(u32::MAX)),
+                Ok(None) => {}
+                Err(_) => return None,
+            }
             let (now, since) = (now_ms(), self.live_since());
             let rows = match blocking(&self.store, move |s| {
                 s.reader.outbox_next(now, since, limit)
@@ -1161,6 +1382,7 @@ impl<A: SyncAccount> SyncTask<A> {
             log::warn!("sync: the server refused {} hands", refused.len());
         }
         let done = u64::try_from(report.rows.len()).unwrap_or(0);
+        self.count_saved(u64::try_from(report.inserted).unwrap_or(0));
         let at = now_ms();
         blocking(&self.store, move |s| {
             let writer = s.writer()?;
@@ -1258,7 +1480,16 @@ impl<A: SyncAccount> SyncTask<A> {
                 }
             }
             IngestError::UnknownSource => self.fail("the server does not know a folder".into()),
-            IngestError::PlanRequired { feature } => {
+            IngestError::PlanRequired { feature, limit }
+                if feature == "daily_cap" || feature == "hand_cap" =>
+            {
+                // (Free tier) Over a cap: not the hands' fault, no attempt
+                // counted. The next pass sends what fits, or holds.
+                let sent = u64::try_from(keys.len()).unwrap_or(u64::MAX);
+                self.capped(&feature, &limit.unwrap_or_default(), sent);
+                Halt::Again
+            }
+            IngestError::PlanRequired { feature, .. } => {
                 // R6.2's refusal (a Free account, enforcement on): not the
                 // hands' fault, so no attempt is counted and they stay
                 // queued; nothing is sent until the plan changes.
@@ -1448,7 +1679,7 @@ impl<A: SyncAccount> SyncTask<A> {
                 self.pull_failures = 0;
                 self.pull_at = Some(Instant::now() + self.config.pull_every);
             }
-            Err(IngestError::PlanRequired { feature }) => {
+            Err(IngestError::PlanRequired { feature, .. }) => {
                 log::info!("sync: pull: the account's plan does not include {feature}");
                 self.pull_at = Some(Instant::now() + self.config.pull_every);
                 self.refused_by_plan(feature);

@@ -1172,6 +1172,239 @@ async fn the_apps_plan_check_holds_sync_without_a_call() {
     rig.stop().await;
 }
 
+/// A room the app knows from a check (`set_plan_room`), for account `a`.
+fn room(checked_at_ms: i64, daily: Option<(u64, u64)>, library: Option<(u64, u64)>) -> PlanRoom {
+    PlanRoom {
+        user_id: "a".into(),
+        checked_at_ms,
+        daily_cap: daily.map(|(cap, _)| cap),
+        saved_today: daily.map_or(0, |(_, saved)| saved),
+        resets_at_ms: Some(next_utc_midnight_ms(now_ms())),
+        library_cap: library.map(|(cap, _)| cap),
+        stored: library.map_or(0, |(_, stored)| stored),
+    }
+}
+
+/// (Free tier) The server refuses a batch over the day's cap with its
+/// numbers: the next batch is what fits, then uploads hold until the reset
+/// with every other hand queued (no attempt counted), the pull goes on, and
+/// a new check with room lets them go.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn the_days_cap_sends_what_fits_then_holds_the_rest_until_the_reset() {
+    let files = stars_files();
+    let server = Arc::new(Server::default());
+    let url = serve(Arc::clone(&server)).await;
+    let resets = next_utc_midnight_ms(now_ms());
+    let resets_text = {
+        let days = resets / (24 * 60 * 60 * 1000);
+        // Civil date from days (Howard Hinnant's civil_from_days).
+        let z = days + 719_468;
+        let era = z.div_euclid(146_097);
+        let doe = z - era * 146_097;
+        let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+        let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+        let mp = (5 * doy + 2) / 153;
+        let d = doy - (153 * mp + 2) / 5 + 1;
+        let m = if mp < 10 { mp + 3 } else { mp - 9 };
+        let y = yoe + era * 400 + i64::from(m <= 2);
+        format!("{y:04}-{m:02}-{d:02}T00:00:00Z")
+    };
+    assert_eq!(
+        crate::entitlements::utc_midnight_ms(&resets_text),
+        Some(resets)
+    );
+    let detail =
+        json!({"cap": 10, "savedToday": 0, "attempted": 25, "resetsAt": resets_text}).to_string();
+    server.script.lock().unwrap().push_back(Act::Answer(
+        400,
+        json!({"code": "PT402", "message": "Today's hands are saved.", "details": detail, "hint": "daily_cap"})
+            .to_string(),
+    ));
+    let dir = scratch("dailycap");
+    let store = Store::open(dir.join("rail.db")).unwrap();
+    import(&store, &files);
+    let hands = store.status().unwrap().hands;
+    assert!(hands > 35, "{hands}");
+    let rig = Rig::start(
+        Arc::clone(&server),
+        &url,
+        store,
+        dir,
+        FakeAccount::signed_in("a"),
+        config(),
+    );
+    let status = rig
+        .until("held by the day's cap", |s| {
+            matches!(s.phase, SyncPhase::DailyCap { .. })
+        })
+        .await;
+    assert_eq!(
+        status.phase,
+        SyncPhase::DailyCap {
+            cap: Some(10),
+            resets_at_ms: resets
+        }
+    );
+    let calls = server.ingest_calls();
+    assert_eq!(calls.len(), 2, "the refused batch, then what fits");
+    assert_eq!(calls[1].keys.len(), 10);
+    assert_eq!(server.rows_of("a").len(), 10);
+    assert_eq!(status.outbox, hands - 10);
+    assert_eq!(status.retrying, 0, "no attempt counted");
+    // Several idle polls: nothing more is sent; the pull went on.
+    tokio::time::sleep(Duration::from_millis(600)).await;
+    assert_eq!(server.ingest_calls().len(), 2);
+    assert!(
+        server
+            .calls
+            .lock()
+            .unwrap()
+            .iter()
+            .any(|c| c.path.ends_with("/hands_since"))
+    );
+    // The app's next check: a new day with room for 15.
+    rig.worker.set_plan_room(Some(room(7, Some((15, 0)), None)));
+    rig.until("held again after 15", |s| {
+        matches!(s.phase, SyncPhase::DailyCap { cap: Some(15), .. })
+    })
+    .await;
+    assert_eq!(server.rows_of("a").len(), 25);
+    // The same check again changes nothing: the 15 sent stay counted.
+    rig.worker.set_plan_room(Some(room(7, Some((15, 0)), None)));
+    tokio::time::sleep(Duration::from_millis(500)).await;
+    assert_eq!(server.rows_of("a").len(), 25);
+    // Pro (no caps): everything goes.
+    rig.worker.set_plan_room(Some(room(8, None, None)));
+    rig.drained().await;
+    assert_eq!(server.rows_of("a").len(), usize::try_from(hands).unwrap());
+    rig.stop().await;
+}
+
+/// (Free tier) With the room known from the app's check, batches are sized
+/// to it and nothing over a cap is ever sent; a full library sends nothing
+/// at all but still pulls.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn a_known_room_sizes_the_batches_and_a_full_library_sends_nothing() {
+    let files = stars_files();
+    let server = Arc::new(Server::default());
+    let url = serve(Arc::clone(&server)).await;
+    let dir = scratch("room");
+    let store = Store::open(dir.join("rail.db")).unwrap();
+    import(&store, &files);
+    let account = Arc::new(FakeAccount::default());
+    let rig = Rig::start(
+        Arc::clone(&server),
+        &url,
+        store,
+        dir,
+        Arc::clone(&account),
+        config(),
+    );
+    rig.until("signed out", |s| s.phase == SyncPhase::SignedOut)
+        .await;
+    rig.worker
+        .set_plan_room(Some(room(1, Some((30, 0)), Some((10_000, 9_000)))));
+    account.sign_in("a");
+    rig.worker.account_changed();
+    rig.until("held by the day's cap", |s| {
+        matches!(s.phase, SyncPhase::DailyCap { cap: Some(30), .. })
+    })
+    .await;
+    let sizes: Vec<usize> = server.ingest_calls().iter().map(|c| c.keys.len()).collect();
+    assert_eq!(sizes, [25, 5]);
+
+    // A full library: no call, the pull goes on.
+    rig.worker
+        .set_plan_room(Some(room(2, Some((500, 0)), Some((10_000, 10_000)))));
+    rig.until("held by the full library", |s| {
+        s.phase == SyncPhase::LibraryFull { cap: Some(10_000) }
+    })
+    .await;
+    tokio::time::sleep(Duration::from_millis(500)).await;
+    assert_eq!(server.ingest_calls().len(), 2);
+    rig.stop().await;
+}
+
+/// (Free tier) A refusal for a full library holds uploads with the hands
+/// queued; "Sync now" tries once more (hands may have been deleted on the
+/// web), and the server's answer decides.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn a_full_library_holds_until_sync_now_finds_room() {
+    let files = stars_files();
+    let server = Arc::new(Server::default());
+    let url = serve(Arc::clone(&server)).await;
+    server.script.lock().unwrap().push_back(Act::Answer(
+        402,
+        json!({"code": "PT402", "message": "Your library is full.",
+               "details": json!({"cap": 100, "stored": 100, "attempted": 25}).to_string(),
+               "hint": "hand_cap"})
+        .to_string(),
+    ));
+    let dir = scratch("libraryfull");
+    let store = Store::open(dir.join("rail.db")).unwrap();
+    import(&store, &files[..3]);
+    let hands = store.status().unwrap().hands;
+    let rig = Rig::start(
+        Arc::clone(&server),
+        &url,
+        store,
+        dir,
+        FakeAccount::signed_in("a"),
+        config(),
+    );
+    let status = rig
+        .until("held by the full library", |s| {
+            s.phase == SyncPhase::LibraryFull { cap: Some(100) }
+        })
+        .await;
+    assert_eq!((status.outbox, status.retrying), (hands, 0));
+    tokio::time::sleep(Duration::from_millis(500)).await;
+    assert_eq!(server.ingest_calls().len(), 1, "the refused call only");
+    rig.worker.sync_now();
+    rig.drained().await;
+    assert_eq!(server.rows_of("a").len(), usize::try_from(hands).unwrap());
+    rig.stop().await;
+}
+
+#[test]
+fn the_room_starts_again_with_the_day() {
+    let day = 24 * 60 * 60 * 1000;
+    let mut room = room(1, Some((500, 500)), Some((10_000, 9_990)));
+    room.resets_at_ms = Some(10 * day);
+    assert_eq!(
+        room.left(10 * day - 1),
+        Err(SyncPhase::DailyCap {
+            cap: Some(500),
+            resets_at_ms: 10 * day
+        })
+    );
+    // Past the reset: the day's count is new; the library still has 10.
+    assert_eq!(room.left(10 * day + 5), Ok(Some(10)));
+    assert_eq!((room.saved_today, room.resets_at_ms), (0, Some(11 * day)));
+    room.stored = 10_000;
+    assert_eq!(
+        room.left(10 * day + 5),
+        Err(SyncPhase::LibraryFull { cap: Some(10_000) })
+    );
+    let mut open = room;
+    open.library_cap = None;
+    open.daily_cap = None;
+    assert_eq!(open.left(0), Ok(None));
+    // Serialised for the window.
+    assert_eq!(
+        serde_json::to_value(SyncPhase::DailyCap {
+            cap: Some(500),
+            resets_at_ms: 9
+        })
+        .unwrap(),
+        json!({"state": "dailyCap", "cap": 500, "resetsAtMs": 9})
+    );
+    assert_eq!(
+        serde_json::to_value(SyncPhase::LibraryFull { cap: None }).unwrap(),
+        json!({"state": "libraryFull", "cap": null})
+    );
+}
+
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn an_unknown_source_is_registered_again() {
     let files = stars_files();
@@ -1710,7 +1943,10 @@ async fn nodelocks_are_never_synced() {
 }
 
 /// (docs/NODELOCK.md §3) Nothing in this crate reads the nodelocks: no
-/// source file outside the tests names the table or its reads.
+/// source file outside the tests names the table or its reads. The plan's
+/// feature flag (`entitlements.rs`, `features.nodelock` of
+/// `my_entitlements()`) is the one word allowed there, and only as that
+/// flag: it reads no lock.
 #[test]
 fn no_sync_code_names_the_nodelocks() {
     fn walk(dir: &Path, out: &mut Vec<PathBuf>) {
@@ -1736,7 +1972,18 @@ fn no_sync_code_names_the_nodelocks() {
     );
     assert!(files.len() > 10, "{files:?}");
     for file in files {
-        let text = std::fs::read_to_string(&file).unwrap().to_ascii_lowercase();
+        let mut text = std::fs::read_to_string(&file).unwrap().to_ascii_lowercase();
+        if file.ends_with("src/entitlements.rs") {
+            for flag in [
+                "pub nodelock: bool",
+                "nodelock: true",
+                "nodelock: false",
+                "nodelock: flag(\"nodelock\")",
+                "the solver's nodelock.",
+            ] {
+                text = text.replace(flag, "");
+            }
+        }
         for name in ["node_lock", "nodelock"] {
             assert!(
                 !text.contains(name),

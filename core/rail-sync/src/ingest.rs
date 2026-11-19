@@ -357,7 +357,13 @@ pub enum IngestError {
     /// SQLSTATE `PT402` (HTTP 402), `feature` from its hint
     /// (`desktop_sync`, `hand_cap`, ...). Nothing is wrong with the hands:
     /// they wait, unsent, until the plan changes - resending cannot help.
-    PlanRequired { feature: String },
+    /// (Free tier) `hand_cap` and `daily_cap` carry the numbers of their
+    /// `detail` in `limit`: the sync worker sizes its next batch with them,
+    /// or waits for the day's reset.
+    PlanRequired {
+        feature: String,
+        limit: Option<CapRefusal>,
+    },
     /// The server refused the call itself (`4xx`: a batch over the limits,
     /// a malformed body). A bug: do not resend the same batch.
     Refused { status: u16, code: String },
@@ -373,7 +379,7 @@ impl std::fmt::Display for IngestError {
             Self::Unauthorized => f.write_str("the server does not accept this session"),
             Self::RateLimited { .. } => f.write_str("the account's sync budget is spent for now"),
             Self::UnknownSource => f.write_str("the server does not know this folder"),
-            Self::PlanRequired { feature } => {
+            Self::PlanRequired { feature, .. } => {
                 write!(f, "the account's plan does not include this ({feature})")
             }
             Self::Refused { status, code } => write!(f, "refused ({status} {code})"),
@@ -383,6 +389,38 @@ impl std::fmt::Display for IngestError {
 }
 
 impl std::error::Error for IngestError {}
+
+/// (Free tier) A cap refusal's numbers (`PT402`'s `detail`, JSON text:
+/// `{cap, stored | savedToday, attempted, resetsAt?}`). A field the server
+/// did not give is `None`.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct CapRefusal {
+    pub cap: Option<u64>,
+    /// What counts against the cap already: `stored` (the library) or
+    /// `savedToday` (the day).
+    pub used: Option<u64>,
+    /// Hands the refused call would have added.
+    pub attempted: Option<u64>,
+    /// When the day's count starts again (Unix ms), for `daily_cap`.
+    pub resets_at_ms: Option<i64>,
+}
+
+impl CapRefusal {
+    fn parse(detail: &str) -> Option<Self> {
+        let value: Value = serde_json::from_str(detail).ok()?;
+        let row = value.as_object()?;
+        let number = |name: &str| row.get(name).and_then(Value::as_u64);
+        Some(Self {
+            cap: number("cap"),
+            used: number("savedToday").or_else(|| number("stored")),
+            attempted: number("attempted"),
+            resets_at_ms: row
+                .get("resetsAt")
+                .and_then(Value::as_str)
+                .and_then(crate::entitlements::utc_midnight_ms),
+        })
+    }
+}
 
 /// Which budget a `53400` spent: what to wait for.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -593,6 +631,8 @@ struct PostgrestError {
     message: Option<String>,
     /// (R6.4) A `PT402` refusal names the feature here.
     hint: Option<String>,
+    /// (Free tier) A cap refusal's numbers, JSON text.
+    details: Option<String>,
 }
 
 /// The feature a `PT402` names: lower-case words only, else `unknown`.
@@ -613,6 +653,11 @@ fn error_of(status: u16, body: &[u8]) -> IngestError {
         .and_then(|error| error.message.clone())
         .unwrap_or_default();
     let hint = error.as_ref().and_then(|error| error.hint.clone());
+    let limit = error
+        .as_ref()
+        .and_then(|error| error.details.as_deref())
+        .filter(|detail| detail.len() <= 1024)
+        .and_then(CapRefusal::parse);
     let code = error
         .and_then(|error| error.code)
         .filter(|code| code.len() <= 16 && code.bytes().all(|b| b.is_ascii_alphanumeric()))
@@ -623,6 +668,7 @@ fn error_of(status: u16, body: &[u8]) -> IngestError {
         // with HTTP 402.
         (402, _) | (_, "PT402") => IngestError::PlanRequired {
             feature: feature_of(hint.as_deref()),
+            limit,
         },
         (_, "53400") => IngestError::RateLimited {
             window: RateWindow::of(&message),
@@ -719,6 +765,7 @@ mod share;
 mod trainer;
 
 pub use hud::{HUD_ROWS_PER_PAGE, HUD_ROWS_PER_PUT, PutOutcome};
+pub use plan::FlopOpen;
 pub use profile::{AccountProfile, SetUsernameError};
 pub use pull::{PHF_IDS_PER_CALL, RemoteHand, RemoteKey};
 pub use share::{ShareRequest, is_share_slug};
