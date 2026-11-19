@@ -233,24 +233,54 @@
     padding-top: 8px;
   }
 
+  /* Phone: the two plans stay side by side, each value under its plan's head,
+     the feature's name on its own line above them. */
   .row {
-    grid-template-columns: minmax(0, 1fr) 84px 104px;
-  }
-
-  .row > div {
-    padding: 10px;
-  }
-
-  .head {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
-  .head > .first {
+  .row > div {
+    padding: 8px 12px;
+  }
+
+  .row > div:first-child {
     grid-column: 1 / -1;
+    padding-top: 12px;
+    padding-bottom: 2px;
+  }
+
+  .group > div:not(:first-child) {
+    display: none;
+  }
+
+  .group > div:first-child {
+    padding-bottom: 10px;
   }
 
   .head > div {
     padding: 14px 12px;
+  }
+
+  /* One row of three: the saving sits under its period's name. */
+  .periodSwitch {
+    flex-wrap: nowrap;
+    align-self: stretch;
+  }
+
+  .periodSwitch button {
+    flex: 1 1 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    height: auto;
+    min-height: 44px;
+    padding: 6px 4px;
+    font-size: 13px;
+  }
+
+  .save {
+    padding: 0 6px;
+    font-size: 10px;
   }
 
   .price {
