@@ -62,6 +62,7 @@ import { buildPlan } from "./buildPlan";
 import { usePlanWords } from "./planWords";
 import styles from "./plan.module.css";
 import "../../../styles/stats.css";
+import { PlanSkeleton, SkStatus } from "../ui/Skeleton";
 
 /** The migration the screen needs, named in the not-installed notice. An identifier, not prose. */
 const PLAN_MIGRATION = "supabase/migrations/20270215090000_analysis_study_plan.sql";
@@ -212,7 +213,9 @@ export function PlanTab({ refreshToken = 0 }: { refreshToken?: number }) {
             </button>
           </>
         ) : (
-          <RailLoader label={loaded ? t.building : t.loading} showLabel centered />
+          <SkStatus label={loaded ? t.building : t.loading}>
+            <PlanSkeleton intro={false} />
+          </SkStatus>
         )}
       </div>
     );

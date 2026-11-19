@@ -84,6 +84,7 @@ import {
 import styles from "./reports.module.css";
 import an from "../ui/an.module.css";
 import "../../../styles/stats.css";
+import { ReportsSkeleton, SkStatus } from "../ui/Skeleton";
 
 /** The migration the screen needs, named in the not-installed notice. An identifier, not prose. */
 const REPORTS_MIGRATION = "supabase/migrations/20270111090000_analysis_reports.sql";
@@ -290,7 +291,9 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
     return (
       <div className="stats">
         <Header />
-        <RailLoader label={t.loading} showLabel centered />
+        <SkStatus label={t.loading}>
+          <ReportsSkeleton />
+        </SkStatus>
       </div>
     );
   }
@@ -340,7 +343,11 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
           <RailLoader size="inline" label={t.loading} showLabel />
         </p>
       ) : null}
-      {!built && !chartsError ? <RailLoader label={t.loadingCharts} showLabel centered /> : null}
+      {!built && !chartsError ? (
+        <SkStatus label={t.loadingCharts}>
+          <ReportsSkeleton filters={false} field={false} />
+        </SkStatus>
+      ) : null}
       {built && built.unmatched > 0 ? <p className="notice notice--warn">{t.unmatched(built.unmatched)}</p> : null}
 
       {built && report.decisions === 0 ? <p className="card muted">{t.noneInScope}</p> : null}

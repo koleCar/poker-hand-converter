@@ -527,3 +527,47 @@
     padding-inline-start: 0;
   }
 }
+
+/* ------------------------------------------------- trend chart, arriving
+ * The line draws itself from the left, the interval band and the dots fade
+ * in behind it, the volume bars rise. Once, when the chart mounts; nothing
+ * moves under `prefers-reduced-motion`.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .lineIn {
+    stroke-dasharray: 1;
+    animation: trend-draw 900ms var(--ease-out) 120ms backwards;
+  }
+
+  .bandIn {
+    animation: trend-fade 700ms var(--ease-out) 300ms backwards;
+  }
+
+  .dotIn {
+    animation: trend-fade var(--dur-3) var(--ease-out) 700ms backwards;
+  }
+
+  .volIn {
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    animation: trend-rise 600ms var(--ease-out) backwards;
+  }
+}
+
+@keyframes trend-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+@keyframes trend-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes trend-rise {
+  from {
+    transform: scaleY(0);
+  }
+}

@@ -15,13 +15,10 @@
 
 "use client";
 
-import type { CSSProperties } from "react";
 import styles from "../ui/an.module.css";
+import { Sk } from "../ui/Skeleton";
 
-/** One grey block. Width and height in CSS lengths. */
-export function Sk({ w, h = 12, round = false, style }: { w?: number | string; h?: number | string; round?: boolean; style?: CSSProperties }) {
-  return <i className={`${styles.sk} ${round ? styles.skRound : ""}`} aria-hidden="true" style={{ inlineSize: w, blockSize: h, ...style }} />;
-}
+export { Sk };
 
 const HEAT_ROWS = 6;
 const STREETS = 4;

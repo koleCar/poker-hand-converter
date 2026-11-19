@@ -954,3 +954,36 @@
 .contents {
   display: contents;
 }
+
+/* ------------------------------------------------------- tab skeletons */
+
+/* A skeleton's column: the same rhythm as the tabs' `.stats` column. */
+.skStack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-inline-size: 0;
+}
+
+/* Session figures. */
+.skTiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+}
+
+/* Charts: the 13×13 grid beside its help. */
+.skChartRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-5, 20px);
+}
+
+.skGrid13 {
+  display: grid;
+  flex: 0 1 620px;
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+  gap: 2px;
+  min-inline-size: 280px;
+}
