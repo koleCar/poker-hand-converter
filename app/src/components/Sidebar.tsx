@@ -5,6 +5,8 @@ import { useT } from "../i18n";
 import { offeredScreens } from "../lib/duringPlay";
 import { SCREENS, screenHref, type Screen } from "../lib/router";
 import { useAccount } from "../lib/useAccount";
+import { useUiStrings } from "@rail/ui/i18n";
+import { openFeedback } from "./Feedback";
 import { MOD_KEY, openPalette } from "./Palette";
 import styles from "./Sidebar.module.css";
 import { SidebarNodelock } from "../solver/nodelock/SidebarNodelock";
@@ -136,8 +138,26 @@ export function Sidebar({ current, tablesOpen }: { current: Screen; tablesOpen: 
       </ul>
       <SidebarNodelock collapsed={collapsed} />
       <SidebarUpdate collapsed={collapsed} tablesOpen={tablesOpen} />
+      <FeedbackItem collapsed={collapsed} />
       <AccountFoot />
     </nav>
+  );
+}
+
+/** "Feedback": a bug, a feature request or a question, from any screen. */
+function FeedbackItem({ collapsed }: { collapsed: boolean }) {
+  const t = useUiStrings().feedback;
+  return (
+    <button
+      type="button"
+      className={`${styles.link} ${styles.feedback}`}
+      onClick={openFeedback}
+      title={collapsed ? t.open : t.openTitle}
+      aria-haspopup="dialog"
+    >
+      <Icon name="megaphone" className={styles.icon} />
+      <span className={styles.label}>{t.open}</span>
+    </button>
   );
 }
 

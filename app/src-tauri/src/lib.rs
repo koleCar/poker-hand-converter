@@ -90,6 +90,7 @@ pub mod custom_stats;
 pub mod dev;
 pub mod entitlements;
 pub mod export;
+pub mod feedback;
 pub mod folder_settings;
 pub mod folders;
 pub mod hand_time;
@@ -461,6 +462,7 @@ pub fn run() {
         share::share_open,
         share::share_set_names,
         share::forum_preview_open,
+        feedback::feedback_send,
         trainer::trainer_results_record,
         hands::hand_annotations,
         hands::hand_set_note,

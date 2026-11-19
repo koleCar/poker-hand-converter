@@ -1410,6 +1410,57 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          app_version: string | null
+          client_hash: string | null
+          created_at: string
+          email: string | null
+          id: string
+          images: string[]
+          kind: string
+          locale: string | null
+          message: string
+          page: string | null
+          platform: string | null
+          source: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          app_version?: string | null
+          client_hash?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          images?: string[]
+          kind: string
+          locale?: string | null
+          message: string
+          page?: string | null
+          platform?: string | null
+          source: string
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          app_version?: string | null
+          client_hash?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          images?: string[]
+          kind?: string
+          locale?: string | null
+          message?: string
+          page?: string | null
+          platform?: string | null
+          source?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       hand_analysis: {
         Row: {
           analysed: number

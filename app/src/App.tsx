@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, type JSX } from "react";
 
 import styles from "./App.module.css";
 import { Palette } from "./components/Palette";
+import { FeedbackHost } from "./components/Feedback";
 import { ProLockView } from "./components/ProLock";
 import { ROUTE_FEATURE, useEntitlements } from "./lib/useEntitlements";
 import { useLocale } from "./i18n";
@@ -118,6 +119,7 @@ export function App() {
         )}
       </main>
       <Palette tablesOpen={tablesOpen} />
+      <FeedbackHost />
     </div>
   );
 }

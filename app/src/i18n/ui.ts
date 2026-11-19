@@ -1,6 +1,8 @@
 import type { UiStrings } from "@rail/ui/i18n";
 import { chartsUiEn } from "@rail/ui/strings/charts.en";
 import { chartsUiHr } from "@rail/ui/strings/charts.hr";
+import { feedbackUiEn } from "@rail/ui/strings/feedback.en";
+import { feedbackUiHr } from "@rail/ui/strings/feedback.hr";
 import { replayerEn } from "@rail/ui/strings/replayer.en";
 import { replayerHr } from "@rail/ui/strings/replayer.hr";
 import { reviewUiEn } from "@rail/ui/strings/review.en";
@@ -30,6 +32,7 @@ function uiStrings(
   stats: StatsUi,
   review: UiStrings["review"],
   charts: UiStrings["charts"],
+  feedback: UiStrings["feedback"],
 ): UiStrings {
   return {
     intlLocale: INTL_LOCALE[locale],
@@ -51,10 +54,11 @@ function uiStrings(
     review,
     // The user's own charts (R5.3) likewise, until R5.4.
     charts,
+    feedback,
   };
 }
 
 export const UI_STRINGS: Record<Locale, UiStrings> = {
-  en: uiStrings("en", en, replayerEn, statsUiEn, reviewUiEn, chartsUiEn),
-  hr: uiStrings("hr", hr, replayerHr, statsUiHr, reviewUiHr, chartsUiHr),
+  en: uiStrings("en", en, replayerEn, statsUiEn, reviewUiEn, chartsUiEn, feedbackUiEn),
+  hr: uiStrings("hr", hr, replayerHr, statsUiHr, reviewUiHr, chartsUiHr, feedbackUiHr),
 };

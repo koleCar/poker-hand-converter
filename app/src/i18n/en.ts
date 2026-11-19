@@ -1216,6 +1216,7 @@ export const en = {
       comfortable: "Comfortable lists and tables",
       language: "Switch to Croatian (Hrvatski)",
       refused: "Show refused hands",
+      feedback: "Send feedback: report a bug, request a feature or ask a question",
       current: "In use",
     },
     keywords: {
@@ -1225,6 +1226,7 @@ export const en = {
       density: "density compact comfortable rows spacing size",
       language: "language croatian hrvatski english jezik",
       refused: "refused quarantine errors unreadable",
+      feedback: "feedback report bug issue problem feature request idea question help contact support",
       settings: "settings preferences options update upgrade version",
     },
     hints: {

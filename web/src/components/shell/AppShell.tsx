@@ -10,6 +10,7 @@ import { UserMenu } from "../auth/UserMenu";
 import { NotificationsBell } from "../forum/NotificationsBell";
 import { BrandMark } from "./BrandMark";
 import { DbStatusChip } from "./DbStatusChip";
+import { FeedbackButton } from "./FeedbackButton";
 import { LanguageSwitch } from "./LanguageSwitch";
 import { NavPending, NavPendingProvider, NavProgressLine, useNavPendingState } from "./NavProgress";
 import { ProBadge } from "../plan/ProLock";
@@ -166,6 +167,9 @@ export function AppShell({
             </Link>
           </nav>
         </footer>
+
+        {/* Bug reports, feature requests and questions, from every page. */}
+        <FeedbackButton />
       </div>
     </NavPendingProvider>
   );

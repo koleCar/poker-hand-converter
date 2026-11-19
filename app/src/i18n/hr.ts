@@ -1186,6 +1186,7 @@ export const hr: Dict = {
       comfortable: "Prozračni popisi i tablice",
       language: "Prebaci na engleski (English)",
       refused: "Prikaži odbijene ruke",
+      feedback: "Pošalji povratnu informaciju: prijavi grešku, predloži značajku ili postavi pitanje",
       current: "U uporabi",
     },
     keywords: {
@@ -1195,6 +1196,7 @@ export const hr: Dict = {
       density: "gustoća zbijeno prozračno retci razmak density compact",
       language: "jezik engleski english hrvatski language",
       refused: "odbijene karantena greške nečitljive refused",
+      feedback: "povratna informacija prijava greška bug problem prijedlog značajka pitanje pomoć kontakt podrška feedback",
       settings: "postavke opcije settings ažuriranje nadogradnja verzija update",
     },
     hints: {

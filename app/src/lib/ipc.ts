@@ -1635,6 +1635,8 @@ export const ipc = {
   handShare: (handKey: string, title: string | null) => invoke<HandShare>("hand_share", { handKey, title }),
   /** (Trainer) Keep graded answers in the account (`record_trainer_results`, at most 50); how many were kept. */
   trainerResultsRecord: (rows: TrainerResultDto[]) => invoke<number>("trainer_results_record", { rows }),
+  /** Send a bug report, feature request or question (`feedback.rs`); errors are the function's codes or `offline`. */
+  feedbackSend: (input: FeedbackInput) => invoke<null>("feedback_send", { input }),
   /** Open a share link made here in the default browser. */
   shareOpen: (slug: string) => invoke<null>("share_open", { slug }),
   /** The owner's names switch on a link made here; the state the server kept. */
@@ -2043,6 +2045,19 @@ export interface TrainerResultDto {
 
 /** The errors `trainer_results_record` answers with a code: the answers wait and go later. */
 export const TRAINER_SYNC_WAIT = ["signedOut", "rateLimited", "plan", "unavailable", "unreachable"] as const;
+
+/** A feedback report as `feedback_send` takes it (`src-tauri/src/feedback.rs`). */
+export interface FeedbackInput {
+  kind: "bug" | "feature" | "question";
+  message: string;
+  email: string | null;
+  website: string;
+  /** Data URLs. */
+  images: string[];
+  /** The screen it was sent from. */
+  page: string;
+  locale: string;
+}
 
 /** A share link made by `hand_share`. */
 export interface HandShare {
