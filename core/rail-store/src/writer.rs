@@ -407,7 +407,13 @@ fn apply_import_into(
          VALUES (?1, ?2, ?2, ?3)
          ON CONFLICT (hand_key) DO NOTHING",
     )?;
+    // (Store version 26) A hand the user deleted is not stored again.
+    let mut deleted = tx.prepare_cached("SELECT 1 FROM deleted_hands WHERE hand_key = ?1")?;
     for hand in &batch.hands {
+        if deleted.exists([&hand.hand_key])? {
+            outcome.duplicates += 1;
+            continue;
+        }
         let inserted = insert_hand.execute(params![
             hand.hand_key,
             hand.site,

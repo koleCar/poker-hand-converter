@@ -54,6 +54,7 @@ pub mod analysis;
 pub mod background;
 pub mod batch;
 pub mod custom;
+pub mod delete;
 pub mod error;
 pub mod facts;
 pub mod game_kind;
@@ -87,6 +88,7 @@ pub use batch::{
     PreparedStats, Refusal, UnrecognizedFile,
 };
 pub use custom::{CustomCounts, CustomProgress, CustomStatRow};
+pub use delete::Applied;
 pub use error::{Error, Result};
 pub use hand_list::{
     Annotations, FacetCount, HandCursor, HandFacets, HandFilter, HandPage, HandRow, PlayerRef,

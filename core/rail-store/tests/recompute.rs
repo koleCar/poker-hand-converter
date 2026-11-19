@@ -209,6 +209,8 @@ const NOT_DERIVED: &[&str] = &[
     // derived from hands; §7.5: their folders.
     "node_locks",
     "node_lock_folders",
+    // Version 26: the keys of the hands the user deleted.
+    "deleted_hands",
 ];
 
 #[test]

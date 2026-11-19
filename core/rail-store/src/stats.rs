@@ -1043,6 +1043,48 @@ impl Pending {
         }
     }
 
+    /// (Hand deletion, store version 26) Turn the sums of rows about to go
+    /// into what [`Pending::flush`] must add to take them out: every count
+    /// and sum negated, no dates (a newest or earliest date cannot be taken
+    /// back by a sum: `rail_store::delete` looks each one up again), no
+    /// `player_hands` entries (they go with their seat rows, by trigger).
+    pub(crate) fn negate(&mut self) {
+        fn flip(totals: &mut Totals) {
+            for value in &mut totals.counters {
+                *value = -*value;
+            }
+            for value in &mut totals.money {
+                *value = -*value;
+            }
+            totals.money_hands = -totals.money_hands;
+        }
+        for (totals, last) in self.players.values_mut().chain(self.observed.values_mut()) {
+            flip(totals);
+            *last = None;
+        }
+        for totals in self.heroes.values_mut() {
+            flip(totals);
+        }
+        for seen in self.seen.values_mut() {
+            *seen = PlayerSeen {
+                hands: -seen.hands,
+                first_played_at: None,
+                last_played_at: None,
+                cash_hands: -seen.cash_hands,
+                chips_hands: -seen.chips_hands,
+                cash_money_hands: -seen.cash_money_hands,
+                cash_net_bb_milli: -seen.cash_net_bb_milli,
+                chips_money_hands: -seen.chips_money_hands,
+                chips_net_bb_milli: -seen.chips_net_bb_milli,
+            };
+        }
+        for (hands, cash) in self.hidden.values_mut() {
+            *hands = -*hands;
+            *cash = -*cash;
+        }
+        self.hands.clear();
+    }
+
     /// Write a hand's rows (it has none) and count them.
     fn add_rows(&mut self, conn: &Connection, hand_key: &str, stats: &PreparedStats) -> Result<()> {
         let Some(first) = stats.rows.first().map(|seat| &seat.row) else {

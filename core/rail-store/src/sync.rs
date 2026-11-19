@@ -428,9 +428,29 @@ impl WriterHandle {
                          ?17, ?18, ?19, ?20, NULL, ?21, ?21, ?21)
                  ON CONFLICT (hand_key) DO NOTHING",
             )?;
+            // (Store version 26) A key deleted here: skipped while the
+            // server's copy is still owed its deletion (that copy is about to
+            // go); taken back when the deletion was done - the server serves
+            // it again because it was uploaded again.
+            let mut owed =
+                tx.prepare_cached("SELECT server FROM deleted_hands WHERE hand_key = ?1")?;
+            let mut forget = tx.prepare_cached("DELETE FROM deleted_hands WHERE hand_key = ?1")?;
             let mut outcome = PulledOutcome::default();
             let mut stats = crate::stats::Pending::new(tx)?;
             for hand in &hands {
+                match owed
+                    .query_row([&hand.hand_key], |row| row.get::<_, i64>(0))
+                    .optional()?
+                {
+                    Some(1) => {
+                        outcome.present += 1;
+                        continue;
+                    }
+                    Some(_) => {
+                        forget.execute([&hand.hand_key])?;
+                    }
+                    None => {}
+                }
                 let inserted = insert.execute(params![
                     hand.hand_key,
                     hand.site,
