@@ -287,3 +287,57 @@
     font-size: 24px;
   }
 }
+
+/* "Pro is coming" (the Pro waitlist): one line, the email, one box, the button. */
+
+.wlForm {
+  display: grid;
+  gap: 14px;
+  max-width: 400px;
+}
+
+.wlField {
+  display: grid;
+  gap: 5px;
+}
+
+.wlField > span {
+  color: var(--fg-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.wlField input {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-size: 14px;
+}
+
+.wlField input:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.wlField input[aria-invalid="true"] {
+  border-color: var(--danger-fg);
+}
+
+.wlDone {
+  display: grid;
+  gap: 8px;
+  max-width: 400px;
+}
+
+.wlDoneLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--money-strong);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}

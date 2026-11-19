@@ -180,6 +180,8 @@ export const paths = {
   adminUser: (id: string) => `/admin/users/${encodeURIComponent(id)}`,
   /** The feedback reports, optionally one account's. */
   adminReports: (user?: string) => (user ? `/admin/reports?user=${encodeURIComponent(user)}` : "/admin/reports"),
+  /** The Pro waitlist (`20271119210000_pro_waitlist.sql`). */
+  adminWaitlist: () => "/admin/waitlist",
   takedown: () => "/takedown",
   /** The desktop app for macOS and Windows: what it does, and the two installers. Public; a reserved username (`20271103100000_download_route.sql`). */
   download: () => "/download",

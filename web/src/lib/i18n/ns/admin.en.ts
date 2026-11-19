@@ -9,7 +9,7 @@ const n = (value: number) => value.toLocaleString("en-GB");
 export const adminEn = {
   metaTitle: "Admin | Rail",
   menu: "Admin",
-  nav: { label: "Admin sections", users: "Users", reports: "Reports" },
+  nav: { label: "Admin sections", users: "Users", reports: "Reports", waitlist: "Waitlist" },
   denied: "Admins only.",
   signIn: "Sign in with an admin account to open this page.",
   loading: "Loading…",
@@ -95,6 +95,14 @@ export const adminEn = {
     feedback: "Reports",
     noFeedback: "No reports from this account.",
     allFeedback: "Open in Reports",
+  },
+
+  waitlist: {
+    count: (total: number) => (total === 1 ? "1 address" : `${n(total)} addresses`),
+    empty: "Nobody has joined yet.",
+    columns: { email: "Email", account: "Account", source: "From", locale: "Language", when: "Joined" },
+    sources: { pricing: "Pricing", settings: "Settings", app: "Desktop app" } as Record<string, string>,
+    visitor: "Visitor",
   },
 
   reports: {

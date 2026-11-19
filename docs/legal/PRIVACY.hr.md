@@ -98,6 +98,13 @@ zapis kupca u Stripeu i njegovi računi porezni su zapisi: čuvaju se koliko god
 porezni i računovodstveni propisi traže (čl. 6. st. 1. t. (c)), i nakon što
 obrišeš račun.
 
+**Lista čekanja za Pro.** Dok plaćeni planovi nisu otvoreni, možeš ostaviti
+e-mail adresu da saznaš kad se Pro otvori. Spremamo adresu, kada i gdje si je
+ostavio, tvoj jezik i, ako si bio prijavljen, tvoj račun. Koristimo je samo za
+tu jednu poruku (čl. 6. st. 1. t. (a): tvoja privola) i čuvamo je dok se Pro
+ne otvori ili dok ne zatražiš da je uklonimo, što god bude prije; brisanje
+računa uklanja je također.
+
 ### 3.6 Tehnički podaci
 
 Naši pružatelji hostinga bilježe zahtjeve (IP adresa, preglednik, vrijeme,

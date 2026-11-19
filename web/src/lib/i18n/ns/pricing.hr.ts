@@ -21,7 +21,6 @@ export const pricingHr: Dict["pricing"] = {
   },
   currentPlan: "Trenutni plan",
   upgrade: "Prijeđi na Pro",
-  soon: "Plaćeni planovi uskoro",
   manage: "Upravljaj pretplatom",
   plansLabel: "Planovi",
   included: "Uključeno",
@@ -72,6 +71,25 @@ export const pricingHr: Dict["pricing"] = {
     tax: "Porez prema adresi za naplatu dodaje se na sljedećoj stranici.",
     pay: "Nastavi na plaćanje",
     cancel: "Ne sada",
+  },
+
+  waitlist: {
+    title: "Pro uskoro stiže",
+    line: "Rail Pro je još u razvoju pa plaćeni planovi još nisu otvoreni.",
+    email: "E-mail",
+    consent: "Pošalji mi jedan e-mail kad se Pro otvori. Ništa drugo.",
+    submit: "Javi mi",
+    cancel: "Ne sada",
+    done: "Na popisu si",
+    doneNote: (email) => `Javit ćemo se na ${email} kad se Pro otvori.`,
+    already: "Već si na popisu",
+    close: "Gotovo",
+    checking: "Provjeravam…",
+    errors: {
+      invalid_email: "Provjeri e-mail adresu.",
+      rate_limited: "Previše pokušaja. Pokušaj ponovno za sat vremena.",
+      failed: "Spremanje nije uspjelo. Pokušaj ponovno.",
+    },
   },
 
   success: {

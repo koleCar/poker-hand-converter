@@ -13,7 +13,7 @@ const plural = (count: number, one: string, few: string, many: string) => {
 export const adminHr: Dict["admin"] = {
   metaTitle: "Admin | Rail",
   menu: "Admin",
-  nav: { label: "Admin odjeljci", users: "Korisnici", reports: "Prijave" },
+  nav: { label: "Admin odjeljci", users: "Korisnici", reports: "Prijave", waitlist: "Lista čekanja" },
   denied: "Samo za admine.",
   signIn: "Prijavi se admin računom da otvoriš ovu stranicu.",
   loading: "Učitavam…",
@@ -99,6 +99,14 @@ export const adminHr: Dict["admin"] = {
     feedback: "Prijave",
     noFeedback: "Ovaj račun nema prijava.",
     allFeedback: "Otvori u Prijavama",
+  },
+
+  waitlist: {
+    count: (total) => `${n(total)} ${plural(total, "adresa", "adrese", "adresa")}`,
+    empty: "Još se nitko nije prijavio.",
+    columns: { email: "E-mail", account: "Račun", source: "Odakle", locale: "Jezik", when: "Prijava" },
+    sources: { pricing: "Cijene", settings: "Postavke", app: "Desktop aplikacija" },
+    visitor: "Posjetitelj",
   },
 
   reports: {

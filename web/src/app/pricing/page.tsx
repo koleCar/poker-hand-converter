@@ -28,5 +28,6 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function PricingPage({ searchParams }: PageProps) {
   const query = await searchParams;
   const period = Array.isArray(query.period) ? query.period[0] : query.period;
-  return <PricingScreen period={period ?? null} />;
+  const from = Array.isArray(query.from) ? query.from[0] : query.from;
+  return <PricingScreen period={period ?? null} from={from ?? null} />;
 }

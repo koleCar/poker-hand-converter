@@ -97,6 +97,13 @@ for you and your subscription (Art. 6(1)(b)). Your customer record at Stripe
 and its invoices are tax records: they are kept for as long as tax and
 accounting law requires (Art. 6(1)(c)), also after you delete your account.
 
+**Pro waitlist.** While paid plans are not open, you can leave an email
+address to hear when Pro opens. We store the address, when and where you left
+it, your language and, if you were signed in, your account. We use it only to
+send that one message (Art. 6(1)(a): your consent), and keep it until Pro
+opens or you ask us to remove it, whichever comes first; deleting your
+account removes it too.
+
 ### 3.6 Technical data
 
 Our hosting providers log requests (IP address, browser, time, address

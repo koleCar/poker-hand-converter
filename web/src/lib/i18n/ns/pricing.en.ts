@@ -25,7 +25,6 @@ export const pricingEn = {
   },
   currentPlan: "Current plan",
   upgrade: "Upgrade to Pro",
-  soon: "Paid plans open soon",
   manage: "Manage subscription",
   plansLabel: "Plans",
   included: "Included",
@@ -77,6 +76,26 @@ export const pricingEn = {
     tax: "Tax from your billing address is added on the next page.",
     pay: "Continue to payment",
     cancel: "Not now",
+  },
+
+  /** "Pro is coming": what every upgrade opens while paid plans are not open (the Pro waitlist). */
+  waitlist: {
+    title: "Pro is coming",
+    line: "Rail Pro is still in development, so paid plans aren't open yet.",
+    email: "Email",
+    consent: "Email me once when Pro opens. Nothing else.",
+    submit: "Notify me",
+    cancel: "Not now",
+    done: "You're on the list",
+    doneNote: (email: string) => `We'll write to ${email} when Pro opens.`,
+    already: "You're already on the list",
+    close: "Done",
+    checking: "Checking…",
+    errors: {
+      invalid_email: "Check the email address.",
+      rate_limited: "Too many tries. Try again in an hour.",
+      failed: "That didn't save. Try again.",
+    },
   },
 
   success: {
