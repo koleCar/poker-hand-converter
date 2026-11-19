@@ -307,6 +307,7 @@ export {
   type LibraryModel,
 } from "./flopLibrary";
 export {
+  EXACT_SIZE_BB,
   MIN_LINE_REACH,
   RIVER_CATEGORIES,
   RIVER_MAX_ITERATIONS,

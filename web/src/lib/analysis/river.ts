@@ -356,6 +356,13 @@ export interface Mapped {
 
 const SIZED = new Set(["bet", "raise", "allin"]);
 
+/**
+ * A sized action within this many big blinds of a tree size's street total is
+ * that size exactly (analysis/47): half a cent of a big blind of rounding,
+ * the tolerance the solver's own labels allow (`lib/solver/betting.ts`).
+ */
+export const EXACT_SIZE_BB = 0.006;
+
 /** What mapping an action onto a tree reads of it. */
 export type LineAct = Pick<StreetAct, "type" | "to" | "allIn" | "sizePot">;
 
@@ -379,6 +386,19 @@ export function mapAct(node: SolvedNode, act: LineAct, stack: number): Mapped | 
     return { edges: [allIn.edge], weights: [1], distance: 0 };
   }
   const x = act.sizePot ?? 0;
+  // A size that puts in the tree's own amount, to the cent of a big blind, is
+  // that size. Amounts are quoted to two decimals (the Trainer's menu, a
+  // tree's labels), so 33% of 9.96 is written 3.29 and reads 0.3303 of the
+  // pot: just past 0.33, where the translation would give the 75% a sliver
+  // and `gradeMapped` grade the bet as whichever of the two was better.
+  let exact: { edge: number; off: number } | null = null;
+  for (const { action, edge } of sized) {
+    const off = Math.abs(action.to - act.to);
+    if (off <= EXACT_SIZE_BB && (!exact || off < exact.off)) exact = { edge, off };
+  }
+  if (exact) {
+    return { edges: [exact.edge], weights: [1], distance: Math.abs(node.actions[exact.edge].sizePot - x) };
+  }
   const translation = translateSize(
     x,
     sized.map(({ action }) => action.sizePot),

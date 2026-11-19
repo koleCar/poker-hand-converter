@@ -340,8 +340,15 @@ import type { Position, Street } from "../phf/types";
  *               heads-up solve of a later street (`multiway-history`), no
  *               multiway flags. Preflop is graded as before; bomb pots keep
  *               their capped guide grades (analysis/45).
+ *   analysis/47 A bet or raise within half a cent of a big blind of a tree
+ *               size's amount is that size (`EXACT_SIZE_BB`, `mapAct`), on
+ *               every solved street. Amounts quoted to the cent read a hair
+ *               past the tree's fraction (33% of 9.96 bb is 3.29, 0.3303 of
+ *               the pot), so the translation gave the next size up a sliver
+ *               and the hero's size was graded as the better of the two: a
+ *               Trainer 33% bet graded as the 75%.
  */
-export const ANALYSIS_VERSION = "analysis/46" as const;
+export const ANALYSIS_VERSION = "analysis/47" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
