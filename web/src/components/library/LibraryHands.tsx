@@ -303,6 +303,9 @@ function StoredHandPanel({ handKey, row, onClose }: { handKey: string; row: Hand
     <div className={`${styles.panel} rail-fade`}>
       <ReplayViewer
         key={handKey}
+        // The address does not name the open hand, so a `?t=` left by the
+        // last one must not place the next: every hand opens at its start.
+        urlSync={false}
         hand={state.hand}
         site={siteLabel(row?.site ?? state.hand.meta.siteId)}
         onClose={onClose}
@@ -405,6 +408,7 @@ function ConverterHand({ onHandsSaved }: { onHandsSaved: () => void }) {
       {error ? <p className="notice notice--error">{error}</p> : null}
       <ReplayViewer
         key={hand.meta.handKey}
+        urlSync={false}
         hand={hand}
         site={siteLabel(hand.meta.siteId)}
         onClose={() => {
