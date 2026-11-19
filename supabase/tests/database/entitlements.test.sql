@@ -324,8 +324,8 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
 
 select is((select string_agg(feature || ':' || n, ' ' order by feature)
              from (select feature, count(*) as n from public.entitlement_gates group by 1) x),
-  'analysis:50 desktop_sync:3 learn:3 reports_full:6',
-  'the gate list: 50 analysis (20271116090000: the trainer''s sessions), 3 desktop sync, 3 learn, 6 full reports');
+  'analysis:53 desktop_sync:3 learn:3 reports_full:6',
+  'the gate list: 53 analysis (20271116090000: the trainer''s sessions; 20271119250000: the Multiway and Bomb pots pages), 3 desktop sync, 3 learn, 6 full reports');
 
 -- ---------------------------------------------------------- early users --
 
