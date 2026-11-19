@@ -17,6 +17,8 @@ export const uiEn = {
     reports: "Reports",
     train: "Train",
     charts: "Charts",
+    multiway: "Multiway ≈",
+    bomb: "Bomb pots ≈",
     concepts: "Concepts",
   },
   run: {

@@ -28,6 +28,7 @@ import type { reportsUiEn } from "./strings/reports.en";
 import type { chartsUiEn } from "./strings/charts.en";
 import type { reviewUiEn } from "./strings/review.en";
 import type { feedbackUiEn } from "./strings/feedback.en";
+import type { potKindsUiEn } from "./strings/potKinds.en";
 
 /** The replayer's strings: `strings/replayer.en.ts` is the English. */
 export interface ReplayerStrings {
@@ -349,6 +350,8 @@ export type PlayersStrings = typeof playersUiEn;
  * lists. `strings/review.{en,hr}.ts` are the two languages.
  */
 export type ReviewStrings = typeof reviewUiEn;
+/** analysis/45: the Multiway and Bomb pots tabs. */
+export type PotKindsStrings = typeof potKindsUiEn;
 
 /** The feedback dialog's strings: `strings/feedback.en.ts` is the English. */
 export type FeedbackStrings = typeof feedbackUiEn;
@@ -375,6 +378,7 @@ export interface UiStrings {
   review: ReviewStrings;
   charts: ChartsStrings;
   feedback: FeedbackStrings;
+  potKinds: PotKindsStrings;
 }
 
 const UiStringsContext = createContext<UiStrings | null>(null);

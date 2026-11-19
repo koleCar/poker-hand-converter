@@ -108,7 +108,8 @@ export function reportsQuery(state: ReportsState): string {
 
 /** The readers' filters: the kind, and the Hands list's filter when it sets a group. */
 export function reportsFilters(state: ReportsState, now: Date = new Date()): AnalysisFilters {
-  const filters: AnalysisFilters = {};
+  // Heads-up pots only (analysis/45-46): bomb pots have their own page.
+  const filters: AnalysisFilters = { potKind: "hu" };
   if (state.kind) filters.gameKind = state.kind;
   if (activeGroups(state.filter) > 0) filters.hands = libraryFilter(toQuery({ ...state.filter, formats: [] }, now));
   return filters;

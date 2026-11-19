@@ -19,6 +19,7 @@
 
 "use client";
 
+import { PotKindNote } from "@rail/ui/potKinds/PotKinds";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -141,6 +142,12 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
   return (
     <div className={styles.handPage}>
       {backLink}
+      {/* analysis/45: a bomb pot's or a multiway hand's grades are a rough guide: the closable note says why. */}
+      {loaded.analysis.potType === "bomb" ? (
+        <PotKindNote kind="bomb" />
+      ) : loaded.analysis.decisions.some((d) => d.facts.scenario.includes("-mw-")) ? (
+        <PotKindNote kind="mw" />
+      ) : null}
       <section className="card card--flush rail-fade">
         <ReplayViewer
           key={loaded.hand.meta.handKey}

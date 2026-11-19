@@ -50,7 +50,7 @@ export const EMPTY_LIST_STATE: AnalysisListState = {
 
 export const STREET_VALUES = ["preflop", "flop", "turn", "river"] as const;
 export const STATUS_VALUES = ["full", "partial", "not-analysed"] as const;
-export const POT_VALUES = ["limped", "single-raised", "3bet", "4bet+", "walk", "bomb"] as const;
+export const POT_VALUES = ["limped", "single-raised", "3bet", "4bet+", "walk"] as const;
 export const POSITION_VALUES = ["UTG", "UTG+1", "UTG+2", "MP", "LJ", "HJ", "CO", "BTN", "SB", "BB"] as const;
 const FLAG_VALUES = [...FLAG_CODES, "any"] as readonly string[];
 export const GRADE_VALUES = ["bad", ...GRADES] as readonly string[];
@@ -117,7 +117,8 @@ export function listQuery(state: AnalysisListState): string {
 
 /** What the overview and the breakdown are about: the scope, not the list's own filters. */
 export function scopeFilters(state: AnalysisListState): AnalysisFilters {
-  const filters: AnalysisFilters = {};
+  // Heads-up pots only (analysis/45-46): bomb pots have their own page.
+  const filters: AnalysisFilters = { potKind: "hu" };
   if (state.kind) filters.gameKind = state.kind;
   if (state.position) filters.position = state.position;
   if (state.potType) filters.potType = state.potType;

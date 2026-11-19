@@ -52,6 +52,10 @@ export const paths = {
    * filter's groups (`components/analysis/session/sessionQuery.ts`).
    */
   analysisSession: (query?: string) => (query ? `/analysis/session?${query}` : "/analysis/session"),
+  /** analysis/45: the multiway pots on their own (three or more players at a decision). Private. */
+  analysisMultiway: () => "/analysis/multiway",
+  /** analysis/45: the bomb pots on their own. Private. */
+  analysisBomb: () => "/analysis/bomb",
   /** Progress (phase A6): score and EV lost over time. Private; `query` is its filters and view. */
   analysisProgress: (query?: string) => (query ? `/analysis/progress?${query}` : "/analysis/progress"),
   /**

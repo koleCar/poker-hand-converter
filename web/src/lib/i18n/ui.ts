@@ -1,3 +1,5 @@
+import { potKindsUiEn } from "@rail/ui/strings/potKinds.en";
+import { potKindsUiHr } from "@rail/ui/strings/potKinds.hr";
 import type { UiStrings } from "@rail/ui/i18n";
 import { chartsUiEn } from "@rail/ui/strings/charts.en";
 import { chartsUiHr } from "@rail/ui/strings/charts.hr";
@@ -49,6 +51,7 @@ function uiStrings(locale: Locale): UiStrings {
     review: locale === "hr" ? reviewUiHr : reviewUiEn,
     charts: locale === "hr" ? chartsUiHr : chartsUiEn,
     feedback: locale === "hr" ? feedbackUiHr : feedbackUiEn,
+    potKinds: locale === "hr" ? potKindsUiHr : potKindsUiEn,
   };
 }
 

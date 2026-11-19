@@ -65,11 +65,4 @@ export {
   type VillainPlayer,
 } from "@rail/web-lib/db/villainCounters";
 export type { PhfHand } from "@rail/web-lib/phf/types";
-export {
-  BLUFF_NEEDS,
-  BOMB_AGGRESSION_STUDY,
-  bombSummary,
-  type BetSize,
-  type BombSummary,
-  type Rate,
-} from "@rail/web-lib/analysis/potKinds";
+export { bombSummary } from "@rail/web-lib/analysis/potKinds";

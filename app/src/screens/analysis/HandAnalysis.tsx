@@ -28,7 +28,7 @@ import { handAnalysisOf } from "../../analysis/service";
 import { analysisEn, analysisHr, bestOption, betterAlternative, type OptionAnalysis } from "../../analysis/sheetWords";
 import { go, screenHref } from "../../lib/router";
 import { solverSpotOf } from "../../solver/spot";
-import { PotKindNote } from "./PotKinds";
+import { PotKindNote } from "@rail/ui/potKinds/PotKinds";
 import styles from "./HandAnalysis.module.css";
 import { IcmBlock } from "./IcmBlock";
 import { SolverPanel } from "./SolverPanel";

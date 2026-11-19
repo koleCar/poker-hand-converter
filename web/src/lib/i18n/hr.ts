@@ -104,6 +104,14 @@ export const hr: Dict = {
       title: "Izvještaji — tvoje frekvencije prema referenci | Rail",
       description: "Tvoje preflop frekvencije u svakoj situaciji koju chartovi pokrivaju, uz frekvencije reference i ruke u kojima si od nje odstupio.",
     },
+    analysisMultiway: {
+      title: "Multiway potovi | Rail",
+      description: "Tvoji multiway potovi zasebno: rezultati, odluke po broju igrača i situacije koje vrijedi pogledati. Railove ocjene tamo su gruba procjena.",
+    },
+    analysisBomb: {
+      title: "Bomb potovi | Rail",
+      description: "Tvoji bomb potovi zasebno: rezultati po anteu i prvom potezu, ti protiv poola i što linije igrača pokazuju. Rail nema riješene bomb potove.",
+    },
     analysisLeaks: {
       title: "Leakovi — situacije koje te najviše koštaju | Rail",
       description: "Tvoje ocijenjene odluke grupirane u situacije i poredane po EV-u koji su te koštale u odnosu na referencu, s rukama iza svake.",

@@ -37,16 +37,27 @@ screen) render the same component. A Pro feature.
   The bar names the leak ("Calling too wide — BB vs BTN open, costs you
   3.2 bb/100"). With no account, no analysed hands or only turn / multiway
   leaks, it deals the spots most players misplay (`GENERAL`).
-- **Explanations.** After an answer, in reading order:
+- **Explanations.** After an answer, in reading order (one panel since
+  2026-11-19, canvas `ideas-trainer` A; it replaced the Range / Strategy /
+  Your hand / Why tabs):
   1. the verdict on the felt — grade, the move, EV lost, the better move;
-  2. the strategy for *this* hand — every option's frequency and EV;
-  3. the hand's facts — made hand, equity against the range, pot odds,
-     minimum defence, SPR, draws, blockers;
-  4. *why* — the analysis' own sentences for the decision (built only from
-     computed facts, `explain`), then a **rule of thumb** for the kind of
-     spot (`principles.ts`: preflop by family and the blinds facing an
-     open; postflop by street, what the hero faces and the preflop role);
-  5. on the web, the whole chart or range and the Learn links.
+  2. the hero's whole range on the left (`RangeGrid`): every class split
+     into the reference's actions, bets left, the passive play right; a
+     hover zooms the class (each action's frequency) and lists its combos
+     under it, each with its own mix (postflop, from the solve's
+     `StudyCombo`s); under the grid each action's share of the range;
+  3. on the right the short *why* (`Brief`, `lib/training/brief.ts`): a
+     headline — the hand's role, then the play (`Thin value — bet small`);
+     what the best play earns over yours (or over the next best when you
+     found it); at most three points, each one deciding number; example
+     hands from the range — first to act on a solved street value / thin
+     value / bluffs by how much of the opponent's range they beat,
+     elsewhere by the play — each with the EV of its play (a click rings
+     its class); the hand's facts as chips;
+  4. folded under Details: the analysis' own sentences (`explain`), the
+     **rule of thumb** for the kind of spot (`principles.ts`), and on the
+     web the whole chart or range and the Learn links.
+  While answering only the range can be opened (one button, remembered).
 - **Easy settings.** One sheet, every choice a row of chips (one click, no
   dropdowns), only the rows the current mode reads: table, situation, seats;
   pot, position, preflop role, facing, line; hands (as the range holds them
@@ -71,7 +82,7 @@ web/src/components/trainer/      host-neutral (no Next, no web i18n, no Supabase
   principles.ts  which rule of thumb explains a spot
   Trainer.tsx    the session list and the switch to a session's training and history;
                  SessionTrainer.tsx, SessionReview.tsx, SeenBefore.tsx, SettingsSheet.tsx (a new session),
-                 SpotFelt.tsx, Feedback.tsx
+                 SpotFelt.tsx, Feedback.tsx (verdict, Brief), DecisionPanel.tsx, RangeGrid.tsx
 web/src/lib/i18n/ns/trainer.{en,hr}.ts   its words (plain data; the analysis' words re-used)
 
 web:  components/analysis/train/WebTrainer.tsx   host: lib/trainer.ts worker, fetchLeaks,

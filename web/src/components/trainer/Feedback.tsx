@@ -1,37 +1,33 @@
 /**
  * What the Trainer shows after an answer, in the order a player reads it:
  *
- * 1. the verdict - the grade, the move, what it cost and the better move;
- * 2. what the reference does with *this* hand - every option's frequency and
- *    EV, the answer marked (GTO Wizard's strategy bars, for one hand);
- * 3. the hand's facts at the decision - equity against the range, the price
- *    (pot odds, how much must defend), the SPR, the made hand, the draws and
- *    blockers - the numbers the reason is made of;
- * 4. *why*: the analysis' own sentences for this decision (`explain`), built
- *    only from facts the engine computed, so they cannot invent a reason;
- * 5. the host's deeper study (the web's whole chart or range, Learn links).
+ * 1. the verdict - the grade, the move, what it cost and the better move -
+ *    in the row under the table;
+ * 2. one panel (`DecisionPanel`, canvas `ideas-trainer` A): the hero's whole
+ *    range on the left, and on the right the short *why* (`Brief`) - what
+ *    the hand is and what to do, what the play is worth, at most three
+ *    points, example hands from the range with the EV of their play, the
+ *    hand's facts as chips - and the analysis' full sentences (`explain`),
+ *    the rule of thumb and the host's deeper study folded under Details.
  *
- * The verdict sits in the row under the table; 2-5 are tabs that fold
- * (`InfoTabs`), with the hero's whole range beside them.
+ * Every word is built only from facts the engine computed, so it cannot
+ * invent a reason.
  */
 
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { DecisionAnalysis, OptionAnalysis } from "../../lib/analysis/types";
 import type { TrainerSpot } from "../../lib/training";
+import { briefGain, briefHead, briefPoints, rangeExamples } from "../../lib/training/brief";
+import type { RangeView } from "../../lib/training/rangeView";
 import { useTrainerHost } from "./host";
-import type { InfoTab } from "./InfoTabs";
 import { principleOf } from "./principles";
+import { CardsText } from "./RangeGrid";
 import type { TrainerSettings } from "./settings";
 import styles from "./trainer.module.css";
 
 const GLYPH: Record<string, string> = { perfect: "★", good: "✓", inaccurate: "?!", mistake: "?", blunder: "??" };
-
-function toneOf(option: OptionAnalysis): string {
-  if (option.allIn) return "allin";
-  return option.action;
-}
 
 export function useOptionText() {
   const { t } = useTrainerHost();
@@ -92,79 +88,176 @@ export function factsOf(decision: DecisionAnalysis, t: Words, locale: string): A
   return facts;
 }
 
-const isGraded = (decision: DecisionAnalysis) => decision.grade !== null && decision.options.length > 0;
+export const isGraded = (decision: DecisionAnalysis) => decision.grade !== null && decision.options.length > 0;
 
-/** What the reference does with this hand: every option's frequency and EV, the answer marked. */
-export function StrategyPanel({ decision, mix = null }: { decision: DecisionAnalysis; mix?: number[] | null }) {
+const DETAILS_KEY = "rail.trainer.details";
+
+function readDetails(): boolean {
+  try {
+    return typeof window !== "undefined" && window.localStorage.getItem(DETAILS_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+const DASH = (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+    <path d="M5 12h14" />
+  </svg>
+);
+
+/**
+ * The short why: the headline, what the play is worth, at most three
+ * points, example hands from the range, the facts as chips, and the full
+ * reasoning folded under Details.
+ */
+export function Brief({
+  decision,
+  spot,
+  settings,
+  view,
+  highlight,
+  onHighlight,
+  extra = null,
+}: {
+  decision: DecisionAnalysis;
+  spot: TrainerSpot | null;
+  settings: TrainerSettings;
+  /** The range at the decision, for the example hands; null while it is read (or where there is none). */
+  view: RangeView | null;
+  highlight: number | null;
+  onHighlight: (cell: number | null) => void;
+  /** The host's deeper study, under Details. */
+  extra?: ReactNode;
+}) {
   const { t, locale } = useTrainerHost();
   const label = useOptionText();
-  const pct = (value: number) => `${Math.round(value * 100).toLocaleString(locale)}%`;
-  const ev = (value: number) => `${value > 0 ? "+" : value < 0 ? "−" : ""}${Math.abs(value).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const [details, setDetails] = useState(readDetails);
   if (!isGraded(decision)) return <NotGraded decision={decision} />;
-  const best = bestIndex(decision);
-  return (
-    <ul className={styles.options} data-mix={mix ? true : undefined} aria-label={t.strategyHeading}>
-      {decision.options.map((option, index) => (
-        <li
-          key={index}
-          className={styles.option}
-          data-action={toneOf(option)}
-          data-chosen={decision.chosen === index || undefined}
-          data-best={best === index || undefined}
-        >
-          <span className={styles.optionLabel}>{label(option)}</span>
-          <span className={styles.optionBar} aria-hidden="true">
-            <span style={{ inlineSize: `${Math.max(0, Math.min(1, option.freq)) * 100}%` }} />
-          </span>
-          <span className={styles.optionFreq}>{pct(option.freq)}</span>
-          {mix ? (
-            <span className={styles.optionMix} title={t.mixYours}>
-              {pct(mix[index] ?? 0)}
-            </span>
-          ) : null}
-          <span className={styles.optionEv} title={t.evHeading}>
-            {ev(option.ev)}
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
-}
 
-/** The hand's facts at the decision. */
-export function FactsPanel({ decision }: { decision: DecisionAnalysis }) {
-  const { t, locale } = useTrainerHost();
-  const facts = factsOf(decision, t, locale);
-  return (
-    <dl className={styles.facts} aria-label={t.factsHeading}>
-      {facts.map(([name, value]) => (
-        <div key={name} className={styles.fact}>
-          <dt>{name}</dt>
-          <dd>{value}</dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
-/** Why: the analysis' own sentences, the rule of thumb, and the host's deeper study. */
-export function WhyPanel({ decision, spot, extra = null }: { decision: DecisionAnalysis; spot: TrainerSpot | null; extra?: ReactNode }) {
-  const { t } = useTrainerHost();
-  if (!isGraded(decision)) return <NotGraded decision={decision} />;
-  const why = t.words.explain(decision);
+  const head = briefHead(decision);
+  const gain = settings.strategy ? briefGain(decision) : null;
+  const points = briefPoints(decision);
+  const groups = settings.strategy && view ? rangeExamples(view) : [];
+  const facts = settings.facts ? factsOf(decision, t, locale) : [];
   const principleKey = principleOf(spot, decision);
   const principle = principleKey ? t.principles[principleKey] : undefined;
+  const ev = (value: number) =>
+    `${value > 0 ? "+" : value < 0 ? "−" : ""}${Math.abs(value).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} bb`;
+  const pct = (value: number) => `${Math.round(value * 100).toLocaleString(locale)}%`;
+  const gainText = gain
+    ? t.brief.gain(
+        gain.kind,
+        label(decision.options[gain.best]),
+        label(decision.options[gain.other]),
+        gain.kind === "equal" ? 0 : gain.bb,
+      )
+    : null;
+  const toggleDetails = () => {
+    const next = !details;
+    setDetails(next);
+    try {
+      window.localStorage.setItem(DETAILS_KEY, next ? "1" : "0");
+    } catch {
+      // No storage: it stays as set for the visit.
+    }
+  };
+
   return (
-    <div className={styles.why} aria-label={t.whyHeading}>
-      {why.map((sentence) => (
-        <p key={sentence}>{sentence}</p>
-      ))}
-      {principle ? (
-        <p className={styles.principle}>
-          <strong>{t.ruleOfThumb}</strong> {principle}
-        </p>
+    <div className={styles.brief} aria-label={t.whyHeading}>
+      {head ? (
+        <div className={styles.briefHead}>
+          <strong>{t.brief.head(head.role ? (t.brief.roles[head.role] ?? head.role) : null, head.play ? (t.brief.plays[head.play] ?? head.play) : null)}</strong>
+          {gainText ? (
+            <span className={styles.briefGain}>
+              {gainText.before}
+              {gainText.value ? <span className={styles.briefWorth}>{gainText.value}</span> : null}
+              {gainText.after}
+            </span>
+          ) : null}
+        </div>
       ) : null}
-      {extra}
+      {points.length > 0 ? (
+        <ul className={styles.briefPoints}>
+          {points.map((point, i) => {
+            const words = t.brief.point(point);
+            return (
+              <li key={i}>
+                {DASH}
+                <span>
+                  <strong>{words.lead}</strong> {words.text}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
+      {groups.length > 0 ? (
+        <div className={styles.examples} role="group" aria-label={t.brief.examples}>
+          {groups.map((group) => (
+            <div key={group.key} className={styles.exampleRow}>
+              <span className={styles.exampleLabel} data-group={group.key}>
+                <i aria-hidden="true" />
+                {t.brief.groups[group.key] ?? group.key}
+              </span>
+              {group.hands.map((hand) => {
+                const option = view?.options[hand.option];
+                const optionLabel = option ? t.words.option(option.action, option.sizeBb, option.allIn, option.sizePot) : "";
+                return (
+                  <button
+                    key={hand.hand}
+                    type="button"
+                    className={styles.exampleHand}
+                    data-me={hand.me || undefined}
+                    aria-pressed={highlight === hand.cell}
+                    aria-label={t.brief.showHand(hand.hand)}
+                    onClick={() => onHighlight(highlight === hand.cell ? null : hand.cell)}
+                  >
+                    <CardsText cards={hand.hand} />
+                    {hand.ev !== null ? (
+                      <span className={hand.ev >= 0 ? styles.pos : styles.neg} title={t.brief.evOf(optionLabel)}>
+                        {ev(hand.ev)}
+                      </span>
+                    ) : (
+                      <span className={styles.muted} title={optionLabel}>
+                        {pct(hand.freq)}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      ) : null}
+      {facts.length > 0 ? (
+        <ul className={styles.factChips} aria-label={t.factsHeading}>
+          {facts.map(([name, value]) => (
+            <li key={name}>
+              {name} <strong>{value}</strong>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <div className={styles.details}>
+        <button type="button" className={styles.detailsToggle} aria-expanded={details} onClick={toggleDetails}>
+          {t.brief.details}
+          <span className={styles.foldChevron} aria-hidden="true" />
+        </button>
+        {details ? (
+          <div className={styles.detailsBody}>
+            {t.words.explain(decision).map((sentence) => (
+              <p key={sentence}>{sentence}</p>
+            ))}
+            {principle ? (
+              <p className={styles.principle}>
+                <strong>{t.ruleOfThumb}</strong> {principle}
+              </p>
+            ) : null}
+            {extra}
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -172,38 +265,4 @@ export function WhyPanel({ decision, spot, extra = null }: { decision: DecisionA
 function NotGraded({ decision }: { decision: DecisionAnalysis }) {
   const { t } = useTrainerHost();
   return <p className={styles.notice}>{t.notGraded(decision.reason ? (t.words.reasons[decision.reason] ?? decision.reason) : "—")}</p>;
-}
-
-/**
- * The tabs under a decision: the range always (read when opened), the rest
- * once the answer is graded. The settings' strategy and facts switches still
- * leave their tab out.
- */
-export function useDecisionTabs({
-  decision,
-  spot,
-  settings,
-  mix = null,
-  range,
-  study = null,
-}: {
-  decision: DecisionAnalysis | null;
-  spot: TrainerSpot | null;
-  settings: TrainerSettings;
-  mix?: number[] | null;
-  /** The range panel; absent: no range tab (the host reads none). */
-  range?: ReactNode;
-  /** The host's deeper study, under the why. */
-  study?: ReactNode;
-}): InfoTab[] {
-  const { t, locale } = useTrainerHost();
-  const tabs: InfoTab[] = [];
-  if (range !== undefined) tabs.push({ id: "range", label: t.tabs.range, content: range });
-  if (settings.strategy) tabs.push({ id: "strategy", label: t.tabs.strategy, content: decision ? <StrategyPanel decision={decision} mix={mix} /> : null });
-  if (settings.facts) {
-    const has = decision !== null && isGraded(decision) && factsOf(decision, t, locale).length > 0;
-    tabs.push({ id: "facts", label: t.tabs.facts, content: has && decision ? <FactsPanel decision={decision} /> : null });
-  }
-  tabs.push({ id: "why", label: t.tabs.why, content: decision ? <WhyPanel decision={decision} spot={spot} extra={study} /> : null });
-  return tabs;
 }
