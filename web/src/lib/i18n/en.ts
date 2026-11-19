@@ -121,6 +121,14 @@ export const en = {
       title: "Reports — your frequencies against the reference | Rail",
       description: "Your preflop frequencies at every spot the charts cover, next to the reference's, with the hands where you left it.",
     },
+    analysisMultiway: {
+      title: "Multiway pots | Rail",
+      description: "Your multiway pots on their own: results, decisions by players in, and the spots worth a second look. Rail's grades there are a rough guide.",
+    },
+    analysisBomb: {
+      title: "Bomb pots | Rail",
+      description: "Your bomb pots on their own: results by ante and first move, you against the pool, and what players' lines show. Rail has no solved bomb pots.",
+    },
     analysisLeaks: {
       title: "Leaks — the spots that cost you the most | Rail",
       description: "Your graded decisions grouped into spots and ranked by the EV they cost against the reference, with the hands behind each one.",

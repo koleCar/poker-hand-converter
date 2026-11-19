@@ -7577,6 +7577,17 @@ Each phase appends what it learned that changed the plan.
     multiway spots ranked among themselves, worst decisions. Each tab and
     a bomb / multiway hand's view open with a closable note (remembered per
     kind, an "≈ Approximate" chip reopens it); guide grades carry "≈".
-  - **Open.** The web's Analysis tabs (Overview, Session, Leaks, Progress,
-    Reports) still mix multiway and bomb pots in: their Supabase functions
-    need a pot-kind filter and the two tabs a web page each.
+  - **Web** (same day, owner: "napravi i web verziju tabova"): the views
+    are shared (`packages/ui/potKinds`, strings `potKinds.{en,hr}.ts`); the
+    app and the web only fetch. `/analysis/multiway` and `/analysis/bomb`
+    read migration `20271119230000_analysis_pot_kinds.sql`
+    (`analysis_bomb_hands`, `analysis_multiway_summary`,
+    `analysis_pot_kind_decisions`); the leak finder, the top leaks and the
+    study plan read heads-up spots only (`fetchLeaks` / `fetchTopLeaks`
+    `potKind`, by the scenario: `bomb-…` or `-mw-`). The web hand view shows
+    the same closable note.
+  - **Open.** The web's Overview, Progress and Reports still count multiway
+    and bomb pot decisions (their summary tables have no pot kind);
+    `database.types.ts` was edited by hand for the three functions (no
+    clean local stack to regenerate from), so the batch PR's type check is
+    the first proof. Apply the migration to production with the promotion.

@@ -4789,6 +4789,25 @@ export type Database = {
         }[]
       }
       analysis_best_action: { Args: { p_options: Json }; Returns: string }
+      analysis_bomb_hands: {
+        Args: {
+          p_before_id?: string
+          p_before_played?: string
+          p_limit?: number
+          p_stats_version?: string
+        }
+        Returns: {
+          created_at: string
+          hand_key: string
+          id: string
+          parser_version: string
+          phf: Json
+          played_at: string
+          site: string
+          source_filename: string
+          standard_text: string
+        }[]
+      }
       analysis_breakdown: {
         Args: { p_filters?: Json; p_group?: string }
         Returns: Json
@@ -4949,6 +4968,10 @@ export type Database = {
       analysis_leaks: { Args: { p_filters?: Json }; Returns: Json }
       analysis_leaks_scan: { Args: { p_filters?: Json }; Returns: Json }
       analysis_month_of: { Args: { p_at: string }; Returns: string }
+      analysis_multiway_summary: {
+        Args: { p_stats_version?: string; p_version: string }
+        Returns: Json
+      }
       analysis_node_actions: { Args: { p_filters?: Json }; Returns: Json }
       analysis_node_actions_scan: { Args: { p_filters?: Json }; Returns: Json }
       analysis_node_hands: {
@@ -4977,6 +5000,10 @@ export type Database = {
       }
       analysis_overview: { Args: { p_filters?: Json }; Returns: Json }
       analysis_overview_scan: { Args: { p_filters?: Json }; Returns: Json }
+      analysis_pot_kind_decisions: {
+        Args: { p_kind: string; p_limit?: number; p_version: string }
+        Returns: Json
+      }
       analysis_public_facts: { Args: { p_facts: Json }; Returns: Json }
       analysis_public_flags: { Args: { p_flags: Json }; Returns: Json }
       analysis_public_options: { Args: { p_options: Json }; Returns: Json }

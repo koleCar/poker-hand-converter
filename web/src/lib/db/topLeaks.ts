@@ -12,6 +12,7 @@
  * and say which `analysis_version` they read.
  */
 
+import { potKindOfScenario, type PotKindOf } from "../analysis/potKinds";
 import { ANALYSIS_VERSION } from "../analysis";
 import type { HandsPot, HandsTable, SpotRow } from "../analysis/leaks";
 import type { TopPeriod } from "../analysis/topLeaks";
@@ -75,7 +76,12 @@ function windowOf(value: unknown): DayWindow | null {
   return from && to ? { from, to } : null;
 }
 
-function sampleOf(value: unknown): LeakSample {
+/** analysis/45: one pot kind's rows (`null`: every row); the sample's hands stay its denominator. */
+function onlyKind(sample: LeakSample, potKind: PotKindOf | null): LeakSample {
+  return potKind === null ? sample : { ...sample, rows: sample.rows.filter((row) => potKindOfScenario(row.scenario) === potKind) };
+}
+
+function sampleOfAll(value: unknown): LeakSample {
   const s = (value ?? {}) as Row;
   return {
     hands: num(s.hands),
@@ -104,7 +110,8 @@ function sampleOf(value: unknown): LeakSample {
 }
 
 /** A payload of `analysis_top_leaks` as the screen reads it (exported for the tests). */
-export function topLeaksFromPayload(payload: Row, period: TopPeriod): TopLeaksReport {
+export function topLeaksFromPayload(payload: Row, period: TopPeriod, potKind: PotKindOf | null = "hu"): TopLeaksReport {
+  const sampleOf = (value: unknown) => onlyKind(sampleOfAll(value), potKind);
   return {
     analysisVersion: str(payload.analysisVersion) ?? ANALYSIS_VERSION,
     period: payload.period === "all" ? "all" : payload.period === "30d" ? "30d" : period,
@@ -117,12 +124,13 @@ export function topLeaksFromPayload(payload: Row, period: TopPeriod): TopLeaksRe
   };
 }
 
-export async function fetchTopLeaks(filters: AnalysisFilters, period: TopPeriod): Promise<TopLeaksReport | null> {
+/** The top leaks; heads-up spots only by default (analysis/45), `mw` for the Multiway page. */
+export async function fetchTopLeaks(filters: AnalysisFilters, period: TopPeriod, potKind: PotKindOf | null = "hu"): Promise<TopLeaksReport | null> {
   if (!(await currentUserId())) {
     return null;
   }
   const payload = await rpc<Row | null>("analysis_top_leaks", { p_filters: topLeaksFilters(filters), p_period: period });
-  return payload ? topLeaksFromPayload(payload, period) : null;
+  return payload ? topLeaksFromPayload(payload, period, potKind) : null;
 }
 
 /* ------------------------------------------------------------- examples - */

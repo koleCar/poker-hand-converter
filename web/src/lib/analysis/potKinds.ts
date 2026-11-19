@@ -48,8 +48,17 @@ export interface BombSummary {
   foldThrough: Record<BetSize, Rate>;
 }
 
-/** The share of the pot a pure bluff of this size needs to take it: size / (1 + size). */
-export const BLUFF_NEEDS: Record<BetSize, number> = { small: 0.4 / 1.4, half: 0.5 / 1.5, big: 0.7 / 1.7 };
+/**
+ * A decision's pot kind from its scenario (analysis/45): `bomb` (a `bomb-`
+ * role), `mw` (three or more players at the decision, `-mw-`) or `hu`. The
+ * Analysis tabs other than Multiway and Bomb pots read `hu` only.
+ */
+export type PotKindOf = "hu" | "mw" | "bomb";
+export function potKindOfScenario(scenario: string): PotKindOf {
+  if (scenario.startsWith("bomb-")) return "bomb";
+  return scenario.includes("-mw-") ? "mw" : "hu";
+}
+
 /** Players in at the first flop bet for the fold-through count. */
 export const FOLD_THROUGH_PLAYERS = 6;
 
@@ -175,20 +184,3 @@ function walk(hand: PhfHand, hero: number, net: number, out: BombSummary, first:
     }
   }
 }
-
-/**
- * Rail's own study of bomb pots (ANALYSIS-PLAN §10, 2026-11-19, 2,606 WePlay
- * bomb pots): the percentile of hand strength on the board that players
- * showed after each line, against what the multiway model assumed. Fixed
- * numbers, shown as research, not computed from the learner's hands.
- */
-export const BOMB_AGGRESSION_STUDY: readonly {
-  line: "flopRaise" | "turnRaise" | "turnBarrel" | "riverSmallBet";
-  model: [number, number];
-  shown: [number, number];
-}[] = [
-  { line: "flopRaise", model: [63, 65], shown: [82, 82] },
-  { line: "turnRaise", model: [62, 62], shown: [85, 85] },
-  { line: "turnBarrel", model: [70, 74], shown: [83, 89] },
-  { line: "riverSmallBet", model: [80, 85], shown: [70, 74] },
-];
