@@ -757,6 +757,7 @@ fn is_uuid(text: &str) -> bool {
         })
 }
 
+mod delete;
 mod hud;
 mod plan;
 mod profile;
@@ -764,6 +765,7 @@ mod pull;
 mod share;
 mod trainer;
 
+pub use delete::{DELETE_KEYS_PER_CALL, KeysDeleted, Tombstone, WipeStep};
 pub use hud::{HUD_ROWS_PER_PAGE, HUD_ROWS_PER_PUT, PutOutcome};
 pub use plan::FlopOpen;
 pub use profile::{AccountProfile, SetUsernameError};

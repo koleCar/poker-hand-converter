@@ -68,7 +68,14 @@ struct Server {
     /// Every request as it arrived: method, path and body (the nodelock
     /// test reads them all).
     requests: Mutex<Vec<String>>,
+    /// (Hand deletion) The tombstones: (user, seq, key, all_before).
+    tombstones: Mutex<Vec<ServerTombstone>>,
+    /// (Hand deletion) The `before` a `delete_all_hands` answers with.
+    wipe_before: Mutex<String>,
 }
+
+/// (Hand deletion) A tombstone: (user, seq, key, all_before).
+type ServerTombstone = (String, u64, Option<String>, Option<String>);
 
 /// (R3.9) The server's `hud_layouts`: (user, kind, key) -> (body, updatedAt).
 type HudRows = HashMap<(String, String, String), (Value, i64)>;
@@ -191,6 +198,64 @@ impl Server {
                     .collect();
                 (200, Value::Array(page).to_string())
             }
+            ("POST", "/rest/v1/rpc/delete_hands_by_key") => {
+                let keys: Vec<String> = body["p_keys"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|k| k.as_str().unwrap().to_owned())
+                    .collect();
+                assert!(keys.len() <= 200);
+                call.keys.clone_from(&keys);
+                let mut hands = self.hands.lock().unwrap();
+                let gone: Vec<String> = hands
+                    .iter()
+                    .filter(|h| h.user == user && keys.contains(&h.key))
+                    .map(|h| h.key.clone())
+                    .collect();
+                hands.retain(|h| !(h.user == user && keys.contains(&h.key)));
+                drop(hands);
+                for key in &gone {
+                    self.tombstone(&user, Some(key.clone()), None);
+                }
+                (
+                    200,
+                    json!({"deleted": gone.len(), "keys": gone}).to_string(),
+                )
+            }
+            ("POST", "/rest/v1/rpc/delete_all_hands") => {
+                assert_eq!(body["p_confirm"], "DELETE");
+                let mut hands = self.hands.lock().unwrap();
+                let before = hands.len();
+                hands.retain(|h| h.user != user);
+                let deleted = before - hands.len();
+                drop(hands);
+                let at = self.wipe_before.lock().unwrap().clone();
+                self.tombstone(&user, None, Some(at.clone()));
+                (
+                    200,
+                    json!({"deleted": deleted, "remaining": 0, "done": true, "before": at})
+                        .to_string(),
+                )
+            }
+            ("POST", "/rest/v1/rpc/hand_tombstones_since") => {
+                let after = body["p_after_seq"].as_u64();
+                call.after = body["p_after_at"].as_str().map(str::to_owned);
+                let limit = usize::try_from(body["p_limit"].as_u64().unwrap()).unwrap();
+                let page: Vec<Value> = self
+                    .tombstones
+                    .lock()
+                    .unwrap()
+                    .iter()
+                    .filter(|(u, seq, _, _)| *u == user && after.is_none_or(|a| *seq > a))
+                    .take(limit)
+                    .map(|(_, seq, key, all)| {
+                        json!({"seq": seq, "deleted_at": seq.to_string(), "hand_key": key,
+                               "hand_id": null, "all_before": all})
+                    })
+                    .collect();
+                (200, Value::Array(page).to_string())
+            }
             ("POST", "/rest/v1/rpc/put_hud_layouts") => {
                 // Last writer wins, as `put_hud_layouts` does.
                 let rows = body["p_rows"].as_array().cloned().unwrap_or_default();
@@ -270,6 +335,15 @@ impl Server {
         };
         self.calls.lock().unwrap().push(call);
         answer
+    }
+
+    /// (Hand deletion) Record a deletion, as `hand_tombstones` does.
+    fn tombstone(&self, user: &str, key: Option<String>, all_before: Option<String>) {
+        let seq = u64::from(self.seq.fetch_add(1, Ordering::SeqCst));
+        self.tombstones
+            .lock()
+            .unwrap()
+            .push((user.to_owned(), seq, key, all_before));
     }
 
     fn ingest(&self, user: &str, rows: &[Value]) -> Value {
@@ -1547,6 +1621,129 @@ async fn the_pull_stores_the_accounts_other_hands_once_without_queueing_them() {
         Some((total - 1).to_string().as_str())
     );
     assert!(calls[before..].iter().all(|c| c.path != "/rest/v1/hands"));
+    rig.stop().await;
+}
+
+/// (Hand deletion) Deletions travel both ways: hands deleted here are
+/// deleted on the server (once), a deletion made elsewhere - one hand, or
+/// every hand stored up to an instant - deletes them here, and a file read
+/// again brings none of them back.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn deletions_travel_both_ways() {
+    let files = stars_files();
+    let rig = Rig::new("delete", FakeAccount::signed_in("a"), &files[..6], config()).await;
+    rig.drained().await;
+    let server = Arc::clone(&rig.server);
+    let mut keys: Vec<String> = server.rows_of("a").into_iter().map(|h| h.key).collect();
+    keys.sort();
+    assert!(keys.len() >= 4, "{} hands", keys.len());
+    let total = rig.hands();
+
+    // Two deleted here: gone from the server too, nothing owed after.
+    let mine = keys[..2].to_vec();
+    rig.store()
+        .writer()
+        .unwrap()
+        .delete_hands(mine.clone(), rail_store::time::now_ms())
+        .unwrap();
+    rig.worker.sync_now();
+    rig.until("the server's copies deleted", |_| {
+        server.rows_of("a").iter().all(|h| !mine.contains(&h.key))
+    })
+    .await;
+    rig.until("nothing owed", |_| {
+        rig.store().reader().deletions_owed(10).unwrap().is_empty()
+    })
+    .await;
+
+    // One deleted on the web: deleted here at the next pull.
+    let web = keys[2].clone();
+    server.hands.lock().unwrap().retain(|h| h.key != web);
+    server.tombstone("a", Some(web.clone()), None);
+    rig.worker.sync_now();
+    rig.until("the web's deletion applied", |_| rig.hands() == total - 3)
+        .await;
+    assert!(rig.store().reader().is_deleted(&web).unwrap());
+    assert!(
+        rig.store()
+            .reader()
+            .kv("sync.tombstones.a")
+            .unwrap()
+            .is_some()
+    );
+
+    // Read again, the files bring none of the three back.
+    let store = rig.store();
+    let conn_hands = store.status().unwrap().hands;
+    for file in &files[..6] {
+        import_file(
+            store,
+            file,
+            &ImportOptions {
+                parsed_at: Some("2026-10-13T00:00:00.000Z".into()),
+                source_id: None,
+            },
+        )
+        .unwrap();
+    }
+    assert_eq!(store.status().unwrap().hands, conn_hands);
+
+    // Every hand deleted elsewhere up to now: every synced hand goes here.
+    let now = rail_store::time::iso_from_ms(rail_store::time::now_ms() + 1);
+    server.hands.lock().unwrap().retain(|h| h.user != "a");
+    server.tombstone("a", None, Some(now));
+    rig.worker.sync_now();
+    rig.until("the wipe applied", |_| rig.hands() == 0).await;
+    rig.stop().await;
+}
+
+/// (Hand deletion) Every hand deleted here: the server's copy is deleted
+/// with `delete_all_hands` before anything newer is sent, and the wipe's own
+/// tombstone does not delete the hands synced after it.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn a_delete_all_here_reaches_the_server_and_spares_newer_hands() {
+    let files = stars_files();
+    let rig = Rig::new(
+        "delete-all",
+        FakeAccount::signed_in("a"),
+        &files[..2],
+        config(),
+    )
+    .await;
+    rig.drained().await;
+    let server = Arc::clone(&rig.server);
+    assert!(!server.rows_of("a").is_empty());
+    // An instant ahead of every sync below: without the skip, the wipe's own
+    // tombstone would delete the newer hands too.
+    *server.wipe_before.lock().unwrap() =
+        rail_store::time::iso_from_ms(rail_store::time::now_ms() + 3_600_000);
+    rig.store()
+        .writer()
+        .unwrap()
+        .delete_all_hands(rail_store::time::now_ms(), true)
+        .unwrap();
+    assert_eq!(rig.hands(), 0);
+    rig.worker.sync_now();
+    rig.until("the server's copy deleted", |_| {
+        server.rows_of("a").is_empty() && rig.store().reader().server_wipe_owed().unwrap().is_none()
+    })
+    .await;
+    // Newer hands: sent, and kept through the next pull.
+    import(rig.store(), &files[2..3]);
+    let newer = rig.hands();
+    assert!(newer > 0);
+    rig.worker.sync_now();
+    rig.drained().await;
+    let before = server.calls.lock().unwrap().len();
+    rig.worker.sync_now();
+    rig.until("pulled again", |_| {
+        server.calls.lock().unwrap()[before..]
+            .iter()
+            .any(|c| c.path.ends_with("/hands_since"))
+    })
+    .await;
+    assert_eq!(rig.hands(), newer);
+    assert_eq!(server.rows_of("a").len(), usize::try_from(newer).unwrap());
     rig.stop().await;
 }
 
