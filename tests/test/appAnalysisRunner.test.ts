@@ -23,6 +23,7 @@ import type { PageHand, PageResult } from "../../app/src/analysis/engine";
 import type { StoreHandRow } from "../../app/src/analysis/rows";
 import {
   AnalysisRunner,
+  analysisLanes,
   monthOf,
   nextMonth,
   PAGE,
@@ -81,6 +82,11 @@ function fakeStore(n: number, playedAt: (i: number) => string = () => "2026-10-0
   };
 }
 
+/** Let pending promise callbacks run. */
+async function flush(): Promise<void> {
+  for (let i = 0; i < 10; i += 1) await new Promise((resolve) => setTimeout(resolve, 0));
+}
+
 function row(handKey: string, flopLibrary: boolean): StoreHandRow {
   return {
     hand_key: handKey,
@@ -112,12 +118,18 @@ interface Harness {
   broken: Set<string>;
   /** While true, a page waits until its signal fires. */
   hang: boolean;
+  /** While true, a page waits until the test finishes it (`finish`). */
+  manual: boolean;
+  /** The pages waiting to be finished, oldest first: finish one with its lane's result. */
+  open: { lane: number; finish: () => void }[];
+  /** The lane each page went to. */
+  lanesUsed: number[];
   clock: number;
   released: number;
   step(): Promise<void>;
 }
 
-function harness(n: number, playedAt?: (i: number) => string): Harness {
+function harness(n: number, playedAt?: (i: number) => string, lanes?: number): Harness {
   const store = fakeStore(n, playedAt);
   const h: Harness = {
     runner: null as unknown as AnalysisRunner,
@@ -130,11 +142,15 @@ function harness(n: number, playedAt?: (i: number) => string): Harness {
     online: true,
     broken: new Set(),
     hang: false,
+    manual: false,
+    open: [],
+    lanesUsed: [],
     clock: 0,
     released: 0,
     step: () => h.runner.step(),
   };
   const deps: RunnerDeps = {
+    lanes,
     gate: async () => h.gate,
     counts: async () => store.counts(),
     months: async () => store.months(),
@@ -148,14 +164,21 @@ function harness(n: number, playedAt?: (i: number) => string): Harness {
       h.villainAsks.push(players);
       return players.map((p) => ({ ...p, hands: 50, vpipOpp: 50, vpip: 20, pfr: 15 }));
     },
-    analyse: (page: PageHand[], _villains, library, signal): Promise<PageResult> => {
+    analyse: (page: PageHand[], _villains, library, signal, _tournaments, lane = 0): Promise<PageResult> => {
       h.pages.push(page.map((hand) => hand.handKey));
+      h.lanesUsed.push(lane);
       h.libraryFlags.push(library);
       h.clock += 1000;
       const result = {
         rows: page.filter((hand) => !h.broken.has(hand.handKey)).map((hand) => row(hand.handKey, library && h.online)),
         failed: page.filter((hand) => h.broken.has(hand.handKey)).map((hand) => hand.handKey),
       };
+      if (h.manual) {
+        return new Promise((resolve, reject) => {
+          h.open.push({ lane, finish: () => resolve(result) });
+          signal.addEventListener("abort", () => reject(new Stopped()), { once: true });
+        });
+      }
       if (!h.hang) return Promise.resolve(result);
       return new Promise((_resolve, reject) => signal.addEventListener("abort", () => reject(new Stopped()), { once: true }));
     },
@@ -275,6 +298,59 @@ describe("the analysis runner", () => {
     expect(monthOf("2026-03-01T00:00:00.000Z")).toBe("2026-03");
     expect(nextMonth("2026-12")).toBe("2027-01");
     expect(nextMonth("2026-09")).toBe("2026-10");
+  });
+
+  it("keeps a page on every worker, never the same hand twice, and a slow page holds up its own worker only", async () => {
+    const h = harness(100, undefined, 3);
+    h.manual = true;
+    // Three pages start, one per worker, without waiting for each other.
+    await h.step();
+    await h.step();
+    const third = h.step();
+    await flush();
+    expect(h.pages).toEqual([h.store.keys.slice(0, 20), h.store.keys.slice(20, 40), h.store.keys.slice(40, 60)]);
+    expect(h.lanesUsed).toEqual([0, 1, 2]);
+    expect(h.runner.current().phase).toBe("running");
+    // Every worker busy: the turn waits. The second page (lane 1) is done first; the first is the slow one.
+    h.open.splice(1, 1)[0]!.finish();
+    await third;
+    expect(h.store.rows.size).toBe(PAGE);
+    const fourth = h.step();
+    await flush();
+    expect(h.lanesUsed[3]).toBe(1);
+    expect(h.pages[3]).toEqual(h.store.keys.slice(60, 80));
+    // Lane 2 done; the slow first page (lane 0) and lane 1's are still in flight.
+    h.open.find((page) => page.lane === 2)!.finish();
+    await fourth;
+    h.open = h.open.filter((page) => page.lane !== 2);
+    // Woken (new hands): the walk starts from the newest again, but the hands in flight are not read twice.
+    h.runner.wake();
+    await h.step();
+    await h.step();
+    const fifth = h.step();
+    await flush();
+    expect(h.pages[4]).toEqual(h.store.keys.slice(80, 100));
+    expect(h.lanesUsed[4]).toBe(2);
+    const seen = h.pages.flat();
+    expect(new Set(seen).size).toBe(seen.length);
+    h.open.find((page) => page.lane === 2)!.finish();
+    await fifth;
+    h.open = h.open.filter((page) => page.lane !== 2);
+    // A table opens: every page in flight stops; they come back later.
+    h.runner.tablesOpen(true);
+    await flush();
+    expect(h.runner.current()).toMatchObject({ phase: "waiting", reason: "tables" });
+    h.manual = false;
+    h.runner.tablesOpen(false);
+    for (let i = 0; i < 12; i += 1) await h.step();
+    expect(h.store.rows.size).toBe(100);
+    expect(h.runner.current().phase).toBe("idle");
+    // Three lanes at a page a second: three pages' hands a second.
+    expect(h.runner.current().handsPerSecond).toBeGreaterThan(20);
+  });
+
+  it("uses half the cores for workers, at most four, at least one", () => {
+    expect([1, 2, 4, 8, 10, 16].map((cores) => analysisLanes(cores))).toEqual([1, 1, 2, 4, 4, 4]);
   });
 
   it("goes without the flop library while it cannot be reached, then analyses those hands again", async () => {
