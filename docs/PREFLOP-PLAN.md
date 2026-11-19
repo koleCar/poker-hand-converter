@@ -12,8 +12,9 @@ Owner's decisions in this round (chat, 2026-11-19):
   (§2), estimates the postflop work on it from what we measured (§3), and
   lays out how the ranges get built and improved over time (§4).
 
-Status: **proposal**. §2's catalogue needs the owner's OK before any solve
-starts. Nothing here runs during working hours (Mon–Fri 08–16).
+Status: **§2's catalogue approved by the owner on 2026-11-19** (9-max 100 +
+150, one online rake, straddle 6-max only). Nothing here runs during working
+hours (Mon–Fri 08–16).
 
 ---
 
@@ -43,13 +44,12 @@ but the product of the filters runs into the thousands.
 open size, 3-bet size and tree are not choices the player makes. They are
 fixed per format and stated once in the solution's info.
 
-## 2. Rail's catalogue (proposal)
+## 2. Rail's catalogue (approved 2026-11-19)
 
 ### 2.1 Fixed per format, not choices
 
 - **Rake:** one online structure for every set (5 % capped at 3bb,
-  NL50-style, no flop no drop). Live rake is a later option only if live
-  hands show up in numbers.
+  NL50-style, no flop no drop). No live rake (owner, 2026-11-19).
 - **Sizes:** one open size per position (2.5x, the SB 3x; heads-up SB 2.5x),
   one 3-bet scheme (IP 3x, OOP 4x), one 4-bet scheme (2.2x IP, 2.5x OOP),
   all-in above that. Limps only where a solver keeps them (SB complete,
@@ -84,10 +84,8 @@ pots (no preflop), so one ante depth per table size is enough.
 Short stacks (20–40bb, push/fold) and 8-max are left out of v1; add them
 only if hands at those depths reach a few thousand.
 
-Questions for the owner (defaults above until answered):
-1. 9-max: 100 + 150, or 100 + 200?
-2. Is one online rake enough, or does 9-max need live rake (10 %)?
-3. Straddle: 6-max only, or also 9-max live straddle?
+Owner's answers (2026-11-19): 9-max is 100 + 150; one online rake for every
+set, no live rake; straddle is 6-max only.
 
 ## 3. Postflop estimate on that catalogue
 
@@ -210,7 +208,7 @@ solved once on the frozen ranges.
 | Phase | What | Where it runs | Done when |
 |---|---|---|---|
 | P0 | Waitlist modal live, GTO Wizard ranges stay free only (now) | web | shipped |
-| P1 | Owner approves §2 catalogue; tree spec per set (sizes, rake, snapping) in `registry.ts` | code | approved + merged |
+| P1 | §2 catalogue (approved 2026-11-19); tree spec per set (sizes, rake, snapping) in `registry.ts` | code | merged |
 | P2 | v0 ranges for all 11 sets with the existing DCFR | Mac, minutes | charts on canvas |
 | P3 | Pilot of §4.2 on 6-max 100bb: 4 rounds, convergence report | Mac off-hours ≈ 2 weeks (after the sizing test) | totals stable, owner OK |
 | P4 | §4.2 on the other 10 sets | rented server ≈ 2 weeks, or Mac ≈ 4 months | all sets stable |
@@ -221,7 +219,6 @@ solved once on the frozen ranges.
 
 ### 4.5 Decisions and costs for the owner
 
-- Approve the catalogue (§2, three questions).
 - Mac-only vs renting compute: Mac-only gets v1 ranges + 95-flop library in
   roughly 6 months of nights and weekends; one rented 48-core server cuts
   that to about 3–4 weeks. Prices change; check current dedicated-server
