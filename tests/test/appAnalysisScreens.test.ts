@@ -44,6 +44,8 @@ describe("the analysis' views in the address", () => {
       { kind: "session", at: null, gap: 30 },
       { kind: "session", at: "2026-02-20T21:15:00.000Z", gap: 60 },
       { kind: "leaks", period: "all" },
+      { kind: "multiway" },
+      { kind: "bomb" },
       { kind: "hand", key: "pokerstars:123/4?x=1", actionIndex: 7, back: "session?at=2026-02-20T21%3A15%3A00.000Z" },
       { kind: "hand", key: "k", actionIndex: null, back: null },
     ];
@@ -57,6 +59,9 @@ describe("the analysis' views in the address", () => {
     // A hand belongs to the tab it was opened from.
     expect(tabOf(parseView(viewParam({ kind: "hand", key: "k", actionIndex: 1, back: "leaks" })))).toBe("leaks");
     expect(tabOf(parseView(viewParam({ kind: "hand", key: "k", actionIndex: 1, back: null })))).toBe("session");
+    // analysis/45: a hand opened from the Bomb pots or Multiway tab goes back there.
+    expect(tabOf(parseView(viewParam({ kind: "hand", key: "k", actionIndex: 1, back: "bomb" })))).toBe("bomb");
+    expect(tabOf(parseView(viewParam({ kind: "hand", key: "k", actionIndex: 1, back: "multiway" })))).toBe("multiway");
   });
 });
 

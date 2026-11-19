@@ -7550,6 +7550,33 @@ Each phase appends what it learned that changed the plan.
     the times the flop is checked to them (villains 17%) and folds 85% to
     flop bets (villains 78%); hero flop bets average +9.7 bb, the hand
     overall −0.12 bb (−316 bb over 2,606, within noise).
-  - **Open.** A bomb-pot narrowing (stronger evidence for flop/turn raises
-    and barrels, weaker for river bets) fitted on these showdowns, held out
-    by hand, before the cap is lifted.
+  - **The narrowing fit** (`tests/scripts/bomb-pot/narrowing.test.ts`, the
+    `raiserNarrowing` score: 990 river showdowns, 2,245 non-hero seats, 565
+    mucks counted as losing to the hand shown before them). A power t on the
+    heuristic's likelihood per (street, kind) in bomb pots, coordinate search
+    over 0.5…3, 5 folds by hand. Every fold chose the same shape and gained
+    held out: **+0.078 ± 0.017 nats a seat (5/5 folds positive)**. Shipped as
+    `BOMB_POT_EVIDENCE`: bets 0.5 on every street, calls 0.7 / 0.5 / 0.7
+    (flop / turn / river), turn raise 0.7; the rest 1. A probe below the grid
+    edge was worse (bets 0.4: +0.074, 0.3: +0.057; calls 0.4: +0.065).
+    So the model was **too sure** in bomb pots, not too weak: its ranges
+    after a bet or call were too narrow, as `analysis/32` found for every
+    other pot (`BET_EVIDENCE` 0.4, which bomb pots had been left out of).
+    The percentile comparison above reads the mean of a range against what
+    reached showdown; the likelihood score reads the whole range and the
+    mucks, and is the one this repo fits on. The Inaccurate cap stays.
+  - **The Analysis tabs (design `ideas-potkinds` variant C, owner's pick).**
+    Desktop: new sub-tabs Multiway ≈ and Bomb pots ≈; Session review and Top
+    leaks read heads-up only (`LeakFilters::pot_kind` `hu`/`mw`/`bomb`, the
+    session's bad decisions leave out `-mw-` scenarios; bomb pots were
+    already out). Bomb pots: results (showdown / non-showdown), by ante, by
+    first flop move, you vs the pool, first-bet fold-through by size (6+
+    players), the study's aggression table, worst decisions
+    (`lib/analysis/potKinds.ts` over the stored PHF; `pot_kinds.rs`).
+    Multiway: results, decisions by players in, what is graded, the
+    multiway spots ranked among themselves, worst decisions. Each tab and
+    a bomb / multiway hand's view open with a closable note (remembered per
+    kind, an "≈ Approximate" chip reopens it); guide grades carry "≈".
+  - **Open.** The web's Analysis tabs (Overview, Session, Leaks, Progress,
+    Reports) still mix multiway and bomb pots in: their Supabase functions
+    need a pot-kind filter and the two tabs a web page each.

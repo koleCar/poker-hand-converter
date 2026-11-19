@@ -58,6 +58,8 @@ describe("dictionaries", () => {
       // The Players statistics' rows: poker's names, as the definitions say them in Croatian.
       "Open raise", "Limp", "Limp-fold", "4-bet", "5-bet", "Squeeze", "Steal", "Continuation bet", "Donk bet",
       "Check-raise",
+      // analysis/45's pot kinds: poker's own words.
+      "Multiway ≈", "Ante", "Pool",
       // The range grid's presets (2026-11 filters): Croatian players say them in English.
       "Suited", "Broadway",
       // The filter builder's poker words (V1, 2026-11-05).

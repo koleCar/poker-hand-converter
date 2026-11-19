@@ -98,6 +98,21 @@
   gap: var(--space-3);
 }
 
+/* analysis/45: a bomb pot's badge beside the board. */
+.bombBadge {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-pill);
+  background: var(--warning-bg);
+  color: var(--warning-on-tint);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
 .seat {
   padding: 2px var(--space-2);
   border: 1px solid var(--border-default);

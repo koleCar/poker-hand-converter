@@ -1,0 +1,430 @@
+/* analysis/45: the Analysis screen's Multiway and Bomb pots tabs (design
+   ideas-potkinds, variant C). Semantic tokens only. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* The closable note: amber for bomb pots, blue for multiway. */
+.note {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-2);
+  background: var(--warning-bg);
+  color: var(--warning-on-tint);
+  font-size: var(--font-size-sm);
+  line-height: 1.55;
+}
+
+.note[data-kind="mw"] {
+  border-color: var(--info-border);
+  background: var(--info-bg);
+  color: var(--info-on-tint);
+}
+
+.noteText {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+}
+
+.close {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-1);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.75;
+}
+
+.close:hover {
+  opacity: 1;
+  background: var(--surface-hover);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 26px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-pill);
+  background: var(--warning-bg);
+  color: var(--warning-on-tint);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.chip[data-kind="mw"] {
+  border-color: var(--info-border);
+  background: var(--info-bg);
+  color: var(--info-on-tint);
+}
+
+.figures {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.figure {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  min-width: 0;
+}
+
+.figureLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.figureValue {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.figureSub {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+/* Graph-colour keys: green total, blue showdown, red non-showdown. */
+.key {
+  display: inline-block;
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.keyTotal {
+  background: var(--profit-fg);
+}
+
+.keyShowdown {
+  background: var(--accent-fg);
+}
+
+.keyNonShowdown {
+  background: var(--loss-fg);
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+}
+
+.boxHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.boxHead > :last-child:not(:first-child) {
+  margin-inline-start: auto;
+  font-weight: normal;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.table th {
+  padding: 0 var(--space-2) var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.table td {
+  padding: var(--space-2);
+  border-top: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.table th.r,
+.table td.r {
+  text-align: right;
+}
+
+.dim {
+  color: var(--text-tertiary);
+}
+
+.pos {
+  color: var(--profit-fg);
+}
+
+.neg {
+  color: var(--loss-fg);
+}
+
+/* You against the pool: your bar, the pool's mark. */
+.compare {
+  display: grid;
+  grid-template-columns: minmax(140px, 220px) minmax(0, 1fr) 96px;
+  gap: var(--space-2) var(--space-3);
+  align-items: center;
+  font-size: var(--font-size-sm);
+}
+
+.track {
+  position: relative;
+  height: 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 5px;
+  background: var(--surface-inset);
+}
+
+.trackFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 5px;
+  background: var(--text-secondary);
+}
+
+.trackMark {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--accent-fg);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-weight: normal;
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.legendYou {
+  width: 14px;
+  height: 8px;
+  border-radius: 3px;
+  background: var(--text-secondary);
+}
+
+.legendPool {
+  width: 2px;
+  height: 12px;
+  background: var(--accent-fg);
+}
+
+
+
+/* Fold-through bars with the break-even mark. */
+.ftRow {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr) 190px;
+  gap: var(--space-3);
+  align-items: center;
+  font-size: var(--font-size-sm);
+}
+
+.ftBar {
+  position: relative;
+  height: 22px;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-1);
+  background: var(--surface-inset);
+}
+
+.ftFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--surface-selected);
+}
+
+.ftNeed {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  width: 2px;
+  background: var(--text-primary);
+}
+
+.ftText {
+  position: absolute;
+  left: var(--space-2);
+  line-height: 22px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* The aggression strip: the range of percentiles players showed. */
+.pct {
+  position: relative;
+  min-width: 160px;
+  height: 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 7px;
+  background: var(--surface-inset);
+}
+
+.pctShown {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  border-radius: 5px;
+}
+
+
+.pctShown {
+  background: var(--text-primary);
+}
+
+.axis {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  font-weight: normal;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+
+
+.muted {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+/* Guide grades: outlined and dashed, never a filled badge. */
+.guide {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 var(--space-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.guide[data-grade="perfect"],
+.guide[data-grade="good"] {
+  border-color: var(--grade-good);
+  color: var(--grade-good);
+}
+
+.guide[data-grade="inaccurate"] {
+  border-color: var(--grade-inaccurate);
+  color: var(--grade-inaccurate);
+}
+
+.guide[data-grade="mistake"],
+.guide[data-grade="blunder"] {
+  border-color: var(--grade-mistake);
+  color: var(--grade-mistake);
+}
+
+.coverage {
+  display: flex;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--surface-inset);
+}
+
+.coverageGraded {
+  background: var(--grade-good);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 90px 52px 70px minmax(0, 1fr) 130px 90px;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+  color: inherit;
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+}
+
+.row:hover {
+  background: var(--surface-hover);
+  box-shadow: inset 3px 0 0 var(--accent-fg);
+}
+
+@media (max-width: 900px) {
+  .figures {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grid2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .compare,
+  .ftRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

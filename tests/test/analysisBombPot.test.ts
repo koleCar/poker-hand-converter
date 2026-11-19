@@ -14,6 +14,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
+import { bombSummary } from "../../web/src/lib/analysis/potKinds.js";
 import { en } from "../../web/src/lib/i18n/en.js";
 import { hr } from "../../web/src/lib/i18n/hr.js";
 import { analyzeHand, gradeRank, heroSeatOf, rangeWeight, walkMultiway, type HandAnalysis } from "../../web/src/lib/analysis/index.js";
@@ -192,5 +193,28 @@ describe("bomb pots (analysis/28)", () => {
     const analysis = analyzeHand(hand, { charts: CHARTS });
     expect(analysis.status).toBe("not-analysed");
     expect(analysis.reason).toBe("bomb-pot");
+  });
+});
+
+describe("the Bomb pots tab's sums (analysis/45)", () => {
+  it("sums results by ante and first move, habits, and the first flop bet's fold-through", async () => {
+    const hands = [await weplay(FOLD), await weplay(HEADS_UP_LATER), await weplay(RIVER_FOLD)];
+    const s = bombSummary(hands);
+    expect(s.hands).toBe(3);
+    const net = hands.reduce((sum, h) => sum + (h.results.heroNet ?? 0) / h.game.bigBlind, 0);
+    expect(s.netBb).toBeCloseTo(net, 9);
+    expect(s.showdownBb + s.nonShowdownBb).toBeCloseTo(net, 9);
+    // Antes: $1.81 at $0.50 (4 bb), $2 at $0.50 (4 bb), $3 at $1 (3 bb).
+    expect(s.byAnte.map((r) => [r.anteBb, r.hands])).toEqual([
+      [3, 1],
+      [4, 2],
+    ]);
+    // The hero's first flop move: folds to a bet, calls a bet, bets when checked to.
+    expect(Object.fromEntries(s.byFirstMove.map((r) => [r.move, r.hands]))).toEqual({ fold: 1, call: 1, bet: 1 });
+    // RIVER_FOLD: checked to the hero on the flop, who bets; three checks before (pool: 0 of 3).
+    expect(s.habits.betFlop.hero).toEqual({ n: 1, hits: 1 });
+    expect(s.habits.betFlop.pool.n).toBeGreaterThanOrEqual(3);
+    // Fewer than six players: no fold-through chances.
+    expect(s.foldThrough.half.n + s.foldThrough.small.n + s.foldThrough.big.n).toBe(0);
   });
 });

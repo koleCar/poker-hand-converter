@@ -94,29 +94,32 @@ export function TopLeaks({
   reload,
   period,
   onPeriod,
+  potKind = "hu",
 }: {
   hidden: boolean;
   reload: number;
   period: TopPeriod;
   onPeriod: (period: TopPeriod) => void;
+  /** analysis/45: heads-up spots (the Leaks tab) or multiway ones (the Multiway tab). */
+  potKind?: "hu" | "mw";
 }) {
   const w = useLeakWords();
   const [loaded, setLoaded] = useState<Loaded>({ status: "loading" });
   const [askedKind, setAskedKind] = useState<GameKind | null>(null);
   const kinds = useAppKind(askedKind, !hidden, reload);
   const gameKind = kinds.kind;
-  const key = `${period}|${gameKind ?? ""}|${reload}`;
+  const key = `${period}|${gameKind ?? ""}|${potKind}|${reload}`;
 
   useEffect(() => {
     if (hidden || gameKind === null) return;
     let live = true;
     void (async () => {
       try {
-        const report = await fetchTopLeaks({ gameKind }, period);
+        const report = await fetchTopLeaks({ gameKind, potKind }, period);
         const top = topOf(report);
         if (live) setLoaded({ status: "ready", key, report, top, examples: null });
         const examples = await fetchLeakExamples(
-          { gameKind },
+          { gameKind, potKind },
           // Each leak's own table and pot (a spot key names neither), as the web's top leaks read them.
           top.map(({ leak }) => ({ id: leak.id, keys: leak.keys, table: handsTable(leak.attrs, leak.level), pot: handsPot(leak.attrs) })),
           period === "30d" ? report.current : null,
@@ -130,7 +133,7 @@ export function TopLeaks({
     return () => {
       live = false;
     };
-  }, [hidden, period, gameKind, key]);
+  }, [hidden, period, gameKind, potKind, key]);
 
   return (
     <section className={styles.leaks} aria-label={w.top.heading}>

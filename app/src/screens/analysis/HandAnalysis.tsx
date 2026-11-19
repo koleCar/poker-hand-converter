@@ -28,6 +28,7 @@ import { handAnalysisOf } from "../../analysis/service";
 import { analysisEn, analysisHr, bestOption, betterAlternative, type OptionAnalysis } from "../../analysis/sheetWords";
 import { go, screenHref } from "../../lib/router";
 import { solverSpotOf } from "../../solver/spot";
+import { PotKindNote } from "./PotKinds";
 import styles from "./HandAnalysis.module.css";
 import { IcmBlock } from "./IcmBlock";
 import { SolverPanel } from "./SolverPanel";
@@ -164,6 +165,11 @@ export function HandAnalysisView({
     body = (
       <>
         <HandHead analysis={a} hand={loaded.hand} links={links} />
+        {a.potType === "bomb" ? (
+          <PotKindNote kind="bomb" />
+        ) : a.decisions.some((d) => d.facts.scenario.includes("-mw-")) ? (
+          <PotKindNote kind="mw" />
+        ) : null}
         {!loaded.stored && <p className={styles.note}>{h.notStored}</p>}
         {a.decisions.length > 0 && (
           <Timeline decisions={a.decisions} selected={selected} actionIndex={actionIndex} onSelect={setPicked} />
@@ -216,13 +222,14 @@ function HandHead({ analysis: a, hand, links }: { analysis: Analysis; hand?: Phf
         {holeCards.length > 0 && <CardRow cards={holeCards} size="sm" />}
         {position && <span className={styles.seat}>{position}</span>}
         {board.length > 0 && <CardRow cards={board} size="sm" className={styles.board} />}
+        {a.potType === "bomb" && <span className={styles.bombBadge}>{h.bombBadge(bombAnteBb(hand))}</span>}
       </div>
       <dl className={styles.headStats}>
         {a.grade ? (
           <div>
             <dt>{h.worst}</dt>
             <dd>
-              <GradeTag grade={a.grade} />
+              <GradeTag grade={a.grade} approx={a.potType === "bomb"} />
             </dd>
           </div>
         ) : null}
@@ -248,6 +255,13 @@ function HandHead({ analysis: a, hand, links }: { analysis: Analysis; hand?: Phf
       {links}
     </header>
   );
+}
+
+/** A bomb pot's ante in big blinds (rounded to a tenth), or null when the hand does not say. */
+function bombAnteBb(hand?: PhfHand): number | null {
+  const g = (hand as { game?: { bigBlind?: number; bombPot?: { ante?: number } | null } } | undefined)?.game;
+  const ante = g?.bombPot?.ante;
+  return typeof ante === "number" && typeof g?.bigBlind === "number" && g.bigBlind > 0 ? Math.round((ante / g.bigBlind) * 10) / 10 : null;
 }
 
 /** The hand's whole board (the first run's), from the hand itself. */
@@ -369,7 +383,7 @@ function DecisionDetail({ decision: d, playedAt }: { decision: DecisionAnalysis;
           {d.status === "not-analysed" ? (
             <span className={styles.muted}>{h.skipped(w.reasons[d.reason ?? ""] ?? d.reason ?? "")}</span>
           ) : d.grade ? (
-            <GradeTag grade={d.grade} approx={d.source === "approx"} />
+            <GradeTag grade={d.grade} approx={d.source === "approx" || d.approximations.includes("bomb-pot")} />
           ) : (
             <span className={styles.muted}>{h.ungraded}</span>
           )}

@@ -35,9 +35,26 @@ pub struct LeakFilters {
     pub game_kind: Option<String>,
     pub position: Option<String>,
     pub pot_type: Option<String>,
+    /// One kind of pot (analysis/45): `hu` (heads-up at the decision, no
+    /// bomb pot), `mw` (three or more players at the decision, a `-mw-`
+    /// scenario, no bomb pot) or `bomb`; `None`: every pot.
+    pub pot_kind: Option<String>,
 }
 
 impl LeakFilters {
+    /// `SCOPE` with this filter's pot kind (`pot_kind`) added as SQL: a
+    /// fixed clause per known kind, so nothing from the caller is spliced in.
+    fn scope(&self) -> Result<String> {
+        let kind = match self.pot_kind.as_deref() {
+            None => "",
+            Some("hu") => " AND r.pot_type <> 'bomb' AND instr(r.spot_key, '-mw-') = 0",
+            Some("mw") => " AND r.pot_type <> 'bomb' AND instr(r.spot_key, '-mw-') > 0",
+            Some("bomb") => " AND r.pot_type = 'bomb'",
+            Some(_) => return Err(Error::OutOfRange("pot kind")),
+        };
+        Ok(format!("{SCOPE}{kind}"))
+    }
+
     /// The formats in scope, as the JSON array `SCOPE`'s `?2` binds.
     fn formats(&self) -> Result<Option<String>> {
         crate::game_kind::formats_json(self.game_format.as_deref(), self.game_kind.as_deref())
@@ -141,6 +158,7 @@ fn sample(
     to: Option<&str>,
 ) -> Result<LeakSample> {
     let formats = filters.formats()?;
+    let where_sql = filters.scope()?;
     let args = params![
         version,
         formats,
@@ -151,7 +169,7 @@ fn sample(
     ];
     let hands: i64 = conn
         .prepare_cached(&format!(
-            "SELECT count(DISTINCT r.hand_key) FROM analysis_leak_rows r {SCOPE}"
+            "SELECT count(DISTINCT r.hand_key) FROM analysis_leak_rows r {where_sql}"
         ))?
         .query_row(args, |row| row.get(0))?;
     let mut stmt = conn.prepare_cached(&format!(
@@ -160,7 +178,7 @@ fn sample(
                 sum(r.grade IN ('inaccurate', 'mistake', 'blunder')),
                 total(r.ev_loss_bb), total(r.ev_loss_pot),
                 total(r.score), total(r.score * r.score)
-         FROM analysis_leak_rows r {SCOPE}
+         FROM analysis_leak_rows r {where_sql}
          GROUP BY r.spot_key, r.chart_set, pot
          ORDER BY r.spot_key, r.chart_set, pot"
     ))?;
@@ -213,12 +231,13 @@ impl Reader {
             return Err(Error::OutOfRange("period"));
         }
         let formats = filters.formats()?;
+        let where_sql = filters.scope()?;
         self.with(|conn| {
             let none: Option<&str> = None;
             let last: Option<String> = conn
                 .prepare_cached(&format!(
                     "SELECT max(substr(r.played_at, 1, 10)) FROM analysis_leak_rows r
-                     {SCOPE} AND r.played_at > ''"
+                     {where_sql} AND r.played_at > ''"
                 ))?
                 .query_row(
                     params![
@@ -301,6 +320,7 @@ impl Reader {
             serde_json::to_string(keys).map_err(|error| Error::Corrupt(error.to_string()))?;
         let (from, to) = (days.map(|d| d.0), days.map(|d| d.1));
         let formats = filters.formats()?;
+        let where_sql = filters.scope()?;
         self.with(|conn| {
             let mut stmt = conn.prepare_cached(&format!(
                 "SELECT r.hand_key, r.ord, r.action_index, r.played_at, h.site, h.currency,
@@ -311,7 +331,7 @@ impl Reader {
                  JOIN hands h ON h.hand_key = r.hand_key
                  JOIN decision_analysis d ON d.hand_key = r.hand_key AND d.ord = r.ord
                  LEFT JOIN hand_list l ON l.played_at = r.played_at AND l.hand_key = r.hand_key
-                 {SCOPE}
+                 {where_sql}
                    AND r.grade <> 'perfect'
                    AND r.spot_key IN (SELECT value FROM json_each(?7))
                    AND (?9 IS NULL OR (CASE WHEN r.chart_set LIKE '%-hu-%' THEN 'hu'

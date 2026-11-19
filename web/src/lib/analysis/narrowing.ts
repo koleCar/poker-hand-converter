@@ -188,6 +188,25 @@ export const CHECKED_TO_RIVER_VALUE = 0.3;
  */
 export const BET_EVIDENCE = 0.4;
 /**
+ * analysis/45: in a bomb pot (`NarrowAction.bombPot`) an action's likelihood
+ * L becomes L^t, per street and kind: the model was too sure there - every
+ * range starts from any two cards, and bets and calls say less than it made
+ * of them. Fitted held out (5 folds by hand, every fold better) on the river
+ * showdowns of 990 WePlay bomb pots, mucks counted as losing to the hand shown
+ * before them (`tests/scripts/bomb-pot/narrowing.test.ts`; ANALYSIS-PLAN §10
+ * 2026-11-19): +0.078 ± 0.017 nats a seat. Absent: L as it is.
+ */
+export const BOMB_POT_EVIDENCE: Readonly<Partial<Record<`${"flop" | "turn" | "river"}.${"bet" | "raise" | "call" | "check"}`, number>>> = {
+  "flop.bet": 0.5,
+  "turn.bet": 0.5,
+  "river.bet": 0.5,
+  "flop.call": 0.7,
+  "turn.call": 0.5,
+  "river.call": 0.7,
+  "turn.raise": 0.7,
+};
+
+/**
  * analysis/32: a check by the player with the initiative (`NarrowAction.
  * initiative`: the last to bet or raise on an earlier street, checking before
  * anyone bets) trims twice as hard: its likelihood squared. A raiser who
@@ -628,6 +647,16 @@ function check(input: NarrowInput, { q, outs }: Scored): Float64Array {
 export const heuristicModel: NarrowingModel = {
   id: NARROWING_MODEL,
   likelihood(input: NarrowInput): Float64Array {
+    const out = baseLikelihood(input);
+    const t = input.action.bombPot ? BOMB_POT_EVIDENCE[`${input.street}.${input.action.kind}`] : undefined;
+    if (t !== undefined) for (let c = 0; c < out.length; c += 1) out[c] = Math.min(1, Math.pow(Math.max(0, out[c]), t));
+    return out;
+  },
+};
+
+/** The heuristic's likelihood before the bomb pot powers (`BOMB_POT_EVIDENCE`). */
+function baseLikelihood(input: NarrowInput): Float64Array {
+  {
     const s = scored(input);
     switch (input.action.kind) {
       case "bet": {
@@ -648,8 +677,8 @@ export const heuristicModel: NarrowingModel = {
         return out;
       }
     }
-  },
-};
+  }
+}
 
 /**
  * The same model at half the strength: every likelihood `L` becomes `√L`,

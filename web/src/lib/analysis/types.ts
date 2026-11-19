@@ -330,7 +330,8 @@ import type { Position, Street } from "../phf/types";
  *               `bomb-ip-vs-bet`…), no longer read as a limped pot, and its
  *               grades are capped at Inaccurate (score at least that band's):
  *               no bomb pot was ever solved, so they are a guide, not a
- *               verdict.
+ *               verdict. Its bets and calls narrow ranges less
+ *               (`BOMB_POT_EVIDENCE`, fitted held out on bomb pot showdowns).
  *   analysis/46 A hand three or more players saw the flop of has no
  *               postflop grade: nothing solves such a pot and a three-way
  *               flop plays very differently. Every postflop decision of it

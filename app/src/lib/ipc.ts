@@ -1464,6 +1464,36 @@ export interface ChartExampleDto {
   evLossBb: number | null;
 }
 
+/** `pot_kinds::MultiwaySummary` (analysis/45). */
+export interface MultiwaySummaryDto {
+  hands: number;
+  /** Thousandths of a big blind. */
+  netBbMilli: number;
+  showdownBbMilli: number;
+  nonShowdownBbMilli: number;
+  decisions: number;
+  graded: number;
+  /** Perfect, Good, Inaccurate, Mistake, Blunder. */
+  grades: [number, number, number, number, number];
+  byPlayers: { players: number; decisions: number; graded: number; off: number; evLossBb: number }[];
+}
+
+/** `pot_kinds::PotKindDecision`: a decision graded Inaccurate or worse. */
+export interface PotKindDecisionDto {
+  handKey: string;
+  ord: number;
+  actionIndex: number;
+  playedAt: string | null;
+  street: string;
+  action: string;
+  scenario: string;
+  grade: string;
+  evLossBb: number;
+  heroCards: string | null;
+  position: string | null;
+  players: number | null;
+}
+
 /** `review::LeakFiltersDto` (R5.4): the top three's scope. */
 export interface LeakFiltersDto {
   gameFormat?: string | null;
@@ -1471,6 +1501,8 @@ export interface LeakFiltersDto {
   gameKind?: HandsGameKind | null;
   position?: string | null;
   potType?: string | null;
+  /** `hu`, `mw` or `bomb` (analysis/45): heads-up, multiway or bomb pot decisions only. */
+  potKind?: "hu" | "mw" | "bomb" | null;
 }
 
 /** `review::SpotSumsDto`: one finest spot's sums, as summed. */
@@ -1876,6 +1908,13 @@ export const ipc = {
   chartExamples: (version: string, query: CompareDto, key: string, cls: number, action: string, limit: number) =>
     invoke<ChartExampleDto[]>("chart_examples", { version, query, key, cls, action, limit }),
   /** (R5.4) The leak finder's top three: three samples of spot sums, and a leak's costliest decisions. */
+  /** analysis/45: the multiway hands' sums (`review::multiway_summary`). */
+  multiwaySummary: (version: string) => invoke<MultiwaySummaryDto>("multiway_summary", { version }),
+  /** The costliest graded decisions of one pot kind (`mw` or `bomb`). */
+  potKindDecisions: (version: string, kind: "mw" | "bomb", limit: number) =>
+    invoke<PotKindDecisionDto[]>("pot_kind_decisions", { version, kind, limit }),
+  /** Every stored bomb pot's PHF JSON, for the Bomb pots tab to sum. */
+  bombPotPhfs: () => invoke<string[]>("bomb_pot_phfs"),
   topLeaks: (version: string, filters: LeakFiltersDto, period: string) =>
     invoke<TopLeaksDto>("top_leaks", { version, filters, period }),
   /** A leak's examples on its table (`hu`, `9max`, `other`) and pot (`3bp`, `4bp`, `other`); null: every one. */
