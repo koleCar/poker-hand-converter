@@ -86,6 +86,7 @@ pub mod account;
 pub mod analysis;
 pub mod commands;
 pub mod custom_stats;
+pub mod delete;
 #[cfg(debug_assertions)]
 pub mod dev;
 pub mod entitlements;
@@ -472,6 +473,9 @@ pub fn run() {
         hands::hand_remove_tag,
         hands::hands_marks,
         hands::hands_mark,
+        delete::hands_delete,
+        delete::hands_delete_all,
+        delete::hands_count,
         hands::saved_filters,
         hands::save_filter,
         hands::delete_saved_filter,
@@ -653,6 +657,9 @@ pub fn run() {
         hands::hand_remove_tag,
         hands::hands_marks,
         hands::hands_mark,
+        delete::hands_delete,
+        delete::hands_delete_all,
+        delete::hands_count,
         hands::saved_filters,
         hands::save_filter,
         hands::delete_saved_filter,

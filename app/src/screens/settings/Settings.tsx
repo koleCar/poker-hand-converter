@@ -112,7 +112,7 @@ export function Settings() {
           <Group id="about" label={g.about}>
             <About />
           </Group>
-          {configured && <DangerZone />}
+          <DangerZone accountService={configured} />
           {DevStats && (
             <Suspense fallback={null}>
               <DevStats />

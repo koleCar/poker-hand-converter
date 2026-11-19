@@ -487,6 +487,8 @@ export const en = {
       mismatch: (owner: string) => `Hands synced to ${owner}`,
       declined: (email: string) => `Kept apart from ${email}`,
       syncing: (sent: number, total: number) => `Syncing ${n(sent)} of ${n(total)}`,
+      /** A "delete all hands" reaching the account: hands still to go there. */
+      deleting: (left: number) => `Deleting hands on your account · ${n(left)} left`,
       upToDate: "Up to date",
       offline: "Offline",
       rateLimited: (time: string) => `Limit reached; continues at ${time}`,
@@ -600,6 +602,15 @@ export const en = {
     danger: {
       deleteAccount: "Delete my account",
       delete: "Delete…",
+      /** Every hand in the store, here and on the account. */
+      deleteHands: "Delete all hands",
+      deleteHandsTitle: "Delete all hands?",
+      deleteHandsBody: (count: number) =>
+        `${hands(count)} will be deleted here and from your Rail account. This cannot be undone.`,
+      deleteHandsType: (count: number) => `Type ${n(count)} or DELETE`,
+      deleteHandsConfirm: "Delete all",
+      deleteHandsDone: (count: number) => `${hands(count)} deleted`,
+      deleteHandsNone: "No hands to delete",
       openFailed: (reason: string) => `The browser did not open: ${reason}`,
     },
 
@@ -1055,6 +1066,7 @@ export const en = {
       label: (count: number) => (count === 1 ? "Hand" : hands(count)),
       replay: (count: number) => (count === 1 ? "Replay hand" : `Replay ${hands(count)}`),
       export: (count: number) => (count === 1 ? "Export hand to .txt" : `Export ${hands(count)} to .txt`),
+      delete: (count: number) => (count === 1 ? "Delete hand…" : `Delete ${hands(count)}…`),
       /** The "Tag" submenu: tags put on or taken off the chosen hands. */
       mark: "Tag",
       /** The bar at the window's foot while two or more hands are chosen. */
@@ -1062,7 +1074,19 @@ export const en = {
         replay: "Replay",
         tag: "Tag",
         export: "Export .txt",
+        delete: "Delete",
         clear: "Clear the selection",
+      },
+      /** Deleting hands: the confirmation, with the count. */
+      remove: {
+        title: (count: number) => (count === 1 ? "Delete this hand?" : `Delete ${hands(count)}?`),
+        body: "Deleted here and from your Rail account. This cannot be undone.",
+        confirm: "Delete",
+        cancel: "Cancel",
+        deleting: "Deleting…",
+        progress: (done: number, total: number) => `${n(done)} of ${hands(total)}`,
+        done: (count: number) => (count === 1 ? "Hand deleted" : `${hands(count)} deleted`),
+        failed: (reason: string) => `The hands were not deleted: ${reason}`,
       },
       markers: {
         label: "Tags",

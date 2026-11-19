@@ -490,6 +490,7 @@ export const hr: Dict = {
       mismatch: (owner) => `Ruke su sinkronizirane na ${owner}`,
       declined: (email) => `Odvojeno od ${email}`,
       syncing: (sent, total) => `Sinkronizacija ${n(sent)} od ${n(total)}`,
+      deleting: (left) => `Brisanje ruku na računu · još ${n(left)}`,
       upToDate: "Sve je sinkronizirano",
       offline: "Izvan mreže",
       rateLimited: (time) => `Ograničenje dosegnuto; nastavlja u ${time}`,
@@ -589,6 +590,14 @@ export const hr: Dict = {
     danger: {
       deleteAccount: "Obriši moj račun",
       delete: "Obriši…",
+      deleteHands: "Obriši sve ruke",
+      deleteHandsTitle: "Obrisati sve ruke?",
+      deleteHandsBody: (count) =>
+        `Brišu se sve ruke (${n(count)}) ovdje i s tvog Rail računa. To se ne može poništiti.`,
+      deleteHandsType: (count) => `Upiši ${n(count)} ili DELETE`,
+      deleteHandsConfirm: "Obriši sve",
+      deleteHandsDone: (count) => `Obrisano: ${ruku(count)}`,
+      deleteHandsNone: "Nema ruku za brisanje",
       openFailed: (reason) => `Preglednik se nije otvorio: ${reason}`,
     },
 
@@ -1025,12 +1034,24 @@ export const hr: Dict = {
       label: (count) => (count === 1 ? "Ruka" : ruku(count)),
       replay: (count) => (count === 1 ? "Pogledaj ruku u replayeru" : `Pogledaj ${rukuAcc(count)} u replayeru`),
       export: (count) => (count === 1 ? "Izvezi ruku u .txt" : `Izvezi ${rukuAcc(count)} u .txt`),
+      delete: (count) => (count === 1 ? "Obriši ruku…" : `Obriši ${rukuAcc(count)}…`),
       mark: "Označi",
       bar: {
         replay: "Pogledaj u replayeru",
         tag: "Označi",
         export: "Izvezi .txt",
+        delete: "Obriši",
         clear: "Poništi odabir",
+      },
+      remove: {
+        title: (count) => (count === 1 ? "Obrisati ovu ruku?" : `Obrisati ${rukuAcc(count)}?`),
+        body: "Briše se ovdje i s tvog Rail računa. To se ne može poništiti.",
+        confirm: "Obriši",
+        cancel: "Odustani",
+        deleting: "Brisanje…",
+        progress: (done, total) => `${n(done)} od ${odRuku(total)}`,
+        done: (count) => (count === 1 ? "Ruka je obrisana" : `Obrisano: ${ruku(count)}`),
+        failed: (reason) => `Ruke nisu obrisane: ${reason}`,
       },
       markers: {
         label: "Oznake",

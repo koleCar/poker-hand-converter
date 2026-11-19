@@ -425,6 +425,8 @@ export interface SyncStatus {
   cap: number | null;
   capNow: number | null;
   tablesOpen: boolean;
+  /** Hands the server still has to delete for a "delete every hand" asked here. */
+  deleting: number | null;
 }
 
 /** (R6.5) The web pages the app opens (`account::web_page_path`). */
@@ -1677,6 +1679,15 @@ export const ipc = {
   handAddTag: (handKey: string, tag: string) => invoke<HandAnnotations>("hand_add_tag", { handKey, tag }),
   handRemoveTag: (handKey: string, tag: string) => invoke<HandAnnotations>("hand_remove_tag", { handKey, tag }),
   handsMarks: (handKeys: string[]) => invoke<HandMarks>("hands_marks", { handKeys }),
+  /**
+   * Delete hands here and (by sync) from the account (`delete.rs`); how many
+   * went. A big selection reports its progress ({@link onHandsDeleteProgress}).
+   */
+  handsDelete: (handKeys: string[]) => invoke<number>("hands_delete", { handKeys }),
+  /** Delete every hand here and (by sync) from the account; how many went here. */
+  handsDeleteAll: () => invoke<number>("hands_delete_all"),
+  /** How many hands the store holds. */
+  handsCount: () => invoke<number>("hands_count"),
   /** Put a tag on every hand of `handKeys` (`on`) or take it off; each hand's note and tags after. */
   handsMark: (handKeys: string[], tag: string, on: boolean) =>
     invoke<HandAnnotated[]>("hands_mark", { handKeys, tag, on }),
@@ -1902,6 +1913,11 @@ export function onStatsDataChanged(onChange: () => void): () => void {
     watcher();
     stats();
   };
+}
+
+/** A big delete's progress (`hands_delete`): hands done of the total. */
+export function onHandsDeleteProgress(onChange: (progress: { done: number; total: number }) => void): () => void {
+  return onAppEvent("hands-delete-progress", onChange);
 }
 
 /** Call `onChange` whenever the sync status changed (R1.9; at most once a second). */

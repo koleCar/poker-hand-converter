@@ -191,6 +191,17 @@ export function ReplayerWindow() {
             onNavigate={(href) => {
               ipc.replayerOpenInMain(href).catch(() => undefined);
             }}
+            onDeleted={(key) => {
+              // The next hand of the list (or the one before), else the window closes.
+              const rest = listed?.filter((other) => other !== key) ?? [];
+              const next = listed?.[at + 1] ?? listed?.[at - 1];
+              if (next === undefined || rest.length === 0) {
+                ipc.replayerClose().catch(() => undefined);
+                return;
+              }
+              take({ hand: next, list: rest });
+              ipc.replayerOpen(next, false).catch(() => undefined);
+            }}
           />
         ) : asked ? (
           <p className={styles.empty}>{t.choose}</p>

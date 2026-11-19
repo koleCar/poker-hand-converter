@@ -63,6 +63,13 @@ impl SyncState {
         }
     }
 
+    /// Look again now (hands were deleted: the worker sends the deletions).
+    pub fn wake(&self) {
+        if let Some(worker) = &self.worker {
+            worker.wake();
+        }
+    }
+
     /// Stop the worker (on exit): it lets go of the store's writer at once.
     pub fn stop(&self) {
         if let Some(worker) = &self.worker {

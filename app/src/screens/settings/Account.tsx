@@ -587,7 +587,7 @@ export function SyncRowView({
         break;
       case "syncing": {
         const total = Math.max(sync.total, sync.sent);
-        line = s.syncing(sync.sent, total);
+        line = sync.deleting !== null ? s.deleting(sync.deleting) : s.syncing(sync.sent, total);
         progress = total > 0 ? Math.min(100, (sync.sent * 100) / total) : 0;
         actions = [pause];
         break;
