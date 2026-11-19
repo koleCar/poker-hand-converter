@@ -264,5 +264,30 @@ export const converterEn = {
     openInNewTab: "Open in a new tab",
     /** Rail's own re-import format, in the Room column. */
     standardFormat: "Standard format",
+    /** Deleting hands: a row's menu, the bar of chosen hands, the replayer, Settings (20271119200000). */
+    delete: {
+      menuLabel: (count: number) => `${num(count)} ${hands(count)}`,
+      action: (count: number) => (count === 1 ? "Delete" : `Delete ${num(count)} hands`),
+      button: "Delete",
+      deleteHand: "Delete hand",
+      chosen: (count: number) => `${num(count)} selected`,
+      clear: "Clear the choice",
+      title: (count: number) => (count === 1 ? "Delete this hand?" : `Delete ${num(count)} hands?`),
+      body: (count: number) =>
+        `${count === 1 ? "Its" : "Their"} statistics and analysis go too. Forum posts stay. This cannot be undone.`,
+      cancel: "Cancel",
+      deleting: (done: number, total: number) => `Deleting… ${num(done)} / ${num(total)}`,
+      failed: (message: string) => `Deleting failed: ${message}`,
+      allTitle: "Delete all hands",
+      allHint: "Every saved hand, with its statistics and analysis.",
+      allOpen: "Delete…",
+      allEmpty: "Your library is empty.",
+      allDialogTitle: (count: number) => `Delete all ${num(count)} ${hands(count)}?`,
+      allBody: "Every hand in your library goes, with its statistics and analysis. Forum posts stay. This cannot be undone.",
+      allType: "Type DELETE to confirm",
+      allWord: "DELETE",
+      allConfirm: "Delete all",
+      allDone: (count: number) => `${num(count)} ${hands(count)} deleted.`,
+    },
   },
 } as const;

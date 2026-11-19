@@ -21,6 +21,12 @@
  *   line under the heading says when a computer is syncing into the account.
  * - **The gate**: signed out, there is no library to filter; the sign-in
  *   prompt replaces the screen.
+ * - **Deleting** (20271119200000): hands are chosen as in a file list
+ *   (Cmd/Ctrl + click, Shift + click, Cmd/Ctrl + A); a right click opens a
+ *   menu for the chosen hands (or the one clicked), two or more chosen show
+ *   a bar at the window's foot, and the open hand's replayer has a delete
+ *   button. Each asks first (`DeleteHandsDialog`); after it the list, its
+ *   counts and the plan's stored-hands count are read again.
  *
  * The address stays `/library`; the open hand is the page's state, as it was.
  */
@@ -29,6 +35,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DataSourceProvider, useHand } from "@rail/ui/data";
+import { ContextMenu, type MenuPoint } from "@rail/ui/hands/ContextMenu";
 import { EMPTY_FILTER, type FilterState } from "@rail/ui/hands/filter";
 import { HandsScreen } from "@rail/ui/hands/HandsScreen";
 import type { HandRow } from "@rail/ui/hands/model";
@@ -36,7 +43,15 @@ import { Icon } from "@rail/ui/icon/Icon";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
 import { useAuth } from "../../lib/auth";
-import { fetchFactsMissing, isDatabaseConfigured, latestDesktopSync, rebuildStats, saveHand, type DesktopSync } from "../../lib/db";
+import {
+  deleteHands,
+  fetchFactsMissing,
+  isDatabaseConfigured,
+  latestDesktopSync,
+  rebuildStats,
+  saveHand,
+  type DesktopSync,
+} from "../../lib/db";
 import { webDataSource } from "../../lib/db/dataSource";
 import { notifyHandsChanged, webHandsSource } from "../../lib/db/handsSource";
 import { useDict, useLocale } from "../../lib/i18n/client";
@@ -48,6 +63,7 @@ import type { PhfHand } from "../../lib/phf/types";
 import { PENDING_HAND_KEY, type PendingHand } from "../converter/handoff";
 import liveStyles from "../live/live.module.css";
 import { ShareHandButton } from "../share/ShareHandButton";
+import { DeleteHandsDialog } from "./DeleteHandsDialog";
 import styles from "./library.module.css";
 import { takePlayerFilter } from "./playerHandoff";
 
@@ -159,6 +175,37 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
   const selected = selection !== null && selection.user === userId ? selection.key : null;
   const select = useCallback((key: string) => setSelection({ user: userId, key }), [userId]);
 
+  // Deleting: the row menu, then the confirmation for the hands it names
+  // (with how to let the chosen ones go once they are gone).
+  const [menu, setMenu] = useState<{ keys: string[]; at: MenuPoint } | null>(null);
+  const [toDelete, setToDelete] = useState<{ keys: string[]; clear?: () => void } | null>(null);
+  const openMenu = useCallback((keys: string[], at: MenuPoint) => {
+    if (keys.length > 0) setMenu({ keys, at });
+  }, []);
+  const deleted = useCallback(() => {
+    const gone = toDelete;
+    setToDelete(null);
+    gone?.clear?.();
+    if (gone && selected !== null && gone.keys.includes(selected)) setSelection(null);
+    onHandsSaved();
+    notifyHandsChanged();
+  }, [toDelete, selected, onHandsSaved]);
+  const chosenBar = useCallback(
+    (keys: string[], clear: () => void) =>
+      keys.length > 1 ? (
+        <div className={styles.bar} role="toolbar" aria-label={t.delete.menuLabel(keys.length)}>
+          <span className={styles.barCount}>{t.delete.chosen(keys.length)}</span>
+          <button type="button" className={styles.barAction} onClick={() => setToDelete({ keys, clear })}>
+            {t.delete.button}
+          </button>
+          <button type="button" className={styles.barClear} aria-label={t.delete.clear} title={t.delete.clear} onClick={clear}>
+            ×
+          </button>
+        </div>
+      ) : null,
+    [t],
+  );
+
   // The "a computer is syncing" line: on sign-in, and again whenever a
   // desktop batch lands. Signing out clears it with the list.
   const [desktopSync, setDesktopSync] = useState<DesktopSync | null>(null);
@@ -256,6 +303,8 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
           emptyText={t.empty}
           reloadToken={refreshToken}
           panelRef={panelRef}
+          onRowsMenu={openMenu}
+          renderChosen={chosenBar}
           renderState={(kind, text) =>
             kind === "loading" ? (
               <RailLoader label={text} centered />
@@ -268,7 +317,14 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
               </div>
             )
           }
-          renderPanel={(handKey, row) => <StoredHandPanel handKey={handKey} row={row} onClose={close} />}
+          renderPanel={(handKey, row) => (
+            <StoredHandPanel
+              handKey={handKey}
+              row={row}
+              onClose={close}
+              onDelete={() => setToDelete({ keys: [handKey] })}
+            />
+          )}
         />
       </section>
     );
@@ -280,12 +336,38 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
         <ConverterHand onHandsSaved={onHandsSaved} />
         {screen}
       </div>
+      {menu !== null ? (
+        <ContextMenu
+          at={menu.at}
+          label={t.delete.menuLabel(menu.keys.length)}
+          onClose={() => setMenu(null)}
+          items={[{ label: t.delete.action(menu.keys.length), onSelect: () => setToDelete({ keys: menu.keys }) }]}
+        />
+      ) : null}
+      {toDelete !== null ? (
+        <DeleteHandsDialog
+          count={toDelete.keys.length}
+          run={(onProgress) => deleteHands(toDelete.keys, onProgress)}
+          onClose={() => setToDelete(null)}
+          onDone={deleted}
+        />
+      ) : null}
     </DataSourceProvider>
   );
 }
 
-/** The open hand from the library: the shared replayer, with share and a new tab. */
-function StoredHandPanel({ handKey, row, onClose }: { handKey: string; row: HandRow | null; onClose: () => void }) {
+/** The open hand from the library: the shared replayer, with share, a new tab and delete. */
+function StoredHandPanel({
+  handKey,
+  row,
+  onClose,
+  onDelete,
+}: {
+  handKey: string;
+  row: HandRow | null;
+  onClose: () => void;
+  onDelete: () => void;
+}) {
   const t = useDict().converter.library;
   const state = useHand(handKey);
   if (state.status !== "ready") {
@@ -313,6 +395,15 @@ function StoredHandPanel({ handKey, row, onClose }: { handKey: string; row: Hand
           <>
             <ShareHandButton hand={state.hand} storedHandId={handKey} iconOnly />
             <OpenInNewTab handId={handKey} />
+            <button
+              type="button"
+              className="btn btn--icon"
+              onClick={onDelete}
+              aria-label={t.delete.deleteHand}
+              title={t.delete.deleteHand}
+            >
+              <Icon name="trash" />
+            </button>
           </>
         }
       />

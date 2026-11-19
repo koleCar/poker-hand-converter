@@ -11,6 +11,7 @@ import { BusyLabel } from "../../components/shell/BusyLabel";
 import { LanguageSwitch } from "../../components/shell/LanguageSwitch";
 import { PlanPanel } from "../../components/plan/PlanPanel";
 import { YourDataPanel } from "../../components/account/YourDataPanel";
+import { DeleteAllHands } from "../../components/account/DeleteAllHands";
 import { ACCOUNT_DELETED_FLAG, AccountDeletedNotice } from "../../components/account/DeleteAccountPanel";
 import rows from "../../components/account/rows.module.css";
 import { useAuth } from "../../lib/auth";
@@ -89,6 +90,7 @@ function SettingsBody() {
         <h2 id="settings-danger" className={`${rows.groupLabel} ${rows.dangerLabel}`}>
           {g.danger}
         </h2>
+        <DeleteAllHands />
         <div className={rows.tile}>
           <span className={rows.dangerIcon} aria-hidden="true">
             <Icon name="trash" />
