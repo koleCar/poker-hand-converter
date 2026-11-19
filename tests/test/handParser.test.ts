@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { handClass, parseHandClassQuery, resolveHeroQuery } from "../../web/src/lib/cards";
+import { handClass, parseHeroHand } from "../../web/src/lib/cards";
 import { convertCashWeplayFile } from "../../web/src/lib/converter";
 import { parseHand, splitHands } from "../../web/src/lib/phf/index.js";
 import type { PhfHand } from "../../web/src/lib/phf/types.js";
@@ -236,21 +236,52 @@ describe("card helpers", () => {
     expect(handClass(["Ts"])).toBeNull();
   });
 
-  it("reads a hand class before looking for card codes", () => {
+  it("reads the hero's hand search: classes, shortcuts and ranges", () => {
+    const classes = (raw: string) => parseHeroHand(raw)?.classes;
     // "AKs" contains the substring "Ks"; the class reading must win.
-    expect(resolveHeroQuery("AKs")).toEqual({ kind: "class", values: ["AKs"] });
-    expect(resolveHeroQuery("TT")).toEqual({ kind: "class", values: ["TT"] });
-    expect(resolveHeroQuery("AK")).toEqual({ kind: "class", values: ["AKs", "AKo"] });
-    expect(resolveHeroQuery("AhKs")).toEqual({ kind: "cards", values: ["Ah", "Ks"] });
-    expect(resolveHeroQuery("Ks")).toEqual({ kind: "cards", values: ["Ks"] });
-    expect(resolveHeroQuery("")).toEqual({ kind: "none" });
-    expect(resolveHeroQuery("nonsense")).toEqual({ kind: "none" });
+    expect(parseHeroHand("AKs")).toEqual({ classes: ["AKs"], cards: [] });
+    expect(classes("AA")).toEqual(["AA"]);
+    expect(classes("tt")).toEqual(["TT"]);
+    expect(classes("ka")).toEqual(["AKs", "AKo"]);
+    expect(classes("AKss")).toEqual(["AKs"]);
+    expect(classes("AKoo")).toEqual(["AKo"]);
+    expect(classes("aKo")).toEqual(["AKo"]);
+    expect(classes("TT+")).toEqual(["AA", "KK", "QQ", "JJ", "TT"]);
+    expect(classes("ATs+")).toEqual(["AKs", "AQs", "AJs", "ATs"]);
+    expect(classes("KTo+")).toEqual(["KQo", "KJo", "KTo"]);
+    expect(classes("22-44")).toEqual(["44", "33", "22"]);
+    expect(classes("44 - 22")).toEqual(["44", "33", "22"]);
+    expect(classes("A2s-A4s")).toEqual(["A4s", "A3s", "A2s"]);
+    expect(classes("A5-A4")).toEqual(["A5s", "A4s", "A5o", "A4o"]);
+    expect(classes("Ax")).toHaveLength(25);
+    expect(classes("Axs")).toHaveLength(12);
+    expect(classes("Kxo")).toContain("AKo");
+    expect(classes("AA, KK AKs")).toEqual(["AA", "AKs", "KK"]);
   });
 
-  it("normalises typed hand class queries", () => {
-    expect(parseHandClassQuery("aks")).toEqual(["AKs"]);
-    expect(parseHandClassQuery("ka")).toEqual(["AKs", "AKo"]);
-    expect(parseHandClassQuery("tt")).toEqual(["TT"]);
-    expect(parseHandClassQuery("zz")).toBeNull();
+  it("reads cards in the hero's hand search: all must be held", () => {
+    expect(parseHeroHand("Ad")).toEqual({ classes: null, cards: ["Ad"] });
+    expect(parseHeroHand("AdAs")).toEqual({ classes: null, cards: ["Ad", "As"] });
+    expect(parseHeroHand("ad ks")).toEqual({ classes: null, cards: ["Ad", "Ks"] });
+    expect(parseHeroHand("AhKs")).toEqual({ classes: null, cards: ["Ah", "Ks"] });
+    expect(parseHeroHand("AdKx")).toEqual({ classes: ["AKs", "AKo"], cards: ["Ad"] });
+    expect(parseHeroHand("AdAx")).toEqual({ classes: ["AA"], cards: ["Ad"] });
+    // A card and a class: that card, in one of the classes.
+    expect(parseHeroHand("Ad, AA")).toEqual({ classes: ["AA"], cards: ["Ad"] });
+    expect(parseHeroHand("Ad Kx")?.cards).toEqual(["Ad"]);
+    expect(parseHeroHand("Ad Kx")?.classes).toHaveLength(25);
+    // Omaha: four suited cards.
+    expect(parseHeroHand("AsKsQhJh")?.cards).toEqual(["As", "Ks", "Qh", "Jh"]);
+  });
+
+  it("reads nothing as nothing and junk as no hand", () => {
+    expect(parseHeroHand("")).toEqual({ classes: null, cards: [] });
+    expect(parseHeroHand("   ")).toEqual({ classes: null, cards: [] });
+    expect(parseHeroHand("nonsense")).toBeNull();
+    expect(parseHeroHand("zz")).toBeNull();
+    expect(parseHeroHand("AAs")).toBeNull();
+    expect(parseHeroHand("A2s-K5s")).toBeNull();
+    expect(parseHeroHand("AxKxQx")).toBeNull();
+    expect(parseHeroHand("AA, junk")).toBeNull();
   });
 });
