@@ -139,7 +139,7 @@ const analysed = new Map<PhfHand, HandAnalysis>();
 const analyse = (h: PhfHand): HandAnalysis => {
   let a = analysed.get(h);
   if (!a) {
-    a = analyzeHand(structuredClone(h), { charts: CHARTS });
+    a = analyzeHand(structuredClone(h), { charts: CHARTS, multiwayPostflop: true });
     analysed.set(h, a);
   }
   return a;
@@ -461,10 +461,26 @@ function riverSpot(h: PhfHand, action: string) {
   const context = buildContext(h);
   const hero = heroSeatOf(context)!;
   const spot = heroSpots(context, hero).find((s) => s.street === "river" && s.decision.type === action)!;
-  const facts = decisionOn(analyzeHand(structuredClone(h), { charts: CHARTS, turn: false }), "river", action).facts;
+  const facts = decisionOn(analyzeHand(structuredClone(h), { charts: CHARTS, turn: false, multiwayPostflop: true }), "river", action).facts;
   const seat = (name: string) => h.players.find((p) => p.name === name)!.seat;
   return { context, hero, spot, facts, seat };
 }
+
+describe("multiway pots by default (analysis/46)", () => {
+  it("grades the preflop of a pot three saw the flop of, and nothing after it, keeping only the free-fold flag", () => {
+    const h = hand("Bb", "Kh Qh", [...THREE_WAY, ...CHECKED(FLOP), ...CHECKED(TURN), RIVER, "Bb: bets $5", "Co: folds", "Btn: calls $5"]);
+    const analysis = analyzeHand(structuredClone(h), { charts: CHARTS, turn: false });
+    const post = analysis.decisions.filter((d) => d.street !== "preflop");
+    expect(post.length).toBeGreaterThan(0);
+    for (const d of post) {
+      expect(d).toMatchObject({ status: "not-analysed", reason: "multiway", grade: null, evLoss: null, score: null, chosen: null, options: [] });
+      expect(d.flags.every((f) => f.code === "free-fold")).toBe(true);
+      expect(d.facts.board.length).toBeGreaterThanOrEqual(3);
+    }
+    const pre = analysis.decisions.filter((d) => d.street === "preflop");
+    expect(pre.every((d) => d.reason !== "multiway")).toBe(true);
+  });
+});
 
 describe("the approximate river call", () => {
   // River: the big blind bets, the cutoff calls, the button (the hero) closes the action.
@@ -639,7 +655,7 @@ describe("the approximate river call", () => {
 describe("heads-up reducible spots", { timeout: 120_000 }, () => {
   it("grades a river that began heads-up with the heads-up solver on the multiway walk's ranges", () => {
     const h = hand("Bb", "Kh Qh", [...THREE_WAY, FLOP, "Bb: checks", "Co: bets $3", "Btn: folds", "Bb: calls $3", TURN, "Bb: checks", "Co: checks", RIVER, "Bb: checks", "Co: bets $6", "Bb: calls $6"]);
-    const analysis = analyzeHand(structuredClone(h), { charts: CHARTS, turn: false });
+    const analysis = analyzeHand(structuredClone(h), { charts: CHARTS, turn: false, multiwayPostflop: true });
     const call = decisionOn(analysis, "river", "call");
     expect(call.source).toBe("solver");
     expect(call.approximations).toContain("multiway-history");
@@ -677,7 +693,7 @@ describe("heads-up reducible spots", { timeout: 120_000 }, () => {
     expect(call.grade).toBe(graded.grade);
     expect(rangeWeight(walk.riverStart!.villain)).toBeGreaterThan(0);
     // The study view re-solves the same spot to the stored numbers.
-    const study = riverStudy(structuredClone(h), call.actionIndex, { charts: CHARTS, turn: false });
+    const study = riverStudy(structuredClone(h), call.actionIndex, { charts: CHARTS, turn: false, multiwayPostflop: true });
     if (!study || !("hero" in study)) throw new Error("no study");
     expect(study.hero.freq).toEqual(call.options.map((o) => o.freq));
     expect(study.hero.ev).toEqual(call.options.map((o) => o.ev));
@@ -739,7 +755,7 @@ describe("multiway flags", () => {
   });
 
   it("is deterministic, sampled equities included", () => {
-    for (const h of [bluff, draw]) expect(analyzeHand(structuredClone(h), { charts: CHARTS })).toEqual(analyse(h));
+    for (const h of [bluff, draw]) expect(analyzeHand(structuredClone(h), { charts: CHARTS, multiwayPostflop: true })).toEqual(analyse(h));
   });
 });
 
@@ -749,7 +765,7 @@ function flopSpot(h: PhfHand, action: string) {
   const context = buildContext(h);
   const hero = heroSeatOf(context)!;
   const spot = heroSpots(context, hero).find((s) => s.street === "flop" && s.decision.type === action)!;
-  const facts = decisionOn(analyzeHand(structuredClone(h), { charts: CHARTS, turn: false }), "flop", action).facts;
+  const facts = decisionOn(analyzeHand(structuredClone(h), { charts: CHARTS, turn: false, multiwayPostflop: true }), "flop", action).facts;
   const seat = (name: string) => h.players.find((p) => p.name === name)!.seat;
   return { context, hero, spot, facts, seat };
 }
@@ -929,7 +945,7 @@ function turnSpot(h: PhfHand, action: string) {
   const context = buildContext(h);
   const hero = heroSeatOf(context)!;
   const spot = heroSpots(context, hero).find((s) => s.street === "turn" && s.decision.type === action)!;
-  const facts = decisionOn(analyzeHand(structuredClone(h), { charts: CHARTS, turn: false }), "turn", action).facts;
+  const facts = decisionOn(analyzeHand(structuredClone(h), { charts: CHARTS, turn: false, multiwayPostflop: true }), "turn", action).facts;
   const seat = (name: string) => h.players.find((p) => p.name === name)!.seat;
   return { context, hero, spot, facts, seat };
 }

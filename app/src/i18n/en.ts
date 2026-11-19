@@ -1129,7 +1129,23 @@ export const en = {
       failed: (reason: string) => `The hand did not load: ${reason}`,
       close: "Close",
       openInWeb: "Open on the web",
-      openInWebSoon: "Opening hands on the web comes with sync of tags and notes.",
+      openInWebTitle: "Open this hand in your web library, at this point of the hand",
+      /** The header button that opens the Solver tab at the hand's spot (`solver/handSpot.ts`). */
+      openInSolver: "Solver",
+      openInSolverTitle: "Open the Solver at this spot of the hand",
+      solverLooking: "Finding the spot…",
+      solverNone: "The Solver has no spot here: three or more saw the flop, or no table or line of the hand is in the charts.",
+      /** The Solver tab opened from a hand on a spot that stands in for it (`solver/handSpot.ts`). */
+      spotNote: {
+        flop: "≈ last flop decision",
+        flopTitle:
+          "The library has no turn or river of this flop (it was read from a similar flop): this is the hero's last flop decision.",
+        preflop: "≈ preflop ranges",
+        preflopTitle:
+          "The library has no solve of this heads-up spot after the flop (a line it does not solve): these are the ranges the hand went to the flop with.",
+        depth: (set: number, hand: number) => `≈ ${set}bb (hand ${hand}bb)`,
+        depthTitle: "No chart set at the hand's stack depth: the nearest one is shown.",
+      },
       /** The header button that opens the hand's tags and note. */
       notes: "Tags and note",
       notesSummary: (tags: number, note: boolean) =>

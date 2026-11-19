@@ -299,7 +299,7 @@ const riverReasons = {
 /** Why a multiway decision has no grade (A9). Keyed by `MULTIWAY_SKIP_REASONS`. */
 const multiwayReasons = {
   multiway:
-    "three or more players are in the pot, and no solver models three ranges at once; only a call or fold facing a bet gets an approximate grade",
+    "three or more players saw the flop: nothing solves such a pot, and it plays very differently from a heads-up one, so no decision after the flop is graded",
   "multiway-side-pot": "a side pot (an all-in for less) splits the showdown, which the approximate call does not model",
   "multiway-crowded": "more than three players were still to answer the bet",
   "multiway-range-unknown": "a player's range could not be walked through the hand",
@@ -989,7 +989,7 @@ export const analysisEn = {
     "bomb-pot": "Bomb pot on two boards",
     "hero-cards-unknown": "Your cards are unknown",
     "no-decisions": "You had no decision",
-    multiway: "Multiway: facts and notes only",
+    multiway: "Multiway: not graded",
     "multiway-side-pot": "Multiway: a side pot",
     "multiway-crowded": "Multiway: four or more to answer",
     "multiway-range-unknown": "Multiway: a range could not be walked",
@@ -1320,6 +1320,8 @@ export const analysisEn = {
     backToSession: "Back to the session review",
     loading: "Loading the hand…",
     notFound: "This hand is not in your library.",
+    /** `/analysis/hand?key=`: the desktop app's hand, not on the web yet. */
+    notSynced: "This hand is not in your web library yet. The desktop app sends it when it next syncs: open it again in a minute.",
     fresh:
       "This hand has not been analysed at the current version yet, so this is a fresh analysis computed in your browser. Run the analysis to save it.",
   },

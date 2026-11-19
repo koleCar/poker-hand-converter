@@ -222,6 +222,13 @@ export interface AnalyzeOptions {
    * read it.
    */
   tournaments?: TournamentSettingsMap | null;
+  /**
+   * (analysis/46) Grade the postflop decisions of a pot three or more saw the
+   * flop of (A9: approximate calls, a later street solved heads-up, the
+   * multiway flags). Off: they are `not-analysed` (`multiway`), facts only.
+   * Kept, off, for when multiway pots are solved; the tests of A9 turn it on.
+   */
+  multiwayPostflop?: boolean;
 }
 
 /** 100bb ±20% (§8): outside this the stack depth is an approximation. */
@@ -1306,6 +1313,7 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     flopLibrary: options.flopLibrary ?? null,
     villains: options.villains ?? null,
     responders: options.responders ?? null,
+    multiwayPostflop: options.multiwayPostflop ?? false,
   };
   const context = buildContext(hand);
   const hero = heroSeatOf(context);
@@ -1358,10 +1366,19 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
   // analysis/20: the one opponent whose range their own statistics moved (only a big blind's defence can be).
   const villainFact = resolved.villains ? villainFactOf(hand, context, hero, resolved.villains) : null;
 
+  // analysis/46: three or more saw the flop. Nothing solves such a pot (the
+  // library and the turn and river solvers are heads-up, and a three-way flop
+  // is played very differently), so none of its postflop decisions is graded
+  // or flagged - not the approximate calls (A9), not a later street that
+  // became heads-up, not the multiway or strategy flags. Their facts stay.
+  const flopSeen = flopSeats(context);
+  const multiwayFlop = !resolved.multiwayPostflop && flopSeen.length > 2 && flopSeen.includes(hero) && !context.isBombPot;
+
   let preflopSeen = 0;
   const decisions: DecisionAnalysis[] = spots.flatMap((spot) => {
     const street = spot.street as DecisionStreet;
     const multiway = street !== "preflop" && spot.opponents.length >= 2;
+    const excluded = street !== "preflop" && multiwayFlop;
     const preflopNth = street === "preflop" ? preflopSeen++ : -1;
     if (resolved.only !== null && spot.action.index !== resolved.only) return [];
     let built: BuiltFacts;
@@ -1377,14 +1394,14 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
 
     // Turn and river: the solver, or the reason it cannot answer.
     const action = spot.decision.type as DecisionAnalysis["action"];
-    const rawRiver = street === "river" && !multiway ? river.grade(spot) : null;
-    const rawTurn = street === "turn" && !multiway && resolved.turn ? turn.grade(spot) : null;
+    const rawRiver = street === "river" && !multiway && !excluded ? river.grade(spot) : null;
+    const rawTurn = street === "turn" && !multiway && !excluded && resolved.turn ? turn.grade(spot) : null;
     const solvedRiver = rawRiver?.ok ? capRiver(rawRiver, action, built, walk) : rawRiver;
     const solvedTurn = rawTurn?.ok ? capTurn(rawTurn, action, built, walk) : rawTurn;
     // A5b: a flop decision the library can follow is graded from it; one it cannot keeps the heuristic.
     const heroCards = toSafeIndices(built.facts.holeCards);
     const rawFlop =
-      street === "flop" && !multiway && flop.entry && heroCards?.length === 2
+      street === "flop" && !multiway && !excluded && flop.entry && heroCards?.length === 2
         ? gradeFlop(flop.entry, spot.action.index, [heroCards[0], heroCards[1]])
         : null;
     const solvedFlop = rawFlop?.ok ? capFlop(rawFlop, action, built, walk) : null;
@@ -1429,7 +1446,7 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
       } catch {
         mw = null;
       }
-      if (spot.toCall > 0 && (action === "fold" || action === "call")) {
+      if (!excluded && spot.toCall > 0 && (action === "fold" || action === "call")) {
         if (!multi) {
           approxSkip = "multiway-range-unknown";
         } else {
@@ -1517,7 +1534,9 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
         : null;
     // A heads-up flop decision of a multiway flop keeps the heuristic when
     // the approximate call cannot be had, as before analysis/15.
-    const skipped = approx
+    const skipped = excluded
+      ? "multiway"
+      : approx
       ? null
       : approxSkip && (multiway || street !== "flop")
         ? approxSkip
@@ -1558,7 +1577,9 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
       startingStack: heroStack,
       bigBlind: bb,
     });
-    if (multiway && mw) flags.push(...multiwayFlags(spot, facts, mw));
+    if (multiway && mw && !excluded) flags.push(...multiwayFlags(spot, facts, mw));
+    // analysis/46: only what holds whatever the strategy (a fold when a check was free).
+    if (excluded) flags.splice(0, flags.length, ...flags.filter((flag) => ALWAYS_FLAGS.has(flag.code)));
     flags.sort((a, b) => (a.severity === b.severity ? 0 : a.severity === "inaccurate" ? -1 : 1));
 
     return {
@@ -1631,6 +1652,8 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
 
 /** The heuristic checks a tournament decision keeps: those that hold whatever chips are worth. */
 const TOURNAMENT_FLAGS = new Set<string>(["free-fold"]);
+/** The heuristic checks a postflop decision of a multiway flop keeps (analysis/46): those that hold whatever the strategy. */
+const ALWAYS_FLAGS = TOURNAMENT_FLAGS;
 
 /** The hero's two cards are readable, and no bomb pot: a tournament hand the push/fold game can read. */
 function tournamentReadable(context: StatsContext, hero: number): boolean {

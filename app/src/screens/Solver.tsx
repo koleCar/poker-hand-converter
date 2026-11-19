@@ -67,9 +67,19 @@ export function Solver() {
   // Kept while nothing it shows changes: the library's host is rebuilt when it does (a solve's progress must not).
   const libraryParam = lastView;
   const locksParam = lastLocks;
+  // A link from a hand (`handSpot.ts`) opens the library afresh on its spot, even with the tab already open.
+  const link = param && !locks && /(?:^|&)(?:walk|path|hero)=/.test(param) ? param : null;
+  const [opened, setOpened] = useState(link);
+  if (link && link !== opened) setOpened(link);
+  const note = useMemo(() => (opened ? parseSolverParam(opened) : null), [opened]);
   const tabs = useMemo(
-    () => <SolverTabs locks={locks} libraryParam={libraryParam} locksParam={locksParam} solving={solving} />,
-    [locks, libraryParam, locksParam, solving],
+    () => (
+      <>
+        <SolverTabs locks={locks} libraryParam={libraryParam} locksParam={locksParam} solving={solving} />
+        {!locks && note ? <LinkNote approx={note.approx} set={note.set} handDepth={note.handDepth} /> : null}
+      </>
+    ),
+    [locks, libraryParam, locksParam, solving, note],
   );
   return (
     <div className={styles.screen}>
@@ -80,10 +90,26 @@ export function Solver() {
           <p className={treeStyles.pick}>{t.tree.pick}</p>
         </Shell>
       ) : (
-        <Library key={session.opened} lock={null} top={tabs} />
+        <Library key={`${session.opened}|${opened ?? ""}`} lock={null} top={tabs} />
       )}
       {session.editor ? <Editor open={session.editor} solverT={base.t} /> : null}
     </div>
+  );
+}
+
+/** What a hand's link shows in place of its spot (`handSpot.ts`): one quiet line, the reason in its title. */
+function LinkNote({ approx, set, handDepth }: { approx: "flop" | "preflop" | null; set: string | null; handDepth: number | null }) {
+  const t = useT().hands.panel.spotNote;
+  const depth = set ? /-(\d{1,3})bb(?:-|$)/.exec(set) : null;
+  const parts: Array<{ text: string; title: string }> = [];
+  if (approx === "flop") parts.push({ text: t.flop, title: t.flopTitle });
+  if (approx === "preflop") parts.push({ text: t.preflop, title: t.preflopTitle });
+  if (depth && handDepth !== null) parts.push({ text: t.depth(Number(depth[1]), handDepth), title: t.depthTitle });
+  if (!parts.length) return null;
+  return (
+    <span className={styles.linkNote} title={parts.map((p) => p.title).join("\n")}>
+      {parts.map((p) => p.text).join(" · ")}
+    </span>
   );
 }
 
@@ -156,6 +182,9 @@ function Library({ lock, top = null, side = null }: { lock: ActiveLock | null; t
         initialFlop={initial.flop}
         initialNode={initial.node}
         initialTurn={initial.turn}
+        initialPath={initial.path}
+        initialWalk={initial.walk}
+        hero={initial.hero}
         onView={onView}
       />
     </SolverHostProvider>

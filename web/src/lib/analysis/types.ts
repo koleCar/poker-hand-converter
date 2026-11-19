@@ -331,8 +331,16 @@ import type { Position, Street } from "../phf/types";
  *               grades are capped at Inaccurate (score at least that band's):
  *               no bomb pot was ever solved, so they are a guide, not a
  *               verdict.
+ *   analysis/46 A hand three or more players saw the flop of has no
+ *               postflop grade: nothing solves such a pot and a three-way
+ *               flop plays very differently. Every postflop decision of it
+ *               is `not-analysed` (`multiway`) with its facts, and keeps
+ *               only the `free-fold` flag - no approximate calls (A9), no
+ *               heads-up solve of a later street (`multiway-history`), no
+ *               multiway flags. Preflop is graded as before; bomb pots keep
+ *               their capped guide grades (analysis/45).
  */
-export const ANALYSIS_VERSION = "analysis/45" as const;
+export const ANALYSIS_VERSION = "analysis/46" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
