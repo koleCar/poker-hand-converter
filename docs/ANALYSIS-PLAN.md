@@ -7592,8 +7592,22 @@ Each phase appends what it learned that changed the plan.
     the grade columns, "graded here", the multiway spots and the decisions
     worth a look show only for analyses from before it. The note says Rail
     does not grade there.
-  - **Open.** The web's Overview, Progress and Reports still count multiway
-    and bomb pot decisions (their summary tables have no pot kind);
-    `database.types.ts` was edited by hand for the three functions (no
-    clean local stack to regenerate from), so the batch PR's type check is
-    the first proof. Apply the migration to production with the promotion.
+  - **Overview, Trends and Reports heads-up only** (owner, same evening):
+    migration `20271119240000_analysis_heads_up.sql` re-creates
+    `analysis_scope`, `analysis_overview`, `analysis_breakdown`,
+    `analysis_hands`, `analysis_trend`, `analysis_node_actions` and
+    `analysis_node_hands` from their latest bodies with one addition: a
+    `potKind: 'hu'` filter that leaves bomb pots out - in the summaries
+    that keep the pot type, through the row path where they do not (the
+    trend's day sums, the node totals), and in `analysis_scope` for every
+    scan path. `scopeFilters` and `reportsFilters` always send it; the
+    Overview's pot filter no longer offers "bomb". Multiway needs no filter
+    since analysis/46 (no postflop grade after a 3+ way flop: those
+    decisions only count as not analysed, `multiway`). Checked on the local
+    stack at analysis/44: 200 → 196 hands and 94 → 90 graded on both the
+    summary and the scan path; trends, node actions, breakdown and hands
+    the same.
+  - **Open.** `database.types.ts` was edited by hand for the three
+    pot-kind functions (no clean local stack to regenerate from), so the
+    batch PR's type check is the first proof. Apply both migrations
+    (`20271119230000`, `20271119240000`) to production with the promotion.

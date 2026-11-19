@@ -26,9 +26,10 @@ describe("the overview", () => {
     const state = parseListState({ kind: "tournament" });
     expect(state.kind).toBe("tournament");
     expect(listQuery(state)).toBe("kind=tournament");
-    expect(scopeFilters(state)).toEqual({ gameKind: "tournament" });
+    expect(scopeFilters(state)).toEqual({ potKind: "hu", gameKind: "tournament" });
     expect(parseListState({}).kind).toBeNull();
-    expect(scopeFilters(parseListState({}))).toEqual({});
+    // analysis/45-46: heads-up pots only, always.
+    expect(scopeFilters(parseListState({}))).toEqual({ potKind: "hu" });
   });
 
   it("reads an older address's one format as its kind", () => {
@@ -53,7 +54,7 @@ describe("Leaks, Progress and Reports", () => {
     expect(parseReportsState(new URLSearchParams(query))).toEqual(state);
     expect(leaksQuery(parseLeaksState({ kind: "tournament", sort: "count" }))).toContain("kind=tournament");
     // No group set: no hand list, the readers' summaries answer.
-    expect(reportsFilters(parseReportsState({}))).toEqual({});
+    expect(reportsFilters(parseReportsState({}))).toEqual({ potKind: "hu" });
     // Old dates, room and stake become the same groups.
     const old = parseReportsState({ from: "2026-01-02", to: "2026-01-09", room: "pokerstars", stake: "USD:200" });
     expect(old.filter).toMatchObject({ date: "custom", dateFrom: "2026-01-02", dateTo: "2026-01-09", sites: ["pokerstars"], stakes: ["USD:200"] });
