@@ -608,6 +608,30 @@ describe("the approximate river call", () => {
     expect(hr.analysis.explain(call).join(" ")).toContain("(približno, multiway)");
     expect(conceptsForDecision(call)).toContain("multiway-pots");
   });
+
+  it("sums a decision up in short: the verdict first, a few points, shorter than the full why", () => {
+    const call = decisionOn(analyse(closing), "river", "call");
+    for (const dict of [en, hr]) {
+      const short = dict.analysis.brief(call);
+      expect(short.lead.length).toBeGreaterThan(0);
+      expect(short.points.length).toBeGreaterThan(0);
+      expect(short.points.length).toBeLessThanOrEqual(7);
+      expect([short.lead, ...short.points].join(" ").length).toBeLessThan(dict.analysis.explain(call).join(" ").length);
+    }
+    const en1 = en.analysis.brief(call);
+    expect(en1.lead).toMatch(call.grade === "perfect" ? /beats (calling|folding) here/ : /^Fold is better: call costs/);
+    expect(en1.points.join(" ")).toContain("To call you need");
+    expect(en1.points.join(" ")).toMatch(/3-way/);
+    expect(en1.points.join(" ")).toMatch(/multiway estimate|capped at Mistake/);
+    expect(hr.analysis.brief(call).points.join(" ")).toContain("Za call treba");
+  });
+
+  it("leads a skipped decision's short why with the reason it is not graded", () => {
+    const short = (dict: typeof en) =>
+      dict.analysis.brief({ ...decisionOn(analyse(closing), "river", "call"), status: "not-analysed", reason: "multiway-crowded", grade: null });
+    expect(short(en).lead).toBe("Not graded: more than three players were still to answer the bet.");
+    expect(short(hr).lead).toMatch(/^Bez ocjene: /);
+  });
 });
 
 /* ------------------------------------------------------- heads-up part - */
