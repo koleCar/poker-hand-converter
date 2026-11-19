@@ -9,7 +9,7 @@
  *   RLS), the hand itself through the package's `DataSource`
  *   (`webDataSource`, `get_hand`), mounted here.
  * - **The panel**: the shared replayer with this site's actions in its
- *   header - share, publish.
+ *   header - share, and the hand on its own page in a new tab.
  * - **The hand-offs**: the converter's "Replay" parks a hand in
  *   `sessionStorage` and navigates here; a converted hand is not in the
  *   library, so it opens above the screen with a save button. Players'
@@ -41,12 +41,12 @@ import { webDataSource } from "../../lib/db/dataSource";
 import { notifyHandsChanged, webHandsSource } from "../../lib/db/handsSource";
 import { useDict, useLocale } from "../../lib/i18n/client";
 import { INTL_LOCALE } from "../../lib/i18n/dictionaries";
+import { paths } from "../../lib/routes";
 import type { ArrivalBatch } from "../../lib/live/arrivals";
 import { getParser, toStandardText } from "../../lib/phf";
 import type { PhfHand } from "../../lib/phf/types";
 import { PENDING_HAND_KEY, type PendingHand } from "../converter/handoff";
 import liveStyles from "../live/live.module.css";
-import { PublishHandButton } from "../share/PublishHandButton";
 import { ShareHandButton } from "../share/ShareHandButton";
 import styles from "./library.module.css";
 import { takePlayerFilter } from "./playerHandoff";
@@ -284,7 +284,7 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
   );
 }
 
-/** The open hand from the library: the shared replayer, with share and publish. */
+/** The open hand from the library: the shared replayer, with share and a new tab. */
 function StoredHandPanel({ handKey, row, onClose }: { handKey: string; row: HandRow | null; onClose: () => void }) {
   const t = useDict().converter.library;
   const state = useHand(handKey);
@@ -309,11 +309,28 @@ function StoredHandPanel({ handKey, row, onClose }: { handKey: string; row: Hand
         headerExtra={
           <>
             <ShareHandButton hand={state.hand} storedHandId={handKey} iconOnly />
-            <PublishHandButton storedHandId={handKey} />
+            <OpenInNewTab handId={handKey} />
           </>
         }
       />
     </div>
+  );
+}
+
+/** The stored hand on its own page (`/analysis/h/<id>`), in a new tab. */
+function OpenInNewTab({ handId }: { handId: string }) {
+  const t = useDict().converter.library;
+  return (
+    <a
+      className="btn btn--icon"
+      href={paths.analysisHand(handId)}
+      target="_blank"
+      rel="noopener"
+      aria-label={t.openInNewTab}
+      title={t.openInNewTab}
+    >
+      <Icon name="external" />
+    </a>
   );
 }
 
@@ -397,7 +414,7 @@ function ConverterHand({ onHandsSaved }: { onHandsSaved: () => void }) {
         headerExtra={
           <>
             <ShareHandButton hand={hand} storedHandId={storedId} iconOnly />
-            <PublishHandButton storedHandId={storedId} />
+            {storedId ? <OpenInNewTab handId={storedId} /> : null}
             {!storedId && isDatabaseConfigured ? (
               <button
                 type="button"

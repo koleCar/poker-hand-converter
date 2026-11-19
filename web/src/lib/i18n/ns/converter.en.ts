@@ -261,6 +261,7 @@ export const converterEn = {
     /** No hand saved at all (the shared Hands screen, R4.5b). */
     empty: "No hands saved yet. Convert your hand histories on the Converter tab, or upload a single hand there.",
     loadingHand: "Loading the hand…",
+    openInNewTab: "Open in a new tab",
     /** Rail's own re-import format, in the Room column. */
     standardFormat: "Standard format",
   },

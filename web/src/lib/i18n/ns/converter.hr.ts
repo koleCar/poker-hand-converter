@@ -231,6 +231,7 @@ export const converterHr: Dict["converter"] = {
     syncingTitle: (time: string) => `Zadnja sinkronizacija: ${time}`,
     empty: "Još nema spremljenih ruku. Pretvori svoje povijesti ruku na kartici Konverter ili ondje učitaj jednu ruku.",
     loadingHand: "Učitavam ruku…",
+    openInNewTab: "Otvori u novoj kartici",
     standardFormat: "Standardni format",
   },
 };
