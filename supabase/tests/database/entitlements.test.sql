@@ -315,7 +315,9 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 -- R6.5: every account may export its data and delete itself
                 'export_my_manifest', 'export_my_profile', 'export_my_hands', 'export_my_rows', 'export_my_sealed',
                 'account_export_page', 'account_export_entry', 'account_export_charge',
-                'begin_account_deletion', 'my_account_deletion')),
+                'begin_account_deletion', 'my_account_deletion',
+                -- hand deletion (20271119200000): every plan deletes its own hands
+                'delete_hands', 'delete_hands_by_key', 'delete_all_hands', 'hand_tombstones_since')),
   null, 'every client-callable function is gated or named free here');
 
 select is((select string_agg(feature || ':' || n, ' ' order by feature)
