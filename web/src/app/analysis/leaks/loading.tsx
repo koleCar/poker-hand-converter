@@ -1,6 +1,8 @@
-import { RouteLoading } from "../../../components/shell/RouteLoading";
+"use client";
 
-/** This segment's wait: the bar with its tab lit, and the Rail loader (`RouteLoading`). */
+import { AnalysisRouteLoading } from "../../../components/analysis/AnalysisRouteLoading";
+
+/** The tab's own skeleton under the Analysis tabs (`AnalysisRouteLoading`). */
 export default function Loading() {
-  return <RouteLoading />;
+  return <AnalysisRouteLoading section="leaks" />;
 }

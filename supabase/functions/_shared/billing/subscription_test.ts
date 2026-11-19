@@ -4,7 +4,7 @@
  */
 
 import { assertEquals, stripeSubscription } from "./test_util.ts";
-import { periodBounds, planFromSubscription, subscriptionOfEvent } from "./subscription.ts";
+import { periodBounds, periodOf, planFromSubscription, subscriptionOfEvent } from "./subscription.ts";
 
 const START = "2026-09-21T14:13:20.000Z"; // 1_790_000_000
 const END = "2026-10-21T14:13:20.000Z"; // 1_792_592_000
@@ -30,6 +30,25 @@ Deno.test("active and trialing: Pro, as is, to the period's end; the period from
     plan: "pro",
     period: "year",
     status: "trialing",
+    currentPeriodEnd: END,
+  });
+});
+
+Deno.test("the period: month x 1, month x 6 (half_year), year x 1; anything else none", () => {
+  const withPrice = (recurring: Record<string, unknown>) =>
+    stripeSubscription({ items: { data: [{ current_period_end: 1_792_592_000, price: { recurring } }] } });
+  assertEquals(periodOf(withPrice({ interval: "month", interval_count: 1 })), "month");
+  assertEquals(periodOf(withPrice({ interval: "month", interval_count: 6 })), "half_year");
+  assertEquals(periodOf(withPrice({ interval: "year", interval_count: 1 })), "year");
+  assertEquals(periodOf(withPrice({ interval: "year" })), "year");
+  assertEquals(periodOf(withPrice({ interval: "month", interval_count: 3 })), null);
+  assertEquals(periodOf(withPrice({ interval: "week", interval_count: 1 })), null);
+  // Before 2025-03-31 the price was also on the subscription's `plan`.
+  assertEquals(periodOf({ plan: { interval: "month", interval_count: 6 }, items: { data: [] } }), "half_year");
+  assertEquals(planFromSubscription(withPrice({ interval: "month", interval_count: 6 })), {
+    plan: "pro",
+    period: "half_year",
+    status: "active",
     currentPeriodEnd: END,
   });
 });

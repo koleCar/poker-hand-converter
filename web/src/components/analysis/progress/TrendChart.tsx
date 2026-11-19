@@ -214,7 +214,7 @@ export function TrendChart({ name, hint, points, format, formatTick = format, fr
             return (
               <rect
                 key={`v${entry.key}`}
-                className={styles.volumeBar}
+                className={`${styles.volumeBar} ${styles.volIn}`}
                 x={xAt(index) - barW / 2}
                 y={PAD.top + innerH - h}
                 width={barW}
@@ -223,17 +223,18 @@ export function TrendChart({ name, hint, points, format, formatTick = format, fr
             );
           })}
 
-          {bandPath ? <path className={styles.band} d={bandPath} /> : null}
+          {bandPath ? <path className={`${styles.band} ${styles.bandIn}`} d={bandPath} /> : null}
 
           {segments.map((segment, index) => (
-            <polyline key={`s${index}`} className="stats-chart__line stats-chart__line--metric" points={segment} />
+            // `pathLength` 1 lets the line draw itself in (`.lineIn`) whatever its real length.
+            <polyline key={`s${index}`} className={`stats-chart__line stats-chart__line--metric ${styles.lineIn}`} pathLength={1} points={segment} />
           ))}
 
           {points.map((entry, index) =>
             entry.value === null ? null : (
               <circle
                 key={`p${entry.key}`}
-                className={entry.thin ? styles.thinDot : "stats-chart__dot stats-chart__dot--metric"}
+                className={`${entry.thin ? styles.thinDot : "stats-chart__dot stats-chart__dot--metric"} ${styles.dotIn}`}
                 cx={xAt(index)}
                 cy={yAt(entry.value)}
                 r={active === index ? 5 : 3.5}

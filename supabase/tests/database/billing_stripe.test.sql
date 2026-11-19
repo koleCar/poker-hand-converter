@@ -113,9 +113,9 @@ select throws_ok($$ select count(*) from public.billing_events $$, '42501', null
 
 select pg_temp.as_service();
 
-select is((select row(customer_id, subscription_id, plan, plan_status, early_user)::text
+select is((select row(customer_id, subscription_id, plan, plan_status)::text
              from public.billing_account('00000000-0000-0000-0000-00000063b001')),
-  '(,,free,,t)', 'billing_account: no customer yet, Free, an early user (made before any cutoff)');
+  '(,,free,)', 'billing_account: no customer yet, Free');
 select is((select count(*)::int from public.billing_account('00000000-0000-0000-0000-0000000fffff')), 0,
   '... and no row for an account without a profile');
 

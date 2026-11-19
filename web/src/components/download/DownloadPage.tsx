@@ -9,8 +9,10 @@ import styles from "./download.module.css";
  * of Rail Pro: `DownloadButtons` offers the installers to a Pro account only,
  * and no link here goes straight to the files.
  *
- * The picture is `public/download/rail-app-promo.<locale>.*`, drawn by
- * `scripts/app-promo/` (a drawing of the app, not a screenshot).
+ * The picture is `public/download/rail-app.<locale>.*`, drawn by
+ * `scripts/app-promo/` (a drawing of the app, not a screenshot). It carries no
+ * copy or buttons of its own: the heading and the real installers sit above it.
+ * The share card (`rail-app-promo.<locale>.png`) is drawn by the same script.
  */
 export function DownloadPage({ en, locale }: { en: Dict; locale: Locale }) {
   const t = en.download;
@@ -24,9 +26,9 @@ export function DownloadPage({ en, locale }: { en: Dict; locale: Locale }) {
       </header>
 
       <picture className={styles.promo}>
-        <source srcSet={`/download/rail-app-promo.${locale}.webp`} type="image/webp" />
+        <source srcSet={`/download/rail-app.${locale}.webp`} type="image/webp" />
         {/* A plain <picture>: a static image with its own WebP, nothing for next/image to resize. */}
-        <img src={`/download/rail-app-promo.${locale}.png`} alt={t.promoAlt} width={1200} height={630} />
+        <img src={`/download/rail-app.${locale}.png`} alt={t.promoAlt} width={1200} height={630} />
       </picture>
 
       <ul className={styles.features}>

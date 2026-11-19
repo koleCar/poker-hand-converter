@@ -2,14 +2,16 @@
  * The open hand: the shared replayer (`ReplayViewer`, the web's, drawn the
  * same way) fed by `useHand` over the app's `DataSource`, with the share link
  * beside full screen and the hand's tags and note behind a button in the
- * header (`HandNotes`). "Open on the web" is a placeholder until tags and
- * notes sync.
+ * header (`HandNotes`), and Delete behind a confirmation (`DeleteHands`).
+ * "Open on the web" is a placeholder until tags and notes sync.
  */
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useHand } from "@rail/ui/data";
 import { Icon } from "@rail/ui/icon/Icon";
 import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
+import { useState } from "react";
 
+import { DeleteHands } from "../../components/DeleteHands";
 import { useT } from "../../i18n";
 import type { HandAnnotations, HandRow } from "../../lib/ipc";
 import { hiddenDuringPlay } from "../../lib/duringPlay";
@@ -34,11 +36,14 @@ interface HandPanelProps {
    * this page's address: the replayer window hands it to the main window.
    */
   onNavigate?: (href: string) => void;
+  /** The hand was deleted (after its confirmation). */
+  onDeleted?: (handKey: string) => void;
 }
 
-export function HandPanel({ handKey, row, knownTags, onClose, onAnnotated, onNavigate }: HandPanelProps) {
+export function HandPanel({ handKey, row, knownTags, onClose, onAnnotated, onNavigate, onDeleted }: HandPanelProps) {
   const dict = useT();
   const t = dict.hands.panel;
+  const [deleting, setDeleting] = useState(false);
   const state = useHand(handKey);
   const tablesOpen = useTablesOpen();
   // A10: no pot odds while a poker table is open.
@@ -88,6 +93,17 @@ export function HandPanel({ handKey, row, knownTags, onClose, onAnnotated, onNav
                   <Icon name="globe" />
                 </button>
                 <HandNotes key={handKey} handKey={handKey} knownTags={knownTags} onAnnotated={onAnnotated} />
+                {onDeleted ? (
+                  <button
+                    type="button"
+                    className="btn btn--icon"
+                    aria-label={dict.hands.actions.delete(1)}
+                    title={dict.hands.actions.delete(1)}
+                    onClick={() => setDeleting(true)}
+                  >
+                    <Icon name="trash" />
+                  </button>
+                ) : null}
               </>
             }
           />
@@ -99,6 +115,16 @@ export function HandPanel({ handKey, row, knownTags, onClose, onAnnotated, onNav
           </p>
         )}
       </div>
+      {deleting && onDeleted ? (
+        <DeleteHands
+          handKeys={[handKey]}
+          onClose={() => setDeleting(false)}
+          onDone={() => {
+            setDeleting(false);
+            onDeleted(handKey);
+          }}
+        />
+      ) : null}
       {noPotOdds ? (
         <p className={styles.hint} role="note">
           {t.potOddsHidden}

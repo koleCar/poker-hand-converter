@@ -65,10 +65,10 @@
   height: min(75vh, 56rem);
 }
 
-/* A hand open: the replayer gets the larger share, the list keeps enough
-   for its first columns (it scrolls sideways for the rest). */
+/* A hand open: the replayer gets three quarters, the list one - narrow
+   enough that it shows its two-line cards (HandList, under 40rem). */
 .split {
-  grid-template-columns: minmax(22rem, 1fr) minmax(26rem, 1.25fr);
+  grid-template-columns: minmax(21rem, 1fr) minmax(26rem, 3fr);
 }
 
 .list,

@@ -1,8 +1,9 @@
 # Billing: setting up Stripe (owner's guide)
 
-Rail sells one paid plan, **Pro**, billed monthly or yearly, through Stripe
-Billing with **Stripe Tax** for EU VAT (`docs/RAIL-PLAN.md` R6.1 to R6.3). The
-code is in place and does nothing until you configure it: with no Stripe
+Rail sells one paid plan, **Pro**, billed monthly, every six months or
+yearly, through Stripe Billing with **Stripe Tax** for EU VAT
+(`docs/RAIL-PLAN.md` R6.1 to R6.3; the Free/Pro line as of 2026-11-19 is
+section 4). The code is in place and does nothing until you configure it: with no Stripe
 secrets set, every billing function answers "unavailable", the web shows
 "Paid plans open soon", and nothing else changes.
 
@@ -11,6 +12,10 @@ Do all of it in **test mode** first, end to end, then repeat it in live mode.
 
 Nothing here has been done for you: no Stripe account, product, key, secret
 or webhook exists yet, and no function is deployed.
+
+The production Supabase project is **`tlprpfebsuerqqktklrx`** (since
+2026-11-14). The old project `riybwcfnclphacnfawiq` is only a fallback: do not
+set secrets, deploy functions or point Stripe at it.
 
 ---
 
@@ -63,18 +68,24 @@ In the Stripe Dashboard (test mode):
    Pro includes. Tax code: the SaaS code for consumers (Stripe lists
    "Software as a service (SaaS) - personal use"; check the exact code in the
    Dashboard picker).
-2. Add **two recurring prices** to it:
-   - monthly: amount, currency EUR, billing period **Monthly**;
-   - yearly: amount, currency EUR, billing period **Yearly**.
-   For both, set **Include tax in price: Yes** (`tax_behavior = inclusive`):
-   EU consumers expect prices with VAT included, and the web then says
-   "Prices include VAT". (Exclusive prices also work; the web then says VAT is
-   added at checkout.)
+2. Add **three recurring prices** to it, currency **USD** (owner, 2026-11-19):
+   - monthly: **$25**, billing period **Monthly**;
+   - every six months: **$119**, billing period **Custom -> every 6 months**
+     (Stripe stores it as `interval = month`, `interval_count = 6`);
+   - yearly: **$199**, billing period **Yearly**.
+   For all three, set **Include tax in price: Yes** (`tax_behavior =
+   inclusive`): EU consumers expect prices with VAT included, and the web
+   then says "Prices include VAT". (Exclusive prices also work; the web then
+   says VAT is added at checkout.)
 3. Copy each price's id (`price_...`). They become
-   `STRIPE_PRICE_PRO_MONTH` and `STRIPE_PRICE_PRO_YEAR`.
+   `STRIPE_PRICE_PRO_MONTH`, `STRIPE_PRICE_PRO_HALF_YEAR` and
+   `STRIPE_PRICE_PRO_YEAR`.
 
-Leave one of the two unset if you sell only one period; the web then shows only
-the other.
+Leave a period's secret unset if you do not sell it; the web then shows only
+the others. A price whose interval does not match its period (a "half-year"
+price that is really monthly, say) is treated as not on sale. The webhook
+reads the period back from the subscription's price the same way:
+month x 1 -> `month`, month x 6 -> `half_year`, year x 1 -> `year`.
 
 ---
 
@@ -103,22 +114,33 @@ the other.
 
 ---
 
-## 4. The early users' discount
+## 4. What Free and Pro include
 
-Every account created before the launch is an early user
-(`profiles.early_user`, R6.2) and keeps a lifetime discount while subscribed.
+There is no discount of any kind: the early-user discount was removed on
+2026-11-19 (no coupon, no `STRIPE_EARLY_USER_COUPON`). The limits are data in
+`public.plan_limits` (one row per plan; change them in SQL, no deploy):
 
-1. **Product catalogue -> Coupons -> New**: percent off (the same percent as
-   `billing_settings.early_user_discount_percent`, default **30**), duration
-   **Forever**, applies to `Rail Pro`. Give it a readable id, e.g. `EARLY30`.
-2. Its id becomes `STRIPE_EARLY_USER_COUPON`. A promotion code id
-   (`promo_...`) also works.
-3. The checkout applies it **automatically** to early users only (the
-   database decides who is one; nothing the browser sends). "Forever" means
-   for as long as that subscription lasts; an early user who subscribes again
-   later gets it again.
-4. Keep the two numbers equal: the Plan panel's early-user note reads the
-   database setting, the price shown in the chooser reads the coupon.
+| | Free | Pro |
+| --- | --- | --- |
+| Hands on the server (`hand_cap`) | 10 000 | unlimited |
+| Hands saved per UTC day, web and desktop together (`daily_hand_cap`) | 500 | unlimited |
+| Distinct solver flops opened per UTC day (`daily_flop_cap`) | 3 | unlimited |
+| Features (`features`) | `desktop_sync` | `desktop_sync`, `hud`, `reports_full`, `analysis`, `learn`, `solver_unlimited`, `nodelock` |
+
+Converter, replayer, sharing, the forum, deleting hands, the results graph and
+basic statistics, preflop charts, and the desktop app's table tiling and RNG
+are never limited.
+
+```sql
+select plan, hand_cap, daily_hand_cap, daily_flop_cap, features from public.plan_limits;
+update public.plan_limits set daily_hand_cap = 500, daily_flop_cap = 3 where plan = 'free';
+```
+
+Over a cap the database answers `PT402` (HTTP 402): hint `hand_cap` (the
+library) or `daily_cap` (the day), with a JSON detail of the numbers. A flop
+over the day's limit is not an error: `solver_open_flop(flop)` answers
+`allowed: false`. The day resets at 00:00 UTC. None of it applies while
+enforcement is off (section 10).
 
 ---
 
@@ -128,8 +150,8 @@ Every account created before the launch is an early user
 
 - allow: update payment methods, view invoice history, update billing
   address and tax ids, **cancel subscriptions** (at the end of the period
-  recommended), **switch plans** between the monthly and yearly price of
-  `Rail Pro` (add both to the portal's product list);
+  recommended), **switch plans** between the monthly, six-month and yearly
+  prices of `Rail Pro` (add all three to the portal's product list);
 - business information: name, privacy policy and terms links (R6.5's pages);
 - the default return link can stay empty: the function sends
   `BILLING_PORTAL_RETURN_URL`.
@@ -154,7 +176,7 @@ is confirmed to the customer on a durable medium - set its text as in
 
 **Developers -> Webhooks -> Add endpoint**:
 
-- URL: `https://riybwcfnclphacnfawiq.supabase.co/functions/v1/billing-webhook`
+- URL: `https://tlprpfebsuerqqktklrx.supabase.co/functions/v1/billing-webhook`
 - **API version**: `2025-03-31.basil` or newer (the function reads both the
   older and newer shapes, and reads the subscription back with its pinned
   version anyway);
@@ -182,12 +204,12 @@ Set these on the project (they are read at request time; no redeploy needed
 after a change):
 
 ```sh
-supabase secrets set --project-ref riybwcfnclphacnfawiq \
+supabase secrets set --project-ref tlprpfebsuerqqktklrx \
   STRIPE_SECRET_KEY=sk_test_... \
   STRIPE_WEBHOOK_SECRET=whsec_... \
   STRIPE_PRICE_PRO_MONTH=price_... \
+  STRIPE_PRICE_PRO_HALF_YEAR=price_... \
   STRIPE_PRICE_PRO_YEAR=price_... \
-  STRIPE_EARLY_USER_COUPON=EARLY30 \
   BILLING_SUCCESS_URL=https://<site>/billing/success \
   BILLING_CANCEL_URL=https://<site>/billing/cancel \
   BILLING_PORTAL_RETURN_URL=https://<site>/settings#plan
@@ -195,11 +217,11 @@ supabase secrets set --project-ref riybwcfnclphacnfawiq \
 
 | Secret | Required | What |
 | --- | --- | --- |
-| `STRIPE_SECRET_KEY` | yes | `sk_test_...` / `sk_live_...`. Better: a **restricted key** (`rk_...`) with write on Customers, Checkout Sessions, Customer portal, Subscriptions and read on Prices, Coupons, Promotion codes. |
+| `STRIPE_SECRET_KEY` | yes | `sk_test_...` / `sk_live_...`. Better: a **restricted key** (`rk_...`) with write on Customers, Checkout Sessions, Customer portal, Subscriptions and read on Prices. |
 | `STRIPE_WEBHOOK_SECRET` | yes | The endpoint's `whsec_...` (step 6). |
-| `STRIPE_PRICE_PRO_MONTH` | one of the two | `price_...`, monthly. |
-| `STRIPE_PRICE_PRO_YEAR` | one of the two | `price_...`, yearly. |
-| `STRIPE_EARLY_USER_COUPON` | no | Coupon id or `promo_...`; unset = no discount. |
+| `STRIPE_PRICE_PRO_MONTH` | one of the three | `price_...`, monthly ($25). |
+| `STRIPE_PRICE_PRO_HALF_YEAR` | one of the three | `price_...`, every 6 months ($119; month x 6). |
+| `STRIPE_PRICE_PRO_YEAR` | one of the three | `price_...`, yearly ($199). |
 | `BILLING_SUCCESS_URL` | yes | `https://<site>/billing/success`. |
 | `BILLING_CANCEL_URL` | yes | `https://<site>/billing/cancel`. |
 | `BILLING_PORTAL_RETURN_URL` | for the portal | `https://<site>/settings#plan`. |
@@ -223,14 +245,16 @@ Stripe secret key or the service role key in Vercel.
 
 ## 8. Deploying the functions
 
-Once the database migrations `20270908090000_entitlements.sql` and
-`20270915090000_billing_stripe.sql` are applied to production (prod checklist):
+Once the database migrations `20270908090000_entitlements.sql`,
+`20270915090000_billing_stripe.sql`, `20271013090000_billing_consents.sql`,
+`20271119110000_free_tier_limits.sql` and `20271119120000_remove_early_user.sql`
+are applied to production (prod checklist):
 
 ```sh
-supabase functions deploy billing-checkout --project-ref riybwcfnclphacnfawiq --no-verify-jwt
-supabase functions deploy billing-portal   --project-ref riybwcfnclphacnfawiq --no-verify-jwt
-supabase functions deploy billing-webhook  --project-ref riybwcfnclphacnfawiq --no-verify-jwt
-supabase functions deploy billing-cancel   --project-ref riybwcfnclphacnfawiq --no-verify-jwt
+supabase functions deploy billing-checkout --project-ref tlprpfebsuerqqktklrx --no-verify-jwt
+supabase functions deploy billing-portal   --project-ref tlprpfebsuerqqktklrx --no-verify-jwt
+supabase functions deploy billing-webhook  --project-ref tlprpfebsuerqqktklrx --no-verify-jwt
+supabase functions deploy billing-cancel   --project-ref tlprpfebsuerqqktklrx --no-verify-jwt
 ```
 
 `--no-verify-jwt` is required (`supabase/config.toml` explains each): the
@@ -243,7 +267,8 @@ and the two the web calls check the user's token themselves with GoTrue.
 
 ### With the web (the real path)
 
-1. Settings -> Plan: choose monthly or yearly, tick **both** consent boxes
+1. The pricing page (`/pricing`) or Settings -> Plan: choose monthly, six
+   months or yearly, tick **both** consent boxes
    (the button stays disabled until then), **Upgrade to Pro**. Stripe's page
    shows the reminder above its Pay button (section 13).
 2. Pay with Stripe's test card `4242 4242 4242 4242` (any future date, any
@@ -264,7 +289,7 @@ and the two the web calls check the user's token themselves with GoTrue.
 ```sh
 stripe login                              # your account, test mode
 stripe listen --events checkout.session.completed,customer.subscription.created,customer.subscription.updated,customer.subscription.deleted,invoice.paid,invoice.payment_failed \
-  --forward-to https://riybwcfnclphacnfawiq.supabase.co/functions/v1/billing-webhook
+  --forward-to https://tlprpfebsuerqqktklrx.supabase.co/functions/v1/billing-webhook
 ```
 
 `stripe listen` prints its own `whsec_...`; while forwarding, that is the
@@ -320,16 +345,15 @@ logs (Dashboard -> Edge Functions -> Logs) show the event id, type and outcome
    your and your lawyer's review of the consent wording, the terms' section 9
    and the receipt footer, made consistent (section 13), and the footer set
    in both modes.
-2. In **live mode**, repeat sections 2-6: product and prices, Stripe Tax
-   registrations, coupon, portal, webhook endpoint (each has its own ids and
-   secret in live mode).
+2. In **live mode**, repeat sections 2, 3, 5 and 6: product and the three
+   prices, Stripe Tax registrations, portal, webhook endpoint (each has its
+   own ids and secret in live mode).
 3. Replace the secrets with the live ones (`sk_live_...`/`rk_live_...`, the
-   live `whsec_...`, live price and coupon ids).
+   live `whsec_...`, the three live price ids).
 4. Deploy the functions if not already (section 8) - the commands are also
    in the launch checklist in `docs/RAIL-PLAN.md` R6.3.
-5. Then R6.2's launch checklist: the early-user cutoff
-   (`billing_settings.early_user_cutoff` + `billing_mark_early_users()`),
-   `plan_limits`, Pro by hand where wanted, and last **enforcement on**
+5. Then R6.2's launch checklist: `plan_limits` (section 4), Pro by hand
+   where wanted, and last **enforcement on**
    (`update public.billing_settings set enforcement_enabled = true;`).
    Before that last step, run R6.4's launch check (`docs/RAIL-PLAN.md`
    R6.4 *As built*, "Launch checklist addition"): the desktop app signed
@@ -374,14 +398,18 @@ Nothing until enforcement is on. After that (`docs/RAIL-PLAN.md` R6.4
   `billing_settings.offline_grace_days` (14) offline; signed out, it asks the
   public `billing_enforced()` (the switch only). Without an account, or on
   Free, the HUD does not start (a running one is never stopped mid-session),
-  the analysis and the full reports are locked, and sync waits ("Upgrade to
-  Pro" opens `<web>/settings#plan`). Import, the local library (never
-  capped), the replayer and basic statistics stay. Changing
+  the analysis and the full reports are locked; "See Pro" opens
+  `<web>/pricing?from=app`. Import, the local library (never capped), sync
+  (free since 2026-11-19), table tiling and the RNG, the replayer and basic
+  statistics stay. On Free, sync stops at the day's 500 hands (`daily_cap`),
+  keeps the rest in its outbox and resumes after 00:00 UTC; a new solver
+  flop needs `solver_open_flop` (today's flops stay open offline). Changing
   `offline_grace_days` reaches each app at its next check.
 - **The web** shows one upgrade prompt for any refused Pro call (HTTP 402)
-  and, in the converter, notices near and at the Free cap; a bulk upload
-  past the cap saves every hand that fits and then pauses until the account
-  upgrades.
+  and, in the converter, notices near and at the Free caps (library and
+  day); a bulk upload past a cap saves every hand that fits and then pauses
+  until the reset or the upgrade. Opening a solver flop calls
+  `solver_open_flop` first (3 a day on Free).
 - After a purchase, the app's Pro arrives with its next check (or "Check
   again" in Settings -> Account -> Plan).
 

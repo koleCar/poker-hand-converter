@@ -141,7 +141,6 @@ export interface BillingAccount {
   plan: string;
   plan_status: string | null;
   current_period_end: string | null;
-  early_user: boolean;
 }
 
 export async function billingAccount(

@@ -4,9 +4,10 @@
  *
  * `GET`  - what the Plan panel shows before anyone pays: whether checkout is
  *          open, each period's price (amount, currency, whether VAT is
- *          included) as Stripe has it, and the early-user discount's percent.
- *          No secret and nothing about the account; cached for ten minutes.
- * `POST` `{ period: "month" | "year", locale: "en" | "hr", consent: { terms:
+ *          included) as Stripe has it: `month`, `half_year` (Stripe: every 6
+ *          months) and `year`, null for a period not on sale. No secret and
+ *          nothing about the account; cached for ten minutes.
+ * `POST` `{ period: "month" | "half_year" | "year", locale: "en" | "hr", consent: { terms:
  *          true, immediatePerformance: true, version } }` - a Stripe
  *          Checkout Session for Pro, and its URL:
  *
@@ -22,9 +23,8 @@
  *     and email) and linked (`billing_set_customer`, first writer wins);
  *  5. the session: mode subscription, the period's price from configuration,
  *     **Stripe Tax** (`automatic_tax`, the billing address required, tax ids
- *     collected for businesses, both saved on the customer), the early-user
- *     coupon when the account is an early user (else none),
- *     `client_reference_id` and the subscription's metadata = the account id
+ *     collected for businesses, both saved on the customer), no discount
+ *     (the early-user coupon is gone, 2026-11-19), `client_reference_id` and the subscription's metadata = the account id
  *     (from the verified token, never from the body);
  *  6. **the consent is recorded before the session exists**
  *     (`billing_record_consent`: the account, both kinds, the wording's and
@@ -42,8 +42,10 @@
 import {
   type BillingEnv,
   checkoutReady,
-  earlyDiscount,
+  isPeriod,
   type Period,
+  PERIOD_RECURRING,
+  PERIODS,
   priceFor,
   supabaseReady,
 } from "../_shared/billing/config.ts";
@@ -77,14 +79,12 @@ export interface PriceInfo {
 
 export interface BillingConfig {
   available: boolean;
-  prices: { month: PriceInfo | null; year: PriceInfo | null };
-  earlyDiscountPercent: number | null;
+  prices: Record<Period, PriceInfo | null>;
 }
 
 const UNAVAILABLE: BillingConfig = {
   available: false,
-  prices: { month: null, year: null },
-  earlyDiscountPercent: null,
+  prices: { month: null, half_year: null, year: null },
 };
 
 let cached: { at: number; key: string; value: BillingConfig } | null = null;
@@ -102,12 +102,15 @@ async function readPrice(env: BillingEnv, fetchFn: typeof fetch, period: Period)
   const id = priceFor(env, period);
   if (!id) return null;
   const price = await stripeRequest<Record<string, unknown>>(stripeOptions(env, fetchFn), "GET", `/v1/prices/${id}`);
-  const recurring = (price.recurring ?? {}) as { interval?: unknown };
+  const recurring = (price.recurring ?? {}) as { interval?: unknown; interval_count?: unknown };
+  const want = PERIOD_RECURRING[period];
   if (
     price.active !== true || typeof price.unit_amount !== "number" || typeof price.currency !== "string" ||
-    recurring.interval !== period
+    recurring.interval !== want.interval || (recurring.interval_count ?? 1) !== want.count
   ) {
-    console.log(`${FN}: the ${period} price is not an active ${period}ly price with an amount`);
+    console.log(
+      `${FN}: the ${period} price is not an active price every ${want.count} ${want.interval} with an amount`,
+    );
     return null;
   }
   return {
@@ -118,37 +121,15 @@ async function readPrice(env: BillingEnv, fetchFn: typeof fetch, period: Period)
   };
 }
 
-async function readDiscountPercent(env: BillingEnv, fetchFn: typeof fetch): Promise<number | null> {
-  const discount = earlyDiscount(env);
-  if (!discount) return null;
-  let coupon: Record<string, unknown>;
-  if ("coupon" in discount) {
-    coupon = await stripeRequest(stripeOptions(env, fetchFn), "GET", `/v1/coupons/${discount.coupon}`);
-  } else {
-    const promotion = await stripeRequest<Record<string, unknown>>(
-      stripeOptions(env, fetchFn),
-      "GET",
-      `/v1/promotion_codes/${discount.promotion_code}`,
-    );
-    coupon = (promotion.coupon ?? {}) as Record<string, unknown>;
-  }
-  return typeof coupon.percent_off === "number" ? coupon.percent_off : null;
-}
-
 /** The public half: prices as Stripe has them. */
 export async function billingConfig(env: BillingEnv, fetchFn: typeof fetch, now = Date.now()): Promise<BillingConfig> {
   if (!checkoutReady(env)) return UNAVAILABLE;
-  const key = `${env.priceMonth}|${env.priceYear}|${env.earlyUserCoupon}`;
+  const key = `${env.priceMonth}|${env.priceHalfYear}|${env.priceYear}`;
   if (cached && cached.key === key && now - cached.at < CONFIG_TTL_MS) return cached.value;
-  const [month, year, earlyDiscountPercent] = await Promise.all([
-    readPrice(env, fetchFn, "month"),
-    readPrice(env, fetchFn, "year"),
-    readDiscountPercent(env, fetchFn).catch(() => null),
-  ]);
+  const [month, half_year, year] = await Promise.all(PERIODS.map((period) => readPrice(env, fetchFn, period)));
   const value: BillingConfig = {
-    available: month !== null || year !== null,
-    prices: { month, year },
-    earlyDiscountPercent,
+    available: month !== null || half_year !== null || year !== null,
+    prices: { month, half_year, year },
   };
   cached = { at: now, key, value };
   return value;
@@ -175,7 +156,7 @@ export async function handle(request: Request, env: BillingEnv, fetchFn: typeof 
       return refuse(FN, 400, "invalid_request", "not a JSON object");
     }
     body = parsed as typeof body;
-    if (body.period !== "month" && body.period !== "year") {
+    if (!isPeriod(body.period)) {
       return refuse(FN, 400, "invalid_request", "period");
     }
     const read = readConsent(body);
@@ -239,7 +220,6 @@ export async function handle(request: Request, env: BillingEnv, fetchFn: typeof 
     });
     if (typeof consentId !== "string") return refuse(FN, 503, "unavailable", "consent not recorded");
 
-    const discount = account.early_user ? earlyDiscount(env) : null;
     const session = await stripeRequest<{ id?: unknown; url?: unknown }>(stripe, "POST", "/v1/checkout/sessions", {
       mode: "subscription",
       customer,
@@ -249,7 +229,6 @@ export async function handle(request: Request, env: BillingEnv, fetchFn: typeof 
       billing_address_collection: "required",
       tax_id_collection: { enabled: true },
       customer_update: { address: "auto", name: "auto" },
-      discounts: discount ? [discount] : undefined,
       subscription_data: { metadata: { owner_id: owner, consent_id: consentId } },
       metadata: { owner_id: owner, consent_id: consentId },
       custom_text: { submit: { message: SUBMIT_MESSAGE[consent.locale] } },
@@ -272,7 +251,7 @@ export async function handle(request: Request, env: BillingEnv, fetchFn: typeof 
         console.log(`${FN}: the session id was not written onto the consent`);
       }
     }
-    console.log(`${FN}: session created (${period}${discount ? ", early-user discount" : ""})`);
+    console.log(`${FN}: session created (${period})`);
     return json(200, { url: session.url });
   } catch (error) {
     if (error instanceof DbError) return refuse(FN, 503, "unavailable", error.message);

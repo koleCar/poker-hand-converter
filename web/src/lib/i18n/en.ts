@@ -44,16 +44,19 @@ import { loadingEn } from "./ns/loading.en";
 import { manualEn } from "./ns/manual.en";
 import { planEn } from "./ns/plan.en";
 import { planNoticeEn } from "./ns/planNotice.en";
+import { pricingEn } from "./ns/pricing.en";
 import { replayerEn } from "./ns/replayer.en";
 import { statsEn } from "./ns/stats.en";
 import { solverEn } from "./ns/solver.en";
 import { trainerEn } from "./ns/trainer.en";
+import { adminEn } from "./ns/admin.en";
 
 export const en = {
   // The component namespaces, one file each (`ns/`).
   stats: statsEn,
   solver: solverEn,
   trainer: trainerEn,
+  admin: adminEn,
   analysis: analysisEn,
   learn: learnEn,
   legal: legalEn,
@@ -66,6 +69,7 @@ export const en = {
   download: downloadEn,
   plan: planEn,
   planNotice: planNoticeEn,
+  pricing: pricingEn,
   yourData: yourDataEn,
   loading: loadingEn,
 

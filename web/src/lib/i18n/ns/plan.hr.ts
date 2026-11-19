@@ -4,8 +4,6 @@ import type { Dict } from "../types";
 export const planHr: Dict["plan"] = {
   heading: "Plan",
   earlyAccess: "Rani pristup",
-  discount: (percent: number) => `−${percent} % zauvijek`,
-  discountLabel: "Popust",
   open: "Otvori",
   loading: "Učitavam tvoj plan…",
   unavailable: "Planovi još nisu postavljeni na ovoj bazi. Sve ostalo radi.",
@@ -15,10 +13,8 @@ export const planHr: Dict["plan"] = {
   badge: "Pro",
 
   current: (plan: string) => `Tvoj plan: ${plan}`,
-  notEnforced:
-    "Rail je u ranom pristupu: sve je otvoreno svakom računu i nijedno ograničenje ne vrijedi. Plaćeni planovi još nisu u prodaji.",
-  billedMonthly: "Naplata mjesečno",
-  billedYearly: "Naplata godišnje",
+  notEnforced: "Sve je otvoreno dok je Rail u ranom pristupu.",
+  billed: { month: "Naplata mjesečno", half_year: "Naplata svakih 6 mjeseci", year: "Naplata godišnje" },
   status: {
     active: "Aktivan",
     trialing: "Probno razdoblje",
@@ -30,38 +26,20 @@ export const planHr: Dict["plan"] = {
   graceUntil: (date: string) => `Zadnje plaćanje nije prošlo. Pro ostaje uključen do ${date}.`,
   granted: "Pro, dodijeljen ovom računu.",
 
-  usageHeading: "Tvoja biblioteka",
-  usage: (stored: string, cap: string) => `Spremljeno ${stored} od ${cap} ruku`,
-  usageUnlimited: (stored: string) => `Spremljeno ${stored} ruku, bez ograničenja`,
-  freeHolds: (cap: string) => `Free plan drži do ${cap} ruku.`,
-  full: "Biblioteka ti je puna. Prijeđi na Pro da nastaviš spremati ruke.",
+  usageHeading: "Biblioteka",
+  usage: (stored: string, cap: string) => `${stored} / ${cap} ruku`,
+  usageUnlimited: (stored: string) => `${stored} ruku`,
+  full: "Biblioteka ti je puna",
 
-  includedHeading: "Što koji plan uključuje",
-  freeIncludes: "Free: konverter, replayer, dijeljenje, biblioteka do ograničenja ruku, osnovna statistika.",
-  proIncludes:
-    "Pro: neograničena biblioteka, desktop HUD i sinkronizacija, potpuni izvještaji, analiza (pregled sesije, propusti, vlastiti chartovi) i Learn.",
+  todayHeading: "Danas",
+  handsToday: (saved: string, cap: string) => `${saved} / ${cap} ruku`,
+  flopsToday: (opened: string, cap: string) => `${opened} / ${cap} flopova`,
+  resets: (time: string) => `Ponovno od ${time}`,
 
-  early: (percent: number) =>
-    `Pridružio/la si se rano: zadržavaš doživotni popust od ${percent}% na Pro dok god si pretplaćen/a.`,
-
+  pricing: "Planovi i cijene",
   upgrade: "Prijeđi na Pro",
-  upgradeSoon: "Plaćeni planovi uskoro.",
 
   billing: {
-    notEnforcedOnSale:
-      "Rail je u ranom pristupu: sve je otvoreno svakom računu i nijedno ograničenje ne vrijedi. Na Pro se već možeš pretplatiti.",
-    choose: "Razdoblje naplate",
-    monthly: "Mjesečno",
-    yearly: "Godišnje",
-    perMonth: (price: string) => `${price} / mjesec`,
-    perYear: (price: string) => `${price} / godina`,
-    withDiscount: (price: string, percent: number) => `${price} uz tvoj popust ranog korisnika od ${percent}%`,
-    vatIncluded: "Cijene uključuju PDV.",
-    vatAdded: "PDV se dodaje pri plaćanju gdje se primjenjuje.",
-    vatNote: "Porez se računa prema adresi za naplatu pri plaćanju; tvrtka može upisati svoj PDV broj.",
-    earlyAccessNote:
-      "Pretplatom sada naplata Pro plana počinje danas. Sve ostaje otvoreno dok je Rail u ranom pristupu.",
-    continue: "Nastavi na plaćanje",
     // PRAVNI TEKST - NACRT: prije pokretanja treba pregled vlasnika i pravnika
     // (vidi komentar u `plan.en.ts`). Svaka izmjena je nova verzija teksta.
     consent: {
@@ -74,7 +52,7 @@ export const planHr: Dict["plan"] = {
     },
     working: "Otvaram stranicu za plaćanje…",
     manage: "Upravljaj pretplatom",
-    manageHint: "Promijeni karticu, prebaci se između mjesečne i godišnje naplate, preuzmi račune ili otkaži.",
+    manageHint: "Promijeni karticu ili razdoblje naplate, preuzmi račune ili otkaži.",
     opening: "Otvaram…",
     pastDue: "Zadnje plaćanje nije prošlo. Ažuriraj način plaćanja da zadržiš Pro.",
     pastDueUntil: (date: string) =>
@@ -123,6 +101,8 @@ export const planHr: Dict["plan"] = {
       reports_full: "Potpuni izvještaji - situacije, sesije, protivnici i igrači - dio su Pro plana.",
       desktop_sync: "Sinkronizacija s desktop aplikacijom dio je Pro plana.",
       hud: "Desktop HUD dio je Pro plana.",
+      solver_unlimited: "Svaki flop, svaki dan, dio je Pro plana.",
+      nodelock: "Nodelock je dio Pro plana.",
     },
     seePlan: "Pogledaj svoj plan",
   },

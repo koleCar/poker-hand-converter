@@ -86,10 +86,12 @@ pub mod account;
 pub mod analysis;
 pub mod commands;
 pub mod custom_stats;
+pub mod delete;
 #[cfg(debug_assertions)]
 pub mod dev;
 pub mod entitlements;
 pub mod export;
+pub mod feedback;
 pub mod folder_settings;
 pub mod folders;
 pub mod hand_time;
@@ -443,6 +445,8 @@ pub fn run() {
         entitlements::entitlements_status,
         entitlements::entitlements_check_now,
         entitlements::entitlements_open_upgrade,
+        entitlements::entitlements_open_manage,
+        entitlements::solver_open_flop,
         stats::stats_status,
         stats::stats_rebuild,
         stats::stats_recompute_ev,
@@ -461,6 +465,7 @@ pub fn run() {
         share::share_open,
         share::share_set_names,
         share::forum_preview_open,
+        feedback::feedback_send,
         trainer::trainer_results_record,
         hands::hand_annotations,
         hands::hand_set_note,
@@ -468,6 +473,9 @@ pub fn run() {
         hands::hand_remove_tag,
         hands::hands_marks,
         hands::hands_mark,
+        delete::hands_delete,
+        delete::hands_delete_all,
+        delete::hands_count,
         hands::saved_filters,
         hands::save_filter,
         hands::delete_saved_filter,
@@ -622,6 +630,8 @@ pub fn run() {
         entitlements::entitlements_status,
         entitlements::entitlements_check_now,
         entitlements::entitlements_open_upgrade,
+        entitlements::entitlements_open_manage,
+        entitlements::solver_open_flop,
         stats::stats_status,
         stats::stats_rebuild,
         stats::stats_recompute_ev,
@@ -647,6 +657,9 @@ pub fn run() {
         hands::hand_remove_tag,
         hands::hands_marks,
         hands::hands_mark,
+        delete::hands_delete,
+        delete::hands_delete_all,
+        delete::hands_count,
         hands::saved_filters,
         hands::save_filter,
         hands::delete_saved_filter,

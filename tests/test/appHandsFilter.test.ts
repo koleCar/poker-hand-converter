@@ -25,6 +25,22 @@ import { parsePlayerParam, playerParam } from "../../app/src/screens/players/par
 const NOW = new Date(2026, 9, 14, 15, 30); // local time, 14 Oct 2026 15:30
 
 describe("Hands filter", () => {
+  it("asks for the hero's hand as typed, narrowed by the grid", () => {
+    const ask = (heroCards: string, heroRange: string[] = []) => {
+      const query = toQuery({ ...EMPTY_FILTER, heroCards, heroRange }, NOW);
+      return { classes: query.heroHandClasses, cards: query.heroCards };
+    };
+    expect(ask("")).toEqual({ classes: undefined, cards: undefined });
+    expect(ask("AKss")).toEqual({ classes: ["AKs"], cards: undefined });
+    expect(ask("AdAs")).toEqual({ classes: undefined, cards: ["Ad", "As"] });
+    expect(ask("AdKx")).toEqual({ classes: ["AKs", "AKo"], cards: ["Ad"] });
+    expect(ask("QQ+", ["AA", "AKs"])).toEqual({ classes: ["AA"], cards: undefined });
+    expect(ask("", ["AA", "AKs"])).toEqual({ classes: ["AA", "AKs"], cards: undefined });
+    // Typed and picked with nothing in common, or junk: no hand, not every hand.
+    expect(ask("KK", ["AA"])).toEqual({ classes: ["__no_match__"], cards: undefined });
+    expect(ask("asdf")).toEqual({ classes: ["__no_match__"], cards: undefined });
+  });
+
   it("asks for everything when nothing is set", () => {
     const query = toQuery(EMPTY_FILTER, NOW);
     expect(query.from).toBeNull();

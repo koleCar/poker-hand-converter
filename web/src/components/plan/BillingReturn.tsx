@@ -1,14 +1,14 @@
 "use client";
 
 /**
- * The pages Stripe Checkout returns to (Rail R6.3): `/billing/success` and
- * `/billing/cancel`.
+ * The pages Stripe Checkout returns to (Rail R6.3; the pricing round's
+ * PR-Checkout): `/billing/success` and `/billing/cancel`.
  *
  * Neither trusts the address: arriving on the success page grants nothing.
  * The plan changes only when Stripe's webhook has recorded the payment; the
  * success page re-reads `my_entitlements()` every two seconds for half a
- * minute and says so once the subscription runs (or that it is taking long,
- * and the plan will update by itself).
+ * minute ("Turning on Pro…"), then says "You're on Pro" - or that it is
+ * taking long, and the plan will update by itself.
  */
 
 import Link from "next/link";
@@ -19,6 +19,7 @@ import { subscriptionRunning } from "../../lib/billing/checkout";
 import { useEntitlements } from "../../lib/entitlements/context";
 import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
+import { ProBadge } from "./ProLock";
 import styles from "./plan.module.css";
 
 const POLL_MS = 2000;
@@ -29,16 +30,15 @@ export function BillingReturnScreen({ kind }: { kind: "success" | "cancel" }) {
 }
 
 export function BillingCancel() {
-  const b = useDict().plan.billing.cancel;
+  const t = useDict().pricing.cancel;
   return (
     <section className={`card ${styles.returnCard}`} aria-labelledby="billing-return-heading">
-      <h1 id="billing-return-heading" className={styles.returnHeading}>
-        {b.heading}
+      <h1 id="billing-return-heading" className={styles.returnTitle}>
+        {t.heading}
       </h1>
-      <p>{b.body}</p>
       <div className={styles.actions}>
-        <Link href={paths.settingsPlan()} className="btn btn--primary">
-          {b.back}
+        <Link href={paths.pricing()} className="btn">
+          {t.back}
         </Link>
       </div>
     </section>
@@ -63,26 +63,37 @@ export function BillingSuccess() {
 
 /** The success page's body for a state (rendered by the tests as is). */
 export function BillingSuccessView({ running, slow }: { running: boolean; slow: boolean }) {
-  const b = useDict().plan.billing.success;
+  const en = useDict();
+  const t = en.pricing.success;
+  const legal = en.plan.billing.success;
+  if (running) {
+    return (
+      <section className={`card ${styles.returnCard} ${styles.returnDone}`} aria-labelledby="billing-return-heading" aria-live="polite">
+        <ProBadge />
+        <h1 id="billing-return-heading" className={styles.returnHeading}>
+          {t.done}
+        </h1>
+        <div className={styles.actions}>
+          <Link href={paths.analysis()} className={`btn ${styles.gold}`}>
+            {t.openAnalysis}
+          </Link>
+          <Link href={paths.download()} className="btn">
+            {t.getApp}
+          </Link>
+        </div>
+        <p className={styles.dim}>{t.receipt}</p>
+        <p className={styles.dim}>{legal.confirmation}</p>
+      </section>
+    );
+  }
   return (
     <section className={`card ${styles.returnCard}`} aria-labelledby="billing-return-heading" aria-live="polite">
-      <h1 id="billing-return-heading" className={styles.returnHeading}>
-        {b.heading}
+      {slow ? null : <RailLoader size="small" label={t.waiting} />}
+      <h1 id="billing-return-heading" className={styles.returnTitle}>
+        {t.waiting}
       </h1>
-      <p>{b.body}</p>
-      <p className={styles.small}>{b.confirmation}</p>
-      {running ? (
-        <p className="notice notice--info">{b.active}</p>
-      ) : slow ? (
-        <p className="notice notice--warn">{b.slow}</p>
-      ) : (
-        <RailLoader size="small" showLabel label={b.waiting} />
-      )}
-      <div className={styles.actions}>
-        <Link href={paths.settingsPlan()} className="btn btn--primary">
-          {b.back}
-        </Link>
-      </div>
+      <p className={styles.dim}>{slow ? t.slow : t.waitingNote}</p>
+      <p className={styles.dim}>{legal.confirmation}</p>
     </section>
   );
 }

@@ -10,7 +10,7 @@
  * Moved from the desktop app (`app/src/screens/hands/filter.ts`, which now
  * re-exports this and keeps the app's hand-offs between screens).
  */
-import { extractCards, resolveHeroQuery } from "../model/cards";
+import { extractCards, parseHeroHand } from "../model/cards";
 import type { HandFilter, HandSort, PlayerRef } from "./model";
 
 /** The pot filter's unit: big blinds, or the table's money (`$`). */
@@ -541,15 +541,16 @@ export function toQuery(filter: FilterState, now: Date = new Date()): HandFilter
     to,
     player: filter.player,
   };
-  const hero = resolveHeroQuery(filter.heroCards);
+  // The typed hand (`parseHeroHand`) and the grid's classes: both must hold.
+  // Text that reads as nothing matches no hand, never every hand.
+  const hero = parseHeroHand(filter.heroCards) ?? { classes: [], cards: [] };
+  let classes = hero.classes;
   if (filter.heroRange.length > 0) {
-    // The grid's classes, narrowed by a class typed as well (both must hold).
-    const typed = hero.kind === "class" ? new Set(hero.values) : null;
-    query.heroHandClasses = typed ? filter.heroRange.filter((value) => typed.has(value)) : filter.heroRange;
-  } else if (hero.kind === "class") {
-    query.heroHandClasses = hero.values;
+    const typed = classes === null ? null : new Set(classes);
+    classes = typed ? filter.heroRange.filter((value) => typed.has(value)) : filter.heroRange;
   }
-  if (hero.kind === "cards") query.heroCards = hero.values;
+  if (classes !== null) query.heroHandClasses = classes.length > 0 ? classes : [NO_HAND];
+  if (hero.cards.length > 0) query.heroCards = hero.cards;
   const board = extractCards(filter.board);
   if (board.length > 0) query.board = board;
   else {
@@ -756,6 +757,9 @@ export function fromSaved(json: string): FilterState | null {
     bounty: typeof saved.bounty === "boolean" ? saved.bounty : null,
   };
 }
+
+/** A class no hand has: the search asks for hands and none can match. */
+const NO_HAND = "__no_match__";
 
 /** The 169 starting-hand classes as the grid writes them: "AA", "AKs", "AKo" (the higher rank first). */
 const HAND_CLASSES: ReadonlySet<string> = new Set(

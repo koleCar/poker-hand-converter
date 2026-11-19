@@ -25,7 +25,16 @@
 //!   (an hour for the daily one), then send a single hand as a probe before
 //!   full batches again;
 //! - a `401` after one refresh, or a refused call (a bug): logged, backed off,
-//!   never a tight loop.
+//!   never a tight loop;
+//! - (Free tier) the plan's caps (`PT402` `daily_cap` / `hand_cap`): no
+//!   attempt counted, the hands stay queued. The day's cap holds uploads
+//!   until the server's `resetsAt` (00:00 UTC) and then they go by
+//!   themselves ([`SyncPhase::DailyCap`]); a full web library holds them
+//!   until it has room ([`SyncPhase::LibraryFull`]: a new check, "Sync
+//!   now"). What the plan has room for ([`PlanRoom`], from the app's last
+//!   check and every refusal's numbers) sizes the batches, so a batch that
+//!   would not fit is not sent. The pull and the HUD's layouts go on.
+//!   Importing and the local store are never capped.
 //!
 //! Everything that must survive a restart is in the store (outbox, attempts,
 //! retry times, rejected hands, source ids, the pull cursor, pause): the
@@ -75,9 +84,10 @@ use tokio::sync::Notify;
 use tokio::time::Instant;
 
 use crate::auth::{Account, ApiError, AuthApi, Secret};
+use crate::entitlements::next_utc_midnight_ms;
 use crate::ingest::{
-    Batch, IngestClient, IngestError, IngestReport, IngestRow, RateWindow, RejectReason, RowError,
-    RowStatus, SourceId, SourceRegistration, TokenSource,
+    Batch, CapRefusal, DELETE_KEYS_PER_CALL, IngestClient, IngestError, IngestReport, IngestRow,
+    RateWindow, RejectReason, RowError, RowStatus, SourceId, SourceRegistration, TokenSource,
 };
 
 /// The default upload cap while a backfill is large: 1 MiB/s.
@@ -242,9 +252,86 @@ pub enum SyncPhase {
     /// unharmed; sync resumes by itself when the plan allows it (a new
     /// check, "Sync now", another account).
     PlanRequired { feature: String },
+    /// (Free tier) Today's hands are saved (`cap` a UTC day, the web and the
+    /// desktop together): the rest waits in the outbox and goes by itself
+    /// after `resets_at_ms` (00:00 UTC). Pulling goes on.
+    DailyCap { cap: Option<u64>, resets_at_ms: i64 },
+    /// (Free tier) The web library holds `cap` hands and is full: nothing
+    /// more is sent until it has room (a new plan, hands deleted). The
+    /// hands stay here and in the outbox.
+    LibraryFull { cap: Option<u64> },
     /// Something that needs a look (a session the server refuses, a store
     /// error); retried later.
     Failed { message: String, retry_at_ms: i64 },
+}
+
+/// (Free tier) What the account's plan has room for, as far as the app
+/// knows: from its last check (`my_entitlements()`'s limits and usage) and
+/// the numbers of every cap refusal since. `None` caps are unlimited.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PlanRoom {
+    /// The account it is about; another account's is ignored.
+    pub user_id: String,
+    /// The check it comes from (Unix ms; 0: from a refusal). The same check
+    /// again changes nothing, so the hands sent since stay counted.
+    pub checked_at_ms: i64,
+    /// Hands a UTC day, and saved today.
+    pub daily_cap: Option<u64>,
+    pub saved_today: u64,
+    /// When the day's count starts again (Unix ms).
+    pub resets_at_ms: Option<i64>,
+    /// Hands the web library holds, and stored now.
+    pub library_cap: Option<u64>,
+    pub stored: u64,
+}
+
+impl PlanRoom {
+    fn empty(user_id: String) -> Self {
+        Self {
+            user_id,
+            checked_at_ms: 0,
+            daily_cap: None,
+            saved_today: 0,
+            resets_at_ms: None,
+            library_cap: None,
+            stored: 0,
+        }
+    }
+
+    /// At `now`: the hands that may be sent (`Ok(None)`: no limit), or the
+    /// phase that holds them. A day that ended starts the count again.
+    fn left(&mut self, now: i64) -> Result<Option<u64>, SyncPhase> {
+        let mut left: Option<u64> = None;
+        if let Some(cap) = self.library_cap {
+            let room = cap.saturating_sub(self.stored);
+            if room == 0 {
+                return Err(SyncPhase::LibraryFull {
+                    cap: Some(cap).filter(|cap| *cap > 0),
+                });
+            }
+            left = Some(room);
+        }
+        if let Some(cap) = self.daily_cap {
+            let resets = *self
+                .resets_at_ms
+                .get_or_insert_with(|| next_utc_midnight_ms(now));
+            if resets <= now {
+                self.saved_today = 0;
+                self.resets_at_ms = Some(next_utc_midnight_ms(now));
+            }
+            let room = cap.saturating_sub(self.saved_today);
+            if room == 0 {
+                return Err(SyncPhase::DailyCap {
+                    cap: Some(cap).filter(|cap| *cap > 0),
+                    resets_at_ms: self
+                        .resets_at_ms
+                        .unwrap_or_else(|| next_utc_midnight_ms(now)),
+                });
+            }
+            left = Some(left.map_or(room, |left| left.min(room)));
+        }
+        Ok(left)
+    }
 }
 
 /// Refused hands of one reason.
@@ -285,6 +372,9 @@ pub struct SyncStatus {
     /// The cap in force now.
     pub cap_now: Option<u64>,
     pub tables_open: bool,
+    /// (Hand deletion) Hands the account's server copy still has to delete
+    /// for a "delete every hand" asked here: `Some` while it runs.
+    pub deleting: Option<u64>,
 }
 
 impl Default for SyncStatus {
@@ -306,6 +396,7 @@ impl Default for SyncStatus {
             cap: Some(DEFAULT_CAP),
             cap_now: None,
             tables_open: false,
+            deleting: None,
         }
     }
 }
@@ -375,6 +466,8 @@ struct Shared {
     /// (R6.4) Set when the plan was re-checked and allows sync: forget a
     /// server refusal and try again.
     plan_retry: AtomicBool,
+    /// (Free tier) What the plan has room for ([`SyncWorker::set_plan_room`]).
+    room: Mutex<Option<PlanRoom>>,
     on_change: Box<dyn Fn() + Send + Sync>,
     /// (R3.9) Called when a pull changed the HUD's layouts here.
     on_hud: Mutex<Option<Arc<dyn Fn() + Send + Sync>>>,
@@ -449,6 +542,7 @@ impl SyncWorker {
             retry_rejected: AtomicBool::new(false),
             plan_allows: AtomicBool::new(true),
             plan_retry: AtomicBool::new(false),
+            room: Mutex::new(None),
             on_change,
             on_hud: Mutex::new(None),
         });
@@ -466,6 +560,8 @@ impl SyncWorker {
             unknown_sources: 0,
             pull_at: None,
             pull_failures: 0,
+            deletions_at: None,
+            deletion_failures: 0,
             hud_at: None,
             hud_failures: 0,
             hud_pull_at: None,
@@ -572,6 +668,35 @@ impl SyncWorker {
         }
     }
 
+    /// (Free tier) The app's last check of the plan's room: the caps and
+    /// the account's usage. A new check replaces what was known; the same
+    /// check again (`checked_at_ms`) keeps it, with the hands sent since and
+    /// the server's refusals counted. `None` (everything open, or no check):
+    /// no limit known - the server's refusals tell.
+    pub fn set_plan_room(&self, room: Option<PlanRoom>) {
+        let replaced = {
+            let mut kept = self
+                .shared
+                .room
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner);
+            let same = match (kept.as_ref(), room.as_ref()) {
+                (Some(kept), Some(room)) => {
+                    kept.user_id == room.user_id && kept.checked_at_ms == room.checked_at_ms
+                }
+                (None, None) => true,
+                _ => false,
+            };
+            if !same {
+                *kept = room;
+            }
+            !same
+        };
+        if replaced {
+            self.shared.poke();
+        }
+    }
+
     /// Queue the refused hands again (after an update).
     pub fn retry_rejected(&self) {
         self.shared.retry_rejected.store(true, Ordering::SeqCst);
@@ -620,6 +745,10 @@ pub struct SyncTask<A> {
     /// feature). Nothing is sent for that account until the plan is checked
     /// again, "Sync now", or another account signs in.
     plan_refused: Option<(String, String)>,
+    /// (Hand deletion) Sending deletions waits until then after a failure
+    /// (the rest of the pass goes on), and how many in a row.
+    deletions_at: Option<Instant>,
+    deletion_failures: u32,
     pacer: Pacer,
     meter: Meter,
 }
@@ -808,6 +937,17 @@ impl<A: SyncAccount> SyncTask<A> {
             self.pull_at = None;
             self.probe = false;
             self.plan_refused = None;
+            // A full library is tried once more (hands may have been
+            // deleted on the web); the server's answer says again.
+            if let Some(room) = self
+                .shared
+                .room
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .as_mut()
+            {
+                room.library_cap = None;
+            }
             let at = now_ms();
             if let Err(error) =
                 blocking(&self.store, move |s| s.writer()?.outbox_retry_now(at)).await
@@ -852,11 +992,20 @@ impl<A: SyncAccount> SyncTask<A> {
         {
             return Halt::Until(at);
         }
-        if outbox.is_some_and(|n| n > 0) {
-            self.set_phase(SyncPhase::Syncing);
-        }
-        if let Some(halt) = self.push(&user).await {
+        // (Hand deletion) Deletions made here first: a "delete every hand"
+        // before anything newer is sent, so the newer hands stay; and the
+        // library they free counts for the caps below.
+        if let Some(halt) = self.send_deletions(&user).await {
             return halt;
+        }
+        // (Free tier) The plan's caps hold the upload, not the pull.
+        if self.room_now(&user).is_ok() {
+            if outbox.is_some_and(|n| n > 0) {
+                self.set_phase(SyncPhase::Syncing);
+            }
+            if let Some(halt) = self.push(&user).await {
+                return halt;
+            }
         }
         let pull_due = self.pull_at.is_none_or(|at| at <= Instant::now());
         if pull_due {
@@ -875,10 +1024,10 @@ impl<A: SyncAccount> SyncTask<A> {
         {
             return Halt::Until(self.retry_at.unwrap_or_else(|| self.idle()));
         }
-        self.set_phase(if outbox == 0 {
-            SyncPhase::UpToDate
-        } else {
-            SyncPhase::Syncing
+        self.set_phase(match self.room_now(&user) {
+            _ if outbox == 0 => SyncPhase::UpToDate,
+            Err(held) => held,
+            Ok(_) => SyncPhase::Syncing,
         });
         let mut next = self.idle();
         if let Some(pull_at) = self.pull_at {
@@ -888,6 +1037,88 @@ impl<A: SyncAccount> SyncTask<A> {
             next = next.min(hud_pull_at.max(self.hud_at.unwrap_or(hud_pull_at)));
         }
         Halt::Until(next)
+    }
+
+    /// (Free tier) The hands `user`'s plan has room for now (`Ok(None)`:
+    /// no limit known), or the phase that holds the upload.
+    fn room_now(&self, user: &SyncUser) -> Result<Option<u64>, SyncPhase> {
+        let mut room = self
+            .shared
+            .room
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        match room.as_mut() {
+            Some(room) if room.user_id == user.user_id => room.left(now_ms()),
+            _ => Ok(None),
+        }
+    }
+
+    /// (Free tier) `inserted` new hands reached the account: they count
+    /// against the day and the library.
+    fn count_saved(&self, inserted: u64) {
+        if inserted == 0 {
+            return;
+        }
+        if let Some(room) = self
+            .shared
+            .room
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .as_mut()
+        {
+            room.saved_today = room.saved_today.saturating_add(inserted);
+            room.stored = room.stored.saturating_add(inserted);
+        }
+    }
+
+    /// (Free tier) The server refused a batch over a cap (`daily_cap`,
+    /// `hand_cap`) with its numbers: what is left, so the next batch fits,
+    /// or nothing (held until the reset, or until the library has room).
+    fn capped(&self, feature: &str, limit: &CapRefusal, sent: u64) {
+        let Some(user) = self.account.user() else {
+            return;
+        };
+        let now = now_ms();
+        let mut kept = self
+            .shared
+            .room
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        let room = match kept.as_mut() {
+            Some(room) if room.user_id == user.user_id => room,
+            _ => kept.insert(PlanRoom::empty(user.user_id)),
+        };
+        let daily = feature == "daily_cap";
+        let known = if daily {
+            room.daily_cap
+        } else {
+            room.library_cap
+        };
+        let cap = limit.cap.or(known).unwrap_or(0);
+        // What the server counts already; a batch it says would have fit
+        // (never sent smaller than what is left) reads as full, so a
+        // refusal can never repeat in a loop.
+        let mut used = limit.used.unwrap_or(cap).min(cap);
+        if cap.saturating_sub(used) >= sent.max(1) {
+            used = cap;
+        }
+        if daily {
+            room.daily_cap = Some(cap);
+            room.saved_today = used;
+            room.resets_at_ms = Some(
+                limit
+                    .resets_at_ms
+                    .filter(|at| *at > now)
+                    .unwrap_or_else(|| next_utc_midnight_ms(now)),
+            );
+        } else {
+            room.library_cap = Some(cap);
+            room.stored = used;
+        }
+        log::info!(
+            "sync: the plan's {feature} ({cap}) is reached with {used}; {} more fit",
+            cap - used
+        );
     }
 
     fn status(&self) -> SyncStatus {
@@ -1008,11 +1239,17 @@ impl<A: SyncAccount> SyncTask<A> {
                     () = self.shared.interrupt.notified() => return Some(Halt::Again),
                 }
             }
-            let limit = if self.probe {
+            let mut limit = if self.probe {
                 1
             } else {
                 self.config.batch_hands
             };
+            // (Free tier) At most what the plan has room for; none: done.
+            match self.room_now(user) {
+                Ok(Some(left)) => limit = limit.min(u32::try_from(left).unwrap_or(u32::MAX)),
+                Ok(None) => {}
+                Err(_) => return None,
+            }
             let (now, since) = (now_ms(), self.live_since());
             let rows = match blocking(&self.store, move |s| {
                 s.reader.outbox_next(now, since, limit)
@@ -1161,6 +1398,7 @@ impl<A: SyncAccount> SyncTask<A> {
             log::warn!("sync: the server refused {} hands", refused.len());
         }
         let done = u64::try_from(report.rows.len()).unwrap_or(0);
+        self.count_saved(u64::try_from(report.inserted).unwrap_or(0));
         let at = now_ms();
         blocking(&self.store, move |s| {
             let writer = s.writer()?;
@@ -1258,7 +1496,16 @@ impl<A: SyncAccount> SyncTask<A> {
                 }
             }
             IngestError::UnknownSource => self.fail("the server does not know a folder".into()),
-            IngestError::PlanRequired { feature } => {
+            IngestError::PlanRequired { feature, limit }
+                if feature == "daily_cap" || feature == "hand_cap" =>
+            {
+                // (Free tier) Over a cap: not the hands' fault, no attempt
+                // counted. The next pass sends what fits, or holds.
+                let sent = u64::try_from(keys.len()).unwrap_or(u64::MAX);
+                self.capped(&feature, &limit.unwrap_or_default(), sent);
+                Halt::Again
+            }
+            IngestError::PlanRequired { feature, .. } => {
                 // R6.2's refusal (a Free account, enforcement on): not the
                 // hands' fault, so no attempt is counted and they stay
                 // queued; nothing is sent until the plan changes.
@@ -1441,14 +1688,212 @@ impl<A: SyncAccount> SyncTask<A> {
         Ok(applied.applied > 0)
     }
 
+    /// (Hand deletion) Send what was deleted here: a "delete every hand"
+    /// (called until the server is done), then the keys deleted one by one
+    /// ([`DELETE_KEYS_PER_CALL`] a call). `Some`: stop the pass.
+    async fn send_deletions(&mut self, user: &SyncUser) -> Option<Halt> {
+        if self.deletions_at.is_some_and(|at| at > Instant::now()) {
+            return None;
+        }
+        let wipe = match blocking(&self.store, |s| s.reader.server_wipe_owed()).await {
+            Ok(wipe) => wipe,
+            Err(error) => return Some(self.fail(format!("the local store: {error}"))),
+        };
+        if let Some(asked_at) = wipe {
+            self.set_phase(SyncPhase::Syncing);
+            loop {
+                if self.halted() || self.account.user().as_ref() != Some(user) {
+                    return Some(Halt::Again);
+                }
+                let as_user = AsUser {
+                    account: &self.account,
+                    user_id: &user.user_id,
+                };
+                let step = match self.client.delete_all_hands_as(&as_user).await {
+                    Ok(step) => step,
+                    Err(error) => {
+                        self.shared.update(|status| status.deleting = None);
+                        return self.deletion_failed(error).await;
+                    }
+                };
+                self.shared.update(|status| {
+                    status.deleting = (!step.done).then_some(step.remaining);
+                    status.last_sync_at = Some(now_ms());
+                });
+                if step.done {
+                    let key = own_wipe_key(&user.user_id);
+                    let before = step.before.clone().unwrap_or_default();
+                    let done = blocking(&self.store, move |s| {
+                        let writer = s.writer()?;
+                        writer.set_kv(&key, &before)?;
+                        writer.server_wipe_done(asked_at)
+                    })
+                    .await;
+                    if let Err(error) = done {
+                        return Some(self.fail(format!("the local store: {error}")));
+                    }
+                    log::info!("sync: every hand of the account deleted on the server");
+                    self.deletion_failures = 0;
+                    break;
+                }
+            }
+        }
+        loop {
+            if self.halted() || self.account.user().as_ref() != Some(user) {
+                return Some(Halt::Again);
+            }
+            let limit = u32::try_from(DELETE_KEYS_PER_CALL).unwrap_or(200);
+            let keys = match blocking(&self.store, move |s| s.reader.deletions_owed(limit)).await {
+                Ok(keys) => keys,
+                Err(error) => return Some(self.fail(format!("the local store: {error}"))),
+            };
+            if keys.is_empty() {
+                return None;
+            }
+            let as_user = AsUser {
+                account: &self.account,
+                user_id: &user.user_id,
+            };
+            match self.client.delete_hands_by_key_as(&as_user, &keys).await {
+                Ok(answer) => {
+                    if answer.deleted > 0 {
+                        log::info!("sync: {} hands deleted on the server", answer.deleted);
+                    }
+                    if let Err(error) =
+                        blocking(&self.store, move |s| s.writer()?.deletions_done(keys)).await
+                    {
+                        return Some(self.fail(format!("the local store: {error}")));
+                    }
+                }
+                Err(error) => return self.deletion_failed(error).await,
+            }
+            self.deletion_failures = 0;
+        }
+    }
+
+    /// A deletion call failed. The session's own troubles (signed out, a
+    /// refused session, the budget) stop the pass as for the hands; anything
+    /// else (offline, a server without the call yet) only holds the
+    /// deletions back, with backoff, and the rest of the pass goes on.
+    async fn deletion_failed(&mut self, error: IngestError) -> Option<Halt> {
+        match error {
+            IngestError::SignedOut
+            | IngestError::Unauthorized
+            | IngestError::RateLimited { .. } => Some(self.on_error(error, Vec::new()).await),
+            other => {
+                log::info!("sync: deleting hands on the server: {other}");
+                self.deletion_failures = self.deletion_failures.saturating_add(1);
+                let wait = backoff(
+                    self.config.backoff_first,
+                    self.config.backoff_max,
+                    self.deletion_failures,
+                );
+                self.deletions_at = Some(Instant::now() + wait);
+                None
+            }
+        }
+    }
+
+    /// (Hand deletion) Apply the deletions the server recorded since the
+    /// cursor (`kv` `sync.tombstones.<user>`), page by page, each page's
+    /// part written with the cursor in one transaction.
+    async fn pull_tombstones(&mut self, user: &SyncUser) -> Result<(), IngestError> {
+        let cursor_key = format!("sync.tombstones.{}", user.user_id);
+        let store_error =
+            |error: rail_store::Error| IngestError::Transient(format!("the local store: {error}"));
+        let (lookup, own) = (cursor_key.clone(), own_wipe_key(&user.user_id));
+        let (mut cursor, own_wipe): (Option<TombstoneCursor>, Option<String>) =
+            blocking(&self.store, move |s| {
+                Ok((s.reader.kv(&lookup)?, s.reader.kv(&own)?))
+            })
+            .await
+            .map(|(cursor, own)| {
+                (
+                    cursor.and_then(|text| serde_json::from_str(&text).ok()),
+                    own,
+                )
+            })
+            .map_err(store_error)?;
+        loop {
+            if self.halted() || self.account.user().as_ref() != Some(user) {
+                return Ok(());
+            }
+            let as_user = AsUser {
+                account: &self.account,
+                user_id: &user.user_id,
+            };
+            let after = cursor.as_ref().map(|c| (c.deleted_at.as_str(), c.seq));
+            let page = self
+                .client
+                .hand_tombstones_since_as(&as_user, after, self.config.pull_page)
+                .await?;
+            let full = page.len() >= usize::try_from(self.config.pull_page).unwrap_or(usize::MAX);
+            let mut keys: Vec<String> = Vec::new();
+            let mut deleted = 0u64;
+            for (i, row) in page.iter().enumerate() {
+                let here = TombstoneCursor {
+                    deleted_at: row.deleted_at.clone(),
+                    seq: row.seq,
+                };
+                let last = i + 1 == page.len();
+                let wipe = match (&row.hand_key, &row.all_before) {
+                    (Some(key), _) => {
+                        keys.push(key.clone());
+                        None
+                    }
+                    // Our own "delete every hand": done here already.
+                    (None, Some(before)) if own_wipe.as_deref() == Some(before.as_str()) => None,
+                    (None, Some(before)) => server_ms(before),
+                    (None, None) => None,
+                };
+                if wipe.is_some() || last {
+                    let value = serde_json::to_string(&here).unwrap_or_default();
+                    let (key, batch, at) =
+                        (cursor_key.clone(), std::mem::take(&mut keys), now_ms());
+                    let applied = blocking(&self.store, move |s| {
+                        let writer = s.writer()?;
+                        let cursor = Some((key, value));
+                        Ok(match wipe {
+                            // The keys before it first, the cursor with the
+                            // wipe: a crash between applies the keys again.
+                            Some(before) => {
+                                writer.apply_server_deletions(batch, None, at)?.deleted
+                                    + writer.apply_server_wipe(before, cursor, at)?.deleted
+                            }
+                            None => writer.apply_server_deletions(batch, cursor, at)?.deleted,
+                        })
+                    })
+                    .await
+                    .map_err(store_error)?;
+                    deleted += applied;
+                }
+                cursor = Some(here);
+            }
+            if deleted > 0 {
+                log::info!("sync: {deleted} hands deleted elsewhere, deleted here too");
+            }
+            if !full {
+                return Ok(());
+            }
+        }
+    }
+
     /// Fetch the account's hands this store lacks, page by page.
     async fn pull(&mut self, user: &SyncUser) {
-        match self.pull_pages(user).await {
+        // (Hand deletion) The deletions made elsewhere first: a hand
+        // deleted on the web is not looked for among the new ones.
+        // A failure there (offline, a server without the call yet) holds
+        // nothing up: the new hands never include a deleted one.
+        if let Err(error) = self.pull_tombstones(user).await {
+            log::info!("sync: deletions made elsewhere: {error}");
+        }
+        let pulled = self.pull_pages(user).await;
+        match pulled {
             Ok(()) => {
                 self.pull_failures = 0;
                 self.pull_at = Some(Instant::now() + self.config.pull_every);
             }
-            Err(IngestError::PlanRequired { feature }) => {
+            Err(IngestError::PlanRequired { feature, .. }) => {
                 log::info!("sync: pull: the account's plan does not include {feature}");
                 self.pull_at = Some(Instant::now() + self.config.pull_every);
                 self.refused_by_plan(feature);
@@ -1574,6 +2019,39 @@ fn source_key(user_id: &str, folder: Option<i64>) -> String {
         Some(id) => format!("sync.source.{user_id}.{id}"),
         None => format!("sync.source.{user_id}.unfiled"),
     }
+}
+
+/// (Hand deletion) Where the tombstones' pull stopped.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct TombstoneCursor {
+    deleted_at: String,
+    seq: i64,
+}
+
+/// `kv`: the `before` of the account's "delete every hand" asked from here,
+/// whose tombstone the pull then skips.
+fn own_wipe_key(user_id: &str) -> String {
+    format!("sync.own_wipe.{user_id}")
+}
+
+/// A server instant (`timestamptz` as PostgREST writes it: an offset, or
+/// `Z`) as ms.
+fn server_ms(text: &str) -> Option<i64> {
+    if text.ends_with('Z') {
+        return rail_store::time::ms_from_iso(text);
+    }
+    let split = text.len().checked_sub(6)?;
+    let (at, offset) = (text.get(..split)?, text.get(split..)?);
+    let sign = match offset.as_bytes().first()? {
+        b'+' => 1,
+        b'-' => -1,
+        _ => return None,
+    };
+    let hours: i64 = offset.get(1..3)?.parse().ok()?;
+    let minutes: i64 = offset.get(4..6)?.parse().ok()?;
+    let local = rail_store::time::ms_from_iso(&format!("{at}Z"))?;
+    Some(local - sign * (hours * 60 + minutes) * 60_000)
 }
 
 /// Where the pull stopped: the last row's `(created_at, id)`.

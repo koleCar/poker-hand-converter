@@ -137,6 +137,10 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "0025_node_lock_tree.sql",
         sql: include_str!("../migrations/0025_node_lock_tree.sql"),
     },
+    Migration {
+        name: "0026_deleted_hands.sql",
+        sql: include_str!("../migrations/0026_deleted_hands.sql"),
+    },
 ];
 
 /// What a migration fills in Rust after its SQL, in its transaction (SQL

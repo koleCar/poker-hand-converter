@@ -340,7 +340,11 @@ export type SyncPhase =
   | { state: "rateLimited"; retryAtMs: number }
   | { state: "failed"; message: string; retryAtMs: number }
   /** (R6.4) The account's plan does not include desktop sync; hands wait, unsent. */
-  | { state: "planRequired"; feature: string };
+  | { state: "planRequired"; feature: string }
+  /** (Free tier) Today's hands are synced (`cap` a UTC day); the rest goes after `resetsAtMs`. */
+  | { state: "dailyCap"; cap: number | null; resetsAtMs: number }
+  /** (Free tier) The web library is full (`cap` hands); nothing more is sent until it has room. */
+  | { state: "libraryFull"; cap: number | null };
 
 /** (R6.4) `rail_sync::entitlements::Features`. */
 export interface PlanFeatures {
@@ -349,6 +353,9 @@ export interface PlanFeatures {
   reportsFull: boolean;
   analysis: boolean;
   learn: boolean;
+  /** (Free tier) Every solver flop (Free: a few a day). */
+  solverUnlimited: boolean;
+  nodelock: boolean;
 }
 
 /** (R6.4) A Pro feature of the app. */
@@ -374,7 +381,26 @@ export interface EntitlementsStatus {
   handCap: number | null;
   serverReason: string | null;
   offlineGraceDays: number | null;
+  /** (Free tier) The day's caps (null: unlimited or not known) and usage, from the account's last answer. */
+  dailyHandCap: number | null;
+  handsToday: number | null;
+  dailyFlopCap: number | null;
+  /** Today's solver flops (canonical keys, `Ks7d2c`), while the day lasts. */
+  flopsToday: string[];
+  /** When the day's counts start again (00:00 UTC, ms). */
+  dayResetsAtMs: number | null;
+  /** "See Pro": the web's pricing page. */
   upgradeUrl: string;
+}
+
+/** (Free tier) `entitlements::FlopGate`: may a flop's strategy show? */
+export interface FlopGate {
+  /** `offline`: a new flop, and the server cannot be reached to count it. */
+  verdict: "open" | "refused" | "signIn" | "offline";
+  flop: string;
+  flops: string[];
+  cap: number | null;
+  resetsAtMs: number | null;
 }
 
 /** `rail_sync::worker::SyncStatus`. */
@@ -399,6 +425,8 @@ export interface SyncStatus {
   cap: number | null;
   capNow: number | null;
   tablesOpen: boolean;
+  /** Hands the server still has to delete for a "delete every hand" asked here. */
+  deleting: number | null;
 }
 
 /** (R6.5) The web pages the app opens (`account::web_page_path`). */
@@ -1610,6 +1638,9 @@ export const ipc = {
   entitlementsStatus: () => invoke<EntitlementsStatus>("entitlements_status"),
   entitlementsCheckNow: () => invoke<void>("entitlements_check_now"),
   entitlementsOpenUpgrade: () => invoke<void>("entitlements_open_upgrade"),
+  entitlementsOpenManage: () => invoke<void>("entitlements_open_manage"),
+  /** (Free tier) Before a flop's strategy shows: the server counts it (preflop never asks). */
+  solverOpenFlop: (flop: string) => invoke<FlopGate>("solver_open_flop", { flop }),
   /** The statistics pass (R2.3). */
   statsStatus: () => invoke<StatsStatus>("stats_status"),
   /** Rebuild every hand's statistics in the background; returns the hands to go through. */
@@ -1635,6 +1666,8 @@ export const ipc = {
   handShare: (handKey: string, title: string | null) => invoke<HandShare>("hand_share", { handKey, title }),
   /** (Trainer) Keep graded answers in the account (`record_trainer_results`, at most 50); how many were kept. */
   trainerResultsRecord: (rows: TrainerResultDto[]) => invoke<number>("trainer_results_record", { rows }),
+  /** Send a bug report, feature request or question (`feedback.rs`); errors are the function's codes or `offline`. */
+  feedbackSend: (input: FeedbackInput) => invoke<null>("feedback_send", { input }),
   /** Open a share link made here in the default browser. */
   shareOpen: (slug: string) => invoke<null>("share_open", { slug }),
   /** The owner's names switch on a link made here; the state the server kept. */
@@ -1646,6 +1679,15 @@ export const ipc = {
   handAddTag: (handKey: string, tag: string) => invoke<HandAnnotations>("hand_add_tag", { handKey, tag }),
   handRemoveTag: (handKey: string, tag: string) => invoke<HandAnnotations>("hand_remove_tag", { handKey, tag }),
   handsMarks: (handKeys: string[]) => invoke<HandMarks>("hands_marks", { handKeys }),
+  /**
+   * Delete hands here and (by sync) from the account (`delete.rs`); how many
+   * went. A big selection reports its progress ({@link onHandsDeleteProgress}).
+   */
+  handsDelete: (handKeys: string[]) => invoke<number>("hands_delete", { handKeys }),
+  /** Delete every hand here and (by sync) from the account; how many went here. */
+  handsDeleteAll: () => invoke<number>("hands_delete_all"),
+  /** How many hands the store holds. */
+  handsCount: () => invoke<number>("hands_count"),
   /** Put a tag on every hand of `handKeys` (`on`) or take it off; each hand's note and tags after. */
   handsMark: (handKeys: string[], tag: string, on: boolean) =>
     invoke<HandAnnotated[]>("hands_mark", { handKeys, tag, on }),
@@ -1873,6 +1915,11 @@ export function onStatsDataChanged(onChange: () => void): () => void {
   };
 }
 
+/** A big delete's progress (`hands_delete`): hands done of the total. */
+export function onHandsDeleteProgress(onChange: (progress: { done: number; total: number }) => void): () => void {
+  return onAppEvent("hands-delete-progress", onChange);
+}
+
 /** Call `onChange` whenever the sync status changed (R1.9; at most once a second). */
 export function onSyncChanged(onChange: () => void): () => void {
   return onAppEvent("sync-changed", onChange);
@@ -2043,6 +2090,19 @@ export interface TrainerResultDto {
 
 /** The errors `trainer_results_record` answers with a code: the answers wait and go later. */
 export const TRAINER_SYNC_WAIT = ["signedOut", "rateLimited", "plan", "unavailable", "unreachable"] as const;
+
+/** A feedback report as `feedback_send` takes it (`src-tauri/src/feedback.rs`). */
+export interface FeedbackInput {
+  kind: "bug" | "feature" | "question";
+  message: string;
+  email: string | null;
+  website: string;
+  /** Data URLs. */
+  images: string[];
+  /** The screen it was sent from. */
+  page: string;
+  locale: string;
+}
 
 /** A share link made by `hand_share`. */
 export interface HandShare {

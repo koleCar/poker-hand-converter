@@ -27,6 +27,7 @@ import type { playersUiEn } from "./strings/players.en";
 import type { reportsUiEn } from "./strings/reports.en";
 import type { chartsUiEn } from "./strings/charts.en";
 import type { reviewUiEn } from "./strings/review.en";
+import type { feedbackUiEn } from "./strings/feedback.en";
 
 /** The replayer's strings: `strings/replayer.en.ts` is the English. */
 export interface ReplayerStrings {
@@ -349,6 +350,9 @@ export type PlayersStrings = typeof playersUiEn;
  */
 export type ReviewStrings = typeof reviewUiEn;
 
+/** The feedback dialog's strings: `strings/feedback.en.ts` is the English. */
+export type FeedbackStrings = typeof feedbackUiEn;
+
 /**
  * The user's own preflop charts' (`charts/`, R5.3): the library, the editor,
  * the comparison. `strings/charts.{en,hr}.ts` are the two languages.
@@ -370,6 +374,7 @@ export interface UiStrings {
   players: PlayersStrings;
   review: ReviewStrings;
   charts: ChartsStrings;
+  feedback: FeedbackStrings;
 }
 
 const UiStringsContext = createContext<UiStrings | null>(null);

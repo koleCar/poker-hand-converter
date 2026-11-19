@@ -15,6 +15,7 @@
  * read as part of its toolbar ("Studio", SV-A). A solve's progress shows in
  * the tree's row and the sidebar.
  */
+import { Icon } from "@rail/ui/icon/Icon";
 import { useEffect, useMemo } from "react";
 
 import { useLocale, useT, type Dict } from "../../i18n";
@@ -40,6 +41,7 @@ import {
   type SolverNodelock,
 } from "../door";
 import { go } from "../../lib/router";
+import { useEntitlements } from "../../lib/useEntitlements";
 import { useSolverHost } from "../host";
 import type { NodelockSummary } from "./contract";
 import { nodelockData } from "./data";
@@ -70,6 +72,10 @@ export function useNodelockSlot(lock: ActiveLock | null, view: () => string): So
   const solverT = useSolverHost().t;
   const names = (useLocale() === "hr" ? nodelockSuggestHr : nodelockSuggestEn).names;
   const compare = lock ? session.compare : false;
+  // (Free tier) Nodelock is Pro: on a plan without it the action is a locked button.
+  const plan = useEntitlements();
+  const locked = plan.status !== null && plan.locked("nodelock");
+  const upgrade = plan.upgrade;
   const marks = useMemo(
     () => (lock ? lockMarks(lock, { solver: solverT, t, preset: (id) => names[id as Archetype] ?? id }) : null),
     [lock, solverT, t, names],
@@ -81,12 +87,23 @@ export function useNodelockSlot(lock: ActiveLock | null, view: () => string): So
       compareLabel: t.gto,
       shareDelta: t.shareDelta,
       // Inside a lock every decision can be locked too: a lock on the lock (§7.4).
-      nodeAction: (at) => <NodeAction at={at} lock={lock} />,
+      nodeAction: (at) => (locked ? <LockedNodeAction onUpgrade={upgrade} /> : <NodeAction at={at} lock={lock} />),
       banner: (at) => <PendingEdit at={at} />,
       tabTools: (at) => (lock && at?.locked ? <CompareToggle on={compare} /> : null),
       lockMark: marks ?? undefined,
     }),
-    [lock, compare, marks, t],
+    [lock, compare, marks, t, locked, upgrade],
+  );
+}
+
+/** Nodelock on a plan without it: the action with its lock, "Nodelock is part of Pro. See Pro" on hover; a click opens the pricing page. */
+export function LockedNodeAction({ onUpgrade }: { onUpgrade: () => void }) {
+  const p = useT().plan;
+  return (
+    <ToolButton tone="lock" title={`${p.tip(p.solver.nodelock)} ${p.upgrade}`} onClick={onUpgrade}>
+      <Icon name="lock" />
+      {p.solver.nodelock}
+    </ToolButton>
   );
 }
 

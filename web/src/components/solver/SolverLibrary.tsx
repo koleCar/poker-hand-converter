@@ -72,7 +72,7 @@ import analysis from "../analysis/analysis.module.css";
 import { FlopPicker } from "./FlopPicker";
 import { loadFullSolve, type FullSolve } from "./fullSolve";
 import { ActiveFilters, filterLabel, HandFilters } from "./HandFilters";
-import { useSolverHost, type NodelockAt, type SolverDict, type StrategyCompare } from "./host";
+import { useSolverHost, type FlopGateAnswer, type NodelockAt, type SolverDict, type StrategyCompare } from "./host";
 import { liveTurnCached, liveTurnId, parseLiveTurnId, solveTurnLive } from "./liveTurn";
 import { DealPicker, FlopCard, PostflopCards, type Where } from "./PostflopBar";
 import { PreflopCards, Strip, TableSelect, type TableOption } from "./PreflopBar";
@@ -153,7 +153,7 @@ export function SolverLibrary(props: SolverLibraryProps) {
 }
 
 function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTurn, initialPath, initialWalk, onView, hero = null }: SolverLibraryProps) {
-  const { t, loader, fullSolveBase, nodelock, top, side, link } = useSolverHost();
+  const { t, loader, fullSolveBase, nodelock, top, side, link, flops: gate, lockedTools } = useSolverHost();
   const [setId, setSetId] = useState<string>(
     initialSet && SOLVER_SETS.includes(initialSet) ? initialSet : SOLVER_SETS.includes(DEFAULT_CHART_SET) ? DEFAULT_CHART_SET : SOLVER_SETS[0],
   );
@@ -229,13 +229,40 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
   const libraryLine = end?.kind === "flop" ? end.line : null;
   const solved = useMemo(() => (libraryLine && manifest?.get(libraryLine.id)) || [], [libraryLine, manifest]);
   const picked: PickedFlop | null = useMemo(() => (flop ? pickedFlop(flop) : null), [flop]);
+  /** The line ends heads-up on a flop the library has solves for. */
+  const lineAtFlop = end?.kind === "flop" && solved.length > 0;
   const flopKey = picked && solved.includes(picked.key) ? picked.key : null;
   const chunkKey = libraryLine && flopKey ? `${setId}/${libraryLine.id}/${flopKey}` : "";
+
+  // Flops a day (the host's `flops`): the flop is asked about before its solve loads.
+  const gated = gate !== undefined;
+  const gateReady = gate?.ready ?? true;
+  const openFlop = gate?.open;
+  const [gateAnswer, setGateAnswer] = useState<{ key: string; answer: FlopGateAnswer } | null>(null);
+  useEffect(() => {
+    if (!gated || !gateReady || !openFlop || !flopKey) return;
+    let live = true;
+    void openFlop(flopKey).then(
+      (answer) => {
+        if (live) setGateAnswer({ key: flopKey, answer });
+      },
+      () => {
+        if (live) setGateAnswer({ key: flopKey, answer: "open" });
+      },
+    );
+    return () => {
+      live = false;
+    };
+  }, [gated, gateReady, openFlop, flopKey]);
+  const gateNow = gateAnswer && gateAnswer.key === flopKey ? gateAnswer.answer : null;
+  /** The flop may load: no gate, or the gate said so. */
+  const flopOpen = !gated || (gateReady && gateNow === "open");
+  const flopClosed = gated && gateNow !== null && gateNow !== "open" ? gateNow : null;
 
   // The chunk of the line and the flop.
   useEffect(() => {
     // A chunk is only ever named from the reader's own manifest.
-    if (!chunkKey || !libraryLine || !flopKey || !loader) return;
+    if (!chunkKey || !libraryLine || !flopKey || !loader || !flopOpen) return;
     let live = true;
     void loader
       .load(setId, libraryLine.id, flopKey)
@@ -245,11 +272,11 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     return () => {
       live = false;
     };
-  }, [chunkKey, setId, libraryLine, flopKey, attempt, loader]);
+  }, [chunkKey, setId, libraryLine, flopKey, attempt, loader, flopOpen]);
 
   // A full solve of the flop, when one is served (local).
   useEffect(() => {
-    if (!chunkKey || !libraryLine || !flopKey) return;
+    if (!chunkKey || !libraryLine || !flopKey || !flopOpen) return;
     let live = true;
     void loadFullSolve(fullSolveBase, setId, "flop-m1", libraryLine.id, flopKey).then((value) => {
       if (live) setFull({ key: chunkKey, status: "ready", value });
@@ -257,7 +284,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     return () => {
       live = false;
     };
-  }, [chunkKey, setId, libraryLine, flopKey, fullSolveBase]);
+  }, [chunkKey, setId, libraryLine, flopKey, fullSolveBase, flopOpen]);
   /** The app's nodelock: a locked solution of this flop shown in place of the library's (never on the web). */
   const override = chunkKey && nodelock?.override?.key === chunkKey ? nodelock.override : null;
   const fullReady = full.key === chunkKey && full.status === "ready";
@@ -410,6 +437,21 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     if (box && card) setPickerLeft(card.getBoundingClientRect().left - box.getBoundingClientRect().left);
   }, [pickerOpen]);
 
+  /** A flop picked (the picker, or one of today's flops reopened): its first decision. */
+  const pickFlop = (cards: string[]) => {
+    setWalk(null);
+    setFlop(cards);
+    setTurn(null);
+    setDeal(null);
+    setPath(null);
+    setNode(0);
+  };
+  /** One of today's flops (any suits), on this line: null when the line has no solve of it. */
+  const reopen = (key: string) => {
+    const cards = flopCards(key);
+    return lineAtFlop && solved.includes(pickedFlop(cards).key) ? () => pickFlop(cards) : null;
+  };
+
   const goLine = (next: string) => {
     setPreflopOpen(false);
     setViewing(null);
@@ -443,7 +485,6 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
       : null;
 
   // The line after preflop, on the same bar: the flop's card (or the prompt to pick one), then its decisions, the turn's, the river's.
-  const lineAtFlop = end?.kind === "flop" && solved.length > 0;
   const flopPot = flopSolve ? exploreNode(flopSolve, 0).pot : null;
   const flopCard = lineAtFlop ? (
     <FlopCard
@@ -495,6 +536,9 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
         </button>
       </div>
     );
+  } else if (flopClosed && gate) {
+    // Not opened (today's flops are used, or the visitor must sign in): the host says so, small.
+    body = gate.closed(flopClosed, flopKey);
   } else if ((chunk.key === chunkKey && chunk.status === "error" && !fullSolve) || (turn && !lockedTurn && turnChunk.key === turnKey && turnChunk.status === "error")) {
     body = (
       <div className={styles.message}>
@@ -574,6 +618,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
         <span className={styles.spacer} />
         {at && nodelock ? nodelock.nodeAction(at) : null}
         {nodelock?.tabTools ? nodelock.tabTools(at) : null}
+        {nodelock ? null : lockedTools}
       </div>
     );
     const decision = exploreNode(solve, nodeIndex);
@@ -655,6 +700,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
           }}
         />
         <span className={styles.spacer} />
+        {gate?.today ? gate.today(reopen) : null}
         {shareLink ? (
           <IconButton label={copied ? t.top.copied : t.top.link} onClick={copy}>
             <Icon name={copied ? "check" : "link"} />
@@ -681,12 +727,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
             anchor={flopAnchor}
             left={pickerLeft}
             onPick={(cards) => {
-              setWalk(null);
-              setFlop(cards);
-              setTurn(null);
-              setDeal(null);
-              setPath(null);
-              setNode(0);
+              pickFlop(cards);
               closePicker();
             }}
           />

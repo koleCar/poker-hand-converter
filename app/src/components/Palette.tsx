@@ -29,6 +29,7 @@ import { CommandPalette, type PaletteItem } from "@rail/ui/palette/CommandPalett
 import { rankItems } from "@rail/ui/palette/fuzzy";
 
 import { useT, type Dict } from "../i18n";
+import { openFeedback } from "./Feedback";
 import { screenOffered } from "../lib/duringPlay";
 import { adoptSettings, getAppearance, setAppearance } from "../lib/appearance";
 import { inApp, ipc, type Density, type HandRow, type PlayerRow, type SavedFilter, type Theme } from "../lib/ipc";
@@ -247,6 +248,7 @@ function localItems(t: Dict, context: Context, tablesOpen: boolean): PaletteItem
   const other: Locale = appearance.locale === "en" ? "hr" : "en";
   items.push(command(`locale:${other}`, p.command.language, p.keywords.language));
   items.push(command("refused", p.command.refused, p.keywords.refused));
+  items.push(command("feedback", p.command.feedback, p.keywords.feedback));
   for (const section of [...SETTINGS_SECTIONS, ...(Object.keys(SETTINGS_ELSEWHERE) as (keyof typeof SETTINGS_ELSEWHERE)[])]) {
     items.push({
       id: `settings:${section}`,
@@ -443,6 +445,9 @@ function runCommand(command: string): void {
       break;
     case "refused":
       go(REFUSED);
+      break;
+    case "feedback":
+      openFeedback();
       break;
     default:
   }

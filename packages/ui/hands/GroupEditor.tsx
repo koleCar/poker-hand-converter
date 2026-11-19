@@ -9,6 +9,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
 
 import { useUiStrings } from "../i18n";
+import { parseHeroHand } from "../model/cards";
 import {
   DATE_PRESETS,
   POT_OPS,
@@ -180,11 +181,14 @@ export function GroupEditor({ group, filter, facets, onChange, variant, titled =
         <TextField
           label={t.range.exact}
           hint={t.range.exactHint}
+          invalidHint={t.range.exactInvalid}
+          isValid={(text) => parseHeroHand(text) !== null}
           numeric={false}
           value={filter.heroCards}
           live={variant === "builder"}
           onCommit={(heroCards) => onChange({ ...filter, heroCards })}
         />
+        <HeroHandLegend />
       </div>
     );
   }
@@ -301,6 +305,8 @@ export function Pills({
 function TextField({
   label,
   hint,
+  invalidHint,
+  isValid,
   numeric,
   value,
   live,
@@ -308,6 +314,9 @@ function TextField({
 }: {
   label: string;
   hint: string;
+  /** The hint while `isValid` says the text reads as nothing. */
+  invalidHint?: string;
+  isValid?: (value: string) => boolean;
   numeric: boolean;
   value: string;
   live: boolean;
@@ -324,6 +333,7 @@ function TextField({
   const commit = () => {
     if (draft !== value) onCommit(draft);
   };
+  const invalid = isValid !== undefined && !isValid(draft);
   return (
     <form
       className={styles.textField}
@@ -337,6 +347,7 @@ function TextField({
         <input
           value={draft}
           spellCheck={false}
+          aria-invalid={invalid || undefined}
           inputMode={numeric ? "decimal" : undefined}
           onChange={(event) => {
             setDraft(event.target.value);
@@ -344,7 +355,7 @@ function TextField({
           }}
           onBlur={live ? undefined : commit}
         />
-        <small>{hint}</small>
+        <small className={invalid ? styles.textFieldError : undefined}>{invalid ? (invalidHint ?? hint) : hint}</small>
       </label>
       {live ? null : (
         <button type="submit" className="btn btn--primary btn--sm" disabled={draft === value}>
@@ -352,6 +363,28 @@ function TextField({
         </button>
       )}
     </form>
+  );
+}
+
+/**
+ * What the hero's hand search reads (`parseHeroHand`): a few examples per
+ * line, folded away until asked for.
+ */
+function HeroHandLegend() {
+  const t = useUiStrings().hands.filters.range;
+  return (
+    <details className={styles.legend}>
+      <summary className={styles.legendSummary}>{t.legend}</summary>
+      <dl className={styles.legendList}>
+        {t.legendRows.map(([code, meaning]) => (
+          <div key={code} className={styles.legendRow}>
+            <dt>{code}</dt>
+            <dd>{meaning}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className={styles.legendNote}>{t.legendNote}</p>
+    </details>
   );
 }
 

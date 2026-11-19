@@ -490,11 +490,17 @@ export const hr: Dict = {
       mismatch: (owner) => `Ruke su sinkronizirane na ${owner}`,
       declined: (email) => `Odvojeno od ${email}`,
       syncing: (sent, total) => `Sinkronizacija ${n(sent)} od ${n(total)}`,
+      deleting: (left) => `Brisanje ruku na računu · još ${n(left)}`,
       upToDate: "Sve je sinkronizirano",
       offline: "Izvan mreže",
       rateLimited: (time) => `Ograničenje dosegnuto; nastavlja u ${time}`,
       failed: (time) => `Nije uspjelo; ponovno u ${time}`,
       planRequired: "Dio Rail Pro plana",
+      dailyCap: (total, time) =>
+        total
+          ? `${cap(ruku(total))} ${plural(total, "sinkronizirana", "sinkronizirane", "sinkronizirano")} danas — ostale nakon ${time}, ili odmah uz Pro`
+          : `Današnje ruke su sinkronizirane — ostale nakon ${time}, ili odmah uz Pro`,
+      libraryFull: (total) => (total ? `Web knjižnica je puna (${n(total)})` : "Web knjižnica je puna"),
       refused: (count) => `${cap(ruku(count))} ${plural(count, "odbijena", "odbijene", "odbijeno")}`,
       upload: "Prenesi",
       keepApart: "Drži odvojeno",
@@ -508,25 +514,30 @@ export const hr: Dict = {
   },
 
   plan: {
-    heading: "Dio Rail Pro plana",
+    pro: "Pro",
     features: {
-      hud: "HUD za tvojim poker stolovima dio je Rail Pro plana.",
-      analysis: "Analiza tvojih ruku - ocjene, propusti, pregled sesije i tvoje vlastite tablice - dio je Rail Pro plana.",
-      reportsFull:
-        "Izvještaji po situacijama i ekran Igrači dio su Rail Pro plana. Osnovna statistika ostaje besplatna: sažetak, sve statistike, graf i podjele po poziciji, ulogu, sobi, veličini stola i formatu.",
-      desktopSync: "Sinkronizacija tvojih ruku s webom dio je Rail Pro plana.",
-      learn: "Učenje je dio Rail Pro plana.",
+      hud: "Statistika na tvojim stolovima dok igraš",
+      analysis: "Pronađi svoje propuste iz vlastitih ruku",
+      reportsFull: "Svaka situacija i protivnik iz tvojih ruku",
+      desktopSync: "Sinkroniziraj desktop aplikaciju s webom",
+      learn: "Learn je dio Pro plana",
+      solverUnlimited: "Svaki flop, svaki dan",
+      nodelock: "Zaključaj strategiju i riješi ponovno",
+    },
+    screens: {
+      trainer: "Treniraj situacije iz vlastitih ruku",
+      players: "Svaki protivnik s kojim si igrao, opisan",
     },
     reasons: {
-      signedOut:
-        "Prijavi se računom s Rail Pro planom da bi ovo koristio/la. Bez računa Rail i dalje uvozi tvoje ruke, vodi knjižnicu, replayer i osnovnu statistiku.",
-      notChecked: "Rail provjerava tvoj plan kad je na mreži. Spoji se na internet ili provjeri ponovno.",
+      signedOut: "Prijavi se da bi to koristio.",
+      notChecked: "Rail provjerava tvoj plan kad je na mreži.",
       free: "Tvoj račun je na Free planu.",
-      graceExpired: (days) =>
-        `Spoji se da zadržiš Pro: Rail već više od ${days} dana nije mogao provjeriti tvoj plan na poslužitelju.`,
+      graceExpired: (days) => `Spoji se da zadržiš Pro: plan je zadnji put provjeren prije više od ${days} dana.`,
     },
+    tip: (what) => `${what} je dio Pro plana.`,
     signIn: "Prijavi se",
-    upgrade: "Prijeđi na Pro",
+    upgrade: "Pogledaj Pro",
+    manage: "Upravljaj planom",
     checkAgain: "Provjeri ponovno",
     checking: "Provjera…",
     badge: {
@@ -540,14 +551,25 @@ export const hr: Dict = {
     settings: {
       heading: "Plan",
       loading: "Čitanje plana…",
-      open: "Sve u Railu je dostupno.",
-      pro: "Rail Pro.",
-      proUntil: (date) =>
-        `Rail Pro. Radi i izvan mreže do ${date}; Rail sam ponovno provjerava kad god je na mreži.`,
-      free: "Free: uvoz, tvoja knjižnica, replayer i osnovna statistika. HUD, analiza i puni izvještaji traže Rail Pro.",
-      handsStored: (count, total) => `${cap(ruku(count))} u tvojoj web knjižnici od ${n(total)} na Free planu.`,
-      lastChecked: (time) => `Plan zadnji put provjeren: ${time}.`,
-      offline: "Poslužitelj nije dostupan za provjeru; Rail koristi zadnji odgovor.",
+      library: "Knjižnica",
+      libraryCount: (stored, total) => `${n(stored)} / ${n(total)}`,
+      today: "Danas",
+      handsToday: (saved, total) => `${n(saved)} / ${n(total)} ruku`,
+      flopsToday: (opened, total) => `${n(opened)} / ${n(total)} flopova`,
+      resets: (time) => `ponovno od ${time}`,
+    },
+    solver: {
+      today: "Današnji flopovi",
+      count: (used, total) => `${n(used)} / ${n(total)}`,
+      left: (count) => `još ${n(count)}`,
+      open: (flop) => `Otvori ${flop}`,
+      otherLine: "Nije riješen na ovoj liniji",
+      refused: (total, time) =>
+        `Otvorio si današnja ${n(total)} flopa. Ostaju otvoreni, sa svakim turnom i riverom, do ${time}. Svaki flop uz Pro.`,
+      signIn: (total) => `Prijavi se da otvaraš flopove. Besplatan račun otvara ${n(total)} dnevno.`,
+      offline: "Spoji se na internet da otvoriš novi flop. Današnji flopovi ostaju otvoreni.",
+      tryAgain: "Pokušaj ponovno",
+      nodelock: "Nodelock",
     },
   },
 
@@ -568,6 +590,14 @@ export const hr: Dict = {
     danger: {
       deleteAccount: "Obriši moj račun",
       delete: "Obriši…",
+      deleteHands: "Obriši sve ruke",
+      deleteHandsTitle: "Obrisati sve ruke?",
+      deleteHandsBody: (count) =>
+        `Brišu se sve ruke (${n(count)}) ovdje i s tvog Rail računa. To se ne može poništiti.`,
+      deleteHandsType: (count) => `Upiši ${n(count)} ili DELETE`,
+      deleteHandsConfirm: "Obriši sve",
+      deleteHandsDone: (count) => `Obrisano: ${ruku(count)}`,
+      deleteHandsNone: "Nema ruku za brisanje",
       openFailed: (reason) => `Preglednik se nije otvorio: ${reason}`,
     },
 
@@ -1004,12 +1034,24 @@ export const hr: Dict = {
       label: (count) => (count === 1 ? "Ruka" : ruku(count)),
       replay: (count) => (count === 1 ? "Pogledaj ruku u replayeru" : `Pogledaj ${rukuAcc(count)} u replayeru`),
       export: (count) => (count === 1 ? "Izvezi ruku u .txt" : `Izvezi ${rukuAcc(count)} u .txt`),
+      delete: (count) => (count === 1 ? "Obriši ruku…" : `Obriši ${rukuAcc(count)}…`),
       mark: "Označi",
       bar: {
         replay: "Pogledaj u replayeru",
         tag: "Označi",
         export: "Izvezi .txt",
+        delete: "Obriši",
         clear: "Poništi odabir",
+      },
+      remove: {
+        title: (count) => (count === 1 ? "Obrisati ovu ruku?" : `Obrisati ${rukuAcc(count)}?`),
+        body: "Briše se ovdje i s tvog Rail računa. To se ne može poništiti.",
+        confirm: "Obriši",
+        cancel: "Odustani",
+        deleting: "Brisanje…",
+        progress: (done, total) => `${n(done)} od ${odRuku(total)}`,
+        done: (count) => (count === 1 ? "Ruka je obrisana" : `Obrisano: ${ruku(count)}`),
+        failed: (reason) => `Ruke nisu obrisane: ${reason}`,
       },
       markers: {
         label: "Oznake",
@@ -1186,6 +1228,7 @@ export const hr: Dict = {
       comfortable: "Prozračni popisi i tablice",
       language: "Prebaci na engleski (English)",
       refused: "Prikaži odbijene ruke",
+      feedback: "Pošalji povratnu informaciju: prijavi grešku, predloži značajku ili postavi pitanje",
       current: "U uporabi",
     },
     keywords: {
@@ -1195,6 +1238,7 @@ export const hr: Dict = {
       density: "gustoća zbijeno prozračno retci razmak density compact",
       language: "jezik engleski english hrvatski language",
       refused: "odbijene karantena greške nečitljive refused",
+      feedback: "povratna informacija prijava greška bug problem prijedlog značajka pitanje pomoć kontakt podrška feedback",
       settings: "postavke opcije settings ažuriranje nadogradnja verzija update",
     },
     hints: {
@@ -1402,7 +1446,7 @@ export const hr: Dict = {
       permission: "Treba dopuštenje",
       fix: "Popravi ›",
       pro: "HUD je dio Pro plana",
-      upgrade: "Nadogradi ›",
+      upgrade: "Pogledaj Pro ›",
       signIn: "Prijava ›",
       checkAgain: "Provjeri ponovno ›",
     },

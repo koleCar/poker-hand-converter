@@ -251,32 +251,87 @@ fn errors_map_to_what_the_worker_does_next() {
     assert_eq!(
         error_of(402, plan(r#""desktop_sync""#).as_bytes()),
         IngestError::PlanRequired {
-            feature: "desktop_sync".into()
+            feature: "desktop_sync".into(),
+            limit: None
         }
     );
     assert_eq!(
         error_of(400, plan(r#""hand_cap""#).as_bytes()),
         IngestError::PlanRequired {
-            feature: "hand_cap".into()
+            feature: "hand_cap".into(),
+            limit: None
         }
     );
     assert_eq!(
         error_of(402, plan("null").as_bytes()),
         IngestError::PlanRequired {
-            feature: "unknown".into()
+            feature: "unknown".into(),
+            limit: None
         }
     );
     assert_eq!(
         error_of(402, plan(r#""<script>""#).as_bytes()),
         IngestError::PlanRequired {
-            feature: "unknown".into()
+            feature: "unknown".into(),
+            limit: None
         },
         "only a plain feature name is kept"
     );
     assert_eq!(
         error_of(402, b""),
         IngestError::PlanRequired {
-            feature: "unknown".into()
+            feature: "unknown".into(),
+            limit: None
+        }
+    );
+    // (Free tier) The caps carry their numbers.
+    let capped = |hint: &str, detail: &str| {
+        serde_json::json!({"code": "PT402", "message": "m", "details": detail, "hint": hint})
+            .to_string()
+    };
+    assert_eq!(
+        error_of(
+            400,
+            capped(
+                "daily_cap",
+                r#"{"cap": 500, "savedToday": 480, "attempted": 50, "resetsAt": "1970-01-02T00:00:00Z"}"#
+            )
+            .as_bytes()
+        ),
+        IngestError::PlanRequired {
+            feature: "daily_cap".into(),
+            limit: Some(CapRefusal {
+                cap: Some(500),
+                used: Some(480),
+                attempted: Some(50),
+                resets_at_ms: Some(24 * 60 * 60 * 1000),
+            })
+        }
+    );
+    assert_eq!(
+        error_of(
+            402,
+            capped(
+                "hand_cap",
+                r#"{"cap": 10000, "stored": 9990, "attempted": 20}"#
+            )
+            .as_bytes()
+        ),
+        IngestError::PlanRequired {
+            feature: "hand_cap".into(),
+            limit: Some(CapRefusal {
+                cap: Some(10_000),
+                used: Some(9990),
+                attempted: Some(20),
+                resets_at_ms: None,
+            })
+        }
+    );
+    assert_eq!(
+        error_of(402, capped("daily_cap", "not json").as_bytes()),
+        IngestError::PlanRequired {
+            feature: "daily_cap".into(),
+            limit: None
         }
     );
     assert!(matches!(error_of(503, b""), IngestError::Transient(_)));
@@ -519,6 +574,56 @@ async fn the_accounts_entitlements_are_read_with_its_token() {
         ("/rest/v1/rpc/my_entitlements".into(), "token-1".into())
     );
     assert_eq!(seen[1].1, "token-2", "refreshed once after the 401");
+}
+
+/// (Free tier) A solver flop is opened with the account's token, and the
+/// answer read field by field.
+#[tokio::test]
+async fn a_flop_is_opened_with_the_accounts_token() {
+    let (url, seen) = server(vec![
+        (
+            200,
+            r#"{"allowed":true,"flop":"Ks7d2c","flops":["Ks7d2c"],"cap":3,"resetsAt":"1970-01-02T00:00:00Z"}"#.into(),
+        ),
+        (
+            200,
+            r#"{"allowed":false,"flop":"AsAhAc","flops":["Ks7d2c","QhJh4s","2s2h2d"],"cap":3,"resetsAt":"x"}"#.into(),
+        ),
+        (200, r#"{"allowed":"yes"}"#.into()),
+    ])
+    .await;
+    let account = FakeAccount::new(Some("token-1"), Ok(()));
+    let ingest = client(&url);
+    let open = ingest
+        .solver_open_flop_as(&account, "2c7dKs")
+        .await
+        .unwrap();
+    assert_eq!(
+        open,
+        FlopOpen {
+            allowed: true,
+            flops: vec!["Ks7d2c".into()],
+            cap: Some(3),
+            resets_at_ms: Some(24 * 60 * 60 * 1000),
+        }
+    );
+    let refused = ingest
+        .solver_open_flop_as(&account, "AhAsAc")
+        .await
+        .unwrap();
+    assert!(!refused.allowed);
+    assert_eq!(refused.flops.len(), 3);
+    assert_eq!(refused.resets_at_ms, None);
+    let odd = ingest
+        .solver_open_flop_as(&account, "AhAsAc")
+        .await
+        .unwrap();
+    assert!(!odd.allowed, "only a literal true");
+    let seen = seen.lock().unwrap().clone();
+    assert_eq!(
+        seen[0],
+        ("/rest/v1/rpc/solver_open_flop".into(), "token-1".into())
+    );
 }
 
 #[tokio::test]

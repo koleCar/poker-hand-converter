@@ -30,7 +30,6 @@ function routes(overrides: Record<string, Route> = {}, customer: string | null =
         plan: "pro",
         plan_status: "active",
         current_period_end: null,
-        early_user: false,
       }],
     },
     "POST /v1/billing_portal/sessions": { body: { url: PORTAL_URL } },

@@ -28,7 +28,6 @@ function routes(overrides: Record<string, Route> = {}, customer: string | null =
         plan: "pro",
         plan_status: "active",
         current_period_end: null,
-        early_user: true,
       }],
     },
     "GET /v1/subscriptions": {

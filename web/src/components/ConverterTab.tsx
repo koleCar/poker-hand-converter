@@ -45,7 +45,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../lib/auth";
-import { handsLeft } from "../lib/db/entitlements";
+import { handsLeft, handsLeftToday, isFreeEnforced, saveRoom } from "../lib/db/entitlements";
 import { useEntitlements } from "../lib/entitlements/context";
 import { isDatabaseConfigured, rebuildStats, recordConversionFailures } from "../lib/db";
 import { currentUserId, requireDb } from "../lib/db/client";
@@ -212,8 +212,19 @@ export function ConverterTab({ onHandsSaved, onOpenHand, onReplay, replay }: Con
   const locale = INTL_LOCALE[useLocale()];
   const count = (n: number) => n.toLocaleString(locale);
   const router = useRouter();
-  // (R6.4) The plan's cap, for the notices near and at it.
-  const { entitlements } = useEntitlements();
+  // (R6.4) The plan's caps (the library, the day), for the notices near and
+  // at them, and the room a save starts with.
+  const { entitlements, refresh: refreshEntitlements } = useEntitlements();
+  const entitlementsRef = useRef(entitlements);
+  useEffect(() => {
+    entitlementsRef.current = entitlements;
+  }, [entitlements]);
+  // Today's count moves with the desktop sync and other tabs: read it afresh
+  // when the page opens (Free under enforcement only; nothing else is capped).
+  const freeEnforced = isFreeEnforced(entitlements);
+  useEffect(() => {
+    if (freeEnforced) void refreshEntitlements();
+  }, [freeEnforced, refreshEntitlements]);
 
   // Results live in a map mutated as messages arrive and are published to
   // React at most every FLUSH_MS (`publish`): a drop of 30 000 files would
@@ -397,6 +408,8 @@ export function ConverterTab({ onHandsSaved, onOpenHand, onReplay, replay }: Con
         ack: (batches) => jobRef.current?.ack(batches),
         onChange: onSaveChange,
         onDone: afterSave,
+        // Free under enforcement: no more than fits today and in the library.
+        initialRoom: saveRoom(entitlementsRef.current)?.room ?? null,
       });
       saverRef.current = saver;
       manifestRef.current = manifest;
@@ -745,15 +758,25 @@ export function ConverterTab({ onHandsSaved, onOpenHand, onReplay, replay }: Con
           ? t.savePausedDayBudget
           : upload.pauseReason === "cap"
             ? capText.pausedCap(count(upload.cap?.cap ?? entitlements?.features.hand_cap ?? 0))
-            : upload.pauseReason === "plan"
+            : upload.pauseReason === "daily"
+              ? capText.daily(count(upload.cap?.cap ?? entitlements?.limits.dailyHandCap ?? 0))
+              : upload.pauseReason === "plan"
               ? capText.pausedPlan
               : t.savePausedOffline
       : null;
   // (R6.4) Near or at the Free cap (only while enforcement is on and the
   // plan has one): said before the save, with the way to upgrade.
   const capNotice = (() => {
-    if (upload?.state === "paused" && (upload.pauseReason === "cap" || upload.pauseReason === "plan")) {
+    if (
+      upload?.state === "paused" &&
+      (upload.pauseReason === "cap" || upload.pauseReason === "daily" || upload.pauseReason === "plan")
+    ) {
       return null;
+    }
+    const today = handsLeftToday(entitlements);
+    const dayCap = entitlements?.limits.dailyHandCap ?? null;
+    if (today === 0 && dayCap !== null && (handsLeft(entitlements) ?? 1) > 0) {
+      return capText.daily(count(dayCap));
     }
     const left = handsLeft(entitlements);
     const cap = entitlements?.features.hand_cap ?? null;
@@ -964,7 +987,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand, onReplay, replay }: Con
         {capNotice ? (
           <p className="notice notice--warn">
             {capNotice}{" "}
-            <Link href={paths.upgrade()}>{capText.upgrade}</Link>
+            <Link href={paths.pricing()}>{capText.upgrade}</Link>
           </p>
         ) : null}
 
@@ -989,6 +1012,12 @@ export function ConverterTab({ onHandsSaved, onOpenHand, onReplay, replay }: Con
               setUpload(saver.progress());
             }
           }}
+          upgrade={
+            upload?.state === "paused" &&
+            (upload.pauseReason === "cap" || upload.pauseReason === "daily" || upload.pauseReason === "plan")
+              ? { href: paths.pricing(), label: capText.upgrade }
+              : null
+          }
           onPreview={setPreview}
           onOpenInReplayer={(hand) => openInReplayer(hand)}
           siteLabel={siteLabel}

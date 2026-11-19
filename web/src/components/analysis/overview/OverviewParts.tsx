@@ -41,6 +41,8 @@ import { EMPTY_LEAKS_STATE, leaksQuery } from "../leaks/leaksState";
 import { listFilters, listQuery, POSITION_VALUES, POT_VALUES, STREET_VALUES, type AnalysisListState } from "../listState";
 import { DEFAULT_TRAIN_STATE, trainQuery } from "../train/trainState";
 import styles from "../ui/an.module.css";
+import { HeatSkeleton, LeaksSkeleton, ListSkeleton, Sk } from "./OverviewSkeleton";
+import { useCountUp } from "./useCountUp";
 
 type Grade = (typeof GRADES)[number];
 const PAGE_SIZE = 25;
@@ -60,10 +62,13 @@ export function OverviewHead({
   overview,
   grade,
   onGrade,
+  busy = false,
 }: {
   overview: AnalysisOverview;
   grade: string | null;
   onGrade: (grade: string | null) => void;
+  /** A filter changed and the figures are being re-read: dim them in place. */
+  busy?: boolean;
 }) {
   const en = useDict().analysis;
   const t = en.ui;
@@ -77,32 +82,37 @@ export function OverviewHead({
   const per100 = overview.gradedHands > 0 && overview.evLossBb !== null ? (overview.evLossBb / overview.gradedHands) * 100 : null;
   const mistakeRate = graded > 0 ? (counts.mistake + counts.blunder) / graded : null;
   const filtering = grade !== null && (GRADES as readonly string[]).includes(grade);
+  // The figures count to their values when they land and when a filter moves them.
+  const shownScore = useCountUp(overview.score);
+  const shownPer100 = useCountUp(per100);
+  const shownMistakes = useCountUp(mistakeRate);
+  const shownGraded = useCountUp(graded);
 
   return (
-    <section className={styles.card}>
+    <section className={`${styles.card} rail-dims`} aria-busy={busy}>
       <div className={styles.kpis}>
         <dl className={styles.kpi}>
           <dt>{t.kpi.score}</dt>
           <dd>
-            {overview.score === null ? "—" : fixed1.format(overview.score)}
+            {shownScore === null ? "—" : fixed1.format(shownScore)}
             <span className={styles.unit}>{t.kpi.outOf}</span>
           </dd>
         </dl>
         <dl className={styles.kpi}>
           <dt>{t.kpi.evLost}</dt>
           <dd className={per100 ? styles.neg : undefined}>
-            {per100 === null ? "—" : `−${fixed2.format(per100)}`}
+            {shownPer100 === null ? "—" : `−${fixed2.format(shownPer100)}`}
             <span className={styles.unit}>{t.kpi.per100}</span>
           </dd>
         </dl>
         <dl className={styles.kpi}>
           <dt>{t.kpi.mistakes}</dt>
-          <dd>{mistakeRate === null ? "—" : pct.format(mistakeRate)}</dd>
+          <dd>{shownMistakes === null ? "—" : pct.format(shownMistakes)}</dd>
         </dl>
         <dl className={styles.kpi}>
           <dt>{t.kpi.graded}</dt>
           <dd>
-            {count.format(graded)}
+            {count.format(shownGraded ?? graded)}
             <span className={styles.unit}>{t.kpi.gradedOf(overview.gradedHands)}</span>
           </dd>
         </dl>
@@ -168,6 +178,8 @@ type Metric = "ev" | "score" | "mistakes";
 
 interface HeatLoaded {
   key: string;
+  /** The rows' axis when it was read: kept on screen, dimmed, while the other axis loads. */
+  axis: Axis;
   gradedHands: number;
   /** row key (seat or pot type) → that row's decisions, by street. */
   byRow: Record<string, AnalysisBreakdownRow[]>;
@@ -222,16 +234,19 @@ export function EvHeatmap({
       keys.forEach((key, i) => {
         byRow[key] = perRow[i] ?? [];
       });
-      setLoaded({ key: requestKey, gradedHands: overview?.gradedHands ?? 0, byRow });
+      setLoaded({ key: requestKey, axis, gradedHands: overview?.gradedHands ?? 0, byRow });
     })().catch(() => {
-      if (live) setLoaded({ key: requestKey, gradedHands: 0, byRow: {} });
+      if (live) setLoaded({ key: requestKey, axis, gradedHands: 0, byRow: {} });
     });
     return () => {
       live = false;
     };
   }, [axis, kind, requestKey]);
 
-  const order: readonly string[] = axis === "position" ? POSITION_VALUES : POT_VALUES;
+  // What is drawn is what was read: on an axis switch the old grid stays, dimmed, until the new one lands.
+  const shownAxis = loaded?.axis ?? axis;
+  const pending = !loaded || loaded.key !== requestKey;
+  const order: readonly string[] = shownAxis === "position" ? POSITION_VALUES : POT_VALUES;
   const rows = useMemo(() => (loaded ? order.filter((key) => key in loaded.byRow) : []), [loaded, order]);
 
   const cellOf = (row: string, s: string) => (loaded?.byRow[row] ?? []).find((r) => r.key === s) ?? null;
@@ -240,7 +255,7 @@ export function EvHeatmap({
   const mistakesOf = (r: AnalysisBreakdownRow | null) => (r && r.graded > 0 ? (r.grades.mistake + r.grades.blunder) / r.graded : null);
   const maxEv = Math.max(0.0001, ...rows.flatMap((row) => STREET_VALUES.map((s) => evOf(cellOf(row, s)) ?? 0)));
   const maxMistakes = Math.max(0.0001, ...rows.flatMap((row) => STREET_VALUES.map((s) => mistakesOf(cellOf(row, s)) ?? 0)));
-  const rowLabel = (key: string) => (axis === "position" ? key : (en.stats.breakdown.potTypes[key] ?? key));
+  const rowLabel = (key: string) => (shownAxis === "position" ? key : (en.stats.breakdown.potTypes[key] ?? key));
 
   const intensity = (r: AnalysisBreakdownRow | null): number | null => {
     if (!r || r.graded === 0) return null;
@@ -253,6 +268,7 @@ export function EvHeatmap({
     <section className={styles.card}>
       <div className={styles.cardHead}>
         <h3 className={styles.ttl}>{t.title}</h3>
+        {loaded && pending ? <RailLoader size="inline" label={t.title} /> : null}
         <span className={styles.grow} />
         <div className={styles.seg} role="group" aria-label={t.rows.position}>
           <button type="button" aria-pressed={axis === "position"} onClick={() => setAxis("position")}>
@@ -271,12 +287,14 @@ export function EvHeatmap({
         </div>
       </div>
 
-      {!loaded || loaded.key !== requestKey ? (
-        <RailLoader label={t.title} centered />
-      ) : rows.length === 0 ? (
+      {!loaded ? (
+        <div role="status" aria-label={t.title}>
+          <HeatSkeleton />
+        </div>
+      ) : rows.length === 0 && !pending ? (
         <p className={styles.empty}>{t.none}</p>
       ) : (
-        <div className={styles.heat}>
+        <div key={loaded.key} className={`${styles.heat} ${styles.heatIn} rail-stagger rail-dims`} aria-busy={pending}>
           <div className={styles.heatRow}>
             <span />
             {STREET_VALUES.map((s) => (
@@ -293,7 +311,7 @@ export function EvHeatmap({
                 const k = intensity(r);
                 const ev = evOf(r);
                 const mistakes = mistakesOf(r);
-                const selected = street === s && (axis === "position" ? position === row : potType === row);
+                const selected = street === s && (shownAxis === "position" ? position === row : potType === row);
                 const text =
                   !r || r.graded === 0
                     ? "—"
@@ -328,7 +346,7 @@ export function EvHeatmap({
                         : undefined
                     }
                     style={{
-                      background:
+                      backgroundColor:
                         k === null
                           ? "var(--surface-inset)"
                           : `color-mix(in srgb, var(--loss-fg) ${Math.round(8 + k * HEAT_MAX)}%, var(--surface-inset))`,
@@ -336,8 +354,8 @@ export function EvHeatmap({
                     onClick={() =>
                       onPick(
                         selected
-                          ? { street: null, ...(axis === "position" ? { position: null } : { potType: null }), page: 0 }
-                          : { street: s, ...(axis === "position" ? { position: row } : { potType: row }), page: 0 },
+                          ? { street: null, ...(shownAxis === "position" ? { position: null } : { potType: null }), page: 0 }
+                          : { street: s, ...(shownAxis === "position" ? { position: row } : { potType: row }), page: 0 },
                       )
                     }
                   >
@@ -554,7 +572,9 @@ export function HandsList({
       </div>
 
       {answeredKey === null ? (
-        <RailLoader label={t.list.loading} showLabel centered />
+        <div role="status" aria-label={t.list.loading}>
+          <ListSkeleton />
+        </div>
       ) : !loading && rows.length === 0 ? (
         <div className={styles.empty}>
           {ui.empty}{" "}
@@ -569,7 +589,8 @@ export function HandsList({
           ) : null}
         </div>
       ) : (
-        <div aria-busy={loading} className="rail-dims">
+        // Re-keyed per answer, so each new page or filter's rows arrive one after another.
+        <div key={answeredKey} aria-busy={loading} className="rail-dims rail-stagger">
           {rows.map((row) => {
             const g = gradeOf(row);
             const cards = row.heroCards.join(" ");
@@ -666,7 +687,8 @@ export function TopLeaksMini({ scopeKey, generation }: { scopeKey: string; gener
     };
   }, [scopeKey, generation]);
 
-  if (!top || top.length === 0) return null;
+  if (!top) return <LeaksSkeleton />;
+  if (top.length === 0) return null;
   const max = Math.max(0.0001, ...top.map((entry) => entry.leak.per100));
   const level = { low: 1, medium: 2, high: 3 } as const;
   return (
@@ -717,7 +739,8 @@ export function TopLeaksMini({ scopeKey, generation }: { scopeKey: string; gener
 export function TrainMini({ kind, generation }: { kind: GameKind | null; generation: number }) {
   const en = useDict().analysis;
   const t = en.ui.side;
-  const [drills, setDrills] = useState<DrillSummary | null>(null);
+  // `undefined` while the read is out, so the figure waits as a block, not as a "0".
+  const [drills, setDrills] = useState<DrillSummary | null | undefined>(kind ? undefined : null);
   const [plan, setPlan] = useState<StoredPlan | null | undefined>(undefined);
 
   useEffect(() => {
@@ -753,8 +776,14 @@ export function TrainMini({ kind, generation }: { kind: GameKind | null; generat
         <dl className={styles.kpi}>
           <dt>{t.drills}</dt>
           <dd>
-            {due}
-            <span className={styles.unit}>{t.now}</span>
+            {drills === undefined ? (
+              <Sk w={40} h={26} />
+            ) : (
+              <span className="rail-fade">
+                {due}
+                <span className={styles.unit}>{t.now}</span>
+              </span>
+            )}
           </dd>
         </dl>
         <span className={styles.grow} />
@@ -777,7 +806,9 @@ export function TrainMini({ kind, generation }: { kind: GameKind | null; generat
         <Link href={paths.analysisPlan()} className={styles.xs} style={{ color: "var(--text-link)" }}>
           {t.buildPlan}
         </Link>
-      ) : null}
+      ) : (
+        <Sk w="100%" h={8} round />
+      )}
     </section>
   );
 }

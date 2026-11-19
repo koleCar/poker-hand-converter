@@ -2,7 +2,7 @@
  * Reading and writing converted hands.
  */
 
-import { extractCards, resolveHeroQuery } from "../cards";
+import { extractCards, parseHeroHand } from "../cards";
 import { toStandardText } from "../phf/serialize";
 import type { PhfHand } from "../phf/types";
 import { currentUserId, isDatabaseConfigured, requireDb, requireUserId, rpc } from "./client";
@@ -347,13 +347,16 @@ export function handFiltersFromForm(
     filters.board = board;
   }
 
-  const hero = resolveHeroQuery(form.heroCards);
-  if (hero.kind === "class") {
-    filters.heroHandClasses = hero.values;
-  } else if (hero.kind === "cards") {
-    filters.heroCards = hero.values;
-  } else if (form.heroCards.trim()) {
+  const hero = parseHeroHand(form.heroCards);
+  if (hero === null) {
     filters.heroHandClasses = ["__no_match__"];
+  } else {
+    if (hero.classes !== null) {
+      filters.heroHandClasses = hero.classes.length > 0 ? hero.classes : ["__no_match__"];
+    }
+    if (hero.cards.length > 0) {
+      filters.heroCards = hero.cards;
+    }
   }
 
   const player = form.player.trim();

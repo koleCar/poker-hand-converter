@@ -1,9 +1,10 @@
 /**
- * The desktop app is for Rail Pro (`web/src/lib/download.ts`,
- * `components/download/DownloadButtons.tsx`, `app/download/[platform]/route.ts`):
+ * The desktop app is for every account, Free too since the pricing round
+ * (`web/src/lib/download.ts`, `components/download/DownloadButtons.tsx`,
+ * `app/download/[platform]/route.ts`):
  *
- * - signed out -> sign in; a plan without the app -> upgrade; a plan that
- *   could not be read -> no download (fails closed); Pro -> the installers;
+ * - signed out -> sign in; a plan that could not be read -> no download
+ *   (fails closed); Free or Pro -> the installers;
  * - while enforcement is off every signed-in account is Pro, so allowed;
  * - the page links to the web's gate, never to the installer itself;
  * - the browser's view waits for the session and the plan before it decides.
@@ -32,7 +33,7 @@ describe("downloadAccess", () => {
 
   it("allows a Pro account and refuses a Free one under enforcement", () => {
     expect(downloadAccess(true, pro)).toBe("allowed");
-    expect(downloadAccess(true, free)).toBe("pro");
+    expect(downloadAccess(true, free)).toBe("allowed");
   });
 
   it("allows every signed-in account while enforcement is off", () => {
@@ -71,7 +72,7 @@ describe("clientAccess (the page's view)", () => {
   it("decides once both are known", () => {
     expect(clientAccess("signed-out", true, "none", null)).toBe("signin");
     expect(clientAccess("signed-in", true, "ready", pro)).toBe("allowed");
-    expect(clientAccess("signed-in", true, "ready", free)).toBe("pro");
+    expect(clientAccess("signed-in", true, "ready", free)).toBe("allowed");
     expect(clientAccess("signed-in", true, "ready", notEnforced)).toBe("allowed");
   });
 

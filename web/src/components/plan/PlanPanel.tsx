@@ -1,32 +1,17 @@
 "use client";
 
 /**
- * Account -> Plan (Rail R6.2, R6.3), on `/settings#plan`: the plan in effect,
- * what the account pays for, the library against the Free cap, the
- * early-user discount, and paying: "Upgrade to Pro" (monthly or yearly, to
- * Stripe Checkout) or "Manage subscription" (Stripe's Customer Portal).
- * While enforcement is off it says so: everything is open and no limit
- * applies - buying Pro early is allowed and recorded. Until the owner
- * configures Stripe, the upgrade is disabled: "paid plans open soon".
+ * Account -> Plan (Rail R6.2, R6.3), on `/settings#plan`: the plan in effect
+ * and what the account pays for, the library against the Free cap, today's
+ * use on Free (hands saved, flops opened), "Manage subscription" (Stripe's
+ * Customer Portal) and the way to `/pricing`, where Pro is bought. While
+ * enforcement is off it says so in one line: everything is open.
  */
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import {
-  billingView,
-  consentComplete,
-  discounted,
-  fetchBillingOffer,
-  formatPrice,
-  openBillingPortal,
-  startCheckout,
-  NO_CONSENT,
-  type BillingError,
-  type BillingOffer,
-  type CheckoutConsent,
-  type Period,
-} from "../../lib/billing/checkout";
-import type { Entitlements } from "../../lib/db/entitlements";
+import { useState } from "react";
+import { billingView, openBillingPortal, type BillingError } from "../../lib/billing/checkout";
+import { isFreeEnforced, type Entitlements } from "../../lib/db/entitlements";
 import { useEntitlements } from "../../lib/entitlements/context";
 import { useDict, useLocale } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
@@ -35,6 +20,9 @@ import rows from "../account/rows.module.css";
 import { Icon } from "@rail/ui/icon/Icon";
 import { BusyLabel } from "../shell/BusyLabel";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
+
+/** Over this share of the Free cap the library meter turns yellow. */
+export const METER_NEAR = 0.9;
 
 /**
  * `2026-10-29T08:02:17Z` -> `29 October 2026`, as the settings screen words
@@ -51,23 +39,15 @@ function formatDay(iso: string, intl: string): string {
     .replace(/\.$/, "");
 }
 
+/** The reader's clock time of an instant (`01:00`), for the daily reset. */
+export function formatClock(iso: string, intl: string): string {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? iso : date.toLocaleTimeString(intl, { hour: "2-digit", minute: "2-digit" });
+}
+
 export function PlanPanel() {
   const t = useDict().plan;
   const { status, entitlements } = useEntitlements();
-  // What is on sale, as Stripe has it (no secret; null while asking).
-  const [offer, setOffer] = useState<BillingOffer | null>(null);
-  const signedIn = status !== "none";
-
-  useEffect(() => {
-    if (!signedIn) return;
-    let active = true;
-    void fetchBillingOffer().then((value) => {
-      if (active) setOffer(value);
-    });
-    return () => {
-      active = false;
-    };
-  }, [signedIn]);
 
   if (status === "none") {
     return null;
@@ -88,28 +68,15 @@ export function PlanPanel() {
             <span className={rows.error}>{status === "unavailable" ? t.unavailable : t.loadFailed}</span>
           </div>
         ) : (
-          <PlanDetails entitlements={entitlements} offer={offer} />
+          <PlanDetails entitlements={entitlements} />
         )}
       </div>
     </section>
   );
 }
 
-/**
- * The plan's rows for one answer of `my_entitlements()` (the plan, the
- * library, the early-user discount) and, behind "Upgrade to Pro", what is on
- * sale (`offer`: null = not known yet or not on sale). `upgradeOpen` starts
- * with the chooser open (the tests).
- */
-export function PlanDetails({
-  entitlements: e,
-  offer = null,
-  upgradeOpen = false,
-}: {
-  entitlements: Entitlements;
-  offer?: BillingOffer | null;
-  upgradeOpen?: boolean;
-}) {
+/** The plan's rows for one answer of `my_entitlements()`: the plan, the library, today on Free. */
+export function PlanDetails({ entitlements: e }: { entitlements: Entitlements }) {
   const en = useDict();
   const t = en.plan;
   const b = t.billing;
@@ -119,17 +86,19 @@ export function PlanDetails({
   const cap = e.features.hand_cap;
   const stored = e.usage.handsStored;
   const full = cap !== null && stored >= cap;
+  const near = cap !== null && !full && cap > 0 && stored / cap > METER_NEAR;
   const view = billingView(e);
   const end = sub.currentPeriodEnd;
-  const onSale = offer !== null && offer.available;
-  const [open, setOpen] = useState(upgradeOpen);
+  const free = isFreeEnforced(e);
+  const dayCap = free ? e.limits.dailyHandCap : null;
+  const flopCap = free && !e.features.solver_unlimited ? e.limits.dailyFlopCap : null;
 
   const tone = e.plan === "pro" ? rows.gold : !e.enforced ? rows.blue : rows.grey;
   const subLine =
     sub.plan === "pro"
       ? [
           sub.status ? t.status[sub.status] : t.granted,
-          sub.period === "month" ? t.billedMonthly : sub.period === "year" ? t.billedYearly : null,
+          sub.period ? t.billed[sub.period] : null,
           // Past due and canceled have their own line below.
           sub.status === "past_due" || sub.status === "canceled"
             ? null
@@ -158,53 +127,26 @@ export function PlanDetails({
             {!e.enforced ? <span className={`${rows.badge} ${rows.blue}`}>{t.earlyAccess}</span> : null}
           </span>
           {subLine ? <span className={rows.muted}>{subLine}</span> : null}
-          {!e.enforced ? (
-            <span className={rows.muted}>{onSale ? b.notEnforcedOnSale : t.notEnforced}</span>
-          ) : null}
+          {!e.enforced ? <span className={rows.muted}>{t.notEnforced}</span> : null}
           {view.notice === "past_due" ? (
             <span className={rows.error}>{e.graceUntil ? b.pastDueUntil(day(e.graceUntil)) : b.pastDue}</span>
           ) : null}
           {view.notice === "canceled_until" && end ? <span className={rows.muted}>{b.canceledUntil(day(end))}</span> : null}
           {view.notice === "ended" && end ? <span className={rows.muted}>{b.ended(day(end))}</span> : null}
-          {view.manage ? <span className={rows.muted}>{b.manageHint}</span> : null}
-          {view.upgrade && !onSale && e.enforced && e.plan !== "pro" ? (
-            <span id="settings-plan-soon" className={rows.muted}>
-              {t.upgradeSoon}
-            </span>
-          ) : null}
         </span>
         <span className={rows.actions}>
           {view.manage ? <ManageButton /> : null}
-          {view.upgrade && onSale ? (
-            <button
-              type="button"
-              className={`btn btn--sm${e.enforced ? " btn--primary" : ""}`}
-              aria-expanded={open}
-              aria-controls="settings-plan-upgrade"
-              onClick={() => setOpen((value) => !value)}
-            >
+          {free && view.upgrade ? (
+            <Link href={paths.pricing()} className={`btn btn--sm ${styles.gold}`}>
               {t.upgrade}
-            </button>
-          ) : view.upgrade && e.enforced && e.plan !== "pro" ? (
-            <button type="button" className="btn btn--primary btn--sm" disabled aria-describedby="settings-plan-soon">
-              {t.upgrade}
-            </button>
-          ) : null}
+            </Link>
+          ) : (
+            <Link href={paths.pricing()} className="btn btn--ghost btn--sm">
+              {t.pricing}
+            </Link>
+          )}
         </span>
       </div>
-
-      {view.upgrade && onSale && open ? (
-        <div id="settings-plan-upgrade" className={`${rows.row} ${rows.rowStack} ${rows.inset}`}>
-          <span className={rows.rowLabel}>{t.upgrade}</span>
-          <div className={rows.fields}>
-            <ul className={rows.list}>
-              <li>{t.freeIncludes}</li>
-              <li>{t.proIncludes}</li>
-            </ul>
-            <UpgradeChooser offer={offer} earlyUser={e.earlyUser.is} enforced={e.enforced} />
-          </div>
-        </div>
-      ) : null}
 
       <div className={rows.row}>
         <span className={rows.rowLabel}>{t.usageHeading}</span>
@@ -213,7 +155,7 @@ export function PlanDetails({
             <>
               <span className={rows.text}>{t.usage(count(stored), count(cap))}</span>
               <div
-                className={rows.meter}
+                className={styles.meter}
                 role="meter"
                 aria-valuemin={0}
                 aria-valuemax={cap}
@@ -221,19 +163,14 @@ export function PlanDetails({
                 aria-label={t.usageHeading}
               >
                 <div
-                  className={`${rows.meterFill} ${full ? rows.meterFull : ""}`}
+                  className={`${styles.meterFill} ${full ? styles.meterFull : near ? styles.meterNear : ""}`}
                   style={{ width: `${cap > 0 ? Math.min(100, (stored / cap) * 100) : 100}%` }}
                 />
               </div>
               {full ? <span className={rows.error}>{t.full}</span> : null}
             </>
           ) : (
-            <>
-              <span className={rows.text}>{t.usageUnlimited(count(stored))}</span>
-              {e.limits.freeHandCap !== null && !e.enforced ? (
-                <span className={rows.muted}>{t.freeHolds(count(e.limits.freeHandCap))}</span>
-              ) : null}
-            </>
+            <span className={rows.text}>{t.usageUnlimited(count(stored))}</span>
           )}
         </span>
         <span className={rows.actions}>
@@ -243,12 +180,21 @@ export function PlanDetails({
         </span>
       </div>
 
-      {e.earlyUser.is && e.earlyUser.discountPercent > 0 ? (
+      {dayCap !== null || flopCap !== null ? (
         <div className={rows.row}>
-          <span className={rows.rowLabel}>{t.discountLabel}</span>
+          <span className={rows.rowLabel}>{t.todayHeading}</span>
           <span className={rows.value}>
-            <span className={`${rows.badge} ${rows.blue}`}>{t.discount(e.earlyUser.discountPercent)}</span>
-            <span className={rows.muted}>{t.early(e.earlyUser.discountPercent)}</span>
+            <span className={rows.text}>
+              {[
+                dayCap !== null ? t.handsToday(count(e.usage.handsToday), count(dayCap)) : null,
+                flopCap !== null ? t.flopsToday(count(e.usage.flopsToday.length), count(flopCap)) : null,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </span>
+            {e.usage.dayResetsAt ? (
+              <span className={rows.muted}>{t.resets(formatClock(e.usage.dayResetsAt, en.chrome.intl))}</span>
+            ) : null}
           </span>
           <span />
         </div>
@@ -257,7 +203,7 @@ export function PlanDetails({
   );
 }
 
-function ManageButton() {
+export function ManageButton() {
   const en = useDict();
   const b = en.plan.billing;
   const locale = useLocale();
@@ -278,7 +224,7 @@ function ManageButton() {
 
   return (
     <>
-      <button type="button" className="btn btn--sm" onClick={open} disabled={busy}>
+      <button type="button" className="btn btn--sm" onClick={open} disabled={busy} title={b.manageHint}>
         <BusyLabel busy={busy} busyLabel={b.opening}>
           {b.manage}
         </BusyLabel>
@@ -289,157 +235,5 @@ function ManageButton() {
         </span>
       ) : null}
     </>
-  );
-}
-
-/**
- * Monthly or yearly, each with Stripe's price (and the early-user price), the
- * two consents, then Checkout. `initialConsent` is for the tests (the page
- * always starts with both boxes unticked).
- */
-export function UpgradeChooser({
-  offer,
-  earlyUser,
-  enforced,
-  initialConsent = NO_CONSENT,
-}: {
-  offer: BillingOffer;
-  earlyUser: boolean;
-  enforced: boolean;
-  initialConsent?: CheckoutConsent;
-}) {
-  const en = useDict();
-  const t = en.plan;
-  const b = t.billing;
-  const locale = useLocale();
-  const periods = (["month", "year"] as const).filter((p) => offer.prices[p] !== null);
-  const [period, setPeriod] = useState<Period>(periods[0] ?? "month");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<BillingError | null>(null);
-  const [consent, setConsent] = useState<CheckoutConsent>(initialConsent);
-  const percent = earlyUser ? offer.earlyDiscountPercent : null;
-  const chosen = offer.prices[period];
-  const agreed = consentComplete(consent);
-
-  const go = async () => {
-    if (!agreed) return;
-    setBusy(true);
-    setError(null);
-    const result = await startCheckout(period, locale, consent);
-    if (result.ok) {
-      window.location.assign(result.url);
-      return;
-    }
-    setBusy(false);
-    setError(result.error);
-  };
-
-  return (
-    <div className={styles.billing}>
-      <fieldset className={styles.periods} disabled={busy}>
-        <legend className={styles.subheading}>{b.choose}</legend>
-        {periods.map((p) => {
-          const price = offer.prices[p];
-          if (!price) return null;
-          const money = (amount: number) => formatPrice(amount, price.currency, en.chrome.intl);
-          const per = p === "month" ? b.perMonth : b.perYear;
-          return (
-            <label key={p} className={`${styles.period} ${period === p ? styles.periodOn : ""}`}>
-              <input type="radio" name="plan-period" value={p} checked={period === p} onChange={() => setPeriod(p)} />
-              <span className={styles.periodText}>
-                <strong>{p === "month" ? b.monthly : b.yearly}</strong>
-                <span>{per(money(price.amount))}</span>
-                {percent ? (
-                  <span className={styles.small}>{b.withDiscount(per(money(discounted(price.amount, percent))), percent)}</span>
-                ) : null}
-              </span>
-            </label>
-          );
-        })}
-      </fieldset>
-      <p className={styles.small}>
-        {chosen?.taxInclusive ? b.vatIncluded : b.vatAdded} {b.vatNote}
-      </p>
-      {!enforced ? <p className={styles.small}>{b.earlyAccessNote}</p> : null}
-      <ConsentFields
-        consent={consent}
-        disabled={busy}
-        onChange={(next) => {
-          setConsent(next);
-          if (error === "consent_required" || error === "consent_outdated") setError(null);
-        }}
-      />
-      <div className={styles.actions}>
-        <button
-          type="button"
-          className="btn btn--primary"
-          onClick={go}
-          disabled={busy || !chosen || !agreed}
-          aria-describedby={agreed ? undefined : "plan-consent-required"}
-        >
-          <BusyLabel busy={busy} busyLabel={b.working}>
-            {t.upgrade}
-          </BusyLabel>
-        </button>
-        {agreed ? null : (
-          <span id="plan-consent-required" className={styles.small}>
-            {b.consent.required}
-          </span>
-        )}
-      </div>
-      {error ? (
-        <p className="notice notice--error" role="alert">
-          {b.errors[error]}
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
-/**
- * The two consents before Checkout (R6.3 addendum): the terms (a link to
- * `/terms`), and the request that Pro start immediately with the
- * acknowledgement about the right of withdrawal. Plain native checkboxes,
- * unticked until the person ticks them; each required.
- */
-export function ConsentFields({
-  consent,
-  disabled = false,
-  onChange,
-}: {
-  consent: CheckoutConsent;
-  disabled?: boolean;
-  onChange: (next: CheckoutConsent) => void;
-}) {
-  const c = useDict().plan.billing.consent;
-  return (
-    <fieldset className={styles.consent} disabled={disabled}>
-      <legend className={styles.subheading}>{c.legend}</legend>
-      <label className={styles.consentItem}>
-        <input
-          type="checkbox"
-          name="plan-consent-terms"
-          required
-          checked={consent.terms}
-          onChange={(event) => onChange({ ...consent, terms: event.target.checked })}
-        />
-        <span>
-          {c.termsBefore}
-          <Link href={paths.terms()} target="_blank" rel="noopener">
-            {c.termsLink}
-          </Link>
-        </span>
-      </label>
-      <label className={styles.consentItem}>
-        <input
-          type="checkbox"
-          name="plan-consent-immediate"
-          required
-          checked={consent.immediatePerformance}
-          onChange={(event) => onChange({ ...consent, immediatePerformance: event.target.checked })}
-        />
-        <span>{c.immediate}</span>
-      </label>
-    </fieldset>
   );
 }

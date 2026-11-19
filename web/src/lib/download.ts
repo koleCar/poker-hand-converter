@@ -43,11 +43,12 @@ export function appDownloadPath(platform: AppPlatform): string {
 /**
  * May this visitor download the desktop app?
  *
- *   * `allowed` - signed in, and the plan includes the desktop app (the
- *     `hud` feature, which only Pro has). While enforcement is off every
- *     account's plan is Pro, so every signed-in account is allowed.
+ *   * `allowed` - signed in, on any plan: the desktop app (import, hands,
+ *     local stats, sync, table tiling and RNG) is Free too since the
+ *     pricing round (owner, 2026-11-19); the HUD inside it is what Pro adds.
  *   * `signin`  - signed out: there is no plan to check.
- *   * `pro`     - signed in on a plan without it (Free, enforcement on).
+ *   * `pro`     - no longer returned (the app used to be Pro); kept so an
+ *     older caller still type-checks.
  *   * `unknown` - signed in, but the plan could not be read. Not a download:
  *     the gate fails closed.
  */
@@ -56,7 +57,7 @@ export type DownloadAccess = "allowed" | "signin" | "pro" | "unknown";
 export function downloadAccess(signedIn: boolean, entitlements: Pick<Entitlements, "features"> | null): DownloadAccess {
   if (!signedIn) return "signin";
   if (!entitlements) return "unknown";
-  return entitlements.features.hud ? "allowed" : "pro";
+  return "allowed";
 }
 
 /**

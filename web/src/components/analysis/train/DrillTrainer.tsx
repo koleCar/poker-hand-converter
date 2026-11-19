@@ -19,7 +19,6 @@
 "use client";
 
 import type { GameKind } from "@rail/ui/hands/gameKind";
-import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DecisionAnalysis } from "../../../lib/analysis/types";
@@ -49,6 +48,7 @@ import { useTrainerKeys } from "./trainerKeys";
 import { lastAction } from "./spotPosition";
 import type { TrainState } from "./trainState";
 import own from "./train.module.css";
+import { SkStatus, SpotSkeleton } from "../ui/Skeleton";
 
 /** The migration the drills need, named in the not-installed notice. An identifier, not prose. */
 const TRAINING_MIGRATION = "supabase/migrations/20270208090000_analysis_training.sql";
@@ -343,7 +343,13 @@ export function DrillTrainer({ state, kind, onChange, onAnswer, onHelp, onSaved 
         </dl>
       ) : null}
 
-      {!ready ? <RailLoader label={d.syncing} showLabel centered /> : null}
+      {!ready ? (
+        <SkStatus label={d.syncing}>
+          <section className={`card ${own.spot}`}>
+            <SpotSkeleton />
+          </section>
+        </SkStatus>
+      ) : null}
 
       {ready && ready.queue.length === 0 ? (
         <div className="card stats-empty">
@@ -373,7 +379,11 @@ export function DrillTrainer({ state, kind, onChange, onAnswer, onHelp, onSaved 
               {position + 1} / {ready?.queue.length ?? 0}
             </span>
           </h3>
-          {!current ? <RailLoader label={d.loading} showLabel centered /> : null}
+          {!current ? (
+            <SkStatus label={d.loading}>
+              <SpotSkeleton />
+            </SkStatus>
+          ) : null}
           {current && current.status !== "ready" ? (
             <div className="notice notice--warn">
               <p>{current.status === "gone" ? d.handGone : current.status === "not-analysed" ? d.notAnalysed : current.message}</p>

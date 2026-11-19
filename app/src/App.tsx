@@ -2,8 +2,9 @@ import { lazy, Suspense, useEffect, type JSX } from "react";
 
 import styles from "./App.module.css";
 import { Palette } from "./components/Palette";
+import { FeedbackHost } from "./components/Feedback";
 import { ProLockView } from "./components/ProLock";
-import { ROUTE_FEATURE, useEntitlements } from "./lib/useEntitlements";
+import { ROUTE_FEATURE, ROUTE_LINE, useEntitlements } from "./lib/useEntitlements";
 import { useLocale } from "./i18n";
 import { Sidebar } from "./components/Sidebar";
 import { StateMessage } from "./components/StateMessage";
@@ -88,6 +89,7 @@ export function App() {
   // (R6.4) A Pro screen the plan holds back shows its lock instead.
   const plan = useEntitlements();
   const feature = ROUTE_FEATURE[route];
+  const line = ROUTE_LINE[route];
   const lock =
     feature !== undefined && plan.status !== null && plan.locked(feature) ? (
       <ProLockView
@@ -97,6 +99,7 @@ export function App() {
         onUpgrade={plan.upgrade}
         onCheck={plan.checkNow}
         checking={plan.checking}
+        line={line ? t.plan.screens[line] : undefined}
       />
     ) : null;
   const Current = SCREEN_COMPONENTS[route];
@@ -118,6 +121,7 @@ export function App() {
         )}
       </main>
       <Palette tablesOpen={tablesOpen} />
+      <FeedbackHost />
     </div>
   );
 }

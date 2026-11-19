@@ -17,6 +17,11 @@
  *   open (`#/solver/locks`).
  *
  * The switch is the first thing of the top row in both.
+ *
+ * (Free tier) While plans are enforced and the plan lacks every flop, the
+ * library asks before a flop's strategy shows (`solver/gate.tsx`, the host's
+ * `flops`): today's flops in the top row, a small Pro card past the day's
+ * cap. The Nodelock action is locked on such a plan (`useNodelockSlot`).
  */
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -24,6 +29,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { useT } from "../i18n";
 import { replaceParam, useRouteParam } from "../lib/router";
 import { SolverHostProvider, SolverLibrary, solverStyles, type SolverView } from "../solver/door";
+import { useAppFlopGate } from "../solver/gate";
 import { useSolverHost } from "../solver/host";
 import { Editor } from "../solver/nodelock/Editor";
 import styles from "../solver/nodelock/nodelock.module.css";
@@ -127,7 +133,8 @@ function Library({ lock, top = null, side = null }: { lock: ActiveLock | null; t
   const shown = useRef(lock ? viewParam(lock.summary) : (lastView ?? ""));
   const view = useCallback(() => shown.current, []);
   const nodelock = useNodelockSlot(lock, view);
-  const host = useMemo(() => ({ ...base, nodelock, top, side }), [base, nodelock, top, side]);
+  const flops = useAppFlopGate();
+  const host = useMemo(() => ({ ...base, nodelock, top, side, flops }), [base, nodelock, top, side, flops]);
   const lockId = lock?.row.id ?? null;
   const onView = useCallback(
     (next: SolverView) => {

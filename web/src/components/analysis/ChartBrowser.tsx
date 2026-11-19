@@ -11,7 +11,6 @@
 
 "use client";
 
-import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useMemo, useState } from "react";
 import { CHART_SETS, CHARTS_VERSION, DEFAULT_CHART_SET, type ChartSet } from "../../lib/charts";
 import { preflopChartSet } from "../../lib/chartSet";
@@ -20,6 +19,7 @@ import { paths } from "../../lib/routes";
 import styles from "./analysis.module.css";
 import { ChartGrid } from "./ChartGrid";
 import { SPOT_CATEGORIES, categoriesOf, lineSteps, nodesIn, type SpotCategory } from "./chartSpots";
+import { ChartsSkeleton, SkStatus } from "./ui/Skeleton";
 
 /** What the effect last loaded, for which set: another set's result reads as "loading". */
 type Loaded = { id: string } & ({ status: "loading" } | { status: "ready"; charts: ChartSet } | { status: "error"; message: string });
@@ -94,7 +94,11 @@ export function ChartBrowser({ initialSet = null, initialLine, initialHand }: Ch
         <p>{t.caveat}</p>
       </details>
 
-      {loaded.status === "loading" && !switching ? <RailLoader label={t.loading} showLabel centered /> : null}
+      {loaded.status === "loading" && !switching ? (
+        <SkStatus label={t.loading}>
+          <ChartsSkeleton caveat={false} />
+        </SkStatus>
+      ) : null}
       {loaded.status === "error" ? <p className="notice notice--error">{t.failed(loaded.message)}</p> : null}
 
       {charts && node ? (

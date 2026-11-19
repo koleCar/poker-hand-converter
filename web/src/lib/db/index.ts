@@ -170,3 +170,5 @@ export {
   type UnparsedStatus,
   type UnparsedSummary,
 } from "./types";
+
+export { DELETE_BATCH, countMyHands, deleteAllHands, deleteHands, type DeleteProgress } from "./handDeletion";

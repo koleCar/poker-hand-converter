@@ -21,3 +21,64 @@
   border-radius: var(--radius-3);
   color: var(--text-tertiary);
 }
+
+/* Two or more hands chosen: their actions in a bar at the window's foot. */
+.bar {
+  position: fixed;
+  bottom: var(--space-5);
+  left: 50%;
+  z-index: var(--z-menu);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: calc(100vw - 32px);
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-4);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-4);
+  background: var(--surface-overlay);
+  box-shadow: var(--shadow-2);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  transform: translateX(-50%);
+}
+
+.barCount {
+  margin-inline-end: var(--space-2);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.barAction {
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-3);
+  background: none;
+  color: var(--danger-fg);
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.barAction:hover {
+  background: var(--danger-bg);
+}
+
+.barClear {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--radius-3);
+  background: none;
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.barClear:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}

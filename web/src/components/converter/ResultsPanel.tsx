@@ -8,6 +8,7 @@
  * link between the two halves of this app.
  */
 
+import Link from "next/link";
 import { memo, useMemo, useState } from "react";
 import { useDict, useLocale } from "../../lib/i18n/client";
 import { INTL_LOCALE } from "../../lib/i18n/dictionaries";
@@ -104,6 +105,8 @@ interface ResultsPanelProps {
   siteLabel(siteId: string | null): string;
   /** True while batches are still arriving; the panel renders live. */
   converting: boolean;
+  /** (R6.4) A plan cap stopped the save: the link to Pro beside the message. */
+  upgrade?: { href: string; label: string } | null;
 }
 
 export function ResultsPanel({
@@ -116,6 +119,7 @@ export function ResultsPanel({
   onOpenInReplayer,
   siteLabel,
   converting,
+  upgrade = null,
 }: ResultsPanelProps) {
   const en = useDict();
   const t = en.converter.results;
@@ -259,6 +263,11 @@ export function ResultsPanel({
       {saveState.status === "error" ? (
         <p className="notice notice--warn conv-results__save-error">
           <span>{saveState.errors[0] ?? t.writeRefused}</span>
+          {upgrade ? (
+            <Link href={upgrade.href} className="btn btn--sm">
+              {upgrade.label}
+            </Link>
+          ) : null}
           <button type="button" className="btn btn--ghost btn--sm" onClick={onRetrySave}>
             {t.retrySave}
           </button>

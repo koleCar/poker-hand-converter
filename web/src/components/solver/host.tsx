@@ -52,6 +52,35 @@ export interface SolverHost {
   side?: ReactNode;
   /** A link to a view, for the top row's copy button; none (no button) when the host has no address to give. */
   link?: (view: SolverView) => string | null;
+  /**
+   * Flops a day (the pricing round): asked before a flop's solve is loaded,
+   * solved in full or walked to a turn. None (today's behaviour): every flop
+   * opens. Preflop is never asked about.
+   */
+  flops?: SolverFlopGate;
+  /** Pro tools shown locked at the toolbar's right end, where the nodelock's go (the web's Nodelock on Free). */
+  lockedTools?: ReactNode;
+}
+
+/** Opening a flop: open, refused (today's flops are used), or sign in first. */
+export type FlopGateAnswer = "open" | "refused" | "sign-in";
+
+export interface SolverFlopGate {
+  /** False while the host does not yet know whether flops are limited: no flop loads meanwhile. */
+  ready: boolean;
+  /**
+   * Asked once per flop shown (the library's canonical key, `Ks7h2d`). Keep
+   * it stable across renders: a new function asks again. A failure should
+   * answer "open".
+   */
+  open: (flop: string) => Promise<FlopGateAnswer>;
+  /**
+   * The top row's "today's flops": `reopen(flop)` is the action that shows
+   * one of them on the current line, or null when the line has no solve of it.
+   */
+  today?: (reopen: (flop: string) => (() => void) | null) => ReactNode;
+  /** In place of the strategy when a flop does not open. */
+  closed: (answer: Exclude<FlopGateAnswer, "open">, flop: string) => ReactNode;
 }
 
 /** Where the view is, for the nodelock slot: a heads-up library decision on the flop or a live turn. */

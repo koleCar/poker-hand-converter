@@ -1,6 +1,8 @@
 import type { UiStrings } from "@rail/ui/i18n";
 import { chartsUiEn } from "@rail/ui/strings/charts.en";
 import { chartsUiHr } from "@rail/ui/strings/charts.hr";
+import { feedbackUiEn } from "@rail/ui/strings/feedback.en";
+import { feedbackUiHr } from "@rail/ui/strings/feedback.hr";
 import { handsUiEn } from "@rail/ui/strings/hands.en";
 import { handsUiHr } from "@rail/ui/strings/hands.hr";
 import { playersUiEn } from "@rail/ui/strings/players.en";
@@ -46,6 +48,7 @@ function uiStrings(locale: Locale): UiStrings {
     players: locale === "hr" ? playersUiHr : playersUiEn,
     review: locale === "hr" ? reviewUiHr : reviewUiEn,
     charts: locale === "hr" ? chartsUiHr : chartsUiEn,
+    feedback: locale === "hr" ? feedbackUiHr : feedbackUiEn,
   };
 }
 

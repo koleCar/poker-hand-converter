@@ -10,22 +10,23 @@
 --   * every gated function opens with its guard, and every function a
 --     client may execute is either gated or on this file's free list (a new
 --     reader has to be put on one side of the line);
---   * early users: every account until the cutoff, none after it;
+--   * no early users any more (`20271119120000`);
 --   * `my_entitlements()` per state, and anon refused;
 --   * **enforcement off (the default): nothing changes** - no gated
 --     function refuses a Free account, no cap is checked;
 --   * enforcement on: a Free account is refused every gated function, its
---     desktop rows, its HUD layouts, its own chart sets and tournament
---     settings, and a save past the cap - at the
---     boundary, the statement whole, duplicates free; basic statistics stay
---     open; a Pro account (and its grace states) is allowed everything.
+--     own chart sets and tournament settings, and a save past the cap - at the
+--     boundary, the statement whole, duplicates free; basic statistics and
+--     desktop sync (free since `20271119110000`) stay open; a Pro account
+--     (and its grace states) is allowed everything. The daily caps and the
+--     solver flops are `free_tier.test.sql`.
 
 begin;
 
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
 
-select plan(68);
+select plan(65);
 
 -- Free, Pro, and the Pro states; created a while ago.
 insert into auth.users (id, email, email_confirmed_at, created_at) values
@@ -124,7 +125,7 @@ begin
 end;
 $$;
 -- The gate list, for the client roles (the table itself is sealed).
-create temp table gate_list as select function_sig from public.entitlement_gates;
+create temp table gate_list as select function_sig, feature from public.entitlement_gates;
 grant select on pg_temp.gate_list to anon, authenticated;
 
 -- The gated functions that refused the caller with PT402 (p_refused), or
@@ -169,9 +170,9 @@ select is((select array_agg(column_name::text order by column_name) from informa
             where table_schema = 'public' and table_name = 'profiles'
               and column_name in ('plan', 'plan_period', 'plan_status', 'current_period_end', 'plan_updated_at',
                                   'early_user', 'early_user_since', 'billing_customer_id', 'billing_subscription_id')),
-  array['billing_customer_id', 'billing_subscription_id', 'current_period_end', 'early_user', 'early_user_since',
+  array['billing_customer_id', 'billing_subscription_id', 'current_period_end',
         'plan', 'plan_period', 'plan_status', 'plan_updated_at'],
-  'profiles carries the plan, its period, status and end, the early-user mark and the provider ids');
+  'profiles carries the plan, its period, status and end and the provider ids (no early-user mark: 20271119120000)');
 
 select ok(not has_any_column_privilege('authenticated', 'public.profiles', 'select, insert, update, references')
           and not has_any_column_privilege('anon', 'public.profiles', 'select, insert, update, references')
@@ -200,7 +201,8 @@ select ok(not has_function_privilege('authenticated', 'public.has_entitlement(uu
           and not has_function_privilege('anon', 'public.has_entitlement(uuid, text)', 'execute')
           and not has_function_privilege('authenticated', 'public.billing_plan_state(uuid)', 'execute')
           and not has_function_privilege('authenticated', 'public.billing_stored_hands(uuid)', 'execute')
-          and not has_function_privilege('authenticated', 'public.billing_mark_early_users()', 'execute')
+          and not has_function_privilege('authenticated', 'public.billing_plan_limits(uuid)', 'execute')
+          and not has_function_privilege('authenticated', 'public.solver_flops_of(uuid)', 'execute')
           and not has_function_privilege('authenticated', 'public.entitlement_gates_apply()', 'execute'),
   'what takes an owner (an oracle on other accounts'' plans) and the maintenance functions: no client');
 
@@ -213,8 +215,9 @@ select ok(has_function_privilege('authenticated', 'public.my_entitlements()', 'e
 select is((select array_agg(p.proname::text order by p.proname) from pg_proc p
             where p.pronamespace = 'public'::regnamespace
               and p.proname in ('billing_plan_state', 'has_entitlement', 'has_my_entitlement', 'require_entitlement',
-                                'billing_stored_hands', 'my_entitlements', 'billing_set_plan', 'billing_mark_early_users',
-                                'profiles_mark_early_user', 'hands_enforce_plan', 'entitlement_row_guard')
+                                'billing_stored_hands', 'my_entitlements', 'billing_set_plan', 'billing_plan_limits',
+                                'solver_flops_of', 'solver_open_flop', 'solver_flops_today',
+                                'hands_enforce_plan', 'entitlement_row_guard')
               and not (p.prosecdef and p.proconfig @> array['search_path=""'])),
   null, 'every new definer pins search_path to empty');
 
@@ -222,8 +225,8 @@ select is((select enforcement_enabled::text || '/' || free.hand_cap || '/' || co
                   || array_to_string(pro.features, ',') || '/' || cardinality(free.features)
              from public.billing_settings, public.plan_limits free, public.plan_limits pro
             where free.plan = 'free' and pro.plan = 'pro'),
-  'false/10000/unlimited/desktop_sync,hud,reports_full,analysis,learn/0',
-  'enforcement is off by default; Free holds 10 000 hands and no Pro feature; Pro is unlimited with all five');
+  'false/10000/unlimited/desktop_sync,hud,reports_full,analysis,learn,solver_unlimited,nodelock/1',
+  'enforcement is off by default; Free holds 10 000 hands and has desktop sync only; Pro is unlimited with all seven');
 
 select pg_temp.act_as('00000000-0000-0000-0000-00000062f001');
 select throws_ok($$ update public.profiles set plan = 'pro' where id = auth.uid() $$, '42501',
@@ -302,13 +305,19 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 -- by `tournament_settings_entitlement`
                 'tournament_settings_problem',
                 -- the entitlements themselves
+                -- the admin page (20271119100000): each refuses a non-admin itself
+                'admin_feedback', 'admin_feedback_counts', 'admin_feedback_set_status', 'admin_user', 'admin_users',
                 'my_entitlements', 'has_my_entitlement', 'require_entitlement',
+                -- the solver's daily flops: open to every plan, counted for a capped one
+                'solver_open_flop', 'solver_flops_today',
                 -- R6.4: whether enforcement is on, for an app with no account (the switch only)
                 'billing_enforced',
                 -- R6.5: every account may export its data and delete itself
                 'export_my_manifest', 'export_my_profile', 'export_my_hands', 'export_my_rows', 'export_my_sealed',
                 'account_export_page', 'account_export_entry', 'account_export_charge',
-                'begin_account_deletion', 'my_account_deletion')),
+                'begin_account_deletion', 'my_account_deletion',
+                -- hand deletion (20271119200000): every plan deletes its own hands
+                'delete_hands', 'delete_hands_by_key', 'delete_all_hands', 'hand_tombstones_since')),
   null, 'every client-callable function is gated or named free here');
 
 select is((select string_agg(feature || ':' || n, ' ' order by feature)
@@ -318,43 +327,26 @@ select is((select string_agg(feature || ':' || n, ' ' order by feature)
 
 -- ---------------------------------------------------------- early users --
 
-select is((select early_user::text || '/' || (early_user_since = created_at)::text
-             from public.profiles where id = '00000000-0000-0000-0000-00000062f001'),
-  'true/true', 'no cutoff yet: an account created now is an early user, since its signup');
-
-update public.billing_settings set early_user_cutoff = now() - interval '7 days';
-insert into auth.users (id, email, email_confirmed_at, created_at) values
-  ('00000000-0000-0000-0000-00000062e001', 'ent.late@example.com', now(), now()),
-  ('00000000-0000-0000-0000-00000062e002', 'ent.early@example.com', now(), now() - interval '60 days');
-select is((select array_agg(early_user::text order by id) from public.profiles
-            where id in ('00000000-0000-0000-0000-00000062e001', '00000000-0000-0000-0000-00000062e002')),
-  array['false', 'true'], 'after the cutoff: only an account created before it is one');
-
-update public.profiles set early_user = false, early_user_since = null
- where id = '00000000-0000-0000-0000-00000062e002';
-select is(public.billing_mark_early_users(), 1, 'billing_mark_early_users marks the accounts before the cutoff ...');
-select is((select array_agg(early_user::text order by id) from public.profiles
-            where id in ('00000000-0000-0000-0000-00000062e001', '00000000-0000-0000-0000-00000062e002')),
-  array['false', 'true'], '... and only them');
-update public.billing_settings set early_user_cutoff = null;
+select is((select count(*)::int from pg_proc p where p.pronamespace = 'public'::regnamespace
+             and p.proname in ('billing_mark_early_users', 'profiles_mark_early_user'))
+          + (select count(*)::int from information_schema.columns
+              where table_schema = 'public' and table_name = 'billing_settings' and column_name like 'early_user%'),
+  0, 'no early users: the marking functions and the settings are gone (20271119120000)');
 
 -- --------------------------------------------------- enforcement is off --
 
-select set_config('ent.since', (select to_jsonb(created_at)::text from public.profiles
-                                 where id = '00000000-0000-0000-0000-00000062f001'), true);
 select pg_temp.act_as('00000000-0000-0000-0000-00000062f001');
-select is(public.my_entitlements() - 'checkedAt' - 'usage' - 'subscription' - 'earlyUser',
+select is(public.my_entitlements() - 'checkedAt' - 'usage' - 'subscription',
   jsonb_build_object(
     'plan', 'pro', 'reason', 'not_enforced', 'enforced', false,
     'features', jsonb_build_object('library_unlimited', true, 'hand_cap', null, 'desktop_sync', true, 'hud', true,
-                                   'reports_full', true, 'analysis', true, 'learn', true),
-    'limits', jsonb_build_object('freeHandCap', 10000),
+                                   'reports_full', true, 'analysis', true, 'learn', true,
+                                   'solver_unlimited', true, 'nodelock', true),
+    'limits', jsonb_build_object('freeHandCap', 10000, 'dailyHandCap', null, 'dailyFlopCap', null),
     'validUntil', null, 'graceUntil', null, 'offlineGraceDays', 14),
   'off: a Free account''s effective plan is Pro, every feature, no cap');
 select is(public.my_entitlements() -> 'subscription' ->> 'plan', 'free', '... its own plan is still Free');
-select is(public.my_entitlements() -> 'earlyUser',
-  jsonb_build_object('is', true, 'since', current_setting('ent.since')::jsonb, 'discountPercent', 30),
-  '... it is an early user, with the discount R6.3 applies');
+select ok(not (public.my_entitlements() ? 'earlyUser'), '... and there is no early-user state');
 select ok(public.has_my_entitlement('analysis') and public.has_my_entitlement('desktop_sync'),
   'has_my_entitlement: everything while off');
 
@@ -383,17 +375,20 @@ update public.billing_settings set enforcement_enabled = true;
 select public.billing_set_plan('00000000-0000-0000-0000-00000062a001', 'pro', 'month', 'active', now() + interval '20 days');
 
 select pg_temp.act_as('00000000-0000-0000-0000-00000062f001');
-select is(public.my_entitlements() - 'checkedAt' - 'usage' - 'subscription' - 'earlyUser',
+select is(public.my_entitlements() - 'checkedAt' - 'usage' - 'subscription',
   jsonb_build_object(
     'plan', 'free', 'reason', 'free', 'enforced', true,
-    'features', jsonb_build_object('library_unlimited', false, 'hand_cap', 3, 'desktop_sync', false, 'hud', false,
-                                   'reports_full', false, 'analysis', false, 'learn', false),
-    'limits', jsonb_build_object('freeHandCap', 3),
+    'features', jsonb_build_object('library_unlimited', false, 'hand_cap', 3, 'desktop_sync', true, 'hud', false,
+                                   'reports_full', false, 'analysis', false, 'learn', false,
+                                   'solver_unlimited', false, 'nodelock', false),
+    'limits', jsonb_build_object('freeHandCap', 3, 'dailyHandCap', 500, 'dailyFlopCap', 3),
     'validUntil', null, 'graceUntil', null, 'offlineGraceDays', 14),
-  'on: a Free account is Free, with the cap');
+  'on: a Free account is Free, with the caps; desktop sync is free');
 select ok(not public.has_my_entitlement('analysis'), 'has_my_entitlement agrees');
 
-select is(pg_temp.gates(false), '{}'::text[], 'on: every gated function refuses a Free account with PT402');
+select is((select array_agg(x order by x) from unnest(pg_temp.gates(false)) x
+            where split_part(x, '=', 1) not in (select g.function_sig from pg_temp.gate_list g where g.feature = 'desktop_sync')),
+  null, 'on: every gated function but desktop sync''s refuses a Free account with PT402');
 select is(pg_temp.refusal($$ select public.report_situations('{}') $$), 'PT402:reports_full',
   '... with the feature as the hint');
 select is((select array_agg(f || '=' || pg_temp.call_state(f)) from unnest(array[
@@ -437,8 +432,8 @@ select pg_temp.act_as('00000000-0000-0000-0000-00000062f001');
 select is(pg_temp.refusal($$ select public.ingest_hands(
              (select s.id from public.hand_sources s where s.owner_id = auth.uid() and s.kind <> 'web'),
              jsonb_build_array(pg_temp.row('d2'))) $$),
-  'PT402:desktop_sync', 'a Free account''s desktop sync is refused (an existing folder source)');
-select is((select count(*)::int from public.hud_layouts), 0, 'a Free account reads no HUD layouts');
+  'PT402:hand_cap', 'a Free account''s desktop sync is not refused for the plan, only by the full library');
+select is((select count(*)::int from public.hud_layouts), 1, 'a Free account reads its HUD layouts (desktop sync is free)');
 select is(pg_temp.refusal($$ insert into public.preflop_chart_sets (name, game_format, table_size, stack_min_bb, stack_max_bb)
                                values ('Mine', 'cash', 6, 80, 120) $$),
   'PT402:analysis', 'a Free account cannot write an own chart set');

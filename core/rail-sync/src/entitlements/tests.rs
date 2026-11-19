@@ -5,7 +5,8 @@ const HOUR: i64 = 60 * 60 * 1000;
 const ME: &str = "00000000-0000-0000-0000-0000000000a1";
 const OTHER: &str = "00000000-0000-0000-0000-0000000000b2";
 
-/// `my_entitlements()` as R6.2 answers it.
+/// `my_entitlements()` as the free tier answers it
+/// (`20271119110000_free_tier_limits.sql`).
 fn answer(plan: &str, enforced: bool, grace: u32) -> String {
     let pro = plan == "pro" || !enforced;
     serde_json::json!({
@@ -14,12 +15,20 @@ fn answer(plan: &str, enforced: bool, grace: u32) -> String {
         "enforced": enforced,
         "features": {
             "library_unlimited": pro, "hand_cap": if pro { Value::Null } else { 10000.into() },
-            "desktop_sync": pro, "hud": pro, "reports_full": pro, "analysis": pro, "learn": pro,
+            "desktop_sync": true, "hud": pro, "reports_full": pro, "analysis": pro, "learn": pro,
+            "solver_unlimited": pro, "nodelock": pro,
         },
-        "usage": { "handsStored": 1234 },
-        "limits": { "freeHandCap": 10000 },
+        "usage": {
+            "handsStored": 1234, "handsToday": if enforced { 120 } else { 0 },
+            "flopsToday": if pro { serde_json::json!([]) } else { serde_json::json!(["Ks7d2c", "QhJh4s"]) },
+            "dayResetsAt": "2027-01-15T00:00:00Z",
+        },
+        "limits": {
+            "freeHandCap": 10000,
+            "dailyHandCap": if pro { Value::Null } else { 500.into() },
+            "dailyFlopCap": if pro { Value::Null } else { 3.into() },
+        },
         "subscription": { "plan": plan, "period": "month", "status": "active", "currentPeriodEnd": null },
-        "earlyUser": { "is": true, "since": null, "discountPercent": 30 },
         "validUntil": "2027-01-01T00:00:00+00:00",
         "graceUntil": null,
         "offlineGraceDays": grace,
@@ -67,9 +76,24 @@ fn the_server_answer_is_read_field_by_field() {
     assert_eq!(pro.offline_grace_days, 14);
     assert_eq!(pro.reason, "subscription");
 
+    assert_eq!((pro.daily_hand_cap, pro.daily_flop_cap), (None, None));
+    assert!(pro.flops_today.is_empty());
+
     let free = ServerEntitlements::parse(answer("free", true, 14).as_bytes()).unwrap();
-    assert_eq!((free.plan, free.features), (Plan::Free, Features::NONE));
+    assert_eq!((free.plan, free.features), (Plan::Free, Features::FREE));
+    assert!(free.features.desktop_sync, "desktop sync is free");
+    assert!(!free.features.solver_unlimited && !free.features.nodelock);
     assert_eq!(free.hand_cap, Some(10_000));
+    assert_eq!(
+        (free.daily_hand_cap, free.daily_flop_cap),
+        (Some(500), Some(3))
+    );
+    assert_eq!(free.hands_today, 120);
+    assert_eq!(free.flops_today, ["Ks7d2c", "QhJh4s"]);
+    assert_eq!(
+        free.day_resets_at_ms,
+        utc_midnight_ms("2027-01-15T00:00:00Z")
+    );
 
     let off = ServerEntitlements::parse(answer("free", false, 14).as_bytes()).unwrap();
     assert!(!off.enforced);
@@ -86,6 +110,7 @@ fn the_server_answer_is_read_field_by_field() {
     assert_eq!(odd.plan, Plan::Free, "an unknown plan is Free");
     assert!(!odd.enforced, "only a literal true");
     assert_eq!(odd.features, Features::NONE, "only a literal true");
+    assert_eq!((odd.daily_hand_cap, odd.hands_today), (None, 0));
     assert_eq!(odd.offline_grace_days, MAX_GRACE_DAYS);
     let none = ServerEntitlements::parse(br#"{"plan":"pro","enforced":true}"#).unwrap();
     assert_eq!(none.offline_grace_days, DEFAULT_GRACE_DAYS);
@@ -139,7 +164,7 @@ fn enforced_and_signed_out_is_free() {
             EffectivePlan::Free,
             Reason::SignedOut,
             Enforcement::On,
-            Features::NONE
+            Features::FREE
         )
     );
     assert!(e.restricted());
@@ -165,7 +190,7 @@ fn a_fresh_pro_check_is_pro_until_the_grace_ends() {
     let e = eff(Some(ME), Some(&past), None);
     assert_eq!(
         (e.plan, e.reason, e.features),
-        (EffectivePlan::Free, Reason::GraceExpired, Features::NONE)
+        (EffectivePlan::Free, Reason::GraceExpired, Features::FREE)
     );
     assert_eq!(e.checked_at_ms, Some(NOW - 14 * DAY_MS - 1));
 }
@@ -193,7 +218,7 @@ fn a_free_check_is_free_with_an_upgrade() {
     let e = eff(Some(ME), Some(&mine), None);
     assert_eq!(
         (e.plan, e.reason, e.features),
-        (EffectivePlan::Free, Reason::Free, Features::NONE)
+        (EffectivePlan::Free, Reason::Free, Features::FREE)
     );
     assert_eq!(e.pro_until_ms, None);
 }
@@ -286,4 +311,97 @@ fn the_kept_records_round_trip() {
     assert_eq!(shown["features"]["reportsFull"], true);
     let shown = serde_json::to_value(eff(None, None, None)).unwrap();
     assert_eq!(shown["reason"], "enforcementUnknown");
+}
+
+#[test]
+fn every_free_fallback_keeps_sync_on() {
+    let theirs = check(OTHER, "pro", true, NOW - HOUR);
+    let old = check(ME, "pro", true, NOW - 30 * DAY_MS);
+    let on = public(true, NOW - HOUR);
+    for (user, account) in [
+        (None, None),
+        (Some(ME), None),
+        (Some(ME), Some(&theirs)),
+        (Some(ME), Some(&old)),
+    ] {
+        let e = eff(user, account, Some(&on));
+        assert_eq!(e.plan, EffectivePlan::Free);
+        assert_eq!(e.features, Features::FREE, "{:?}", e.reason);
+        assert!(e.features.desktop_sync);
+        assert!(!e.features.hud && !e.features.nodelock && !e.features.solver_unlimited);
+    }
+}
+
+#[test]
+fn an_answer_kept_before_the_free_tier_still_reads() {
+    // The shape an older app kept: no solver flags, no daily numbers.
+    let text = r#"{"userId":"u","fetchedAtMs":1,"entitlements":{"plan":"pro","reason":"x","enforced":false,
+        "features":{"desktopSync":true,"hud":true,"reportsFull":true,"analysis":true,"learn":true},
+        "handCap":null,"handsStored":3,"offlineGraceDays":14,"validUntil":null}}"#;
+    let kept: AccountCheck = serde_json::from_str(text).unwrap();
+    assert!(!kept.entitlements.features.nodelock);
+    assert_eq!(kept.entitlements.daily_hand_cap, None);
+    assert!(kept.entitlements.flops_today.is_empty());
+    // Kept while enforcement was off: everything stays open.
+    let e = eff(Some("u"), Some(&kept), None);
+    assert_eq!((e.plan, e.features), (EffectivePlan::Open, Features::ALL));
+}
+
+#[test]
+fn flop_keys_are_the_servers() {
+    for (given, key) in [
+        ("Ks7d2c", "Ks7d2c"),
+        ("2c Ks 7d", "Ks7d2c"),
+        ("ks7D2C", "Ks7d2c"),
+        ("Ks,7d,2c", "Ks7d2c"),
+        ("AhAsAc", "AsAhAc"),
+        ("2d2s2h", "2s2h2d"),
+        ("Tc9cJc", "JcTc9c"),
+    ] {
+        assert_eq!(flop_key(given).as_deref(), Some(key), "{given}");
+    }
+    for bad in [
+        "",
+        "Ks7d",
+        "Ks7d2c3h",
+        "KsKs2c",
+        "Kx7d2c",
+        "1s7d2c",
+        "K s 7 d 2",
+    ] {
+        assert_eq!(flop_key(bad), None, "{bad}");
+    }
+    let listed = flops_of(&serde_json::json!(["Ks7d2c", 3, "nope", "2c7dKs"]));
+    assert_eq!(listed, ["Ks7d2c", "Ks7d2c"]);
+}
+
+#[test]
+fn the_days_reset_reads_as_utc_midnight() {
+    assert_eq!(utc_midnight_ms("1970-01-01T00:00:00Z"), Some(0));
+    assert_eq!(utc_midnight_ms("1970-01-02T00:00:00Z"), Some(DAY_MS));
+    // 2026-11-20 00:00 UTC.
+    assert_eq!(
+        utc_midnight_ms("2026-11-20T00:00:00Z"),
+        Some(1_795_132_800_000)
+    );
+    assert_eq!(
+        utc_midnight_ms("2024-03-01T00:00:00Z"),
+        Some(1_709_251_200_000)
+    );
+    for bad in [
+        "2026-11-20",
+        "2026-11-20T01:00:00Z",
+        "2026-13-01T00:00:00Z",
+        "x",
+    ] {
+        assert_eq!(utc_midnight_ms(bad), None, "{bad}");
+    }
+    assert_eq!(
+        next_utc_midnight_ms(1_795_132_800_000 - 1),
+        1_795_132_800_000
+    );
+    assert_eq!(
+        next_utc_midnight_ms(1_795_132_800_000),
+        1_795_132_800_000 + DAY_MS
+    );
 }

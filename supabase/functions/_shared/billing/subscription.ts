@@ -30,16 +30,19 @@
  *   incomplete / incomplete_expired free   null       null (first payment not
  *   / paused                                          made: nothing was paid)
  *
- * The period (`month` | `year`) is the first item's price interval. The
+ * The period (`month` | `half_year` | `year`) is the first item's price
+ * interval: month x 1, month x 6 (`half_year`), year x 1. The
  * 2025-03-31 API moved `current_period_*` from the subscription to its items;
  * both places are read, so a webhook endpoint on either version works.
  */
+
+import { type Period, PERIOD_RECURRING, PERIODS } from "./config.ts";
 
 export type PlanStatus = "active" | "trialing" | "past_due" | "canceled";
 
 export interface PlanUpdate {
   plan: "free" | "pro";
-  period: "month" | "year" | null;
+  period: Period | null;
   status: PlanStatus | null;
   /** ISO 8601, or null. */
   currentPeriodEnd: string | null;
@@ -78,10 +81,22 @@ export function periodBounds(subscription: Obj): { start: number | null; end: nu
   return { start, end };
 }
 
-export function periodOf(subscription: Obj): "month" | "year" | null {
+export function periodOf(subscription: Obj): Period | null {
   const first = items(subscription)[0] ?? {};
-  const interval = obj(obj(obj(first).price).recurring).interval ?? obj(subscription.plan).interval;
-  return interval === "month" || interval === "year" ? interval : null;
+  const price = obj(obj(first).price);
+  const legacy = obj(subscription.plan);
+  const recurring = Object.keys(obj(price.recurring)).length > 0
+    ? obj(price.recurring)
+    : { interval: legacy.interval, interval_count: legacy.interval_count };
+  const interval = recurring.interval;
+  // An older event or a price without a count means one interval.
+  const count = recurring.interval_count === undefined || recurring.interval_count === null
+    ? 1
+    : int(recurring.interval_count);
+  for (const period of PERIODS) {
+    if (PERIOD_RECURRING[period].interval === interval && PERIOD_RECURRING[period].count === count) return period;
+  }
+  return null;
 }
 
 export function planFromSubscription(raw: unknown): PlanUpdate {
