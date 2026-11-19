@@ -28,6 +28,10 @@ export interface LockAction {
   name: string;
   kind: ExploreAction["kind"];
   amount: number;
+  /** As a fraction of the pot (`ActionInfo.sizePot`); 0 for fold, check and call. */
+  sizePot: number;
+  /** The library node's action it is (its row in GTO's strategy and EVs), or null for a size of the lock's own (`editor/sizes.ts`). */
+  gto: number | null;
 }
 
 export interface LockTarget {
@@ -47,7 +51,13 @@ export interface LockTarget {
   river: string | null;
   pot: number;
   toCall: number;
+  /** The actor's chips behind. */
+  behind: number;
+  /** What the actor has put in on this street before the decision. */
+  streetIn: number;
   actions: LockAction[];
+  /** The library node's actions (`actions` until sizes are added or taken away). */
+  library: LockAction[];
   spot: EditorSpot;
   /** Per hand: its grid cell (row * 13 + col), its cards in the picked suits, its made hand and draw (`MADE_HANDS`, `DRAWS`; -1 on the river). */
   cell: Uint8Array;
@@ -90,6 +100,14 @@ export function lockTarget(at: NodelockAt, t: SolverDict): LockTarget {
   const river = at.turn ? (history.find((s) => s.card)?.card ?? null) : null;
   const sinceDeal = history.slice(history.findIndex((s) => s.card) + 1);
   const steps = sinceDeal.map((s) => t.panel.step(s.position, t.action(s.action.kind, s.action.sizePot, s.action.amount)));
+  const library: LockAction[] = view.actions.map((a, k) => ({
+    label: a.label,
+    name: t.action(a.kind, a.sizePot, a.amount),
+    kind: a.kind,
+    amount: a.amount,
+    sizePot: a.sizePot,
+    gto: k,
+  }));
   const board = [...chunk.result.board.map(cardIndex), ...(river ? [cardIndex(river)] : [])];
   const features = handFeatures(hands, board);
   const cell = Uint8Array.from(hands, (combo) => classOfCombo(combo));
@@ -109,7 +127,10 @@ export function lockTarget(at: NodelockAt, t: SolverDict): LockTarget {
     river,
     pot: view.pot,
     toCall: view.toCall,
-    actions: view.actions.map((a) => ({ label: a.label, name: t.action(a.kind, a.sizePot, a.amount), kind: a.kind, amount: a.amount })),
+    behind: node.behind,
+    streetIn: streetInOf(view.path),
+    actions: library,
+    library,
     spot: { hands, reach, gto, ev },
     cell,
     cards: Array.from(hands, (combo) => {
@@ -122,14 +143,36 @@ export function lockTarget(at: NodelockAt, t: SolverDict): LockTarget {
   };
 }
 
-/** This node's lock. */
-export function lockSpec(target: LockTarget, state: Strategy): NodeLockSpec {
+/**
+ * What the actor has put in on this street before the decision, from the
+ * node's path: the street's labels alternate between the players, so the
+ * actor's last one is two back (`X-B1.82-R6`: the bettor's 1.82). A check
+ * puts in nothing; a call ends the street, so none comes two back.
+ */
+export function streetInOf(path: string): number {
+  const street = path.slice(path.lastIndexOf("|") + 1);
+  const steps = street ? street.split("-") : [];
+  const own = steps[steps.length - 2];
+  if (!own || own[0] === "X") return 0;
+  const to = Number(own.slice(1));
+  return Number.isFinite(to) ? to : 0;
+}
+
+/**
+ * This node's lock; `custom` when its actions are not the shown node's
+ * (sizes added or taken away), or when the shown node is itself a lock's
+ * own (`inherited`: opened inside a lock that changed this node's sizes).
+ */
+export function lockSpec(target: LockTarget, state: Strategy, inherited = false): NodeLockSpec {
+  const actions = target.actions.map((a) => a.label);
+  const same = !inherited && actions.length === target.library.length && actions.every((label, k) => label === target.library[k].label);
   return {
     street: target.street,
     path: target.path,
     player: target.player,
-    actions: target.actions.map((a) => a.label),
+    actions,
     ...lockArrays(target.spot, state),
+    ...(same ? {} : { custom: true as const }),
   };
 }
 

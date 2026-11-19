@@ -62,6 +62,7 @@ import {
   type LockSet,
   type NodeLockSpec,
   type SolveResult,
+  lockNodeActions,
 } from "../../../web/src/lib/solver/index.js";
 
 /** Node reached from the root by following edge labels. */
@@ -361,6 +362,59 @@ describe("a locked flop solve", () => {
   it("refuses a lock whose actions are not the tree's", () => {
     const set = lockSet("none");
     set.nodes[0] = { ...set.nodes[0], actions: ["F", "C", "R9"] };
+    expect(() => solveNodelock({ street: "flop", spot: SPOT }, set, { baseline: chunk, maxIterations: 2 })).toThrow(NodelockError);
+  });
+});
+
+describe("a lock with its own sizes (custom)", () => {
+  const chunk = baselineChunk();
+  const root = chunk.result.nodes[0];
+  const ip = chunk.result.nodes[root.children[root.labels.indexOf("X")]];
+  // IP after the check: the check taken away, a quarter-pot and a pot-sized bet in place of the half pot.
+  const actions = ["B2.5", "B10"];
+  const strategy = actions.map(() => new Array<number>(NUM_COMBOS).fill(0));
+  for (let c = 0; c < NUM_COMBOS; c += 1) strategy[c % 3 === 0 ? 1 : 0][c] = 1;
+  const set: LockSet = {
+    version: 1,
+    spot: { set: "test", line: "btn-bb", flop: "Ks8s2d" },
+    nodes: [{ street: "flop", path: ip.path, player: ip.player as 0 | 1, actions, strategy, locked: new Array<number>(NUM_COMBOS).fill(1), custom: true }],
+    earlier: "player",
+    targetPct: 1,
+  };
+  // What `nodelockFlopSpot` gives a custom lock.
+  const spot: FlopSpot = { ...SPOT, nodeActions: lockNodeActions(set) };
+
+  it("solves its own tree: the node offers its sizes, and each gets its own subtree", () => {
+    expect(ip.labels).not.toEqual(actions);
+    const solved = solveNodelock({ street: "flop", spot }, set, { baseline: chunk, maxIterations: 12 });
+    const node = nodeOf(solved.result, ip.path);
+    expect(node.labels).toEqual(actions);
+    const n = solved.result.hands[node.player].length;
+    const hands = solved.result.hands[node.player];
+    for (let i = 0; i < n; i += 1) expect(node.strategy[(hands[i] % 3 === 0 ? 1 : 0) * n + i]).toBe(1);
+    for (const label of actions) expect(nodeOf(solved.result, `${ip.path}-${label}`).toCall).toBeCloseTo(Number(label.slice(1)), 9);
+    // The rest of the tree is the library's.
+    expect(nodeOf(solved.result, "").labels).toEqual(root.labels);
+    expect(decodeChunk(solved.chunk).header.lockHash).toBe(lockHash(set));
+  });
+
+  it("split over parts is bit-identical to the sequential reference", () => {
+    const sequential = solveNodelock({ street: "flop", spot }, set, { baseline: chunk, maxIterations: 6 });
+    const how = nodelockFlopRun(set, 6);
+    const spec = { spot, dcfr: how.dcfr, storage: "i16" as const };
+    const probe = new SplitCoordinator(spec, []);
+    const parts = splitCards(probe.built, 3).map((cards) => new SplitPart(spec, cards));
+    const coordinator = new SplitCoordinator(spec, parts.map((p) => p.valueSum));
+    applyNodelock(coordinator.built, coordinator.solver, set, { baseline: chunkBaseline(chunk, coordinator.built) });
+    const run = driveSync(coordinator.run(how), parts);
+    const result = driveSync(coordinator.result(run, 0), parts);
+    sequential.result.nodes.forEach((node, k) => {
+      expect(result.nodes[k].labels).toEqual(node.labels);
+      expect(Array.from(result.nodes[k].strategy)).toEqual(Array.from(node.strategy));
+    });
+  });
+
+  it("is refused on the menu's tree", () => {
     expect(() => solveNodelock({ street: "flop", spot: SPOT }, set, { baseline: chunk, maxIterations: 2 })).toThrow(NodelockError);
   });
 });

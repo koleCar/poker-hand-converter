@@ -63,6 +63,7 @@ export {
   lockedNodes,
   lockFlopCards,
   lockGameStreet,
+  lockNodeActions,
   lockHash,
   lockPathOf,
   lockSymmetries,
@@ -114,6 +115,8 @@ export { ACTION, CHANCE, FOLD, rakeOf, SHOWDOWN, TreeBuilder, type Edge, type Fl
 export { clairvoyanceGame, clairvoyanceSolution, kuhnGame, leducGame } from "./toys";
 export {
   formatAmount,
+  nodeActionsOf,
+  type NodeStand,
   type ActionInfo,
   type ActionKind,
   type BetMenu,

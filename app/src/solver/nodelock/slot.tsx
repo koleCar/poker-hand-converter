@@ -166,7 +166,8 @@ function gtoAt(node: NodelockNode, key: string, based: boolean): Float32Array[] 
   if (!base) return null;
   if (base === node.chunk) return strategyRows(base, node.node);
   const index = base.result.nodes.findIndex((n) => n.kind === "action" && n.path === shown.path);
-  if (index < 0) return null;
+  // A lock with its own sizes offers other actions here: GTO never played them.
+  if (index < 0 || base.result.nodes[index].labels.join(" ") !== shown.labels.join(" ")) return null;
   const player = shown.player as 0 | 1;
   const hands = base.result.hands[player];
   const own = node.chunk.result.hands[player];

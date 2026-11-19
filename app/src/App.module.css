@@ -6,6 +6,11 @@
 }
 
 .main {
+  /* The containing block of every absolutely positioned box on a screen
+     (the screen-reader-only labels in the stat tables, …): without it they
+     hang off the page itself, outside this scroller, and stretch the whole
+     window past its height, so the shell scrolls away (Reports, 2026-11-18). */
+  position: relative;
   min-width: 0;
   overflow-y: auto;
   /* The scrollbar's room is kept when the page is short too: a screen that

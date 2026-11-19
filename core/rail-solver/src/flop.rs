@@ -214,6 +214,9 @@ pub fn build_flop_game(spot: &FlopSpot) -> Result<BuiltSubgame, SolverInputError
         "",
         &mut |st: &mut FlopState, c0, c1, all_in, path| turn_deal(st, c0, c1, all_in, path),
     );
+    if let Some(e) = state.build.error.take() {
+        return Err(e);
+    }
     let FlopState {
         build,
         chance_path,

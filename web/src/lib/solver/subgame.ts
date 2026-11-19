@@ -52,6 +52,8 @@ export interface SpotInput {
   rake?: Rake;
   /** Chips per big blind, for exploitability in mbb. Default 1 (amounts are in bb). */
   bigBlind?: number;
+  /** Nodes that offer their own actions, not the menu's (`BettingRules.nodeActions`): a nodelock's custom sizes. */
+  nodeActions?: Readonly<Record<string, readonly string[]>>;
 }
 
 export type RiverSpot = SpotInput;
@@ -127,6 +129,7 @@ export function rulesOf(spot: SpotInput, menus: readonly [BetMenu, BetMenu], rai
     raiseCap: raiseCap ?? 2,
     allInThreshold: spot.allInThreshold ?? 0,
     minBet: spot.minBet ?? 0,
+    ...(spot.nodeActions ? { nodeActions: spot.nodeActions } : {}),
   };
 }
 

@@ -33,6 +33,10 @@ pub struct NodeLockSpec {
     pub strategy: Vec<Vec<f64>>,
     /// 1,326 flags: 1 = the combo's strategy is fixed.
     pub locked: Vec<u8>,
+    /// The node offers `actions` in place of the tree's own (`custom`); the
+    /// spot's `nodeActions` carry them into the game.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub custom: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]

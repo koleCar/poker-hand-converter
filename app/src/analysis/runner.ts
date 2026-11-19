@@ -21,8 +21,12 @@
  *    `VillainCounters`, the web's batching and cache) from the store
  *    (`analysis_villains`, the web's `villain_counters` over it), kept for
  *    the run, read afresh for the next.
- * 4. **The worker** analyses the page (`worker.ts`, the web's library);
- *    the rows are written (`analysis_save`) and the next page waits
+ * 4. **The workers** analyse the pages (`worker.ts`, the web's library):
+ *    {@link RunnerDeps.lanes} pages at once (2026-11-19), each on its own
+ *    worker; a worker takes the next page as soon as its own is written, so
+ *    one slow hand (a turn solve can take most of a minute) holds up its own
+ *    worker only. The rows are written (`analysis_save`) page by page; a
+ *    hand in flight is never read into a second page. Between pages,
  *    {@link BREATHER_MS}.
  *
  * **Offline**: when a page could not fetch a flop library file, the next
@@ -55,6 +59,17 @@ export const GATE_POLL_MS = 5_000;
 export const IDLE_POLL_MS = 60_000;
 /** How often, while offline, the runner looks whether the flop library answers again. */
 export const PROBE_MS = 10 * 60_000;
+
+/**
+ * (2026-11-19) Workers analysing pages at once: half the cores, at most
+ * four (each one holds its own chart sets, a few hundred MB), at least one.
+ * Measured on real hands: nearly all the time goes to the few hands that
+ * reach the turn (a live turn and river solve, one core each), so pages on
+ * several workers go about as many times faster.
+ */
+export function analysisLanes(cores: number = typeof navigator === "undefined" ? 1 : navigator.hardwareConcurrency || 1): number {
+  return Math.max(1, Math.min(4, Math.floor(cores / 2)));
+}
 
 /** (R6.4) `plan`: enforcement on and the plan without the analysis. */
 export type GateReason = "paused" | "tables" | "backfill" | "statistics" | "store" | "plan";
@@ -101,8 +116,10 @@ export function nextMonth(month: string): string {
   return m === 12 ? `${String(year + 1).padStart(4, "0")}-01` : `${month.slice(0, 4)}-${String(m + 1).padStart(2, "0")}`;
 }
 
-/** What the runner uses: the IPC, the worker, the clock. */
+/** What the runner uses: the IPC, the workers, the clock. */
 export interface RunnerDeps {
+  /** Pages analysed at once, each on its own worker (absent: 1). */
+  lanes?: number;
   gate(): Promise<RunnerGate>;
   counts(version: string): Promise<RunnerCounts>;
   /** The counts month by month, newest first; absent: no months in the status. */
@@ -120,6 +137,8 @@ export interface RunnerDeps {
     library: boolean,
     signal: AbortSignal,
     tournaments?: TournamentSettingsMap | null,
+    /** Which worker (0 to `lanes` - 1). */
+    lane?: number,
   ): Promise<PageResult>;
   /** (R5.5) The user's settings per tournament; absent or failing: none (the standard assumptions). */
   tournaments?(): Promise<TournamentSettingsMap | null>;
@@ -148,7 +167,7 @@ export interface RunnerStatus {
   analysed: number;
   /** Hands the engine threw on, since the app started. */
   failed: number;
-  /** Hands a second over the last page; null before the first. */
+  /** Hands a second, every worker together (each one's last page); null before the first. */
   handsPerSecond: number | null;
   /** Whether the flop library answered at the last look. */
   library: boolean;
@@ -167,7 +186,14 @@ export class AnalysisRunner {
   /** A wake that came while no wait was on: the next wait returns at once. */
   private woken = false;
   private wait: AbortController | null = null;
-  private page: AbortController | null = null;
+  private readonly lanes: number;
+  /** The pages in flight, by lane. */
+  private readonly inFlight = new Map<number, { controller: AbortController; done: Promise<void> }>();
+  private readonly inFlightKeys = new Set<string>();
+  /** Each lane's last page: hands a second. */
+  private readonly lanePace = new Map<number, number>();
+  /** A page failed: the next turn waits before going on. */
+  private backoff = false;
   private cursor: Cursor | null = null;
   private focusMonth: string | null = null;
   private readonly failedKeys = new Set<string>();
@@ -178,6 +204,7 @@ export class AnalysisRunner {
   constructor(deps: RunnerDeps, version: string = ANALYSIS_VERSION) {
     this.deps = deps;
     this.version = version;
+    this.lanes = Math.max(1, Math.floor(deps.lanes ?? 1));
     this.status = {
       phase: "starting",
       reason: null,
@@ -227,7 +254,7 @@ export class AnalysisRunner {
   /** End the loop for good (the app is quitting); the page in flight is dropped. */
   stop(): void {
     this.stopped = true;
-    this.page?.abort();
+    this.abortAll();
     this.wake();
     this.set({ phase: "stopped" });
   }
@@ -253,7 +280,7 @@ export class AnalysisRunner {
   /** (A10) A poker table opened: the page in flight stops now. Closed: look again. */
   tablesOpen(open: boolean): void {
     if (open) {
-      this.page?.abort();
+      this.abortAll();
       this.set({ phase: "waiting", reason: "tables" });
     } else {
       this.wake();
@@ -263,12 +290,28 @@ export class AnalysisRunner {
   /** The user paused (the page in flight stops) or resumed. */
   paused(paused: boolean): void {
     if (paused) {
-      this.page?.abort();
+      this.abortAll();
       this.set({ paused, phase: "waiting", reason: "paused" });
     } else {
       this.set({ paused });
     }
     this.wake();
+  }
+
+  /** Stop every page in flight (analysed again later). */
+  private abortAll(): void {
+    for (const page of this.inFlight.values()) page.controller.abort();
+  }
+
+  private freeLane(): number | null {
+    for (let lane = 0; lane < this.lanes; lane += 1) if (!this.inFlight.has(lane)) return lane;
+    return null;
+  }
+
+  /** Wait until a page in flight is done (at once when none is). */
+  private async settle(): Promise<void> {
+    if (this.inFlight.size === 0) return;
+    await Promise.race([...this.inFlight.values()].map((page) => page.done));
   }
 
   private async sleep(ms: number): Promise<void> {
@@ -296,8 +339,12 @@ export class AnalysisRunner {
     }
   }
 
-  /** One turn of the loop: a page analysed, or a wait. Public for the tests. */
+  /** One turn of the loop: a page started (and, every worker busy, one finished), or a wait. Public for the tests. */
   async step(): Promise<void> {
+    if (this.backoff) {
+      this.backoff = false;
+      await this.sleep(GATE_POLL_MS);
+    }
     const gate = await this.deps.gate();
     if (!gate.run) {
       this.set({ phase: "waiting", reason: gate.reason, paused: gate.paused });
@@ -316,8 +363,14 @@ export class AnalysisRunner {
     const monthsLeft = counts.missing > 0 || (this.status.months?.some((m) => m.current < m.hands) ?? false);
     const months = monthsLeft && this.deps.months ? await this.deps.months(this.version).catch(() => null) : null;
     this.set(months ? { counts, months } : { counts });
+    // Every worker busy: wait for one.
+    if (this.freeLane() === null) {
+      await this.settle();
+      return;
+    }
+    const free = (hand: PendingDto) => !this.failedKeys.has(hand.handKey) && !this.inFlightKeys.has(hand.handKey);
     let hands: PendingDto[] = [];
-    if (counts.missing > this.failedKeys.size) {
+    if (counts.missing > this.failedKeys.size + this.inFlightKeys.size) {
       const focus = this.focusMonth;
       // A month sent to the front: the walk starts at its newest hand
       // (before the next month's first, in the keyset's order).
@@ -334,8 +387,8 @@ export class AnalysisRunner {
       }
       if (last) {
         this.cursor = { playedAt: last.playedAt, handKey: last.handKey };
-        hands = inFocus.filter((hand) => !this.failedKeys.has(hand.handKey));
-        // A page of hands that failed before: on to the next.
+        hands = inFocus.filter(free);
+        // A page of hands that failed before, or are in flight: on to the next.
         if (hands.length === 0) return;
       } else if (this.cursor !== null) {
         // The walk reached the oldest hand: again from the newest.
@@ -345,7 +398,12 @@ export class AnalysisRunner {
     }
     if (hands.length === 0 && counts.offline > 0 && this.reachable) {
       // Hands graded without the flop library, now that it answers.
-      hands = (await this.deps.offline(this.version, PAGE)).filter((hand) => !this.failedKeys.has(hand.handKey));
+      hands = (await this.deps.offline(this.version, PAGE)).filter(free);
+    }
+    if (hands.length === 0 && this.inFlight.size > 0) {
+      // The rest is in flight: wait for it.
+      await this.settle();
+      return;
     }
     if (hands.length === 0) {
       // Nothing to do: the next run reads the opponents' statistics afresh.
@@ -356,11 +414,31 @@ export class AnalysisRunner {
       await this.sleep(IDLE_POLL_MS);
       return;
     }
-    await this.analyse(hands);
+    this.dispatch(hands);
+    if (this.freeLane() === null) await this.settle();
     await this.sleep(BREATHER_MS);
   }
 
-  private async analyse(pending: PendingDto[]): Promise<void> {
+  /** Start a page on a free lane (the caller checked there is one). */
+  private dispatch(pending: PendingDto[]): void {
+    const lane = this.freeLane();
+    if (lane === null) return;
+    const controller = new AbortController();
+    for (const hand of pending) this.inFlightKeys.add(hand.handKey);
+    const done = this.analyse(pending, lane, controller)
+      .catch((error: unknown) => {
+        if (this.stopped) return;
+        this.backoff = true;
+        this.set({ phase: "error", lastError: error instanceof Error ? error.message : String(error) });
+      })
+      .finally(() => {
+        this.inFlight.delete(lane);
+        for (const hand of pending) this.inFlightKeys.delete(hand.handKey);
+      });
+    this.inFlight.set(lane, { controller, done });
+  }
+
+  private async analyse(pending: PendingDto[], lane: number, controller: AbortController): Promise<void> {
     const page: PageHand[] = [];
     for (const hand of pending) {
       try {
@@ -381,19 +459,16 @@ export class AnalysisRunner {
     // R5.5: read per page - a save re-queues its tournament's hands, which the next pages then read with it.
     const tournaments = this.deps.tournaments ? await this.deps.tournaments().catch(() => null) : null;
     const library = this.reachable;
+    if (controller.signal.aborted) return;
     this.set({ phase: "running", reason: null, library, month: monthOf(pending[0]?.playedAt ?? "") });
-    const controller = new AbortController();
-    this.page = controller;
     const started = this.deps.now();
     let result: PageResult;
     try {
-      result = await this.deps.analyse(page, villains, library, controller.signal, tournaments);
+      result = await this.deps.analyse(page, villains, library, controller.signal, tournaments, lane);
     } catch (error) {
       // Stopped (a table opened, a pause, quitting): analysed again later.
       if (controller.signal.aborted) return;
       throw error;
-    } finally {
-      this.page = null;
     }
     for (const key of result.failed) this.failedKeys.add(key);
     if (library && result.rows.some((row) => !row.flop_library)) {
@@ -407,10 +482,14 @@ export class AnalysisRunner {
       for (const listener of this.written) listener();
     }
     const seconds = Math.max(0.001, (this.deps.now() - started) / 1000);
+    this.lanePace.set(lane, page.length / seconds);
+    // Every lane at the pace the lanes have shown (one lane: its last page's).
+    const paces = [...this.lanePace.values()];
+    const pace = (paces.reduce((sum, value) => sum + value, 0) / paces.length) * this.lanes;
     this.set({
       analysed: this.status.analysed + result.rows.length,
       failed: this.failedKeys.size,
-      handsPerSecond: page.length / seconds,
+      handsPerSecond: pace,
       library: this.reachable,
       lastError: null,
     });

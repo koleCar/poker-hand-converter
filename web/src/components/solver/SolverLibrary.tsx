@@ -837,7 +837,8 @@ function compareWith(
   const shown = at.chunk.result.nodes[at.node];
   const index = nodeAt(base.result, shown.path);
   const node = base.result.nodes[index];
-  if (!node || node.kind !== "action" || node.actions.length !== shown.actions.length) return null;
+  // A lock with its own sizes (`NodeLockSpec.custom`) offers other actions here: nothing to compare them with.
+  if (!node || node.kind !== "action" || node.labels.join(" ") !== shown.labels.join(" ")) return null;
   const sameHands = base.result.hands[node.player].length === at.chunk.result.hands[shown.player].length;
   const view = exploreNode(base, index, sameHands ? include : undefined);
   return {

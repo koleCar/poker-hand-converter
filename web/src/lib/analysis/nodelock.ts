@@ -39,6 +39,7 @@ import {
   liveTurnSpot,
   lockedNodes,
   lockGameStreet,
+  lockNodeActions,
   lockSymmetries,
   NodelockError,
   nodelockHeader,
@@ -78,7 +79,8 @@ export type NodelockSpot =
 /** The flop spot of a flop lock: the library's spot, isomorphism limited to what the lock keeps. */
 export function nodelockFlopSpot(charts: ChartSet, set: LockSet): FlopSpot {
   const spot = nodelockSpot(charts, set.spot.line, set.spot.flop);
-  return { ...spot, symmetry: lockSymmetries(set, spot.board) };
+  const nodeActions = lockNodeActions(set);
+  return { ...spot, symmetry: lockSymmetries(set, spot.board), ...(nodeActions ? { nodeActions } : {}) };
 }
 
 /** The turn game of a turn or river lock: the chunk's deal on its flop line, the lock's turn card. */
@@ -88,7 +90,8 @@ export function nodelockTurnSpot(baseline: FlopChunk, set: LockSet): Extract<Nod
   const deal = baseline.result.nodes.findIndex((node) => node.kind === "chance" && node.path === parts.flop);
   if (deal < 0) throw new NodelockError(`the chunk has no turn deal after ${parts.flop || "the flop root"}`);
   const spot = liveTurnSpot(baseline, deal, parts.turn);
-  return { street: "turn", spot: { ...spot, symmetry: lockSymmetries(set, spot.board) }, deal, card: parts.turn };
+  const nodeActions = lockNodeActions(set, turnGamePath);
+  return { street: "turn", spot: { ...spot, symmetry: lockSymmetries(set, spot.board), ...(nodeActions ? { nodeActions } : {}) }, deal, card: parts.turn };
 }
 
 /**
