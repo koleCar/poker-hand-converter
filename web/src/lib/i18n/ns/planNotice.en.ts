@@ -11,19 +11,23 @@ export const planNoticeEn = {
     generic: "Your plan does not include this.",
     capHeading: "Your library is full",
     cap: (cap: string) => `The Free plan holds ${cap} hands. Upgrade to Pro to keep saving hands.`,
-    upgrade: "Upgrade to Pro",
+    /** The day's Free hands are saved (`daily_cap`). */
+    dailyHeading: "Today's hands are saved",
+    daily: (cap: string) => `${cap} hands saved today — the rest saves after the reset, or now with Pro.`,
+    upgrade: "See Pro",
     dismiss: "Not now",
   },
   converter: {
     /** Before or while saving, with little room left. */
     capNear: (left: string, cap: string) => `Your library has room for ${left} more hands on the Free plan (it holds ${cap}).`,
-    capFull: (cap: string) => `Your library is full: the Free plan holds ${cap} hands. New hands are not saved until you upgrade to Pro.`,
+    capFull: (cap: string) => `Your library is full (${cap} hands on Free).`,
+    /** Today's Free hands are saved (before or while saving). */
+    daily: (cap: string) => `${cap} hands saved today — the rest saves after the reset, or now with Pro.`,
     /** The save was cut to what fit. */
     trimmed: "Only the hands that fit in your Free library were saved.",
     /** Paused at the cap: everything that fit was saved. */
-    pausedCap: (cap: string) =>
-      `Saving stopped: your library is full on the Free plan (${cap} hands). Every hand that fit was saved; the rest wait in this tab. Upgrade to Pro, then try again.`,
-    pausedPlan: "Saving stopped: your plan does not allow it. Upgrade to Pro, then try again.",
-    upgrade: "Upgrade to Pro",
+    pausedCap: (cap: string) => `Your library is full (${cap} hands on Free). Every hand that fit was saved.`,
+    pausedPlan: "Saving stopped: your plan does not allow it.",
+    upgrade: "See Pro",
   },
 } as const;

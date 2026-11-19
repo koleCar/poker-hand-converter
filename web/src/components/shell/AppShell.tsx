@@ -14,6 +14,7 @@ import { FeedbackButton } from "./FeedbackButton";
 import { LanguageSwitch } from "./LanguageSwitch";
 import { NavPending, NavPendingProvider, NavProgressLine, useNavPendingState } from "./NavProgress";
 import { ProBadge } from "../plan/ProLock";
+import { PlanBarLink } from "../plan/PlanBarLink";
 
 /**
  * The bar, the tabs and the dialog — everything a signed-in screen has above
@@ -117,14 +118,9 @@ export function AppShell({
                     <span className="shell__tab-label">
                       {entry.download ? <DownloadArrow /> : null}
                       <span className="shell__tab-text">{entry.label(en)}</span>
+                      {lockedTabs.includes(entry.id) ? <ProBadge /> : null}
                     </span>
                     <NavPending />
-                    {lockedTabs.includes(entry.id) ? (
-                      <>
-                        {" "}
-                        <ProBadge />
-                      </>
-                    ) : null}
                   </Link>
                 ))}
               </nav>
@@ -134,6 +130,7 @@ export function AppShell({
               <DbStatusChip configured={dbConfigured} />
               <NotificationsBell />
               <LanguageSwitch />
+              <PlanBarLink />
               <UserMenu />
             </div>
           </div>

@@ -63,7 +63,6 @@ export interface AdminUserDetail {
     planPeriod: string | null;
     currentPeriodEnd: string | null;
     billingCustomer: boolean;
-    earlyUser: boolean;
     bannedUntil: string | null;
     banReason: string | null;
     shadowbanned: boolean;

@@ -126,6 +126,10 @@ const HR: Record<string, string> = {
     "Biblioteka ti je puna na Free planu. Prijeđi na Pro da nastaviš spremati ruke.",
   "Syncing hands from the desktop app is a Pro feature. Upgrade to Pro to sync.":
     "Sinkronizacija ruku iz desktop aplikacije je Pro značajka. Prijeđi na Pro za sinkronizaciju.",
+  // the Free day's cap and the solver's flops (`20271119110000_free_tier_limits.sql`)
+  "You have saved today's hands on the Free plan. The rest saves after the daily reset, or now with Pro.":
+    "Današnje ruke na Free planu su spremljene. Ostale se spremaju nakon dnevnog resetiranja, ili odmah uz Pro.",
+  "Not a flop.": "To nije flop.",
 
   // Supabase Auth
   "Invalid login credentials": "Pogrešan e-mail ili lozinka.",

@@ -112,7 +112,6 @@ function UserDetail({ user }: { user: AdminUserDetail }) {
               <>
                 <Field label={u.fields.role}>{p.role}</Field>
                 <Field label={u.fields.karma}>{fmt.number(p.karma)}</Field>
-                <Field label={u.fields.earlyUser}>{yesNo(p.earlyUser)}</Field>
                 <Field label={u.fields.digest}>{p.digest}</Field>
                 {p.bannedUntil ? <Field label={u.fields.banned}>{fmt.dateTime(p.bannedUntil)}</Field> : null}
                 {p.banReason ? <Field label={u.fields.banReason}>{p.banReason}</Field> : null}

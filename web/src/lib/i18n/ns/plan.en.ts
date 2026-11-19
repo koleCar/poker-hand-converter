@@ -5,8 +5,6 @@
 export const planEn = {
   heading: "Plan",
   earlyAccess: "Early access",
-  discount: (percent: number) => `−${percent}% for life`,
-  discountLabel: "Discount",
   open: "Open",
   loading: "Loading your plan…",
   unavailable: "Plans are not set up on this database yet. Everything keeps working.",
@@ -16,10 +14,9 @@ export const planEn = {
   badge: "Pro",
 
   current: (plan: string) => `Your plan: ${plan}`,
-  notEnforced:
-    "Rail is in early access: every feature is open to every account, and no limit applies. Paid plans are not on sale yet.",
-  billedMonthly: "Billed monthly",
-  billedYearly: "Billed yearly",
+  notEnforced: "Everything is open while Rail is in early access.",
+  /** How a subscription is billed, by period. */
+  billed: { month: "Billed monthly", half_year: "Billed every 6 months", year: "Billed yearly" },
   status: {
     active: "Active",
     trialing: "Trial",
@@ -31,38 +28,23 @@ export const planEn = {
   graceUntil: (date: string) => `The last payment did not go through. Pro stays on until ${date}.`,
   granted: "Pro, granted to this account.",
 
-  usageHeading: "Your library",
-  usage: (stored: string, cap: string) => `${stored} of ${cap} hands stored`,
-  usageUnlimited: (stored: string) => `${stored} hands stored, no limit`,
-  freeHolds: (cap: string) => `The Free plan holds ${cap} hands.`,
-  full: "Your library is full. Upgrade to Pro to keep saving hands.",
+  usageHeading: "Library",
+  usage: (stored: string, cap: string) => `${stored} / ${cap} hands`,
+  usageUnlimited: (stored: string) => `${stored} hands`,
+  full: "Your library is full",
 
-  includedHeading: "What each plan includes",
-  freeIncludes: "Free: the converter, the replayer, sharing, a library of up to the hand limit, basic statistics.",
-  proIncludes:
-    "Pro: an unlimited library, the desktop HUD and sync, full reports, analysis (session review, leaks, your own charts) and Learn.",
+  /** Today's use on Free (UTC day): hands saved and flops opened, against the caps. */
+  todayHeading: "Today",
+  handsToday: (saved: string, cap: string) => `${saved} / ${cap} hands`,
+  flopsToday: (opened: string, cap: string) => `${opened} / ${cap} flops`,
+  resets: (time: string) => `Resets at ${time}`,
 
-  early: (percent: number) =>
-    `You joined early: you keep a ${percent}% lifetime discount on Pro for as long as you stay subscribed.`,
-
+  /** The link to `/pricing`, where Pro is bought. */
+  pricing: "Plans and prices",
   upgrade: "Upgrade to Pro",
-  upgradeSoon: "Paid plans open soon.",
 
   /** Paying for Pro (R6.3): the Plan panel's checkout and portal, and the pages Stripe returns to. */
   billing: {
-    notEnforcedOnSale:
-      "Rail is in early access: every feature is open to every account, and no limit applies. You can already subscribe to Pro.",
-    choose: "Billing period",
-    monthly: "Monthly",
-    yearly: "Yearly",
-    perMonth: (price: string) => `${price} / month`,
-    perYear: (price: string) => `${price} / year`,
-    withDiscount: (price: string, percent: number) => `${price} with your ${percent}% early-user discount`,
-    vatIncluded: "Prices include VAT.",
-    vatAdded: "VAT is added at checkout where it applies.",
-    vatNote: "Tax is worked out from your billing address at checkout; a business can add its VAT number.",
-    earlyAccessNote: "Subscribing now starts Pro billing today. Everything stays open while Rail is in early access.",
-    continue: "Continue to payment",
     /**
      * The two checkboxes before Checkout (R6.3 addendum; EU consumer law,
      * Directive 2011/83/EU art. 16(m), the Croatian ZZP). LEGAL TEXT - A DRAFT:
@@ -83,7 +65,7 @@ export const planEn = {
     },
     working: "Opening the payment page…",
     manage: "Manage subscription",
-    manageHint: "Change your card, switch between monthly and yearly, download invoices or cancel.",
+    manageHint: "Change your card or billing period, download invoices or cancel.",
     opening: "Opening…",
     pastDue: "Your last payment did not go through. Update your payment method to keep Pro.",
     pastDueUntil: (date: string) =>
@@ -132,6 +114,8 @@ export const planEn = {
       reports_full: "Full reports - situations, sessions, opponents and players - are part of Pro.",
       desktop_sync: "Syncing with the desktop app is part of Pro.",
       hud: "The desktop HUD is part of Pro.",
+      solver_unlimited: "Every flop, every day, is part of Pro.",
+      nodelock: "Nodelock is part of Pro.",
     },
     seePlan: "See your plan",
   },

@@ -71,7 +71,6 @@ export const adminHr: Dict["admin"] = {
       providers: "Načini prijave",
       role: "Uloga",
       karma: "Karma",
-      earlyUser: "Rani korisnik",
       digest: "Sažetak",
       banned: "Blokiran do",
       banReason: "Razlog blokade",

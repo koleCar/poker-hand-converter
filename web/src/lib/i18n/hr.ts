@@ -22,6 +22,7 @@ import { loadingHr } from "./ns/loading.hr";
 import { manualHr } from "./ns/manual.hr";
 import { planHr } from "./ns/plan.hr";
 import { planNoticeHr } from "./ns/planNotice.hr";
+import { pricingHr } from "./ns/pricing.hr";
 import { replayerHr } from "./ns/replayer.hr";
 import { statsHr } from "./ns/stats.hr";
 import { solverHr } from "./ns/solver.hr";
@@ -52,6 +53,7 @@ export const hr: Dict = {
   download: downloadHr,
   plan: planHr,
   planNotice: planNoticeHr,
+  pricing: pricingHr,
   yourData: yourDataHr,
   loading: loadingHr,
 

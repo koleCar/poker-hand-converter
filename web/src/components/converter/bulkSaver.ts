@@ -25,9 +25,13 @@
  *    refuses a call that would put a Free library over its cap *whole*
  *    (`PT402`, R6.2) and says how much room is left. The saver then cuts its
  *    calls to that room, so every hand that fits is saved, and pauses with
- *    `cap` when nothing more fits ("Try again" after an upgrade). Any other
- *    plan refusal pauses with `plan`. The server stays the gate: nothing
- *    here counts hands itself.
+ *    `cap` when nothing more fits ("Try again" after an upgrade). The Free
+ *    day's cap (`daily_cap`, hands saved per UTC day) is the same, pausing
+ *    with `daily` (the rest saves after the reset). The page passes the
+ *    room it already knows (`initialRoom`, from `my_entitlements()`), so the
+ *    first call asks for no more than fits. Any other plan refusal pauses
+ *    with `plan`. The server stays the gate: nothing here counts hands
+ *    itself.
  *  * **Resume.** Every acknowledged call advances the manifest
  *    (`uploadManifest.ts`): per source, the batches stored and, once all
  *    are, done. A later drop of the same files
@@ -62,10 +66,12 @@ export type SaveStateName =
 
 /**
  * Why a save stopped. (R6.4) `cap`: the library is full on the Free plan -
- * everything that fit was saved; `plan`: the plan refused the save for
- * another reason. Both resume after an upgrade ("Try again").
+ * everything that fit was saved; `daily`: today's Free hands are saved, the
+ * rest wait for the reset; `plan`: the plan refused the save for another
+ * reason. All resume after an upgrade ("Try again"), `daily` also after the
+ * reset.
  */
-export type PauseReason = "offline" | "signed-out" | "day-budget" | "cap" | "plan";
+export type PauseReason = "offline" | "signed-out" | "day-budget" | "cap" | "daily" | "plan";
 
 export interface SaveProgress {
   state: SaveStateName;
@@ -91,6 +97,8 @@ export interface SaveProgress {
    * the refused call. Null until then (and after a resume).
    */
   cap: { cap: number; stored: number } | null;
+  /** (R6.4) For a `daily` pause: when the day's count starts again (ISO), when known. */
+  resetsAt: string | null;
   /** (R6.4) Calls were cut to what still fit under the cap. */
   trimmed: boolean;
   /** The last failure's message, technical. */
@@ -112,6 +120,12 @@ export interface SaverOptions {
   maxQueuedHands?: number;
   /** Failures recorded to the corpus per upload, at most. */
   maxFailures?: number;
+  /**
+   * (R6.4) Hands the plan still has room for (the library and today), as
+   * `my_entitlements()` said before the upload; null or absent = no limit.
+   * The first calls carry no more than that; the server still decides.
+   */
+  initialRoom?: number | null;
   retry?: { baseMs: number; maxMs: number; attempts: number };
   /** Wait after a spent 10-minute budget, and how many such waits before pausing. */
   budgetWaitMs?: number;
@@ -207,6 +221,7 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
     sourcesDone: manifest.counts.sourcesDone,
     failuresRecorded: null,
     cap: null,
+    resetsAt: null,
     trimmed: false,
     lastError: null,
   };
@@ -216,7 +231,10 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
    * the calls are cut to the room it reported and what fits is saved; null
    * = the usual size.
    */
-  let callLimit: number | null = null;
+  let callLimit: number | null =
+    options.initialRoom !== undefined && options.initialRoom !== null && options.initialRoom > 0
+      ? options.initialRoom
+      : null;
 
   const snapshot = (): SaveProgress => ({ ...state, refusedReasons: { ...state.refusedReasons }, queued: queuedHands });
   const changed = () => options.onChange?.(snapshot());
@@ -426,10 +444,12 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
         // (R6.4) The plan refused the call whole. Nothing of it was stored
         // and its rows stay queued.
         const refusal = error.refusal;
-        if (refusal?.feature === "hand_cap" || refusal?.cap) {
+        const daily = refusal?.feature === "daily_cap";
+        if (refusal && (refusal.feature === "hand_cap" || daily || refusal.cap)) {
           if (refusal.cap) {
             state.cap = { cap: refusal.cap.cap, stored: refusal.cap.stored };
           }
+          state.resetsAt = daily ? (refusal.resetsAt ?? null) : null;
           // Send what still fits (duplicates cost nothing, so this is at
           // least the room left); always a smaller call than the refused one.
           const fit = Math.min(allowanceOf(refusal), rows.length - 1);
@@ -439,7 +459,7 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
             changed();
             return true;
           }
-          pause("cap");
+          pause(daily ? "daily" : "cap");
           return false;
         }
         pause("plan");
@@ -601,6 +621,7 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
       state.pauseReason = null;
       // (R6.4) After an upgrade the cap is gone: full calls again.
       state.cap = null;
+      state.resetsAt = null;
       callLimit = null;
       changed();
       poke();

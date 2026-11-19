@@ -23,12 +23,23 @@
 
 /** A `PT402` refusal, read. */
 export interface PlanRefusal {
-  /** The feature the server named (`analysis`, `hand_cap`, ...), or null. */
+  /** The feature the server named (`analysis`, `hand_cap`, `daily_cap`, ...), or null. */
   feature: string | null;
-  /** For the hand cap: the cap, the hands stored before the refused save, and how many it tried to add. */
+  /**
+   * For a hand cap: the cap, the hands counted against it before the refused
+   * save (stored in the library for `hand_cap`, saved today for
+   * `daily_cap`), and how many it tried to add.
+   */
   cap: { cap: number; stored: number; attempted: number } | null;
+  /** For `daily_cap`: when the day's count starts again (ISO), when the server said. */
+  resetsAt?: string;
   /** The server's sentence (already in the reader's language when it came through `rpc()`). */
   message: string;
+}
+
+/** The two hand caps' hints: the library (`hand_cap`) and the day (`daily_cap`). */
+export function isCapRefusal(refusal: PlanRefusal | null | undefined): boolean {
+  return Boolean(refusal && (refusal.feature === "hand_cap" || refusal.feature === "daily_cap" || refusal.cap));
 }
 
 /** What a PostgREST / supabase-js error carries. */
@@ -41,29 +52,44 @@ export interface PostgrestLikeError {
 
 const FEATURE = /^[a-z_]{1,32}$/;
 
-function capOf(details: string | null | undefined): PlanRefusal["cap"] {
+function detailOf(details: string | null | undefined): Record<string, unknown> | null {
   if (!details) return null;
   try {
-    const value = JSON.parse(details) as Record<string, unknown>;
-    const cap = value.cap;
-    const stored = value.stored;
-    const attempted = value.attempted;
-    if ([cap, stored, attempted].every((n) => typeof n === "number" && Number.isFinite(n) && n >= 0)) {
-      return { cap: cap as number, stored: stored as number, attempted: attempted as number };
-    }
+    const value = JSON.parse(details) as unknown;
+    return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
   } catch {
     // Not JSON: no numbers.
+    return null;
+  }
+}
+
+function capOf(value: Record<string, unknown> | null): PlanRefusal["cap"] {
+  if (!value) return null;
+  const cap = value.cap;
+  // `hand_cap` counts the library (`stored`), `daily_cap` the day (`savedToday`).
+  const stored = value.stored ?? value.savedToday;
+  const attempted = value.attempted;
+  if ([cap, stored, attempted].every((n) => typeof n === "number" && Number.isFinite(n) && n >= 0)) {
+    return { cap: cap as number, stored: stored as number, attempted: attempted as number };
   }
   return null;
+}
+
+function resetsAtOf(value: Record<string, unknown> | null): string | null {
+  const at = value?.resetsAt;
+  return typeof at === "string" && !Number.isNaN(Date.parse(at)) ? at : null;
 }
 
 /** The refusal in `error`, or null when it is not a plan refusal. */
 export function planRefusalOf(error: PostgrestLikeError | null | undefined): PlanRefusal | null {
   if (!error || error.code !== "PT402") return null;
   const hint = error.hint ?? null;
+  const detail = detailOf(error.details);
+  const resetsAt = resetsAtOf(detail);
   return {
     feature: hint !== null && FEATURE.test(hint) ? hint : null,
-    cap: capOf(error.details),
+    cap: capOf(detail),
+    ...(resetsAt ? { resetsAt } : {}),
     message: error.message ?? "",
   };
 }

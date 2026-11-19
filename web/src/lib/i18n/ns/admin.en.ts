@@ -67,7 +67,6 @@ export const adminEn = {
       providers: "Sign-in methods",
       role: "Role",
       karma: "Karma",
-      earlyUser: "Early user",
       digest: "Digest",
       banned: "Banned until",
       banReason: "Ban reason",

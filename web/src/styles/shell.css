@@ -218,6 +218,9 @@
 }
 
 .shell__tab-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-weight: 600;
   font-size: 13.5px;
   line-height: 1.25;

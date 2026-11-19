@@ -132,11 +132,13 @@ export const paths = {
   /** Account -> Plan: the plan, its limits and usage (R6.2). */
   settingsPlan: () => "/settings#plan",
   /**
-   * Where "Upgrade to Pro" leads: the Plan panel, which offers monthly or
-   * yearly and opens Stripe Checkout (R6.3) - or says paid plans open soon
-   * while Stripe is not configured.
+   * The pricing page: Free against Pro, the three billing periods, and the
+   * upgrade (a confirmation, then Stripe Checkout). Public. `period` opens
+   * it on that period; `from=app` is the desktop app's link.
    */
-  upgrade: () => "/settings#plan",
+  pricing: (period?: "month" | "half_year" | "year") => (period ? `/pricing?period=${period}` : "/pricing"),
+  /** Where "Upgrade" and "See Pro" lead: the pricing page. */
+  upgrade: () => "/pricing",
   /**
    * Where Stripe Checkout returns (R6.3): after paying, and when the buyer
    * goes back. The owner sets these as `BILLING_SUCCESS_URL` and
