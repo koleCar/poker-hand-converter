@@ -16,18 +16,26 @@ import { Worker } from "node:worker_threads";
 
 import type { RealisationSample, RealisationSpot } from "../../../web/src/lib/solver/preflopRealisation.js";
 
-export function workerPool(threads = availableParallelism(), log = (line: string) => console.log(line), name = "") {
+export function workerPool(
+  threads = availableParallelism(),
+  log = (line: string) => console.log(line),
+  name = "",
+  /** A worker bundle built already (the v0 runner's `cli.mjs` builds its own); absent: built here. */
+  prebuilt?: string,
+) {
   // One bundle per name: sets generated in parallel processes must not
   // overwrite each other's while a worker is loading it.
-  const bundle = join(import.meta.dirname, `.cache/realisation-worker${name ? `-${name}` : ""}.mjs`);
-  buildSync({
-    entryPoints: [join(import.meta.dirname, "worker.ts")],
-    bundle: true,
-    platform: "node",
-    format: "esm",
-    outfile: bundle,
-    logLevel: "warning",
-  });
+  const bundle = prebuilt ?? join(import.meta.dirname, `.cache/realisation-worker${name ? `-${name}` : ""}.mjs`);
+  if (!prebuilt) {
+    buildSync({
+      entryPoints: [join(import.meta.dirname, "worker.ts")],
+      bundle: true,
+      platform: "node",
+      format: "esm",
+      outfile: bundle,
+      logLevel: "warning",
+    });
+  }
   return async (jobs: RealisationSpot[]): Promise<RealisationSample[]> => {
     const results: RealisationSample[] = new Array(jobs.length);
     if (!jobs.length) return results;

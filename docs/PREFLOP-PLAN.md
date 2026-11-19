@@ -208,8 +208,8 @@ solved once on the frozen ranges.
 | Phase | What | Where it runs | Done when |
 |---|---|---|---|
 | P0 | Waitlist modal live, GTO Wizard ranges stay free only (now) | web | shipped |
-| P1 | §2 catalogue (approved 2026-11-19); tree spec per set (sizes, rake, snapping) in `registry.ts` | code | merged |
-| P2 | v0 ranges for all 11 sets with the existing DCFR | Mac, minutes | charts on canvas |
+| P1 | §2 catalogue (approved 2026-11-19) as `charts/12-draft` specs: `web/src/lib/charts/railSets.ts` (`RAIL_SETS`, ids `rail-…`; §4.6). Depth-band picker `pickRailSet`, pure and tested, **not wired in** (P5). Nothing ships from it | code | **done** (prestaging, 2026-11-19) |
+| P2 | v0 ranges for all 11 sets with the existing DCFR + realisation model: runner `tests/scripts/preflop-v0/`, `~/Projects/rail-preflop-out/bin/run-v0.sh` (§4.6) | Mac off-hours, one set at a time; ≤ ~9 h for all 11 (probe, upper bound) | charts on canvas |
 | P3 | Pilot of §4.2 on 6-max 100bb: 4 rounds, convergence report | Mac off-hours ≈ 2 weeks (after the sizing test) | totals stable, owner OK |
 | P4 | §4.2 on the other 10 sets | rented server ≈ 2 weeks, or Mac ≈ 4 months | all sets stable |
 | P5 | Replace the GTO Wizard sets in the app and web (`charts/12`), bump `ANALYSIS_VERSION`, delete transcribed data | code | released |
@@ -225,6 +225,82 @@ solved once on the frozen ranges.
   pricing before deciding.
 - Until P5, the transcribed GTO Wizard ranges stay as they are, never
   behind a paywall.
+
+### 4.6 P1 and P2 as built (2026-11-19)
+
+**The specs (P1).** `RAIL_SETS` in `web/src/lib/charts/railSets.ts`, version
+`charts/12-draft`: `rail-hu-100bb`, `rail-hu-150bb`, `rail-6max-50bb`,
+`rail-6max-100bb`, `rail-6max-150bb`, `rail-6max-200bb`,
+`rail-6max-100bb-ante`, `rail-9max-100bb`, `rail-9max-150bb`,
+`rail-9max-100bb-ante`, `rail-6max-100bb-straddle`. Each has its seats,
+depth (the stack behind), ante (0.166bb from every seat, the transcribed ante
+sets' 1/6), straddle (2bb by UTG), every size (§2.1; the straddle set's are
+`charts/5`'s, doubled), the rake (`STANDARD_RAKE`: 5% capped at 3bb, no flop
+no drop), no open limps (`maxLimpers` 0: the small blind completes,
+heads-up the button limps), at most four entrants, cold calls of an open
+kept, and its depth band (§2.2, `minBb` inclusive, `maxBb` exclusive).
+`pickRailSet({ kind, players, effectiveBb })` picks kind, then table (2;
+3-6 → 6-max; 7-9 → 9-max), then band; a kind with no set at that table is
+refused (`ante`, `straddle`), never read on another kind. Whether a hand's
+straddle or ante is the one modelled stays `registry.ts`'s
+`straddleMismatch` / `anteMismatch`. Nothing imports it but the tests and
+the runner; `CHART_SETS` and every page still read the GTO Wizard sets.
+`loadCharts` accepts `charts/12-draft` files so the runner and later P5 can
+read them.
+
+**The generator, unchanged but for the ante.** The ante sets needed one
+addition: `PreflopTreeConfig.ante`, dead money in every pot (`potAt`, the
+solver's terminal pots and the rake) and in no seat's bets, so the tree and
+the sizes are the unanted ones. Every existing set solves to the same bytes
+(the ante defaults to 0). EVs of an ante set are net from the start of the
+hand, ante included, and `game.stackBb` is the depth plus the ante, as the
+format's ante convention says.
+
+**The runner (P2).** `tests/scripts/preflop-v0/` (`run.ts`, `solve.ts`,
+`guard.ts`, `summary.ts`, `report.mjs`), run through `cli.mjs`, which bundles
+it with esbuild. Per set it calls `generateChartSet` (or, with `--rounds N`,
+`generateRealisedChartSet`: measure-and-fit rounds on turn+river solves
+over `--threads` workers) on the realisation fit of the nearest old Rail set,
+kept in `tests/scripts/preflop-v0/fits.json` because `charts/11` deleted
+those files (own table and depth; 6-max 50bb from 60bb; ante sets from the
+classic set of their table). 3,000 iterations, heads-up 9,000. Output, all
+outside the repo:
+
+```
+~/Projects/rail-preflop-out/
+  bin/run-v0.sh          runs the runner (nice -n 10) from the checkout it names: ~/Projects/poker-hand-converter-wt/preflop-p1
+  bin/report.sh          markdown table of every set's totals
+  cache/                 the equity table (120,000 boards, ~110 s once)
+  v0/run.log  v0/run.lock  v0/plan.json
+  v0/<set-id>/charts.json  v0/<set-id>/summary.json   (RFI by seat, SB fold/limp/raise, BB defence vs each open, 3-bet % per seat, NashConv, time)
+```
+
+```bash
+~/Projects/rail-preflop-out/bin/run-v0.sh                       # every set not done yet, in §2.2's order
+~/Projects/rail-preflop-out/bin/run-v0.sh --sets rail-6max-100bb --force
+~/Projects/rail-preflop-out/bin/run-v0.sh --dry-run --probe 20  # tree sizes and timed estimates; solves nothing
+~/Projects/rail-preflop-out/bin/report.sh
+```
+
+- **Working hours:** refuses Mon–Fri 08:00–16:00 Europe/Zagreb (exit 2) and
+  does not start a set whose estimate × 1.5 would reach 08:00 on a weekday
+  (exit 0; the next run resumes there). `RAIL_FORCE=1` overrides; a run
+  estimated under a minute (heads-up at a few hundred iterations, a smoke
+  test) is let through.
+- **Resumable:** a set with a `summary.json` for the same spec, iterations,
+  rounds and fit is skipped; a set cut off mid-solve starts again.
+- **One at a time:** `run.lock` holds the pid (exit 3 while it lives; a stale
+  lock is removed). The preflop solve is one thread; `RAIL_THREADS` (default
+  4) caps the `--rounds` workers, since the sizing test also runs off-hours.
+- **Time** (dry-run probe, 20 iterations per set, 2026-11-19 in working hours
+  under load; early iterations are the slowest, so upper bounds): heads-up
+  under 2 min each; 6-max 50bb ~22 min; 6-max 100/150/200bb and ante
+  17–39 min; straddle ~4 min; 9-max 100/150bb and ante 70–130 min. All 11
+  ≤ ~9 h, one weeknight. `charts/2`'s 6-max 100bb final solve took ~3.5 min
+  (docs/CHARTS.md §10), so expect much less.
+
+Not run yet: the real solves (working hours on 2026-11-19), and `--rounds`
+(no smoke: one heads-up round is minutes of turn+river solves).
 
 ## 5. Related
 
