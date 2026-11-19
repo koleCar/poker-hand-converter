@@ -193,6 +193,7 @@ export function RngBoxWindow() {
       onPointerMove={onPointerMove}
       onPointerUp={onPointerEnd}
       onPointerCancel={onPointerEnd}
+      onLostPointerCapture={onPointerEnd}
     >
       <span key={rolls} className={rolls > 0 ? styles.rolled : styles.number} aria-live="polite">
         {number ?? "…"}

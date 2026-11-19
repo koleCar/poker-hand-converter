@@ -243,7 +243,24 @@ fn area_in_points(monitor: &tauri::Monitor) -> ScreenRect {
     )
 }
 
-/// The primary monitor's work area, and every monitor's, in points.
+/// A monitor's whole screen (the taskbar or dock too) in points, as
+/// [`area_in_points`].
+fn bounds_in_points(monitor: &tauri::Monitor) -> ScreenRect {
+    let (at, size) = (monitor.position(), monitor.size());
+    crate::popup::to_points(
+        ScreenRect {
+            x: at.x,
+            y: at.y,
+            width: size.width,
+            height: size.height,
+        },
+        crate::popup::permille(monitor.scale_factor()),
+    )
+}
+
+/// The primary monitor's work area (for its corner and middle), and every
+/// monitor's whole screen (a saved place over the taskbar or dock is still
+/// on a monitor), in points.
 fn work_areas<R: Runtime>(app: &AppHandle<R>) -> (Option<ScreenRect>, Vec<ScreenRect>) {
     let primary = app
         .primary_monitor()
@@ -252,9 +269,67 @@ fn work_areas<R: Runtime>(app: &AppHandle<R>) -> (Option<ScreenRect>, Vec<Screen
         .map(|m| area_in_points(&m));
     let all = app
         .available_monitors()
-        .map(|monitors| monitors.iter().map(area_in_points).collect())
+        .map(|monitors| monitors.iter().map(bounds_in_points).collect())
         .unwrap_or_default();
     (primary, all)
+}
+
+/// Whether a point is on a rect.
+fn on_rect(a: &ScreenRect, x: i64, y: i64) -> bool {
+    (i64::from(a.x)..i64::from(a.x) + i64::from(a.width)).contains(&x)
+        && (i64::from(a.y)..i64::from(a.y) + i64::from(a.height)).contains(&y)
+}
+
+/// (Windows) A place in points as the pixels of the monitor the box's
+/// middle is on: each monitor's points are its pixels over its own scale
+/// ([`frame_of`], [`bounds_in_points`]), so this is the exact inverse of
+/// how the place was saved. A logical place given to Windows is turned into
+/// pixels with the scale of the first monitor it seems to fit (tao), and
+/// one that fits none goes to the system's default place - the box did not
+/// come back where the user left it.
+#[cfg(windows)]
+#[allow(clippy::float_arithmetic)]
+fn physical_of<R: Runtime>(
+    app: &AppHandle<R>,
+    (x, y): (i32, i32),
+    (width, height): (u32, u32),
+) -> Option<tauri::PhysicalPosition<i32>> {
+    let mx = i64::from(x) + i64::from(width / 2);
+    let my = i64::from(y) + i64::from(height / 2);
+    let monitors = app.available_monitors().ok()?;
+    let scale = monitors
+        .iter()
+        .find(|m| on_rect(&bounds_in_points(m), mx, my))
+        .map(tauri::Monitor::scale_factor)
+        .or_else(|| {
+            app.primary_monitor()
+                .ok()
+                .flatten()
+                .map(|m| m.scale_factor())
+        })?;
+    Some(tauri::PhysicalPosition::new(
+        points(f64::from(x) * scale),
+        points(f64::from(y) * scale),
+    ))
+}
+
+/// Put the box at a place in points: on Windows in the pixels of the
+/// monitor it is on ([`physical_of`]), elsewhere as points (macOS's screen
+/// is in points).
+fn move_box<R: Runtime>(
+    app: &AppHandle<R>,
+    window: &WebviewWindow<R>,
+    at: (i32, i32),
+    size: (u32, u32),
+) -> Result<(), String> {
+    #[cfg(windows)]
+    if let Some(pixels) = physical_of(app, at, size) {
+        return window.set_position(pixels).map_err(|e| e.to_string());
+    }
+    let _ = (app, size);
+    window
+        .set_position(LogicalPosition::new(f64::from(at.0), f64::from(at.1)))
+        .map_err(|e| e.to_string())
 }
 
 fn to_i32(v: u32) -> i32 {
@@ -283,9 +358,9 @@ fn middle_of(area: ScreenRect, width: u32, height: u32) -> (i32, i32) {
 }
 
 /// Where the box sits, in points: the user's place while the box's middle
-/// is on one of the monitors (`areas`; or no monitor is known), else the
-/// primary monitor's top-right corner. `None`: no place saved and no
-/// monitor.
+/// is on one of the monitors (`areas`, whole screens; or no monitor is
+/// known), else the primary monitor's top-right corner. `None`: no place
+/// saved and no monitor.
 fn placed(
     rng: &RngSettings,
     primary: Option<ScreenRect>,
@@ -294,13 +369,14 @@ fn placed(
     if let Some(RngPosition { x, y }) = rng.position {
         let mx = i64::from(x) + i64::from(rng.width / 2);
         let my = i64::from(y) + i64::from(rng.height / 2);
-        let on = |a: &ScreenRect| {
-            (i64::from(a.x)..i64::from(a.x) + i64::from(a.width)).contains(&mx)
-                && (i64::from(a.y)..i64::from(a.y) + i64::from(a.height)).contains(&my)
-        };
-        if areas.is_empty() || areas.iter().any(on) {
+        if areas.is_empty() || areas.iter().any(|a| on_rect(a, mx, my)) {
             return Some((x, y));
         }
+        log::info!(
+            "rng box: the saved place {x},{y} ({}x{}) is on no monitor now {areas:?}; in the corner",
+            rng.width,
+            rng.height
+        );
     }
     primary.map(|area| corner_of(area, rng.width))
 }
@@ -333,10 +409,22 @@ fn open_box<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
         builder = builder.accept_first_mouse(true);
     }
     let (primary, areas) = work_areas(app);
-    if let Some((x, y)) = placed(&rng, primary, &areas) {
+    let at = placed(&rng, primary, &areas);
+    if let Some((x, y)) = at {
         builder = builder.position(f64::from(x), f64::from(y));
     }
     let window = builder.build().map_err(|error| error.to_string())?;
+    // The builder's place is approximate on Windows (`move_box`): put it
+    // exactly before it shows.
+    if let Some(at) = at
+        && let Err(error) = move_box(app, &window, at, (rng.width, rng.height))
+    {
+        log::warn!("rng box: placing it: {error}");
+    }
+    log::info!(
+        "rng box: shown at {at:?} (saved {:?})",
+        rng.position.map(|p| (p.x, p.y))
+    );
     window.show().map_err(|error| error.to_string())
 }
 
@@ -403,8 +491,8 @@ pub fn restyle<R: Runtime>(app: &AppHandle<R>) {
             f64::from(rng.height),
         ));
         let (primary, areas) = work_areas(&handle);
-        if let Some((x, y)) = placed(&rng, primary, &areas) {
-            let _ = window.set_position(LogicalPosition::new(f64::from(x), f64::from(y)));
+        if let Some(at) = placed(&rng, primary, &areas) {
+            let _ = move_box(&handle, &window, at, (rng.width, rng.height));
         }
         if let Err(error) = handle.emit_to(RNG_BOX_WINDOW, STYLE_EVENT, &rng) {
             log::debug!("{STYLE_EVENT}: {error}");
@@ -769,6 +857,17 @@ mod tests {
         assert_eq!(
             placed(&at(-1000, 500), Some(primary), &[primary]),
             Some(corner_of(primary, 56))
+        );
+        // Over the taskbar (a whole screen, not its work area): kept.
+        let screen = ScreenRect {
+            x: 0,
+            y: 0,
+            width: 1920,
+            height: 1080,
+        };
+        assert_eq!(
+            placed(&at(1800, 1030), Some(primary), &[screen]),
+            Some((1800, 1030))
         );
         // No monitor known: the place as saved.
         assert_eq!(placed(&at(5, 6), None, &[]), Some((5, 6)));
