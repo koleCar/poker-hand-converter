@@ -7517,3 +7517,39 @@ Each phase appends what it learned that changed the plan.
     - The one 9-max call Perfect → Inaccurate with unchanged flags was not
       traced.
 - 2026-11-12 — Mass data analysis planned (`docs/MDA-PLAN.md`) after a study over the owner's GG and WePlay hands. The pool overfolds turn and river bets; the plan keeps references Rail's own, with the user's own chart sets as the private route for other charts.
+- 2026-11-19 — **Bomb pots: analysis/45 and a calibration study.** A bomb
+  pot was read postflop as a limped pot and graded up to Mistake. Since
+  `analysis/45` it is its own role (`bomb-…` scenarios, "Bomb pot") and
+  every grade there is capped at Inaccurate (score ≥ 80): no bomb pot was
+  ever solved. Study over the owner's 2,606 one-board WePlay bomb pots
+  (`tests/scripts/bomb-pot/extract.test.ts`, local JSONL only; aggregates
+  below). Strength = percentile of the holding among all live combos on
+  that street's board; "model" = the multiway narrowing's range right
+  after the action (or at showdown).
+  - Showdown selection: 40% of losers at showdown muck (569 of 1,404), so
+    shown hands lean strong. Over every shown seat the model's final ranges
+    are about right on average (0.66 model vs ~0.65 corrected), but wrong
+    by line.
+  - **Aggression on the flop and turn is under-narrowed.** Flop raise /
+    check-raise shown 0.82 vs model 0.63-0.65 (≥80th pct 71-75% vs
+    49-52%); turn raise 0.85 vs 0.62; turn barrel by the flop aggressor
+    0.83-0.89 vs 0.70-0.74; flop and turn bets of 40-110% pot 0.75-0.82 vs
+    0.68-0.70. At showdown, flop-raise lines 0.77 vs 0.67, call-call lines
+    0.74 vs 0.61. The general check baseline (+0.04 to +0.11) is the
+    selection effect; the gap beyond it is the model.
+  - **River bets are over-narrowed.** River bets under 70% pot shown
+    0.70-0.74 vs model 0.80-0.85; delayed river bets after passive streets
+    (x/x/b, b/x/b, x/b/b) 0.57-0.65 vs 0.79-0.85. A river bettor who is
+    called shows first, so this is the least biased group.
+  - Most old Mistake/Blunder grades in bomb pots (162 of 177) were folds
+    to small multiway flop/turn bets or to raises: the model's under-
+    narrowed aggressors made those folds look costly.
+  - Population: the first flop bet of 40-70% pot with 6+ players gets
+    everyone to fold 43% (pure-bluff break-even 33%), 70%+ pot 46%
+    (≥41%); under 40% pot only 17% (break-even ≤ 29%). The hero bets 8% of
+    the times the flop is checked to them (villains 17%) and folds 85% to
+    flop bets (villains 78%); hero flop bets average +9.7 bb, the hand
+    overall −0.12 bb (−316 bb over 2,606, within noise).
+  - **Open.** A bomb-pot narrowing (stronger evidence for flop/turn raises
+    and barrels, weaker for river bets) fitted on these showdowns, held out
+    by hand, before the cap is lifted.
