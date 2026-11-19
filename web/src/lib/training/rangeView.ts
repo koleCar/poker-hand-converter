@@ -26,6 +26,21 @@ export interface RangeCell {
   combos: number;
   /** Per option: the reference's frequency for the class. */
   freq: number[];
+  /** Per option: the class's mean EV (bb); null where the reference has none. */
+  ev: number[] | null;
+}
+
+/** One combo that reaches a solved node (postflop only). */
+export interface RangeCombo {
+  /** `AhKd`. */
+  cards: string;
+  /** Its cell, `HAND_CLASSES` index. */
+  cell: number;
+  weight: number;
+  freq: number[];
+  ev: number[];
+  /** Share of the opponent's range at the node it beats now, ties half. */
+  hs: number;
 }
 
 export interface RangeView {
@@ -36,6 +51,14 @@ export interface RangeView {
   cells: RangeCell[];
   /** The hero's class (highlighted). */
   heroClass: string;
+  /** The hero's own combo (`QsTc`), when the reference knows it. */
+  heroCombo: string | null;
+  /** Every combo at the node, postflop; null preflop (a chart plays a class as one). */
+  combos: RangeCombo[] | null;
+  /** The bet faced, bb (0: first to act). */
+  toCall: number;
+  /** The street the range is read on. */
+  street: "preflop" | "flop" | "turn" | "river";
 }
 
 /** A chart node as a range view. */
@@ -50,10 +73,11 @@ export function chartRange(node: ChartNode, heroClass: string): RangeView {
     name: klass.name,
     combos: klass.combos * node.range[k],
     freq: node.options.map((_, a) => node.freq[a * n + k]),
+    ev: node.ev && node.ev.length >= node.options.length * n ? node.options.map((_, a) => node.ev[a * n + k]) : null,
   }));
   const total = cells.reduce((sum, cell) => sum + cell.combos, 0);
   const shares = options.map((_, a) => (total > 0 ? cells.reduce((sum, cell) => sum + cell.combos * cell.freq[a], 0) / total : 0));
-  return { options, shares, cells, heroClass };
+  return { options, shares, cells, heroClass, heroCombo: null, combos: null, toCall: Math.max(0, node.toMatchBb - node.inBb), street: "preflop" };
 }
 
 /** A solved node's study as a range view. */
@@ -66,8 +90,17 @@ export function studyRange(study: RiverStudy): RangeView {
       ...(o.sizePot !== null ? { sizePot: o.sizePot } : {}),
     })),
     shares: study.options.map((o) => o.share),
-    cells: HAND_CLASSES.map((klass, k) => ({ name: klass.name, combos: study.cells[k]?.combos ?? 0, freq: study.cells[k]?.freq ?? [] })),
+    cells: HAND_CLASSES.map((klass, k) => ({
+      name: klass.name,
+      combos: study.cells[k]?.combos ?? 0,
+      freq: study.cells[k]?.freq ?? [],
+      ev: study.cells[k]?.ev ?? null,
+    })),
     heroClass: study.heroClass,
+    heroCombo: study.heroCombo || null,
+    combos: (study.combos ?? []).map((c) => ({ cards: c.cards, cell: c.cell, weight: c.weight, freq: c.freq, ev: c.ev, hs: c.hs })),
+    toCall: study.toCall,
+    street: study.street,
   };
 }
 

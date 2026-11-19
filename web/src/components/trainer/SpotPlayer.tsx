@@ -18,10 +18,9 @@ import { nextSeed, STREAK_GRADES, type GradedAnswer, type TrainerAnswer, type Tr
 import { gradeMix, normalised, type MixResult } from "../../lib/training/frequency";
 import { ActionButtons, groupChoices, groupForKey, MixInput, TimebankBar, useTimebank, type Choice } from "./Decision";
 import { feltOf } from "./felt";
-import { bestIndex, useDecisionTabs, useOptionText, Verdict } from "./Feedback";
+import { DecisionPanel } from "./DecisionPanel";
+import { bestIndex, useOptionText, Verdict } from "./Feedback";
 import { useTrainerHost } from "./host";
-import { InfoTabs } from "./InfoTabs";
-import { RangePanel } from "./RangePanel";
 import { SeenBefore } from "./SeenBefore";
 import { cardsText, spotKey, type SessionAnswer, type SpotRef } from "./sessions";
 import type { SpotRequest, StreetMode, TrainerSettings } from "./settings";
@@ -291,14 +290,7 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
 
   const graded = answered?.graded ?? null;
   const decision = graded?.decision ?? null;
-  const tabs = useDecisionTabs({
-    decision,
-    spot,
-    settings,
-    mix: answered?.mix?.shares ?? null,
-    range: host.range && spot ? <RangePanel target={spot} read={host.range} strategy={settings.range === "strategy" || Boolean(answered)} /> : undefined,
-    study: host.study && graded && decision ? host.study(graded, spot) : null,
-  });
+  const study = host.study && graded && decision ? host.study(graded, spot) : null;
 
   useEffect(() => {
     if (!keys) return;
@@ -422,7 +414,17 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
       </div>
 
       {decision?.grade && before.length > 0 && !compact ? <SeenBefore rows={before} grade={mix ? mix.result.grade : decision.grade} /> : null}
-      {open ? <InfoTabs tabs={tabs} /> : null}
+      {open ? (
+        <DecisionPanel
+          decision={decision}
+          spot={spot}
+          settings={settings}
+          target={spot}
+          read={host.range ?? null}
+          answered={Boolean(graded)}
+          study={study}
+        />
+      ) : null}
     </div>
   );
 }

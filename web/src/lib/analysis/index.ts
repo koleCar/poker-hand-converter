@@ -339,6 +339,7 @@ export {
   type StreetAct,
   type StudyOption,
   type StudyRow,
+  type StudyCombo,
 } from "./river";
 export {
   ALLIN_MAX_POT,

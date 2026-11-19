@@ -821,6 +821,22 @@ export interface StudyRow {
   ev: number[];
 }
 
+/** One combo of the actor's range at a solved node, as the solve plays it. */
+export interface StudyCombo {
+  /** `AhKd`: the higher card first. */
+  cards: string;
+  /** Its class, `HAND_CLASSES` index. */
+  cell: number;
+  /** Reach weight at the node. */
+  weight: number;
+  /** Per option. */
+  freq: number[];
+  /** Per option, bb. */
+  ev: number[];
+  /** Share of the opponent's range at the node it beats now, ties half. */
+  hs: number;
+}
+
 /** The study view of a solved node, the river's or the turn's (§6.1). */
 export interface RiverStudy {
   /** "flop": read from a flop library chunk (`flopStudyAt`), not re-solved. */
@@ -832,6 +848,8 @@ export interface RiverStudy {
   options: StudyOption[];
   /** 169 cells, grid order (`HAND_CLASSES`). */
   cells: StudyRow[];
+  /** Every combo that reaches the node. */
+  combos: StudyCombo[];
   heroClass: string;
   heroCombo: string;
   hero: { freq: number[]; ev: number[] };
@@ -896,6 +914,7 @@ export function studyAt<K extends string>(
   const categories = new Map<K, StudyRow>(list.map((c) => [c.key, emptyRow(actions)]));
   const buckets = { strong: emptyRow(actions), medium: emptyRow(actions), weak: emptyRow(actions) };
   const totals = new Array(actions).fill(0);
+  const combos: StudyCombo[] = [];
   let all = 0;
   for (let i = 0; i < n; i += 1) {
     const w = reach[p][i];
@@ -909,6 +928,14 @@ export function studyAt<K extends string>(
     ];
     all += w;
     for (const row of rows) row.combos += w;
+    combos.push({
+      cards: cardCode(hole[0]) + cardCode(hole[1]),
+      cell: COMBO_CLASS[combo],
+      weight: round2(w),
+      freq: node.actions.map((_, a) => round4(node.strategy[a * n + i])),
+      ev: node.actions.map((_, a) => round3(node.ev[a * n + i])),
+      hs: round3(hsVsVillain[combo]),
+    });
     for (let a = 0; a < actions; a += 1) {
       const f = node.strategy[a * n + i];
       const e = node.ev[a * n + i];
@@ -957,6 +984,7 @@ export function studyAt<K extends string>(
     board: board.map(cardCode),
     options,
     cells: cells.map(finish),
+    combos,
     heroClass: HAND_CLASSES[COMBO_CLASS[solve.heroCombo]].name,
     heroCombo: cardCode(comboHi(solve.heroCombo)) + cardCode(comboLo(solve.heroCombo)),
     hero: heroRow,

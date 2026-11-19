@@ -321,6 +321,100 @@ export const trainerHr = {
   keysHeading: "Prečaci",
   keys: "1–6 odgovor · F fold · C call / check · A all-in · N sljedeća · S postavke",
 
+  /** Kratki zašto (`lib/training/brief.ts`). */
+  brief: {
+    roles: {
+      value: "Value",
+      thin: "Thin value",
+      trap: "Value",
+      "too-thin": "Pretanko",
+      showdown: "Showdown value",
+      "bluff-catcher": "Bluff-catcher",
+      bluff: "Blef",
+      "give-up": "Bez blefa",
+      weak: "Preslabo",
+      protect: "Ispred, ranjivo",
+      vulnerable: "Ispred, ranjivo",
+      "semi-bluff": "Semi-blef",
+      draw: "Draw",
+      medium: "Srednja ruka",
+      open: "Open",
+      "three-bet": "3-bet",
+      "four-bet": "4-bet",
+      defend: "Obrana",
+    } as Record<string, string>,
+    plays: {
+      "bet-small": "mali bet",
+      "bet-big": "veliki bet",
+      raise: "raise",
+      allin: "all-in",
+      check: "check",
+      call: "call",
+      fold: "fold",
+    } as Record<string, string>,
+    head: (role: string | null, play: string | null) =>
+      role && play ? `${role} — ${play}` : role ? role : play ? play.charAt(0).toUpperCase() + play.slice(1) : "",
+    gain: (kind: "over-yours" | "found" | "equal", best: string, other: string, value: number) => {
+      const worth = `+${num(value, 2)} bb`;
+      if (kind === "over-yours") return { before: `${best} donosi `, value: worth, after: ` više od tvog poteza (${other}).` };
+      if (kind === "found") return { before: `Točno: ${best} donosi `, value: worth, after: ` više od sljedećeg (${other}).` };
+      return { before: `${best} i ${other} ovdje vrijede isto.`, value: "", after: "" };
+    },
+    point: (p: import("../../training/brief").BriefPoint): { lead: string; text: string } => {
+      const names = (list: string[], words: Record<string, string>) => list.map((x) => words[x] ?? x).join(", ");
+      switch (p.kind) {
+        case "beats":
+          return { lead: `Pobjeđuje ${pct(p.beats)}`, text: "njihovog rangea." };
+        case "price":
+          return { lead: `Treba ti ${pct(p.need)}`, text: p.have !== null ? `za call; imaš ${pct(p.have)}.` : "za call." };
+        case "equity":
+          return { lead: `${pct(p.equity)} equityja`, text: "protiv njihovog rangea." };
+        case "polar":
+          return { lead: "Njihov range je polariziran:", text: `${pct(p.strong)} jakih, ${pct(p.weak)} slabih ruku.` };
+        case "merged":
+          return { lead: "Njihov range je merged:", text: `${pct(p.medium)} srednjih ruku.` };
+        case "removes":
+          return {
+            lead: p.strong > p.weak ? "Blokiraš njihove jake ruke:" : "Blokiraš njihove slabe ruke:",
+            text: `${pct(p.strong)} jakih, ${pct(p.weak)} slabih.`,
+          };
+        case "blockers":
+          return { lead: "Blokiraš", text: `${names(p.blockers, analysisHr.handFacts.blockers)}.` };
+        case "rivers-weak":
+          return { lead: `${pct(p.share)} rivera`, text: "pretvara tvoju ruku u gubitničku." };
+        case "rivers-strong":
+          return { lead: `${pct(p.share)} rivera`, text: "ti donosi jaku ruku." };
+        case "draws":
+          return { lead: "Drawovi:", text: `${names(p.draws, analysisHr.handFacts.draws)}.` };
+        case "spr":
+          return { lead: `SPR ${num(p.spr, 1)}:`, text: "sljedeći bet te veže za pot." };
+        case "capped":
+          return { lead: "Ograničeno na Mistake:", text: "rangeovi su procijenjeni." };
+        case "estimate":
+          return { lead: "Procjena:", text: "multiway, nije riješeno." };
+      }
+    },
+    groups: {
+      value: "Value",
+      thin: "Thin value",
+      bluff: "Blefovi",
+      raise: "Raise",
+      bet: "Bet",
+      call: "Call",
+      check: "Check",
+      fold: "Fold",
+    } as Record<string, string>,
+    showHand: (hand: string) => `Prikaži ${hand} u rangeu`,
+    evOf: (label: string) => `EV za ${label}`,
+    details: "Detalji",
+    examples: "Primjeri ruku",
+  },
+  zoom: {
+    combos: (n: number) => `kombinacija: ${num(n)}`,
+    you: "ti",
+    actions: { bet: "Bet", raise: "Raise", allin: "All-in", check: "Check", call: "Call", fold: "Fold" } as Record<string, string>,
+  },
+
   words: {
     grades: analysisHr.grades,
     option: analysisHr.sheet.option,
