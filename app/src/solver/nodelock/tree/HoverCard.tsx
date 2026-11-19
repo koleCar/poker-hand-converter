@@ -11,6 +11,7 @@ import { liveDateFormat } from "../../../i18n/format";
 import { nodelockSuggestEn, nodelockSuggestHr, type Archetype } from "../../door";
 import type { NodeLockRow } from "../data";
 import { boardText, parseRow } from "../session";
+import { rangesLineage } from "../editor/ranges";
 import { boardCards } from "./model";
 import styles from "./tree.module.css";
 
@@ -77,7 +78,9 @@ export function HoverCard({
         ) : null}
         <span className={styles.cardMuted}>{row.line}</span>
       </div>
-      {summary ? (
+      {/* The ranges first: the lineage's first step (§9.3). */}
+      {summary?.ranges?.length ? <div className={styles.cardMuted}>{rangesLineage(summary.ranges, t.ranges)}</div> : null}
+      {summary && nodes > 0 ? (
         <button type="button" className={styles.cardNode} disabled={!solved} onClick={onGo} title={solved ? t.tree.toLockedSpot : undefined}>
           {t.nodeAt(summary.position, street, steps)}
         </button>

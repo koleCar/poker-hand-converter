@@ -43,6 +43,28 @@ export {
   type FlopChunk,
 } from "@rail/web-lib/solver";
 export { cardIndex } from "@rail/web-lib/equity";
+// Range locks (`docs/NODELOCK.md` §9): the Ranges step of the nodelock editor.
+export {
+  canonicalRange,
+  classScores,
+  classSet,
+  classWeights,
+  CLASS_SETS,
+  formatRange,
+  handsRange,
+  paintClasses,
+  parseRangeText,
+  rangeDiff,
+  rangeLocksOf,
+  rangesDiffer,
+  rangesWith,
+  scaleEquityTable,
+  scaleRange,
+  type ClassSet,
+  type RangeLock,
+} from "@rail/web-lib/solver";
+export { loadChartSet } from "@rail/web-lib/charts";
+export { lineActs } from "@rail/web-lib/training/preflop";
 // The native nodelock engine (`./nodelock/engine/native.ts`): how a turn lock runs.
 export { LIVE_TURN } from "@rail/web-lib/solver";
 export {

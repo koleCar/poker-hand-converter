@@ -37,6 +37,8 @@ export interface LockPopoverData {
   from: { id: string; name: string } | null;
   /** The open lock locks only this decision: Remove this lock is off. */
   only: boolean;
+  /** "Ranges: BB +7%" when the lock's ranges are not the chart's (§9.3), or null. */
+  ranges?: string | null;
 }
 
 export interface LockMarkProps {
@@ -274,6 +276,7 @@ function Popover({
           <Icon name="close" />
         </IconButton>
       </div>
+      {info.ranges ? <p className={styles.popFrom}>{info.ranges}</p> : null}
       {info.from ? (
         <p className={styles.popFrom}>
           {t.markFrom}{" "}
