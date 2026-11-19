@@ -317,7 +317,9 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 'account_export_page', 'account_export_entry', 'account_export_charge',
                 'begin_account_deletion', 'my_account_deletion',
                 -- hand deletion (20271119200000): every plan deletes its own hands
-                'delete_hands', 'delete_hands_by_key', 'delete_all_hands', 'hand_tombstones_since')),
+                'delete_hands', 'delete_hands_by_key', 'delete_all_hands', 'hand_tombstones_since',
+                -- the Pro waitlist (20271119210000): anyone may join; the admin list refuses non-admins
+                'join_pro_waitlist', 'my_pro_waitlist', 'admin_pro_waitlist')),
   null, 'every client-callable function is gated or named free here');
 
 select is((select string_agg(feature || ':' || n, ' ' order by feature)

@@ -7,14 +7,17 @@
  *
  * Pure: the tests run it.
  */
-export type AnalysisTab = "session" | "leaks";
+export type AnalysisTab = "session" | "leaks" | "multiway" | "bomb";
 
-export const ANALYSIS_TABS: readonly AnalysisTab[] = ["session", "leaks"];
+/** analysis/45: Session and Leaks read heads-up pots only; multiway and bomb pots have their own tabs. */
+export const ANALYSIS_TABS: readonly AnalysisTab[] = ["session", "leaks", "multiway", "bomb"];
 
 
 export type AnalysisView =
   | { kind: "session"; at: string | null; gap: number }
   | { kind: "leaks"; period: "30d" | "all" }
+  | { kind: "multiway" }
+  | { kind: "bomb" }
   | { kind: "hand"; key: string; actionIndex: number | null; back: string | null };
 
 /** The session review's break: 30 minutes by default; the web's choices. */
@@ -30,6 +33,8 @@ function split(param: string | null): [string, URLSearchParams] {
 export function parseView(param: string | null): AnalysisView {
   const [name, q] = split(param);
   if (name === "leaks") return { kind: "leaks", period: q.get("period") === "all" ? "all" : "30d" };
+  if (name === "multiway") return { kind: "multiway" };
+  if (name === "bomb") return { kind: "bomb" };
   if (name === "hand") {
     const key = q.get("key");
     if (key) {
@@ -44,6 +49,7 @@ export function parseView(param: string | null): AnalysisView {
 export function viewParam(view: AnalysisView): string {
   const q = new URLSearchParams();
   if (view.kind === "leaks") return view.period === "all" ? "leaks?period=all" : "leaks";
+  if (view.kind === "multiway" || view.kind === "bomb") return view.kind;
   if (view.kind === "hand") {
     q.set("key", view.key);
     if (view.actionIndex !== null) q.set("a", String(view.actionIndex));

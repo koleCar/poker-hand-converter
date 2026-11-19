@@ -5,12 +5,21 @@
  * and what the account pays for, the library against the Free cap, today's
  * use on Free (hands saved, flops opened), "Manage subscription" (Stripe's
  * Customer Portal) and the way to `/pricing`, where Pro is bought. While
- * enforcement is off it says so in one line: everything is open.
+ * paid plans are not open, Upgrade opens "Pro is coming" (the Pro waitlist)
+ * here instead. While enforcement is off it says so in one line: everything
+ * is open.
  */
 
 import Link from "next/link";
-import { useState } from "react";
-import { billingView, openBillingPortal, type BillingError } from "../../lib/billing/checkout";
+import { useEffect, useState } from "react";
+import {
+  billingView,
+  fetchBillingOffer,
+  openBillingPortal,
+  type BillingError,
+  type BillingOffer,
+} from "../../lib/billing/checkout";
+import { upgradeRoute } from "../../lib/billing/waitlist";
 import { isFreeEnforced, type Entitlements } from "../../lib/db/entitlements";
 import { useEntitlements } from "../../lib/entitlements/context";
 import { useDict, useLocale } from "../../lib/i18n/client";
@@ -20,6 +29,7 @@ import rows from "../account/rows.module.css";
 import { Icon } from "@rail/ui/icon/Icon";
 import { BusyLabel } from "../shell/BusyLabel";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
+import { ProWaitlistDialog } from "./ProWaitlistDialog";
 
 /** Over this share of the Free cap the library meter turns yellow. */
 export const METER_NEAR = 0.9;
@@ -137,9 +147,7 @@ export function PlanDetails({ entitlements: e }: { entitlements: Entitlements })
         <span className={rows.actions}>
           {view.manage ? <ManageButton /> : null}
           {free && view.upgrade ? (
-            <Link href={paths.pricing()} className={`btn btn--sm ${styles.gold}`}>
-              {t.upgrade}
-            </Link>
+            <UpgradeAction label={t.upgrade} />
           ) : (
             <Link href={paths.pricing()} className="btn btn--ghost btn--sm">
               {t.pricing}
@@ -199,6 +207,41 @@ export function PlanDetails({ entitlements: e }: { entitlements: Entitlements })
           <span />
         </div>
       ) : null}
+    </>
+  );
+}
+
+/**
+ * Settings' Upgrade: a link to `/pricing` while paid plans are open (or not
+ * known yet), "Pro is coming" in place while they are not.
+ */
+function UpgradeAction({ label }: { label: string }) {
+  const [offer, setOffer] = useState<BillingOffer | null>(null);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    void fetchBillingOffer().then((value) => {
+      if (active) setOffer(value);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (upgradeRoute(true, offer) !== "waitlist") {
+    return (
+      <Link href={paths.pricing()} className={`btn btn--sm ${styles.gold}`}>
+        {label}
+      </Link>
+    );
+  }
+  return (
+    <>
+      <button type="button" className={`btn btn--sm ${styles.gold}`} onClick={() => setOpen(true)}>
+        {label}
+      </button>
+      {open ? <ProWaitlistDialog source="settings" onClose={() => setOpen(false)} /> : null}
     </>
   );
 }

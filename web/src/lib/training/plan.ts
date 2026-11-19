@@ -510,6 +510,8 @@ export function trainerTarget(where: AreaWhere, set: string | null = null): Trai
     }
     return { mode: "preflop", family, seat, vs: family === "rfi" ? null : vs, ...deal };
   }
+  // A bomb pot (analysis/45) was never solved: no trainer deals one.
+  if (where.scenario.startsWith("bomb-")) return null;
   if (where.street === "flop") return flopTarget(where, set);
   // The river trainer deals heads-up spots: a multiway area (A9) has no trainer.
   if (where.street === "river" && where.scenario.includes("-mw-")) return null;

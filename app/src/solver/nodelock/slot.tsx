@@ -62,6 +62,7 @@ import {
   type ActiveLock,
 } from "./session";
 import { lockPath } from "./spot";
+import { rangesLineage } from "./editor/ranges";
 
 type NodelockDict = Dict["nodelock"];
 
@@ -270,6 +271,7 @@ function lockMarks(
       preset: preset ? words.preset(preset) : null,
       from: marked.from,
       only: planRemoveLock(open, lock.ancestors, marked.spec.path) === null,
+      ranges: rangesLineage(lock.summary.ranges, t.ranges),
     };
   };
 

@@ -65,6 +65,7 @@ pub mod leaks;
 pub mod migrate;
 pub mod node_locks;
 pub mod players;
+pub mod pot_kinds;
 pub mod read;
 pub mod recompute;
 pub mod report;

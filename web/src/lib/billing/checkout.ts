@@ -13,7 +13,7 @@
  *
  * Until the owner configures Stripe (or deploys the functions), the offer is
  * `available: false`: `/pricing` shows the list prices ({@link LIST_PRICES})
- * and says paid plans open soon.
+ * and every upgrade opens "Pro is coming", the Pro waitlist (`waitlist.ts`).
  *
  * Before Checkout the page asks for two consents (EU consumer law: Pro
  * starts at once, R6.3 addendum): the terms, and the request that Pro start

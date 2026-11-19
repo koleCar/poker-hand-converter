@@ -6,13 +6,14 @@
  * period switch (Monthly / 6 months / Yearly).
  *
  * Prices are Stripe's (`billing-checkout` GET, signed in) and otherwise the
- * owner's list prices. "Upgrade to Pro":
+ * owner's list prices. "Upgrade to Pro" ({@link upgradeRoute}):
  *
- *   signed out  the sign-in dialog, the chosen period kept (sessionStorage),
- *               and back here to the confirmation once signed in;
- *   signed in   the confirmation (period, price, the two consents), then
- *               `billing-checkout` POST and Stripe Checkout;
- *   not on sale "Paid plans open soon", disabled.
+ *   not on sale "Pro is coming" (the Pro waitlist) - every period, and every
+ *               visitor, since a signed-out page cannot ask Stripe's state;
+ *   on sale     the confirmation (period, price, the two consents), then
+ *               `billing-checkout` POST and Stripe Checkout. A visitor is
+ *               asked to sign in first, the chosen period kept
+ *               (sessionStorage), once `upgradeRoute` lets visitors through.
  *
  * Public: nothing here reads an account until someone signs in. The plan
  * shown as current is what the account pays for (or Free), not the
@@ -36,9 +37,11 @@ import { useEntitlements } from "../../lib/entitlements/context";
 import { useDict } from "../../lib/i18n/client";
 import type { Dict } from "../../lib/i18n/types";
 import { AppFrame } from "../shell/AppFrame";
+import { upgradeRoute, type WaitlistSource } from "../../lib/billing/waitlist";
 import { CheckoutDialog } from "./CheckoutDialog";
 import { ManageButton } from "./PlanPanel";
 import { ProBadge } from "./ProLock";
+import { ProWaitlistDialog } from "./ProWaitlistDialog";
 import styles from "./plan.module.css";
 import p from "./pricing.module.css";
 
@@ -70,9 +73,17 @@ function writePending(period: Period | null): void {
   }
 }
 
-/** `period`: the address's `?period=` (the desktop app and Settings link with one). */
-export function PricingScreen({ period = null }: { period?: string | null }) {
-  return <AppFrame tab={null}>{() => <Pricing initialPeriod={isPeriod(period) ? period : "month"} />}</AppFrame>;
+/**
+ * `period`: the address's `?period=` (the desktop app and Settings link with one);
+ * `from`: `?from=` (`app` from the desktop app, kept with a waitlist address).
+ */
+export function PricingScreen({ period = null, from = null }: { period?: string | null; from?: string | null }) {
+  const source: WaitlistSource = from === "app" ? "app" : "pricing";
+  return (
+    <AppFrame tab={null}>
+      {() => <Pricing initialPeriod={isPeriod(period) ? period : "month"} source={source} />}
+    </AppFrame>
+  );
 }
 
 type Cell = boolean | string;
@@ -107,7 +118,7 @@ export function pricingRows(t: Dict["pricing"], count: (n: number) => string, fr
   ];
 }
 
-function Pricing({ initialPeriod }: { initialPeriod: Period }) {
+function Pricing({ initialPeriod, source }: { initialPeriod: Period; source: WaitlistSource }) {
   const en = useDict();
   const t = en.pricing;
   const auth = useAuth();
@@ -115,6 +126,7 @@ function Pricing({ initialPeriod }: { initialPeriod: Period }) {
   const [period, setPeriod] = useState<Period>(initialPeriod);
   const [offer, setOffer] = useState<BillingOffer | null>(null);
   const [confirming, setConfirming] = useState<Period | null>(null);
+  const [waitlist, setWaitlist] = useState(false);
   const signedIn = auth.isSignedIn;
   const count = (n: number) => n.toLocaleString(en.chrome.intl);
 
@@ -141,6 +153,7 @@ function Pricing({ initialPeriod }: { initialPeriod: Period }) {
   const onSale = offer?.available === true;
   const prices = shownPrices(offer);
   const known = signedIn && status === "ready" && offer !== null;
+  const route = upgradeRoute(signedIn, offer);
 
   // Signed in with a period still pending: straight to the confirmation.
   useEffect(() => {
@@ -152,14 +165,18 @@ function Pricing({ initialPeriod }: { initialPeriod: Period }) {
   }, [known, onSale, onPro]);
 
   const upgrade = useCallback(() => {
+    if (route === "waitlist") {
+      setWaitlist(true);
+      return;
+    }
     if (!signedIn) {
       writePending(period);
       const price = prices[period];
       auth.requestSignIn(t.signInReason(t.periods[period], formatPrice(price.amount, price.currency, en.chrome.intl, true)));
       return;
     }
-    if (onSale) setConfirming(period);
-  }, [signedIn, period, prices, auth, t, en.chrome.intl, onSale]);
+    if (route === "checkout") setConfirming(period);
+  }, [route, signedIn, period, prices, auth, t, en.chrome.intl]);
 
   const shown = prices[period];
   const money = (amount: number, whole = false) => formatPrice(amount, shown.currency, en.chrome.intl, whole);
@@ -182,19 +199,13 @@ function Pricing({ initialPeriod }: { initialPeriod: Period }) {
         {t.currentPlan}
       </span>
     );
-  } else if (signedIn && offer !== null && !onSale) {
-    proAction = (
-      <button type="button" className={`btn ${styles.gold} ${p.cta}`} disabled>
-        {t.soon}
-      </button>
-    );
   } else {
     proAction = (
       <button
         type="button"
         className={`btn ${styles.gold} ${p.cta}`}
         onClick={upgrade}
-        disabled={auth.status === "loading" || (signedIn && offer === null)}
+        disabled={auth.status === "loading" || route === "wait"}
       >
         {t.upgrade}
       </button>
@@ -278,6 +289,7 @@ function Pricing({ initialPeriod }: { initialPeriod: Period }) {
       {confirming ? (
         <CheckoutDialog period={confirming} prices={offer?.prices ?? prices} onClose={() => setConfirming(null)} />
       ) : null}
+      {waitlist ? <ProWaitlistDialog source={source} onClose={() => setWaitlist(false)} /> : null}
     </div>
   );
 }

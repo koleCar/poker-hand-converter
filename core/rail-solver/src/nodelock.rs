@@ -330,7 +330,8 @@ fn solve_on(
         // `checkBaseline`: the chunk was solved on this game.
         // (Pot and stack within float noise: the header's JSON need not parse back to the same bits.)
         let near = |a: f64, b: f64| (a - b).abs() <= 1e-9 * a.abs().max(1.0);
-        if chunk.hands != built.combos
+        // A range lock (§9.2) changes the hands on purpose: then only the pot and the stack.
+        if (chunk.hands != built.combos && !request.lock_set.has_ranges())
             || !near(chunk.pot, built.pot)
             || !near(chunk.stack, built.stack)
         {

@@ -5,7 +5,7 @@
  */
 import type { LockSet } from "./door";
 
-export type { LockBase, LockEarlier, LockSet, NodeLockSpec } from "./door";
+export type { LockBase, LockEarlier, LockSet, NodeLockSpec, RangeLock } from "./door";
 
 export interface NodelockProgress {
   iteration: number;

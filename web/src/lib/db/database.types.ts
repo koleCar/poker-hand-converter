@@ -3771,6 +3771,33 @@ export type Database = {
         }
         Relationships: []
       }
+      pro_waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          id: number
+          locale: string
+          source: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: never
+          locale?: string
+          source: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: never
+          locale?: string
+          source?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           ban_reason: string | null
@@ -4700,6 +4727,19 @@ export type Database = {
         Args: { p_id: string; p_status: string }
         Returns: undefined
       }
+      admin_pro_waitlist: {
+        Args: { p_limit?: number; p_offset?: number }
+        Returns: {
+          created_at: string
+          email: string
+          id: number
+          locale: string
+          source: string
+          total: number
+          user_id: string
+          username: string
+        }[]
+      }
       admin_purge: {
         Args: {
           p_public_id: string
@@ -5532,6 +5572,10 @@ export type Database = {
       is_card_array: { Args: { p_cards: string[] }; Returns: boolean }
       is_moderator: { Args: never; Returns: boolean }
       is_position_array: { Args: { p_positions: string[] }; Returns: boolean }
+      join_pro_waitlist: {
+        Args: { p_email: string; p_locale?: string; p_source: string }
+        Returns: Json
+      }
       library_act_sql: { Args: { p_name: string }; Returns: string }
       library_beyond_rollups: { Args: { p_filter: Json }; Returns: boolean }
       library_builder_ids: { Args: { p_filter: Json }; Returns: string[] }
@@ -5709,6 +5753,7 @@ export type Database = {
       my_player_notes: { Args: { p_site?: string }; Returns: Json }
       my_post_state: { Args: { p_public_id: string }; Returns: Json }
       my_post_votes: { Args: { p_public_ids: string[] }; Returns: Json }
+      my_pro_waitlist: { Args: never; Returns: Json }
       my_profile: { Args: never; Returns: Json }
       my_published_hand_ids: { Args: { p_hand_ids: string[] }; Returns: Json }
       my_saved_posts: {

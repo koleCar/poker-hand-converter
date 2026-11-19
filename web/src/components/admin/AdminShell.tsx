@@ -11,8 +11,8 @@ import { paths } from "../../lib/routes";
 import styles from "./admin.module.css";
 
 /**
- * The admin pages' frame: the site's shell (wide), and the two sections,
- * Users and Reports, as a quiet segmented control. Whether the caller is an
+ * The admin pages' frame: the site's shell (wide), and the sections, Users,
+ * Reports and the Pro waitlist, as a quiet segmented control. Whether the caller is an
  * admin is the database's answer (every admin function refuses anyone else);
  * the sections show "Admins only" on that refusal.
  */
@@ -34,16 +34,29 @@ function AdminBody({ children }: { children: ReactNode }) {
   if (!auth.isSignedIn) {
     return <p className={styles.state}>{t.signIn}</p>;
   }
-  const onReports = pathname.startsWith(paths.adminReports());
+  const current = pathname.startsWith(paths.adminReports())
+    ? "reports"
+    : pathname.startsWith(paths.adminWaitlist())
+      ? "waitlist"
+      : "users";
+  const sections = [
+    { id: "users", href: paths.admin(), label: t.nav.users },
+    { id: "reports", href: paths.adminReports(), label: t.nav.reports },
+    { id: "waitlist", href: paths.adminWaitlist(), label: t.nav.waitlist },
+  ] as const;
   return (
     <div className={styles.page}>
       <nav className={styles.sections} aria-label={t.nav.label}>
-        <Link href={paths.admin()} className={onReports ? styles.section : `${styles.section} ${styles.sectionOn}`}>
-          {t.nav.users}
-        </Link>
-        <Link href={paths.adminReports()} className={onReports ? `${styles.section} ${styles.sectionOn}` : styles.section}>
-          {t.nav.reports}
-        </Link>
+        {sections.map((section) => (
+          <Link
+            key={section.id}
+            href={section.href}
+            className={section.id === current ? `${styles.section} ${styles.sectionOn}` : styles.section}
+            aria-current={section.id === current ? "page" : undefined}
+          >
+            {section.label}
+          </Link>
+        ))}
       </nav>
       {children}
     </div>

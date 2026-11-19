@@ -76,11 +76,23 @@ export type NodelockSpot =
       card: string;
     };
 
-/** The flop spot of a flop lock: the library's spot, isomorphism limited to what the lock keeps. */
+/**
+ * The flop spot of a flop lock: the library's spot, isomorphism limited to
+ * what the lock keeps, and a range lock's weights in place of the chart's
+ * range (§9.2: the flop is solved from them; preflop is not solved again).
+ */
 export function nodelockFlopSpot(charts: ChartSet, set: LockSet): FlopSpot {
-  const spot = nodelockSpot(charts, set.spot.line, set.spot.flop);
+  const spot = withRangeLocks(nodelockSpot(charts, set.spot.line, set.spot.flop), set);
   const nodeActions = lockNodeActions(set);
   return { ...spot, symmetry: lockSymmetries(set, spot.board), ...(nodeActions ? { nodeActions } : {}) };
+}
+
+/** A flop spot with a set's range locks in place of its ranges (§9.2); the spot itself without any. */
+export function withRangeLocks(spot: FlopSpot, set: LockSet): FlopSpot {
+  if (!set.ranges?.length) return spot;
+  const ranges = [spot.ranges[0], spot.ranges[1]];
+  for (const lock of set.ranges) ranges[lock.player] = Float64Array.from(lock.weights);
+  return { ...spot, ranges: [ranges[0], ranges[1]] };
 }
 
 /** The turn game of a turn or river lock: the chunk's deal on its flop line, the lock's turn card. */
@@ -140,12 +152,15 @@ export function checkBase(set: LockSet, baseline: FlopChunk): void {
 /**
  * The library chunk was solved on this game: the same hands for both
  * players, the same pot and stack. Else the chunk's strategies would be
- * frozen onto another game.
+ * frozen onto another game. A set with range locks (§9.2) changes the hands
+ * on purpose: then only the pot and the stack are checked, and a hand the
+ * chunk lacks is not frozen at an earlier node (`chunkBaseline`).
  */
-export function checkBaseline(built: BuiltSubgame, baseline: FlopChunk): void {
+export function checkBaseline(built: BuiltSubgame, baseline: FlopChunk, set?: LockSet): void {
   const { result, header } = baseline;
   const same = (a: ArrayLike<number>, b: ArrayLike<number>) => a.length === b.length && Array.from(a).every((x, i) => x === b[i]);
-  if (!same(built.combos[0], result.hands[0]) || !same(built.combos[1], result.hands[1]) || built.pot !== header.pot || built.stack !== header.stack) {
+  const hands = Boolean(set?.ranges?.length) || (same(built.combos[0], result.hands[0]) && same(built.combos[1], result.hands[1]));
+  if (!hands || built.pot !== header.pot || built.stack !== header.stack) {
     throw new NodelockError("the library chunk was solved on other ranges than the charts give now");
   }
 }
@@ -241,7 +256,7 @@ export function solveNodelock(spot: NodelockSpot, set: LockSet, options: Nodeloc
   let run;
   if (spot.street === "flop") {
     built = buildFlopGame(spot.spot);
-    checkBaseline(built, options.baseline);
+    checkBaseline(built, options.baseline, set);
     const how = nodelockFlopRun(set, options.maxIterations);
     solver = options.warm?.solver ?? new Solver(built.game, how.dcfr, { storage: options.storage ?? "i16" });
     warmed = options.warm !== undefined;

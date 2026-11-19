@@ -156,6 +156,22 @@ export async function feedbackImageUrls(names: string[]): Promise<string[]> {
   return data.map((entry) => entry.signedUrl ?? "");
 }
 
+export interface AdminWaitlistRow {
+  id: number;
+  email: string;
+  user_id: string | null;
+  username: string | null;
+  locale: string;
+  source: "pricing" | "settings" | "app";
+  created_at: string;
+  total: number;
+}
+
+/** The Pro waitlist, newest first (`20271119210000_pro_waitlist.sql`). */
+export function adminProWaitlist(args: { limit: number; offset: number }): Promise<AdminWaitlistRow[]> {
+  return rpc<AdminWaitlistRow[]>("admin_pro_waitlist", { p_limit: args.limit, p_offset: args.offset });
+}
+
 /** A refusal from the admin functions: the caller is not an admin. */
 export function isAdminRefusal(error: unknown): boolean {
   const code = (error as { code?: unknown } | null)?.code;

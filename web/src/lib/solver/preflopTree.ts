@@ -215,6 +215,14 @@ export interface PreflopTreeConfig {
    * flag rather than a rule read off the seats.
    */
   headsUp?: boolean;
+  /**
+   * An ante from every seat dealt in, bb (`charts/12-draft`): dead money
+   * posted before the deal. It is in the pot (`potAt`) but in no seat's
+   * `contrib` and never part of a bet to match, so the betting and the sizes
+   * are those of the tree without it; `stackBb` is the stack behind once it
+   * is in. Default 0.
+   */
+  ante?: number;
 }
 
 /**
@@ -256,6 +264,8 @@ export interface PreflopTree {
   readonly straddle: Readonly<PreflopStraddle> | null;
   /** Heads-up: the small blind is the button and acts last after the flop (`PreflopTreeConfig.headsUp`). */
   readonly headsUp: boolean;
+  /** Every seat's ante, bb: dead money in the pot, in no seat's `contrib` (`PreflopTreeConfig.ante`); 0 without. */
+  readonly ante: number;
   /** Per player (action order): postflop acting rank, higher in position (`postflopRanks`). */
   readonly postflop: readonly number[];
   readonly stackBb: number;
@@ -355,6 +365,8 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
   if (headsUp && (table.length !== 2 || table[0] !== "SB" || table[1] !== "BB" || straddle)) {
     throw new Error("a heads-up tree is the small blind (the button) and the big blind, without a straddle");
   }
+  const ante = config.ante ?? 0;
+  if (!(ante >= 0) || !Number.isFinite(ante)) throw new Error("an ante is a finite amount of 0 or more");
   // Action order: with a straddle, the straddler acts last preflop.
   const players = straddle ? [...table.slice(1), table[0]] : table;
   const n = players.length;
@@ -660,6 +672,7 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
     players,
     straddle,
     headsUp,
+    ante,
     postflop,
     stackBb: stack,
     sizing,
@@ -699,10 +712,10 @@ export function preflopNodeAt(tree: PreflopTree, line: string): number {
   return tree.lineIndex.get(line) ?? -1;
 }
 
-/** Total pot at a node, in bb. */
+/** Total pot at a node, in bb: every seat's chips in, plus the antes. */
 export function potAt(tree: PreflopTree, node: number): number {
   const n = tree.players.length;
-  let sum = 0;
+  let sum = n * tree.ante;
   for (let p = 0; p < n; p += 1) sum += tree.contrib[node * n + p];
   return sum;
 }

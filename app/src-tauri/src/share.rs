@@ -161,9 +161,54 @@ pub fn forum_preview_open(store: State<'_, StoreState>, hand_key: String) -> Res
     open::that_detached(url).map_err(|error| error.to_string())
 }
 
+/// `<web>/analysis/hand?key=<hand key>&t=<replayer position>`: the web's
+/// page for a hand of the account's library by its dedupe key, which the web
+/// resolves to the hand's own page (or says it has not synced yet).
+fn hand_web_url(origin: &str, hand_key: &str, position: Option<&str>) -> Result<String, String> {
+    let mut url = url::Url::parse(origin)
+        .and_then(|base| base.join("analysis/hand"))
+        .map_err(|error| error.to_string())?;
+    {
+        let mut query = url.query_pairs_mut();
+        query.append_pair("key", hand_key);
+        if let Some(position) = position.filter(|p| !p.is_empty()) {
+            query.append_pair("t", position);
+        }
+    }
+    Ok(url.into())
+}
+
+/// "Open on the web" in a hand's panel: the hand in the web's library, at
+/// the replayer's position, in the default browser. The web asks for the
+/// account when the browser is not signed in.
+#[tauri::command]
+pub fn hand_web_open(hand_key: String, position: Option<String>) -> Result<(), String> {
+    let url = hand_web_url(&web_url(), &hand_key, position.as_deref())?;
+    open::that_detached(url).map_err(|error| error.to_string())
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{forum_preview_url, share_url};
+    use super::{forum_preview_url, hand_web_url, share_url};
+
+    #[test]
+    fn a_hand_on_the_web_is_its_key_and_position() {
+        assert_eq!(
+            hand_web_url(
+                "https://poker-hand-converter.vercel.app",
+                "pokerstars:2551 x&y",
+                Some("a12")
+            )
+            .as_deref(),
+            Ok(
+                "https://poker-hand-converter.vercel.app/analysis/hand?key=pokerstars%3A2551+x%26y&t=a12"
+            )
+        );
+        assert_eq!(
+            hand_web_url("http://localhost:3000/", "gg:1", None).as_deref(),
+            Ok("http://localhost:3000/analysis/hand?key=gg%3A1")
+        );
+    }
 
     #[test]
     fn the_forum_preview_carries_the_hand_in_its_fragment() -> Result<(), String> {

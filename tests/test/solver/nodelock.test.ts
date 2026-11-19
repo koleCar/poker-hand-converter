@@ -21,7 +21,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { checkBase, checkBaseline, NODELOCK_WARM_ITERATION, nodelockFlopRun, nodelockSpotOf, nodelockTurnSpot, solveNodelock } from "../../../web/src/lib/analysis/nodelock.js";
+import { checkBase, checkBaseline, NODELOCK_WARM_ITERATION, nodelockFlopRun, nodelockSpotOf, nodelockTurnSpot, solveNodelock, withRangeLocks } from "../../../web/src/lib/analysis/nodelock.js";
 import { FLOP_PROFILE } from "../../../web/src/lib/analysis/flopLibrary.js";
 import {
   applyNodelock,
@@ -63,6 +63,12 @@ import {
   type NodeLockSpec,
   type SolveResult,
   lockNodeActions,
+  buildFlopGame,
+  handsRange,
+  parseCards,
+  parseRange,
+  rangeLocksOf,
+  withLockRanges,
 } from "../../../web/src/lib/solver/index.js";
 
 /** Node reached from the root by following edge labels. */
@@ -533,5 +539,79 @@ describe("a turn lock built on a locked flop (§7.4)", () => {
     expect(() => checkBase({ ...set, base: { ...on, street: "turn" } }, base)).toThrow(NodelockError);
     expect(() => checkBase(set, base)).not.toThrow();
     expect(() => checkBase({ ...set, base: undefined }, library)).not.toThrow();
+  });
+});
+
+describe("a range-locked flop solve (§9)", () => {
+  const library = baselineChunk();
+  const board = parseCards(SPOT.board as string[]);
+  const gto: [Float64Array, Float64Array] = [handsRange(library.result.hands[0], library.result.weights[0]), handsRange(library.result.hands[1], library.result.weights[1])];
+  // OOP calls wider preflop: 99, 77 and QTs join, KK goes; ATo at half.
+  const edited: [Float64Array, Float64Array] = [parseRange("88,AKs,KQs,QJs,JTs,T9s,A5s,ATo:0.5,99,77,QTs"), gto[1]];
+  const ranges = rangeLocksOf(gto, edited, board);
+  const root = library.result.nodes[0];
+  const facing = (() => {
+    const ip = library.result.nodes[root.children[root.labels.indexOf("X")]];
+    return library.result.nodes[ip.children[ip.labels.findIndex((l) => l.startsWith("B"))]];
+  })();
+  const nodeLocked = (earlier: LockSet["earlier"]): LockSet =>
+    withLockRanges({ version: 1, spot: { set: "test", line: "btn-bb", flop: "Ks8s2d" }, nodes: [lockOf(library, facing.path, () => facing.labels.indexOf("F"))], earlier, targetPct: 1 }, ranges);
+
+  it("changes only the player whose range changed", () => {
+    expect(ranges?.map((r) => r.player)).toEqual([0]);
+  });
+
+  it("starts from the edited ranges, with the locks on top", () => {
+    const set = nodeLocked("player");
+    const spot = withRangeLocks(SPOT, set);
+    const solved = solveNodelock({ street: "flop", spot }, set, { baseline: library, maxIterations: 12 });
+    const decoded = decodeChunk(solved.chunk);
+    expect(decoded.header.lockHash).toBe(lockHash(set));
+    // The game's hands and weights are the edited range's live combos.
+    const weights = handsRange(decoded.result.hands[0], decoded.result.weights[0]);
+    for (let c = 0; c < NUM_COMBOS; c += 1) expect(weights[c], `combo ${c}`).toBeCloseTo(ranges![0].weights[c], 6);
+    expect(decoded.result.hands[1]).toEqual(library.result.hands[1]);
+    // The node lock holds; OOP's root (an earlier node, "player") keeps GTO's strategy for the hands it had,
+    // and the hands the range added adapt.
+    const facingNow = nodeOf(decoded.result, facing.path);
+    expect(facingNow.frequency[facing.labels.indexOf("F")]).toBeCloseTo(1, 6);
+    const was = library.result.nodes[0];
+    const now = decoded.result.nodes[0];
+    const n0 = library.result.hands[0].length;
+    const n1 = decoded.result.hands[0].length;
+    const index = new Map(Array.from(library.result.hands[0], (combo, i) => [combo, i] as const));
+    let added = 0;
+    let free = 0;
+    decoded.result.hands[0].forEach((combo, i) => {
+      const j = index.get(combo);
+      if (j === undefined) {
+        added += 1;
+        // Not frozen at the first action: it plays what the solve finds.
+        if (now.strategy[i] < 0.999) free += 1;
+        let sum = 0;
+        for (let a = 0; a < now.labels.length; a += 1) sum += now.strategy[a * n1 + i];
+        expect(sum).toBeCloseTo(1, 5);
+        return;
+      }
+      for (let a = 0; a < now.labels.length; a += 1) expect(now.strategy[a * n1 + i]).toBeCloseTo(was.strategy[a * n0 + j], 4);
+    });
+    expect(added).toBeGreaterThan(0);
+    expect(free).toBeGreaterThan(0);
+  });
+
+  it("refuses other hands without a range lock, and a turn node with one", () => {
+    const set = nodeLocked("none");
+    const built = buildFlopGame(withRangeLocks(SPOT, set));
+    expect(() => checkBaseline(built, library, set)).not.toThrow();
+    expect(() => checkBaseline(built, library)).toThrow(NodelockError);
+    const turn = { ...set, nodes: [{ ...set.nodes[0], street: "turn" as const, path: "X-X~7h/" }] };
+    expect(() => solveNodelock({ street: "flop", spot: SPOT }, turn, { baseline: library, maxIterations: 1 })).toThrow(NodelockError);
+  });
+
+  it("solves a ranges-only lock: no decision locked", () => {
+    const set = withLockRanges({ version: 1, spot: { set: "test", line: "btn-bb", flop: "Ks8s2d" }, nodes: [], earlier: "player", targetPct: 1 }, ranges);
+    const solved = solveNodelock({ street: "flop", spot: withRangeLocks(SPOT, set) }, set, { baseline: library, maxIterations: 6 });
+    expect(decodeChunk(solved.chunk).header.lockHash).toBe(lockHash(set));
+    expect(solved.solver.frozenNodes).toEqual([]);
   });
 });

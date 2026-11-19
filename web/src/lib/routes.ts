@@ -119,6 +119,9 @@ export const paths = {
   /** One hand's analysis: the replayer with the Analysis sheet open. */
   analysisHand: (handId: string, query?: string) =>
     `/analysis/h/${encodeURIComponent(handId)}${query ? `?${query}` : ""}`,
+  /** A hand of the library by its dedupe key (the desktop app's "Open on the web"): resolves to `analysisHand`. */
+  analysisHandByKey: (handKey: string, position?: string | null) =>
+    `/analysis/hand?key=${encodeURIComponent(handKey)}${position ? `&t=${encodeURIComponent(position)}` : ""}`,
   sharedHand: (slug: string) => `/h/${encodeURIComponent(slug)}`,
   /**
    * A public profile. Every top-level segment here is also a row in
@@ -180,6 +183,8 @@ export const paths = {
   adminUser: (id: string) => `/admin/users/${encodeURIComponent(id)}`,
   /** The feedback reports, optionally one account's. */
   adminReports: (user?: string) => (user ? `/admin/reports?user=${encodeURIComponent(user)}` : "/admin/reports"),
+  /** The Pro waitlist (`20271119210000_pro_waitlist.sql`). */
+  adminWaitlist: () => "/admin/waitlist",
   takedown: () => "/takedown",
   /** The desktop app for macOS and Windows: what it does, and the two installers. Public; a reserved username (`20271103100000_download_route.sql`). */
   download: () => "/download",

@@ -48,6 +48,8 @@ export interface GenerateOptions {
   straddle?: PreflopStraddle;
   /** Heads-up (`charts/8`): `players` are `SB, BB` and the small blind is the button (`PreflopTreeConfig.headsUp`). */
   headsUp?: boolean;
+  /** An ante from every seat, bb (`PreflopTreeConfig.ante`): dead money in every pot; absent or 0: none. */
+  ante?: number;
   /** Open limps up to this many limpers (`charts/4`); 0 or absent: only the small blind limps. */
   maxLimpers?: number;
   /** The open limp's tremble (`PreflopGame.limpFloor`); only with `maxLimpers`. */
@@ -203,6 +205,7 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
     maxLimpers: options.maxLimpers,
     straddle: options.straddle,
     headsUp: options.headsUp,
+    ante: options.ante,
   });
   const realisation = options.realisation ?? CHARTS1_REALISATION;
   const limpFloor = tree.maxLimpers > 0 ? (options.limpFloor ?? 0) : 0;
@@ -263,9 +266,15 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
         ...(tree.maxLimpers > 0 ? { maxLimpers: tree.maxLimpers, limpFloor } : {}),
         ...(tree.straddle ? { straddle: tree.straddle } : {}),
         ...(tree.headsUp ? { headsUp: true } : {}),
+        ...(tree.ante ? { ante: tree.ante } : {}),
         cuts: [
           ...(tree.headsUp
             ? ["heads-up: the small blind is the button, acts first preflop and last after the flop"]
+            : []),
+          ...(tree.ante
+            ? [
+                `a ${tree.ante}bb ante from every seat: dead money in every pot, outside the bets; EVs are net from the start of the hand, ante included`,
+              ]
             : []),
           ...(tree.straddle
             ? [

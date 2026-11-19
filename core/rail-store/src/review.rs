@@ -348,7 +348,8 @@ fn bad_decisions(conn: &Connection, hands: &[SessionHand], version: &str) -> Res
                 d.grade_rank, d.ev_loss_bb, d.ev_loss_pot, d.best, d.chosen, d.options, d.facts
          FROM hand_analysis a
          JOIN decision_analysis d ON d.hand_key = a.hand_key
-         WHERE a.hand_key = ?1 AND a.analysis_version = ?2 AND d.grade_rank >= 3",
+         WHERE a.hand_key = ?1 AND a.analysis_version = ?2 AND d.grade_rank >= 3
+           AND instr(d.scenario, '-mw-') = 0",
     )?;
     let mut out = Vec::new();
     for hand in hands {

@@ -1136,3 +1136,203 @@ library's.
 - **Compare and popover**: a node is paired with the library's only when
   the labels match. A custom node shows no GTO; the row summary's `shifts`
   has GTO 0 for a new size.
+
+## 9. Range locks: the ranges that reach the flop (owner, 2026-11-19)
+
+The owner: "nodelockovi bi trebali imati opciju mijenjanja preflop rangeova".
+Pressing Nodelock first shows **which preflop ranges the spot is about**, and
+the user can change them. Changing a range is itself a lock (a "preflop
+nodelock"): it is part of the lock's identity, its hash, its row and its
+lineage.
+
+**Scope.** This does **not** re-solve preflop. It fixes the ranges that
+arrive at the flop and re-solves the postflop game from them. The chart data
+never changes. The editor's tooltip says so ("Changes the ranges that reach
+the flop and solves the flop again from them. Preflop is not solved again.").
+
+### 9.1 The model (`web/src/lib/solver/nodelock.ts`, `rangeLock.ts`)
+
+```ts
+export interface RangeLock {
+  /** 0 = out of position, as everywhere in a lock. */
+  player: 0 | 1;
+  /** 1,326 weights in [0, 1] (`combos.ts` order) as the flop comes: a combo holding a flop card is 0; quantised to 1e-4. */
+  weights: number[];
+}
+export interface LockSet {
+  version: 1 | 2;          // 2 exactly when `ranges` is there
+  spot; nodes; earlier; targetPct; base?;
+  /** The starting ranges the set solves from, one per changed player, by player. Absent: the chart's ranges. */
+  ranges?: RangeLock[];
+}
+```
+
+- **Canonical.** `rangeLocksOf(gto, edited, board)` keeps a player only when
+  its range differs from GTO's by more than 1e-4 on a live combo, zeroes the
+  board's combos and quantises to 1e-4. So the same picture always hashes the
+  same, and "ranges as GTO" is no `ranges` at all (the v1 hash).
+- **Hash.** `lockHash` hashes `ranges` with the rest. A set without them is
+  `version: 1` and hashes exactly as before (pinned in the test).
+- **Version.** `version: 2` marks a set with ranges, so an older app that
+  cannot apply them refuses the row instead of solving without them.
+  `readLockSet(json)` reads a stored set: v1 as it is, v2 with its ranges
+  checked, anything else null (the row is shown as unreadable). Stored rows
+  are never rewritten; a v1 row keeps its `lock_hash`.
+- **Ranges-only locks.** `nodes` may be empty when `ranges` is there: "solve
+  this spot with these ranges", no decision locked. `lockGameStreet` gives
+  `"flop"` for it.
+- **One game.** Ranges belong to the **flop game**: a set with `ranges`
+  locks flop nodes only (or none). A turn lock never carries ranges; it takes
+  them from the chunk it is solved on (§9.3).
+- **Text** (`parseRange`, `formatRange`): the usual syntax, comma separated:
+  `AA`, `AKs`, `AQo`, `AK` (both), `TT+`, `ATs+`, `KTo+`, `22-55`,
+  `A2s-A5s`, single combos `AsKs`, each with an optional weight `:0.5` (or
+  `:50`, read as a percentage when above 1). A class not named is 0. A paste
+  replaces the player's range. `formatRange` writes classes with their mean
+  weight (combos only when a class's combos differ), in grid order.
+- **Diff** (`rangeDiff(gto, edited, board)`): combos added and removed (sums
+  of the positive and negative weight change over live combos), the share of
+  live combos before and after.
+- **Scale** (`scaleRange(weights, deltaPp, score, board)`): widen by N pp
+  of the live combos from the range's edge: among the hands not fully in,
+  those scoring no better than the range's best first, best first (a
+  calling range takes its next calls, not the hands the line raised with),
+  then the stronger ones, closest first; or tighten, worst first among the
+  hands in. Whole classes move; the last one goes in partly. The chart data has no preflop EVs, so the score is
+  **preflop equity against the opponent's range** (`preflopEquityTable`,
+  seeded, 4,000 boards: ~1 s once per window, about ±0.008).
+
+### 9.2 Engine
+
+- **The spot.** `nodelockFlopSpot(charts, set)` puts each range lock's
+  weights in place of the chart's range. Both engines build their game from
+  it (the native one gets the spot from the window), so no other change is
+  needed to solve from the edited ranges.
+- **Symmetry.** `lockSymmetries` keeps a suit relabelling only when it maps
+  every range lock onto itself (a range pasted with single combos can break
+  it; one painted by class never does).
+- **The baseline.** The library chunk was solved on GTO's ranges, so with a
+  range lock the game's hands differ from it. `checkBaseline(built, chunk,
+  set)` then checks only the pot and the stack. **Earlier nodes**: a combo
+  the library chunk does not hold has no GTO strategy, so it is not frozen
+  (it adapts): `chunkBaseline` gives `NaN` for it, and `applyNodelock` (and
+  Rust's `apply_plan`) freeze such a node with a mask. Without a range lock
+  every combo is in the chunk, so nothing changes, bit for bit.
+- **Warm keys.** The worker engine's `spotKey` includes the ranges; the
+  native warm key already includes the spot's ranges.
+- **Rust.** `LockSet.ranges` is read (`Option<Vec<RangeLock>>`); with it the
+  hands check is skipped; `chunk_baseline` / `apply_plan` as above.
+- **Turn and river.** A turn game takes its ranges at the deal from the chunk
+  it is solved on. Inside a range-locked flop lock (or under it) a turn lock
+  is built on that lock's result (§7.4 `later`), whose chunk holds the locked
+  ranges as its initial weights; the live turns of a range-locked lock are
+  solved from its chunk too (their cache key has the lock's id).
+
+### 9.3 Lineage and the session
+
+- `planChildLock` and its siblings **carry the owner's ranges**: a flop node
+  added inside a range-locked lock keeps its ranges. `settings.ranges`
+  replaces them (the editor passes what the user set; `null` clears them).
+- `chainRanges(open, ancestors)`: the ranges of the flop the open view
+  shows (the first flop-game lock in the chain), which the Ranges step
+  starts from.
+- **New ranges on a turn or river node** need the flop solved first. The
+  editor queues **two solves**: `planRangeLock` (the chain's flop owner's
+  nodes with the new ranges, its child; or a ranges-only root), then the turn
+  lock built on it (`later`). The second's `parentId` / `baseRowId` is a
+  `pending:<key>` the session resolves to the first's row id once it is
+  saved; if the first fails or is cancelled, the second fails ("the base is
+  not solved"). Such a turn lock holds only the new node (an open turn lock's
+  nodes on that card are not carried over to the new flop).
+- **Summary.** `NodelockSummary.ranges?: RangeShift[]` (`{ position, gto,
+  locked, added, removed }`, shares of live combos and combos). Its line
+  "Ranges: BB +7 %" ("Rangeovi: BB +7 %") is the **first lineage step**: the
+  hover card's first line, the lock popover's, and the name of a ranges-only
+  lock (`Ranges BB +7 % · A♠6♥3♦`). Old summaries have none.
+- The row of a ranges-only lock: `street` "flop", `node_path` "".
+  `parseRow` / `lockChain` accept a set with no nodes when it has ranges.
+  `planRemoveLock` may now leave a ranges-only sibling.
+
+### 9.4 The UI (`app/src/solver/nodelock/RangesStep.tsx`, `editor/ranges.ts`)
+
+Nodelock opens the editor on its **Ranges step** (Edit lock and a lock
+reopened from the tree open on the decision; the step is one click back).
+
+```
+┌ BTN raise 2.5 · BB call · A♠6♥3♦ ············ ↶ ↷ Reset to GTO × ┐
+│ [BTN 45.2 % | BB 31.0 % ●]                  │ Weight [====|  ] 100 %   │
+│ 13×13 grid: each cell's bar = its weight,   │ Pairs Suited Offsuit     │
+│ GTO's mark on it, + / − where it differs    │ Broadways Ax suited SCs  │
+│ (click / drag paints the weight)            │ Widen / Tighten by [5] % │
+│                                             │ Paste / Copy (text)      │
+├ BB call 31 % (GTO 24 %) · +88 −12 combos ·····  Solve these ranges  [Lock BB →] ┤
+```
+
+- The line in one row (each seat's preflop action, `lineActs`), the board.
+- A tab per player (combos and % of hands on it, a dot when changed); the
+  grid is the editor's 13×13 look: a cell's fill is its weight, GTO's weight a
+  tick, a changed cell an accent edge. Click or drag paints the slider's
+  weight; class shortcuts paint a class (pairs, suited, offsuit, broadways,
+  Ax suited, suited connectors); Widen / Tighten by N % (§9.1 `scaleRange`);
+  Paste replaces the range from text, Copy puts it on the clipboard; Undo,
+  Redo, Reset to GTO.
+- The footer: the summary line (`BB call 31 % (GTO 24 %)`, `+88 −12
+  combos`), **Lock *BB*** (the decision's actor: on to the node editor; the
+  ranges go with it) and, once the ranges differ from the ones the view's
+  flop was solved from, **Solve these ranges** (a ranges-only lock, or the
+  open flop lock's nodes with these ranges). With the ranges unchanged, Lock
+  *BB* is the same as before: one click more than v2.
+- In the node editor a **Ranges** button (with "BB +7 %" when changed) goes
+  back. The node editor's frequencies stay over the GTO range reaching the
+  node (the library chunk): hands the edit added adapt in the solve, hands
+  it removed are ignored.
+- **Free / Pro.** The Ranges step is part of Nodelock (Pro): on a plan without
+  it the Nodelock button stays the locked teaser (`free-tier/CONTRACT.md`).
+  Reading the starting ranges stays free: the Ranges tab at the flop's first
+  decision shows both.
+- EN + HR (`nodelock.ranges.*`).
+
+### 9.5 As built (2026-11-19)
+
+- **Model:** `web/src/lib/solver/rangeLock.ts` (canonical form, text, diff,
+  shortcuts, scale, `classScores`), `nodelock.ts` (`RangeLock`,
+  `LockSet.version: 1 | 2`, `ranges?`, `readLockSet`, `withLockRanges`,
+  `rangesHash`, `lockGameStreet` / `lockSymmetries` with ranges,
+  `chunkBaseline`'s `NaN`). Tests: `tests/test/solver/rangeLock.test.ts`.
+- **Engine:** `analysis/nodelock.ts` (`withRangeLocks`, `nodelockFlopSpot`,
+  `checkBaseline(built, chunk, set)`), the worker engine's `spotKey`, Rust
+  `LockSet.ranges` / `has_ranges` and the hands check
+  (`core/rail-solver/tests/freeze.rs` `a_range_locked_request_solves`).
+  Tests: `nodelock.test.ts` "a range-locked flop solve (§9)" (the game's
+  hands and weights are the edited range's, the node lock holds, earlier
+  nodes keep GTO for the hands the chunk had and the added hands adapt, a
+  ranges-only lock solves), `appNodelockEngine.test.ts` (split = reference
+  with ranges, never warm across two ranges).
+- **Lineage / session:** `lineage.ts` (`LockSettings.ranges`,
+  `chainRanges`, `planRangeLock`, `pendingRef`, `resolvePlan`, `PENDING`),
+  `session.ts` (`SolveRequest.chainKey`, a ranges-only row, `parseRow` via
+  `readLockSet`). The chain key is the flop lock's `lockHash`. Tests:
+  `appNodelockLineage.test.ts` "range locks in the lineage".
+- **UI:** `RangesStep.tsx` (+ `.module.css`), `editor/ranges.ts` (state,
+  undo/redo, `rangeShifts`, `rangesLineage`; `appNodelockRanges.test.ts`),
+  `Editor.tsx` (the step, the Ranges button with the shift, the ranges in
+  every solve, the two-solve chain, Solve these ranges), the lineage line in
+  `tree/HoverCard.tsx` and the lock popover (`LockMark.tsx`, `slot.tsx`).
+  `NodelockSummary.ranges` is set on every lock whose flop ranges are not
+  the chart's (a turn lock built on a range-locked flop too), so its hover
+  card starts with them.
+- **Deviations:** the Edit lock path on a turn node with new ranges plans a
+  plain child of the new flop lock (not a sibling); the preflop line's
+  action words are the Solver library's (`Call`, `Raise 2.5`), so the
+  summary reads "BB Call 31% (GTO 24%)".
+- **Checked in a browser** (scratch app harness, IPC mocked, nodelock
+  workers stubbed so nothing solved): Nodelock opens on the Ranges step; the
+  BB / BTN tabs, paint, widen, text apply, Reset, the summary and diff; Lock
+  BB carries the ranges to the node editor ("Ranges BB +5%"); Solve saves a
+  v2 row with the ranges, Solve these ranges a ranges-only row; a saved
+  range lock's hover card and popover start with "Ranges: BB +3%", and Edit
+  lock reopens it with its ranges. EN and HR.
+- **Not checked:** a real solve in the app window (only the tests' small
+  spots), the native engine end to end in Tauri (Rust tests only), the
+  two-solve chain under a turn node in the window (its planning and the
+  pending ids are unit-tested; the queue path is not).

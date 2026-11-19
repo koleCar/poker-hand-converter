@@ -6,8 +6,21 @@
 import { describe, expect, it } from "vitest";
 
 import type { NodeLockRow } from "../../app/src/lib/ipc";
-import { lockChain, lockOwner, nodeGame, planChildLock, planEditLock, planRemoveLock, siblingName, type LockRef } from "../../app/src/solver/nodelock/lineage";
-import { lockHash, NUM_COMBOS, type LockSet, type NodeLockSpec } from "../../web/src/lib/solver/index";
+import {
+  chainRanges,
+  lockChain,
+  lockOwner,
+  nodeGame,
+  pendingRef,
+  planChildLock,
+  planEditLock,
+  planRangeLock,
+  planRemoveLock,
+  resolvePlan,
+  siblingName,
+  type LockRef,
+} from "../../app/src/solver/nodelock/lineage";
+import { lockHash, NUM_COMBOS, withLockRanges, type LockSet, type NodeLockSpec, type RangeLock } from "../../web/src/lib/solver/index";
 
 const SPOT = { set: "nlhe-cash-6max-100bb", line: "btn-bb", flop: "Qs6h3d" };
 
@@ -237,5 +250,80 @@ describe("lockChain and nodeGame", () => {
     expect(nodeGame(TURN_A)).toBe("turn:X-X~Kd");
     expect(nodeGame(RIVER)).toBe("turn:X-X~Kd");
     expect(nodeGame(OTHER_TURN)).not.toBe(nodeGame(TURN_A));
+  });
+});
+
+describe("range locks in the lineage (§9.3)", () => {
+  const RANGES: RangeLock[] = [{ player: 0, weights: new Array<number>(NUM_COMBOS).fill(0.25) }];
+  const OTHER: RangeLock[] = [{ player: 1, weights: new Array<number>(NUM_COMBOS).fill(0.5) }];
+  const ranged = (nodes: NodeLockSpec[], ranges = RANGES) => withLockRanges(flopSet(nodes), ranges);
+
+  it("a new lock on the library takes the editor's ranges, and is v1 without them", () => {
+    const plan = planChildLock(null, [], SPOT, FLOP_A, { ranges: RANGES });
+    expect(plan.set).toEqual(ranged([FLOP_A]));
+    expect(plan.set.version).toBe(2);
+    expect(planChildLock(null, [], SPOT, FLOP_A, { ranges: null }).set).toEqual(flopSet([FLOP_A]));
+  });
+
+  it("a flop node added inside a range-locked lock keeps its ranges, unless the editor sets others", () => {
+    const open = lock("Wide BB", ranged([FLOP_A]));
+    expect(planChildLock(open, [], SPOT, FLOP_B).set).toEqual(ranged([FLOP_A, FLOP_B]));
+    expect(planChildLock(open, [], SPOT, FLOP_B, { ranges: OTHER }).set).toEqual(ranged([FLOP_A, FLOP_B], OTHER));
+    expect(planChildLock(open, [], SPOT, FLOP_B, { ranges: null }).set).toEqual(flopSet([FLOP_A, FLOP_B]));
+    // Edit lock and Remove this lock: siblings with the same ranges.
+    expect(planEditLock(open, [], SPOT, FLOP_A)?.set.ranges).toEqual(RANGES);
+  });
+
+  it("a turn node inside it is built on its result: the ranges are in that chunk, not in the set", () => {
+    const open = lock("Wide BB", ranged([FLOP_A]));
+    const plan = planChildLock(open, [], SPOT, TURN_A, { ranges: OTHER });
+    expect(plan.kind).toBe("later");
+    expect(plan.set.ranges).toBeUndefined();
+    expect(plan.set.version).toBe(1);
+    expect(plan.set.base).toEqual({ lockHash: open.row.lock_hash, street: "flop" });
+  });
+
+  it("reads the ranges of the flop on screen from the chain", () => {
+    const flop = lock("Wide BB", ranged([FLOP_A]));
+    const turn = lock("Turn", turnSet([TURN_A], { lockHash: flop.row.lock_hash, street: "flop" }), flop);
+    expect(chainRanges(turn, [flop])).toEqual(RANGES);
+    expect(chainRanges(flop, [])).toEqual(RANGES);
+    expect(chainRanges(null, [])).toBeUndefined();
+    expect(chainRanges(lock("Plain", flopSet([FLOP_A])), [])).toBeUndefined();
+  });
+
+  it("plans new ranges on their own: a ranges-only root, or the flop owner's child", () => {
+    const root = planRangeLock(null, [], { ...SPOT, turn: "Kd" }, RANGES);
+    expect(root?.kind).toBe("root");
+    expect(root?.set).toEqual(withLockRanges({ ...flopSet([]), nodes: [] }, RANGES));
+    expect(planRangeLock(null, [], SPOT, null)).toBeNull();
+    const flop = lock("Passive BB", flopSet([FLOP_A]));
+    const turn = lock("Turn", turnSet([TURN_A], { lockHash: flop.row.lock_hash, street: "flop" }), flop);
+    const child = planRangeLock(turn, [flop], SPOT, RANGES);
+    expect(child).toMatchObject({ parentId: flop.row.id, kind: "earlier", footer: { kind: "adds", parent: "Passive BB", street: "flop" } });
+    expect(child?.set).toEqual(ranged([FLOP_A]));
+  });
+
+  it("plans the turn lock on a flop lock not saved yet, and resolves it once it is", () => {
+    const first = planRangeLock(null, [], SPOT, RANGES)!;
+    const ref = pendingRef(first, "k1", "Ranges BB", lockHash(first.set));
+    const turn = planChildLock(ref, [], { ...SPOT, turn: "Kd" }, TURN_A);
+    expect(turn).toMatchObject({ parentId: "pending:k1", baseRowId: "pending:k1", kind: "later" });
+    expect(turn.set.base).toEqual({ lockHash: lockHash(first.set), street: "flop" });
+    expect(resolvePlan(turn, new Map())).toBeNull();
+    expect(resolvePlan(turn, new Map([["k1", "row-9"]]))).toMatchObject({ parentId: "row-9", baseRowId: "row-9" });
+    expect(resolvePlan(first, new Map())).toEqual(first);
+  });
+
+  it("removing a range-locked lock's last node leaves a ranges-only sibling", () => {
+    const open = lock("Wide BB", ranged([FLOP_A]));
+    expect(planRemoveLock(open, [], FLOP_A.path)?.set).toEqual(withLockRanges({ ...flopSet([]), nodes: [] }, RANGES));
+    expect(planRemoveLock(lock("Plain", flopSet([FLOP_A])), [], FLOP_A.path)).toBeNull();
+  });
+
+  it("walks a chain through a ranges-only lock", () => {
+    const a = lock("Ranges", withLockRanges({ ...flopSet([]), nodes: [] }, RANGES));
+    const b = lock("B", ranged([FLOP_A]), a);
+    expect(lockChain([a.row, b.row], b.row.id)?.map((l) => l.row.name)).toEqual(["B", "Ranges"]);
   });
 });

@@ -24,6 +24,7 @@ import { go } from "../../lib/router";
 import {
   actionColours,
   availableArchetypes,
+  cardIndex,
   ComboText,
   DRAWS,
   HAND_CLASSES,
@@ -38,17 +39,22 @@ import {
   solverStyles,
   suggestLocks,
   ToolButton,
+  handsRange,
   type Archetype,
   type NodelockSuggestion,
   type SolverDict,
 } from "../door";
-import type { LockEarlier, LockSet, NodelockSummary } from "./contract";
+import type { LockEarlier, LockSet, NodelockSummary, RangeLock, RangeShift } from "./contract";
 import { actionsFromLabels, carryStrategy, isLibrary, passiveActions, sizeAction, sortActions, withActions } from "./editor/sizes";
 import { editorReducer, fromLockArrays, initialState, lockedCount, sharesOf, type EditorAction, type EditorState } from "./editor/state";
+import { initialRangeEdit, rangeEditLocks, rangeEditReducer, rangeShifts, shiftPp } from "./editor/ranges";
 import { engineInfo, type EngineInfo } from "./engine";
+import { lockHash, rangesHash, withLockRanges } from "./engine/door";
 import styles from "./Editor.module.css";
 import { nodelockData } from "./data";
-import { planChildLock, planEditLock, siblingName, type LockFooter, type LockPlan } from "./lineage";
+import { chainRanges, pendingRef, planChildLock, planEditLock, planRangeLock, siblingName, type LockFooter, type LockPlan } from "./lineage";
+import { RangesStep, usePreflopLine } from "./RangesStep";
+import rangeStyles from "./RangesStep.module.css";
 import { boardText, closeEditor, LOCKS_PARAM, startSolve, useNodelockSession, type EditorOpen, type EditorWithin } from "./session";
 import { lockSpec, lockTarget, suggestContext, type LockAction, type LockTarget } from "./spot";
 
@@ -149,6 +155,28 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
   const target = useMemo(() => withActions(base, state.actions ?? base.library), [base, state.actions]);
   /** Inside a lock that gave this node its own sizes: the shown actions are already the lock's, so every lock here keeps `custom`. */
   const inherited = useMemo(() => Boolean(open.within?.open.set.nodes.some((n) => n.custom && n.path === base.path)), [open.within, base.path]);
+  /* -------------------------------------------- the Ranges step (§9.4) - */
+  const library = open.at.library;
+  /** The flop in the chunk's suits: the ranges' combos. */
+  const flopCards = useMemo(() => library.result.board.slice(0, 3).map((card) => cardIndex(card)), [library]);
+  const players = library.header.players;
+  /** The ranges the view's flop was solved from: the lock being edited, else the chain's (§9.3); undefined: the chart's. */
+  const startRanges = useMemo<RangeLock[] | undefined>(
+    () => (open.from?.lockSet.nodes.every((n) => n.street === "flop") ? open.from.lockSet.ranges : undefined) ?? chainRanges(open.within?.open ?? null, open.within?.ancestors ?? []),
+    [open.from, open.within],
+  );
+  const [rangeEdit, rangeDispatch] = useReducer(rangeEditReducer, undefined, () =>
+    initialRangeEdit([handsRange(library.result.hands[0], library.result.weights[0]), handsRange(library.result.hands[1], library.result.weights[1])], startRanges),
+  );
+  /** Nodelock opens on the ranges; Edit lock (a node already locked) on the decision. */
+  const [step, setStep] = useState<"ranges" | "node">(() => (open.from?.lockSet.nodes.some((n) => n.path === base.path) ? "node" : "ranges"));
+  const preflop = usePreflopLine(open.at.set, library.header.lineKey, players, solverT);
+  const editedRanges = rangeEditLocks(rangeEdit, flopCards);
+  /** The ranges differ from the ones the view's flop was solved from: a turn or river lock then needs the flop solved first (§9.3). */
+  const rangesMoved = rangesHash(editedRanges) !== rangesHash(startRanges);
+  const shifts = rangeShifts(rangeEdit, flopCards, players);
+  const shiftText = (list: RangeShift[] | undefined) => (list ?? []).map((x) => t.ranges.shift(x.position, shiftPp(x))).join(", ");
+
   const actionKey = target.actions.map((a) => a.label).join(" ");
   const [mode, setMode] = useState<Mode>("range");
   const [view, setView] = useState<View>("range");
@@ -296,16 +324,28 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
     const { at } = target;
     const spot = spotOf(at, target.river);
     const spec = lockSpec(target, state, inherited);
+    // New ranges under a turn or river node: the flop with them first, then this lock on it (§9.3).
+    const chained = target.street !== "flop" && rangesMoved;
+    let first: LockPlan | null = null;
     let plan: LockPlan | null = null;
-    if (open.within) {
-      try {
-        plan = planOf(open.within, spot, spec, { earlier, targetPct: accuracy });
-      } catch {
-        setMessage(t.startError);
-        return;
+    let firstKey = "";
+    const firstName = t.ranges.name(shiftText(shifts), boardText(at.board.slice(0, 3)));
+    try {
+      if (chained) {
+        first = planRangeLock(open.within?.open ?? null, open.within?.ancestors ?? [], spot, editedRanges ?? null, { targetPct: accuracy });
+        // The flop lock's hash names its row for the lock queued after it.
+        firstKey = first ? lockHash(first.set) : "";
+        plan = first
+          ? planChildLock(pendingRef(first, firstKey, firstName, firstKey), [], spot, spec, { earlier, targetPct: accuracy })
+          : planChildLock(null, [], spot, spec, { earlier, targetPct: accuracy });
+      } else if (open.within) {
+        plan = planOf(open.within, spot, spec, { earlier, targetPct: accuracy, ranges: editedRanges ?? null });
       }
+    } catch {
+      setMessage(t.startError);
+      return;
     }
-    const lockSet: LockSet = plan?.set ?? { version: 1, spot, nodes: [spec], earlier, targetPct: accuracy };
+    const lockSet: LockSet = plan?.set ?? withLockRanges({ version: 1, spot, nodes: [spec], earlier, targetPct: accuracy }, target.street === "flop" ? editedRanges : undefined);
     const summary: NodelockSummary = {
       view: {
         set: at.set,
@@ -318,6 +358,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
       players: target.players,
       steps: target.steps,
       shifts: target.actions.map((a, k) => ({ label: a.name, gto: gtoShares[k], locked: shares[k] })),
+      ...(shifts ? { ranges: shifts } : {}),
     };
     const who = state.preset ? `${suggestDict.names[state.preset as Archetype] ?? state.preset} ${target.position}` : target.position;
     setSubmitting(true);
@@ -326,10 +367,49 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
       plan?.footer.kind === "sibling"
         ? siblingName(plan.footer.of, await nodelockData.list().then((rows) => rows.map((row) => row.name), () => []))
         : (open.from?.name ?? t.name(who, boardText(at.board), target.players[1], target.players[0]));
+    if (first) {
+      const flopStarted = await startSolve({ at, lockSet: first.set, name: firstName, preset: null, summary: rangesSummary(at, shifts ?? []), plan: first, chainKey: firstKey });
+      if (flopStarted === "noEngine" || flopStarted === "failed") {
+        setSubmitting(false);
+        setMessage(flopStarted === "noEngine" ? t.noEngine : t.startError);
+        return;
+      }
+    }
     const started = await startSolve({ at, lockSet, name, preset: state.preset, summary, ...(plan ? { plan } : {}) }).finally(() => setSubmitting(false));
     if (started === "noEngine" || started === "failed") setMessage(started === "noEngine" ? t.noEngine : t.startError);
     // The library stays the clean solve: the lock's progress, then the lock, are in My nodelocks.
     // Inside an open lock the view stays where it is; the new lock's row shows under it in the tree.
+    else if (!open.within) go("solver", LOCKS_PARAM);
+  };
+
+  /** The summary of a lock that changes only the ranges: made at the flop's first decision. */
+  const rangesSummary = (at: EditorOpen["at"], list: RangeShift[]): NodelockSummary => ({
+    view: { set: at.set, line: at.preflop, flop: at.board.slice(0, 3).join(""), node: 0 },
+    position: list[0]?.position ?? players[0],
+    players,
+    steps: [],
+    shifts: [],
+    ranges: list,
+  });
+
+  /** Solve these ranges (§9.4): a ranges-only lock, or the chain's flop lock with them. */
+  const solveRanges = async () => {
+    setMessage(null);
+    const { at } = target;
+    let plan: LockPlan | null;
+    try {
+      plan = planRangeLock(open.within?.open ?? null, open.within?.ancestors ?? [], spotOf(at, null), editedRanges ?? null, { targetPct: accuracy });
+    } catch {
+      plan = null;
+    }
+    if (!plan) {
+      setMessage(t.startError);
+      return;
+    }
+    setSubmitting(true);
+    const name = t.ranges.name(shiftText(shifts), boardText(at.board.slice(0, 3)));
+    const started = await startSolve({ at, lockSet: plan.set, name, preset: null, summary: rangesSummary(at, shifts ?? []), plan }).finally(() => setSubmitting(false));
+    if (started === "noEngine" || started === "failed") setMessage(started === "noEngine" ? t.noEngine : t.startError);
     else if (!open.within) go("solver", LOCKS_PARAM);
   };
 
@@ -691,7 +771,32 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
         closeEditor();
       }}
     >
+      {step === "ranges" ? (
+        <RangesStep
+          edit={rangeEdit}
+          dispatch={rangeDispatch}
+          board={flopCards}
+          shownBoard={open.at.board}
+          players={players}
+          actor={target.player}
+          preflop={preflop}
+          message={message}
+          busy={submitting || info?.kind === null}
+          canSolve={rangesMoved}
+          onNext={() => {
+            setMessage(null);
+            setStep("node");
+          }}
+          onSolveRanges={() => void solveRanges()}
+          onClose={closeEditor}
+        />
+      ) : (
+      <>
       <header className={styles.head}>
+        <ToolButton size="sm" title={t.ranges.scope} onClick={() => setStep("ranges")}>
+          <span className={rangeStyles.back}>{t.ranges.step}</span>
+          {shifts ? <span className={rangeStyles.backShift}>{shiftText(shifts)}</span> : null}
+        </ToolButton>
         <span className={styles.headLock} aria-hidden="true">
           <LockGlyph />
         </span>
@@ -825,7 +930,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
           />
         </div>
         <div className={styles.footText}>
-          {footer ? <p className={styles.planLine}>{footerLine(t, footer)}</p> : null}
+          {target.street !== "flop" && rangesMoved ? <p className={styles.planLine}>{t.ranges.turnFirst}</p> : footer ? <p className={styles.planLine}>{footerLine(t, footer)}</p> : null}
           <p className={message ? styles.message : styles.engineLine} role={message ? "alert" : undefined}>
             {message ?? (running ? t.queued : info === null ? "" : info.kind === null ? t.noEngine : t.engineLine(info.threads, info.cores, memoryMb))}
           </p>
@@ -835,6 +940,8 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
           {t.solve}
         </ToolButton>
       </footer>
+      </>
+      )}
     </dialog>
   );
 }
@@ -925,7 +1032,7 @@ function spotOf(at: EditorOpen["at"], river: string | null): LockSet["spot"] {
 }
 
 /** A lock made inside an open one (§7.4): a child of it (the Nodelock action), or a sibling of the node's owner (Edit lock). */
-function planOf(within: EditorWithin, spot: LockSet["spot"], spec: Parameters<typeof planChildLock>[3], settings?: { earlier: LockEarlier; targetPct: number }): LockPlan {
+function planOf(within: EditorWithin, spot: LockSet["spot"], spec: Parameters<typeof planChildLock>[3], settings?: { earlier: LockEarlier; targetPct: number; ranges?: RangeLock[] | null }): LockPlan {
   return (
     (within.edit ? planEditLock(within.open, within.ancestors, spot, spec, settings) : null) ??
     planChildLock(within.open, within.ancestors, spot, spec, settings)

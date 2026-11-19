@@ -28,7 +28,8 @@ import { solverParam } from "../param";
 import { lockHashOf, type LockSet, type NodelockEngine, type NodelockProgress, type NodelockSummary } from "./contract";
 import { nodelockData, type NodeLockInput, type NodeLockRow } from "./data";
 import { pickEngine } from "./engine";
-import { lockChain, type LockPlan, type LockRef } from "./lineage";
+import { readLockSet } from "./engine/door";
+import { lockChain, resolvePlan, type LockPlan, type LockRef } from "./lineage";
 
 export interface RunningSolve {
   id: string;
@@ -211,7 +212,17 @@ export interface SolveRequest {
    * top level.
    */
   plan?: Pick<LockPlan, "parentId" | "baseRowId" | "folderId">;
+  /**
+   * Names this request's row for a request queued after it (§9.3: new
+   * ranges under a turn node solve the flop first): a later plan's
+   * `pending:<chainKey>` parent and base become this row's id once it is
+   * saved.
+   */
+  chainKey?: string;
 }
+
+/** Rows saved for a `chainKey`, by key: what a `pending:<key>` stands for. */
+const chained = new Map<string, string>();
 
 /**
  * The chunk a lock is solved on, as bytes: its base row's stored result
@@ -272,8 +283,12 @@ async function run(engine: NodelockEngine, request: SolveRequest): Promise<boole
     releaseTimer = null;
   }
   const now = Date.now();
-  const { lockSet, at, plan } = request;
-  const node = lockSet.nodes[0];
+  const { lockSet, at } = request;
+  // A plan built on a row queued before it (§9.3): that row's id, once saved.
+  const plan = request.plan ? resolvePlan(request.plan, chained) : undefined;
+  if (plan === null) return false;
+  // A ranges-only lock (§9) locks no decision: the flop's, with no node path.
+  const node = lockSet.nodes[0] ?? null;
   const row: NodeLockInput = {
     name: request.name,
     set_id: lockSet.spot.set,
@@ -281,8 +296,8 @@ async function run(engine: NodelockEngine, request: SolveRequest): Promise<boole
     flop: lockSet.spot.flop,
     turn: lockSet.spot.turn ?? null,
     river: lockSet.spot.river ?? null,
-    street: node.street,
-    node_path: node.path,
+    street: node?.street ?? "flop",
+    node_path: node?.path ?? "",
     lock_json: lockSet,
     lock_hash: await lockHashOf(lockSet),
     preset: request.preset,
@@ -302,11 +317,12 @@ async function run(engine: NodelockEngine, request: SolveRequest): Promise<boole
   let baseline: Uint8Array;
   try {
     // The chunk the lock is made on: the library's as served, or its base lock's (the engine checks it).
-    baseline = await baselineOf(request);
+    baseline = await baselineOf({ ...request, plan });
     id = await nodelockData.save(row);
   } catch {
     return false;
   }
+  if (request.chainKey) chained.set(request.chainKey, id);
   const saved = { ...row, id };
   controller = new AbortController();
   const signal = controller.signal;
@@ -367,11 +383,15 @@ export function cancelAll(): void {
   controller?.abort();
 }
 
-/** A stored row's lock and summary, or null when they do not read. */
+/**
+ * A stored row's lock and summary, or null when they do not read. The lock
+ * goes through `readLockSet`: v1 and v2 (range locks, §9.1) read, a newer or
+ * broken one does not.
+ */
 export function parseRow(row: NodeLockRow): { lockSet: LockSet; summary: NodelockSummary } | null {
-  const lockSet = row.lock_json as LockSet | null;
+  const lockSet = readLockSet(row.lock_json);
   const summary = row.summary_json as NodelockSummary | null;
-  return summary?.view && lockSet?.nodes?.length ? { lockSet, summary } : null;
+  return summary?.view && lockSet ? { lockSet, summary } : null;
 }
 
 /** The Solver tab's route for a lock's view. */
@@ -428,7 +448,7 @@ export async function openLock(id: string, { navigate = true }: { navigate?: boo
     return false;
   }
   const override: NodelockOverride =
-    lockSet.nodes[0].street === "flop" || !turnId
+    (lockSet.nodes[0]?.street ?? "flop") === "flop" || !turnId
       ? { key, id: row.id, flop: chunk, turn: null }
       : { key, id: row.id, flop: baseFlop, turn: { id: turnId, chunk } };
   // The route first: My nodelocks mounts the locked view it names.

@@ -24,6 +24,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   BET_EVIDENCE,
+  BOMB_POT_EVIDENCE,
   BLUFF_ZONE,
   CHECK_AIR,
   CHECK_VALUE,
@@ -259,8 +260,12 @@ describe("narrowing (heuristic/2)", () => {
 
   it("bluffs on the river in the share that makes a bluff-catcher indifferent (before BET_EVIDENCE)", () => {
     for (const size of [0.33, 0.75, 1.5]) {
-      // The bet's own likelihood, as in a bomb pot: analysis/32's power on top flattens it (next test).
-      const { actor, after } = narrowed("river", "bet", size, true);
+      // The bet's own likelihood: a bomb pot's, with its own power (analysis/45) taken off again;
+      // analysis/32's power on top flattens it (next test).
+      const { actor, opponent } = narrowed("river", "bet", size, true);
+      const lBomb = heuristicModel.likelihood({ street: "river", board: BOARD, actor, opponent, action: { kind: "bet", sizePot: size, allIn: false, bombPot: true } });
+      const t = BOMB_POT_EVIDENCE["river.bet"] ?? 1;
+      const after = actor.map((w, c) => w * Math.pow(lBomb[c], 1 / t));
       const q = percentiles(handStrength(streetStrength(BOARD), removeCards(Float64Array.from(BB), BOARD)), actor);
       let bluffs = 0;
       for (let c = 0; c < NUM_COMBOS; c += 1) if (actor[c] > 0 && q[c] < BLUFF_ZONE) bluffs += after[c];
@@ -357,28 +362,33 @@ describe("narrowing (heuristic/2)", () => {
     ]);
   });
 
-  it("counts a bet as BET_EVIDENCE of the evidence, but not a raise or a bomb pot's bet (analysis/32)", () => {
+  it("counts a bet as BET_EVIDENCE of the evidence, but not a raise; a bomb pot's actions by BOMB_POT_EVIDENCE (analysis/32, /45)", () => {
     for (const street of ["flop", "turn", "river"] as const) {
       const board = street === "flop" ? FLOP : street === "turn" ? BOARD.slice(0, 4) : BOARD;
       const actor = removeCards(Float64Array.from(BTN), board);
       const opponent = removeCards(Float64Array.from(BB), board);
       const base = { street, board, actor, opponent };
       const bet = { kind: "bet" as const, sizePot: 0.75, allIn: false };
-      const full = heuristicModel.likelihood({ ...base, action: { ...bet, bombPot: true } });
+      // A bomb pot's bet: the full likelihood to its own power (analysis/45); any other bet: to BET_EVIDENCE.
+      const bombBet = BOMB_POT_EVIDENCE[`${street}.bet`] ?? 1;
+      const bomb = heuristicModel.likelihood({ ...base, action: { ...bet, bombPot: true } });
       const read = heuristicModel.likelihood({ ...base, action: bet });
       let flattened = 0;
       for (let c = 0; c < NUM_COMBOS; c += 1) {
         if (!(actor[c] > 0)) continue;
-        expect(read[c]).toBeCloseTo(Math.pow(full[c], BET_EVIDENCE), 12);
-        expect(read[c]).toBeGreaterThanOrEqual(full[c] - 1e-12);
-        if (full[c] < 1) flattened += 1;
+        expect(read[c]).toBeCloseTo(Math.pow(bomb[c], BET_EVIDENCE / bombBet), 9);
+        if (bomb[c] < 1) flattened += 1;
       }
       expect(flattened).toBeGreaterThan(0);
-      // A raise reads as before.
+      // A raise reads as before outside a bomb pot; in one, to its own power when it has one.
       const raise = { kind: "raise" as const, sizePot: 0.75, allIn: false };
-      expect(heuristicModel.likelihood({ ...base, action: raise })).toEqual(heuristicModel.likelihood({ ...base, action: { ...raise, bombPot: true } }));
+      const plain = heuristicModel.likelihood({ ...base, action: raise });
+      const bombRaise = heuristicModel.likelihood({ ...base, action: { ...raise, bombPot: true } });
+      const t = BOMB_POT_EVIDENCE[`${street}.raise`] ?? 1;
+      for (let c = 0; c < NUM_COMBOS; c += 1) if (actor[c] > 0) expect(bombRaise[c]).toBeCloseTo(Math.min(1, Math.pow(plain[c], t)), 12);
     }
     expect(BET_EVIDENCE).toBe(0.4);
+    expect(BOMB_POT_EVIDENCE).toEqual({ "flop.bet": 0.5, "turn.bet": 0.5, "river.bet": 0.5, "flop.call": 0.7, "turn.call": 0.5, "river.call": 0.7, "turn.raise": 0.7 });
   });
 
   it("trims a check by the player with the initiative harder: its likelihood squared (analysis/32)", () => {
@@ -529,7 +539,7 @@ describe("the range walk", () => {
     expect(rangeWeight(start.hero)).toBeLessThan(rangeWeight(atFlop.hero));
   });
 
-  it("solves a pot three players saw the flop of from where it became heads-up (A9)", () => {
+  it("solves a pot three players saw the flop of from where it became heads-up (A9), only when multiway postflop is on (analysis/46)", () => {
     const text = [
       "Poker Hand #RVM: Hold'em No Limit ($0.5/$1) - 2026/01/01 12:00:00",
       "Table 'Rv' 6-max Seat #1 is the button",
@@ -561,7 +571,12 @@ describe("the range walk", () => {
       "*** SUMMARY ***",
       `Total pot $20 ${FEES}`,
     ].join("\n");
-    const analysis = analyse(parseStandardHand(text, CTX)!);
+    const hand = parseStandardHand(text, CTX)!;
+    // analysis/46: by default no decision after a flop three saw is graded, the heads-up river included.
+    const excluded = river(analyse(hand), "call");
+    expect(excluded).toMatchObject({ status: "not-analysed", reason: "multiway", grade: null, evLoss: null, options: [] });
+    expect(excluded.approximations).not.toContain("multiway-history");
+    const analysis = analyzeHand(structuredClone(hand), { charts: CHARTS, multiwayPostflop: true });
     const call = river(analysis, "call");
     // The heads-up walk alone still refuses it; the multiway walk hands the
     // heads-up turn and river to the solvers (`multiway-history`).

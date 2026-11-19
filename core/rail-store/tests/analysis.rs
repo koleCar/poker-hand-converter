@@ -1515,6 +1515,7 @@ fn the_top_leaks_sum_the_leak_rows_by_spot() {
         game_kind: None,
         position: Some("BTN".to_owned()),
         pot_type: Some("4bet+".to_owned()),
+        pot_kind: None,
     };
     let filtered = reader.top_leaks(V1, &filters, "all").expect("top");
     let keep = |s: &Saved| s.format == format && s.position == "BTN" && s.pot == "4bet+";
@@ -1549,6 +1550,31 @@ fn the_top_leaks_sum_the_leak_rows_by_spot() {
         0,
         "a format outside its kind: none"
     );
+    // The pot kinds (analysis/45): these rows are all heads-up, no bomb pot.
+    let kind = |k: &str| LeakFilters {
+        pot_kind: Some(k.to_owned()),
+        ..LeakFilters::default()
+    };
+    assert_eq!(
+        reader
+            .top_leaks(V1, &kind("hu"), "all")
+            .expect("top")
+            .sample,
+        top.sample,
+        "heads-up: every row here"
+    );
+    for k in ["mw", "bomb"] {
+        assert_eq!(
+            reader
+                .top_leaks(V1, &kind(k), "all")
+                .expect("top")
+                .sample
+                .graded,
+            0,
+            "{k}: none here"
+        );
+    }
+    assert!(reader.top_leaks(V1, &kind("other"), "all").is_err());
     // Another version has no rows.
     let none = reader.top_leaks("analysis/1", &all, "all").expect("top");
     assert_eq!(none.last, None);

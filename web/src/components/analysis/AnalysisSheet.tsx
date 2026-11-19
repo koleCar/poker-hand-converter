@@ -341,6 +341,7 @@ function DecisionDetail({
   const t = useSheetStrings(readOnly);
   const s = t.sheet;
   const facts = decision.facts;
+  const short = t.brief(decision);
   const rows: Array<[string, ReactNode]> = [];
   rows.push([s.facts.spot, s.spotValue(facts)]);
   if (facts.position) rows.push([s.facts.position, facts.position]);
@@ -435,9 +436,20 @@ function DecisionDetail({
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>{s.whyHeading}</h3>
         <div className={styles.why}>
-          {t.explain(decision).map((sentence) => (
-            <p key={sentence}>{sentence}</p>
-          ))}
+          <p className={styles.whyLead}>{short.lead}</p>
+          {short.points.length > 0 ? (
+            <ul className={styles.whyPoints}>
+              {short.points.map((point) => (
+                <li key={point}>{point}</li>
+              ))}
+            </ul>
+          ) : null}
+          <details className={styles.whyFull}>
+            <summary>{s.whyFull}</summary>
+            {t.explain(decision).map((sentence) => (
+              <p key={sentence}>{sentence}</p>
+            ))}
+          </details>
         </div>
         <LearnLinks concepts={conceptsForDecision(decision)} />
       </section>
