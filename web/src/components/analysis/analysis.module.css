@@ -461,6 +461,33 @@
   line-height: var(--line-height-normal);
 }
 
+.whyLead {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* The why in short: a few points under the verdict. */
+.whyPoints {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-inline-start: var(--space-4);
+  line-height: var(--line-height-normal);
+}
+
+/* The full reasoning, folded away. */
+.whyFull {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+}
+
+.whyFull summary {
+  inline-size: fit-content;
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+
 @media (forced-colors: active) {
   .dot {
     forced-color-adjust: none;

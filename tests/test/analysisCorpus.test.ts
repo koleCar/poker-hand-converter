@@ -500,6 +500,18 @@ describe("the explanation layer (§4)", () => {
     }
   });
 
+  it("sums every decision up in short in both languages: a verdict and a few points, never longer than the full why", () => {
+    for (const decision of decisions) {
+      for (const dict of [en, hr]) {
+        const short = dict.analysis.brief(decision);
+        expect(short.lead.length).toBeGreaterThan(0);
+        for (const line of [short.lead, ...short.points]) expect(line).not.toMatch(/undefined|NaN|null|\[object/);
+        expect(short.points.length).toBeLessThanOrEqual(8);
+        if (decision.grade) expect(short.lead).not.toBe(short.points[0]);
+      }
+    }
+  });
+
   it("never quotes MDF preflop (§4), and names a chart grade in the first sentences", () => {
     for (const decision of decisions) {
       if (decision.street !== "preflop") continue;

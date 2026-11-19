@@ -741,6 +741,129 @@ function explain(decision: DecisionAnalysis): string[] {
   return out.filter(Boolean);
 }
 
+/** Kratko o ulozi ruke protiv raspona s kojim se suočava (rješenja turna i rivera). */
+const roleWords = {
+  value: "value ruka",
+  vulnerable: "ispred, ali ranjiva",
+  draw: "draw",
+  "bluff-catcher": "bluff-catcher",
+  medium: "srednja ruka",
+  air: "zrak",
+  weak: "preslaba i za hvatanje blefova",
+  "thin-value": "u najboljem slučaju tanki value",
+  showdown: "ruka za showdown",
+} as Record<string, string>;
+
+/**
+ * *Zašto* ukratko (2026-11-19): prvo presuda, zatim nekoliko jasnih
+ * natuknica — situacija, cijena prema equityju, uloga ruke, stol, zastavice
+ * i jedno upozorenje. Cijelo obrazloženje ostaje u `explain()`; ovo samo
+ * bira iz istog zapisa.
+ */
+function brief(decision: DecisionAnalysis): { lead: string; points: string[] } {
+  const facts = decision.facts;
+  const points: string[] = [];
+  const chosen = decision.chosen !== null ? decision.options[decision.chosen] : undefined;
+  const mwEv = decision.source === "approx" ? facts.multiway?.ev : undefined;
+
+  // Presuda.
+  let lead: string | null = null;
+  if (decision.status === "not-analysed") {
+    const reason = decision.reason
+      ? (multiwayReasons[decision.reason] ??
+        chartReasons[decision.reason] ??
+        riverReasons[decision.reason] ??
+        turnReasons[decision.reason] ??
+        tournamentReasonsHr[decision.reason])
+      : undefined;
+    lead = reason ? `Bez ocjene: ${reason}.` : "Nije analizirano.";
+  } else if (decision.grade && chosen) {
+    const mine = capitalise(optionLabel(chosen));
+    const who = decision.source === "solver" ? "solver" : "referenca";
+    const better = mwEv
+      ? (decision.options.find((o) => o.action === (mwEv.call > 0 ? "call" : "fold")) ?? null)
+      : betterAlternative(decision);
+    const loss = decision.evLoss ?? 0;
+    if (decision.grade === "perfect" || loss < 0.005 || !better || better === chosen) {
+      lead = mwEv
+        ? chosen.action === "fold"
+          ? "Fold je ovdje bolji od calla."
+          : "Call je ovdje bolji od folda."
+        : referenceMix(decision).length > 1
+          ? `${mine} je ispravno: ${who} miješa ${mixLabel(decision)}.`
+          : `${mine} je ispravno: ${who} ovdje igra isto.`;
+    } else if (decision.grade === "good") {
+      lead = `${mine} je u redu: ${who} to igra u ${pct(chosen.freq)} slučajeva.`;
+    } else {
+      lead = `${capitalise(optionLabel(better))} je bolji: ${optionLabel(chosen)} košta ${num(loss, 2)} bb (${pct(decision.evLossPot ?? 0)} pota).`;
+    }
+  }
+
+  // Situacija.
+  if (facts.street === "preflop") {
+    points.push(
+      `${scenarioLabel(facts)} na ${facts.position ?? "tvojem sjedalu"} s ${facts.handClass ?? facts.holeCards.join("")}, efektivno ${bb(facts.effStackBb)}.`,
+    );
+  } else {
+    const t = facts.texture;
+    const board = t
+      ? [textureWords.suits[t.suits], t.trips ? "trips" : t.paired ? "uparen" : null, textureWords.highCard[t.highCard]]
+          .filter(Boolean)
+          .join(", ")
+      : null;
+    const drawText = facts.draws.length > 0 ? ` i ${list(facts.draws.map((d) => draws[d] ?? d))}` : "";
+    points.push(
+      `${streets[facts.street]}, ${scenarioLabel(facts).toLowerCase()}: imaš ${handPhrase(facts)}${drawText}${board ? `; board je ${board}` : ""}.`,
+    );
+  }
+
+  // Cijena prema equityju.
+  const equity = mwEv ? mwEv.equity : (facts.turn?.equity ?? facts.equity?.value ?? null);
+  if (facts.potOdds !== null && facts.toCallBb > 0) {
+    points.push(
+      equity !== null
+        ? `Za call treba ${pct(facts.potOdds)} equityja; imaš oko ${pct(equity)}.`
+        : `Za call treba ${pct(facts.potOdds)} equityja.`,
+    );
+  } else if (facts.betPot !== null && (decision.action === "bet" || decision.action === "raise")) {
+    points.push(`${decision.action === "bet" ? "Betao/la" : "Raiseao/la"} si ${pct(facts.betPot)} pota${facts.allIn ? ", all-in" : ""}.`);
+  }
+
+  // Uloga ruke (riješeni turn i river).
+  const solved = decision.source === "solver" ? (facts.river ?? facts.turn) : undefined;
+  if (solved && roleWords[solved.role]) {
+    points.push(`Tvoja ruka pobjeđuje ${pct(solved.heroBeats)} protivnikova raspona: ${roleWords[solved.role]}.`);
+  }
+
+  // Stol.
+  const mw = facts.multiway;
+  if (mw && mw.players >= 3) {
+    points.push(mw.lastToAct ? "Ti si zadnji na potezu." : `Iza tebe je još na potezu: ${opponentsNom(mw.behind)}.`);
+    if (mw.reverseImplied && mw.outs && mw.outs.nonNut > 0) {
+      points.push(`Tvojih ${num(mw.outs.nonNut)} outova ne daje nuts: multiway često daju drugu najbolju ruku.`);
+    }
+  }
+  if (facts.spr !== null && facts.spr <= 3 && facts.street !== "river") {
+    points.push(`Kratki stackovi (SPR ${num(facts.spr, 1)}): sljedeći bet te veže.`);
+  }
+  if (facts.blockers.length > 0) {
+    points.push(`Blokiraš ${list(facts.blockers.map((b) => blockers[b] ?? b))}.`);
+  }
+  for (const flag of decision.flags) points.push(flagSentence(flag, facts));
+
+  // Jedno upozorenje, najglasnije.
+  if (decision.status !== "not-analysed") {
+    const capped = mwEv?.capped ?? facts.turn?.capped ?? facts.river?.capped;
+    if (capped) points.push("Ocjena ograničena na Grešku: rasponi su procijenjeni.");
+    else if (mwEv) points.push("Procjena za multiway pot, ne riješen odgovor.");
+    else if (outOfRange(decision)) points.push("Tvoja ruka je ovdje izvan referentnog raspona.");
+    else if (modelCaveat(decision)) points.push("Chartovi podcjenjuju ovakve ruke: ocjenu čitaj kao naznaku.");
+  }
+
+  const all = points.filter(Boolean);
+  return lead ? { lead, points: all } : { lead: all[0] ?? "", points: all.slice(1) };
+}
+
 export const analysisHr: Dict["analysis"] = {
   tab: {
     heading: "Analiza",
@@ -1108,6 +1231,7 @@ export const analysisHr: Dict["analysis"] = {
     factsHeading: "Situacija",
     flagsHeading: "Oznake",
     whyHeading: "Zašto",
+    whyFull: "Cijelo obrazloženje",
     noFlags: "Ništa nije označeno: prošla je svaka provjera koja vrijedi bez obzira na strategiju.",
     skipped: "Preskočeno",
     mark: (street: string, action: string, note: string | null) =>
@@ -1353,4 +1477,5 @@ export const analysisHr: Dict["analysis"] = {
   /** Činjenice o ruci riječima, za trenerov "tvoja ruka ovdje" (`components/trainer`). */
   handFacts: { hand: handPhrase, draws, blockers },
   explain,
+  brief,
 };

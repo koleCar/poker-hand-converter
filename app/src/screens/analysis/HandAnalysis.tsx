@@ -356,6 +356,7 @@ function DecisionDetail({ decision: d, playedAt }: { decision: DecisionAnalysis;
   const w = useWords();
   const chosen = d.chosen !== null ? d.options[d.chosen] : undefined;
   const why = w.explain(d);
+  const short = w.brief(d);
   const facts = factRows(d, w);
   return (
     <article className={styles.detail} aria-labelledby="decision-title">
@@ -384,13 +385,25 @@ function DecisionDetail({ decision: d, playedAt }: { decision: DecisionAnalysis;
 
       {d.options.length > 0 && <OptionsTable decision={d} />}
 
-      {why.length > 0 && (
+      {short.lead && (
         <section className={styles.why} aria-label={h.why}>
           <span className={styles.label}>{h.why}</span>
-          <p className={styles.whyLead}>{why[0]}</p>
-          {why.slice(1).map((sentence) => (
-            <p key={sentence}>{sentence}</p>
-          ))}
+          <p className={styles.whyLead}>{short.lead}</p>
+          {short.points.length > 0 && (
+            <ul className={styles.whyPoints}>
+              {short.points.map((point) => (
+                <li key={point}>{point}</li>
+              ))}
+            </ul>
+          )}
+          {why.length > 0 && (
+            <details className={styles.whyFull}>
+              <summary>{w.sheet.whyFull}</summary>
+              {why.map((sentence) => (
+                <p key={sentence}>{sentence}</p>
+              ))}
+            </details>
+          )}
         </section>
       )}
 
