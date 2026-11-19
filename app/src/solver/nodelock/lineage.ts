@@ -16,10 +16,16 @@
  *
  * The editor's footer line is a value (`LockFooter`); its words are the
  * app's i18n.
+ *
+ * **Range locks** (§9.3) are the flop game's: a flop lock made in the chain
+ * carries its owner's ranges unless the editor sets its own
+ * (`LockSettings.ranges`). New ranges under a turn node need the flop solved
+ * first: `planRangeLock` plans that flop, and the turn lock is then planned
+ * on it (`pendingRef`).
  */
 import type { LockEarlier, LockSet, NodeLockSpec } from "./contract";
 import type { NodeLockRow } from "./data";
-import { lockGameStreet, splitLockPath, type LockBase } from "./engine/door";
+import { lockGameStreet, readLockSet, splitLockPath, withLockRanges, type LockBase, type RangeLock } from "./engine/door";
 
 /** A stored lock with its lock set read. */
 export interface LockRef {
@@ -69,6 +75,11 @@ export interface LockPlan {
 export interface LockSettings {
   earlier: LockEarlier;
   targetPct: number;
+  /**
+   * A flop lock's starting ranges (§9): undefined keeps the owner's, null or
+   * empty clears them. Ignored for a turn game (its ranges are its base's).
+   */
+  ranges?: RangeLock[] | null;
 }
 
 /** A node's game: `flop`, or `turn:<flop deal path>~<turn card>`. */
@@ -78,10 +89,10 @@ export function nodeGame(spec: Pick<NodeLockSpec, "street" | "path">): string {
   return `turn:${flop}~${turn ?? ""}`;
 }
 
-/** A lock set's game (`nodeGame` of its nodes; `lockGameStreet` checks they share it). */
+/** A lock set's game (`nodeGame` of its nodes; `lockGameStreet` checks they share it). A ranges-only set is the flop's. */
 export function setGame(set: LockSet): string {
   lockGameStreet(set);
-  return nodeGame(set.nodes[0]);
+  return set.nodes.length ? nodeGame(set.nodes[0]) : "flop";
 }
 
 const streetOf = (game: string): LockGame => (game === "flop" ? "flop" : "turn");
@@ -99,6 +110,7 @@ export function withNode(nodes: readonly NodeLockSpec[], spec: NodeLockSpec): No
  */
 function spotOf(at: LockSet["spot"], nodes: readonly NodeLockSpec[]): LockSet["spot"] {
   const spot: LockSet["spot"] = { set: at.set, line: at.line, flop: at.flop };
+  if (!nodes.length) return spot;
   const first = splitLockPath(nodes[0].path);
   if (nodes[0].street === "flop" || !first.turn) return spot;
   spot.turn = first.turn;
@@ -108,10 +120,18 @@ function spotOf(at: LockSet["spot"], nodes: readonly NodeLockSpec[]): LockSet["s
   return spot;
 }
 
-function lockSetOf(at: LockSet["spot"], nodes: NodeLockSpec[], settings: LockSettings, base: LockBase | undefined): LockSet {
+function lockSetOf(at: LockSet["spot"], nodes: NodeLockSpec[], settings: LockSettings, base: LockBase | undefined, ranges?: readonly RangeLock[] | null): LockSet {
   const set: LockSet = { version: 1, spot: spotOf(at, nodes), nodes, earlier: settings.earlier, targetPct: settings.targetPct };
   if (base) set.base = base;
-  return set;
+  // Ranges are the flop game's (§9): a turn game's come from its base.
+  const flop = !nodes.length || nodes.every((node) => node.street === "flop");
+  return flop ? withLockRanges(set, ranges) : set;
+}
+
+/** The ranges a flop lock gets: the editor's (`settings.ranges`, null clears), else the owner's. */
+function rangesFor(settings: Partial<LockSettings> | undefined, owner: LockSet | null): RangeLock[] | undefined {
+  if (settings?.ranges !== undefined) return settings.ranges ?? undefined;
+  return owner?.ranges;
 }
 
 /** The row holding a base's chunk: the first in `chain` with its hash. */
@@ -152,7 +172,7 @@ export function planChildLock(
       parentId: lock.row.id,
       baseRowId: baseRowOf(lock.set.base, chain.slice(owner + 1)),
       folderId: null,
-      set: lockSetOf(at, withNode(lock.set.nodes, spec), run, lock.set.base),
+      set: lockSetOf(at, withNode(lock.set.nodes, spec), run, lock.set.base, rangesFor(settings, lock.set)),
       kind: owner === 0 ? "same" : "earlier",
       footer: { kind: "adds", parent: lock.row.name, street },
     };
@@ -176,7 +196,7 @@ export function planChildLock(
     parentId: null,
     baseRowId: null,
     folderId: rootFolder(chain),
-    set: lockSetOf(at, [spec], run, undefined),
+    set: lockSetOf(at, [spec], run, undefined, rangesFor(settings, null)),
     kind: open ? "earlier" : "root",
     footer: { kind: "library", street },
   };
@@ -191,7 +211,7 @@ function siblingOf(chain: readonly LockRef[], owner: number, at: LockSet["spot"]
     parentId: parent?.row.id ?? null,
     baseRowId: baseRowOf(lock.set.base, chain.slice(owner + 1)),
     folderId: parent ? null : (lock.row.folder_id ?? null),
-    set: lockSetOf(at, nodes, run, lock.set.base),
+    set: lockSetOf(at, nodes, run, lock.set.base, rangesFor(settings, lock.set)),
     kind: "sibling",
     footer: { kind: "sibling", of: lock.row.name, street: streetOf(setGame(lock.set)) },
   };
@@ -226,7 +246,86 @@ export function planRemoveLock(open: LockRef, ancestors: readonly LockRef[], pat
   const owner = chain.findIndex((lock) => lock.set.nodes.some((node) => node.path === path));
   if (owner < 0) return null;
   const nodes = chain[owner].set.nodes.filter((node) => node.path !== path);
-  return nodes.length ? siblingOf(chain, owner, chain[owner].set.spot, nodes) : null;
+  // With ranges of its own, the lock without its last node is a ranges-only lock (§9.3).
+  return nodes.length || chain[owner].set.ranges?.length ? siblingOf(chain, owner, chain[owner].set.spot, nodes) : null;
+}
+
+/**
+ * The starting ranges of the flop the open view shows (§9.3): the first
+ * flop-game lock in the chain's (`open`, then its ancestors), or undefined
+ * (the chart's: the library, or a lock without range locks).
+ */
+export function chainRanges(open: LockRef | null, ancestors: readonly LockRef[]): RangeLock[] | undefined {
+  if (!open) return undefined;
+  for (const lock of [open, ...ancestors]) {
+    if (setGame(lock.set) === "flop") return lock.set.ranges;
+  }
+  return undefined;
+}
+
+/**
+ * New starting ranges on their own (§9.3): the chain's flop owner's nodes
+ * with `ranges`, as its child (`same` when it is the open lock, else
+ * `earlier`); with no flop lock in the chain, a ranges-only lock on the
+ * library (`root`, or `earlier` from inside a lock: the root's folder). Null
+ * when it would change nothing (the same ranges, nothing locked).
+ */
+export function planRangeLock(
+  open: LockRef | null,
+  ancestors: readonly LockRef[],
+  at: LockSet["spot"],
+  ranges: RangeLock[] | null,
+  settings?: Partial<Omit<LockSettings, "ranges">>,
+): LockPlan | null {
+  const chain = open ? [open, ...ancestors] : [];
+  const flop: LockSet["spot"] = { set: at.set, line: at.line, flop: at.flop };
+  const owner = chain.findIndex((lock) => setGame(lock.set) === "flop");
+  if (owner >= 0) {
+    const lock = chain[owner];
+    const run = { earlier: settings?.earlier ?? lock.set.earlier, targetPct: settings?.targetPct ?? lock.set.targetPct };
+    const set = lockSetOf(flop, lock.set.nodes, run, lock.set.base, ranges);
+    if (!set.nodes.length && !set.ranges) return null;
+    return {
+      parentId: lock.row.id,
+      baseRowId: baseRowOf(lock.set.base, chain.slice(owner + 1)),
+      folderId: null,
+      set,
+      kind: owner === 0 ? "same" : "earlier",
+      footer: { kind: "adds", parent: lock.row.name, street: "flop" },
+    };
+  }
+  if (!ranges?.length) return null;
+  const run = { earlier: settings?.earlier ?? "player", targetPct: settings?.targetPct ?? 1 };
+  return {
+    parentId: null,
+    baseRowId: null,
+    folderId: rootFolder(chain),
+    set: lockSetOf(flop, [], run, undefined, ranges),
+    kind: open ? "earlier" : "root",
+    footer: { kind: "library", street: "flop" },
+  };
+}
+
+/** The `parentId` / `baseRowId` of a row not saved yet: the session swaps it for the row's id once saved (`SolveRequest.chainKey`). */
+export const PENDING = "pending:";
+
+/** A plan's ids with `pending:<key>` swapped for the saved row's id (`saved`: key → id); null when one is not saved (its solve could not start). */
+export function resolvePlan<T extends Pick<LockPlan, "parentId" | "baseRowId" | "folderId">>(plan: T, saved: ReadonlyMap<string, string>): T | null {
+  const resolve = (id: string | null): string | null | undefined => (id?.startsWith(PENDING) ? saved.get(id.slice(PENDING.length)) : id);
+  const parentId = resolve(plan.parentId);
+  const baseRowId = resolve(plan.baseRowId);
+  if (parentId === undefined || baseRowId === undefined) return null;
+  return { ...plan, parentId, baseRowId };
+}
+
+/**
+ * A planned lock that is not saved yet, as a `LockRef` for planning the lock
+ * that builds on it (a turn lock on new ranges, §9.3): its row id is
+ * `pending:<key>`, its hash the plan's set's.
+ */
+export function pendingRef(plan: LockPlan, key: string, name: string, lockHash: string): LockRef {
+  const row = { id: `${PENDING}${key}`, name, lock_hash: lockHash, lock_json: plan.set, parent_id: plan.parentId, folder_id: plan.folderId, status: "solving" } as unknown as NodeLockRow;
+  return { row, set: plan.set };
 }
 
 /** The lock in the chain that locks the node at `path` (an inherited lock's owner), or null. */
@@ -256,8 +355,8 @@ export function lockChain(rows: readonly NodeLockRow[], id: string): LockRef[] |
   for (let at: string | null | undefined = id; at && !seen.has(at); at = byId.get(at)?.parent_id) {
     seen.add(at);
     const row = byId.get(at);
-    const set = row?.lock_json as LockSet | null | undefined;
-    if (!row || !set?.nodes?.length) break;
+    const set = row ? readLockSet(row.lock_json) : null;
+    if (!row || !set) break;
     chain.push({ row, set });
   }
   return chain.length && chain[0].row.id === id ? chain : null;

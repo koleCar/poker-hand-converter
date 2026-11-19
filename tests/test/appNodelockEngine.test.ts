@@ -10,13 +10,18 @@ import { describe, expect, it } from "vitest";
 import { createWorkerEngine, etaOf, type LockSet, type NodelockProgress } from "../../app/src/solver/nodelock/engine/index";
 import { createNodelockWorker, type WorkerScope } from "../../app/src/solver/nodelock/engine/worker";
 import { FLOP_PROFILE } from "../../web/src/lib/analysis/flopLibrary";
-import { solveNodelock } from "../../web/src/lib/analysis/nodelock";
+import { solveNodelock, withRangeLocks } from "../../web/src/lib/analysis/nodelock";
 import {
   decodeChunk,
   encodeChunk,
   lockHash,
   NUM_COMBOS,
+  handsRange,
+  parseCards,
+  parseRange,
+  rangeLocksOf,
   solveFlop,
+  withLockRanges,
   type BetMenu,
   type FlopChunk,
   type FlopChunkHeader,
@@ -156,5 +161,37 @@ describe("the worker engine", () => {
     // 4% at 40, 2% at 80: halving per doubling, so 1% at 160.
     expect(etaOf([{ iteration: 40, pct: 4 }, { iteration: 80, pct: 2 }], 80, 1000, 1, 300)).toBeCloseTo(80_000, 3);
     expect(etaOf([{ iteration: 40, pct: 4 }, { iteration: 80, pct: 0.5 }], 80, 1000, 1, 300)).toBe(0);
+  });
+});
+
+describe("the worker engine with a range lock (§9.2)", () => {
+  const { chunk, bytes } = baseline();
+  const board = parseCards(["Ks", "8s", "2d"]);
+  const gto: [Float64Array, Float64Array] = [handsRange(chunk.result.hands[0], chunk.result.weights[0]), handsRange(chunk.result.hands[1], chunk.result.weights[1])];
+  const plain: LockSet = { version: 1, spot: { set: "test", line: "btn-bb", flop: "Ks8s2d" }, nodes: [], earlier: "player", targetPct: 1 };
+  const wide = withLockRanges(plain, rangeLocksOf(gto, [gto[0], parseRange("AA,QQ,22,AQs,K8s,98s,76s,AJo,KJo,KTs,QTs")], board));
+  const narrow = withLockRanges(plain, rangeLocksOf(gto, [gto[0], parseRange("AA,QQ,22,AQs,K8s")], board));
+  const engine = createWorkerEngine({
+    threads: 2,
+    makeWorker: () => fakeWorker(),
+    // As `nodelockFlopSpot`: the chart's spot with the set's ranges in place.
+    flopSpotOf: async (set) => ({ spot: withRangeLocks(SPOT, set), chartsHash: "h" }),
+    now: () => Date.now(),
+  });
+
+  it("solves split from the edited ranges, as the reference does, and never warm across ranges", async () => {
+    const out = await engine.solve({ lockSet: wide, baseline: bytes, maxIterations: 6 }, () => {}, new AbortController().signal);
+    const reference = solveNodelock({ street: "flop", spot: withRangeLocks(SPOT, wide) }, wide, { baseline: chunk, maxIterations: 6 });
+    const decoded = decodeChunk(out.chunk);
+    const expected = decodeChunk(reference.chunk);
+    expect(decoded.header.lockHash).toBe(lockHash(wide));
+    expect(Array.from(decoded.result.hands[1])).toEqual(Array.from(expected.result.hands[1]));
+    expect(decoded.result.hands[1].length).toBeGreaterThan(chunk.result.hands[1].length);
+    expected.result.nodes.forEach((node, k) => expect(Array.from(decoded.result.nodes[k].strategy)).toEqual(Array.from(node.strategy)));
+    const other = await engine.solve({ lockSet: narrow, baseline: bytes, maxIterations: 6 }, () => {}, new AbortController().signal);
+    expect(other.stats.warm).toBe(false);
+    const again = await engine.solve({ lockSet: narrow, baseline: bytes, maxIterations: 12 }, () => {}, new AbortController().signal);
+    expect(again.stats.warm).toBe(true);
+    engine.release();
   });
 });

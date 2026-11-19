@@ -16,7 +16,7 @@ export type LockStreet = "flop" | "turn" | "river";
  * (`X-B1.82`); on a turn or a river, the flop chunk's deal path, the turn
  * card and the live turn's node path: `X-X~Kd/B2.5` (`lockPath`).
  */
-export type { LockBase, LockEarlier, LockSet, NodeLockSpec } from "./engine/types";
+export type { LockBase, LockEarlier, LockSet, NodeLockSpec, RangeLock } from "./engine/types";
 
 export interface NodelockProgress {
   iteration: number;
@@ -59,8 +59,21 @@ export interface NodelockSummary {
   players: [string, string];
   /** The decisions before the locked one on its street, in words (`BB Check`). */
   steps?: string[];
-  /** Per action of the locked node: its label in words, GTO's share and the lock's. */
+  /** Per action of the locked node: its label in words, GTO's share and the lock's (none on a ranges-only lock). */
   shifts: Array<{ label: string; gto: number; locked: number }>;
+  /** The starting ranges the lock changed (§9.3), by player; absent on a lock with the chart's ranges (and every older row). */
+  ranges?: RangeShift[];
+}
+
+/** A changed starting range in the summary: "Ranges: BB +7 %" is its first lineage step. */
+export interface RangeShift {
+  position: string;
+  /** Shares of the live combos (the board's out), GTO's and the lock's. */
+  gto: number;
+  locked: number;
+  /** Combos gained and lost. */
+  added: number;
+  removed: number;
 }
 
 /** §1's lock hash: sha-256 hex of the lock's canonical JSON (`lockHash`). */

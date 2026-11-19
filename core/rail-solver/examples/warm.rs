@@ -98,6 +98,7 @@ fn main() {
             }],
             earlier: LockEarlier::Player,
             target_pct: target,
+            ranges: None,
         }
     };
     let request = |lock_set: LockSet| NodelockRequest {

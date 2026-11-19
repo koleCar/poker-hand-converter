@@ -50,14 +50,36 @@ pub struct LockSpot {
     pub river: Option<String>,
 }
 
+/// A player's range as the flop comes, in place of the chart's
+/// (`docs/NODELOCK.md` §9). The window puts it in the spot's ranges; here it
+/// only says the game's hands differ from the library chunk's on purpose.
+#[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
+pub struct RangeLock {
+    pub player: u8,
+    /// 1,326 weights.
+    pub weights: Vec<f64>,
+}
+
 #[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LockSet {
+    /// 1, or 2 when `ranges` is there.
     pub version: u32,
     pub spot: LockSpot,
     pub nodes: Vec<NodeLockSpec>,
     pub earlier: LockEarlier,
     pub target_pct: f64,
+    /// The range locks (§9); `None` on every set without them.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ranges: Option<Vec<RangeLock>>,
+}
+
+impl LockSet {
+    /// The set solves from ranges of its own (§9): the game's hands differ from the library chunk's.
+    #[must_use]
+    pub fn has_ranges(&self) -> bool {
+        self.ranges.as_ref().is_some_and(|r| !r.is_empty())
+    }
 }
 
 /// What `apply_locks` froze.
@@ -129,7 +151,8 @@ pub type Baseline<'a> = &'a dyn Fn(usize) -> Option<Vec<f64>>;
 
 /// A decoded chunk as a game's baseline (`chunkBaseline`): the node of the
 /// same path, read onto the game's hands by combo; a combo the chunk does not
-/// hold plays its first action.
+/// hold (a range lock's, §9.2) gets a zero row, which `Solver::freeze` leaves
+/// free.
 pub fn chunk_baseline<'a>(
     chunk: &'a DecodedSolve,
     built: &'a BuiltSubgame,
@@ -158,9 +181,11 @@ pub fn chunk_baseline<'a>(
         for (i, combo) in hands.iter().enumerate() {
             let j = index[p].get(combo);
             for a in 0..count {
+                // A combo the chunk lacks (a range lock added it, §9.2): no
+                // positive row, so `Solver::freeze` leaves it free (it adapts).
                 out[a * hands.len() + i] = match j {
                     Some(&j) => solved.strategy[a * n + j],
-                    None => f64::from(u8::from(a == 0)),
+                    None => 0.0,
                 };
             }
         }
