@@ -66,8 +66,21 @@ export interface LockBase {
   street: "flop" | "turn";
 }
 
+/**
+ * A player's range as the flop comes, in place of the chart's (§9, a
+ * "preflop nodelock"): the postflop game is solved from it. Preflop is not
+ * solved again and the charts do not change.
+ */
+export interface RangeLock {
+  /** 0 = out of position, as in the chunk. */
+  player: 0 | 1;
+  /** 1,326 weights in [0, 1] (`combos.ts` order); a combo holding a flop card is 0; quantised to `RANGE_QUANTUM` (`rangeLock.ts`). */
+  weights: number[];
+}
+
 export interface LockSet {
-  version: 1;
+  /** 1, or 2 exactly when `ranges` is there (an older reader refuses a set it cannot apply). */
+  version: 1 | 2;
   spot: { set: string; line: string; flop: string; turn?: string; river?: string };
   /** One or more nodes, either player. */
   nodes: NodeLockSpec[];
@@ -81,6 +94,51 @@ export interface LockSet {
    * library chunk (every v1 lock), and the hash is exactly v1's.
    */
   base?: LockBase;
+  /**
+   * The starting ranges the set is solved from (§9), one per changed player,
+   * by player. Absent: the chart's ranges, and the hash is exactly v1's. A set
+   * with ranges is a flop game: its nodes (none, for a ranges-only lock) are
+   * on the flop.
+   */
+  ranges?: RangeLock[];
+}
+
+/** The newest `LockSet.version` this code reads. */
+export const LOCK_SET_VERSION = 2;
+
+/**
+ * A stored lock set (a row's `lock_json`), checked: v1 as it is, v2 with its
+ * ranges. Null for anything else (a newer version, a broken shape): the row
+ * reads as unreadable instead of being solved without what it asks for.
+ * Never rewrites a v1 set, so its stored `lock_hash` stays its hash.
+ */
+export function readLockSet(json: unknown): LockSet | null {
+  if (!json || typeof json !== "object") return null;
+  const set = json as Partial<LockSet> & { version?: unknown };
+  if (set.version !== 1 && set.version !== 2) return null;
+  if (!set.spot || typeof set.spot.set !== "string" || typeof set.spot.line !== "string" || typeof set.spot.flop !== "string") return null;
+  if (!Array.isArray(set.nodes)) return null;
+  const ranges = set.ranges;
+  if (set.version === 1) {
+    if (ranges !== undefined) return null;
+    return set.nodes.length ? (set as LockSet) : null;
+  }
+  if (!Array.isArray(ranges) || !ranges.length) return null;
+  const ok = ranges.every((r, k) => (r?.player === 0 || r?.player === 1) && Array.isArray(r.weights) && r.weights.length === NUM_COMBOS && (k === 0 || ranges[k - 1].player < r.player));
+  if (!ok || set.nodes.some((n) => n.street !== "flop")) return null;
+  return set as LockSet;
+}
+
+/**
+ * `set` with `ranges` in place of its own (none: the chart's), its version
+ * following: 2 with ranges, 1 without (so a set with GTO's ranges hashes as
+ * it always did).
+ */
+export function withLockRanges(set: LockSet, ranges: readonly RangeLock[] | null | undefined): LockSet {
+  const { ranges: _old, ...rest } = set;
+  void _old;
+  if (!ranges?.length) return { ...rest, version: 1 };
+  return { ...rest, version: 2, ranges: [...ranges].sort((a, b) => a.player - b.player) };
 }
 
 /**
@@ -118,6 +176,11 @@ export function canonicalJson(value: unknown): string {
  */
 export function lockHash(set: LockSet): string {
   return sha256Hex(utf8Encode(canonicalJson(set)));
+}
+
+/** SHA-256 hex of a set's range locks (canonical JSON); null without any. For warm keys (§9.2). */
+export function rangesHash(ranges: readonly RangeLock[] | null | undefined): string | null {
+  return ranges?.length ? sha256Hex(utf8Encode(canonicalJson(ranges))) : null;
 }
 
 const K256 = new Uint32Array([
@@ -203,7 +266,12 @@ export function lockPathOf(flopDeal: string, turn: string, turnPath: string): st
 
 /** The street a lock set re-solves from: "flop" (the flop game) or "turn" (the turn game of one deal). */
 export function lockGameStreet(set: LockSet): "flop" | "turn" {
-  if (!set.nodes.length) throw new NodelockError("a lock set locks at least one node");
+  const ranged = Boolean(set.ranges?.length);
+  if (!set.nodes.length) {
+    if (ranged) return "flop";
+    throw new NodelockError("a lock set locks at least one node, or the ranges");
+  }
+  if (ranged && set.nodes.some((n) => n.street !== "flop")) throw new NodelockError("ranges are the flop game's: a set with ranges locks flop nodes only");
   const streets = new Set(set.nodes.map((n) => (n.street === "flop" ? "flop" : "turn")));
   if (streets.size > 1) throw new NodelockError("a lock set locks one street's game: the flop, or one turn and its rivers");
   const street = [...streets][0] as "flop" | "turn";
@@ -233,6 +301,12 @@ const TOLERANCE = 1e-9;
 export function lockSymmetries(set: LockSet, board: readonly (string | number)[]): number[][] {
   const group = boardSymmetries(board);
   return group.filter((perm) =>
+    (set.ranges ?? []).every((range) => {
+      for (let c = 0; c < NUM_COMBOS; c += 1) {
+        if (Math.abs(range.weights[c] - range.weights[permuteCombo(c, perm)]) > TOLERANCE) return false;
+      }
+      return true;
+    }) &&
     set.nodes.every((node) => {
       const { turn, river } = splitLockPath(node.path);
       for (const card of [turn, river]) {
@@ -327,6 +401,7 @@ export function applyNodelock(
   for (const node of earlier) {
     const strategy = options.baseline?.(node) ?? null;
     if (!strategy) throw new NodelockError(`no baseline strategy for the earlier node ${built.info[node]?.path ?? node}`);
+    // A hand with no baseline row (`NaN`, `chunkBaseline`) is left free by `freeze`: it adapts.
     solver.freeze(node, strategy);
   }
   return { locked, earlier };
@@ -366,8 +441,9 @@ export function earlierNodes(built: BuiltSubgame, set: LockSet, locked: readonly
 /**
  * A flop chunk's strategies as a flop game's baseline (`applyNodelock`): the
  * chunk's node of the same path, read onto the game's hands by combo. A
- * combo the chunk does not hold (none, when the game is the chunk's spot)
- * plays its first action.
+ * combo the chunk does not hold (none, when the game is the chunk's spot; a
+ * hand a range lock added, §9.2) is `NaN`: `Solver.freeze` leaves a row without
+ * a positive sum free, so it adapts.
  */
 export function chunkBaseline(chunk: FlopChunk, built: BuiltSubgame): BaselineStrategy {
   const byPath = new Map(chunk.result.nodes.map((node, k) => [node.path, k] as const).filter(([, k]) => chunk.result.nodes[k].kind === "action"));
@@ -388,7 +464,7 @@ export function chunkBaseline(chunk: FlopChunk, built: BuiltSubgame): BaselineSt
     const out = new Float64Array(count * hands.length);
     hands.forEach((combo, i) => {
       const j = index[combo];
-      for (let a = 0; a < count; a += 1) out[a * hands.length + i] = j >= 0 ? solved.strategy[a * n + j] : a === 0 ? 1 : 0;
+      for (let a = 0; a < count; a += 1) out[a * hands.length + i] = j >= 0 ? solved.strategy[a * n + j] : Number.NaN;
     });
     return out;
   };
