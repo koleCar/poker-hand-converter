@@ -1188,6 +1188,8 @@ export const analysisEn = {
     backToSession: "Back to the session review",
     loading: "Loading the hand…",
     notFound: "This hand is not in your library.",
+    /** `/analysis/hand?key=`: the desktop app's hand, not on the web yet. */
+    notSynced: "This hand is not in your web library yet. The desktop app sends it when it next syncs: open it again in a minute.",
     fresh:
       "This hand has not been analysed at the current version yet, so this is a fresh analysis computed in your browser. Run the analysis to save it.",
   },

@@ -119,6 +119,9 @@ export const paths = {
   /** One hand's analysis: the replayer with the Analysis sheet open. */
   analysisHand: (handId: string, query?: string) =>
     `/analysis/h/${encodeURIComponent(handId)}${query ? `?${query}` : ""}`,
+  /** A hand of the library by its dedupe key (the desktop app's "Open on the web"): resolves to `analysisHand`. */
+  analysisHandByKey: (handKey: string, position?: string | null) =>
+    `/analysis/hand?key=${encodeURIComponent(handKey)}${position ? `&t=${encodeURIComponent(position)}` : ""}`,
   sharedHand: (slug: string) => `/h/${encodeURIComponent(slug)}`,
   /**
    * A public profile. Every top-level segment here is also a row in
