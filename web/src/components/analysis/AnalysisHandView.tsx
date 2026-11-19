@@ -8,6 +8,10 @@
  * the sheet says so: the reader gets the answer the run would store, without
  * being sent to press a button first.
  *
+ * Sharing goes through the replayer's share button, like every other hand:
+ * the link, the forum post (whose preview carries the analysis switch) and
+ * the analysis row in the popover.
+ *
  * Private to the owner: the hand comes from `get_hand` and the analysis from
  * `analysis_hand`, both under RLS, so a guessed id is "not in your library"
  * whoever's it is.
@@ -27,8 +31,8 @@ import type { PhfHand } from "../../lib/phf/types";
 import { paths } from "../../lib/routes";
 import { decodePosition, type ReplayPosition } from "@rail/ui/replayer/position";
 import { ReplayViewer, type ReplayMark } from "@rail/ui/replayer/ReplayViewer";
+import { ShareHandButton } from "../share/ShareHandButton";
 import { AnalysisSheet, worstDecision } from "./AnalysisSheet";
-import { AnalysisShareToggle } from "./AnalysisShareToggle";
 import styles from "./analysis.module.css";
 import { ANALYSIS_SHEET_ICON as SHEET_ICON, gradeMarks } from "./SharedAnalysis";
 import { listQuery, parseListState } from "./listState";
@@ -137,8 +141,6 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
   return (
     <div className={styles.handPage}>
       {backLink}
-      {/* Private by default (§8.4): the owner's one switch for every place this hand is public. */}
-      <AnalysisShareToggle surface="hand" id={handId} />
       <section className="card card--flush rail-fade">
         <ReplayViewer
           key={loaded.hand.meta.handKey}
@@ -146,6 +148,8 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
           site={loaded.site}
           initialPosition={opening}
           marks={marks}
+          // The link, the forum post and the analysis switch (private by default, §8.4) all live in the share popover.
+          headerExtra={<ShareHandButton hand={loaded.hand} storedHandId={handId} iconOnly />}
           sheet={{
             label: t.sheet.title,
             buttonTitle: t.sheet.toggleTitle,
