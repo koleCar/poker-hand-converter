@@ -35,7 +35,10 @@ function libraryLoader(): FlopLibraryLoader | null {
 export function WebSolverLibrary(props: Omit<ComponentProps<typeof SolverLibrary>, "onView">) {
   const t = useDict().solver;
   const router = useRouter();
-  const host = useMemo<SolverHost>(() => ({ t, loader: libraryLoader(), fullSolveBase: fullSolveBase() }), [t]);
+  const host = useMemo<SolverHost>(
+    () => ({ t, loader: libraryLoader(), fullSolveBase: fullSolveBase(), link: (view) => `${window.location.origin}${paths.solver(view)}` }),
+    [t],
+  );
   const onView = useCallback((view: SolverView) => router.replace(paths.solver(view), { scroll: false }), [router]);
   return (
     <SolverHostProvider host={host}>

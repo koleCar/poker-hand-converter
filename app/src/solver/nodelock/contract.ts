@@ -16,7 +16,7 @@ export type LockStreet = "flop" | "turn" | "river";
  * (`X-B1.82`); on a turn or a river, the flop chunk's deal path, the turn
  * card and the live turn's node path: `X-X~Kd/B2.5` (`lockPath`).
  */
-export type { LockEarlier, LockSet, NodeLockSpec } from "./engine/types";
+export type { LockBase, LockEarlier, LockSet, NodeLockSpec } from "./engine/types";
 
 export interface NodelockProgress {
   iteration: number;

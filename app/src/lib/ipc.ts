@@ -1256,6 +1256,12 @@ export interface NodeLockRow {
   summary_json: unknown;
   /** The locked solve's chunk size in bytes; null: no chunk. Not a column: `length(result)`. */
   result_size: number | null;
+  /** (§7.5) A root lock's folder; null: the top level (always null for a child). */
+  folder_id: string | null;
+  /** (§7.4) The lock this one is built on; null: solved on the library. Never changes. */
+  parent_id: string | null;
+  /** Its place among its siblings, ascending (a folder's subfolders and root locks share one list). */
+  sort: number;
 }
 
 /** A row with its chunk (`nodelock_get`). */
@@ -1265,11 +1271,71 @@ export interface NodeLock extends NodeLockRow {
 
 /**
  * What `nodelockSave` takes: the whole row (an upsert replaces it, the chunk included). No `id`
- * (or an empty one) makes a new row; the times are the store's.
+ * (or an empty one) makes a new row; the times are the store's. The place in the tree is the first
+ * save's: `parent_id` (must exist) or, for a root, `folder_id` (unknown: the top level); the new row
+ * goes to the top of its list. Later saves keep the place (moves go through `nodelockMove`).
  */
-export type NodeLockInput = Omit<NodeLockRow, "id" | "created_at" | "updated_at" | "result_size"> & {
+export type NodeLockInput = Omit<
+  NodeLockRow,
+  "id" | "created_at" | "updated_at" | "result_size" | "folder_id" | "parent_id" | "sort"
+> & {
   id?: string | null;
+  parent_id?: string | null;
+  folder_id?: string | null;
 };
+
+/** (§7.5) `rail_store::NodeLockFolder`: a folder of My nodelocks, nested to any depth. */
+export interface NodeLockFolder {
+  id: string;
+  name: string;
+  /** The folder it sits in; null: the top level. */
+  parent_id: string | null;
+  /** Its place among its folder's subfolders and root locks, ascending. */
+  sort: number;
+  created_at: number;
+  updated_at: number;
+}
+
+/** What `nodelockFolderSave` takes: no `id` makes a folder; no `sort`: the top of its list (or where it was). */
+export interface NodeLockFolderInput {
+  id?: string;
+  name: string;
+  parent_id: string | null;
+  sort?: number;
+}
+
+/** A tree item: a lock or a folder (`rail_store::NodeLockItem`). */
+export interface NodeLockItem {
+  kind: "lock" | "folder";
+  id: string;
+}
+
+/**
+ * Where `nodelockMove` puts its items: into `folder_id` (null: the top level), just before `before`,
+ * else just after `after`, else at the top. The anchor must be an item of that folder.
+ */
+export interface NodeLockPlace {
+  folder_id: string | null;
+  before?: NodeLockItem | null;
+  after?: NodeLockItem | null;
+}
+
+/** What a folder delete took: folders (subfolders included) and every lock row (branches included). */
+export interface NodeLockDeleted {
+  folders: number;
+  locks: number;
+}
+
+/**
+ * What a delete would take: `folders` (subfolders included), `locks` (each deleted lock whose parent
+ * stays) and `descendants` (the deleted locks built on another deleted one). `locks + descendants`
+ * is every lock row that goes.
+ */
+export interface NodeLockDeletePreview {
+  folders: number;
+  locks: number;
+  descendants: number;
+}
 
 /** A Solver-library spot, as the history filters by it. */
 export interface NodeLockSpot {
@@ -1697,6 +1763,9 @@ export const ipc = {
   /** Rows in `rail_store::HandAnalysisIn`'s shape (`analysis/rows.ts`). */
   analysisSave: (rows: unknown[]) => invoke<{ saved: number; missing: number }>("analysis_save", { rows }),
   analysisCounts: (version: string) => invoke<AnalysisCounts>("analysis_counts", { version }),
+  /** The counts month by month (`played_at`'s UTC `YYYY-MM`), newest first. */
+  analysisMonths: (version: string) =>
+    invoke<{ month: string; hands: number; current: number }[]>("analysis_months", { version }),
   /** A hand's stored analysis in the web's `analysis_hand` shape; `null` when none. */
   handAnalysis: (handKey: string) => invoke<Record<string, unknown> | null>("hand_analysis", { handKey }),
   analysisVillains: (players: { site: string; player: string }[], minHands: number) =>
@@ -1724,8 +1793,22 @@ export const ipc = {
     ),
   /** Whether it was there. */
   nodelockRename: (id: string, name: string) => invoke<boolean>("nodelock_rename", { id, name }),
-  /** How many went (unknown ids are skipped). */
+  /** Deletes each with every lock built on it (its branch); how many rows went (unknown ids are skipped). */
   nodelockDelete: (ids: string[]) => invoke<number>("nodelock_delete", { ids }),
+  /** (§7.5) Every folder of My nodelocks. */
+  nodelockFolders: () => invoke<NodeLockFolder[]>("nodelock_folders"),
+  /** Creates (no id) or updates a folder; rejects a parent that is unknown, the folder itself or inside it. */
+  nodelockFolderSave: (f: NodeLockFolderInput) => invoke<NodeLockFolder>("nodelock_folder_save", { folder: f }),
+  /** Deletes folders with their subfolders and every lock (and branch) in them. */
+  nodelockFolderDelete: (ids: string[]) => invoke<NodeLockDeleted>("nodelock_folder_delete", { ids }),
+  /**
+   * Moves root locks and folders (in this order, together; a lock's children go with it). False,
+   * nothing moved: a child lock, a folder into its own subtree, an unknown item or anchor.
+   */
+  nodelockMove: (items: NodeLockItem[], to: NodeLockPlace) => invoke<boolean>("nodelock_move", { items, to }),
+  /** What deleting these locks (with branches) and folders (with contents) would take; changes nothing. */
+  nodelockDeletePreview: (locks: string[], folders: string[]) =>
+    invoke<NodeLockDeletePreview>("nodelock_delete_preview", { locks, folders }),
   /** (R5.5) The user's settings per tournament (`site:id` keys), kept in the store only; a save or delete re-queues its hands. */
   tournamentSettingsList: () =>
     invoke<{ key: string; settings: Record<string, unknown>; updatedAt: string }[]>("tournament_settings_list"),

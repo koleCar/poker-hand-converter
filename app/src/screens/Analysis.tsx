@@ -29,7 +29,8 @@ import { useAppKind } from "../lib/gameKind";
 import { storeReviewSource } from "../lib/reviewSource";
 import { replaceParam, screenHref, useRouteParam } from "../lib/router";
 import { useTablesOpen } from "../lib/useTablesOpen";
-import { AnalysisStatus } from "./analysis/AnalysisStatus";
+import { AnalysisStatus, ShowAnalysisProgress } from "./analysis/AnalysisStatus";
+import { useProgressHidden } from "./analysis/progressHidden";
 import styles from "./analysis/Analysis.module.css";
 import { HandAnalysis } from "./analysis/HandAnalysis";
 import { openInReplayer } from "./analysis/openHand";
@@ -88,10 +89,12 @@ function useRowsWritten(): number {
 /**
  * The header row (2026-11-07): the sections' tabs on the left, the
  * section's own toggle on the right (the session's Cash | Tournaments);
- * the run's status under it.
+ * the run's status under it, or (hidden, 2026-11-18) the button that
+ * shows it again at the row's end.
  */
 function AnalysisNav({ current, end }: { current: AnalysisView["kind"]; end?: ReactNode }) {
   const t = useT();
+  const progressHidden = useProgressHidden();
   return (
     <div className={styles.nav}>
       <div className={styles.navRow}>
@@ -107,9 +110,14 @@ function AnalysisNav({ current, end }: { current: AnalysisView["kind"]; end?: Re
             </a>
           ))}
         </nav>
-        {end ? <div className={styles.navEnd}>{end}</div> : null}
+        {end || progressHidden ? (
+          <div className={styles.navEnd}>
+            {end}
+            {progressHidden ? <ShowAnalysisProgress /> : null}
+          </div>
+        ) : null}
       </div>
-      <AnalysisStatus />
+      {progressHidden ? null : <AnalysisStatus />}
     </div>
   );
 }

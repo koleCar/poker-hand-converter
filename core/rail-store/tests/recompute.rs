@@ -206,8 +206,9 @@ const NOT_DERIVED: &[&str] = &[
     // R5.5: the user's settings per tournament, read by the analysis.
     "tournament_settings",
     // docs/NODELOCK.md §3: the user's nodelocks, solved here, nothing
-    // derived from hands.
+    // derived from hands; §7.5: their folders.
     "node_locks",
+    "node_lock_folders",
 ];
 
 #[test]

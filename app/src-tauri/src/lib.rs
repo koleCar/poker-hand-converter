@@ -70,8 +70,9 @@
 //! - (T7) table tiling's global hotkeys ([`hotkeys`],
 //!   `tauri-plugin-global-shortcut`, added in `setup` and called from Rust
 //!   only; no plugin permission for the window).
-//! - the user's nodelocks ([`nodelock_store`], docs/NODELOCK.md §3): the
-//!   history of locked solves, kept in the store on this computer only.
+//! - the user's nodelocks ([`nodelock_store`], docs/NODELOCK.md §3, §7.5):
+//!   the locked solves and the My nodelocks tree, kept in the store on this
+//!   computer only.
 //! - nodelock solves on this computer ([`nodelock_solve`], docs/NODELOCK.md
 //!   §2.5): the native engine (`core/rail-solver`) on its own threads.
 
@@ -526,6 +527,7 @@ pub fn run() {
         analysis::analysis_offline,
         analysis::analysis_save,
         analysis::analysis_counts,
+        analysis::analysis_months,
         analysis::hand_analysis,
         analysis::analysis_villains,
         analysis::analysis_clear,
@@ -552,6 +554,11 @@ pub fn run() {
         nodelock_store::nodelock_save,
         nodelock_store::nodelock_rename,
         nodelock_store::nodelock_delete,
+        nodelock_store::nodelock_delete_preview,
+        nodelock_store::nodelock_folders,
+        nodelock_store::nodelock_folder_save,
+        nodelock_store::nodelock_folder_delete,
+        nodelock_store::nodelock_move,
         nodelock_solve::nodelock_engine_info,
         nodelock_solve::nodelock_solve_start,
         nodelock_solve::nodelock_solve_cancel,
@@ -699,6 +706,7 @@ pub fn run() {
         analysis::analysis_offline,
         analysis::analysis_save,
         analysis::analysis_counts,
+        analysis::analysis_months,
         analysis::hand_analysis,
         analysis::analysis_villains,
         analysis::analysis_clear,
@@ -725,6 +733,11 @@ pub fn run() {
         nodelock_store::nodelock_save,
         nodelock_store::nodelock_rename,
         nodelock_store::nodelock_delete,
+        nodelock_store::nodelock_delete_preview,
+        nodelock_store::nodelock_folders,
+        nodelock_store::nodelock_folder_save,
+        nodelock_store::nodelock_folder_delete,
+        nodelock_store::nodelock_move,
         nodelock_solve::nodelock_engine_info,
         nodelock_solve::nodelock_solve_start,
         nodelock_solve::nodelock_solve_cancel,

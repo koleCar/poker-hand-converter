@@ -45,7 +45,8 @@ export function createNodelockWorker(scope: WorkerScope): void {
           const baseline = decodeChunk(message.baseline);
           const spot = nodelockSpotOf(message.lockSet, baseline);
           if (spot.street !== "turn") throw new Error("a flop lock is solved split, not in one worker");
-          const key = JSON.stringify([message.lockSet.spot, spot.deal, spot.card, spot.spot.symmetry]);
+          // The chunk it is dealt from is part of the game: the same deal on a locked flop has other ranges.
+          const key = JSON.stringify([message.lockSet.spot, baseline.header.lockHash ?? null, spot.deal, spot.card, spot.spot.symmetry]);
           const warm = turn?.key === key ? turn.solve.warm : undefined;
           turn = null;
           let last = 0;

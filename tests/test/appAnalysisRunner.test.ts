@@ -21,15 +21,25 @@ import { describe, expect, it } from "vitest";
 
 import type { PageHand, PageResult } from "../../app/src/analysis/engine";
 import type { StoreHandRow } from "../../app/src/analysis/rows";
-import { AnalysisRunner, PAGE, type PendingDto, type RunnerCounts, type RunnerDeps, type RunnerGate } from "../../app/src/analysis/runner";
+import {
+  AnalysisRunner,
+  monthOf,
+  nextMonth,
+  PAGE,
+  type MonthCounts,
+  type PendingDto,
+  type RunnerCounts,
+  type RunnerDeps,
+  type RunnerGate,
+} from "../../app/src/analysis/runner";
 import { BASE, createWorker, OFFLINE_MS, type FetchOutcome, type WorkerRequest, type WorkerResponse } from "../../app/src/analysis/worker";
 import { fetchOutcomeOfError, Stopped, workerAnalyser } from "../../app/src/analysis/workerClient";
 import { FlopLibraryLoader } from "../../web/src/lib/analysis/index";
 
 const V = "analysis/34";
 
-/** A store of `n` hands, newest first by key order: h000 is the newest. */
-function fakeStore(n: number) {
+/** A store of `n` hands, newest first by key order: h000 is the newest (`playedAt` of the i-th, never rising). */
+function fakeStore(n: number, playedAt: (i: number) => string = () => "2026-10-01T00:00:00.000Z") {
   const keys = Array.from({ length: n }, (_, i) => `h${String(i).padStart(3, "0")}`);
   const rows = new Map<string, StoreHandRow>();
   const phf = (key: string) =>
@@ -42,13 +52,25 @@ function fakeStore(n: number) {
       const offline = [...rows.values()].filter((r) => r.analysis_version === V && !r.flop_library).length;
       return { hands: keys.length, current, stale: 0, missing: keys.length - current, offline, notAnalysable: 0 };
     },
+    months(): MonthCounts[] {
+      const out: MonthCounts[] = [];
+      keys.forEach((key, i) => {
+        const month = playedAt(i).slice(0, 7);
+        let m = out.find((o) => o.month === month);
+        if (!m) out.push((m = { month, hands: 0, current: 0 }));
+        m.hands += 1;
+        if (rows.get(key)?.analysis_version === V) m.current += 1;
+      });
+      return out;
+    },
     pending(after: { playedAt: string; handKey: string } | null, limit: number): PendingDto[] {
-      const start = after ? keys.indexOf(after.handKey) + 1 : 0;
+      // A cursor without a key: from the first hand played before it (the keyset's order).
+      const start = !after ? 0 : after.handKey === "" ? keys.findIndex((_, i) => playedAt(i) < after.playedAt) : keys.indexOf(after.handKey) + 1;
       return keys
-        .slice(start)
-        .filter((key) => !rows.has(key))
-        .slice(0, limit)
-        .map((key) => ({ handKey: key, playedAt: "2026-10-01T00:00:00.000Z", phf: phf(key) }));
+        .map((key, i) => ({ handKey: key, playedAt: playedAt(i), phf: phf(key) }))
+        .slice(start < 0 ? keys.length : start)
+        .filter((hand) => !rows.has(hand.handKey))
+        .slice(0, limit);
     },
     offline(limit: number): PendingDto[] {
       return [...rows.values()]
@@ -95,8 +117,8 @@ interface Harness {
   step(): Promise<void>;
 }
 
-function harness(n: number): Harness {
-  const store = fakeStore(n);
+function harness(n: number, playedAt?: (i: number) => string): Harness {
+  const store = fakeStore(n, playedAt);
   const h: Harness = {
     runner: null as unknown as AnalysisRunner,
     store,
@@ -115,6 +137,7 @@ function harness(n: number): Harness {
   const deps: RunnerDeps = {
     gate: async () => h.gate,
     counts: async () => store.counts(),
+    months: async () => store.months(),
     pending: async (_version, after, limit) => store.pending(after, limit),
     offline: async (_version, limit) => store.offline(limit),
     reachable: async () => {
@@ -218,6 +241,40 @@ describe("the analysis runner", () => {
     h.runner.wake();
     await h.step();
     expect(h.pages[1].slice(0, 2)).toEqual(["new1", "new0"]);
+  });
+
+  it("goes month by month, newest first, says which month, and sends a chosen month to the front", async () => {
+    // h000-h014 November, h015-h034 October, h035-h049 September.
+    const h = harness(50, (i) => (i < 15 ? "2026-11-20T10:00:00.000Z" : i < 35 ? "2026-10-20T10:00:00.000Z" : "2026-09-20T10:00:00.000Z"));
+    await h.step();
+    expect(h.pages[0]).toEqual(h.store.keys.slice(0, PAGE));
+    expect(h.runner.current()).toMatchObject({ month: "2026-11", focus: null });
+    expect(h.runner.current().months).toEqual([
+      { month: "2026-11", hands: 15, current: 0 },
+      { month: "2026-10", hands: 20, current: 0 },
+      { month: "2026-09", hands: 15, current: 0 },
+    ]);
+    // September to the front: its hands, then newest first again.
+    h.runner.focus("2026-09");
+    expect(h.runner.current().focus).toBe("2026-09");
+    await h.step();
+    expect(h.pages[1]).toEqual(h.store.keys.slice(35));
+    expect(h.runner.current().month).toBe("2026-09");
+    await h.step();
+    expect(h.runner.current().focus).toBeNull();
+    await h.step();
+    expect(h.pages[2]).toEqual(h.store.keys.slice(PAGE, 35));
+    expect(h.runner.current().month).toBe("2026-10");
+    expect(h.runner.current().months?.find((m) => m.month === "2026-09")).toEqual({ month: "2026-09", hands: 15, current: 15 });
+    await h.step();
+    expect(h.runner.current().months?.every((m) => m.current === m.hands)).toBe(true);
+    // Not a month: ignored.
+    h.runner.focus("soon");
+    expect(h.runner.current().focus).toBeNull();
+    expect(monthOf("")).toBe("");
+    expect(monthOf("2026-03-01T00:00:00.000Z")).toBe("2026-03");
+    expect(nextMonth("2026-12")).toBe("2027-01");
+    expect(nextMonth("2026-09")).toBe("2026-10");
   });
 
   it("goes without the flop library while it cannot be reached, then analyses those hands again", async () => {

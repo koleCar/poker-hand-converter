@@ -172,7 +172,9 @@ fn nodelock_matches_the_reference() {
 /// FNV hash) and the worker engine's strategies, and go
 /// on warm exactly where they did: the second flop lock, and on the turn the
 /// third ("none", then "player" starts cold for want of the unlocked
-/// baseline, then "player" warm).
+/// baseline, then "player" warm). `based` is locks on locks (§7.4): a turn
+/// lock on the library, then on a flop lock's result (cold: the same deal
+/// has other ranges there), then another on that result (warm).
 #[test]
 fn nodelock_warm_matches_the_worker_engine() {
     use std::sync::atomic::AtomicBool;
@@ -181,7 +183,7 @@ fn nodelock_warm_matches_the_worker_engine() {
 
     let fx = load("nodelock-warm");
     for threads in [1, 3] {
-        for street in ["flop", "turn"] {
+        for street in ["flop", "turn", "based"] {
             let mut warm = None;
             for (k, step) in fx[street].as_array().unwrap().iter().enumerate() {
                 let mut request: NodelockRequest =

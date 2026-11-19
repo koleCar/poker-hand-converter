@@ -20,10 +20,12 @@
 import { handsUiEn } from "@rail/ui/strings/hands.en";
 import { playersUiEn } from "@rail/ui/strings/players.en";
 import { reportsUiEn } from "@rail/ui/strings/reports.en";
-import { countIn } from "./format";
+import { countIn, monthIn } from "./format";
 
 /** Counts in English digits ("1,204"), whatever the window's language. */
 const n = countIn("en");
+const monthLong = monthIn("en", "long");
+const monthShort = monthIn("en", "short");
 
 /** A share as a percentage, one decimal at most ("41.5%"). */
 function pct(share: number): string {
@@ -1268,6 +1270,18 @@ export const en = {
       error: (message: string) => `The last page did not finish: ${message}`,
       pause: "Pause",
       resume: "Resume",
+      /** (2026-11-18) The hands under way: one month at a time, newest first. */
+      analysing: (month: string) => (month ? `Analysing ${monthLong(month)}` : "Analysing hands without a date"),
+      /** A month in the list under the bar. */
+      month: (month: string) => (month ? monthShort(month) : "No date"),
+      months: "Months",
+      monthsLabel: "The analysis month by month",
+      monthDone: "done",
+      monthFirst: (month: string) => `Analyse ${month ? monthLong(month) : "these hands"} next`,
+      /** Every hand: what is left of how many, about how long. */
+      inAll: "In all",
+      hide: "Hide the analysis progress",
+      show: "Show the analysis progress",
     },
     session: {
       notAnalysed: "Analysed in the background",
@@ -1538,6 +1552,7 @@ export const en = {
   nodelock: {
     action: "Nodelock",
     actionTitle: (position: string) => `Lock ${position}'s strategy here and solve the rest against it, on this computer`,
+    lockActor: (position: string) => `Lock ${position}`,
     editorLabel: (position: string) => `Nodelock: ${position}'s strategy`,
     close: "Close",
     modesLabel: "Set strategy by",
@@ -1579,15 +1594,29 @@ export const en = {
     nothingLocked: "Lock at least one hand first.",
     progress: (share: number | null, etaS: number | null) =>
       share === null ? "Estimating the time…" : `${Math.floor(share * 100)}%${etaS === null ? "" : ` · about ${clock(etaS)} left`}`,
+    iterations: (iteration: number, exploitabilityPct: number | null) =>
+      `Iteration ${n(iteration)}${exploitabilityPct === null ? "" : ` · ${n(Math.round(exploitabilityPct * 100) / 100)}% of the pot`}`,
+    estimate: (seconds: number) => `≈ ${seconds < 60 ? `${n(Math.max(1, Math.round(seconds)))} s` : `${n(Math.round(seconds / 60))} min`} on this computer`,
     batch: (done: number, total: number) => `${n(done)} of ${n(total)} done`,
     cancelAll: "Cancel all",
     starting: "Starting the solve…",
     cancel: "Cancel",
     solvingHere: "Solving on this computer. Keep studying; Rail tells you when it is ready.",
-    nodelocked: "Nodelocked",
-    backToGto: "Back to GTO",
     editLock: "Edit lock",
     compare: "Compare with GTO",
+    removeLock: "Remove this lock",
+    markLabel: "Locked: how",
+    markAfter: (step: string) => `after ${step}`,
+    markFrom: "From",
+    markFixed: (fixed: number, reaching: number) => `${n(fixed)} of ${n(reaching)} combos fixed · the rest adapt`,
+    markAllFixed: "All combos fixed",
+    markRange: "Range",
+    markPainted: "Hands painted",
+    planAdds: (parent: string, street: "flop" | "turn") => `Adds to ${parent}'s ${street} locks: the ${street} is solved again`,
+    planBuilds: (parent: string) => `Builds on ${parent}: the turn is solved from its result`,
+    planSibling: (of: string, street: "flop" | "turn") => `A new lock beside ${of}: the ${street} is solved again`,
+    planLibrary: (street: "flop" | "turn") => `A new lock on the library's solve: the ${street} is solved from GTO`,
+    markOnlyNode: "The only locked decision: lock another one first, or go back to GTO in the Library",
     gto: "GTO",
     shareDelta: (delta: number) => `${delta >= 0 ? "+" : "−"}${n(Math.round(Math.abs(delta) * 1000) / 10)} pp`,
     shift: (label: string, gto: number, locked: number) => `${label} ${pct(gto)} → ${pct(locked)}`,
@@ -1606,47 +1635,55 @@ export const en = {
     libraryHint: "The clean GTO solve, no nodelocks",
     mineHint: "The spots you nodelocked, solved on this computer",
     opening: "Opening the nodelock…",
-    offSpot: "This view is GTO: the lock changes another decision.",
-    toLockedSpot: "Go to the locked spot",
-    search: "Search by name, cards or line",
     searchLabel: "Search nodelocks",
-    allSpots: "All spots",
-    spotFilter: "Spot",
-    empty: "No nodelocks yet.",
-    emptyLink: "Lock a decision in the library",
-    noMatch: "No nodelock matches.",
-    columns: {
-      name: "Name",
-      spot: "Spot",
-      node: "Locked node",
-      preset: "Preset",
-      date: "Date",
-      status: "Status",
-      accuracy: "Accuracy",
-      time: "Time",
-      engine: "Engine",
-    },
     status: { draft: "Draft", solving: "Solving", solved: "Solved", failed: "Failed", cancelled: "Cancelled" } as Record<string, string>,
     nodeAt: (position: string, street: string, path: string) => `${position} · ${street}${path ? ` · ${path}` : ""}`,
     streets: { flop: "Flop", turn: "Turn", river: "River" } as Record<string, string>,
     custom: "Custom",
-    selectAll: "Select all",
-    select: (name: string) => `Select ${name}`,
     rename: "Rename",
     renameLabel: (name: string) => `New name for ${name}`,
-    save: "Save",
     duplicate: "Duplicate and edit",
     delete: "Delete",
-    deleteSelected: (count: number) => `Delete ${count === 1 ? "1 nodelock" : `${n(count)} nodelocks`}`,
-    deleteTitle: (count: number) => (count === 1 ? "Delete this nodelock?" : `Delete ${n(count)} nodelocks?`),
-    deleteBody: (count: number) =>
-      `${count === 1 ? "Its lock and solve are" : "Their locks and solves are"} removed from this computer. This cannot be undone.`,
     deleting: "Deleting…",
     keep: "Keep",
     loadError: "Nodelocks could not be read.",
     openError: "This nodelock could not be opened.",
     retry: "Try again",
     actions: (name: string) => `Actions for ${name}`,
+    /** My nodelocks' tree (§7.1). */
+    tree: {
+      label: "My nodelocks",
+      pick: "Pick a nodelock, or lock a decision in the Library",
+      none: "No nodelocks yet",
+      noMatch: "No nodelock matches",
+      newFolder: "New folder",
+      newFolderName: "New folder",
+      newFolderHere: "New folder here",
+      search: "Search by name, cards or line",
+      collapseAll: "Collapse all",
+      toLockedSpot: "Go to the locked spot",
+      hide: "Hide the list",
+      show: "Show the list",
+      resize: "Drag to resize the list",
+      moveTo: "Move to…",
+      topLevel: "Top level",
+      menuMany: (count: number) => `${n(count)} items`,
+      childStays: "A lock built on another one stays under it",
+      solving: (share: number | null) => (share === null ? "Solving" : `Solving · ${Math.floor(share * 100)}%`),
+      queued: "Waiting: starts when the solve before it ends",
+      lockedNodes: (count: number) => (count === 1 ? "1 locked node" : `${n(count)} locked nodes`),
+      deleteQuestion: (folders: number, locks: number, built: number) => {
+        const extra = [
+          folders ? (folders === 1 ? "1 folder" : `${n(folders)} folders`) : "",
+          built ? (built === 1 ? "1 lock built on them" : `${n(built)} locks built on them`) : "",
+        ].filter(Boolean);
+        const total = locks + built;
+        if (!total) return folders === 1 ? "Delete 1 empty folder?" : `Delete ${n(folders)} empty folders?`;
+        return `Delete ${total === 1 ? "1 nodelock" : `${n(total)} nodelocks`}${extra.length ? ` (${extra.join(", ")})` : ""}?`;
+      },
+      deleteBody: "Removed from this computer. This cannot be undone.",
+      deleteSolving: "The solve running is cancelled first.",
+    },
   },
 
   /** The HUD popup (R3.8): a click on a player's panel at the table. */

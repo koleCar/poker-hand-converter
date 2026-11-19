@@ -14,7 +14,14 @@
  *   locked solve goes on from it (a warm start). The result chunk holds the
  *   whole turn game.
  *
- * Every result chunk carries the lock's hash (`FlopChunkHeader.lockHash`).
+ * - **Based locks** (§7.4, `LockSet.base`) are solved on their base lock's
+ *   result chunk where a lock is otherwise solved on the library's: a turn
+ *   lock made inside a solved flop lock takes the ranges at the deal from
+ *   the locked flop, and its earlier turn decisions freeze at the unlocked
+ *   turn solved from it. The baseline is that chunk in every step above.
+ *
+ * Every result chunk carries the lock's hash (`FlopChunkHeader.lockHash`),
+ * and a based one its base's (`baseHash`).
  * Not re-exported from `lib/analysis/index.ts` (it reaches `flopJob.ts`).
  */
 
@@ -85,11 +92,14 @@ export function nodelockTurnSpot(baseline: FlopChunk, set: LockSet): Extract<Nod
 }
 
 /**
- * The game a lock set re-solves. `charts` (the lock's chart set) is needed
- * for a flop lock: the ranges come from it, as the library's did.
+ * The game a lock set re-solves. `baseline` is the chunk it is solved on:
+ * the library chunk, or for a based set (`set.base`) its base lock's result.
+ * `charts` (the lock's chart set) is needed for a flop lock: the ranges come
+ * from it, as the library's did.
  */
 export function nodelockSpotOf(set: LockSet, baseline: FlopChunk, charts?: ChartSet): NodelockSpot {
   checkSpot(set, baseline.header);
+  checkBase(set, baseline);
   if (lockGameStreet(set) === "turn") return nodelockTurnSpot(baseline, set);
   if (!charts) throw new NodelockError("a flop lock needs its chart set");
   if (charts.id !== set.spot.set) throw new NodelockError(`the lock is on ${set.spot.set}, the charts are ${charts.id}`);
@@ -101,6 +111,27 @@ function checkSpot(set: LockSet, header: FlopChunkHeader): void {
   if (header.charts.id !== set.spot.set || header.line !== set.spot.line || header.flop !== set.spot.flop) {
     throw new NodelockError(`the chunk is ${header.charts.id} ${header.line} ${header.flop}, the lock ${set.spot.set} ${set.spot.line} ${set.spot.flop}`);
   }
+}
+
+/**
+ * The chunk a lock set is solved on is the one it names: the library's (no
+ * `base`, so no `lockHash` in its header), or its base lock's result (its
+ * `lockHash` is `base.lockHash`). A base is a flop-level chunk: a turn
+ * game's chunk deals no turn, and one lock set is one game, so a lock on a
+ * turn lock adds to its nodes instead of building on its result.
+ */
+export function checkBase(set: LockSet, baseline: FlopChunk): void {
+  const solvedOn = baseline.header.lockHash;
+  if (!set.base) {
+    if (solvedOn !== undefined) throw new NodelockError("a lock without a base is solved on the library chunk, not on a locked one");
+    return;
+  }
+  if (solvedOn !== set.base.lockHash) {
+    throw new NodelockError(`the lock is built on ${set.base.lockHash.slice(0, 12)}, the chunk is ${solvedOn === undefined ? "the library's" : solvedOn.slice(0, 12)}`);
+  }
+  const street = baseline.result.street === "flop" ? "flop" : "turn";
+  if (street !== set.base.street) throw new NodelockError(`the base is a ${set.base.street} lock, the chunk a ${street} game`);
+  if (street !== "flop") throw new NodelockError("a lock is built on a flop lock's result, not on a turn game's");
 }
 
 /**
@@ -147,7 +178,7 @@ export interface NodelockProgressEvent {
 }
 
 export interface NodelockSolveOptions {
-  /** The library chunk of the lock's spot. */
+  /** The chunk the lock is solved on: the library chunk of the lock's spot, or its base lock's result (`set.base`). */
   baseline: FlopChunk;
   maxIterations?: number;
   /** Default: `"i16"` for a flop lock (as the library), `"f32"` for a turn lock (as the live turn). */
@@ -188,6 +219,7 @@ export interface NodelockSolve {
  * `nodelockSpotOf(set, baseline, charts)`.
  */
 export function solveNodelock(spot: NodelockSpot, set: LockSet, options: NodelockSolveOptions): NodelockSolve {
+  checkBase(set, options.baseline);
   const now = options.now ?? Date.now;
   const started = now();
   let last: number | null = null;

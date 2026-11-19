@@ -72,6 +72,7 @@ export {
   splitLockPath,
   type AppliedLocks,
   type BaselineStrategy,
+  type LockBase,
   type LockEarlier,
   type LockSet,
   type NodeLockSpec,

@@ -13,6 +13,9 @@
  * 2. **Which hands**: those without a row at the version, newest first (the
  *    web's "recent first" read), a keyset page at a time; new hands imported
  *    start the walk again from the newest ({@link AnalysisRunner.wake}).
+ *    So it goes month by month, newest month first (2026-11-18: the status
+ *    shows the month under way and every month's count, {@link RunnerDeps.months});
+ *    the user can send one month to the front ({@link AnalysisRunner.focus}).
  *    Then, when the flop library can be reached, hands analysed without it.
  * 3. **The opponents' statistics** for the page's hands (analysis/20,
  *    `VillainCounters`, the web's batching and cache) from the store
@@ -77,12 +80,33 @@ export interface PendingDto {
   phf: string;
 }
 
+/** One month's count (`played_at`'s UTC `YYYY-MM`; '' for hands without a date). */
+export interface MonthCounts {
+  month: string;
+  hands: number;
+  current: number;
+}
+
 type Cursor = { playedAt: string; handKey: string };
+
+/** The month a hand was played in (`YYYY-MM`, UTC as `played_at`); '' without a date. */
+export function monthOf(playedAt: string): string {
+  return /^\d{4}-\d{2}/.test(playedAt) ? playedAt.slice(0, 7) : "";
+}
+
+/** The month after `YYYY-MM`. */
+export function nextMonth(month: string): string {
+  const year = Number(month.slice(0, 4));
+  const m = Number(month.slice(5, 7));
+  return m === 12 ? `${String(year + 1).padStart(4, "0")}-01` : `${month.slice(0, 4)}-${String(m + 1).padStart(2, "0")}`;
+}
 
 /** What the runner uses: the IPC, the worker, the clock. */
 export interface RunnerDeps {
   gate(): Promise<RunnerGate>;
   counts(version: string): Promise<RunnerCounts>;
+  /** The counts month by month, newest first; absent: no months in the status. */
+  months?(version: string): Promise<MonthCounts[]>;
   pending(version: string, after: Cursor | null, limit: number): Promise<PendingDto[]>;
   offline(version: string, limit: number): Promise<PendingDto[]>;
   reachable(): Promise<boolean>;
@@ -114,6 +138,12 @@ export interface RunnerStatus {
   reason: GateReason | null;
   paused: boolean;
   counts: RunnerCounts | null;
+  /** The counts month by month, newest first (read while hands are left); null before. */
+  months: MonthCounts[] | null;
+  /** The month of the page under way (or the last one); null before the first. */
+  month: string | null;
+  /** The month the user sent to the front, until it is done; null: newest first. */
+  focus: string | null;
   /** Hands analysed and written since the app started. */
   analysed: number;
   /** Hands the engine threw on, since the app started. */
@@ -139,6 +169,7 @@ export class AnalysisRunner {
   private wait: AbortController | null = null;
   private page: AbortController | null = null;
   private cursor: Cursor | null = null;
+  private focusMonth: string | null = null;
   private readonly failedKeys = new Set<string>();
   private villains: VillainCounters | null = null;
   private reachable = true;
@@ -152,6 +183,9 @@ export class AnalysisRunner {
       reason: null,
       paused: false,
       counts: null,
+      months: null,
+      month: null,
+      focus: null,
       analysed: 0,
       failed: 0,
       handsPerSecond: null,
@@ -203,6 +237,17 @@ export class AnalysisRunner {
     this.cursor = null;
     this.woken = true;
     this.wait?.abort();
+  }
+
+  /**
+   * Analyse `month` (`YYYY-MM`) next, then on as before (older months, then
+   * the newest again); null: back to newest first. The page in flight
+   * finishes first.
+   */
+  focus(month: string | null): void {
+    this.focusMonth = month && /^\d{4}-\d{2}$/.test(month) ? month : null;
+    this.set({ focus: this.focusMonth });
+    this.wake();
   }
 
   /** (A10) A poker table opened: the page in flight stops now. Closed: look again. */
@@ -267,14 +312,29 @@ export class AnalysisRunner {
       this.set({ library: this.reachable });
     }
     const counts = await this.deps.counts(this.version);
-    this.set({ counts });
+    // The months while hands are left, and once more when the last are done.
+    const monthsLeft = counts.missing > 0 || (this.status.months?.some((m) => m.current < m.hands) ?? false);
+    const months = monthsLeft && this.deps.months ? await this.deps.months(this.version).catch(() => null) : null;
+    this.set(months ? { counts, months } : { counts });
     let hands: PendingDto[] = [];
     if (counts.missing > this.failedKeys.size) {
+      const focus = this.focusMonth;
+      // A month sent to the front: the walk starts at its newest hand
+      // (before the next month's first, in the keyset's order).
+      if (focus && this.cursor === null) this.cursor = { playedAt: nextMonth(focus), handKey: "" };
       const read = await this.deps.pending(this.version, this.cursor, PAGE);
       const last = read[read.length - 1];
+      const inFocus = focus ? read.filter((hand) => monthOf(hand.playedAt) === focus) : read;
+      if (focus && inFocus.length === 0) {
+        // The month is done: newest first again.
+        this.focusMonth = null;
+        this.cursor = null;
+        this.set({ focus: null });
+        return;
+      }
       if (last) {
         this.cursor = { playedAt: last.playedAt, handKey: last.handKey };
-        hands = read.filter((hand) => !this.failedKeys.has(hand.handKey));
+        hands = inFocus.filter((hand) => !this.failedKeys.has(hand.handKey));
         // A page of hands that failed before: on to the next.
         if (hands.length === 0) return;
       } else if (this.cursor !== null) {
@@ -321,7 +381,7 @@ export class AnalysisRunner {
     // R5.5: read per page - a save re-queues its tournament's hands, which the next pages then read with it.
     const tournaments = this.deps.tournaments ? await this.deps.tournaments().catch(() => null) : null;
     const library = this.reachable;
-    this.set({ phase: "running", reason: null, library });
+    this.set({ phase: "running", reason: null, library, month: monthOf(pending[0]?.playedAt ?? "") });
     const controller = new AbortController();
     this.page = controller;
     const started = this.deps.now();

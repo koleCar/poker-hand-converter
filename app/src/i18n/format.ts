@@ -63,6 +63,15 @@ export function liveDateFormat(options: Intl.DateTimeFormatOptions = {}): LiveDa
   return { format: (value) => dateIn(tag, options).format(value) };
 }
 
+/** A month (`YYYY-MM`, UTC) in one language, whatever the current one: for the dictionaries. */
+export function monthIn(locale: Locale, style: "long" | "short"): (month: string) => string {
+  return (month) => {
+    const date = new Date(`${month}-15T12:00:00Z`);
+    if (!/^\d{4}-\d{2}$/.test(month) || Number.isNaN(date.getTime())) return month;
+    return dateIn(INTL_LOCALE[locale], { month: style, year: "numeric", timeZone: "UTC" }).format(date);
+  };
+}
+
 /** A count in one language, whatever the current one: for the dictionaries. */
 export function countIn(locale: Locale): (value: number) => string {
   return (value) => numberIn(INTL_LOCALE[locale], {}).format(value);

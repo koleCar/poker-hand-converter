@@ -6,6 +6,22 @@
  * files through Rust). Nothing under `components/solver` reaches Next, the
  * web's i18n or Supabase itself, so the app renders these components in
  * place, as it runs the web's analysis library (`app/src/solver/door.ts`).
+ *
+ * Where the page's own pieces go on the screen ("Studio", SV-A):
+ *
+ * ```
+ * top row      [top] [Cash · 6-max · 100 bb ⌄] ··· [copy link: `link`]
+ * action strip [Preflop] [Flop] [BB ▸ options + % · lockMark] … [Turn] …
+ *              (the turn or river card picker under it)
+ * banner       nodelock.banner(at)
+ * toolbar      [Strategy + EV | Ranges] [range mode] [filter chips] ··· nodelock.nodeAction(at) nodelock.tabTools(at)
+ * body         [side] │ grid                │ panel: who acts · pot, the mix bar, a row per action (lockMark,
+ *                     │                     │ GTO's share when comparing), then Hand | Filters
+ * ```
+ *
+ * The slot's controls should use the library's own (`ui.tsx`: `ToolButton`
+ * with `tone="lock"`, `Switch`, `Segmented`, `IconButton`), so they read as
+ * part of the toolbar.
  */
 
 "use client";
@@ -14,6 +30,7 @@ import { createContext, useContext, type ReactNode } from "react";
 import type { FlopLibraryLoader } from "../../lib/analysis/flopLibrary";
 import type { Dict } from "../../lib/i18n/types";
 import type { FlopChunk, PickedFlop } from "../../lib/solver";
+import type { SolverView } from "./SolverLibrary";
 
 export type SolverDict = Dict["solver"];
 
@@ -29,6 +46,12 @@ export interface SolverHost {
    * library shows no nodelock at all.
    */
   nodelock?: SolverNodelock;
+  /** The start of the top row, before the table selector: the app's `Library | My nodelocks` switch. */
+  top?: ReactNode;
+  /** A column left of the body, under the toolbar: the app's My nodelocks tree. */
+  side?: ReactNode;
+  /** A link to a view, for the top row's copy button; none (no button) when the host has no address to give. */
+  link?: (view: SolverView) => string | null;
 }
 
 /** Where the view is, for the nodelock slot: a heads-up library decision on the flop or a live turn. */
@@ -77,6 +100,31 @@ export interface StrategyCompare {
   classes: Array<{ freq: number[]; ev: number[]; value: number }>;
 }
 
+/**
+ * A decision on the action strip or in the strategy panel, for the lock marks
+ * (§7.3): any decision of the shown solve, not only the one on screen.
+ */
+export interface NodelockNode {
+  /** The library's own flop chunk, and the flop's chunk as shown (the library's or a locked one). */
+  library: FlopChunk;
+  flop: FlopChunk;
+  /** The chunk the decision is in: `flop`, or a live turn's. */
+  chunk: FlopChunk;
+  node: number;
+  /** In a live turn's chunk: the flop chunk's deal and the card (chunk suits); null on the flop. */
+  turn: { chance: number; card: string } | null;
+  /** The flop as picked: the chunk's cards in the suits on screen. */
+  picked: PickedFlop;
+}
+
+/** A locked decision's mark: which of its actions are locked, and the lock icon (with its popover) to draw. */
+export interface NodelockMark {
+  /** The locked actions' tree labels (`B1.82`). */
+  actions: ReadonlySet<string>;
+  /** The icon after a locked action's label (`action`), or on the decision card's corner (null). */
+  render: (action: string | null) => ReactNode;
+}
+
 export interface SolverNodelock {
   /** The locked solution being shown, or null: the library's own. */
   override: NodelockOverride | null;
@@ -85,10 +133,14 @@ export interface SolverNodelock {
   /** What the baseline is called in the comparison, and a change of share in words. */
   compareLabel: string;
   shareDelta: (delta: number) => string;
-  /** The Nodelock action on the node card. */
+  /** The Nodelock action on the decision on screen: at the toolbar's right end, before `tabTools`. */
   nodeAction: (at: NodelockAt) => ReactNode;
-  /** Above the view (the Nodelocked banner); `at` is null off a flop or turn decision. */
+  /** Between the action strip and the toolbar; `at` is null off a flop or turn decision. */
   banner: (at: NodelockAt | null) => ReactNode;
+  /** At the right end of the toolbar (`Strategy + EV | Ranges` …): the Compare with GTO switch in My nodelocks. */
+  tabTools?: (at: NodelockAt | null) => ReactNode;
+  /** A decision's lock mark, or null when none of its actions is locked (§7.3). */
+  lockMark?: (node: NodelockNode) => NodelockMark | null;
 }
 
 const HostContext = createContext<SolverHost | null>(null);

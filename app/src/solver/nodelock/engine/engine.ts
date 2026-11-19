@@ -20,6 +20,7 @@
  */
 import {
   applyNodelock,
+  checkBase,
   checkBaseline,
   chunkBaseline,
   decodeChunk,
@@ -128,6 +129,7 @@ export function createWorkerEngine(options: WorkerEngineOptions = {}): NodelockE
   async function solveFlop(req: NodelockRequest, onProgress: (p: NodelockProgress) => void, signal: AbortSignal, started: number): Promise<NodelockResult> {
     const { lockSet } = req;
     const baseline = decodeChunk(req.baseline);
+    checkBase(lockSet, baseline);
     const { spot, chartsHash } = await flopSpotOf(lockSet, baseline);
     if (signal.aborted) throw abortError(signal);
     const how = nodelockFlopRun(lockSet, req.maxIterations);

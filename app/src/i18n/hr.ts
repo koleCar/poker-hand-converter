@@ -12,11 +12,13 @@ import { playersUiHr } from "@rail/ui/strings/players.hr";
 import { reportsUiHr } from "@rail/ui/strings/reports.hr";
 import { plural } from "@rail/ui/strings/plural";
 
-import { countIn } from "./format";
+import { countIn, monthIn } from "./format";
 import type { Dict } from "./types";
 
 /** Counts in Croatian digits ("1.204"), whatever the window's language. */
 const n = countIn("hr");
+const monthLong = monthIn("hr", "long");
+const monthShort = monthIn("hr", "short");
 
 /** A share as a percentage, one decimal at most ("41.5%"). */
 function pct(share: number): string {
@@ -1235,6 +1237,15 @@ export const hr: Dict = {
       error: (message: string) => `Zadnja stranica nije dovršena: ${message}`,
       pause: "Pauziraj",
       resume: "Nastavi",
+      analysing: (month) => (month ? `Analiziram: ${monthLong(month)}` : "Analiziram ruke bez datuma"),
+      month: (month) => (month ? monthShort(month) : "Bez datuma"),
+      months: "Mjeseci",
+      monthsLabel: "Analiza po mjesecima",
+      monthDone: "gotovo",
+      monthFirst: (month) => `Sljedeće analiziraj: ${month ? monthLong(month) : "ruke bez datuma"}`,
+      inAll: "Ukupno",
+      hide: "Sakrij napredak analize",
+      show: "Prikaži napredak analize",
     },
     session: {
       notAnalysed: "Analizira se u pozadini",
@@ -1491,6 +1502,7 @@ export const hr: Dict = {
   nodelock: {
     action: "Nodelock",
     actionTitle: (position: string) => `Zaključaj strategiju igrača ${position} ovdje i solvaj ostatak protiv nje, na ovom računalu`,
+    lockActor: (position: string) => `Zaključaj ${position}`,
     editorLabel: (position: string) => `Nodelock: strategija igrača ${position}`,
     close: "Zatvori",
     modesLabel: "Postavi strategiju po",
@@ -1532,15 +1544,31 @@ export const hr: Dict = {
     nothingLocked: "Prvo zaključaj barem jednu ruku.",
     progress: (share: number | null, etaS: number | null) =>
       share === null ? "Procjenjujem vrijeme…" : `${Math.floor(share * 100)} %${etaS === null ? "" : ` · još oko ${clock(etaS)}`}`,
+    iterations: (iteration: number, exploitabilityPct: number | null) =>
+      `Iteracija ${n(iteration)}${exploitabilityPct === null ? "" : ` · ${n(Math.round(exploitabilityPct * 100) / 100)}% pota`}`,
+    estimate: (seconds: number) => `≈ ${seconds < 60 ? `${n(Math.max(1, Math.round(seconds)))} s` : `${n(Math.round(seconds / 60))} min`} na ovom računalu`,
     batch: (done: number, total: number) => `${n(done)} od ${n(total)} gotovo`,
     cancelAll: "Prekini sve",
     starting: "Pokrećem solve…",
     cancel: "Prekini",
     solvingHere: "Solva se na ovom računalu. Nastavi učiti; Rail javi kad bude gotovo.",
-    nodelocked: "Nodelockano",
-    backToGto: "Natrag na GTO",
     editLock: "Uredi lock",
     compare: "Usporedi s GTO-om",
+    removeLock: "Ukloni ovaj lock",
+    markLabel: "Zaključano: kako",
+    markAfter: (step: string) => `nakon ${step}`,
+    markFrom: "Iz",
+    markFixed: (fixed: number, reaching: number) =>
+      `${n(fixed)} od ${n(reaching)} ${plural(reaching, "kombinacije", "kombinacije", "kombinacija")} fiksno · ostale se prilagode`,
+    markAllFixed: "Sve kombinacije fiksne",
+    markRange: "Range",
+    markPainted: "Obojene ruke",
+    planAdds: (parent: string, street: "flop" | "turn") =>
+      `Dodaje se lockovima od ${parent} na ${street === "flop" ? "flopu" : "turnu"}: ${street} se ponovno solva`,
+    planBuilds: (parent: string) => `Gradi na ${parent}: turn se solva iz njegovog rezultata`,
+    planSibling: (of: string, street: "flop" | "turn") => `Novi lock uz ${of}: ${street} se ponovno solva`,
+    planLibrary: (street: "flop" | "turn") => `Novi lock na solveu biblioteke: ${street} se solva od GTO-a`,
+    markOnlyNode: "Jedina zaključana odluka: prvo zaključaj drugu ili se vrati na GTO u Biblioteci",
     gto: "GTO",
     shareDelta: (delta: number) => `${delta >= 0 ? "+" : "−"}${n(Math.round(Math.abs(delta) * 1000) / 10)} p.b.`,
     shift: (label: string, gto: number, locked: number) => `${label} ${pct(gto)} → ${pct(locked)}`,
@@ -1559,47 +1587,54 @@ export const hr: Dict = {
     libraryHint: "Čisti GTO solve, bez nodelockova",
     mineHint: "Tvoji nodelockani spotovi, solvani na ovom računalu",
     opening: "Otvaram nodelock…",
-    offSpot: "Ovaj prikaz je GTO: lock mijenja drugu odluku.",
-    toLockedSpot: "Idi na zaključani spot",
-    search: "Traži po imenu, kartama ili liniji",
     searchLabel: "Traži nodelockove",
-    allSpots: "Svi spotovi",
-    spotFilter: "Spot",
-    empty: "Još nema nodelockova.",
-    emptyLink: "Zaključaj odluku u biblioteci",
-    noMatch: "Nijedan nodelock ne odgovara.",
-    columns: {
-      name: "Ime",
-      spot: "Spot",
-      node: "Zaključani čvor",
-      preset: "Predložak",
-      date: "Datum",
-      status: "Stanje",
-      accuracy: "Točnost",
-      time: "Vrijeme",
-      engine: "Pokretač",
-    },
     status: { draft: "Skica", solving: "Solva se", solved: "Solvano", failed: "Nije uspjelo", cancelled: "Prekinuto" } as Record<string, string>,
     nodeAt: (position: string, street: string, path: string) => `${position} · ${street}${path ? ` · ${path}` : ""}`,
     streets: { flop: "Flop", turn: "Turn", river: "River" } as Record<string, string>,
     custom: "Vlastiti",
-    selectAll: "Odaberi sve",
-    select: (name: string) => `Odaberi ${name}`,
     rename: "Preimenuj",
     renameLabel: (name: string) => `Novo ime za ${name}`,
-    save: "Spremi",
     duplicate: "Kopiraj i uredi",
     delete: "Obriši",
-    deleteSelected: (count: number) => `Obriši ${n(count)} ${plural(count, "nodelock", "nodelocka", "nodelockova")}`,
-    deleteTitle: (count: number) => (count === 1 ? "Obrisati ovaj nodelock?" : `Obrisati ${n(count)} ${plural(count, "nodelock", "nodelocka", "nodelockova")}?`),
-    deleteBody: (count: number) =>
-      `${count === 1 ? "Lock i njegov solve brišu" : "Lockovi i njihovi solveovi brišu"} se s ovog računala. Ovo se ne može poništiti.`,
     deleting: "Brišem…",
     keep: "Zadrži",
     loadError: "Nodelockovi se nisu mogli pročitati.",
     openError: "Ovaj nodelock se nije mogao otvoriti.",
     retry: "Pokušaj ponovno",
     actions: (name: string) => `Akcije za ${name}`,
+    tree: {
+      label: "Moji nodelockovi",
+      pick: "Odaberi nodelock ili zaključaj odluku u biblioteci",
+      none: "Još nema nodelockova",
+      noMatch: "Nijedan nodelock ne odgovara",
+      newFolder: "Nova mapa",
+      newFolderName: "Nova mapa",
+      newFolderHere: "Nova mapa ovdje",
+      search: "Traži po imenu, kartama ili liniji",
+      collapseAll: "Sklopi sve",
+      toLockedSpot: "Idi na zaključani spot",
+      hide: "Sakrij popis",
+      show: "Prikaži popis",
+      resize: "Povuci za širinu popisa",
+      moveTo: "Premjesti u…",
+      topLevel: "Vrh",
+      menuMany: (count: number) => `${n(count)} ${plural(count, "stavka", "stavke", "stavki")}`,
+      childStays: "Lock izgrađen na drugome ostaje ispod njega",
+      solving: (share: number | null) => (share === null ? "Solva se" : `Solva se · ${Math.floor(share * 100)} %`),
+      queued: "Čeka: kreće kad prethodni solve završi",
+      lockedNodes: (count: number) => `${n(count)} ${plural(count, "zaključan čvor", "zaključana čvora", "zaključanih čvorova")}`,
+      deleteQuestion: (folders: number, locks: number, built: number) => {
+        const extra = [
+          folders ? `${n(folders)} ${plural(folders, "mapa", "mape", "mapa")}` : "",
+          built ? `${n(built)} ${plural(built, "lock izgrađen", "locka izgrađena", "lockova izgrađenih")} na njima` : "",
+        ].filter(Boolean);
+        const total = locks + built;
+        if (!total) return `Obrisati ${n(folders)} ${plural(folders, "praznu mapu", "prazne mape", "praznih mapa")}?`;
+        return `Obrisati ${n(total)} ${plural(total, "nodelock", "nodelocka", "nodelockova")}${extra.length ? ` (${extra.join(", ")})` : ""}?`;
+      },
+      deleteBody: "Briše se s ovog računala. Ovo se ne može poništiti.",
+      deleteSolving: "Solve koji je u tijeku prvo se prekida.",
+    },
   },
 
   rngBox: {

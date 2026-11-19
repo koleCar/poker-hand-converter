@@ -39,9 +39,9 @@
 //! - **The hand analysis** (R5.4, [`analysis`]): the web's analysis rows
 //!   for the hands here, written by the app's analysis runner (the web's
 //!   library in the window), and the user's own preflop charts (R5.3).
-//! - **Nodelocks** ([`node_locks`], docs/NODELOCK.md §3): the user's
-//!   locked solves, solved on this computer and kept here only (never
-//!   synced).
+//! - **Nodelocks** ([`node_locks`], docs/NODELOCK.md §3, §7.5): the
+//!   user's locked solves and their tree (folders, locks built on locks),
+//!   solved on this computer and kept here only (never synced).
 //!
 //! The schema is documented table by table in `SCHEMA.md`.
 
@@ -78,8 +78,8 @@ pub mod time;
 pub mod writer;
 
 pub use analysis::{
-    AnalysisCounts, ChartSetRow, DecisionRowIn, HandAnalysisIn, PendingCursor, PendingHand,
-    PreflopFields, SaveOutcome, VillainCounters,
+    AnalysisCounts, ChartSetRow, DecisionRowIn, HandAnalysisIn, MonthCounts, PendingCursor,
+    PendingHand, PreflopFields, SaveOutcome, VillainCounters,
 };
 pub use background::{Activity, StatsWorker, WorkerStatus};
 pub use batch::{
@@ -97,7 +97,10 @@ pub use hud::{
     SeatPosition, StoredLayout,
 };
 pub use import::{FileImport, ImportOptions, import_file};
-pub use node_locks::{NodeLockRow, NodeLockSpot, NodeLockStatus, NodeLockStreet};
+pub use node_locks::{
+    NodeLockDeletePreview, NodeLockDeleted, NodeLockFolder, NodeLockFolderInput, NodeLockItem,
+    NodeLockItemKind, NodeLockPlace, NodeLockRow, NodeLockSpot, NodeLockStatus, NodeLockStreet,
+};
 pub use players::{GameKind, PlayerList, PlayerNotes, PlayerProfile, PlayerQuery, PlayerRow};
 pub use read::{Reader, StaleRefusals, StoreStatus};
 pub use recompute::{EvRecomputeState, RebuildState, RowsJob};

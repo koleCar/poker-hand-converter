@@ -32,6 +32,7 @@ export const playersUiEn = {
   clearFilters: "Clear filters",
   hidden: (count: number) =>
     `${count === 1 ? "1 opponent's hand" : `${num(count)} opponents' hands`} from rooms that hide screen names (such as GGPoker) count in your statistics but are not listed: a name there lasts one session, so it cannot be followed from one session to the next.`,
+  hiddenDismiss: "Hide this notice",
   listLabel: "Opponents, most hands together first",
   columns: {
     name: "Player",
