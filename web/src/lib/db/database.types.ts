@@ -910,8 +910,6 @@ export type Database = {
       }
       billing_settings: {
         Row: {
-          early_user_cutoff: string | null
-          early_user_discount_percent: number
           enforcement_enabled: boolean
           id: boolean
           offline_grace_days: number
@@ -919,8 +917,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          early_user_cutoff?: string | null
-          early_user_discount_percent?: number
           enforcement_enabled?: boolean
           id?: boolean
           offline_grace_days?: number
@@ -928,8 +924,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          early_user_cutoff?: string | null
-          early_user_discount_percent?: number
           enforcement_enabled?: boolean
           id?: boolean
           offline_grace_days?: number
@@ -1553,6 +1547,24 @@ export type Database = {
           origin?: Database["public"]["Enums"]["hand_origin"]
           owner_id?: string
           seq?: number
+        }
+        Relationships: []
+      }
+      hand_daily_counts: {
+        Row: {
+          day: string
+          hands: number
+          owner_id: string
+        }
+        Insert: {
+          day: string
+          hands?: number
+          owner_id: string
+        }
+        Update: {
+          day?: string
+          hands?: number
+          owner_id?: string
         }
         Relationships: []
       }
@@ -3193,18 +3205,24 @@ export type Database = {
       }
       plan_limits: {
         Row: {
+          daily_flop_cap: number | null
+          daily_hand_cap: number | null
           features: string[]
           hand_cap: number | null
           plan: string
           updated_at: string
         }
         Insert: {
+          daily_flop_cap?: number | null
+          daily_hand_cap?: number | null
           features?: string[]
           hand_cap?: number | null
           plan: string
           updated_at?: string
         }
         Update: {
+          daily_flop_cap?: number | null
+          daily_hand_cap?: number | null
           features?: string[]
           hand_cap?: number | null
           plan?: string
@@ -3715,8 +3733,6 @@ export type Database = {
           created_at: string
           current_period_end: string | null
           digest: string
-          early_user: boolean
-          early_user_since: string | null
           id: string
           is_shadowbanned: boolean
           karma: number
@@ -3739,8 +3755,6 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           digest?: string
-          early_user?: boolean
-          early_user_since?: string | null
           id: string
           is_shadowbanned?: boolean
           karma?: number
@@ -3763,8 +3777,6 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           digest?: string
-          early_user?: boolean
-          early_user_since?: string | null
           id?: string
           is_shadowbanned?: boolean
           karma?: number
@@ -4059,6 +4071,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      solver_flop_claims: {
+        Row: {
+          claimed_at: string
+          day: string
+          flop: string
+          owner_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          day: string
+          flop: string
+          owner_id: string
+        }
+        Update: {
+          claimed_at?: string
+          day?: string
+          flop?: string
+          owner_id?: string
+        }
+        Relationships: []
       }
       study_plans: {
         Row: {
@@ -4950,7 +4983,6 @@ export type Database = {
         Returns: {
           current_period_end: string
           customer_id: string
-          early_user: boolean
           plan: string
           plan_status: string
           subscription_id: string
@@ -4978,12 +5010,29 @@ export type Database = {
         Args: { p_consent: string; p_owner: string; p_session_id: string }
         Returns: boolean
       }
+      billing_day_resets_at: { Args: never; Returns: string }
       billing_enforced: { Args: never; Returns: boolean }
       billing_events_prune: { Args: { p_keep?: string }; Returns: number }
-      billing_mark_early_users: { Args: never; Returns: number }
       billing_owner_of_customer: {
         Args: { p_customer_id: string }
         Returns: string
+      }
+      billing_plan_limits: {
+        Args: { p_owner: string }
+        Returns: {
+          daily_flop_cap: number | null
+          daily_hand_cap: number | null
+          features: string[]
+          hand_cap: number | null
+          plan: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "plan_limits"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       billing_plan_state: {
         Args: { p_owner: string }
@@ -5024,6 +5073,7 @@ export type Database = {
         Returns: undefined
       }
       billing_stored_hands: { Args: { p_owner: string }; Returns: number }
+      billing_utc_day: { Args: never; Returns: string }
       can_moderate_board: { Args: { p_board_id: string }; Returns: boolean }
       can_moderate_post: { Args: { p_public_id: string }; Returns: boolean }
       claim_desktop_sign_in: { Args: never; Returns: undefined }
@@ -5888,6 +5938,10 @@ export type Database = {
       set_username: { Args: { p_username: string }; Returns: Json }
       share_anonymised_phf: { Args: { p_phf: Json }; Returns: Json }
       share_names_state: { Args: { p_slug: string }; Returns: Json }
+      solver_flop_key: { Args: { p_flop: string }; Returns: string }
+      solver_flops_of: { Args: { p_owner: string }; Returns: string[] }
+      solver_flops_today: { Args: never; Returns: Json }
+      solver_open_flop: { Args: { p_flop: string }; Returns: Json }
       stats_coverage: { Args: { p_version: string }; Returns: Json }
       stats_empty_graph: { Args: { p_version: string }; Returns: Json }
       stats_ev_missing: {
