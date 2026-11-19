@@ -1163,6 +1163,7 @@ export const analysisHr: Dict["analysis"] = {
     backToSession: "Natrag na pregled sesije",
     loading: "Učitavam ruku…",
     notFound: "Ova ruka nije u tvojoj biblioteci.",
+    notSynced: "Ova ruka još nije u tvojoj web biblioteci. Desktop aplikacija je šalje pri sljedećoj sinkronizaciji: otvori je ponovno za minutu.",
     fresh:
       "Ova ruka još nije analizirana u trenutnoj verziji, pa je ovo svježa analiza izračunata u tvojem pregledniku. Pokreni analizu da je spremiš.",
   },

@@ -457,3 +457,10 @@
     animation: none;
   }
 }
+
+/* The Solver tab opened from a hand on a spot that stands in for it (`Solver.tsx` LinkNote). */
+.linkNote {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  cursor: help;
+}

@@ -1674,6 +1674,8 @@ export const ipc = {
   shareSetNames: (slug: string, show: boolean) => invoke<boolean>("share_set_names", { slug, show }),
   /** The web's post preview for a hand in the store, in the default browser (`share.rs`). */
   forumPreviewOpen: (handKey: string) => invoke<null>("forum_preview_open", { handKey }),
+  /** The hand in the web's library (`/analysis/hand?key=`) at the replayer's position (`a12`, `flop`), in the default browser. */
+  handWebOpen: (handKey: string, position: string | null) => invoke<null>("hand_web_open", { handKey, position }),
   handAnnotations: (handKey: string) => invoke<HandAnnotations>("hand_annotations", { handKey }),
   handSetNote: (handKey: string, note: string) => invoke<HandAnnotations>("hand_set_note", { handKey, note }),
   handAddTag: (handKey: string, tag: string) => invoke<HandAnnotations>("hand_add_tag", { handKey, tag }),
