@@ -35,6 +35,17 @@ export const ROUTE_FEATURE: Partial<Record<Route, PlanFeature>> = {
   players: "reportsFull",
 };
 
+/** The locked screens whose one line is their own (their feature is shared). */
+export const ROUTE_LINE: Partial<Record<Route, "trainer" | "players">> = { trainer: "trainer", players: "players" };
+
+/**
+ * (Free tier) The solver's flops are counted: enforcement on and the plan
+ * without every flop. Otherwise no flop is ever asked about.
+ */
+export function flopsCounted(status: EntitlementsStatus | null | undefined): boolean {
+  return isLocked(status, "solverUnlimited");
+}
+
 /** True when `status` holds `feature` back. */
 export function isLocked(status: EntitlementsStatus | null | undefined, feature: PlanFeature): boolean {
   return status !== null && status !== undefined && status.effective.plan === "free" && !status.effective.features[feature];
@@ -47,8 +58,10 @@ export interface UseEntitlements {
   locked: (feature: PlanFeature) => boolean;
   /** "Check again": the app asks the server now (the answer arrives as an event). */
   checkNow: () => void;
-  /** "Upgrade": the web's Plan panel in the browser. */
+  /** "See Pro": the web's pricing page in the browser. */
   upgrade: () => void;
+  /** "Manage plan": the web's Plan panel in the browser. */
+  manage: () => void;
   /** "Sign in": the account's sign-in in the browser. */
   signIn: () => void;
   checking: boolean;
@@ -100,11 +113,15 @@ export function useEntitlements(): UseEntitlements {
     ipc.entitlementsOpenUpgrade().catch((e: unknown) => setError(errorText(e)));
   }, []);
 
+  const manage = useCallback(() => {
+    ipc.entitlementsOpenManage().catch((e: unknown) => setError(errorText(e)));
+  }, []);
+
   const signIn = useCallback(() => {
     ipc.accountSignIn().catch((e: unknown) => setError(errorText(e)));
   }, []);
 
   const locked = useCallback((feature: PlanFeature) => isLocked(status, feature), [status]);
 
-  return { status, error, locked, checkNow, upgrade, signIn, checking };
+  return { status, error, locked, checkNow, upgrade, manage, signIn, checking };
 }

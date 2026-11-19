@@ -9,7 +9,7 @@
  * the plan's reason calls for (upgrade, sign in, check again); the editor
  * stays usable, so designs can be made ready.
  */
-import { lockReason } from "../components/ProLock";
+import { lockReason, ProLock } from "../components/ProLock";
 import { HeaderRow, PillSwitch, StatusPill } from "../components/ScreenHeader";
 import { useT } from "../i18n";
 import { hudState, noSupportedClient, permissionNeeded } from "../lib/hudCompliance";
@@ -45,7 +45,14 @@ export function Hud() {
           />
         }
       />
-      {view === "tables" ? <HudStatusPanel compliance={compliance} /> : <HudEditor />}
+      {view === "tables" ? (
+        <HudStatusPanel compliance={compliance} />
+      ) : plan.status !== null && plan.locked("hud") ? (
+        // (Free tier) The panels are Pro: the lock in place of their editor.
+        <ProLock feature="hud" />
+      ) : (
+        <HudEditor />
+      )}
     </>
   );
 }
@@ -72,8 +79,8 @@ function HudPill({ compliance, plan }: { compliance: HudCompliance; plan: UseEnt
         : reason === "notChecked" || reason === "graceExpired"
           ? [plan.checking ? t.plan.checking : p.checkAgain, plan.checkNow]
           : [p.upgrade, plan.upgrade];
-    const why = plan.status !== null && lockedByPlan ? lockReason(plan.status, t.plan) : s.locked;
-    return <StatusPill tone="warn" label={p.pro} meta={meta} hint={`${t.plan.features.hud} ${why}`} onClick={act} />;
+    const why = plan.status !== null && lockedByPlan ? (lockReason(plan.status, t.plan) ?? t.plan.tip(t.plan.features.hud)) : s.locked;
+    return <StatusPill tone="warn" label={p.pro} meta={meta} hint={why} onClick={act} />;
   }
   if (status === null) return null;
   if (permissionNeeded(status) !== null) {

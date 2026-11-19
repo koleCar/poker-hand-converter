@@ -492,6 +492,12 @@ export const en = {
       rateLimited: (time: string) => `Limit reached; continues at ${time}`,
       failed: (time: string) => `Failed; tries again at ${time}`,
       planRequired: "Part of Rail Pro",
+      dailyCap: (total: number | null, time: string) =>
+        total
+          ? `${hands(total)} synced today — the rest syncs after ${time}, or now with Pro`
+          : `Today's hands are synced — the rest syncs after ${time}, or now with Pro`,
+      libraryFull: (total: number | null) =>
+        total ? `Your web library is full (${n(total)})` : "Your web library is full",
       refused: (count: number) => `${hands(count)} refused`,
       upload: "Upload",
       keepApart: "Keep apart",
@@ -509,25 +515,35 @@ export const en = {
    * analysis, full reports, sync) and its lines in Settings, Account.
    */
   plan: {
-    heading: "Part of Rail Pro",
+    /** The small badge on a lock. */
+    pro: "Pro",
+    /** A lock's one line: what the locked screen or control does. */
     features: {
-      hud: "The HUD at your poker tables is part of Rail Pro.",
-      analysis: "The analysis of your hands - grades, leaks, session review and your own charts - is part of Rail Pro.",
-      reportsFull:
-        "Reports by situation and the Players screen are part of Rail Pro. Your basic statistics stay free: the summary, every statistic, the graph and the breakdowns by position, stake, room, table size and format.",
-      desktopSync: "Syncing your hands with the web is part of Rail Pro.",
-      learn: "Learn is part of Rail Pro.",
+      hud: "Stats on your tables while you play",
+      analysis: "Find your leaks from your own hands",
+      reportsFull: "Every situation and opponent in your hands",
+      desktopSync: "Sync the desktop app with the web",
+      learn: "Learn is part of Pro",
+      solverUnlimited: "Every flop, every day",
+      nodelock: "Lock a strategy and solve again",
     },
+    /** Screens with a line of their own (their feature is shared). */
+    screens: {
+      trainer: "Train the spots from your own hands",
+      players: "Every opponent you played, profiled",
+    },
+    /** Why, when it is not just the Free plan. */
     reasons: {
-      signedOut:
-        "Sign in with a Rail Pro account to use it. Without an account Rail keeps importing your hands, your library, the replayer and your basic statistics.",
-      notChecked: "Rail checks your plan when it is online. Connect to the internet, or check again.",
+      signedOut: "Sign in to use it.",
+      notChecked: "Rail checks your plan when it is online.",
       free: "Your account is on the Free plan.",
-      graceExpired: (days: number) =>
-        `Reconnect to keep Pro: Rail has not reached the server to check your plan for more than ${days} days.`,
+      graceExpired: (days: number) => `Reconnect to keep Pro: the plan was last checked over ${days} days ago.`,
     },
+    /** A locked control's tooltip. */
+    tip: (what: string) => `${what} is part of Pro.`,
     signIn: "Sign in",
-    upgrade: "Upgrade to Pro",
+    upgrade: "See Pro",
+    manage: "Manage plan",
     checkAgain: "Check again",
     checking: "Checking…",
     /** Settings' plan badge: what can be used now. */
@@ -542,14 +558,26 @@ export const en = {
     settings: {
       heading: "Plan",
       loading: "Reading your plan…",
-      open: "Everything in Rail is available.",
-      pro: "Rail Pro.",
-      proUntil: (date: string) =>
-        `Rail Pro. It keeps working offline until ${date}; Rail checks again by itself whenever it is online.`,
-      free: "Free: importing, your library, the replayer and basic statistics. The HUD, the analysis and full reports need Rail Pro.",
-      handsStored: (count: number, total: number) => `${hands(count)} in your web library of ${n(total)} on the Free plan.`,
-      lastChecked: (time: string) => `Plan last checked ${time}.`,
-      offline: "The server could not be reached to check; Rail uses the last answer.",
+      library: "Library",
+      libraryCount: (stored: number, total: number) => `${n(stored)} / ${n(total)}`,
+      today: "Today",
+      handsToday: (saved: number, total: number) => `${n(saved)} / ${n(total)} hands`,
+      flopsToday: (opened: number, total: number) => `${n(opened)} / ${n(total)} flops`,
+      resets: (time: string) => `resets ${time}`,
+    },
+    /** The solver's flops a day (Free). */
+    solver: {
+      today: "Today's flops",
+      count: (used: number, total: number) => `${n(used)} / ${n(total)}`,
+      left: (count: number) => `${n(count)} left`,
+      open: (flop: string) => `Open ${flop}`,
+      otherLine: "Not solved on this line",
+      refused: (total: number, time: string) =>
+        `You've opened today's ${n(total)} flops. They stay open, with any turn and river, until ${time}. Every flop with Pro.`,
+      signIn: (total: number) => `Sign in to open flops. A free account opens ${n(total)} a day.`,
+      offline: "Connect to the internet to open a new flop. Today's flops stay open.",
+      tryAgain: "Try again",
+      nodelock: "Nodelock",
     },
   },
 
@@ -1448,7 +1476,7 @@ export const en = {
       permission: "Needs a permission",
       fix: "Fix ›",
       pro: "HUD is part of Pro",
-      upgrade: "Upgrade ›",
+      upgrade: "See Pro ›",
       signIn: "Sign in ›",
       checkAgain: "Check again ›",
     },

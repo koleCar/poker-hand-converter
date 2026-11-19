@@ -2,12 +2,16 @@
  * Settings, Account (R1.7, R1.9, R6.4): a tile with who is signed in and
  * sign in / out, then one card with the plan's badge and sync's status,
  * each with its one action. The first-run screen keeps the longer
- * `AccountPanel`.
+ * `AccountPanel`. (Free tier) On Free while plans are enforced, the plan
+ * row is followed by the web library's meter (yellow over 90 %) and today's
+ * use (hands synced, solver flops); "See Pro" and "Manage plan" open the
+ * web.
  */
 import { Icon, type IconName } from "@rail/ui/icon/Icon";
 import { useEffect, useState, type FormEvent } from "react";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 
+import { SeeProButton } from "../../components/ProLock";
 import { useT, type Dict } from "../../i18n";
 import { liveDateFormat } from "../../i18n/format";
 
@@ -37,7 +41,7 @@ export function Account({ account }: { account: ReturnType<typeof useAccount> })
       {configured && (
         <div className={styles.card}>
           {signedInAs !== null && <NameRow {...profile} />}
-          <PlanRow />
+          <PlanRows />
           <SyncRow />
         </div>
       )}
@@ -394,11 +398,23 @@ export function planBadge(status: EntitlementsStatus, b: Dict["plan"]["badge"], 
   }
 }
 
-/** The plan row: its badge and, when there is something to do, the action. */
-function PlanRow() {
-  const p = useT().plan;
+/** The plan's rows: its badge and its one action, then on Free the library and today. */
+function PlanRows() {
   const plan = useEntitlements();
+  return (
+    <>
+      <PlanRowView plan={plan} />
+      {plan.status && <UsageRowsView status={plan.status} />}
+    </>
+  );
+}
+
+/** The plan row: its badge and, when there is something to do, the action. */
+export function PlanRowView({ plan }: { plan: Pick<ReturnType<typeof useEntitlements>, "status" | "error" | "checking" | "upgrade" | "manage" | "checkNow" | "signIn"> }) {
+  const p = useT().plan;
   const badge = plan.status ? planBadge(plan.status, p.badge, (ms) => DAY.format(ms)) : null;
+  // Pro (or Free) while enforced: the subscription is managed on the web.
+  const manage = plan.status?.effective.plan === "pro" && badge?.action === null;
   return (
     <div className={styles.row}>
       <span className={styles.rowLabel}>
@@ -417,9 +433,10 @@ function PlanRow() {
         )}
       </span>
       <span className={styles.actions}>
-        {badge?.action === "upgrade" && (
-          <button type="button" className="btn btn--primary btn--sm" onClick={plan.upgrade}>
-            {p.upgrade}
+        {badge?.action === "upgrade" && <SeeProButton onClick={plan.upgrade} />}
+        {manage && (
+          <button type="button" className="btn btn--sm" onClick={plan.manage}>
+            {p.manage}
           </button>
         )}
         {badge?.action === "checkAgain" && (
@@ -437,6 +454,58 @@ function PlanRow() {
   );
 }
 
+/**
+ * (Free tier) On Free while plans are enforced: the web library's meter
+ * (yellow over 90 %), and today's use against the day's caps with when the
+ * day starts again. Nothing otherwise.
+ */
+export function UsageRowsView({ status }: { status: EntitlementsStatus }) {
+  const p = useT().plan;
+  const s = p.settings;
+  if (status.effective.plan !== "free") return null;
+  const library = status.handCap !== null && status.handsStored !== null ? { stored: status.handsStored, cap: status.handCap } : null;
+  const share = library && library.cap > 0 ? Math.min(1, library.stored / library.cap) : 0;
+  const hands = status.dailyHandCap !== null ? s.handsToday(status.handsToday ?? 0, status.dailyHandCap) : null;
+  const flops = status.dailyFlopCap !== null ? s.flopsToday(status.flopsToday.length, status.dailyFlopCap) : null;
+  const today = [hands, flops].filter((part): part is string => part !== null);
+  return (
+    <>
+      {library && (
+        <div className={styles.row}>
+          <span className={styles.rowLabel}>{s.library}</span>
+          <span className={styles.value}>
+            <span
+              className={`${styles.meter} ${share > 0.9 ? styles.meterFull : ""}`}
+              role="meter"
+              aria-label={s.library}
+              aria-valuemin={0}
+              aria-valuemax={library.cap}
+              aria-valuenow={library.stored}
+            >
+              <span className={styles.meterFill} style={{ width: `${share * 100}%` }} />
+            </span>
+          </span>
+          <span className={`${styles.actions} ${share > 0.9 ? styles.warning : styles.muted}`}>
+            {s.libraryCount(library.stored, library.cap)}
+          </span>
+        </div>
+      )}
+      {today.length > 0 && (
+        <div className={styles.row}>
+          <span className={styles.rowLabel}>{s.today}</span>
+          <span className={styles.value}>
+            <span className={styles.inline}>
+              <span className={styles.strong}>{today.join(" · ")}</span>
+              {status.dayResetsAtMs !== null && <span className={styles.muted}>{s.resets(CLOCK.format(status.dayResetsAtMs))}</span>}
+            </span>
+          </span>
+          <span className={styles.actions} />
+        </div>
+      )}
+    </>
+  );
+}
+
 function SyncRow() {
   const sync = useSync();
   return <SyncRowView sync={sync.sync} error={sync.error} busy={sync.busy} run={sync.run} />;
@@ -445,6 +514,8 @@ function SyncRow() {
 interface SyncAction {
   label: string;
   primary?: boolean;
+  /** "See Pro": the gold button. */
+  gold?: boolean;
   onClick: () => void;
 }
 
@@ -542,7 +613,17 @@ export function SyncRowView({
       case "planRequired":
         line = s.planRequired;
         tone = styles.muted;
-        actions = [{ label: t.plan.upgrade, primary: true, onClick: () => void ipc.entitlementsOpenUpgrade() }];
+        actions = [{ label: t.plan.upgrade, gold: true, onClick: () => void ipc.entitlementsOpenUpgrade() }];
+        break;
+      case "dailyCap":
+        line = s.dailyCap(phase.cap, clock(phase.resetsAtMs));
+        tone = styles.muted;
+        actions = [{ label: t.plan.upgrade, gold: true, onClick: () => void ipc.entitlementsOpenUpgrade() }];
+        break;
+      case "libraryFull":
+        line = s.libraryFull(phase.cap);
+        tone = styles.warning;
+        actions = [{ label: t.plan.upgrade, gold: true, onClick: () => void ipc.entitlementsOpenUpgrade() }];
         break;
     }
     // The server's refusals: tried again after an update, in place of the everyday action.
@@ -578,17 +659,21 @@ export function SyncRowView({
         {failure && <span className={styles.error}>{failure}</span>}
       </span>
       <span className={styles.actions}>
-        {actions.map((action) => (
-          <button
-            key={action.label}
-            type="button"
-            className={action.primary ? "btn btn--primary btn--sm" : "btn btn--sm"}
-            disabled={busy}
-            onClick={action.onClick}
-          >
-            {action.label}
-          </button>
-        ))}
+        {actions.map((action) =>
+          action.gold ? (
+            <SeeProButton key={action.label} onClick={action.onClick} />
+          ) : (
+            <button
+              key={action.label}
+              type="button"
+              className={action.primary ? "btn btn--primary btn--sm" : "btn btn--sm"}
+              disabled={busy}
+              onClick={action.onClick}
+            >
+              {action.label}
+            </button>
+          ),
+        )}
       </span>
       {progress !== null && (
         <span

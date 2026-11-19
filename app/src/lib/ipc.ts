@@ -340,7 +340,11 @@ export type SyncPhase =
   | { state: "rateLimited"; retryAtMs: number }
   | { state: "failed"; message: string; retryAtMs: number }
   /** (R6.4) The account's plan does not include desktop sync; hands wait, unsent. */
-  | { state: "planRequired"; feature: string };
+  | { state: "planRequired"; feature: string }
+  /** (Free tier) Today's hands are synced (`cap` a UTC day); the rest goes after `resetsAtMs`. */
+  | { state: "dailyCap"; cap: number | null; resetsAtMs: number }
+  /** (Free tier) The web library is full (`cap` hands); nothing more is sent until it has room. */
+  | { state: "libraryFull"; cap: number | null };
 
 /** (R6.4) `rail_sync::entitlements::Features`. */
 export interface PlanFeatures {
@@ -349,6 +353,9 @@ export interface PlanFeatures {
   reportsFull: boolean;
   analysis: boolean;
   learn: boolean;
+  /** (Free tier) Every solver flop (Free: a few a day). */
+  solverUnlimited: boolean;
+  nodelock: boolean;
 }
 
 /** (R6.4) A Pro feature of the app. */
@@ -374,7 +381,26 @@ export interface EntitlementsStatus {
   handCap: number | null;
   serverReason: string | null;
   offlineGraceDays: number | null;
+  /** (Free tier) The day's caps (null: unlimited or not known) and usage, from the account's last answer. */
+  dailyHandCap: number | null;
+  handsToday: number | null;
+  dailyFlopCap: number | null;
+  /** Today's solver flops (canonical keys, `Ks7d2c`), while the day lasts. */
+  flopsToday: string[];
+  /** When the day's counts start again (00:00 UTC, ms). */
+  dayResetsAtMs: number | null;
+  /** "See Pro": the web's pricing page. */
   upgradeUrl: string;
+}
+
+/** (Free tier) `entitlements::FlopGate`: may a flop's strategy show? */
+export interface FlopGate {
+  /** `offline`: a new flop, and the server cannot be reached to count it. */
+  verdict: "open" | "refused" | "signIn" | "offline";
+  flop: string;
+  flops: string[];
+  cap: number | null;
+  resetsAtMs: number | null;
 }
 
 /** `rail_sync::worker::SyncStatus`. */
@@ -1610,6 +1636,9 @@ export const ipc = {
   entitlementsStatus: () => invoke<EntitlementsStatus>("entitlements_status"),
   entitlementsCheckNow: () => invoke<void>("entitlements_check_now"),
   entitlementsOpenUpgrade: () => invoke<void>("entitlements_open_upgrade"),
+  entitlementsOpenManage: () => invoke<void>("entitlements_open_manage"),
+  /** (Free tier) Before a flop's strategy shows: the server counts it (preflop never asks). */
+  solverOpenFlop: (flop: string) => invoke<FlopGate>("solver_open_flop", { flop }),
   /** The statistics pass (R2.3). */
   statsStatus: () => invoke<StatsStatus>("stats_status"),
   /** Rebuild every hand's statistics in the background; returns the hands to go through. */

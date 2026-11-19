@@ -166,7 +166,7 @@ screens say the data is only available in the app. The command groups:
 | Refused hands | `quarantine_summary`, `quarantine_entries`, `quarantine_raw_text`, `retry_refused` |
 | Account | `account_status`, `account_sign_in`, `account_open_sign_in_page`, `account_cancel_sign_in`, `account_sign_out`, `account_open_web_page` |
 | Sync | `sync_status`, `sync_now`, `sync_set_paused`, `sync_answer_account`, `sync_retry_rejected` |
-| Plan | `entitlements_status`, `entitlements_check_now`, `entitlements_open_upgrade` |
+| Plan | `entitlements_status`, `entitlements_check_now`, `entitlements_open_upgrade`, `entitlements_open_manage`, `solver_open_flop` |
 | Statistics | `stats_status`, `stats_rebuild`, `stats_recompute_ev`, `stat_definitions`, `custom_stats_list`, `custom_stat_check`, `custom_stat_save`, `custom_stat_delete` |
 | Hands | `hands_page`, `hands_facets`, `hands_by_key`, `hands_find`, `hand_phf`, `hand_annotations`, `hand_set_note`, `hand_add_tag`, `hand_remove_tag`, `saved_filters`, `save_filter`, `delete_saved_filter` |
 | Live and Reports | `today`, `report`, `report_breakdowns` |
@@ -247,20 +247,28 @@ opens the player's profile in the main window.
   (`tests/test/appI18n.test.ts`).
 - **A new statistic is a definition** in `config/stats/`, not code here.
 
-### The plan (R6.4)
+### The plan (R6.4, free tier 2026-11-19)
 
 `entitlements.rs` works out the effective plan from the last kept check and
-applies it. Gated features (`src/lib/useEntitlements.ts`, `ProLock.tsx`):
+applies it. Gated features (`src/lib/useEntitlements.ts`, `ProLock.tsx`: a
+blurred skeleton behind a Pro badge, one line and a gold "See Pro", which
+opens the web's `/pricing?from=app`):
 
 | Feature | Where it shows when locked |
 | --- | --- |
-| `hud` | The HUD process is not started (a running HUD is not stopped; the plan applies at the next start); the HUD screen shows a compact lock above its status, and the editor stays usable |
-| `analysis` | The Analysis screen shows the lock; the analysis gate answers `plan` |
+| `hud` | The HUD process starts without panels (for tiling); the HUD screen shows the lock in place of the editor |
+| `analysis` | The Analysis and Trainer screens show the lock; the analysis gate answers `plan` |
 | `reportsFull` | Reports keeps its summary, every statistic, the graph and the breakdowns by position, stake, room, table size and format, and locks the situation tabs; the Players screen shows the lock |
-| `desktopSync` | Sync is held (`PlanRequired`); hands wait unsent in the outbox |
+| `nodelock` | The solver's Nodelock action is a locked button ("Nodelock is part of Pro. See Pro") |
+| `solverUnlimited` | The solver asks `solver_open_flop` before a flop's strategy shows (`src/solver/gate.tsx`): today's flops as chips with "N / 3", a small Pro card past the cap; offline, today's flops stay open and a new one waits. Preflop is never asked about |
 
-Importing, the hand list, the replayer and basic statistics are never
-locked. **Enforcement is off today**: the server answers `enforced: false`,
+**Free includes desktop sync** (also with no usable check). Its caps are
+the server's: sync sizes its batches to the room the last check saw
+(`SyncWorker::set_plan_room`), and on `PT402` `daily_cap` holds uploads
+until 00:00 UTC (`dailyCap`, the rest stays in the outbox) or on `hand_cap`
+until the web library has room (`libraryFull`). Importing, the local store,
+the hand list, the replayer, basic statistics, table tiling and the RNG are
+never locked. **Enforcement is off today**: the server answers `enforced: false`,
 so nothing is locked, signed in or not. Once the owner turns it on, an app
 with no account asks the public `billing_enforced()` and is Free; a
 signed-in app keeps its last answer for an offline grace period. A failed

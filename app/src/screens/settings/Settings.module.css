@@ -603,3 +603,24 @@ button.pill:hover {
 .cardAfter {
   margin-top: var(--space-3);
 }
+
+/* (Free tier) The web library's meter: yellow over 90 %. */
+.meter {
+  display: block;
+  width: 100%;
+  max-width: 16rem;
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--border-subtle);
+}
+
+.meterFill {
+  display: block;
+  height: 100%;
+  background: var(--accent-bg);
+}
+
+.meterFull .meterFill {
+  background: var(--warning-fg);
+}
