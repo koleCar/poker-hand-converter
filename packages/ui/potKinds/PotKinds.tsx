@@ -373,14 +373,19 @@ export function MultiwayView({
 }: {
   summary: MultiwaySummary;
   worth: PotKindDecision[] | null;
-  spots: ReactNode;
+  /** The multiway spots ranked among themselves; none since analysis/46 grades no multiway flop. */
+  spots?: ReactNode;
   decisionHref: (row: PotKindDecision) => string;
 }) {
   const t = useUiStrings().potKinds;
   const { int, one, signed, pct } = useFormat();
   const m = t.mw;
+  // analysis/46: a hand three or more saw the flop of has no postflop grade, so
+  // the grade columns and boxes show only for analyses from before it.
+  const graded = summary.graded > 0;
   const gradedShare = summary.decisions > 0 ? summary.graded / summary.decisions : 0;
   const gradeNames = ["perfect", "good", "inaccurate", "mistake", "blunder"];
+  const decisionsAll = summary.byPlayers.reduce((sum, row) => sum + row.decisions, 0);
   return (
     <div className={styles.page}>
       <PotKindNote kind="mw" />
@@ -390,16 +395,22 @@ export function MultiwayView({
         showdownBb={summary.showdownBbMilli / 1000}
         nonShowdownBb={summary.nonShowdownBbMilli / 1000}
       />
-      <div className={styles.grid2}>
+      <div className={graded ? styles.grid2 : undefined}>
         <Box head={m.byPlayers}>
           <table className={styles.table}>
             <thead>
               <tr>
                 <th>{m.players}</th>
                 <th className={styles.r}>{m.decisions}</th>
-                <th className={styles.r}>{m.graded}</th>
-                <th className={styles.r}>{m.off}</th>
-                <th className={styles.r}>{m.evLost}</th>
+                {graded ? (
+                  <>
+                    <th className={styles.r}>{m.graded}</th>
+                    <th className={styles.r}>{m.off}</th>
+                    <th className={styles.r}>{m.evLost}</th>
+                  </>
+                ) : (
+                  <th className={styles.r}>{m.share}</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -407,14 +418,21 @@ export function MultiwayView({
                 <tr key={row.players}>
                   <td>{m.playersN(row.players)}</td>
                   <td className={styles.r}>{int.format(row.decisions)}</td>
-                  <td className={styles.r}>{int.format(row.graded)}</td>
-                  <td className={styles.r}>{int.format(row.off)}</td>
-                  <td className={`${styles.r} ${row.evLossBb > 0 ? styles.neg : ""}`}>{t.figures.approxBb(signed(-row.evLossBb, one))}</td>
+                  {graded ? (
+                    <>
+                      <td className={styles.r}>{int.format(row.graded)}</td>
+                      <td className={styles.r}>{int.format(row.off)}</td>
+                      <td className={`${styles.r} ${row.evLossBb > 0 ? styles.neg : ""}`}>{t.figures.approxBb(signed(-row.evLossBb, one))}</td>
+                    </>
+                  ) : (
+                    <td className={styles.r}>{pct(decisionsAll > 0 ? row.decisions / decisionsAll : 0)}</td>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
         </Box>
+        {graded ? (
         <Box head={m.gradedHere}>
           <div className={styles.coverage}>
             <i className={styles.coverageGraded} style={{ width: pct(gradedShare) }} />
@@ -435,9 +453,10 @@ export function MultiwayView({
             )}
           </div>
         </Box>
+        ) : null}
       </div>
-      {spots}
-      <Worth rows={worth} decisionHref={decisionHref} />
+      {graded ? spots : null}
+      {graded ? <Worth rows={worth} decisionHref={decisionHref} /> : null}
     </div>
   );
 }

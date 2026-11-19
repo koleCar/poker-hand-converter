@@ -9,7 +9,7 @@ export const potKindsUiEn = {
   close: "Close this note",
   note: {
     bomb: "Bomb pots, on their own. Everyone antes and sees the flop with any two cards, deep and 5 to 8 handed. No solver covers that, Rail's included, so read the grades here as a rough guide from its multiway model (capped at Inaccurate), never as the right answer. What you won, and what the pool really does, is exact.",
-    mw: "Multiway pots, on their own. Three or more players at the decision. The solver plays heads-up, so Rail grades only calls and folds facing a bet here, against each opponent's estimated range: a rough guide, capped at Mistake. Checks and bets are not graded. Your heads-up leaks never include these.",
+    mw: "Multiway pots, on their own: three or more players saw the flop. No solver covers those pots, Rail's included, and they play very differently from heads-up ones, so Rail does not grade your decisions after the flop here. This page shows your results and how often each spot comes up; your leaks and grades elsewhere are heads-up only.",
   },
   figures: {
     hands: "Hands",
@@ -70,6 +70,7 @@ export const potKindsUiEn = {
     byPlayers: "Players at the decision",
     players: "Players",
     playersN: (n: number) => (n >= 5 ? "5 or more" : String(n)),
+    share: "Share",
     decisions: "Decisions",
     graded: "Graded",
     off: "Inaccurate or worse",

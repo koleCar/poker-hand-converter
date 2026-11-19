@@ -75,11 +75,7 @@ function AnalysisSection({ view }: { view: AnalysisView }) {
       <div>
         <h1 className={styles.visuallyHidden}>{t.analysis.tabs.multiway}</h1>
         {nav()}
-        <MultiwayTab
-          hidden={hidden}
-          reload={reload}
-          spots={hidden ? null : <MultiwaySpots reload={reload} />}
-        />
+        <MultiwayTab hidden={hidden} reload={reload} spots={hidden ? null : <MultiwaySpots reload={reload} />} />
       </div>
     );
   }

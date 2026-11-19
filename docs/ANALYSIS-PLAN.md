@@ -7586,6 +7586,12 @@ Each phase appends what it learned that changed the plan.
     study plan read heads-up spots only (`fetchLeaks` / `fetchTopLeaks`
     `potKind`, by the scenario: `bomb-…` or `-mw-`). The web hand view shows
     the same closable note.
+  - **With analysis/46** (#394, landed the same afternoon: no postflop
+    grade after a 3+ way flop, bomb pots unchanged): the Multiway pages show
+    results and how often each spot comes up by players at the decision;
+    the grade columns, "graded here", the multiway spots and the decisions
+    worth a look show only for analyses from before it. The note says Rail
+    does not grade there.
   - **Open.** The web's Overview, Progress and Reports still count multiway
     and bomb pot decisions (their summary tables have no pot kind);
     `database.types.ts` was edited by hand for the three functions (no

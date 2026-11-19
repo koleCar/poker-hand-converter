@@ -8,7 +8,7 @@ export const potKindsUiHr: PotKindsStrings = {
   close: "Zatvori ovu napomenu",
   note: {
     bomb: "Bomb potovi, zasebno. Svi ulažu ante i vide flop s bilo koje dvije karte, duboko, 5 do 8 igrača. Nijedan solver to ne pokriva, ni Railov, pa ocjene ovdje čitaj kao grubu procjenu iz modela za multiway (najviše Netočno), nikad kao točan odgovor. Ono što si osvojio i što pool stvarno radi je točno.",
-    mw: "Multiway potovi, zasebno. Tri ili više igrača kod odluke. Solver igra heads-up, pa Rail ovdje ocjenjuje samo call i fold protiv beta, prema procijenjenom rasponu svakog protivnika: gruba procjena, najviše Greška. Check i bet se ne ocjenjuju. Tvoji heads-up leakovi ih nikad ne uključuju.",
+    mw: "Multiway potovi, zasebno: flop su vidjela tri ili više igrača. Nijedan solver ne pokriva takve potove, ni Railov, a igraju se sasvim drugačije od heads-upa, pa Rail ovdje ne ocjenjuje tvoje odluke nakon flopa. Ova stranica pokazuje tvoje rezultate i koliko se često koja situacija javlja; leakovi i ocjene drugdje su samo heads-up.",
   },
   figures: {
     hands: "Ruke",
@@ -69,6 +69,7 @@ export const potKindsUiHr: PotKindsStrings = {
     byPlayers: "Igrači kod odluke",
     players: "Igrači",
     playersN: (n: number) => (n >= 5 ? "5 ili više" : String(n)),
+    share: "Udio",
     decisions: "Odluke",
     graded: "Ocijenjeno",
     off: "Netočno ili gore",
