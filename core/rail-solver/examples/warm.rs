@@ -94,6 +94,7 @@ fn main() {
                 actions: node.labels.clone(),
                 strategy,
                 locked: vec![1; COMBOS],
+                custom: None,
             }],
             earlier: LockEarlier::Player,
             target_pct: target,

@@ -1102,3 +1102,37 @@ touched, rebase, push to `prestaging` (CLAUDE.md). No PRs.
 U1 and U2 build against this section's interfaces until S2 and E2 land, then
 rebase onto them. `i18n/en.ts`/`hr.ts` conflicts are expected: keep both
 sides.
+
+## 8. A lock's own sizes (owner, 2026-11-19)
+
+The owner: "trebali bi moći dodavati i oduzimati sizinge … upisati koji
+sizing se koristi i obrisati check/bet opcije". They chose: **only the
+locked decision** gets its own actions; the rest of the tree stays the
+library's.
+
+- **Editor** (Range mode, `app/src/solver/nodelock/editor/sizes.ts`):
+  - an × on every action takes it away, Check and Fold included;
+  - `+ Check` / `+ Fold` puts it back;
+  - "Add a bet" / "Add a raise" takes a % of the pot (a raise's % is of the
+    pot after the call, at least the minimum raise); a size at the stack is
+    all-in; "All-in" adds the shove;
+  - "Library sizes" goes back to the library's actions.
+  - The actions sit in the reducer's state (`Strategy.actions`), so a change
+    of actions is one undo step. A new size has no GTO tick; its EVs, used
+    only for Range mode's order, are drawn between the nearest library sizes.
+- **Lock** (`NodeLockSpec.custom: true`): `actions` are the node's own
+  labels (`B8.25` bets to 8.25, `A97.5` is all-in). Absent on a lock that
+  keeps the tree's actions, so v1 hashes don't change. A lock made inside a
+  lock that gave the node its own sizes keeps `custom` there.
+- **Tree**: `lockNodeActions(set, pathOf)` gives the spot's `nodeActions`
+  (path → labels), which `nodelockFlopSpot` / `nodelockTurnSpot` set. Both
+  builders (`betting.ts` `nodeActionsOf`, `betting.rs` `node_actions_of`)
+  build that node with exactly those labels. A label the menu gives keeps
+  the menu's exact amount; an illegal label is an input error. The warm keys
+  include `nodeActions`.
+- **Cost**: the earlier nodes still freeze at the library's strategies. The
+  locked node's subtree is new, so a flop lock with its own sizes solves
+  like any flop lock (it was never warm across spots anyway).
+- **Compare and popover**: a node is paired with the library's only when
+  the labels match. A custom node shows no GTO; the row summary's `shifts`
+  has GTO 0 for a new size.

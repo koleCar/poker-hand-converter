@@ -43,13 +43,14 @@ import {
   type SolverDict,
 } from "../door";
 import type { LockEarlier, LockSet, NodelockSummary } from "./contract";
+import { actionsFromLabels, carryStrategy, isLibrary, passiveActions, sizeAction, sortActions, withActions } from "./editor/sizes";
 import { editorReducer, fromLockArrays, initialState, lockedCount, sharesOf, type EditorAction, type EditorState } from "./editor/state";
 import { engineInfo, type EngineInfo } from "./engine";
 import styles from "./Editor.module.css";
 import { nodelockData } from "./data";
 import { planChildLock, planEditLock, siblingName, type LockFooter, type LockPlan } from "./lineage";
 import { boardText, closeEditor, LOCKS_PARAM, startSolve, useNodelockSession, type EditorOpen, type EditorWithin } from "./session";
-import { lockSpec, lockTarget, suggestContext, type LockTarget } from "./spot";
+import { lockSpec, lockTarget, suggestContext, type LockAction, type LockTarget } from "./spot";
 
 type Mode = "hands" | "range" | "classes";
 type View = "range" | "classes" | "combos";
@@ -131,20 +132,35 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
   const locale = useLocale();
   const session = useNodelockSession();
   const suggestDict = locale === "hr" ? nodelockSuggestHr : nodelockSuggestEn;
-  const target = useMemo(() => lockTarget(open.at, solverT), [open.at, solverT]);
+  /** The library's decision; `target` is it with the lock's own actions (`editor/sizes.ts`). */
+  const base = useMemo(() => lockTarget(open.at, solverT), [open.at, solverT]);
   const [state, dispatch] = useReducer(
-    (s: EditorState, a: EditorAction) => editorReducer(target.spot, s, a),
+    (s: EditorState, a: EditorAction) => editorReducer(withActions(base, s.actions ?? base.library).spot, s, a),
     undefined,
     () => {
-      const start = initialState(target.spot);
-      const node = open.from?.lockSet.nodes.find((x) => x.path === target.path);
-      return node ? { ...start, ...fromLockArrays(target.spot, node), preset: open.from?.preset ?? null } : start;
+      const start = initialState(base.spot);
+      const node = open.from?.lockSet.nodes.find((x) => x.path === base.path);
+      if (!node) return start;
+      const own = node.custom ? actionsFromLabels(base, node.actions, solverT.action) : null;
+      const at = own ? withActions(base, own) : base;
+      return { ...start, ...fromLockArrays(at.spot, node), ...(own ? { actions: own } : {}), preset: open.from?.preset ?? null };
     },
   );
+  const target = useMemo(() => withActions(base, state.actions ?? base.library), [base, state.actions]);
+  /** Inside a lock that gave this node its own sizes: the shown actions are already the lock's, so every lock here keeps `custom`. */
+  const inherited = useMemo(() => Boolean(open.within?.open.set.nodes.some((n) => n.custom && n.path === base.path)), [open.within, base.path]);
+  const actionKey = target.actions.map((a) => a.label).join(" ");
   const [mode, setMode] = useState<Mode>("range");
   const [view, setView] = useState<View>("range");
   const [brush, setBrush] = useState<number[]>(() => target.actions.map((_, a) => (a === 0 ? 100 : 0)));
   const [held, setHeld] = useState<boolean[]>(() => target.actions.map(() => false));
+  // Another set of actions: the brush and the holds start over on it (set while rendering, as React advises).
+  const [shownKey, setShownKey] = useState(actionKey);
+  if (shownKey !== actionKey) {
+    setShownKey(actionKey);
+    setBrush(target.actions.map((_, a) => (a === 0 ? 100 : 0)));
+    setHeld(target.actions.map(() => false));
+  }
   const [cell, setCell] = useState<number | null>(null);
   const [klass, setKlass] = useState<ClassId | null>(null);
   const [earlier, setEarlier] = useState<LockEarlier>(open.from?.lockSet.earlier ?? "player");
@@ -152,6 +168,8 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
   const [info, setInfo] = useState<EngineInfo | null>(null);
   const [suggested, setSuggested] = useState<NodelockSuggestion | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [sizeText, setSizeText] = useState("");
+  const [sizeError, setSizeError] = useState<string | null>(null);
   /** The Solve click being handed over: a second click must not queue the same lock again. */
   const [submitting, setSubmitting] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -193,8 +211,14 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
       return null;
     }
   }, [open.within, open.at, target]);
-  const gtoShares = useMemo(() => sharesOf(target.spot, target.spot.gto.map((row) => Array.from(row))), [target]);
+  /** GTO's share of each action: the library's, 0 for a size it never solved (`gtoOf` shows none). */
+  const gtoShares = useMemo(() => {
+    const library = sharesOf(base.spot, base.spot.gto.map((row) => Array.from(row)));
+    return target.actions.map((a) => (a.gto === null ? 0 : library[a.gto]));
+  }, [base, target]);
   const shares = sharesOf(target.spot, state.strategy);
+  /** GTO's share of an action, none for a size the library never solved. */
+  const gtoOf = (a: number, of: number[]) => (target.actions[a]?.gto === null ? null : of[a]);
   const counts = lockedCount(target.spot, state);
   const ctx = useMemo(() => suggestContext(target), [target]);
   const archetypes = useMemo<Archetype[]>(() => {
@@ -210,6 +234,24 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
       .map((x, a) => (x >= 0.0005 ? `${target.actions[a].name} ${pctText(x)}` : null))
       .filter(Boolean)
       .join(", ");
+
+  /** The node's actions become `next` (sorted as the tree sorts them); the strategy carries over. */
+  const setActions = (next: readonly LockAction[]) => {
+    const sorted = sortActions(next);
+    const to = withActions(base, sorted);
+    setSizeError(null);
+    dispatch({ type: "actions", actions: isLibrary(to) ? undefined : sorted, ...carryStrategy(target, state, to) });
+  };
+  const addSize = (pct: number | null) => {
+    const made = sizeAction(target, pct, solverT.action);
+    if (typeof made === "string") {
+      setSizeError(t.sizes.errors[made]);
+      return;
+    }
+    setActions([...target.actions, made]);
+    setSizeText("");
+  };
+  const custom = !isLibrary(target);
 
   const paint = (hands: readonly number[], merge: boolean) => {
     if (!hands.length) return;
@@ -253,7 +295,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
     }
     const { at } = target;
     const spot = spotOf(at, target.river);
-    const spec = lockSpec(target, state);
+    const spec = lockSpec(target, state, inherited);
     let plan: LockPlan | null = null;
     if (open.within) {
       try {
@@ -294,7 +336,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
   /* ------------------------------------------------------------- pieces - */
 
   /** An action's row: its name, GTO's share, the typed %, hold; under it the slider with GTO's tick (none: the brush). */
-  const sliderRow = (a: number, value: number, onValue: (v: number, merge: boolean) => void, gto: number | null, hold: boolean) => (
+  const sliderRow = (a: number, value: number, onValue: (v: number, merge: boolean) => void, gto: number | null, hold: boolean, remove = false) => (
     <div key={target.actions[a].label} className={styles.slider}>
       <div className={styles.sliderHead}>
         <span className={`${solverStyles.actDot} ${colours[a]}`} aria-hidden="true" />
@@ -320,6 +362,18 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
             onClick={() => setHeld(held.map((x, k) => (k === a ? !x : x)))}
           >
             <LockGlyph />
+          </button>
+        ) : null}
+        {remove ? (
+          <button
+            type="button"
+            className={styles.hold}
+            title={t.sizes.remove(target.actions[a].name)}
+            aria-label={t.sizes.remove(target.actions[a].name)}
+            disabled={target.actions.length < 2}
+            onClick={() => setActions(target.actions.filter((_, k) => k !== a))}
+          >
+            <Icon name="close" />
           </button>
         ) : null}
       </div>
@@ -373,15 +427,67 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
     left = (
       <>
         {target.actions.map((_, a) =>
-          sliderRow(a, shares[a], (v, merge) => dispatch({ type: "frequency", action: a, target: v, held, merge }), gtoShares[a], target.actions.length > 2),
+          sliderRow(
+            a,
+            shares[a],
+            (v, merge) => dispatch({ type: "frequency", action: a, target: v, held, merge }),
+            gtoOf(a, gtoShares),
+            target.actions.length > 2,
+            true,
+          ),
         )}
-        <p className={styles.hint}>{t.rangeHint}</p>
+        <div className={styles.sizes}>
+          <span className={styles.sizesLabel}>{target.toCall > 0 ? t.sizes.raise : t.sizes.bet}</span>
+          <input
+            className={styles.number}
+            type="number"
+            min={1}
+            step={1}
+            placeholder={t.sizes.placeholder}
+            value={sizeText}
+            aria-label={t.sizes.pct}
+            title={t.sizes.pct}
+            onChange={(event) => {
+              setSizeText(event.target.value);
+              setSizeError(null);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") addSize(Number(sizeText));
+            }}
+          />
+          <span className={styles.sizesUnit}>%</span>
+          <ToolButton size="sm" disabled={!sizeText} onClick={() => addSize(Number(sizeText))}>
+            {t.sizes.add}
+          </ToolButton>
+          {target.actions.some((x) => x.kind === "allin") ? null : (
+            <ToolButton size="sm" onClick={() => addSize(null)}>
+              {t.sizes.allIn}
+            </ToolButton>
+          )}
+          {passiveActions(target).map((x) => (
+            <ToolButton key={x.label} size="sm" title={t.sizes.back(x.name)} onClick={() => setActions([...target.actions, x])}>
+              {`+ ${x.name}`}
+            </ToolButton>
+          ))}
+          {custom ? (
+            <ToolButton size="sm" onClick={() => setActions(base.library)}>
+              {t.sizes.reset}
+            </ToolButton>
+          ) : null}
+        </div>
+        {sizeError ? (
+          <p className={styles.message} role="alert">
+            {sizeError}
+          </p>
+        ) : null}
+        <p className={styles.hint}>{custom ? t.sizes.customHint : t.rangeHint}</p>
       </>
     );
   } else {
     const mask = classMaskOf;
     const classShares = mask ? sharesOf(target.spot, state.strategy, mask) : null;
-    const classGto = mask ? sharesOf(target.spot, target.spot.gto.map((row) => Array.from(row)), mask) : null;
+    const libraryClass = mask ? sharesOf(base.spot, base.spot.gto.map((row) => Array.from(row)), mask) : null;
+    const classGto = libraryClass ? target.actions.map((a) => (a.gto === null ? 0 : libraryClass[a.gto])) : null;
     left = (
       <>
         <ClassList
@@ -402,7 +508,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
                 a,
                 classShares[a],
                 (v, merge) => dispatch({ type: "frequency", action: a, target: v, mask, held, merge }),
-                classGto[a],
+                gtoOf(a, classGto),
                 target.actions.length > 2,
               ),
             )}
@@ -635,7 +741,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
               {shares.map((x, a) => (
                 <span key={a} className={colours[a]} style={{ flexGrow: x }} />
               ))}
-              {gtoShares.slice(0, -1).map((_, a) => (
+              {(custom ? [] : gtoShares.slice(0, -1)).map((_, a) => (
                 <span
                   key={`g${a}`}
                   className={styles.currentTick}
@@ -648,7 +754,8 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
               {target.actions.map((action, a) => (
                 <span key={action.label}>
                   <span className={`${solverStyles.optDot} ${colours[a]}`} aria-hidden="true" />
-                  {action.name} <strong>{pctText(shares[a])}</strong> <small>{`${t.gto} ${pctText(gtoShares[a])}`}</small>
+                  {action.name} <strong>{pctText(shares[a])}</strong>
+                  {action.gto === null ? null : <small>{` ${t.gto} ${pctText(gtoShares[a])}`}</small>}
                 </span>
               ))}
             </span>

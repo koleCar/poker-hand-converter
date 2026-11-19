@@ -90,7 +90,7 @@ function abortError(signal: AbortSignal): unknown {
 
 /** The cache key of a flop spot's split solve: what the parts' games are built from. */
 function spotKey(lockSet: LockSet, spec: SplitSpec, chartsHash: string): string {
-  return JSON.stringify([lockSet.spot.set, chartsHash, lockSet.spot.line, lockSet.spot.flop, spec.spot.symmetry ?? null, spec.dcfr ?? null, spec.storage]);
+  return JSON.stringify([lockSet.spot.set, chartsHash, lockSet.spot.line, lockSet.spot.flop, spec.spot.symmetry ?? null, spec.dcfr ?? null, spec.storage, spec.spot.nodeActions ?? null]);
 }
 
 interface Warm {

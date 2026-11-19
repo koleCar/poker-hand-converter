@@ -5,6 +5,7 @@
 
 use std::collections::HashMap;
 
+use crate::SolverInputError;
 use crate::cards::card_code;
 use crate::js::{math_round, number_to_string};
 use crate::tree::{Edge, Rake, TreeBuilder};
@@ -25,6 +26,9 @@ pub struct BettingRules {
     pub raise_cap: u32,
     pub all_in_threshold: f64,
     pub min_bet: f64,
+    /// A node's own actions by its path (`nodeActions`): labels offered in
+    /// place of the menu's (a nodelock's custom sizes), see [`node_actions_of`].
+    pub node_actions: Option<std::collections::BTreeMap<String, Vec<String>>>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -104,6 +108,9 @@ pub struct NodeInfo {
 pub struct Build {
     pub builder: TreeBuilder,
     pub info: HashMap<usize, NodeInfo>,
+    /// The first node whose own actions were not legal (`node_actions_of`);
+    /// the game's builder returns it. That node keeps the menu's actions.
+    pub error: Option<SolverInputError>,
 }
 
 /// One street's fixed context (`StreetContext` without the closure).
@@ -242,32 +249,11 @@ fn street_node<S: AsMut<Build>>(
         }
     };
 
+    // The menu's actions, then the node's own in their place where it has them.
+    let mut planned: Vec<ActionInfo> = Vec::new();
     if to_call > EPS {
-        let fold = describe(ActionKind::Fold, 0.0, 0.0);
-        let child = state
-            .as_mut()
-            .builder
-            .fold(to_act, pot, total0, total1, rake);
-        edges.push(Edge {
-            label: fold.label.clone(),
-            child,
-            card: None,
-        });
-        actions.push(fold);
-
-        let call = describe(ActionKind::Call, to_call.min(behind_me), 0.0);
-        let mut c = [total0, total1];
-        c[me] += call.amount;
-        let all_in = stack - c[me] <= EPS || behind_op <= EPS;
-        let call_path = join(at, &call.label);
-        let child = close(state, c[0], c[1], all_in, &call_path);
-        edges.push(Edge {
-            label: call.label.clone(),
-            child,
-            card: None,
-        });
-        actions.push(call);
-
+        planned.push(describe(ActionKind::Fold, 0.0, 0.0));
+        planned.push(describe(ActionKind::Call, to_call.min(behind_me), 0.0));
         if raises < rules.raise_cap && behind_op > EPS && behind_me > to_call + EPS {
             let pot_after_call = pot_now + to_call;
             let floor = to_call + last_increment.max(rules.min_bet);
@@ -283,56 +269,11 @@ fn street_node<S: AsMut<Build>>(
                 } else {
                     ActionKind::Raise
                 };
-                let info = describe(kind, amount, (amount - to_call) / pot_after_call);
-                let mut next = street;
-                next[me] += amount;
-                let increment = next[me] - street[op];
-                let child_path = join(at, &info.label);
-                let child = street_node(
-                    state,
-                    params,
-                    base,
-                    close,
-                    next,
-                    op as u8,
-                    raises + 1,
-                    increment,
-                    checked,
-                    &child_path,
-                );
-                edges.push(Edge {
-                    label: info.label.clone(),
-                    child,
-                    card: None,
-                });
-                actions.push(info);
+                planned.push(describe(kind, amount, (amount - to_call) / pot_after_call));
             }
         }
     } else {
-        let check = describe(ActionKind::Check, 0.0, 0.0);
-        let check_path = join(at, &check.label);
-        let child = if checked {
-            close(state, total0, total1, false, &check_path)
-        } else {
-            street_node(
-                state,
-                params,
-                base,
-                close,
-                street,
-                op as u8,
-                raises,
-                last_increment,
-                true,
-                &check_path,
-            )
-        };
-        edges.push(Edge {
-            label: check.label.clone(),
-            child,
-            card: None,
-        });
-        actions.push(check);
+        planned.push(describe(ActionKind::Check, 0.0, 0.0));
         if behind_me > EPS {
             let amounts = sized(&menu.bet, &|x| x * pot_now, rules.min_bet, &|amount| {
                 amount / pot_now
@@ -343,30 +284,87 @@ fn street_node<S: AsMut<Build>>(
                 } else {
                     ActionKind::Bet
                 };
-                let info = describe(kind, amount, amount / pot_now);
+                planned.push(describe(kind, amount, amount / pot_now));
+            }
+        }
+    }
+    if let Some(own) = rules.node_actions.as_ref().and_then(|m| m.get(at)) {
+        let stand = NodeStand {
+            street: street[me],
+            to_call,
+            behind: behind_me,
+            pot: pot_now,
+        };
+        match node_actions_of(at, own, &planned, &stand) {
+            Ok(list) => planned = list,
+            Err(e) => {
+                let build = state.as_mut();
+                if build.error.is_none() {
+                    build.error = Some(e);
+                }
+            }
+        }
+    }
+
+    for info in planned {
+        let child_path = join(at, &info.label);
+        let child = match info.kind {
+            ActionKind::Fold => state
+                .as_mut()
+                .builder
+                .fold(to_act, pot, total0, total1, rake),
+            ActionKind::Call => {
+                let mut c = [total0, total1];
+                c[me] += info.amount;
+                let all_in = stack - c[me] <= EPS || behind_op <= EPS;
+                close(state, c[0], c[1], all_in, &child_path)
+            }
+            ActionKind::Check => {
+                if checked {
+                    close(state, total0, total1, false, &child_path)
+                } else {
+                    street_node(
+                        state,
+                        params,
+                        base,
+                        close,
+                        street,
+                        op as u8,
+                        raises,
+                        last_increment,
+                        true,
+                        &child_path,
+                    )
+                }
+            }
+            ActionKind::Bet | ActionKind::Raise | ActionKind::AllIn => {
                 let mut next = street;
-                next[me] += amount;
-                let child_path = join(at, &info.label);
-                let child = street_node(
+                next[me] += info.amount;
+                let (raises_next, increment) = if to_call > EPS {
+                    (raises + 1, next[me] - street[op])
+                } else {
+                    (raises, info.amount)
+                };
+                street_node(
                     state,
                     params,
                     base,
                     close,
                     next,
                     op as u8,
-                    raises,
-                    amount,
+                    raises_next,
+                    increment,
                     checked,
                     &child_path,
-                );
-                edges.push(Edge {
-                    label: info.label.clone(),
-                    child,
-                    card: None,
-                });
-                actions.push(info);
+                )
             }
-        }
+        };
+        edges.push(Edge {
+            label: info.label.clone(),
+            child,
+            card: None,
+        });
+        actions.push(info);
     }
 
     let build = state.as_mut();
@@ -385,6 +383,124 @@ fn street_node<S: AsMut<Build>>(
         );
     }
     id
+}
+
+/// Where a node stands, for its own actions (`NodeStand`).
+#[derive(Debug, Clone, Copy)]
+pub struct NodeStand {
+    pub street: f64,
+    pub to_call: f64,
+    pub behind: f64,
+    pub pot: f64,
+}
+
+/// A node's own actions from their labels (`nodeActionsOf`): a label among
+/// the menu's keeps the menu's action, exact amount included; another is
+/// read off the label (`B8.25` bets to 8.25, `A100` is all-in).
+///
+/// # Errors
+/// A label that is not legal at the node, as the TypeScript words it.
+pub fn node_actions_of(
+    path: &str,
+    labels: &[String],
+    menu: &[ActionInfo],
+    at: &NodeStand,
+) -> Result<Vec<ActionInfo>, SolverInputError> {
+    let where_ = if path.is_empty() { "the root" } else { path };
+    let fail = |label: &str, why: &str| -> SolverInputError {
+        SolverInputError(format!("{where_}: {label} {why}"))
+    };
+    if labels.is_empty() {
+        return Err(fail("(none)", "leaves the node without an action"));
+    }
+    let facing = at.to_call > EPS;
+    let mut out: Vec<ActionInfo> = Vec::with_capacity(labels.len());
+    for label in labels {
+        if out.iter().any(|a| &a.label == label) {
+            return Err(fail(label, "is there twice"));
+        }
+        if let Some(known) = menu.iter().find(|a| &a.label == label) {
+            out.push(known.clone());
+            continue;
+        }
+        let letter = label.chars().next().unwrap_or(' ');
+        let info = |kind: ActionKind, amount: f64, size_pot: f64| ActionInfo {
+            label: label.clone(),
+            kind,
+            amount,
+            to: at.street + amount,
+            size_pot,
+        };
+        if matches!(letter, 'X' | 'F' | 'C') {
+            if label.len() > 1 {
+                return Err(fail(label, "is not an action"));
+            }
+            if (letter == 'X') == facing {
+                return Err(fail(
+                    label,
+                    if facing {
+                        "faces a bet"
+                    } else {
+                        "has no bet to answer"
+                    },
+                ));
+            }
+            out.push(match letter {
+                'X' => info(ActionKind::Check, 0.0, 0.0),
+                'F' => info(ActionKind::Fold, 0.0, 0.0),
+                _ => info(ActionKind::Call, at.to_call.min(at.behind), 0.0),
+            });
+            continue;
+        }
+        let to: f64 = label[1..].parse().unwrap_or(f64::NAN);
+        if !matches!(letter, 'B' | 'R' | 'A') || !to.is_finite() {
+            return Err(fail(label, "is not an action"));
+        }
+        let amount = to - at.street;
+        let size_pot = |a: f64| {
+            if facing {
+                (a - at.to_call) / (at.pot + at.to_call)
+            } else {
+                a / at.pot
+            }
+        };
+        if letter == 'A' {
+            if (amount - at.behind).abs() > 0.006 {
+                return Err(fail(
+                    label,
+                    &format!("is not all-in ({})", format_amount(at.street + at.behind)),
+                ));
+            }
+            out.push(info(ActionKind::AllIn, at.behind, size_pot(at.behind)));
+            continue;
+        }
+        if (letter == 'R') != facing {
+            return Err(fail(
+                label,
+                if facing {
+                    "is a bet facing a bet"
+                } else {
+                    "raises no bet"
+                },
+            ));
+        }
+        if !(amount > (if facing { at.to_call } else { 0.0 }) + EPS) {
+            return Err(fail(label, "is too small"));
+        }
+        if facing && amount - at.to_call < at.to_call - 0.006 {
+            return Err(fail(label, "raises less than the minimum"));
+        }
+        if !(amount < at.behind - EPS) {
+            return Err(fail(label, "is the stack or more: that is all-in"));
+        }
+        let kind = if facing {
+            ActionKind::Raise
+        } else {
+            ActionKind::Bet
+        };
+        out.push(info(kind, amount, size_pot(amount)));
+    }
+    Ok(out)
 }
 
 #[cfg(test)]

@@ -42,6 +42,13 @@ export interface NodeLockSpec {
   player: 0 | 1;
   /** The node's action labels, so a tree mismatch is caught. */
   actions: string[];
+  /**
+   * The node offers `actions` in place of the tree's own: sizes added or
+   * taken away (`BettingRules.nodeActions`). The game is built with them, so
+   * a lock with its own sizes solves its own tree. Absent on every lock that
+   * keeps the tree's actions, whose hash is unchanged.
+   */
+  custom?: true;
   /** [action][combo] over the 1,326 canonical combos (`combos.ts` order); rows sum to 1 where locked. */
   strategy: number[][];
   /** 1,326 flags: 1 = this combo's strategy is fixed; 0 = it adapts in the solve (GTOW: "unlocked hands adapt"). */
@@ -74,6 +81,17 @@ export interface LockSet {
    * library chunk (every v1 lock), and the hash is exactly v1's.
    */
   base?: LockBase;
+}
+
+/**
+ * The nodes of a set that offer their own actions (`NodeLockSpec.custom`),
+ * by their path in the game being built (`pathOf`): the spot's
+ * `nodeActions`. Undefined when every node keeps the tree's actions.
+ */
+export function lockNodeActions(set: LockSet, pathOf: (spec: NodeLockSpec) => string = (spec) => spec.path): Record<string, string[]> | undefined {
+  const own = set.nodes.filter((n) => n.custom);
+  if (!own.length) return undefined;
+  return Object.fromEntries(own.map((n) => [pathOf(n), n.actions.slice()]));
 }
 
 /** A lock that does not fit the game it is applied to (another tree, a node that is not there). */

@@ -68,6 +68,7 @@ fn uniform_lock(path: &str, player: u8, actions: &[&str], action: usize) -> Node
         actions: actions.iter().map(|s| (*s).to_owned()).collect(),
         strategy,
         locked: vec![1; NUM_COMBOS],
+        custom: None,
     }
 }
 
