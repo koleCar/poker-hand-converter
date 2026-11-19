@@ -75,6 +75,9 @@ describe("dictionaries", () => {
       "FCB", "RCB", "Donk", "AFq",
       // The Solver's nodelock (docs/NODELOCK.md §5): poker software's words, said in English in Croatian too.
       "Nodelock", "Range", "GTO", "Spot",
+      // The exact hand search's legend (2026-11-19): hand notation, the same in every language.
+      "AA, AKs, AdAs, Ad, TT+ …", "AKs · AKss", "AKo · AKoo", "ATs+", "ATs, AJs, AQs, AKs", "Axs · Axo", "AdAs",
+      "AdKx", "AA, KK, AKs",
     ]);
     const english = new Map(leaves(en as unknown as Node));
     const untranslated = leaves(hr as unknown as Node).filter(([path, text]) => {

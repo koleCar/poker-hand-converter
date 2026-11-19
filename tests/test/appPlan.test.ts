@@ -321,6 +321,7 @@ describe("the HUD, the analysis and sync, held by the plan", () => {
       cap: null,
       capNow: null,
       tablesOpen: false,
+      deleting: null,
     };
     const row = (sync: SyncStatus) =>
       render("en", createElement(SyncRowView, { sync, error: null, busy: false, run: async () => undefined }));
