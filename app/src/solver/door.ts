@@ -21,6 +21,8 @@ export { solverLinkOf } from "@rail/web-lib/analysis/solverWalk";
 // The desktop app's nodelock (`docs/NODELOCK.md` §5, `./nodelock/`): the
 // library's slot, the decision's data the editor reads, and the suggestions.
 export type { NodelockAt, NodelockMark, NodelockNode, NodelockOverride, SolverNodelock } from "@rail/web-solver/host";
+// Flops a day (the free tier): the library's gate slot, filled by `./gate.tsx`.
+export type { FlopGateAnswer, SolverFlopGate } from "@rail/web-solver/host";
 export { actionColours, ComboText } from "@rail/web-solver/StrategyView";
 // The library's own controls and stylesheet ("Studio"), so the slot's tools read as part of the screen.
 export { ChevronDown, Chip, IconButton, LockGlyph, MixBar, Popover, Segmented, SignedBb, Switch, ToolButton } from "@rail/web-solver/ui";

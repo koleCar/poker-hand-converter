@@ -12,27 +12,16 @@
  * new one. Preflop is never asked about.
  */
 import { CardRow } from "@rail/ui/cards/PlayingCard";
-import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import { SeeProButton } from "../components/ProLock";
 import { useT } from "../i18n";
 import { liveDateFormat } from "../i18n/format";
 import { inApp, ipc, type EntitlementsStatus } from "../lib/ipc";
 import { flopsCounted, useEntitlements } from "../lib/useEntitlements";
+import type { SolverFlopGate } from "./door";
 import styles from "./gate.module.css";
 
-/**
- * The library's flops slot (`SolverHost.flops` in the web's
- * `components/solver/host.tsx`), restated here so the app builds with a
- * library that has none yet: the host passes it through unchanged.
- */
-export type FlopGateAnswer = "open" | "refused" | "sign-in";
-export interface SolverFlopGate {
-  ready: boolean;
-  open: (flop: string) => Promise<FlopGateAnswer>;
-  today?: (reopen: (flop: string) => (() => void) | null) => ReactNode;
-  closed: (answer: Exclude<FlopGateAnswer, "open">, flop: string) => ReactNode;
-}
 
 const CLOCK = liveDateFormat({ hour: "2-digit", minute: "2-digit" });
 /** Free's flops a day when the app has not been told (the owner's, 2026-11-19). */
