@@ -48,12 +48,14 @@ import { replayerEn } from "./ns/replayer.en";
 import { statsEn } from "./ns/stats.en";
 import { solverEn } from "./ns/solver.en";
 import { trainerEn } from "./ns/trainer.en";
+import { adminEn } from "./ns/admin.en";
 
 export const en = {
   // The component namespaces, one file each (`ns/`).
   stats: statsEn,
   solver: solverEn,
   trainer: trainerEn,
+  admin: adminEn,
   analysis: analysisEn,
   learn: learnEn,
   legal: legalEn,

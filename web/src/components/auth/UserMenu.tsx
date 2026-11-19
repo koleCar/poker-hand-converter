@@ -132,6 +132,11 @@ export function UserMenu() {
               <PendingLabel busyLabel={en.account.opening}>{en.moderation.menuMod}</PendingLabel>
             </Link>
           ) : null}
+          {profile?.role === "admin" ? (
+            <Link href={paths.admin()} className="usermenu__item" role="menuitem" onClick={() => closeIfHere(paths.admin())}>
+              <PendingLabel busyLabel={en.account.opening}>{en.admin.menu}</PendingLabel>
+            </Link>
+          ) : null}
           <button
             type="button"
             className="usermenu__item"

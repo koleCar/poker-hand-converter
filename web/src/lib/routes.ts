@@ -173,6 +173,11 @@ export const paths = {
   notifications: () => "/notifications",
   saved: () => "/saved",
   mod: () => "/mod",
+  /** Admins only (`20271119100000_admin.sql`): every account. `admin` is a reserved (staff) username. */
+  admin: () => "/admin",
+  adminUser: (id: string) => `/admin/users/${encodeURIComponent(id)}`,
+  /** The feedback reports, optionally one account's. */
+  adminReports: (user?: string) => (user ? `/admin/reports?user=${encodeURIComponent(user)}` : "/admin/reports"),
   takedown: () => "/takedown",
   /** The desktop app for macOS and Windows: what it does, and the two installers. Public; a reserved username (`20271103100000_download_route.sql`). */
   download: () => "/download",

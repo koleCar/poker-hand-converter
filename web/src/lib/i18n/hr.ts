@@ -26,6 +26,7 @@ import { replayerHr } from "./ns/replayer.hr";
 import { statsHr } from "./ns/stats.hr";
 import { solverHr } from "./ns/solver.hr";
 import { trainerHr } from "./ns/trainer.hr";
+import { adminHr } from "./ns/admin.hr";
 import type { Dict } from "./types";
 
 import { plural } from "./plural";
@@ -38,6 +39,7 @@ export const hr: Dict = {
   stats: statsHr,
   solver: solverHr,
   trainer: trainerHr,
+  admin: adminHr,
   analysis: analysisHr,
   learn: learnHr,
   legal: legalHr,

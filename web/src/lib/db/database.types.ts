@@ -4587,6 +4587,38 @@ export type Database = {
         Args: { p_description?: string; p_name: string; p_slug: string }
         Returns: string
       }
+      admin_feedback: {
+        Args: {
+          p_kind?: string
+          p_limit?: number
+          p_offset?: number
+          p_status?: string
+          p_user?: string
+        }
+        Returns: {
+          app_version: string
+          created_at: string
+          email: string
+          id: string
+          images: string[]
+          kind: string
+          locale: string
+          message: string
+          page: string
+          platform: string
+          source: string
+          status: string
+          total: number
+          user_email: string
+          user_id: string
+          username: string
+        }[]
+      }
+      admin_feedback_counts: { Args: never; Returns: Json }
+      admin_feedback_set_status: {
+        Args: { p_id: string; p_status: string }
+        Returns: undefined
+      }
       admin_purge: {
         Args: {
           p_public_id: string
@@ -4607,6 +4639,33 @@ export type Database = {
           p_username: string
         }
         Returns: string
+      }
+      admin_user: { Args: { p_id: string }; Returns: Json }
+      admin_users: {
+        Args: {
+          p_desc?: boolean
+          p_limit?: number
+          p_offset?: number
+          p_search?: string
+          p_sort?: string
+        }
+        Returns: {
+          banned: boolean
+          created_at: string
+          email: string
+          email_confirmed: boolean
+          feedback: number
+          hands: number
+          id: string
+          last_hand_at: string
+          last_sign_in_at: string
+          plan: string
+          plan_status: string
+          posts: number
+          role: string
+          total: number
+          username: string
+        }[]
       }
       analysis_best_action: { Args: { p_options: Json }; Returns: string }
       analysis_breakdown: {
