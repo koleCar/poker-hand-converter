@@ -80,12 +80,14 @@ describe("dictionaries", () => {
       // The exact hand search's legend (2026-11-19): hand notation, the same in every language.
       "AA, AKs, AdAs, Ad, TT+ …", "AKs · AKss", "AKo · AKoo", "ATs+", "ATs, AJs, AQs, AKs", "Axs · Axo", "AdAs",
       "AdKx", "AA, KK, AKs",
+      // Nodelock's Ranges step (2026-11-19): hand classes and range syntax, said in English in Croatian too.
+      "Offsuit", "Ax suited", "AA,KK,AKs,AQo:0.5,…",
     ]);
     const english = new Map(leaves(en as unknown as Node));
     const untranslated = leaves(hr as unknown as Node).filter(([path, text]) => {
       if (english.get(path) !== text || same.has(text)) return false;
       // A function whose output is only its arguments and signs ("#3", "3 – x", "3 bb").
-      return /\p{L}{3}/u.test(text.replace(/\bx\b|\bbb\b|\bEV\b|\bmin\b|\bms\b|\bKB\b|\bNaN\b/g, ""));
+      return /\p{L}{3}/u.test(text.replace(/\bx\b|\bbb\b|\bEV\b|\bGTO\b|\bmin\b|\bms\b|\bKB\b|\bNaN\b/g, ""));
     });
     expect(untranslated).toEqual([]);
   });
