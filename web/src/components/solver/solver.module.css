@@ -1304,8 +1304,7 @@ button.pcardHead:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 
-.youTag,
-.tileYou {
+.youTag {
   padding: 1px var(--space-2);
   border-radius: var(--radius-pill);
   background: var(--text-primary);
@@ -1323,103 +1322,6 @@ button.pcardHead:focus-visible {
   font-weight: var(--font-weight-semibold);
 }
 
-/* One tile per combo, three across: its mix and every action's frequency and EV. */
-.tiles {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-@container (max-width: 340px) {
-  .tiles {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-.tile {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-inline-size: 0;
-  padding: 6px 7px;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-2);
-  background: var(--surface-inset);
-  animation: strategy-pop 0.25s ease both;
-}
-
-@keyframes strategy-pop {
-  from {
-    opacity: 0;
-    transform: scale(0.97);
-  }
-}
-
-.tileHero {
-  border-color: var(--text-primary);
-}
-
-.tileFaint {
-  opacity: 0.45;
-}
-
-.tileHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-1);
-}
-
-.tileCards {
-  font-size: 13px;
-}
-
-.tileYou {
-  font-size: var(--font-size-2xs);
-}
-
-.tileLines {
-  display: grid;
-  gap: 1px;
-}
-
-.tileLine {
-  display: flex;
-  justify-content: space-between;
-  gap: 4px;
-  color: var(--text-secondary);
-  font-size: 10.5px;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.tileLineTop {
-  color: var(--text-primary);
-  font-weight: var(--font-weight-semibold);
-}
-
-.tileLineNone {
-  opacity: 0.4;
-}
-
-/* A combo the board (or a filter) takes out: hatched, so the blockers show. */
-.tileOff {
-  background: repeating-linear-gradient(45deg, var(--surface-inset) 0 5px, var(--surface-raised) 5px 10px);
-  opacity: 0.7;
-}
-
-.tileOff .tileCards {
-  opacity: 0.6;
-}
-
-.tileOffText {
-  color: var(--text-tertiary);
-  font-size: 10.5px;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .cellFill > span,
   .mixBarFill > span,
@@ -1428,7 +1330,6 @@ button.pcardHead:focus-visible {
     transition: none;
   }
 
-  .tile,
   .spinner {
     animation: none;
   }
@@ -2269,30 +2170,6 @@ button.pcardHead:focus-visible {
     font-size: var(--font-size-sm);
   }
 
-  /* Two tiles across, their numbers at a readable size. */
-  .tiles {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-2);
-  }
-
-  .tile {
-    gap: 6px;
-    padding: var(--space-2) 10px;
-  }
-
-  .tileCards {
-    font-size: var(--font-size-lg);
-  }
-
-  .tileYou {
-    font-size: var(--font-size-sm);
-  }
-
-  .tileLine,
-  .tileOffText {
-    font-size: var(--font-size-sm);
-  }
-
   /* The Ranges tab: the grids one under the other, at the screen's width. */
   .ranges {
     gap: var(--space-4);
@@ -2395,4 +2272,9 @@ button.pcardHead:focus-visible {
   .popover {
     animation: none;
   }
+}
+
+/* The grid's hover (`@rail/ui` ComboZoom) is placed against this. */
+.gridZoomWrap {
+  position: relative;
 }

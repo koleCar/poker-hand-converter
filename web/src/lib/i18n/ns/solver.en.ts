@@ -146,6 +146,11 @@ export const solverEn = {
         ? `R${size(amount)}`
         : (({ fold: "F", check: "X", call: "C", allin: "AI" }) as Record<string, string>)[kind] ?? kind,
   count: (combos: number) => num(Math.round(combos)),
+  /** The hover's class box and combo cards (`@rail/ui` ComboZoom): a bet's size in bb after its label, the class's combos. */
+  zoom: {
+    size: (amount: number) => `(${size(amount)})`,
+    combos: (n: number) => `${num(n, n % 1 === 0 ? 0 : 1)} ${n === 1 ? "combo" : "combos"}`,
+  },
   blocked: "Blocked by the board",
   vsBase: (delta: string, label: string) => `${delta} vs ${label}`,
   share: (share: number, combos: number) => `${pct1(share)} · ${num(Math.round(combos))} combos`,

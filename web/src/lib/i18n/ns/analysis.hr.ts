@@ -1292,6 +1292,12 @@ export const analysisHr: Dict["analysis"] = {
       "Ova ruka još nije analizirana u trenutnoj verziji, pa je ovo svježa analiza izračunata u tvojem pregledniku. Pokreni analizu da je spremiš.",
   },
 
+  /** Hover mreže (`@rail/ui` ComboZoom): kombinacije klase, oznaka heroja, svaka akcija jednom riječju (veličina slijedi). */
+  zoom: {
+    combos: (n: number) => `kombinacija: ${num(n, n % 1 === 0 ? 0 : 1)}`,
+    you: "ti",
+    actions: { bet: "Bet", raise: "Raise", allin: "All-in", check: "Check", call: "Call", fold: "Fold" } as Record<string, string>,
+  },
   river: {
     study: "Prouči river",
     hideStudy: "Sakrij proučavanje",

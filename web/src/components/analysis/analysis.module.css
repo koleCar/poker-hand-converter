@@ -1123,3 +1123,9 @@
     font-size: var(--font-size-md);
   }
 }
+
+/* A grid's hover (`@rail/ui` ComboZoom) is placed against this: ChartGrid, RiverStudy. */
+.gridZoomWrap {
+  position: relative;
+  min-inline-size: 0;
+}

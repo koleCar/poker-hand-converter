@@ -14,6 +14,7 @@
 "use client";
 
 import { useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { GridZoom, zoomAnchor, type ZoomAction, type ZoomAnchor } from "@rail/ui/charts/ComboZoom";
 import type { RangeCombo, RangeView } from "../../lib/training/rangeView";
 import { useTrainerHost } from "./host";
 import styles from "./trainer.module.css";
@@ -67,11 +68,6 @@ export function bands(freq: readonly number[], order: readonly number[], colours
   return `linear-gradient(to right, ${stops.join(", ")})`;
 }
 
-function freqText(value: number, locale: string): string {
-  const x = Math.round(value * 1000) / 10;
-  return x.toLocaleString(locale, { maximumFractionDigits: x % 1 === 0 ? 0 : 1 });
-}
-
 /** `AhKd` with suit symbols, each suit coloured. */
 export function CardsText({ cards }: { cards: string }) {
   if (cards.length !== 4 || !SUITS[cards[1]] || !SUITS[cards[3]]) return <>{cards}</>;
@@ -89,16 +85,6 @@ export function CardsText({ cards }: { cards: string }) {
   );
 }
 
-interface Hover {
-  cell: number;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  gw: number;
-  gh: number;
-}
-
 export function RangeGrid({
   view,
   strategy,
@@ -111,8 +97,8 @@ export function RangeGrid({
 }) {
   const { t, locale } = useTrainerHost();
   const [only, setOnly] = useState<number | null>(null);
-  const [hover, setHover] = useState<Hover | null>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
+  const [hover, setHover] = useState<ZoomAnchor | null>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const most = Math.max(1e-9, ...view.cells.map((cell) => cell.combos));
   const tones = view.options.map(toneOf);
   const order = displayOrder(view.options);
@@ -124,11 +110,11 @@ export function RangeGrid({
 
   const onOver = (event: MouseEvent<HTMLDivElement>) => {
     const el = (event.target as HTMLElement).closest<HTMLElement>("[data-cell]");
-    const grid = gridRef.current;
-    if (!el || !grid) return;
+    const wrap = wrapRef.current;
+    if (!el || !wrap) return;
     const cell = Number(el.dataset.cell);
     if (hover?.cell === cell) return;
-    setHover({ cell, x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight, gw: grid.clientWidth, gh: grid.clientHeight });
+    setHover(zoomAnchor(cell, el, wrap));
   };
 
   return (
@@ -142,8 +128,8 @@ export function RangeGrid({
           </span>
         ) : null}
       </p>
-      <div className={styles.rangeGridWrap}>
-        <div ref={gridRef} className={styles.rangeGrid} role="img" aria-label={t.rangeHeading} onMouseOver={onOver} onMouseLeave={() => setHover(null)}>
+      <div ref={wrapRef} className={styles.rangeGridWrap}>
+        <div className={styles.rangeGrid} role="img" aria-label={t.rangeHeading} onMouseOver={onOver} onMouseLeave={() => setHover(null)}>
           {view.cells.map((cell, k) => {
             const weight = cell.combos / most;
             let background = "var(--surface-inset)";
@@ -203,7 +189,7 @@ function comboOrder(a: RangeCombo, b: RangeCombo): number {
   return SUIT_ORDER.indexOf(a.cards[1]) - SUIT_ORDER.indexOf(b.cards[1]) || SUIT_ORDER.indexOf(a.cards[3]) - SUIT_ORDER.indexOf(b.cards[3]);
 }
 
-/** The hovered class, zoomed, and its combos under it (GTO Wizard's hover). */
+/** The hovered class, zoomed, and its combos under it (GTO Wizard's hover, `@rail/ui` ComboZoom). */
 function Zoom({
   view,
   hover,
@@ -212,7 +198,7 @@ function Zoom({
   colours,
 }: {
   view: RangeView;
-  hover: Hover;
+  hover: ZoomAnchor;
   strategy: boolean;
   order: number[];
   colours: string[];
@@ -222,82 +208,26 @@ function Zoom({
   // A class the range never reaches has nothing to zoom.
   if (!cell || !(cell.combos > 0)) return null;
   const showMix = strategy && cell.freq.length === view.options.length;
-  const rows = showMix ? order.filter((a) => view.options[a]) : [];
-  const pitch = hover.w + 2;
-  const lineH = 15;
-
-  // The class box: four cells wide, three tall, inside the grid.
-  const W = Math.max(4 * pitch - 2, 140);
-  const H = Math.max(3 * pitch - 2, 30 + rows.length * lineH + 8);
-  const x = Math.max(0, Math.min(hover.x, hover.gw - W));
-  const y = hover.y + H > hover.gh ? Math.max(0, hover.y + hover.h - H) : hover.y;
-
-  // The combos, under the class (above it when there is no room).
+  const actions: ZoomAction[] = view.options.map((o, a) => ({
+    label: t.zoom.actions[o.allIn ? "allin" : o.action] ?? o.action,
+    size:
+      o.sizeBb !== null && o.sizeBb !== undefined
+        ? `${o.sizePot ? `${Math.round(o.sizePot * 100)}% ` : ""}(${o.sizeBb.toLocaleString(locale, { maximumFractionDigits: 1 })})`
+        : null,
+    colour: colours[a],
+  }));
   const combos = showMix && view.combos ? view.combos.filter((c) => c.cell === hover.cell && c.weight > 0).sort(comboOrder) : [];
-  const cols = combos.length > 4 ? 3 : Math.max(1, Math.min(2, combos.length));
-  const cw = cols === 3 ? (hover.gw - 8) / 3 : Math.min(172, (hover.gw - 6) / 2);
-  const ch = 26 + rows.length * (lineH - 1) + 6;
-  const lines = Math.ceil(combos.length / cols);
-  const W2 = cols * cw + (cols - 1) * 2 + 4;
-  const H2 = lines * ch + (lines - 1) * 2 + 4;
-  const x2 = Math.max(0, Math.min(x, hover.gw - W2));
-  let y2 = y + H + 4;
-  if (y2 + H2 > hover.gh + 60 && y - 4 - H2 >= -60) y2 = y - 4 - H2;
-
-  const mixRows = (freq: readonly number[]) =>
-    rows.map((a) => {
-      const o = view.options[a];
-      const size =
-        o.sizeBb !== null && o.sizeBb !== undefined
-          ? `${o.sizePot ? `${Math.round(o.sizePot * 100)}% ` : ""}(${o.sizeBb.toLocaleString(locale, { maximumFractionDigits: 1 })})`
-          : "";
-      return (
-        <span key={a} className={styles.zoomRow}>
-          <span>{t.zoom.actions[o.allIn ? "allin" : o.action] ?? o.action}</span>
-          {size ? <small>{size}</small> : null}
-          <span className={styles.zoomValue}>{freqText(freq[a] ?? 0, locale)}</span>
-        </span>
-      );
-    });
-
   return (
-    <>
-      <div
-        className={`${styles.zoomBox} ${styles.zoomClass}`}
-        style={{ left: x, top: y, inlineSize: W, blockSize: H, background: showMix ? bands(cell.freq, order, colours) : "var(--surface-raised)" }}
-        aria-hidden="true"
-      >
-        <span className={styles.zoomName}>
-          {cell.name}
-          <small>{t.zoom.combos(combos.length > 0 ? combos.length : Math.round(cell.combos * 10) / 10)}</small>
-        </span>
-        {rows.length > 0 ? <span className={styles.zoomRows}>{mixRows(cell.freq)}</span> : null}
-      </div>
-      {combos.length > 0 ? (
-        <div
-          className={`${styles.zoomBox} ${styles.zoomCombos}`}
-          style={{ left: x2, top: y2, inlineSize: W2, gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-          aria-hidden="true"
-        >
-          {combos.map((combo) => (
-            <span
-              key={combo.cards}
-              className={styles.zoomCombo}
-              style={{ blockSize: ch, background: bands(combo.freq, order, colours) }}
-              data-me={combo.cards === view.heroCombo || undefined}
-            >
-              <span className={styles.zoomComboHead}>
-                <span className={styles.zoomCards}>
-                  <CardsText cards={combo.cards} />
-                </span>
-                {combo.cards === view.heroCombo ? <span className={styles.zoomYou}>{t.zoom.you}</span> : null}
-                <span className={styles.zoomPct}>%</span>
-              </span>
-              <span className={styles.zoomRows}>{mixRows(combo.freq)}</span>
-            </span>
-          ))}
-        </div>
-      ) : null}
-    </>
+    <GridZoom
+      anchor={hover}
+      name={cell.name}
+      count={combos.length > 0 ? combos.length : Math.round(cell.combos * 10) / 10}
+      freq={showMix ? cell.freq : null}
+      combos={combos.map((c) => ({ cards: c.cards, freq: c.freq, you: c.cards === view.heroCombo }))}
+      actions={actions}
+      order={order}
+      words={{ combos: t.zoom.combos, you: t.zoom.you }}
+      locale={locale}
+    />
   );
 }

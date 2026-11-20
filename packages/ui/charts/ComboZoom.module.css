@@ -1,0 +1,249 @@
+/* What a hand does, combo by combo (ComboZoom.tsx): GTO Wizard's hover. */
+
+.box {
+  position: absolute;
+  z-index: 20;
+  overflow: hidden;
+  border: 2px solid color-mix(in srgb, var(--chart-call) 40%, var(--pcard-face));
+  border-radius: var(--radius-2);
+  box-shadow: var(--shadow-2);
+  pointer-events: none;
+}
+
+.classBox {
+  display: flex;
+  flex-direction: column;
+  padding: 0.35rem 0.5rem;
+  background: var(--surface-inset);
+}
+
+.combosBox {
+  display: grid;
+  gap: 2px;
+  padding: 2px;
+  background: var(--surface-base);
+}
+
+/* The mix: bands left to right, as tall as the reach, from the bottom. */
+.bands {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  display: flex;
+  pointer-events: none;
+}
+
+.bands > span {
+  block-size: 100%;
+}
+
+.name,
+.rows,
+.head,
+.offText {
+  position: relative;
+}
+
+.name {
+  color: var(--text-on-selected);
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.15;
+  text-shadow: 0 1px 2px color-mix(in srgb, var(--pcard-ink-s) 70%, transparent);
+}
+
+.name small {
+  margin-inline-start: 0.35rem;
+  font-size: 0.65rem;
+  font-weight: var(--font-weight-medium);
+  opacity: 0.85;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  margin-block-start: auto;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  color: var(--text-on-selected);
+  font-size: 0.72rem;
+  line-height: 1.25;
+  text-shadow: 0 1px 2px color-mix(in srgb, var(--pcard-ink-s) 70%, transparent);
+  white-space: nowrap;
+}
+
+.row small {
+  overflow: hidden;
+  font-size: 0.6rem;
+  opacity: 0.9;
+  text-overflow: ellipsis;
+}
+
+.rowNone {
+  opacity: 0.6;
+}
+
+.rowLabel {
+  flex: none;
+}
+
+.value {
+  margin-inline-start: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The panel's EV column: a dark pill, so green and red read on any band. */
+.ev {
+  flex: none;
+  min-inline-size: 2.7rem;
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.row .ev {
+  padding: 0 0.2rem;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--pcard-ink-s) 72%, transparent);
+  text-shadow: none;
+}
+
+.row .ev:empty {
+  background: none;
+}
+
+.evPos {
+  color: color-mix(in srgb, var(--profit-fg) 45%, var(--pcard-face));
+}
+
+.evNeg {
+  color: color-mix(in srgb, var(--loss-fg) 45%, var(--pcard-face));
+}
+
+/* One combo. */
+.card {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-block-size: 100%;
+  padding: 0.3rem 0.45rem;
+  border-radius: 3px;
+  background: var(--surface-inset);
+  color: inherit;
+  font: inherit;
+  text-align: start;
+}
+
+.combosBox .card {
+  border-radius: 0;
+}
+
+.cardButton {
+  border: 0;
+  cursor: pointer;
+}
+
+.cardButton:hover {
+  box-shadow: inset 0 0 0 1px var(--text-on-selected);
+}
+
+.cardButton:focus-visible {
+  outline: 2px solid var(--focus-ring, var(--text-on-selected));
+  outline-offset: 1px;
+}
+
+.cardYou,
+.cardPicked {
+  box-shadow: inset 0 0 0 2px var(--text-on-selected);
+}
+
+/* A combo the board takes out (or the filter): hatched, its reason. */
+.cardOff {
+  background: repeating-linear-gradient(135deg, var(--surface-inset) 0 6px, color-mix(in srgb, var(--surface-inset) 70%, var(--text-tertiary)) 6px 7px);
+}
+
+.cardOff .chip {
+  opacity: 0.55;
+}
+
+.offText {
+  margin-block-start: auto;
+  color: var(--text-tertiary);
+  font-size: 0.68rem;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--text-on-selected);
+  font-size: 0.62rem;
+  text-shadow: 0 1px 2px color-mix(in srgb, var(--pcard-ink-s) 70%, transparent);
+}
+
+.headUnits {
+  display: flex;
+  gap: 0.25rem;
+  margin-inline-start: auto;
+  opacity: 0.85;
+}
+
+.headUnits .ev {
+  padding-inline-end: 0.2rem;
+}
+
+.chip {
+  padding: 0 0.25rem;
+  border-radius: 3px;
+  background: var(--pcard-face);
+  color: var(--pcard-ink-s);
+  font-size: 0.7rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.1rem;
+  text-shadow: none;
+  white-space: nowrap;
+}
+
+.chip [data-suit="h"] {
+  color: var(--pcard-ink-h);
+}
+
+.chip [data-suit="d"] {
+  color: var(--pcard-ink-d);
+}
+
+.chip [data-suit="c"] {
+  color: var(--pcard-ink-c);
+}
+
+.you {
+  font-size: 0.58rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* The panel's cards: as many across as fit. */
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list > li {
+  display: flex;
+  min-inline-size: 0;
+}
+
+.list .card {
+  flex: 1;
+  min-block-size: 4.2rem;
+}
