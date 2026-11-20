@@ -100,7 +100,9 @@ export async function capture(browser: Browser): Promise<void> {
   await page.locator('.rp').first().waitFor();
   await settle(page, 1500);
   await page.locator('.rp').first().scrollIntoViewIfNeeded();
-  await page.locator('.rp').first().getByRole('button', { name: 'Flop', exact: true }).click();
+  // Key 2 jumps to the flop (the transport has no street buttons).
+  await page.locator('.rp').first().focus();
+  await page.keyboard.press('2');
   await settle(page, 1200);
   await rec.shot(page, 'pasted', {
     replayer: page.locator('.rp').first(),
