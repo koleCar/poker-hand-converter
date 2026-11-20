@@ -229,3 +229,56 @@
 .upload__rooms {
   cursor: default;
 }
+
+/* Phones (under 640px): the box's words at a readable size, its buttons
+   finger-sized and, with a hand in it, Clear and the main action side by
+   side across the foot; the line under the box as tap targets. */
+@media (max-width: 639px) {
+  .upbox__sub {
+    font-size: 13px;
+  }
+
+  .upbox__actions .btn {
+    min-height: 44px;
+    padding-inline: 20px;
+  }
+
+  .upbox__foot {
+    padding: 10px 12px;
+  }
+
+  .upbox__detect {
+    flex: 1 1 100%;
+  }
+
+  .upbox__foot .upbox__grow {
+    display: none;
+  }
+
+  .upbox__foot .btn {
+    flex: 1 1 0;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .upbox__foot .btn--primary {
+    flex-grow: 2;
+  }
+
+  .upload__under {
+    gap: 4px 16px;
+    padding: 0;
+    font-size: 13px;
+  }
+
+  .upload__link,
+  .upload__under .conv-switch {
+    min-height: 44px;
+  }
+
+  .upload__link {
+    display: inline-flex;
+    align-items: center;
+    font-size: 14px;
+  }
+}

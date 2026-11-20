@@ -15,3 +15,27 @@
   font-size: 18px;
   font-weight: 700;
 }
+
+/* Phones: the way back is a finger-sized arrow beside the title. */
+@media (max-width: 639px) {
+  .manualHead {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .manualBack {
+    flex: none;
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .manualBackWord {
+    display: none;
+  }
+
+  .manualTitle {
+    font-size: 17px;
+  }
+}

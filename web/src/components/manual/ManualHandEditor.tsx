@@ -365,7 +365,7 @@ export function ManualHandEditor({ onSaved }: ManualHandEditorProps) {
               aria-label={t.nav.back}
               title={t.nav.back}
             >
-              ◀ {t.nav.back}
+              ◀ <span className={styles.navWord}>{t.nav.back}</span>
             </button>
             <span className={styles.navStep}>{t.nav.step(position, engine.validCount)}</span>
             <button
@@ -376,7 +376,7 @@ export function ManualHandEditor({ onSaved }: ManualHandEditorProps) {
               aria-label={t.nav.forward}
               title={t.nav.forward}
             >
-              {t.nav.forward} ▶
+              <span className={styles.navWord}>{t.nav.forward}</span> ▶
             </button>
             <button type="button" className="btn btn--sm" disabled={!viewing} onClick={() => step(null)} aria-label={t.nav.end} title={t.nav.end}>
               ⏭

@@ -342,72 +342,76 @@ export function PlayersScreen({
           aria-label={p.search}
           onChange={(event) => update({ search: event.target.value })}
         />
-        {hideTitle ? null : kinds}
-        <RoomMenu
-          sites={sites}
-          site={query.site ?? null}
-          label={p.room}
-          anyRoom={p.anyRoom}
-          onPick={(site) => update({ site })}
-        />
-        {hasColours ? (
-          <div className={styles.swatches} role="group" aria-label={p.colourFilter}>
-            {PLAYER_COLOURS.map((colour) => {
-              const on = query.colours.includes(colour);
-              return (
-                <button
-                  key={colour}
-                  type="button"
-                  className={`${styles.swatchButton}${on ? ` ${styles.swatchOn}` : ""}`}
-                  aria-pressed={on}
-                  aria-label={p.colours[colour]}
-                  title={p.colours[colour]}
-                  onClick={() =>
-                    update({
-                      colours: on ? query.colours.filter((c) => c !== colour) : [...query.colours, colour],
-                    })
-                  }
-                >
-                  <span className={styles.swatch} data-colour={colour} aria-hidden="true" />
-                </button>
-              );
-            })}
-          </div>
-        ) : null}
-        {hasLabels && labels.length > 0 ? (
-          <label className={styles.select}>
-            <span>{p.labelFilter}</span>
-            <select
-              value={query.labels[0] ?? ""}
-              aria-label={p.labelFilter}
-              onChange={(event) => update({ labels: event.target.value ? [event.target.value] : [] })}
-            >
-              <option value="">{f.clear}</option>
-              {labels.map((label) => (
-                <option key={label.value} value={label.value}>
-                  {`${label.value} (${countIn(strings.intlLocale, label.count)})`}
-                </option>
-              ))}
-            </select>
-          </label>
-        ) : null}
-        <button
-          type="button"
-          className={`chip-btn${query.noted ? " is-active" : ""}`}
-          aria-pressed={query.noted === true}
-          onClick={() => update({ noted: query.noted ? null : true })}
-        >
-          {p.noted}
-        </button>
-        {filtered ? (
+        {/* The filters after the search: part of the toolbar's row on the
+            desktop (`display: contents`), one row that scrolls on a phone. */}
+        <div className={styles.filters}>
+          {hideTitle ? null : kinds}
+          <RoomMenu
+            sites={sites}
+            site={query.site ?? null}
+            label={p.room}
+            anyRoom={p.anyRoom}
+            onPick={(site) => update({ site })}
+          />
+          {hasColours ? (
+            <div className={styles.swatches} role="group" aria-label={p.colourFilter}>
+              {PLAYER_COLOURS.map((colour) => {
+                const on = query.colours.includes(colour);
+                return (
+                  <button
+                    key={colour}
+                    type="button"
+                    className={`${styles.swatchButton}${on ? ` ${styles.swatchOn}` : ""}`}
+                    aria-pressed={on}
+                    aria-label={p.colours[colour]}
+                    title={p.colours[colour]}
+                    onClick={() =>
+                      update({
+                        colours: on ? query.colours.filter((c) => c !== colour) : [...query.colours, colour],
+                      })
+                    }
+                  >
+                    <span className={styles.swatch} data-colour={colour} aria-hidden="true" />
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+          {hasLabels && labels.length > 0 ? (
+            <label className={styles.select}>
+              <span>{p.labelFilter}</span>
+              <select
+                value={query.labels[0] ?? ""}
+                aria-label={p.labelFilter}
+                onChange={(event) => update({ labels: event.target.value ? [event.target.value] : [] })}
+              >
+                <option value="">{f.clear}</option>
+                {labels.map((label) => (
+                  <option key={label.value} value={label.value}>
+                    {`${label.value} (${countIn(strings.intlLocale, label.count)})`}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
           <button
             type="button"
-            className={styles.clear}
-            onClick={() => update({ search: "", site: null, colours: [], labels: [], noted: null })}
+            className={`chip-btn${query.noted ? " is-active" : ""}`}
+            aria-pressed={query.noted === true}
+            onClick={() => update({ noted: query.noted ? null : true })}
           >
-            {p.clearFilters}
+            {p.noted}
           </button>
-        ) : null}
+          {filtered ? (
+            <button
+              type="button"
+              className={styles.clear}
+              onClick={() => update({ search: "", site: null, colours: [], labels: [], noted: null })}
+            >
+              {p.clearFilters}
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {showHiddenNotice && list ? (

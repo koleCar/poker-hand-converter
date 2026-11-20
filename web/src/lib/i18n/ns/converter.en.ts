@@ -272,6 +272,8 @@ export const converterEn = {
       deleteHand: "Delete hand",
       chosen: (count: number) => `${num(count)} selected`,
       clear: "Clear the choice",
+      /** Phones, choosing hands with none chosen yet. */
+      pickHint: "Tap hands to select",
       title: (count: number) => (count === 1 ? "Delete this hand?" : `Delete ${num(count)} hands?`),
       body: (count: number) =>
         `${count === 1 ? "Its" : "Their"} statistics and analysis go too. Forum posts stay. This cannot be undone.`,
