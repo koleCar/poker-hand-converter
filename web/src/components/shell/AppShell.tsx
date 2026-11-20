@@ -12,6 +12,7 @@ import { BrandMark } from "./BrandMark";
 import { DbStatusChip } from "./DbStatusChip";
 import { FeedbackButton } from "./FeedbackButton";
 import { LanguageSwitch } from "./LanguageSwitch";
+import { MobileNav } from "./MobileNav";
 import { NavPending, NavPendingProvider, NavProgressLine, useNavPendingState } from "./NavProgress";
 import { ProBadge } from "../plan/ProLock";
 import { PlanBarLink } from "../plan/PlanBarLink";
@@ -97,7 +98,7 @@ export function AppShell({
 
   return (
     <NavPendingProvider report={navPending.report}>
-      <div className="shell">
+      <div className={`shell${tabs.length > 1 ? " shell--mnav" : ""}`}>
         <header className="shell__bar">
           <div className={`shell__bar-inner ${tabs.length > 1 ? "" : "shell__bar-inner--no-tabs"}`}>
             <BrandMark />
@@ -129,7 +130,9 @@ export function AppShell({
             <div className="shell__bar-end">
               <DbStatusChip configured={dbConfigured} />
               <NotificationsBell />
-              <LanguageSwitch />
+              <span className="shell__desk-only">
+                <LanguageSwitch />
+              </span>
               <PlanBarLink />
               <UserMenu />
             </div>
@@ -165,8 +168,18 @@ export function AppShell({
           </nav>
         </footer>
 
-        {/* Bug reports, feature requests and questions, from every page. */}
+        {/* Bug reports, feature requests and questions, from every page (on a
+            phone it lives in the More sheet instead). */}
         <FeedbackButton />
+
+        {/* < 900px: the bottom tab bar and its More sheet. */}
+        {tabs.length > 1 ? (
+          <MobileNav
+            tabs={tabs.map((entry) => ({ id: entry.id, label: entry.label(en), path: entry.path }))}
+            active={tab}
+            hasHistory={showHistoryTab}
+          />
+        ) : null}
       </div>
     </NavPendingProvider>
   );

@@ -3,6 +3,18 @@
  * Mobile-first. Uses its own `shell__` namespace so it never fights App.css.
  */
 
+/* The page gutter, for rows that bleed to the screen edge (scrolling chip
+   rows) and must know how far to reach. Matches `.shell__main`'s padding. */
+:root {
+  --shell-gutter: 14px;
+}
+
+@media (min-width: 900px) {
+  :root {
+    --shell-gutter: 24px;
+  }
+}
+
 .shell {
   min-height: 100%;
   display: flex;
@@ -567,5 +579,279 @@
 @media print {
   .feedback-fab {
     display: none;
+  }
+}
+
+/* ------------------------------------------------------- phone navigation */
+
+/* < 900px: the top bar is one slim row (logo, bell, account) and the screens
+   move to a bottom tab bar (MobileNav.tsx). `--shell-bottom-nav` is the bar's
+   height including the home-indicator inset; anything a page pins to the
+   bottom of the screen sits on top of it with `bottom: var(--shell-bottom-nav, 0px)`. */
+.mnav,
+.msheet {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  :root:has(.shell--mnav) {
+    --shell-bottom-nav: calc(60px + env(safe-area-inset-bottom));
+    /* The slim top bar's height, border included. */
+    --shell-top-bar: 53px;
+  }
+
+  .shell--mnav .shell__tabs,
+  .shell__desk-only {
+    display: none;
+  }
+
+  .shell__bar-inner {
+    grid-template-areas: "brand status";
+    min-height: 52px;
+    padding-block: 6px;
+    gap: 0 12px;
+  }
+
+  .shell__bar-end {
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+
+  .shell__brand-name {
+    font-size: 18px;
+  }
+
+  .shell__main {
+    padding-bottom: calc(var(--shell-bottom-nav, 0px) + 32px);
+  }
+
+  /* The legal links and feedback live in the More sheet on a phone. */
+  .shell--mnav .shell__footer,
+  .shell--mnav .feedback-fab {
+    display: none;
+  }
+
+  .bell {
+    inline-size: 44px;
+    block-size: 44px;
+    font-size: 18px;
+  }
+
+  .mnav {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 45;
+    display: flex;
+    padding: 0 max(4px, env(safe-area-inset-right)) env(safe-area-inset-bottom) max(4px, env(safe-area-inset-left));
+    background: color-mix(in srgb, var(--surface-base) 82%, transparent);
+    backdrop-filter: blur(18px);
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .mnav__item {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    color: var(--fg-muted);
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mnav__item.is-active {
+    color: var(--accent);
+  }
+
+  .mnav__item.is-active::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 28px;
+    height: 2px;
+    border-radius: 0 0 2px 2px;
+    background: var(--accent);
+    transform: translateX(-50%);
+  }
+
+  .mnav__item:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -4px;
+    border-radius: 12px;
+  }
+
+  .mnav__icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .mnav__label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  /* The More sheet: a native <dialog> shown as a bottom sheet. */
+  .msheet[open] {
+    display: block;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--fg);
+  }
+
+  .msheet::backdrop {
+    background: rgb(0 0 0 / 0.45);
+  }
+
+  .msheet__panel {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    max-height: 88dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 6px max(16px, env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    background: var(--surface-raised);
+    border-top: 1px solid var(--border-default);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -12px 40px rgb(0 0 0 / 0.3);
+    animation: msheet-in var(--dur-3, 220ms) var(--ease-standard, ease-out);
+  }
+
+  .msheet__grip {
+    width: 36px;
+    height: 4px;
+    margin: 4px auto 10px;
+    border-radius: 2px;
+    background: var(--border-default);
+  }
+
+  .msheet__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .msheet__row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    min-height: 52px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 12px;
+    background: none;
+    color: var(--fg);
+    font: inherit;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .msheet__row:active,
+  .msheet__row:hover {
+    background: var(--surface-hover);
+  }
+
+  .msheet__row.is-active {
+    color: var(--accent);
+  }
+
+  .msheet__icon {
+    width: 22px;
+    height: 22px;
+    flex: none;
+    color: var(--fg-muted);
+  }
+
+  .msheet__row.is-active .msheet__icon {
+    color: currentColor;
+  }
+
+  .msheet__settings {
+    margin: 8px 0;
+    padding: 8px 0;
+    border-block: 1px solid var(--line-soft);
+  }
+
+  .msheet__setting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 52px;
+    padding: 0 12px;
+    font-size: 16px;
+  }
+
+  .msheet__setting .langswitch__option {
+    min-height: 36px;
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  .msheet__legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 18px;
+    padding: 8px 12px 0;
+  }
+
+  .msheet__legal a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--fg-muted);
+    font-size: 14px;
+    text-decoration: none;
+  }
+}
+
+@keyframes msheet-in {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .msheet__panel {
+    animation: none;
+  }
+}
+
+/* A standalone replayer inside the shell on a phone (an analysed hand, a
+   lesson's table): exactly the screen between the top bar and the bottom tab
+   bar, so its transport is never below the fold or under the tab bar. A
+   dismissable hand covers the whole screen instead (usePhoneTakeover). */
+@media (max-width: 899px) {
+  .shell--mnav .shell__main .rp[data-mode="full"]:not([data-takeover]) {
+    --rp-block: calc(100dvh - 53px - var(--shell-bottom-nav, 0px) - 24px);
   }
 }

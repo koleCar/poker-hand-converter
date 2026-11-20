@@ -1717,3 +1717,170 @@ html.rp-fullscreen-lock body {
   outline: 2px solid var(--accent-border);
   outline-offset: 1px;
 }
+
+/* ------------------------------------------------------------ phone layout */
+
+/* A dismissable hand on a phone covers the screen (usePhoneTakeover): the same
+   box as the iPhone fullscreen overlay, above the site's bottom tab bar, with
+   the insets keeping the header clear of the notch and the transport clear of
+   the home indicator. */
+.rp.rp[data-takeover] {
+  --rp-block: 100dvh;
+
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  inline-size: 100vw;
+  max-inline-size: none;
+  block-size: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  border-radius: 0;
+  box-sizing: border-box;
+}
+
+html.rp-takeover-lock,
+html.rp-takeover-lock body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* One slim header row: back on the left, the crumbs, the icons on the right. */
+.rp[data-takeover] .rp__header {
+  min-block-size: 3.25rem;
+  padding: 0 0.25rem;
+  gap: 0.25rem;
+}
+
+.rp__back {
+  flex: none;
+}
+
+/* The caption shares its row with the phone's pot-odds pill. */
+.rp__caption-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-inline-size: 0;
+}
+
+.rp__caption-row .rp__caption {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+
+.rp__odds-pill {
+  flex: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--money-fg) 40%, transparent);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--money-fg) 12%, transparent);
+  color: var(--money-fg);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rp__odds-pill-dim {
+  font-weight: var(--font-weight-medium);
+  opacity: 0.85;
+}
+
+/* The transport on a narrow replayer: caption, rail, and ONE row of controls
+   — speed on the left, playback in the middle, the log on the right — once
+   there is room for seven 44px targets (≈ 21rem). Below that the two-row
+   fallback above stays. */
+.rp__transport {
+  container: rptransport / inline-size;
+}
+
+.rp[data-tier="sm"] .rp__caption {
+  font-size: 0.875rem;
+}
+
+@container rptransport (width >= 21rem) {
+  .rp[data-tier="sm"] .rp__buttons {
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+  }
+
+  .rp[data-tier="sm"] .rp__playback {
+    flex: 1 1 auto;
+    justify-content: space-evenly;
+  }
+
+  .rp[data-tier="sm"] .rp__speed {
+    order: -1;
+  }
+
+  .rp[data-tier="sm"] .rp__opts {
+    margin-inline-start: 0;
+  }
+}
+
+.rp[data-takeover] .rp__transport {
+  gap: 0.125rem;
+  padding: 0.5rem 0.75rem 0.625rem;
+}
+
+/* Seats on a phone-sized felt: the player's NAME is the plate's first line —
+   who is sitting there is what a reader looks for — and the position badge
+   and the stack share the second. */
+@container rpfelt (width < 32rem) {
+  .pseat__plate {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-areas:
+      "nick  nick"
+      "pos   stack";
+    justify-content: center;
+    align-items: center;
+    gap: calc(0.25 * var(--u)) calc(0.8 * var(--u));
+  }
+
+  .pseat__name {
+    display: contents;
+  }
+
+  /* The name, or whatever a host draws in its place (the hand editor's name
+     field via `renderSeatName`), takes the whole first line. */
+  .pseat__name > :not(.pseat__pos) {
+    grid-area: nick;
+    justify-self: center;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  .pseat__nick {
+    font-size: calc(var(--fs-name) * 1.04);
+  }
+
+  .pseat__pos {
+    grid-area: pos;
+    justify-self: end;
+  }
+
+  .pseat__stack {
+    grid-area: stack;
+    justify-self: start;
+  }
+
+  /* A plate without a position badge (a stud seat, a hand with no button)
+     centres its stack under the name. */
+  .pseat__plate:not(:has(.pseat__pos)) .pseat__stack {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+}
+
+/* The felt and its plates stay dark in the light theme, so money on them keeps
+   the dark theme's gold (`--felt-money`) instead of the light pages' darker
+   one, which is about 1.2:1 on the felt. The desktop app already does this in
+   its own stylesheet; this makes the web match. */
+[data-theme="light"] .rp__felt,
+[data-theme="light"] .rp__odds {
+  --money-fg: var(--felt-money);
+}

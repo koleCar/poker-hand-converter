@@ -15,6 +15,7 @@
  * initials, and keys `1`-`5`). See `dropLadder.ts`.
  */
 
+import type { ReactNode } from "react";
 import { useUiStrings } from "../i18n";
 import type { Street } from "../model/phf";
 import type { ReplayFrame } from "../model/replay";
@@ -49,6 +50,8 @@ interface ReplayControlsProps {
   extra?: { label: string; title: string; icon: string; open: boolean; onToggle: () => void };
   /** `frame.description`, name-masked. The `aria-live` text. */
   caption: string;
+  /** Beside the caption, on its row (a phone's pot-odds pill). */
+  captionAside?: ReactNode;
   tier: ReplayTier;
   playing: boolean;
   speed: number;
@@ -75,6 +78,7 @@ export function ReplayControls({
   anchors,
   marks = [],
   caption,
+  captionAside,
   tier,
   playing,
   speed,
@@ -106,9 +110,12 @@ export function ReplayControls({
         scrub can fire ten of these a second and `assertive` would make the
         replayer unusable with a screen reader on.
       */}
-      <p className="rp__caption" aria-live="polite" aria-atomic="true">
-        {caption}
-      </p>
+      <div className="rp__caption-row">
+        <p className="rp__caption" aria-live="polite" aria-atomic="true">
+          {caption}
+        </p>
+        {captionAside}
+      </div>
 
       <div className="rp__scrub-wrap">
         {/* Street boundaries drawn on the rail so scrubbing is aimed, not blind. */}
