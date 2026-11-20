@@ -343,8 +343,9 @@ export async function captureDesktopSetup(browser: Browser): Promise<void> {
     await firstRow.click();
     const replayer = page.locator('.rp').first();
     await replayer.waitFor({ state: 'visible' });
-    // The river: the board out, the last bets made.
-    await page.getByRole('button', { name: 'River', exact: true }).click();
+    // The river: the board out, the last bets made. Keys 1-5 jump to a street.
+    await replayer.focus();
+    await page.keyboard.press('4');
     await page.waitForTimeout(800);
     const handPanel = page.locator('section[aria-label="Hand"]');
     const note = handPanel.locator('textarea[aria-label="Note"]');
@@ -354,14 +355,15 @@ export async function captureDesktopSetup(browser: Browser): Promise<void> {
       handList: grid,
       selectedRow: firstRow,
       replayer,
-      streets: page.getByRole('button', { name: 'River', exact: true }).locator('xpath=..'),
+      streets: replayer.locator('.rp__transport'),
       annotations,
       tagInput: addTag,
       tags: handPanel.locator('ul[aria-labelledby]').first(),
       note,
     });
     // The showdown: who showed what.
-    await page.getByRole('button', { name: 'Showdown', exact: true }).click();
+    await replayer.focus();
+    await page.keyboard.press('5');
     await page.waitForTimeout(800);
     await shot('hands-showdown', {
       replayer,
@@ -496,7 +498,8 @@ export async function captureDesktopApp(browser: Browser): Promise<void> {
     await firstRow.click();
     const replayer = page.locator('.rp').first();
     await replayer.waitFor({ state: 'visible' });
-    await page.getByRole('button', { name: 'Turn', exact: true }).click();
+    await replayer.focus();
+    await page.keyboard.press('3');
     await page.waitForTimeout(600);
     const handPanel = page.locator('section[aria-label="Hand"]');
     const addTag = handPanel.locator('input[aria-label="Add a tag"]');
@@ -508,7 +511,7 @@ export async function captureDesktopApp(browser: Browser): Promise<void> {
       handList: grid,
       selectedRow: firstRow,
       replayer,
-      streets: page.getByRole('button', { name: 'Turn', exact: true }).locator('xpath=..'),
+      streets: replayer.locator('.rp__transport'),
       tags: handPanel.locator('ul[aria-labelledby]').first(),
       newTag: handPanel.locator('ul[aria-labelledby] li').filter({ hasText: 'river-check' }),
       note: handPanel.locator('textarea[aria-label="Note"]'),

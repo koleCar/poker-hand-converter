@@ -35,13 +35,6 @@ export const replayerEn = {
   },
 
   controls: {
-    streets: {
-      preflop: "Preflop",
-      flop: "Flop",
-      turn: "Turn",
-      river: "River",
-      showdown: "Showdown",
-    },
     mark: (count: number, label: string) => `${count} ${count === 1 ? "comment" : "comments"} at ${label}`,
     position: "Position in hand",
     positionValue: (step: number, total: number, caption: string) =>
@@ -58,13 +51,10 @@ export const replayerEn = {
     nextTitle: "Forward (→)",
     end: "Jump to end",
     endTitle: "End (End)",
-    jumpToStreet: "Jump to street",
     speed: "Playback speed",
     speedCycle: (speed: string) => `Playback speed, ${speed} times. Activate for the next speed.`,
-    speedOption: (speed: string) => `${speed} times speed`,
     log: "Action log",
     logTitle: "Action log (L)",
-    logShort: "Log",
   },
 
   settings: {
@@ -78,22 +68,22 @@ export const replayerEn = {
     showHeroCardsHint: "Turn off to review the hand without seeing hero's holding (H)",
     anonymousNames: "Anonymous table names",
     anonymousNamesHint: "Replace player and table names with Hero / Player 1…",
-    showPotOdds: "Show pot odds",
-    showPotOddsHint: "Price of the spot in the top-left corner when hero faces or makes a bet",
+    cards: "Cards",
+    faces: { four: "4 colours", classic: "Classic", big: "Big index", dark: "Dark" },
+    potOdds: "Pot odds",
+    potOddsHint: "Printed on the felt above hero's cards while hero decides",
+    show: "Show",
+    hide: "Hide",
     anonymousHero: "Hero",
     anonymousPlayer: (n: number) => `Player ${n}`,
     anonymousTable: "Table",
   },
 
   odds: {
-    facingTitle: "Pot odds",
-    callToWin: (call: string, pot: string) => `Call ${call} to win ${pot}`,
-    needEquity: (share: string) => `need ${share} equity`,
-    betTitle: (share: string) => `Bet ${share} pot`,
-    raiseTitle: (amount: string) => `Raise to ${amount}`,
-    betInto: (risk: string, pot: string) => `${risk} into ${pot}`,
-    callerNeeds: "Caller needs equity",
-    bluffNeeds: "Bluff needs folds",
+    toCall: "to call",
+    bluff: "folds for a bluff",
+    facingLabel: (share: string, ratio: string) => `Pot odds: a call needs ${share} equity, ${ratio} to 1`,
+    bluffLabel: (share: string) => `A bluff needs ${share} folds`,
   },
 
   log: {
@@ -176,7 +166,7 @@ export const replayerEn = {
   },
 
   table: {
-    logo: "Hand Replayer",
+    brand: "rail",
     pot: "Pot",
     potTotal: (amount: string) => `${amount} total`,
     board: "Board",
@@ -184,7 +174,6 @@ export const replayerEn = {
     runTwo: "Run 2",
     allIn: "ALL-IN",
     dealerButton: "Dealer button",
-    folded: "Folded",
   },
 
   seat: {

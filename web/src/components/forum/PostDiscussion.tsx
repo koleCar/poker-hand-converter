@@ -165,6 +165,7 @@ export function PostDiscussion({
       {hand ? (
         <section id="replay" className={styles.replay} aria-label={en.forum.post.replayHeading}>
           <ReplayViewer
+            fitToScreen
             key={mount.key}
             hand={hand}
             site={site}

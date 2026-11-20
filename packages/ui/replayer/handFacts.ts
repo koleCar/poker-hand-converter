@@ -145,3 +145,15 @@ export function playedAtLabel(hand: PhfHand, intlLocale: string): string | null 
     timeStyle: "short",
   });
 }
+
+/** The day the hand was played, for the header's crumbs: `"19 Nov 2026"`. */
+export function playedOnLabel(hand: PhfHand, intlLocale: string): string | null {
+  if (!hand.playedAt) {
+    return null;
+  }
+  const date = new Date(hand.playedAt);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+  return date.toLocaleDateString(intlLocale, { dateStyle: "medium" });
+}

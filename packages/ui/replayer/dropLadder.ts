@@ -1,41 +1,29 @@
 /**
- * The drop ladder (#19).
+ * The drop ladder (#19), and where the transport goes.
  *
  * The information architecture splits on one axis: **if it changes as you
  * scrub, it lives on the felt; if it is constant for the whole hand, it lives
  * one tap away.** That settles *where* a thing goes. This file settles *when*
  * it goes there.
  *
- * Elements are ranked by how often you look at them while scrubbing, and at
- * each size step the lowest-ranked still-visible one is dropped:
+ * Design 7 (round 2) took most of the old rungs away for good rather than per
+ * size: there is no caption, no visible scrub rail, no street chips and no
+ * speed chips any more. Progress is the fill behind the transport buttons, the
+ * street starts are notches on its top edge (keys `1`-`5` still jump), and the
+ * speed is one button in the header at every size. What is left to drop:
  *
- *   1. icon labels        -> icon only        `.rp__opts`
- *   2. speed chips        -> cycling button   `.rp__speed`
- *   3. street labels      -> initials         `.rp__streets`
- *   4. log                -> overlay          always, now
- *   5. showdown strip     -> gone; the felt shows the hands
- *   6. hand meta          -> info sheet       `.rp__meta`   <- #58
- *   7. seat name          -> position badge   `@container rpfelt`
- *
- * Rung 4 is unconditional since the sheets rebuild: a transcript whose
- * length the hand decides can never be in the layout flow of a box that may
- * not scroll. Rung 7 is the one rung that belongs to the *felt* rather than to
- * the chrome, so it stays a container query on `rpfelt` in the stylesheet —
- * a nine-seat ring runs out of room at a different size than a button row
- * does.
- *
- * Nothing below rung 4 is ever deleted. The meta strip becomes the `i` sheet,
- * the street chips become keys `1`-`5` and the ticks on the rail, the speed
- * chips become one button that cycles. Everything is one gesture away.
+ *   1. hand meta (the crumbs)  -> info sheet   `.rp__meta`   <- #58
+ *   2. the Rail mark on the felt                `@container rpfelt`
  *
  * The critical property is that a dropped item is **gone**, not shrunk. #58 is
- * rung 6 done wrong: `text-overflow: ellipsis` on each meta item turned
+ * rung 1 done wrong: `text-overflow: ellipsis` on each crumb turned
  * `PokerStars · Hygiea III · $0.25/$0.50 · NL Hold'em` into
  * `P... · '... · '... · '...`, which reads as a rendering bug rather than as a
  * deliberate omission, and still spent the vertical room.
  *
- * Decided in JS and published as `data-tier`, for the same reason `data-shape`
- * is: the transport has to choose between *two different controls* for speed,
+ * Decided in JS and published as `data-tier` / `data-transport`, for the same
+ * reason `data-shape` is: the transport changes *which buttons exist* with the
+ * box (two step buttons on a phone, the jumps to either end on a desktop),
  * which no stylesheet can do, and a second derivation in a container query
  * would drift away from this one the first time either was tuned.
  */
@@ -60,12 +48,26 @@ export function tierFor(width: number): ReplayTier {
   return width >= MD_AT ? "md" : "sm";
 }
 
-/** Rung 2: below `lg` the five speed chips collapse to one cycling button. */
-export function speedIsCycled(tier: ReplayTier): boolean {
-  return tier !== "lg";
-}
+/**
+ * Where the transport sits, off the replayer's own box.
+ *
+ * - `strip`: a full-width strip along the bottom, under the felt. A phone held
+ *   upright, or any box taller than it is wide — the thumb is at the bottom and
+ *   the felt has height to spare.
+ * - `corner`: a small glass pill in the bottom-right corner, over the room's
+ *   cloth. A phone on its side, or any short wide box: a strip would come out
+ *   of the felt's height, which is the one thing that box is short of.
+ * - `desk`: the same corner, a size up and with the jumps to either end. A
+ *   desktop window, a web page, the desktop app, full screen.
+ */
+export type TransportLayout = "strip" | "corner" | "desk";
 
-/** Rung 3: below `lg` street chips print `P F T R S` instead of full names. */
-export function streetsAreInitials(tier: ReplayTier): boolean {
-  return tier !== "lg";
+/** Below this height a wide box is a phone on its side, not a desk. */
+const DESK_MIN_HEIGHT = 440;
+
+export function transportFor(width: number, height: number): TransportLayout {
+  if (width >= LG_AT && height >= DESK_MIN_HEIGHT) {
+    return "desk";
+  }
+  return width > height ? "corner" : "strip";
 }

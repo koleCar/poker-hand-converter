@@ -108,6 +108,7 @@ export function SharedAnalysisReplay({
   const shared = useSharedAnalysis(analysis, hand);
   return (
     <ReplayViewer
+      fitToScreen
       hand={hand}
       site={site}
       initialPosition={initialPosition}

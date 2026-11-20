@@ -35,6 +35,13 @@
   transform-origin: top right;
 }
 
+/* A replayer that covers the screen (the phone takeover, or the full-screen
+   overlay on an iPhone) sits at z-index 1000 above the page's menus; the
+   share popover is opened from its header, so it has to clear it. */
+html:is(.rp-takeover-lock, .rp-fullscreen-lock) .share__panel {
+  z-index: 1001;
+}
+
 @keyframes share-in {
   from {
     opacity: 0;
@@ -546,7 +553,7 @@
     background: var(--surface-base);
   }
 
-  .sharepage .sharepage__replay > .rp {
+  .sharepage .sharepage__replay > .rp:not([data-docked]) {
     --rp-block: calc(100dvh - 53px);
   }
 
