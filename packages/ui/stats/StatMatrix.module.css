@@ -165,3 +165,95 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* ------------------------------------------------------------- narrow
+   A phone only (the desktop app's window is never this narrow): the strip
+   is a 5-column grid instead of a row that scrolls, and the matrices keep
+   their row names in place while the columns scroll under them. The sticky
+   cell is painted with the page's colour; a host on another surface sets
+   `--stat-matrix-sticky-bg`. */
+
+@media (max-width: 640px) {
+  .keyStats {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-3) var(--space-2);
+    overflow: visible;
+    padding: var(--space-3);
+  }
+
+  .keyStat dd {
+    font-size: var(--font-size-lg);
+  }
+
+  .keyStat dt {
+    font-size: var(--font-size-sm);
+  }
+
+  .matrices {
+    gap: var(--space-5);
+  }
+
+  .matrixColumn {
+    overscroll-behavior-x: contain;
+  }
+
+  .matrix {
+    font-size: var(--font-size-md);
+  }
+
+  .matrixCaption {
+    font-size: var(--font-size-sm);
+  }
+
+  /* The caption is as wide as its table: its words stay at the left edge
+     while the columns scroll (a caption box itself cannot stick). */
+  .matrixCaptionText {
+    position: sticky;
+    inset-inline-start: 0;
+    display: inline-block;
+  }
+
+  .matrix th,
+  .matrix td {
+    padding: 6px var(--space-2);
+  }
+
+  .matrix thead th {
+    font-size: var(--font-size-sm);
+  }
+
+  /* The name and the total stay; the positions (or streets) scroll. The
+     name column has a fixed width so the total knows where to stick. */
+  .matrix .matrixLabel,
+  .matrix th:nth-child(2),
+  .matrix td:nth-child(2) {
+    position: sticky;
+    z-index: 1;
+    background: var(--stat-matrix-sticky-bg, var(--surface-base));
+  }
+
+  .matrix .matrixLabel {
+    inset-inline-start: 0;
+    inline-size: 5rem;
+    min-inline-size: 5rem;
+    max-inline-size: 5rem;
+    padding-inline-end: var(--space-2);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .matrix th:nth-child(2),
+  .matrix td:nth-child(2) {
+    inset-inline-start: 5rem;
+  }
+
+  .matrixHands td,
+  .matrixHands th {
+    font-size: var(--font-size-sm);
+  }
+
+  .matrixSample {
+    font-size: var(--font-size-sm);
+  }
+}

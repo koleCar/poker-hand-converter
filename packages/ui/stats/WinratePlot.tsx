@@ -29,7 +29,7 @@
  * the legend sits in the parent.
  */
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useReducedMotion } from "../replayer/useFrameTransition";
 import { niceStep, ticks } from "./chartScale";
 import {
@@ -82,6 +82,29 @@ interface WinratePlotProps {
 
 const PAD = { top: 18, right: 22, bottom: 30, left: 56 };
 const HEIGHT = 300;
+/**
+ * A phone's plot: shorter, so it fits one screen with its toolbar and legend.
+ * Decided by the viewport, not the plot's own width, so a narrow panel on a
+ * desktop (the app's window is at least 900 px) keeps the full height.
+ */
+const COMPACT_HEIGHT = 230;
+const COMPACT_QUERY = "(max-width: 640px)";
+
+function subscribeCompact(onChange: () => void): () => void {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return () => undefined;
+  const query = window.matchMedia(COMPACT_QUERY);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
+function compactNow(): boolean {
+  return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(COMPACT_QUERY).matches;
+}
+
+/** Whether the viewport is a phone's; false on the server. */
+function useCompact(): boolean {
+  return useSyncExternalStore(subscribeCompact, compactNow, () => false);
+}
 const NAV_HEIGHT = 36;
 /** Milliseconds: the first draw, a change of data, a zoom. */
 const DURATION = { enter: 800, data: 650, zoom: 320 };
@@ -172,8 +195,9 @@ export function WinratePlot({ xs, series, ariaLabel, strings, formatHands, forma
   const win = windowFor(zoom, total);
   const view = win ?? { from: 0, to: total };
 
+  const height = useCompact() ? COMPACT_HEIGHT : HEIGHT;
   const innerW = Math.max(1, width - PAD.left - PAD.right);
-  const innerH = HEIGHT - PAD.top - PAD.bottom;
+  const innerH = height - PAD.top - PAD.bottom;
 
   /**
    * The viewBox is measured in CSS pixels rather than fixed with
@@ -510,7 +534,7 @@ export function WinratePlot({ xs, series, ariaLabel, strings, formatHands, forma
         style={series.length === 0 ? { visibility: "hidden" } : undefined}
         aria-hidden={series.length === 0 || undefined}
       >
-        <p className="stats-chart__range" aria-live="polite">
+        <p className={`stats-chart__range${zoomed ? "" : " stats-chart__range--hint"}`} aria-live="polite">
           {zoomed
             ? strings.zoom.range(
                 formatHands(Math.floor(view.from) + 1),
@@ -551,8 +575,8 @@ export function WinratePlot({ xs, series, ariaLabel, strings, formatHands, forma
         ref={svgRef}
         className="stats-chart__svg"
         width={width}
-        height={HEIGHT}
-        viewBox={`0 0 ${width} ${HEIGHT}`}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
         role="img"
         aria-label={ariaLabel}
         tabIndex={0}
@@ -582,7 +606,7 @@ export function WinratePlot({ xs, series, ariaLabel, strings, formatHands, forma
         ))}
 
         {xTicks.map((value) => (
-          <text key={`x${value}`} className="stats-chart__tick stats-chart__tick--x" x={xAt(value)} y={HEIGHT - 10}>
+          <text key={`x${value}`} className="stats-chart__tick stats-chart__tick--x" x={xAt(value)} y={height - 10}>
             {formatHands(Math.round(value))}
           </text>
         ))}

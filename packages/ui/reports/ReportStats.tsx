@@ -193,7 +193,9 @@ export function ReportStats({ report, definitions }: { report: Report; definitio
     const hands = withHands ? total("hands") : null;
     return (
       <table className={styles.matrix}>
-        <caption className={styles.matrixCaption}>{caption}</caption>
+        <caption className={styles.matrixCaption}>
+          <span className={styles.matrixCaptionText}>{caption}</span>
+        </caption>
         {head([t.total, ...positions])}
         <tbody>
           {hands ? (
@@ -248,7 +250,9 @@ export function ReportStats({ report, definitions }: { report: Report; definitio
         </div>
         <div className={styles.matrixColumn}>
           <table className={styles.matrix}>
-            <caption className={styles.matrixCaption}>{t.sections.postflop}</caption>
+            <caption className={styles.matrixCaption}>
+              <span className={styles.matrixCaptionText}>{t.sections.postflop}</span>
+            </caption>
             {head([t.streets.all, t.streets.flop, t.streets.turn, t.streets.river])}
             <tbody>
               {POSTFLOP.map((row) => (
@@ -265,7 +269,9 @@ export function ReportStats({ report, definitions }: { report: Report; definitio
           {positionTable(t.sections.results, RESULTS, false, true)}
           {yours.length > 0 ? (
             <table className={styles.matrix}>
-              <caption className={styles.matrixCaption}>{t.sections.yours}</caption>
+              <caption className={styles.matrixCaption}>
+                <span className={styles.matrixCaptionText}>{t.sections.yours}</span>
+              </caption>
               {head([t.total])}
               <tbody>
                 {yours.map((definition) => (

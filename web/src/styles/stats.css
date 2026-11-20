@@ -362,3 +362,259 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* A session row's phone-only pieces (see the phone block below): hidden on
+   a wide screen, where the table has a column for each. */
+.stats-session__meta,
+.stats-session__unit {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- narrow
+   Below the desktop layout only; at 900 px and up nothing here applies.
+
+   Up to 899 px: Reports | Players is one row that scrolls rather than wraps.
+   Up to 640 px (a phone): the panels are flat sections under a hairline
+   instead of cards, the sessions a two-line list where the whole row opens
+   the review, and the opponents' table keeps the name column in place while
+   the numbers scroll inside the table's own box. */
+
+@media (max-width: 899px) {
+  .stats-nav {
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .stats-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .stats-nav .chip-btn {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    text-decoration: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .stats {
+    position: relative;
+    gap: var(--space-5);
+  }
+
+  /* Reports | Players shares the report's header row (on a phone that row
+     is only the Cash | Tournaments toggle, on the right). */
+  .stats-nav {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    z-index: 1;
+    max-width: 55%;
+  }
+
+  .stats .card.stats-group {
+    gap: var(--space-3);
+    padding: var(--space-4) 0 0;
+    border: 0;
+    border-block-start: 1px solid var(--line-soft);
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .stats-group h3 {
+    font-size: var(--font-size-lg);
+  }
+
+  .stats-breakdown__head {
+    align-items: flex-end;
+  }
+
+  .stats-breakdown__note,
+  .stats-coverage {
+    font-size: var(--font-size-md);
+  }
+
+  .stats-table {
+    font-size: var(--font-size-md);
+  }
+
+  .stats-table thead th {
+    font-size: var(--font-size-sm);
+  }
+
+  /* The name column stays while the numbers scroll; flat now, so the page's colour. */
+  .stats-table thead th:first-child,
+  .stats-table tbody th {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    max-width: 9.5rem;
+    padding-left: 0;
+    background: var(--surface-base);
+    box-shadow: inset -1px 0 0 var(--line-soft);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .stats-table-wrap {
+    margin: 0;
+  }
+
+  .stats-opponents__room,
+  .stats-opponents__note {
+    font-size: var(--font-size-sm);
+  }
+
+  /* A 44 px target with its one line centred (and still cut with an ellipsis). */
+  .stats-opponents__note {
+    max-width: 100%;
+    min-block-size: 0;
+    margin-top: 0;
+    line-height: 44px;
+  }
+
+  /* The opponents' search and sample floor: a full-width row under the heading. */
+  .stats-matrix__controls {
+    flex: 1 1 100%;
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+
+  .stats-matrix__controls .field {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .stats-matrix__controls .field:first-child {
+    flex-grow: 2;
+  }
+
+  .stats-matrix__controls input,
+  .stats-matrix__controls select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* The note editor opens in a row as wide as the table: keep it on screen. */
+  .stats-note {
+    position: sticky;
+    left: 0;
+    max-width: calc(100vw - 2 * var(--space-4));
+  }
+
+  /* ------------------------------------------------ sessions: a list */
+
+  .stats-sessions,
+  .stats-sessions tbody {
+    display: block;
+    white-space: normal;
+  }
+
+  .stats-sessions thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .stats-sessions tr {
+    position: relative;
+    display: grid;
+    grid-template-areas:
+      "day result review"
+      "day rate review";
+    grid-template-columns: minmax(0, 1fr) auto 16px;
+    align-items: center;
+    gap: 2px var(--space-3);
+    min-height: 60px;
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .stats-sessions th,
+  .stats-sessions td {
+    padding: 0;
+    border: 0;
+  }
+
+  .stats-sessions tbody th {
+    grid-area: day;
+    position: static;
+    max-width: none;
+    background: none;
+    box-shadow: none;
+    font-size: var(--font-size-lg);
+  }
+
+  .stats-session__wide,
+  .stats-session__time {
+    display: none;
+  }
+
+  .stats-session__meta {
+    display: block;
+    margin-top: 2px;
+    color: var(--fg-dim);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-regular);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stats-session__result {
+    grid-area: result;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .stats-session__rate {
+    grid-area: rate;
+    color: var(--fg-muted);
+  }
+
+  .stats-session__unit {
+    display: inline;
+    color: var(--fg-dim);
+    font-size: var(--font-size-sm);
+  }
+
+  /* The whole row opens the review; its link shows as a chevron. */
+  .stats-session__review {
+    grid-area: review;
+  }
+
+  .stats-session__review .btn {
+    min-inline-size: 0;
+    min-block-size: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--fg-dim);
+    font-size: 0;
+  }
+
+  .stats-session__review .btn::before {
+    content: "›";
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .stats-session__review .btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  .stats-session__review .btn:focus-visible {
+    outline: none;
+  }
+
+  .stats-sessions tr:has(.btn:focus-visible) {
+    outline: 2px solid var(--border-focus);
+    outline-offset: -2px;
+  }
+}

@@ -164,7 +164,7 @@ export function SessionsPanel({ filter, refreshToken }: { filter: HandFilter; re
       ) : null}
 
       <div className="stats-table-wrap rail-dims" aria-busy={pending}>
-        <table className="stats-table">
+        <table className="stats-table stats-sessions">
           <thead>
             <tr>
               <th scope="col">{en.session}</th>
@@ -182,24 +182,31 @@ export function SessionsPanel({ filter, refreshToken }: { filter: HandFilter; re
               const result = value(session);
               const bb100 =
                 session.netBbMilli === null || session.hands === 0 ? null : (session.netBbMilli / 1000 / session.hands) * 100;
+              const hours = `${time.format(new Date(session.startedAt))}–${time.format(new Date(session.endedAt))}`;
+              const length = en.duration(minutesBetween(session.startedAt, session.endedAt));
               return (
                 <tr key={session.startedAt}>
                   <th scope="row">
                     {day.format(new Date(session.startedAt))}
-                    <span className="stats-opponents__room">
-                      {time.format(new Date(session.startedAt))}–{time.format(new Date(session.endedAt))}
+                    <span className="stats-opponents__room stats-session__time">
+                      {hours}
+                    </span>
+                    {/* A phone's row is two lines: this one carries the columns it hides. */}
+                    <span className="stats-session__meta">
+                      {[time.format(new Date(session.startedAt)), length, t.common.hands(session.hands)].join(" · ")}
                     </span>
                   </th>
-                  <td className="num">{en.duration(minutesBetween(session.startedAt, session.endedAt))}</td>
-                  <td className="num">{count(session.hands)}</td>
-                  <td className="num">{session.tables}</td>
-                  <td className={`num ${result === null ? "" : result >= 0 ? "is-up" : "is-down"}`}>
+                  <td className="num stats-session__wide">{length}</td>
+                  <td className="num stats-session__wide">{count(session.hands)}</td>
+                  <td className="num stats-session__wide">{session.tables}</td>
+                  <td className={`num stats-session__result ${result === null ? "" : result >= 0 ? "is-up" : "is-down"}`}>
                     {result === null ? "—" : show(result)}
                   </td>
-                  <td className={`num ${session.hands < 100 ? "is-thin" : ""}`}>
+                  <td className={`num stats-session__rate ${session.hands < 100 ? "is-thin" : ""}`}>
                     {bb100 === null ? "—" : bb.format(bb100)}
+                    {bb100 === null ? null : <span className="stats-session__unit"> {t.common.bb100}</span>}
                   </td>
-                  <td>
+                  <td className="stats-session__review">
                     <Link
                       className="btn btn--sm btn--ghost"
                       href={paths.analysisSession(

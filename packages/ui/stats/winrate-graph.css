@@ -392,6 +392,54 @@
   color: var(--fg-muted);
 }
 
+/* A phone (the desktop app's window is never this narrow): the zoom row
+   only while zoomed, and the
+   legend is a 2 x 2 grid with each line's end value under its name. */
+@media (max-width: 640px) {
+  .stats-chart__toolbar {
+    justify-content: flex-end;
+  }
+
+  .stats-chart__range {
+    flex: 1 1 auto;
+    font-size: var(--font-size-sm);
+  }
+
+  /* Not zoomed: no row of mostly disabled buttons over the plot (a drag
+     across it or a pinch zooms; zoomed, the row comes back with the range). */
+  .stats-chart__toolbar:has(.stats-chart__range--hint) {
+    display: none;
+  }
+
+  .stats-chart__zoom {
+    gap: var(--space-2);
+  }
+
+  .stats-chart__zoom .chip-btn {
+    min-width: 44px;
+  }
+
+  .stats-chart__tooltip {
+    min-width: 0;
+    max-width: min(240px, 70vw);
+  }
+
+  .stats-legend {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3) var(--space-4);
+  }
+
+  .stats-legend li {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 2px 8px;
+    font-size: var(--font-size-md);
+  }
+
+  .stats-legend__value {
+    grid-column: 2;
+  }
+}
+
 /* Forced colours strip every hue, which is exactly the case the legend exists
    for. Give the marks back a system colour so the chart is a
    chart rather than three identical lines. */
