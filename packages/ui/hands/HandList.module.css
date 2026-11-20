@@ -309,3 +309,210 @@
   }
 
 }
+
+/* Phones and small tablets (the web only: the desktop app's window is never
+   under 900 px): a modern two-line row, whatever the list's width - the
+   hero's cards, position, marks and the signed result on top; the board,
+   the stakes and the date small under them - 68 px tall, the
+   whole row one tap. The list is not a box: rows on the page, a hairline
+   between them. Choosing hands (`data-choosing`) shows a check on each. */
+@media (max-width: 899px) {
+  .scroll {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: var(--font-size-md);
+  }
+
+  .body {
+    --row: 68px;
+
+    min-width: 0;
+  }
+
+  .head {
+    display: none;
+  }
+
+  .body > .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    gap: 0 var(--space-2);
+    min-width: 0;
+    padding: 0 var(--space-1);
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* The break between the two lines. */
+  .body > .row::after {
+    content: "";
+    order: 5;
+    flex-basis: 100%;
+    height: 0;
+  }
+
+  .body > .row > .cards {
+    order: 1;
+    display: flex;
+    flex: none;
+    align-items: center;
+  }
+
+  .body > .row > .position {
+    order: 2;
+    flex: none;
+    color: var(--text-primary);
+    font-size: var(--font-size-lg);
+  }
+
+  /* The flexible middle of each line starts at nothing (so neither line
+     wraps) and takes what is left; the result and the date sit at the end. */
+  .body > .row > .marks {
+    order: 3;
+    display: flex;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .body > .row > .result {
+    order: 4;
+    flex: none;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .body > .row > .board,
+  .body > .row > .stakes,
+  .body > .row > .date {
+    margin-top: var(--space-1);
+    color: var(--text-secondary);
+    font-size: var(--font-size-md);
+  }
+
+  .body > .row > .board {
+    order: 6;
+    display: flex;
+    flex: none;
+    align-items: center;
+    color: var(--text-tertiary);
+  }
+
+  .body > .row > .stakes {
+    order: 7;
+    flex: 1 1 0;
+    min-width: 0;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: baseline;
+    gap: var(--space-1);
+    line-height: inherit;
+  }
+
+  .body > .row > .date {
+    order: 8;
+    flex: none;
+    color: var(--text-tertiary);
+  }
+
+  .body > .row > .pot,
+  .body > .row > .arrow {
+    display: none;
+  }
+
+  /* The room is the open hand's to say: the second line is the board,
+     the stakes and the date. */
+  .roomName {
+    display: none;
+  }
+
+  .stakesValue {
+    flex: 0 1 auto;
+    min-width: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* The hero's cards a little larger than the table's; the board as small
+     single-line tokens, so the second line stays a quiet one. */
+  .cards [class~="pcard"] {
+    --card-w: 25px;
+  }
+
+  .cards [class~="pcard__corner--tl"],
+  .cards [class~="pcard__suit"] {
+    font-size: var(--font-size-base);
+  }
+
+  .board [class~="pcard"] {
+    --card-w: 21px;
+
+    height: 22px;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 14%);
+    animation: none;
+  }
+
+  .board [class~="card-row"] {
+    gap: 2px;
+  }
+
+  .mark {
+    font-size: var(--font-size-xs);
+  }
+
+  /* A finger: no hover that sticks after a tap; a press shows instead. */
+  .body > .row:hover:not(.selected, .current) {
+    background: none;
+    box-shadow: none;
+  }
+
+  .body > .row:active {
+    background: var(--surface-hover);
+  }
+
+  .more {
+    height: var(--row);
+  }
+
+  /* Choosing hands: a round check at the row's start, and room at the
+     list's end for the surface's bar of chosen hands. */
+  .scroll[data-choosing] {
+    padding-bottom: 72px;
+  }
+
+  .scroll[data-choosing] .body > .row {
+    padding-inline-start: 44px;
+  }
+
+  .scroll[data-choosing] .body > .row::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: var(--space-3);
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--border-strong);
+    border-radius: 50%;
+    color: var(--text-on-accent);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    line-height: 1;
+    transform: translateY(-50%);
+  }
+
+  .scroll[data-choosing] .body > .selected::before {
+    content: "✓";
+    border-color: var(--accent-bg);
+    background: var(--accent-bg);
+  }
+
+  .scroll[data-choosing] .body > .selected,
+  .scroll[data-choosing] .body > .selected:hover {
+    box-shadow: none;
+  }
+}

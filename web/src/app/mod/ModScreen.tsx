@@ -47,7 +47,7 @@ function ModBody() {
 
   if (!auth.isSignedIn) {
     return (
-      <section className="card stack">
+      <section className={`card stack ${styles.flatCard}`}>
         <h1 className={styles.postTitle}>{en.moderation.modHeading}</h1>
         <p className="muted">{en.moderation.notModerator}</p>
       </section>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CourseMap } from "../../../components/learn/course/CourseMap";
+import { IntroFold } from "../../../components/learn/course/IntroFold";
 import { LearnProvider } from "../../../components/learn/course/LearnStore";
 import { ServerFrame } from "../../../components/shell/ServerFrame";
 import { getDict, getLocale } from "../../../lib/i18n/server";
@@ -20,7 +21,8 @@ import styles from "../../../components/learn/course/course.module.css";
  *
  * Under the heading, a short "how Rail teaches" panel (L1's orientation
  * module, folded in by L1.1) and the reference pages: the ideas the course
- * assumes, which are not lessons on the map (no basics in the course).
+ * assumes, which are not lessons on the map (no basics in the course). On a
+ * phone the panel is folded under its heading (`IntroFold`).
  */
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -51,10 +53,7 @@ export default async function LearnPage() {
               <span className={styles.muted}>{t.map.conceptsHint}</span>
             </p>
           </header>
-          <section className={styles.introPanel} aria-labelledby="learn-how">
-            <h2 id="learn-how" className={styles.introHeading}>
-              {t.map.introPanel.heading}
-            </h2>
+          <IntroFold heading={t.map.introPanel.heading} headingId="learn-how">
             <ul className={styles.list}>
               {t.map.introPanel.points.map((point) => (
                 <li key={point}>{point}</li>
@@ -75,7 +74,7 @@ export default async function LearnPage() {
                 </div>
               ))}
             </div>
-          </section>
+          </IntroFold>
           <CourseMap summaries={summaries} />
         </div>
       </LearnProvider>

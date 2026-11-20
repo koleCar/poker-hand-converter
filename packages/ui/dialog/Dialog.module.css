@@ -26,3 +26,65 @@
 .title {
   font-size: var(--font-size-lg);
 }
+
+/* ------------------------------------------------------------------ phone
+   Below 640 px the dialog is a bottom sheet: the full width, rounded on top,
+   at most 90 % of the screen tall with its own scroll, and clear of the
+   home indicator. Buttons are a thumb tall; a row of them fills the width,
+   the primary one first and on its own line. Wider than that, nothing here
+   applies, so the desktop app's windows keep the centred card. */
+@media (max-width: 640px) {
+  .dialog,
+  .wide {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    max-height: 90dvh;
+    margin: auto 0 0;
+    padding: var(--space-5) var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom, 0));
+    border-width: 1px 0 0;
+    border-radius: var(--radius-4) var(--radius-4) 0 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .title {
+    padding-inline-end: var(--space-2);
+  }
+
+  .dialog :is([class~="btn"], select, input:not([type="checkbox"], [type="radio"])) {
+    min-height: 44px;
+  }
+
+  /* 16 px stops iOS zooming the page when a field takes focus. */
+  .dialog :is(input:not([type="checkbox"], [type="radio"]), select, textarea) {
+    font-size: 16px;
+  }
+
+  .dialog :has(> [class~="btn"]) {
+    flex-wrap: wrap;
+  }
+
+  .dialog [class~="btn"] {
+    flex: 1 1 auto;
+    font-size: var(--font-size-lg);
+  }
+
+  .dialog [class~="btn--primary"] {
+    flex-basis: 100%;
+    order: -1;
+  }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: no-preference) {
+  .dialog[open] {
+    animation: dialog-sheet-in var(--dur-4, 180ms) var(--ease-out, ease-out);
+  }
+}
+
+@keyframes dialog-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}

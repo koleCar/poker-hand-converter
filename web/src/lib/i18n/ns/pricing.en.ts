@@ -105,6 +105,8 @@ export const pricingEn = {
     done: "You're on Pro",
     openAnalysis: "Open Analysis",
     getApp: "Get the desktop app",
+    /** The same link on a phone, where nothing can be downloaded. */
+    seeApp: "See the desktop app",
     receipt: "Receipt sent to your email.",
   },
   cancel: {

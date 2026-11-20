@@ -4,6 +4,7 @@ import { ServerFrame } from "../../components/shell/ServerFrame";
 import { getDict } from "../../lib/i18n/server";
 import { paths } from "../../lib/routes";
 import styles from "../../components/forum/forum.module.css";
+import own from "./takedown.module.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const en = await getDict();
@@ -22,7 +23,7 @@ export default async function TakedownPage() {
   const en = await getDict();
   return (
     <ServerFrame tab={null}>
-      <section className="card stack">
+      <section className={`card stack ${own.page}`}>
         <h1 className={styles.postTitle}>{en.moderation.takedownHeading}</h1>
         {en.moderation.takedownBody.map((paragraph, index) => (
           <p key={index}>{paragraph}</p>

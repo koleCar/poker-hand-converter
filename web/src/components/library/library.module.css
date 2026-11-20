@@ -82,3 +82,69 @@
   background: var(--surface-hover);
   color: var(--text-primary);
 }
+
+/* Phones: the screen sits on the page, not in a card - the shell's gutter is
+   its edge. */
+@media (max-width: 899px) {
+  .card[class~="card"] {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+}
+
+.barAction:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.barAction:disabled:hover {
+  background: none;
+}
+
+/* Phones: the chosen hands' bar spans the screen over the tab bar, its
+   buttons finger-sized. */
+@media (max-width: 899px) {
+  .bar {
+    right: 0;
+    bottom: var(--shell-bottom-nav, 0);
+    left: 0;
+    gap: var(--space-2);
+    max-width: none;
+    min-height: 60px;
+    padding: var(--space-2) max(var(--space-4), env(safe-area-inset-right)) var(--space-2)
+      max(var(--space-4), env(safe-area-inset-left));
+    border-width: 1px 0 0;
+    border-radius: 0;
+    font-size: var(--font-size-base);
+    transform: none;
+  }
+
+  .barCount {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .barAction {
+    min-height: 44px;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--danger-border);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .barClear {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* No tab bar: clear of the home indicator. */
+@media (max-width: 899px) {
+  :root:not(:has([class~="shell--mnav"])) .bar {
+    padding-bottom: calc(var(--space-2) + env(safe-area-inset-bottom));
+  }
+}

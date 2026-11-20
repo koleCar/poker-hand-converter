@@ -271,7 +271,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
 
   return (
     <div className={styles.page}>
-      <AnalysisNav current="overview">
+      <AnalysisNav current="overview" status={runStatus}>
         <KindSwitch kind={kinds.kind} counts={kinds.counts} onChange={(kind) => updateState({ kind, page: 0 })} />
         <label className={styles.dd}>
           {t.ui.scope.position}
@@ -295,7 +295,6 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
             ))}
           </select>
         </label>
-        {runStatus}
       </AnalysisNav>
 
       {/* Everything under the nav arrives in order, once: the figures, the map and the side, then the hands. */}

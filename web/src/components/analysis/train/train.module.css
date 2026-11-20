@@ -401,3 +401,75 @@
     outline: 2px solid CanvasText;
   }
 }
+
+/* ============================================================ phone widths
+ * The drill on a phone: the replayer full width on top, the answers held at
+ * the bottom of the screen above the shell's tab bar while the spot is in
+ * view, then "Next" in the same place. The spot is not a card in a card. */
+@media (max-width: 899px) {
+  .spot:global(.card) {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .table {
+    block-size: clamp(16rem, 44svh, 24rem);
+  }
+
+  /* The spot first: the intro, the two options and the counts go under
+     the drill (and its result), so a phone opens straight onto the hand. */
+  .trainer > .lede,
+  .trainer > .settings,
+  .trainer > .counts {
+    order: 1;
+  }
+
+  .counts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .answers {
+    position: sticky;
+    inset-block-end: var(--shell-bottom-nav, 0);
+    z-index: 5;
+    grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+    padding-block: var(--space-2);
+    background: var(--surface-base);
+  }
+
+  .answer {
+    justify-content: center;
+    min-block-size: 56px;
+    padding-inline: var(--space-2);
+    font-size: var(--font-size-base);
+    line-height: 1.2;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .answerKeys,
+  .inlineKey {
+    display: none;
+  }
+
+  .nextRow {
+    position: sticky;
+    inset-block-end: var(--shell-bottom-nav, 0);
+    z-index: 6;
+    padding-block: var(--space-5, 20px) var(--space-2);
+    background: linear-gradient(to bottom, transparent, var(--surface-base) var(--space-4));
+  }
+
+  .nextRow > :global(.btn) {
+    flex: 1 1 auto;
+    min-block-size: 56px;
+    font-size: var(--font-size-base);
+  }
+
+  .settings select {
+    font-size: 16px;
+  }
+}

@@ -13,6 +13,9 @@ export default {
   extends: ["stylelint-config-standard"],
 
   rules: {
+    // CSS Modules' `:global(...)`: a module reaching a shared class (`.btn`,
+    // `.rp`), as the desktop app's config already allows.
+    "selector-pseudo-class-no-unknown": [true, { ignorePseudoClasses: ["global"] }],
     "selector-class-pattern": null,
     "custom-property-pattern": null,
     "keyframes-name-pattern": null,

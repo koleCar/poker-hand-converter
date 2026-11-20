@@ -15,7 +15,7 @@ import { useLocale } from "../../lib/i18n/client";
  * (`packages/ui/feedback`): a bug, a feature request or a question, with up to
  * three screenshots. Nothing in a build without Supabase.
  */
-export function FeedbackButton() {
+export function FeedbackButton({ variant = "fab" }: { variant?: "fab" | "row" } = {}) {
   const t = useUiStrings().feedback;
   const auth = useAuth();
   const pathname = usePathname();
@@ -26,9 +26,9 @@ export function FeedbackButton() {
 
   return (
     <>
-      <button type="button" className="feedback-fab" onClick={() => setOpen(true)} title={t.openTitle} aria-haspopup="dialog">
-        <Icon name="megaphone" className="feedback-fab__icon" />
-        <span className="feedback-fab__label">{t.open}</span>
+      <button type="button" className={variant === "row" ? "msheet__row msheet__row--button" : "feedback-fab"} onClick={() => setOpen(true)} title={t.openTitle} aria-haspopup="dialog">
+        <Icon name="megaphone" className={variant === "row" ? "msheet__icon" : "feedback-fab__icon"} />
+        <span className={variant === "row" ? undefined : "feedback-fab__label"}>{t.open}</span>
       </button>
       {open ? (
         <FeedbackDialog

@@ -56,3 +56,29 @@ export function PotOddsBox({ odds, format }: PotOddsBoxProps) {
     </div>
   );
 }
+
+/**
+ * The same numbers as one short pill, for a phone: the stage has no spare
+ * corner there, so the odds ride in the transport beside the caption instead
+ * of covering a seat. Facing a bet: the price and the equity it needs. Making
+ * one: what the bluff needs to work.
+ */
+export function PotOddsPill({ odds, format }: PotOddsBoxProps) {
+  const words = useUiStrings().replayer.odds;
+  if (odds.kind === "facing") {
+    const ratio = odds.pot / odds.toCall;
+    return (
+      <span className="rp__odds-pill" role="note" aria-label={words.facingTitle}>
+        {`${ratio >= 10 ? Math.round(ratio) : ratio.toFixed(1)}:1`}
+        <span className="rp__odds-pill-dim">{words.needEquity(percent(odds.equity))}</span>
+      </span>
+    );
+  }
+  const title = odds.raise ? words.raiseTitle(format(odds.bet)) : words.betTitle(percent(odds.bet / odds.potBefore));
+  return (
+    <span className="rp__odds-pill rp__odds-pill--betting" role="note" aria-label={title}>
+      {words.bluffNeeds}
+      <strong>{percent(odds.foldEquity)}</strong>
+    </span>
+  );
+}

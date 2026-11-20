@@ -68,6 +68,8 @@ export interface CreateShareRequest {
    * wants the result in the unfurl is the only way it gets set.
    */
   spoilers?: boolean;
+  /** Whether the new link shows the players' names (the owner's remembered choice). */
+  showNames?: boolean;
 }
 
 export interface CreateShareResponse {

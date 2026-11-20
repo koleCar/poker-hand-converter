@@ -52,6 +52,7 @@ export const downloadHr: Dict["download"] = {
     detail: "Windows 10 ili 11 · 64-bitni · instalacija bez administratorskih prava",
   },
   included: "Dio Rail Pro plana. Kad je instalirana, uvoz, biblioteka i replayer rade i bez veze.",
+  computerOnly: "Rail radi na Windowsu i macOS-u. Preuzmi ga na računalu.",
 
   gate: {
     checking: "Provjeravam tvoj plan…",

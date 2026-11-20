@@ -750,3 +750,64 @@
   flex: none;
   gap: 8px;
 }
+
+/* ----------------------------------------------------------------- phones */
+
+/* Under 640px: the results and failures sit on the page, not in a card
+   (their files and hands are the boxes); words at a readable size; every
+   button finger-sized; the preview sheet clear of the home indicator. */
+@media (max-width: 639px) {
+  .card.conv-results,
+  .card.conv-failures {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .conv-switch,
+  .conv-switch__text strong {
+    font-size: 14px;
+  }
+
+  .conv-switch__text small,
+  .conv-stat__label,
+  .conv-hand__meta,
+  .conv-progress__detail {
+    font-size: 13px;
+  }
+
+  .conv-source__name,
+  .conv-hand__line {
+    font-size: 14px;
+  }
+
+  .conv-hand__cards,
+  .conv-hand__board,
+  .conv-source__detail,
+  .conv-failure {
+    font-size: 12.5px;
+  }
+
+  .conv-results__head-actions .btn,
+  .conv-source__actions .btn,
+  .conv-hand__actions .btn,
+  .conv-hands__more,
+  .conv-modal__actions .btn,
+  .conv-signin__actions .btn {
+    min-height: 44px;
+  }
+
+  .conv-signin__actions {
+    flex: 1 1 100%;
+  }
+
+  .conv-signin__actions .btn {
+    flex: 1 1 0;
+  }
+
+  .conv-modal__panel {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+}

@@ -17,8 +17,8 @@ export function ManualHandScreen() {
         <div className="stack">
           {/* One line of chrome: the table is the page. */}
           <div className={styles.manualHead}>
-            <Link href={paths.convert()} className="btn btn--ghost btn--sm">
-              ← {t.back}
+            <Link href={paths.convert()} className={`btn btn--ghost btn--sm ${styles.manualBack}`} aria-label={t.back}>
+              ← <span className={styles.manualBackWord}>{t.back}</span>
             </Link>
             <h1 className={styles.manualTitle}>{t.title}</h1>
           </div>

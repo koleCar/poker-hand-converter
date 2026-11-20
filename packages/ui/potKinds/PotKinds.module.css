@@ -428,3 +428,96 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* A phone: flat blocks split by hairlines instead of a card per figure and
+   per box; the decision rows become two lines (cards, the decision and the
+   EV; then the date, the position and the grade). */
+@media (max-width: 640px) {
+  .figures {
+    gap: 0 var(--space-4);
+  }
+
+  .figure {
+    padding: var(--space-3) 0;
+    border: 0;
+    border-block-end: 1px solid var(--border-subtle);
+    border-radius: 0;
+    background: none;
+  }
+
+  .figureValue {
+    font-size: var(--font-size-xl);
+  }
+
+  .box {
+    padding: var(--space-4) 0 0;
+    border: 0;
+    border-block-start: 1px solid var(--border-subtle);
+    border-radius: 0;
+    background: none;
+  }
+
+  .close {
+    width: 44px;
+    height: 44px;
+    margin: calc(-1 * var(--space-2));
+  }
+
+  .chip {
+    height: 44px;
+    padding: 0 var(--space-4);
+  }
+
+  /* Each habit: its name and figures on one line, its bar under them. */
+  .compare {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-auto-flow: row dense;
+  }
+
+  .compare > .track {
+    grid-column: 1 / -1;
+    margin-block-end: var(--space-2);
+  }
+
+  .compare > :nth-child(3n) {
+    grid-column: 2;
+  }
+
+  .ftRow {
+    gap: var(--space-1);
+  }
+
+  .row {
+    grid-template-areas:
+      "cards what ev"
+      "date pos grade";
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--space-1) var(--space-3);
+    min-height: 56px;
+    padding: var(--space-2) 0;
+  }
+
+  .row > :nth-child(1) { grid-area: date; }
+  .row > :nth-child(2) { grid-area: pos; }
+  .row > :nth-child(3) { grid-area: cards; }
+  .row > :nth-child(4) { grid-area: what; }
+  .row > :nth-child(5) {
+    grid-area: grade;
+    justify-self: end;
+  }
+  .row > :nth-child(6) { grid-area: ev; }
+
+  .table th,
+  .table td {
+    padding-inline: var(--space-2);
+  }
+
+  /* Words wrap, numbers don't: a table never pushes the page wider. */
+  .table td:not(.r) {
+    white-space: normal;
+  }
+
+  .box {
+    overflow-x: auto;
+  }
+}

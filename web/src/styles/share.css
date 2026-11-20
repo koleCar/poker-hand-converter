@@ -517,3 +517,40 @@
     padding-inline: 24px;
   }
 }
+
+/* ------------------------------------------------------- share page, phone */
+
+/* On a phone the hand IS the page: a slim 52px bar, then the replayer filling
+   exactly the rest of the screen, edge to edge, so the first screen is the
+   table and its transport and nothing scrolls into view under it. The owner's
+   switches, the call to action and the footer follow below the fold. */
+@media (max-width: 899px) {
+  .sharepage__bar-inner {
+    min-height: 52px;
+    padding-block: 6px;
+  }
+
+  .sharepage__bar-actions .btn {
+    min-height: 36px;
+  }
+
+  .sharepage__main {
+    padding: 0 0 max(24px, env(safe-area-inset-bottom));
+    gap: 20px;
+  }
+
+  .sharepage__replay {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: var(--surface-base);
+  }
+
+  .sharepage .sharepage__replay > .rp {
+    --rp-block: calc(100dvh - 53px);
+  }
+
+  .sharepage__main > :not(.sharepage__replay, .sharepage__sr-title) {
+    margin-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right));
+  }
+}

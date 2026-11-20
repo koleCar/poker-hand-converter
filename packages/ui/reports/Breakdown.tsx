@@ -18,7 +18,7 @@
  *
  * Moved from the desktop app (R2.7b) into the shared package (R4.5c).
  */
-import { useId, useRef, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, type KeyboardEvent, type ReactNode } from "react";
 
 import { FORMAT_ORDER, POSITION_ORDER, POT_TYPE_ORDER, SIZE_ORDER } from "../hands/filter";
 import { stakeLabel } from "../hands/format";
@@ -188,6 +188,20 @@ export function Breakdown({
   const panelId = useId();
   // A10: no hand charts while a poker table is open.
   const hidden = hideHandChart && tab === "handClass";
+
+  // On a phone the tabs are one row that scrolls sideways: keep the chosen
+  // one in view. Only the row scrolls (never the page), and a row that fits
+  // (every desktop width) has nothing to scroll.
+  useEffect(() => {
+    const row = tabsRef.current;
+    const active = row?.querySelector<HTMLElement>("[aria-selected=true]");
+    if (!row || !active || row.scrollWidth <= row.clientWidth) return;
+    const start = active.getBoundingClientRect().left - row.getBoundingClientRect().left + row.scrollLeft;
+    const end = start + active.offsetWidth;
+    // To the tab's own start: the row snaps to tab starts, so anything in
+    // between would snap back out of view.
+    if (start < row.scrollLeft || end > row.scrollLeft + row.clientWidth) row.scrollLeft = start;
+  }, [tab]);
 
   // Arrow keys move between tabs (the ARIA tabs pattern).
   const onKey = (event: KeyboardEvent<HTMLDivElement>) => {

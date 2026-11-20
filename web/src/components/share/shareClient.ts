@@ -61,6 +61,7 @@ export async function createShare(request: CreateShareRequest): Promise<CreateSh
     // title and the stored flag can never disagree about whether this link is
     // allowed to give the hand away.
     spoilers: request.spoilers ?? request.preview.spoilers,
+    showNames: request.showNames === true,
   });
 
   return { slug: ref.slug, url: sharedHandUrl(ref.slug), reused: Boolean(ref.reused) };

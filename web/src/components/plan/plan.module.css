@@ -231,3 +231,70 @@
   color: var(--text-tertiary);
   font-size: 12px;
 }
+
+/* Phone: the billing return pages sit on the page, not in a card, their
+   buttons the full width; in the plan dialogs (bottom sheets there) the gold
+   button takes its own line. */
+@media (max-width: 640px) {
+  .returnCard.returnCard {
+    margin-top: 24px;
+    padding: 8px 0 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .returnCard .actions {
+    flex-direction: column;
+    align-items: stretch;
+    align-self: stretch;
+  }
+
+  .returnCard .actions > * {
+    min-height: 48px;
+    font-size: var(--font-size-lg);
+  }
+
+  .dim {
+    font-size: var(--font-size-md);
+  }
+
+  .small,
+  .consentItem {
+    font-size: var(--font-size-lg);
+  }
+
+  .consentItem {
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .consentItem input {
+    inline-size: 20px;
+    block-size: 20px;
+    margin-top: 0;
+  }
+
+  /* Doubled: outranks the dialog's own "buttons share the row" rule. */
+  .actions > .gold.gold {
+    flex: 1 1 100%;
+    order: -1;
+  }
+}
+
+/* The success page's link to /download: "Get…" on a computer, "See…" on a
+   phone, where nothing can be downloaded. */
+.narrowOnly {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  .wideOnly {
+    display: none;
+  }
+
+  .narrowOnly {
+    display: inline;
+  }
+}

@@ -233,7 +233,7 @@ function PostPreview({ handId, draftId }: { handId: string | null; draftId: stri
         {hint ? <span className={styles.hint}>{hint}</span> : null}
         <button
           type="button"
-          className="btn btn--primary"
+          className={`btn btn--primary ${styles.publish}`}
           aria-disabled={titleMissing || namesUnconfirmed || Boolean(blocked)}
           disabled={busy || Boolean(blocked)}
           onClick={() => void submit()}
@@ -417,7 +417,7 @@ function PostPreview({ handId, draftId }: { handId: string | null; draftId: stri
                 </section>
               ) : (
                 <>
-                  <section className="card">
+                  <section className={`card ${forum.handSummary}`}>
                     <HandSummary t={en} hand={shown} />
                   </section>
                   <PostDiscussion key={`${mode}:${showAnalysis}`} hand={shown} analysis={showAnalysis ? analysis : null}>

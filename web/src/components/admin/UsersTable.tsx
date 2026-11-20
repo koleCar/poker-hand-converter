@@ -120,7 +120,7 @@ export function UsersTable() {
         <p className={styles.state}>{t.users.empty}</p>
       ) : (
         <div className={styles.tableWrap}>
-          <table className={styles.table}>
+          <table className={`${styles.table} ${styles.usersTable}`}>
             <thead>
               <tr>
                 {COLUMNS.map((column) => {

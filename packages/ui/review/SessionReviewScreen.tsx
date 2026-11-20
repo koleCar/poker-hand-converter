@@ -597,7 +597,7 @@ function ListSection({
         </div>
         {empty !== null ? <p className={styles.muted}>{empty}</p> : null}
         {section.items.length > 0 ? (
-          <div className={table.table}>
+          <div className={`${table.table} ${table.phoneList}`}>
             <TableHead />
             <div className={`${table.body} rail-stagger`}>
               {section.items.map((item) => (

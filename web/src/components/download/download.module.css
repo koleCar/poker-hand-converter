@@ -172,3 +172,58 @@
     margin-bottom: 6px;
   }
 }
+
+/* Phone: what the app does and the first-open notes as a flat list with
+   hairlines, not a stack of cards. */
+@media (max-width: 640px) {
+  .page {
+    gap: 24px;
+  }
+
+  .features {
+    gap: 0;
+  }
+
+  .feature.feature,
+  .firstOpen.firstOpen {
+    padding: 16px 0;
+    border: 0;
+    border-top: 1px solid var(--line-soft);
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .feature p,
+  .firstOpen dl {
+    font-size: var(--font-size-lg);
+  }
+
+  .detail {
+    font-size: var(--font-size-md);
+  }
+}
+
+/* No mobile app (owner, 2026-11-20): below 900 px no installer or platform
+   link, only the line saying the app is downloaded on a computer. */
+.desktopOnly {
+  display: contents;
+}
+
+.computerOnly {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  .desktopOnly {
+    display: none;
+  }
+
+  .computerOnly {
+    display: block;
+    margin: 0;
+    max-width: 52ch;
+    color: var(--fg-muted);
+    font-size: var(--font-size-md);
+  }
+}

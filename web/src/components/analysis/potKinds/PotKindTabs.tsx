@@ -16,6 +16,8 @@ import { fetchBombSummary, fetchMultiwaySummary, fetchPotKindDecisions } from ".
 import { paths } from "../../../lib/routes";
 import { AnalysisNav } from "../AnalysisNav";
 import { TopLeaks } from "../leaks/TopLeaks";
+// `.stats` (the page column) for a direct load of these pages, as the other tabs import it.
+import "../../../styles/stats.css";
 
 const decisionHref = (row: PotKindDecision) => paths.analysisHand(row.handKey, `t=a${row.actionIndex}`);
 

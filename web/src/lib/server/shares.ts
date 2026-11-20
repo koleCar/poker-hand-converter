@@ -134,5 +134,10 @@ export function shareHand(share: ServerShare | null): PhfHand | null {
   if (!share.showNames) {
     return share.phf && typeof share.phf === "object" && Array.isArray(share.phf.players) ? share.phf : null;
   }
-  return share.standardText ? parseHand(share.standardText) : null;
+  // Names on: the standard text carries them. A link with no text to read
+  // (a stored row without one) still has the document, with its names, so it
+  // shows the hand rather than "cannot be read".
+  const parsed = share.standardText ? parseHand(share.standardText) : null;
+  if (parsed) return parsed;
+  return share.phf && typeof share.phf === "object" && Array.isArray(share.phf.players) ? share.phf : null;
 }

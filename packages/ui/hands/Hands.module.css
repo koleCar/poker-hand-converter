@@ -99,3 +99,76 @@
     height: min(60vh, 40rem);
   }
 }
+
+/* Phones choose hands with a button (no modifier keys); the desktop never shows it. */
+.select {
+  display: none;
+}
+
+/* The web under 900 px (the desktop app's window never is): no heading (the
+   tab bar says where you are); the bb/$ and Cash/Tournaments toggles and
+   Select on one line, the count small under them; and, with no hand open,
+   the screen is the window's height less the bars, so the list fills what
+   is left and scrolls on its own, not inside a box inside the page. */
+@media (max-width: 899px) {
+  .screen {
+    gap: var(--space-3);
+  }
+
+  .title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .top {
+    flex: none;
+    gap: var(--space-2);
+  }
+
+  .spacer {
+    display: none;
+  }
+
+  .count {
+    order: 10;
+    flex-basis: 100%;
+    font-size: var(--font-size-md);
+  }
+
+  .select {
+    display: inline-flex;
+    align-items: center;
+    order: 5;
+    min-height: 44px;
+    margin-inline-start: auto;
+    padding-inline: var(--space-4);
+    font-size: var(--font-size-base);
+  }
+
+  .page:not(:has(.split)) {
+    height: calc(100dvh - var(--shell-bottom-nav, 0px) - 112px);
+    min-height: 28rem;
+  }
+
+  .page:not(:has(.split)) .body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+  }
+
+  .page:not(:has(.split)) .list {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    height: auto;
+  }
+
+  .page:not(:has(.split)) .list > [role="grid"] {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}

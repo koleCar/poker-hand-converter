@@ -240,6 +240,7 @@ export const converterHr: Dict["converter"] = {
       deleteHand: "Obriši ruku",
       chosen: (count: number) => `${num(count)} ${plural(count, "odabrana", "odabrane", "odabranih")}`,
       clear: "Poništi odabir",
+      pickHint: "Dodirni ruke za odabir",
       title: (count: number) => (count === 1 ? "Obrisati ovu ruku?" : `Obrisati ${num(count)} ${ruka(count)}?`),
       body: (count: number) =>
         `${count === 1 ? "Njezina" : "Njihova"} statistika i analiza brišu se s ${count === 1 ? "njom" : "njima"}. Objave na forumu ostaju. Ne može se poništiti.`,

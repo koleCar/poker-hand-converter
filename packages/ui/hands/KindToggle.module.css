@@ -40,3 +40,12 @@
   gap: var(--space-1);
   align-items: center;
 }
+
+/* Phones (the web under 900 px): finger-sized halves. */
+@media (max-width: 899px) {
+  .toggle > button {
+    min-height: 44px;
+    padding-inline: var(--space-3);
+    font-size: var(--font-size-base);
+  }
+}

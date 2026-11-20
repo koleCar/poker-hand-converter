@@ -45,3 +45,37 @@
 .replay {
   min-width: 0;
 }
+
+/* Phones: the replayer first, the written recap under it, flat (no card). */
+@media (max-width: 860px) {
+  .article {
+    gap: 18px;
+  }
+
+  .title {
+    line-height: 1.28;
+  }
+
+  .facts {
+    font-size: 14px;
+  }
+
+  .facts a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+  }
+
+  .mode :is(a, button) {
+    min-height: 44px;
+  }
+
+  .article > .card {
+    order: 1;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+}

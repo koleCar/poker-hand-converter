@@ -81,7 +81,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
                     {hit.type === "comment" ? `${en.forum.searchPage.commentOn} ` : null}
                     <Link href={href}>{hit.title}</Link>
                   </p>
-                  <p className={styles.meta}>
+                  <p className={`${styles.meta} ${styles.snippet}`}>
                     <Snippet text={hit.snippet} />
                   </p>
                 </div>

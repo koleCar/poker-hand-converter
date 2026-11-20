@@ -87,9 +87,11 @@ export interface HandsScreenProps {
   onRowsMenu?: (handKeys: string[], at: MenuPoint) => void;
   /**
    * The chosen hands' own actions (the desktop's bar at the window's foot),
-   * given the chosen hands in the list's order and how to let them go.
+   * given the chosen hands in the list's order, how to let them go, and
+   * whether a phone is choosing (its Select button or a long press: the bar
+   * shows from the first hand, or none).
    */
-  renderChosen?: (handKeys: string[], clear: () => void) => ReactNode;
+  renderChosen?: (handKeys: string[], clear: () => void, choosing: boolean) => ReactNode;
 }
 
 export function HandsScreen({
@@ -143,6 +145,20 @@ export function HandsScreen({
     if (listRef) listRef.current = list;
   });
   const selection = useHandSelection(list.rows);
+  // A phone has no modifier keys: its Select button (or a long press on a
+  // row) turns taps into choosing hands, until Done or the bar's clear.
+  const [choosing, setChoosing] = useState(false);
+  const clearChosen = useCallback(() => {
+    selection.clear();
+    setChoosing(false);
+  }, [selection]);
+  const startChoosing = useCallback(
+    (handKey: string) => {
+      selection.only(handKey);
+      setChoosing(true);
+    },
+    [selection],
+  );
   const loadFacets = useCallback((draft: HandFilter) => source.facets(draft), [source]);
 
   const { reload } = list;
@@ -203,6 +219,8 @@ export function HandsScreen({
         enterKey={list.rowsKey}
         selection={onRowsMenu ? selection : undefined}
         onRowsMenu={onRowsMenu}
+        choosing={choosing && onRowsMenu !== undefined}
+        onLongPress={onRowsMenu ? startChoosing : undefined}
       />
     );
   }
@@ -239,6 +257,23 @@ export function HandsScreen({
             </button>
           </div>
           <KindToggle filter={filter} facets={facets} onChange={onFilterChange} />
+          {onRowsMenu && list.rows.length > 0 ? (
+            <button
+              type="button"
+              className={`chip-btn ${styles.select}${choosing ? " is-active" : ""}`}
+              aria-pressed={choosing}
+              onClick={() => {
+                if (choosing) {
+                  clearChosen();
+                } else {
+                  selection.clear();
+                  setChoosing(true);
+                }
+              }}
+            >
+              {choosing ? t.selectDone : t.select}
+            </button>
+          ) : null}
         </header>
         {status}
         <FilterBar
@@ -265,7 +300,8 @@ export function HandsScreen({
       {renderChosen && onRowsMenu
         ? renderChosen(
             list.rows.filter((candidate) => selection.checked.has(candidate.handKey)).map((candidate) => candidate.handKey),
-            selection.clear,
+            clearChosen,
+            choosing,
           )
         : null}
     </HandSessionsContext.Provider>

@@ -189,7 +189,7 @@ export function ReportsTable() {
         <p className={styles.state}>{t.empty}</p>
       ) : (
         <div className={styles.tableWrap}>
-          <table className={styles.table}>
+          <table className={`${styles.table} ${styles.reportsTable}`}>
             <thead>
               <tr>
                 <th>{t.columns.report}</th>

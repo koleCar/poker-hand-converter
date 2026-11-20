@@ -115,3 +115,61 @@
 .grade_inaccurate { color: var(--grade-inaccurate); }
 .grade_mistake { color: var(--grade-mistake); }
 .grade_blunder { color: var(--grade-blunder); }
+
+/* `phoneList` (the session review's columns): on a phone each row becomes a
+   two-line list item instead of a table that scrolls sideways - the cards,
+   the position, the decision and the result; then the board, the grade and
+   the EV lost. The time, the stakes and the pot stay on the hand. */
+@media (max-width: 40rem) {
+  .phoneList {
+    overflow-x: visible;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    font-size: var(--font-size-md);
+  }
+
+  .phoneList .head {
+    display: none;
+  }
+
+  .phoneList .body {
+    min-width: 0;
+    border-block-start: 1px solid var(--border-subtle);
+  }
+
+  .phoneList .body > .row:last-child {
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .phoneList .row {
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "cards pos decision result"
+      "board board grade ev";
+    row-gap: var(--space-1);
+    min-width: 0;
+    min-height: 64px;
+    padding: var(--space-2) 0;
+  }
+
+  .phoneList .row > :nth-child(1),
+  .phoneList .row > :nth-child(2),
+  .phoneList .row > :nth-child(9) {
+    display: none;
+  }
+
+  .phoneList .row > :nth-child(3) { grid-area: pos; }
+  .phoneList .row > :nth-child(4) { grid-area: cards; }
+  .phoneList .row > :nth-child(5) { grid-area: board; }
+  .phoneList .row > :nth-child(6) { grid-area: decision; }
+  .phoneList .row > :nth-child(7) { grid-area: grade; }
+  .phoneList .row > :nth-child(8) {
+    grid-area: ev;
+    text-align: end;
+  }
+  .phoneList .row > :nth-child(10) {
+    grid-area: result;
+    text-align: end;
+  }
+}

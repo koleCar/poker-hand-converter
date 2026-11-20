@@ -207,6 +207,21 @@ export const en = {
     analysis: "Analysis",
     learn: "Learn",
     solver: "Solver library",
+    /** The phone's bottom tab bar: one short word under each icon. */
+    short: {
+      forum: "Forum",
+      convert: "Upload",
+      library: "Hands",
+      stats: "Stats",
+      analysis: "Analysis",
+      solver: "Solver",
+      download: "App",
+    } as Record<string, string>,
+    /** The More sheet's entry for /download on a phone: a showcase, not a download. */
+    desktopApp: "Desktop app",
+    more: "More",
+    menu: "Menu",
+    feedback: "Feedback",
   },
 
   home: {
@@ -276,6 +291,13 @@ export const en = {
   account: {
     menuProfile: "Profile settings",
     opening: "Opening…",
+    theme: {
+      label: "Theme",
+      hint: "Remembered in this browser. System follows your device.",
+      system: "System",
+      light: "Light",
+      dark: "Dark",
+    },
   },
 
   profile: {
@@ -416,7 +438,7 @@ export const en = {
 
     nav: {
       label: "Forum",
-      menu: "Boards and filters",
+      menu: "Boards and search",
       everything: "Everything",
       unanswered: "Unanswered",
       saved: "Saved",
@@ -702,6 +724,7 @@ export const en = {
       account: "Account",
       plan: "Plan",
       language: "Language",
+      appearance: "Appearance",
       data: "Your data",
       danger: "Danger zone",
     },

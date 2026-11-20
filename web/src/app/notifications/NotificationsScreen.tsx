@@ -39,7 +39,7 @@ function NotificationsList() {
 
   if (!auth.isSignedIn) {
     return (
-      <section className="card stack">
+      <section className={`card stack ${styles.flatCard}`}>
         <h1 className={styles.postTitle}>{en.social.notificationsHeading}</h1>
         <div>
           <button type="button" className="btn btn--primary" onClick={() => auth.requestSignIn(en.social.signIn)}>
@@ -78,7 +78,7 @@ function NotificationsList() {
               ? paths.comment(item.post.board, item.post.publicId, item.post.slug, item.seq)
               : paths.post(item.post.board, item.post.publicId, item.post.slug);
             return (
-              <li key={item.id} className={styles.card} style={item.read ? undefined : { borderColor: "var(--accent)" }}>
+              <li key={item.id} className={`${styles.card} ${item.read ? "" : styles.unread}`.trim()}>
                 <div className={styles.cardBody}>
                   <p className={styles.cardTitle}>
                     <Link
@@ -94,7 +94,7 @@ function NotificationsList() {
                       {en.social.kinds[item.kind](actor)}
                     </Link>
                   </p>
-                  <p className={styles.meta}>
+                  <p className={`${styles.meta} ${styles.notifMeta}`}>
                     <span>{item.post.title}</span>
                     <span aria-hidden="true">·</span>
                     <time dateTime={item.createdAt}>{formatPostDate(item.createdAt, en.chrome.intl)}</time>
