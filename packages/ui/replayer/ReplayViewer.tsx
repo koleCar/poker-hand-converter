@@ -160,6 +160,14 @@ interface ReplayViewerProps {
    * hand lists opt in; the desktop app's narrow side panel must not.
    */
   phoneTakeover?: boolean;
+  /**
+   * A web page's replayer on a desktop-sized screen: as tall as the screen
+   * below its own top edge (capped at the usual 54rem), so the whole table and
+   * its transport are in view without scrolling, whatever the page puts above
+   * it. Phones, a takeover, full screen, a docked sheet and embeds keep their
+   * own sizing. The desktop app's panel sizes the replayer itself.
+   */
+  fitToScreen?: boolean;
   ref?: React.Ref<ReplayViewerHandle>;
 }
 
@@ -291,6 +299,45 @@ function loops(animation: Animation): boolean {
  * pass renders `classic` and the first client frame corrects it, which is what
  * keeps this safe for the move to Next.
  */
+/** Below this a screen is a phone (or one on its side) and has its own rules. */
+const FIT_MIN_WIDTH = 900;
+const FIT_MIN_HEIGHT = 521;
+/** Never shorter than this: a page with a lot above the replayer scrolls instead. */
+const FIT_FLOOR = 416;
+
+/**
+ * Publishes `--rp-fit`, the room between the replayer's top edge on the page
+ * and the bottom of the screen; replayer.css turns it into `--rp-block`
+ * (`data-fit`). Re-measured when the window or anything on the page changes
+ * size, since notices above the replayer arrive after it mounts.
+ */
+function useFitToScreen(ref: React.RefObject<HTMLDivElement | null>, enabled: boolean): void {
+  useEffect(() => {
+    const node = ref.current;
+    if (!enabled || !node || typeof window === "undefined") {
+      return;
+    }
+    const apply = () => {
+      if (window.innerWidth < FIT_MIN_WIDTH || window.innerHeight < FIT_MIN_HEIGHT) {
+        node.style.removeProperty("--rp-fit");
+        return;
+      }
+      const top = node.getBoundingClientRect().top + window.scrollY;
+      const room = Math.max(FIT_FLOOR, Math.floor(window.innerHeight - top - 16));
+      node.style.setProperty("--rp-fit", `${room}px`);
+    };
+    apply();
+    window.addEventListener("resize", apply);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(apply);
+    observer?.observe(document.body);
+    return () => {
+      window.removeEventListener("resize", apply);
+      observer?.disconnect();
+      node.style.removeProperty("--rp-fit");
+    };
+  }, [ref, enabled]);
+}
+
 function useStageShape(ref: React.RefObject<HTMLDivElement | null>, remount?: unknown): TableShape {
   const [shape, setShape] = useState<TableShape>("classic");
 
@@ -300,8 +347,13 @@ function useStageShape(ref: React.RefObject<HTMLDivElement | null>, remount?: un
       return;
     }
     const measure = () => {
+      // The content box: a sheet open on the flank pads the stage (`data-flank`),
+      // and the felt is laid out in what is left beside it.
       const box = node.getBoundingClientRect();
-      setShape(shapeFor(box.width, box.height));
+      const css = getComputedStyle(node);
+      const width = box.width - parseFloat(css.paddingLeft) - parseFloat(css.paddingRight);
+      const height = box.height - parseFloat(css.paddingTop) - parseFloat(css.paddingBottom);
+      setShape(shapeFor(width, height));
     };
     measure();
     const observer = new ResizeObserver(measure);
@@ -431,6 +483,7 @@ function ReplayStage({
   sheet,
   potOdds = true,
   phoneTakeover = false,
+  fitToScreen = false,
   ref,
 }: ReplayViewerProps) {
   const embed = mode === "embed";
@@ -477,6 +530,7 @@ function ReplayStage({
   const fullscreen = useFullscreen(rootRef);
   // A phone: an opened hand covers the screen, its header leads with a back arrow.
   const takeover = usePhoneTakeover(mode === "full" && phoneTakeover, onClose);
+  useFitToScreen(rootRef, mode === "full" && fitToScreen && !takeover);
   const shape = useStageShape(stageRef, takeover);
   const { tier, transport } = useReplayBox(rootRef, takeover);
   // Below the `lg` tier there is no flank beside the felt, and a sheet laid
@@ -506,6 +560,11 @@ function ReplayStage({
   // The Tier-2 overlays. Held here rather than inside each sheet so the
   // key handler can tell when one of them owns the keyboard.
   const [logOpen, setLogOpen] = useState(false);
+  // From the `lg` tier the log and the host's sheet open on the flank beside
+  // the felt. The stage gives that flank up (`data-flank` in replayer.css) so
+  // the table moves over instead of disappearing under the sheet.
+  const flank =
+    mode === "embed" || docked || tier !== "lg" ? undefined : sheet?.open ? "sheet" : logOpen ? "log" : undefined;
   const [infoOpen, setInfoOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [keysOpen, setKeysOpen] = useState(false);
@@ -617,6 +676,11 @@ function ReplayStage({
       writeStored(SPEED_KEY, String(next));
       return next;
     });
+  }, []);
+
+  const pickSpeed = useCallback((next: number) => {
+    setSpeed(next);
+    writeStored(SPEED_KEY, String(next));
   }, []);
 
   const toggleLog = useCallback(() => {
@@ -933,6 +997,8 @@ function ReplayStage({
       // A phone with a dismissable hand: the replayer covers the screen (see usePhoneTakeover).
       data-takeover={takeover ? "" : undefined}
       data-docked={docked ? "true" : undefined}
+      data-flank={flank}
+      data-fit={mode === "full" && fitToScreen ? "" : undefined}
       data-shape={shape}
       // Which rungs of the drop ladder have fired, and where the transport
       // sits. The stylesheet reads these rather than deriving second answers
@@ -1029,6 +1095,9 @@ function ReplayStage({
               anchor={stageRef}
               open={settingsOpen}
               onOpenChange={setSettingsOpen}
+              speed={speed}
+              speeds={SPEEDS}
+              onSpeed={pickSpeed}
             />
             <button
               type="button"

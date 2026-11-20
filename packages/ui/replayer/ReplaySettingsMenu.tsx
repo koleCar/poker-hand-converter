@@ -28,6 +28,10 @@ interface ReplaySettingsMenuProps {
   /** Lifted so the viewer's key handler knows an overlay owns the keyboard. */
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Playback speed. Here as well as on the header's pill, which a narrow replayer drops. */
+  speed: number;
+  speeds: readonly number[];
+  onSpeed: (speed: number) => void;
 }
 
 /** Each toggle's label and hint in `replayer.settings`: `key` and `${key}Hint`. */
@@ -47,9 +51,13 @@ export function ReplaySettingsMenu({
   anchor,
   open,
   onOpenChange,
+  speed,
+  speeds,
+  onSpeed,
 }: ReplaySettingsMenuProps) {
   const hintId = useId();
-  const words = useUiStrings().replayer.settings;
+  const strings = useUiStrings();
+  const words = strings.replayer.settings;
 
   return (
     <>
@@ -122,6 +130,24 @@ export function ReplaySettingsMenu({
           <span className="rp__setting-hint rp__set-hint" id={`${hintId}-odds-hint`}>
             {words.potOddsHint}
           </span>
+
+          <span className="rp__set-label" id={`${hintId}-speed`}>
+            {strings.replayer.controls.speed}
+          </span>
+          <div className="rp__seg" role="radiogroup" aria-labelledby={`${hintId}-speed`}>
+            {speeds.map((value) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={speed === value}
+                className={speed === value ? "is-on" : undefined}
+                onClick={() => onSpeed(value)}
+              >
+                {`${value.toLocaleString(strings.intlLocale)}x`}
+              </button>
+            ))}
+          </div>
 
           <div className="rp__toggles">
             {TOGGLES.map((key) => (

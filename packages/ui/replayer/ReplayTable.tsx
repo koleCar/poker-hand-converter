@@ -138,6 +138,21 @@ function wearsTag(seat: SeatFrameState): boolean {
   return seat.isActing || (!seat.folded && !seat.allIn);
 }
 
+/**
+ * The tag's words: the verb only ("raises", "call", "small blind"). The amount
+ * is already on the bet pill beside the seat, and the source's own wording
+ * prints it unpadded ("raises to $0.6"), so it is cut at the first number,
+ * with a dangling "to" / "na" after it. An all-in says so.
+ */
+function tagWords(seat: SeatFrameState, allIn: string): string {
+  if (seat.allIn && seat.isActing) return allIn;
+  const verb = (seat.lastAction ?? "")
+    .replace(/\s+\S*\d.*$/u, "")
+    .replace(/\s+(to|na)$/iu, "")
+    .trim();
+  return verb || (seat.lastAction ?? "");
+}
+
 /** Enter and Space press a `role="button"` that is not a `<button>`. */
 function pressKey(event: React.KeyboardEvent, press: () => void): void {
   if (event.key === "Enter" || event.key === " ") {
@@ -665,7 +680,7 @@ export function ReplayTable({
                   so it is re-rendered here to honour the big-blind setting. */}
               {wearsTag(seat) ? (
                 <span className={`pseat__tag pseat__tag--${tone}`} aria-hidden="true">
-                  {seat.winAmount > 0 ? `+${format(seat.winAmount)}` : seat.lastAction}
+                  {seat.winAmount > 0 ? `+${format(seat.winAmount)}` : tagWords(seat, words.allIn)}
                 </span>
               ) : null}
 

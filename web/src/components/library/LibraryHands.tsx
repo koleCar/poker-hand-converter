@@ -394,6 +394,7 @@ function StoredHandPanel({
   return (
     <div className={`${styles.panel} rail-fade`}>
       <ReplayViewer
+        fitToScreen
         phoneTakeover
         key={handKey}
         // The address does not name the open hand, so a `?t=` left by the
@@ -509,6 +510,7 @@ function ConverterHand({ onHandsSaved }: { onHandsSaved: () => void }) {
       {notice ? <p className="notice notice--info">{notice}</p> : null}
       {error ? <p className="notice notice--error">{error}</p> : null}
       <ReplayViewer
+        fitToScreen
         phoneTakeover
         key={hand.meta.handKey}
         urlSync={false}

@@ -131,6 +131,7 @@ export function PollThread({
         {poll.phf ? (
           <div id="replay" className={styles.replay}>
             <ReplayViewer
+              fitToScreen
               hand={poll.phf}
               site={site}
               // The end of the spot is the decision itself: the document stops

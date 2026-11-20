@@ -308,6 +308,12 @@
   box-shadow: inset 0 0 0 1px var(--rp-line);
 }
 
+/* A narrow replayer has no room for the pill; the speed is in the settings
+   sheet as well. */
+.rp[data-tier="sm"] .rp__speed {
+  display: none;
+}
+
 /* A host sheet's button carries a glyph rather than an icon. */
 .rp__ib--glyph {
   font-size: 1rem;
@@ -623,6 +629,17 @@
   place-items: center;
   padding: 0.25rem;
   overflow: clip;
+}
+
+/* A sheet open on the flank (from the lg tier): the stage gives up the
+   sheet's width, so the felt is laid out beside it rather than under it. The
+   widths match the sheets' own (see "Placement inside the anchor box"). */
+.rp[data-flank="sheet"] .rp__stage {
+  padding-inline-end: min(26rem, 52%);
+}
+
+.rp[data-flank="log"] .rp__stage {
+  padding-inline-end: min(22rem, 48%);
 }
 
 /* From seven seats a bottom corner of the felt holds a seat, which is where
@@ -2019,6 +2036,36 @@ html.rp-fullscreen-lock body {
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   border-radius: 0;
   box-sizing: border-box;
+}
+
+/* `fitToScreen` (ReplayViewer): a web page's replayer on a desktop-sized
+   screen is exactly as tall as the room below its top edge, so the transport
+   is never under the fold. The doubled class outweighs the hosts' own boxes
+   (`.card--flush > .rp`, `.sharepage__replay > .rp`). */
+@media (min-width: 900px) and (min-height: 521px) {
+  .rp.rp.rp[data-fit]:not([data-takeover], [data-docked], [data-fullscreen]) {
+    --rp-block: min(var(--rp-fit, 54rem), 54rem);
+  }
+}
+
+/* A phone turned sideways: a page's replayer becomes the whole screen (the
+   owner's rule: "vodoravno preko cijelog ekrana"). Turning the phone back
+   returns it to the page. Touch screens only, so a short desktop window is
+   never taken over; embeds keep their frame. */
+@media (orientation: landscape) and (max-height: 520px) and (pointer: coarse) {
+  .rp.rp[data-mode="full"]:not([data-takeover], [data-fullscreen]) {
+    --rp-block: 100dvh;
+
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    inline-size: 100vw;
+    max-inline-size: none;
+    block-size: 100dvh;
+    padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left);
+    border-radius: 0;
+    box-sizing: border-box;
+  }
 }
 
 html.rp-takeover-lock,
