@@ -402,7 +402,7 @@ function PostPreview({ handId, draftId }: { handId: string | null; draftId: stri
                   <h2 className={forum.cardTitle}>{en.forum.poll.heading}</h2>
                   <div className={forum.replay}>
                     {/* Keyed so a new spot or names mode starts the replayer over. */}
-                    <ReplayViewer key={`${spot.action.index}:${mode}:${hideCards}`} hand={shown} initialPosition={{ kind: "end" }} />
+                    <ReplayViewer key={`${spot.action.index}:${mode}:${hideCards}`} hand={shown} initialPosition={{ kind: "end" }} urlSync={false} />
                   </div>
                   {hideCards ? <p className="muted">{en.forum.poll.cardsHidden}</p> : null}
                   <p>{p.pollIntro}</p>

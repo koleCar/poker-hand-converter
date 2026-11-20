@@ -49,9 +49,11 @@ if (!["localhost", "127.0.0.1", "[::1]"].includes(new URL(BASE).hostname)) {
  * - a checkbox or radio inside a label: the label is the target (checked
  *   for 44 px separately when it is a toggle row);
  * - a link inside running text;
- * - the replayer's rail pips (`.rp__mark`, 14 px on the scrub bar of a hand's
- *   analysis): every pip is also a decision chip in the Analysis sheet beside
- *   it, which is the touch path (R5.1 opens hands there).
+ * - the replayer's marks (`.rp__mark`, 8 px dots with a 24 px hit area on the
+ *   transport's progress band, a hand's analysed decisions): every mark is
+ *   also a decision chip in the Analysis sheet beside it, which is the touch
+ *   path (R5.1 opens hands there). The band itself is the replayer's slider
+ *   (`.rp__seek`, the transport's whole background), checked like any other.
  */
 const EXCEPTIONS = ["[role=gridcell]", ".stats-matrix__cell", "label input", "p a", "li a", "small a", ".rp__mark"];
 

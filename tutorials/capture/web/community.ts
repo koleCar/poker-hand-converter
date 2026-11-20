@@ -54,7 +54,9 @@ export async function capture(browser: Browser): Promise<void> {
     },
     { fullPage: true },
   );
-  await page.locator('section#replay .rp').getByRole('button', { name: 'River', exact: true }).click();
+  // Key 4 jumps to the river (the transport has no street buttons).
+  await page.locator('section#replay .rp').focus();
+  await page.keyboard.press('4');
   await settle(page, 800);
   await page.getByRole('button', { name: 'Comment on this spot' }).click();
   await settle(page, 800);

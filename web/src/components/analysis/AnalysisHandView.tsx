@@ -150,6 +150,7 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
       ) : null}
       <section className="card card--flush rail-fade">
         <ReplayViewer
+          fitToScreen
           key={loaded.hand.meta.handKey}
           hand={loaded.hand}
           site={loaded.site}

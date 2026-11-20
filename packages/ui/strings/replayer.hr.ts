@@ -129,13 +129,6 @@ export const replayerHr: ReplayerStrings = {
   },
 
   controls: {
-    streets: {
-      preflop: "Preflop",
-      flop: "Flop",
-      turn: "Turn",
-      river: "River",
-      showdown: "Showdown",
-    },
     mark: (count: number, label: string) => `${count} ${plural(count, "komentar", "komentara", "komentara")} kod: ${label}`,
     position: "Mjesto u ruci",
     positionValue: (step, total, caption) => `Korak ${num(step)} od ${num(total)}. ${caption}`,
@@ -151,13 +144,10 @@ export const replayerHr: ReplayerStrings = {
     nextTitle: "Naprijed (→)",
     end: "Skoči na kraj",
     endTitle: "Kraj (End)",
-    jumpToStreet: "Skoči na street",
     speed: "Brzina reprodukcije",
     speedCycle: (speed) => `Brzina reprodukcije ${speed}×. Aktiviraj za sljedeću brzinu.`,
-    speedOption: (speed) => `Brzina ${speed}×`,
     log: "Popis akcija",
     logTitle: "Popis akcija (L)",
-    logShort: "Akcije",
   },
 
   settings: {
@@ -171,22 +161,22 @@ export const replayerHr: ReplayerStrings = {
     showHeroCardsHint: "Isključi za pregled ruke bez gledanja u heroove karte (H)",
     anonymousNames: "Anonimna imena",
     anonymousNamesHint: "Zamijeni imena igrača i stola s Hero / Igrač 1…",
-    showPotOdds: "Prikaži pot odds",
-    showPotOddsHint: "Cijena situacije u gornjem lijevom kutu kad hero facea ili radi bet",
+    cards: "Karte",
+    faces: { four: "4 boje", classic: "Klasične", big: "Velike oznake", dark: "Tamne" },
+    potOdds: "Pot odds",
+    potOddsHint: "Tiskano na filcu iznad heroovih karata dok hero odlučuje",
+    show: "Prikaži",
+    hide: "Sakrij",
     anonymousHero: "Hero",
     anonymousPlayer: (n) => `Igrač ${n}`,
     anonymousTable: "Stol",
   },
 
   odds: {
-    facingTitle: "Pot odds",
-    callToWin: (call, pot) => `Call ${call} za pot ${pot}`,
-    needEquity: (share) => `treba ${share} equityja`,
-    betTitle: (share) => `Bet ${share} pota`,
-    raiseTitle: (amount) => `Raise na ${amount}`,
-    betInto: (risk, pot) => `${risk} u pot ${pot}`,
-    callerNeeds: "Caller treba equity",
-    bluffNeeds: "Blef treba foldova",
+    toCall: "za call",
+    bluff: "foldova za blef",
+    facingLabel: (share, ratio) => `Pot odds: call treba ${share} equityja, ${ratio} prema 1`,
+    bluffLabel: (share) => `Blef treba ${share} foldova`,
   },
 
   log: {
@@ -270,7 +260,7 @@ export const replayerHr: ReplayerStrings = {
   },
 
   table: {
-    logo: "Replayer ruku",
+    brand: "rail",
     pot: "Pot",
     potTotal: (amount) => `ukupno ${amount}`,
     board: "Board",
@@ -278,7 +268,6 @@ export const replayerHr: ReplayerStrings = {
     runTwo: "Run 2",
     allIn: "ALL-IN",
     dealerButton: "Dealer button",
-    folded: "Fold",
   },
 
   seat: {

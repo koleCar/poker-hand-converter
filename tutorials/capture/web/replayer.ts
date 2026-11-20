@@ -10,9 +10,9 @@ import { newContext, open, settle } from '../lib/browser.ts';
 import { WEB_URL } from '../lib/paths.ts';
 import { Recorder } from '../lib/recorder.ts';
 
-/** Step forward until the pot-odds box shows (the hero facing a bet). */
+/** Step forward until the pot odds show on the felt (the hero facing a bet). */
 async function toPotOdds(page: Page, rp: Locator): Promise<boolean> {
-  const odds = rp.getByRole('group', { name: 'Pot odds' });
+  const odds = rp.locator('.pseat__odds');
   for (let i = 0; i < 40; i++) {
     if (await odds.isVisible().catch(() => false)) return true;
     await rp.getByRole('button', { name: 'Next action' }).click();
@@ -60,29 +60,28 @@ export async function capture(browser: Browser): Promise<void> {
     transport: rp.locator('.rp__transport'),
     play: rp.getByRole('button', { name: 'Play' }),
     next: rp.getByRole('button', { name: 'Next action' }),
-    streets: rp.getByRole('group', { name: 'Jump to street' }),
-    speed: rp.getByRole('group', { name: 'Playback speed' }),
+    speed: rp.getByRole('button', { name: /^Playback speed/ }),
     scrub: rp.getByRole('slider', { name: 'Position in hand' }),
   }, { fullPage: true });
 
-  await rp.getByRole('button', { name: 'Flop', exact: true }).click();
+  // Keys 1-5 jump to a street (the transport has no street buttons).
+  await rp.focus();
+  await page.keyboard.press('2');
   await settle(page, 1200);
   await rec.shot(page, 'flop', {
     replayer: rp,
-    board: rp.locator('.rp__board, .pboard').first(),
-    pot: rp.locator('.rp__pot, .ppot').first(),
-    caption: rp.locator('.rp__caption'),
-    flop: rp.getByRole('button', { name: 'Flop', exact: true }),
+    board: rp.locator('.rp__board').first(),
+    pot: rp.locator('.rp__pot').first(),
+    flop: rp.locator('.rp__transport'),
   }, { fullPage: true });
 
-  await rp.getByRole('button', { name: 'Turn', exact: true }).click();
+  await page.keyboard.press('3');
   await settle(page, 400);
   if (!(await toPotOdds(page, rp))) throw new Error('replayer: the hero never faced a bet');
   await settle(page, 800);
   await rec.shot(page, 'odds', {
     replayer: rp,
-    odds: rp.getByRole('group', { name: 'Pot odds' }),
-    caption: rp.locator('.rp__caption'),
+    odds: rp.locator('.pseat__odds'),
   }, { fullPage: true });
 
   await rp.getByRole('button', { name: 'Jump to end' }).click();
@@ -107,7 +106,8 @@ export async function capture(browser: Browser): Promise<void> {
     replayer: rp,
     sheet: page.locator('.rp-ov--settings'),
     known: page.locator('label.rp__setting', { hasText: 'Show known cards' }),
-    odds: page.locator('label.rp__setting', { hasText: 'Show pot odds' }),
+    cards: page.locator('.rp__faces'),
+    odds: page.locator('.rp__seg'),
     bb: page.locator('label.rp__setting', { hasText: 'Display chips in big blinds' }),
   }, { fullPage: true });
   await page.getByRole('button', { name: 'Close settings' }).click();

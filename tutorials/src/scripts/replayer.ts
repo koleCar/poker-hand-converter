@@ -34,10 +34,8 @@ export const script: Tutorial = {
           shot: 'flop',
           focus: 'replayer',
           fill: 0.9,
-          cursor: 'flop',
-          click: true,
-          highlight: 'flop',
-          caption: 'Jump straight to a street. The pot and every bet in front of a seat follow the action.',
+          highlight: 'board',
+          caption: 'Keys 1 to 5 jump straight to a street; the band behind the buttons fills as the hand goes. The pot and every bet follow the action.',
           seconds: 4.5,
         },
         {
@@ -46,7 +44,7 @@ export const script: Tutorial = {
           fill: 0.35,
           highlight: 'odds',
           callout: 'Pot odds',
-          caption: 'When you face a bet, pot odds show what the call costs, what it wins, and the equity it needs.',
+          caption: 'While you decide, pot odds are printed on the felt above your cards: the equity a call needs, or how often a bluff must work.',
           seconds: 5,
         },
         {
@@ -66,8 +64,8 @@ export const script: Tutorial = {
           shot: 'settings',
           focus: 'sheet',
           fill: 0.6,
-          highlight: ['known', 'bb', 'odds'],
-          caption: 'Settings: chips in big blinds, every known card shown from the start, pot odds on or off.',
+          highlight: ['cards', 'odds', 'known', 'bb'],
+          caption: 'Settings: how the cards look, pot odds on or off, chips in big blinds, every known card shown from the start.',
           seconds: 5,
         },
         {
