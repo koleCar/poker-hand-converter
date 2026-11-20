@@ -3,6 +3,20 @@ import type { PhfHand } from "../model/phf";
 import type { AmountUnit } from "./tableMath";
 
 /**
+ * How the cards on the felt are drawn (Settings -> Cards). Four colours is the
+ * default and the deck the replayer always had; the others restyle the same
+ * markup through `data-cards` on the replayer's root.
+ *
+ * - `four`: clubs green, diamonds blue.
+ * - `classic`: two colours, diamonds red and clubs black.
+ * - `big`: four colours with a bigger rank and a smaller suit.
+ * - `dark`: dark card faces with light ink.
+ */
+export type CardFace = "four" | "classic" | "big" | "dark";
+
+export const CARD_FACES: readonly CardFace[] = ["four", "classic", "big", "dark"];
+
+/**
  * Viewer preferences that change what the felt shows rather than where the
  * replay is. They live behind the gear in the replayer header and persist
  * across hands, so a coach who reviews with names hidden keeps them hidden.
@@ -16,8 +30,10 @@ export interface ReplaySettings {
   showHeroCards: boolean;
   /** Replace player and table names with neutral labels. */
   anonymousNames: boolean;
-  /** Pot odds box in the stage's top-left corner. */
+  /** Pot odds printed on the felt above the hero's cards while hero decides. */
   showPotOdds: boolean;
+  /** Card faces on the felt; see `CardFace`. */
+  cardFace: CardFace;
 }
 
 export const DEFAULT_REPLAY_SETTINGS: ReplaySettings = {
@@ -26,9 +42,17 @@ export const DEFAULT_REPLAY_SETTINGS: ReplaySettings = {
   showHeroCards: true,
   anonymousNames: false,
   showPotOdds: true,
+  cardFace: "four",
 };
 
 const SETTINGS_KEY = "phc.replayer.settings";
+const BOOLEAN_KEYS = [
+  "bigBlinds",
+  "showKnownCards",
+  "showHeroCards",
+  "anonymousNames",
+  "showPotOdds",
+] as const satisfies ReadonlyArray<keyof ReplaySettings>;
 /** Pre-settings builds stored the unit on its own; honour it once. */
 const LEGACY_UNIT_KEY = "phc.replayer.unit";
 
@@ -42,10 +66,14 @@ export function loadReplaySettings(): ReplaySettings {
     const raw = window.localStorage.getItem(SETTINGS_KEY);
     if (raw) {
       const stored = JSON.parse(raw) as Partial<Record<keyof ReplaySettings, unknown>>;
-      for (const key of Object.keys(settings) as Array<keyof ReplaySettings>) {
-        if (typeof stored[key] === "boolean") {
-          settings[key] = stored[key] as boolean;
+      for (const key of BOOLEAN_KEYS) {
+        const value = stored[key];
+        if (typeof value === "boolean") {
+          settings[key] = value;
         }
+      }
+      if (CARD_FACES.includes(stored.cardFace as CardFace)) {
+        settings.cardFace = stored.cardFace as CardFace;
       }
     }
   } catch {

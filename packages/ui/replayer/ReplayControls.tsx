@@ -1,75 +1,86 @@
 /**
  * The transport — Tier 1.
  *
- * One band at the bottom of the replayer holding the four things you look at
- * on every single step: the live caption, the scrub rail with its street
- * ticks, the playback buttons and the street jumps. None of it is ever behind
- * a tap, and none of it is ever hidden in a panel that can be closed — the
- * caption in particular, because it is both the most-read text in the product
- * and the `aria-live` region, and a live region inside a closable panel
- * announces nothing.
+ * Design 7 (round 2): no caption, no visible scrub rail, no street or speed
+ * chips. The transport is the step buttons and nothing else, and progress
+ * through the hand is the soft fill *behind* them, with a notch on its top edge
+ * where each street starts. The band's background is a transparent range
+ * input, so pressing or dragging anywhere on it that is not a button seeks
+ * there (the buttons sit above it); it is also what a keyboard or a screen
+ * reader drives, under its own name.
  *
- * What it *can* afford to lose it loses by `data-tier`, the drop ladder from
- * #19: labels on the option buttons first, then the five speed chips (which
- * become one button that cycles), then the street names (which become
- * initials, and keys `1`-`5`). See `dropLadder.ts`.
+ * Where it sits is the viewer's call (`transportFor`, off the replayer's own
+ * box): a full-width strip under the felt on a phone held upright, a glass pill
+ * in the bottom-right corner on a phone on its side, and the same pill a size
+ * up — with the jumps to either end — on a desktop.
+ *
+ * Comment and analysis marks are small dots on the band, still buttons that
+ * seek, each with its own accessible name.
  */
 
-import type { ReactNode } from "react";
 import { useUiStrings } from "../i18n";
 import type { Street } from "../model/phf";
 import type { ReplayFrame } from "../model/replay";
-import { speedIsCycled, streetsAreInitials, type ReplayTier } from "./dropLadder";
-
-const SPEEDS = [0.5, 1, 1.5, 2, 4];
-
-/**
- * Rung 3 of the ladder. One letter each, and all five are distinct. The street
- * names are the same English poker words in every language we speak, so their
- * initials are too; the full names are in `replayer.controls.streets`.
- */
-const STREET_INITIAL: Record<Street, string> = {
-  preflop: "P",
-  flop: "F",
-  turn: "T",
-  river: "R",
-  showdown: "S",
-};
+import type { TransportLayout } from "./dropLadder";
 
 interface ReplayControlsProps {
   frames: ReplayFrame[];
   frame: ReplayFrame;
   anchors: Array<{ street: Street; index: number }>;
   /**
-   * Rail pips: comments (#34) or analysed decisions (analysis A1) — frame index, how
-   * many, where. A `tone` colours the pip; `ariaLabel` replaces the comment
-   * wording when the pip is not about comments.
+   * Marks: comments (#34) or analysed decisions (analysis A1) — frame index,
+   * how many, where. A `tone` colours the dot; `ariaLabel` replaces the
+   * comment wording when the dot is not about comments.
    */
   marks?: Array<{ index: number; count: number; label: string; tone?: string; ariaLabel?: string }>;
-  /** A host-owned sheet's button, beside the log's (see `ReplayViewerProps.sheet`). */
-  extra?: { label: string; title: string; icon: string; open: boolean; onToggle: () => void };
-  /** `frame.description`, name-masked. The `aria-live` text. */
+  /** `frame.description`, name-masked: the seek slider's spoken value. */
   caption: string;
-  /** Beside the caption, on its row (a phone's pot-odds pill). */
-  captionAside?: ReactNode;
-  tier: ReplayTier;
+  layout: TransportLayout;
   playing: boolean;
-  speed: number;
-  logOpen: boolean;
-  /**
-   * One bar instead of two rows of chips: caption, rail, playback, and nothing
-   * else. This is `embed` mode, where the replayer is a block inside somebody
-   * else's page — the street chips duplicate the ticks on the rail, the speed
-   * chips are a preference nobody sets while scrolling a feed, and the option
-   * buttons open sheets an embed does not have. Everything dropped here is
-   * still reachable by keyboard, which is the drop ladder's own rule.
-   */
-  compact?: boolean;
   onSeek: (index: number) => void;
   onStep: (delta: number) => void;
   onTogglePlay: () => void;
-  onSpeed: (speed: number) => void;
-  onToggleLog: () => void;
+}
+
+/** Glyphs, drawn rather than typed (the ⏮ family is an emoji on Android). */
+function Glyph({ name }: { name: "first" | "prev" | "play" | "pause" | "next" | "last" }) {
+  const filled = name === "first" || name === "last" || name === "play" || name === "pause";
+  return (
+    <svg
+      className={`rp__glyph rp__glyph--${name}`}
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+      fill={filled ? "currentColor" : "none"}
+      stroke={filled ? "none" : "currentColor"}
+      strokeWidth={filled ? undefined : 2.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {name === "first" ? (
+        <>
+          <rect x="5" y="5" width="2.5" height="14" rx="1" />
+          <path d="M19 5.5v13L9 12z" />
+        </>
+      ) : name === "last" ? (
+        <>
+          <rect x="16.5" y="5" width="2.5" height="14" rx="1" />
+          <path d="M5 5.5v13L15 12z" />
+        </>
+      ) : name === "play" ? (
+        <path d="M7 4.5v15l12-7.5z" />
+      ) : name === "pause" ? (
+        <>
+          <rect x="6" y="5" width="4" height="14" rx="1" />
+          <rect x="14" y="5" width="4" height="14" rx="1" />
+        </>
+      ) : name === "prev" ? (
+        <path d="M15 5l-7 7 7 7" />
+      ) : (
+        <path d="M9 5l7 7-7 7" />
+      )}
+    </svg>
+  );
 }
 
 export function ReplayControls({
@@ -78,220 +89,103 @@ export function ReplayControls({
   anchors,
   marks = [],
   caption,
-  captionAside,
-  tier,
+  layout,
   playing,
-  speed,
-  logOpen,
-  compact = false,
   onSeek,
   onStep,
   onTogglePlay,
-  onSpeed,
-  onToggleLog,
-  extra,
 }: ReplayControlsProps) {
   const words = useUiStrings().replayer.controls;
-  const intlLocale = useUiStrings().intlLocale;
-  const speedText = (value: number) => value.toLocaleString(intlLocale);
   const last = frames.length - 1;
-  const initials = streetsAreInitials(tier);
-
-  const cycleSpeed = () => {
-    const at = SPEEDS.indexOf(speed);
-    onSpeed(SPEEDS[(at + 1) % SPEEDS.length] ?? 1);
-  };
+  const at = (index: number) => `${last > 0 ? (index / last) * 100 : 0}%`;
+  // The desk pill is a size up and carries the jumps to either end; a phone's
+  // transport is the two steps and play.
+  const ends = layout === "desk";
 
   return (
-    <div className="rp__transport">
-      {/*
-        The single live region in the replayer. `aria-atomic` because the whole
-        sentence is the news, not the word that changed; `polite` because a
-        scrub can fire ten of these a second and `assertive` would make the
-        replayer unusable with a screen reader on.
-      */}
-      <div className="rp__caption-row">
-        <p className="rp__caption" aria-live="polite" aria-atomic="true">
-          {caption}
-        </p>
-        {captionAside}
-      </div>
-
-      <div className="rp__scrub-wrap">
-        {/* Street boundaries drawn on the rail so scrubbing is aimed, not blind. */}
-        <div className="rp__ticks" aria-hidden="true">
-          {anchors.map((anchor) => (
-            <span
-              key={anchor.street}
-              className="rp__tick"
-              style={{ left: `${last > 0 ? (anchor.index / last) * 100 : 0}%` }}
-            />
-          ))}
-        </div>
-        {/* Comment pips: real buttons above the rail, so a reader can jump to
-            the moment a comment is about without hunting for it. */}
-        {marks.length ? (
-          <div className="rp__marks">
-            {marks.map((mark) => (
-              <button
-                key={mark.index}
-                type="button"
-                className={`rp__mark${mark.tone ? ` rp__mark--${mark.tone}` : ""}${mark.index === frame.index ? " is-current" : ""}`}
-                style={{ left: `${last > 0 ? (mark.index / last) * 100 : 0}%` }}
-                aria-label={mark.ariaLabel ?? words.mark(mark.count, mark.label)}
-                title={mark.ariaLabel ?? words.mark(mark.count, mark.label)}
-                onClick={() => onSeek(mark.index)}
-              >
-                {mark.count > 1 ? mark.count : null}
-              </button>
-            ))}
-          </div>
-        ) : null}
-        <input
-          className="rp__scrub"
-          type="range"
-          min={0}
-          max={last}
-          value={frame.index}
-          aria-label={words.position}
-          aria-valuetext={words.positionValue(frame.index + 1, frames.length, caption)}
-          onChange={(event) => onSeek(Number(event.target.value))}
+    <div className="rp__transport" data-layout={layout}>
+      <div className="rp__progress" aria-hidden="true" style={{ inlineSize: at(frame.index) }} />
+      {/* Street starts, on the band's top edge. The first street is where the
+          hand begins, so it needs no notch. */}
+      {anchors.slice(1).map((anchor) => (
+        <span key={anchor.street} className="rp__notch" aria-hidden="true" style={{ insetInlineStart: at(anchor.index) }} />
+      ))}
+      <input
+        className="rp__seek"
+        type="range"
+        min={0}
+        max={last}
+        value={frame.index}
+        aria-label={words.position}
+        aria-valuetext={words.positionValue(frame.index + 1, frames.length, caption)}
+        onChange={(event) => onSeek(Number(event.target.value))}
+      />
+      {marks.map((mark) => (
+        <button
+          key={mark.index}
+          type="button"
+          className={`rp__mark${mark.tone ? ` rp__mark--${mark.tone}` : ""}${mark.index === frame.index ? " is-current" : ""}`}
+          style={{ insetInlineStart: at(mark.index) }}
+          aria-label={mark.ariaLabel ?? words.mark(mark.count, mark.label)}
+          title={mark.ariaLabel ?? words.mark(mark.count, mark.label)}
+          onClick={() => onSeek(mark.index)}
         />
-      </div>
-
-      <div className="rp__buttons">
-        <div className="rp__playback" role="group" aria-label={words.playback}>
+      ))}
+      <div className="rp__playback" role="group" aria-label={words.playback}>
+        {ends ? (
           <button
             type="button"
-            className="btn btn--icon"
+            className="rp__tb"
             onClick={() => onSeek(0)}
+            disabled={frame.index === 0}
             aria-label={words.start}
             title={words.startTitle}
           >
-            ⏮
+            <Glyph name="first" />
           </button>
+        ) : null}
+        <button
+          type="button"
+          className="rp__tb"
+          onClick={() => onStep(-1)}
+          disabled={frame.index === 0}
+          aria-label={words.previous}
+          title={words.previousTitle}
+        >
+          <Glyph name="prev" />
+        </button>
+        <button
+          type="button"
+          className="rp__tb rp__tb--play"
+          onClick={onTogglePlay}
+          aria-label={playing ? words.pause : words.play}
+          aria-pressed={playing}
+          title={words.playTitle}
+        >
+          <Glyph name={playing ? "pause" : "play"} />
+        </button>
+        <button
+          type="button"
+          className="rp__tb"
+          onClick={() => onStep(1)}
+          disabled={frame.index >= last}
+          aria-label={words.next}
+          title={words.nextTitle}
+        >
+          <Glyph name="next" />
+        </button>
+        {ends ? (
           <button
             type="button"
-            className="btn btn--icon"
-            onClick={() => onStep(-1)}
-            disabled={frame.index === 0}
-            aria-label={words.previous}
-            title={words.previousTitle}
-          >
-            ◀
-          </button>
-          <button
-            type="button"
-            className="btn btn--play"
-            onClick={onTogglePlay}
-            aria-label={playing ? words.pause : words.play}
-            aria-pressed={playing}
-            title={words.playTitle}
-          >
-            {playing ? "❚❚" : "▶"}
-          </button>
-          <button
-            type="button"
-            className="btn btn--icon"
-            onClick={() => onStep(1)}
-            disabled={frame.index >= last}
-            aria-label={words.next}
-            title={words.nextTitle}
-          >
-            ▶
-          </button>
-          <button
-            type="button"
-            className="btn btn--icon"
+            className="rp__tb"
             onClick={() => onSeek(last)}
+            disabled={frame.index >= last}
             aria-label={words.end}
             title={words.endTitle}
           >
-            ⏭
+            <Glyph name="last" />
           </button>
-        </div>
-
-        {compact ? null : (
-        <div className="rp__streets" role="group" aria-label={words.jumpToStreet}>
-          {anchors.map((anchor, index) => (
-            <button
-              key={anchor.street}
-              type="button"
-              className={`chip-btn ${frame.street === anchor.street ? "is-active" : ""}`.trim()}
-              aria-pressed={frame.street === anchor.street}
-              // The visible text shrinks to an initial at narrow tiers, so the
-              // accessible name is stated rather than read off the glyph.
-              aria-label={words.streets[anchor.street]}
-              title={`${words.streets[anchor.street]} (${index + 1})`}
-              onClick={() => onSeek(anchor.index)}
-            >
-              {initials ? STREET_INITIAL[anchor.street] : words.streets[anchor.street]}
-            </button>
-          ))}
-        </div>
-        )}
-
-        {/* Rung 2: five chips, or one button that cycles through the same five. */}
-        {compact ? null : speedIsCycled(tier) ? (
-          <div className="rp__speed">
-            <button
-              type="button"
-              className="chip-btn"
-              aria-label={words.speedCycle(speedText(speed))}
-              title={words.speed}
-              onClick={cycleSpeed}
-            >
-              {speedText(speed)}x
-            </button>
-          </div>
-        ) : (
-          <div className="rp__speed" role="group" aria-label={words.speed}>
-            {SPEEDS.map((value) => (
-              <button
-                key={value}
-                type="button"
-                className={`chip-btn ${speed === value ? "is-active" : ""}`.trim()}
-                aria-pressed={speed === value}
-                aria-label={words.speedOption(speedText(value))}
-                onClick={() => onSpeed(value)}
-              >
-                {speedText(value)}x
-              </button>
-            ))}
-          </div>
-        )}
-
-        {compact ? null : (
-        <div className="rp__opts">
-          {/* Unit and card visibility live behind the gear in the header. */}
-          {extra ? (
-            <button
-              type="button"
-              className={`chip-btn ${extra.open ? "is-active" : ""}`.trim()}
-              aria-pressed={extra.open}
-              aria-haspopup="dialog"
-              aria-label={extra.label}
-              title={extra.title}
-              onClick={extra.onToggle}
-            >
-              <span aria-hidden="true">{extra.icon}</span>
-              <span className="rp__opt-label">{extra.label}</span>
-            </button>
-          ) : null}
-          <button
-            type="button"
-            className={`chip-btn ${logOpen ? "is-active" : ""}`.trim()}
-            aria-pressed={logOpen}
-            aria-haspopup="dialog"
-            aria-label={words.log}
-            title={words.logTitle}
-            onClick={onToggleLog}
-          >
-            <span aria-hidden="true">☰</span>
-            <span className="rp__opt-label">{words.logShort}</span>
-          </button>
-        </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

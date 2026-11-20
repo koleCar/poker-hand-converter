@@ -48,13 +48,6 @@ export interface ReplayerStrings {
     closeTitle: string;
   };
   controls: {
-    streets: {
-      preflop: string;
-      flop: string;
-      turn: string;
-      river: string;
-      showdown: string;
-    };
     mark: (count: number, label: string) => string;
     position: string;
     positionValue: (step: number, total: number, caption: string) => string;
@@ -70,13 +63,10 @@ export interface ReplayerStrings {
     nextTitle: string;
     end: string;
     endTitle: string;
-    jumpToStreet: string;
     speed: string;
     speedCycle: (speed: string) => string;
-    speedOption: (speed: string) => string;
     log: string;
     logTitle: string;
-    logShort: string;
   };
   settings: {
     open: string;
@@ -89,21 +79,23 @@ export interface ReplayerStrings {
     showHeroCardsHint: string;
     anonymousNames: string;
     anonymousNamesHint: string;
-    showPotOdds: string;
-    showPotOddsHint: string;
+    cards: string;
+    faces: { four: string; classic: string; big: string; dark: string };
+    potOdds: string;
+    potOddsHint: string;
+    show: string;
+    hide: string;
     anonymousHero: string;
     anonymousPlayer: (n: number) => string;
     anonymousTable: string;
   };
   odds: {
-    facingTitle: string;
-    callToWin: (call: string, pot: string) => string;
-    needEquity: (share: string) => string;
-    betTitle: (share: string) => string;
-    raiseTitle: (amount: string) => string;
-    betInto: (risk: string, pot: string) => string;
-    callerNeeds: string;
-    bluffNeeds: string;
+    /** After the equity a call needs: `29% to call · 2.5 : 1`. */
+    toCall: string;
+    /** After the fold rate hero's bet needs: `40% folds for a bluff`. */
+    bluff: string;
+    facingLabel: (share: string, ratio: string) => string;
+    bluffLabel: (share: string) => string;
   };
   log: {
     title: string;
@@ -181,7 +173,8 @@ export interface ReplayerStrings {
     tableShapeDealt: (max: number, dealtIn: number) => string;
   };
   table: {
-    logo: string;
+    /** The wordmark pressed into the felt under the board. */
+    brand: string;
     pot: string;
     potTotal: (amount: string) => string;
     board: string;
@@ -189,7 +182,6 @@ export interface ReplayerStrings {
     runTwo: string;
     allIn: string;
     dealerButton: string;
-    folded: string;
   };
   seat: {
     positions: {

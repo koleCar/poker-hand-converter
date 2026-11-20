@@ -15,7 +15,8 @@
  * silently measure the stage instead.
  */
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
+import { RailMark } from "../brand/RailMark";
 import { useUiStrings } from "../i18n";
 import { holeCardCount, toDisplayNumber, type PhfGame, type PhfPlayer } from "../model/phf";
 import type { ReplayFrame, SeatFrameState } from "../model/replay";
@@ -89,6 +90,11 @@ interface ReplayTableProps {
    * them), since it sits inside the seat's own button.
    */
   renderSeatName?: (seat: SeatFrameState, label: string) => React.ReactNode;
+  /**
+   * Printed faintly on the cloth just above the hero's cards: the replayer's
+   * pot odds while hero decides (`PotOddsPrint`). Nothing else passes it.
+   */
+  heroNote?: ReactNode;
 }
 
 interface Placed {
@@ -107,11 +113,29 @@ interface Placed {
  */
 function fanSteps(holeCount: number): { down: number; up: number } {
   const count = Math.max(2, holeCount);
+  if (count <= 2) {
+    // Two cards sit side by side with a hairline between them, face down or up.
+    return { down: -0.06, up: -0.06 };
+  }
   return {
     // Total width is card * 1.75 whatever the count.
     down: 1 - 0.75 / (count - 1),
-    up: count <= 2 ? 0.12 : count <= 4 ? 0.3 : 0.46,
+    up: count <= 4 ? 0.3 : 0.46,
   };
+}
+
+/**
+ * Whether a seat wears its action tag on this frame.
+ *
+ * The tag is for the moment it happens. A seat that is still in keeps its last
+ * action until the street moves on ("Call" stays under the caller while the
+ * others act); a folded or all-in seat says so with its dimmed plate and its
+ * stack instead, so its tag only shows on the frame it acted, or when it wins.
+ */
+function wearsTag(seat: SeatFrameState): boolean {
+  if (seat.winAmount > 0) return true;
+  if (!seat.lastAction) return false;
+  return seat.isActing || (!seat.folded && !seat.allIn);
 }
 
 /** Enter and Space press a `role="button"` that is not a `<button>`. */
@@ -238,13 +262,14 @@ export function ReplayTable({
   onBoardClick,
   onSeatCardsClick,
   renderSeatName,
+  heroNote,
 }: ReplayTableProps) {
   const t = useUiStrings().replayer;
   const words = t.table;
   const seatCount = clampSeatCount(frame.seats.length);
   const placed = useMemo(() => place(frame.seats, shape), [frame.seats, shape]);
   const metrics = SHAPE_METRICS[shape];
-  const [seatW, seatH] = seatSizeFor(shape, frame.seats.length);
+  const [seatW] = seatSizeFor(shape, frame.seats.length);
   // `holeCardCount` has existed in the PHF layer since the rewrite and has
   // never been reachable from the UI; it is what tells the felt whether it is
   // drawing two cards or six.
@@ -327,20 +352,16 @@ export function ReplayTable({
     setArrived(arrival);
   }
 
+  // One row of five at every shape: flop, turn and river never wrap.
   const boardCards = Array.from({ length: 5 }, (_, index) => frame.board[index] ?? null);
-  const boardRows =
-    metrics.boardRows === 2 ? [boardCards.slice(0, 3), boardCards.slice(3)] : [boardCards];
-  // Run 2 in the same rows as run 1. A row made only of shared streets says
-  // nothing run 1 does not, so it is dropped (the flop row of a two-row board
-  // when the hand was run twice on the turn or river).
+  // Run 2 under run 1, column for column. Only the cards run 2 dealt for
+  // itself are drawn; the streets both runs share stay as invisible slots.
   const secondFrom = frame.boardSecondFrom;
   const secondSlots = Array.from({ length: 5 }, (_, index) => ({
     index,
     code: frame.boardSecond[index] ?? null,
   }));
-  const secondRows = (
-    metrics.boardRows === 2 ? [secondSlots.slice(0, 3), secondSlots.slice(3)] : [secondSlots]
-  ).filter((row) => row.some((slot) => slot.index >= secondFrom));
+  const secondLead = Math.min(5, Math.max(0, secondFrom));
 
   return (
     // The letterbox. Its ratio is the shape's, its size comes from the stage
@@ -348,29 +369,25 @@ export function ReplayTable({
     // measure it with `1cqmin`.
     <div
       className="rp__fit"
-      style={{ "--arw": metrics.arW, "--arh": metrics.arH } as React.CSSProperties}
+      style={{ "--ar-min": metrics.arMin, "--ar-max": metrics.arMax } as React.CSSProperties}
     >
       <div
         className="rp__felt"
         data-seats={seatCount}
+        data-holes={holeCount}
         style={
           {
             "--seat-wu": seatW,
-            "--seat-hu": seatH,
             "--card-u": metrics.boardCard,
+            "--card-slope": metrics.boardSlope,
+            "--card-base": `${metrics.boardBase}rem`,
             "--pot-u": metrics.potH,
-            "--chip-wu": metrics.chipW,
-            "--chip-hu": metrics.chipH,
-            "--hole-count": holeCount,
             "--fan-down": fan.down,
             "--fan-up": fan.up,
           } as React.CSSProperties
         }
       >
         <div className="rp__cloth" aria-hidden="true" />
-        <div className="rp__logo" aria-hidden="true">
-          {mask.tableName ?? words.logo}
-        </div>
 
         <div className="rp__center">
           {/* One pill per pile in the middle: a single "Pot" most of the time,
@@ -384,10 +401,9 @@ export function ReplayTable({
                 key={pot.name}
                 className={`rp__pot ${index > 0 ? "rp__pot--side" : ""}`.trim()}
               >
-                {/* A lone pile needs no name — the pill in the middle is the
-                    pot — so "Pot" is only read out. Main and Side keep theirs:
-                    there the name is the information. */}
-                <span className={frame.pots.length > 1 ? "rp__pot-label" : "rp-sr"}>
+                {/* "Pot $X", small word and big number; "Main" and "Side"
+                    once an all-in has split it. */}
+                <span className="rp__pot-label">
                   {t.frames.potName(pot.name)}
                 </span>
                 <span className="rp__pot-value">{format(pot.amount, pot.amountBb)}</span>
@@ -415,72 +431,55 @@ export function ReplayTable({
               onClick={onBoardClick}
               onKeyDown={onBoardClick ? (event) => pressKey(event, onBoardClick) : undefined}
             >
-              {boardRows.map((row, rowIndex) => (
-                <div className="rp__board-row" key={`b1-row-${rowIndex}`}>
-                  {row.map((code, index) =>
-                    code ? (
-                      <PlayingCard
-                        key={`b1-${rowIndex}-${index}-${code}`}
-                        code={code}
-                        size="xl"
-                        dealIndex={index}
-                        dealX={boardAim.x}
-                        dealY={boardAim.y}
-                      />
-                    ) : (
-                      <span
-                        key={`b1-slot-${rowIndex}-${index}`}
-                        className="rp__board-slot"
-                        aria-hidden="true"
-                      />
-                    ),
-                  )}
-                </div>
-              ))}
+              {boardCards.map((code, index) =>
+                code ? (
+                  <PlayingCard
+                    key={`b1-${index}-${code}`}
+                    code={code}
+                    size="xl"
+                    dealIndex={index}
+                    dealX={boardAim.x}
+                    dealY={boardAim.y}
+                  />
+                ) : (
+                  <span key={`b1-slot-${index}`} className="rp__board-slot" aria-hidden="true" />
+                ),
+              )}
             </div>
             {hasSecondBoard ? (
               <div
-                className={`rp__board rp__board--second ${secondFrom > 0 ? "rp__board--split" : ""}`.trim()}
+                className="rp__board rp__board--second"
                 role="group"
                 aria-label={words.secondRunout}
+                style={{ "--lead": secondLead } as React.CSSProperties}
               >
-                {/* Only the cards run 2 dealt for itself are drawn, each under
-                    the run-1 card it replaces; the streets both runs share stay
-                    as invisible slots so the columns line up. */}
-                {secondRows.map((row, rowIndex) => {
-                  const lead = row.filter((slot) => slot.index < secondFrom).length;
-                  return (
-                    <div
-                      className="rp__board-row rp__board-row--second"
-                      key={`b2-row-${row[0]?.index ?? 0}`}
-                      style={{ "--lead": lead } as React.CSSProperties}
-                    >
-                      {rowIndex === 0 ? (
-                        <span className="rp__board-tag" aria-hidden="true">
-                          {words.runTwo}
-                        </span>
-                      ) : null}
-                      {row.map(({ index, code }) =>
-                        index < secondFrom ? (
-                          <span key={`b2-shared-${index}`} className="rp__board-gap" aria-hidden="true" />
-                        ) : code ? (
-                          <PlayingCard
-                            key={`b2-${index}-${code}`}
-                            code={code}
-                            size="xl"
-                            dealIndex={index - secondFrom}
-                            dealX={boardAim.x}
-                            dealY={boardAim.y}
-                          />
-                        ) : (
-                          <span key={`b2-slot-${index}`} className="rp__board-slot" aria-hidden="true" />
-                        ),
-                      )}
-                    </div>
-                  );
-                })}
+                <span className="rp__board-tag" aria-hidden="true">
+                  {words.runTwo}
+                </span>
+                {secondSlots.map(({ index, code }) =>
+                  index < secondFrom ? (
+                    <span key={`b2-shared-${index}`} className="rp__board-gap" aria-hidden="true" />
+                  ) : code ? (
+                    <PlayingCard
+                      key={`b2-${index}-${code}`}
+                      code={code}
+                      size="xl"
+                      dealIndex={index - secondFrom}
+                      dealX={boardAim.x}
+                      dealY={boardAim.y}
+                    />
+                  ) : (
+                    <span key={`b2-slot-${index}`} className="rp__board-slot" aria-hidden="true" />
+                  ),
+                )}
               </div>
             ) : null}
+          </div>
+
+          {/* The Rail mark, pressed into the cloth under the board. */}
+          <div className="rp__brand" aria-hidden="true">
+            <RailMark size={32} className="rp__brand-mark" />
+            <span>{words.brand}</span>
           </div>
         </div>
 
@@ -559,13 +558,12 @@ export function ReplayTable({
           // Hero's own cards can be put back face down to review the spot
           // blind; everyone else's visibility is the replay position's call.
           const revealed = seat.isHero && !settings.showHeroCards ? null : known;
-          // Folded players keep greyed-out backs. An empty gap where the cards
-          // were reads as "not in this hand at all", which is wrong, and it
-          // leaves the FOLDED marker floating with nothing to sit on.
+          // A folded seat's cards are gone, as at a real table; its dimmed
+          // plate is what says it is out.
           const backs: Array<string | null> =
-            seat.hasCards || seat.folded ? Array.from({ length: holeCount }, () => null) : [];
+            seat.hasCards && !seat.folded ? Array.from({ length: holeCount }, () => null) : [];
           const cards = revealed ?? backs;
-          const tone = seat.lastActionTone;
+          const tone = seat.winAmount > 0 ? "win" : seat.lastActionTone;
           const aim = aimFor(slot, ratio);
           return (
             <div
@@ -578,6 +576,8 @@ export function ReplayTable({
               role={onSeatClick ? "button" : "group"}
               // Lets a caller find the seat on screen (the editor's action bubble).
               data-seat-no={seat.seatNo}
+              // Which way the middle is, for the dealer disc.
+              data-side={slot.x < 0.4 ? "left" : slot.x > 0.6 ? "right" : "mid"}
               aria-label={describeSeat(seat, mask.seat(seat.name), t)}
               aria-pressed={onSeatClick ? seat.seatNo === focusSeat : undefined}
               tabIndex={onSeatClick ? 0 : undefined}
@@ -598,6 +598,7 @@ export function ReplayTable({
                 .join(" ")}
               style={slotStyle(slot)}
             >
+              {/* Behind the plate's top edge; the hero's are the board's size. */}
               <div
                 className={`pseat__cards ${onSeatCardsClick ? "pseat__cards--clickable" : ""}`.trim()}
                 onClick={
@@ -623,63 +624,54 @@ export function ReplayTable({
                 ))}
               </div>
 
+              {seat.isHero && heroNote ? heroNote : null}
+
               {/* Everything from here down is already in the group's label, so
                   it is hidden from assistive tech rather than repeated four
-                  times in whatever order the slot table happened to paint. */}
-              {/* An editable name is a control of its own, so the plate is
+                  times in whatever order the slot table happened to paint.
+                  An editable name is a control of its own, so the plate is
                   only hidden piece by piece around it. */}
               <div className="pseat__plate" aria-hidden={renderSeatName ? undefined : true}>
                 <span className="pseat__name">
-                  {seat.position ? (
-                    <span
-                      className="pseat__pos"
-                      title={spokenPosition(seat.position, t) ?? undefined}
-                      aria-hidden={renderSeatName ? true : undefined}
-                    >
-                      {seat.position}
-                    </span>
-                  ) : null}
                   {renderSeatName ? (
                     renderSeatName(seat, mask.seat(seat.name))
                   ) : (
-                    // Long screen names still have to ellipsis at nine seats on
-                    // a phone, so the full one stays reachable on hover.
+                    // Long screen names ellipsis; the full one stays reachable
+                    // on hover.
                     <span className="pseat__nick" title={mask.seat(seat.name)}>
                       {mask.seat(seat.name)}
                     </span>
                   )}
                 </span>
-                <span className="pseat__stack" aria-hidden={renderSeatName ? true : undefined}>
-                  {seat.allIn && seat.stack <= 0 ? (
-                    <span className="pseat__allin-text">{words.allIn}</span>
-                  ) : (
-                    format(seat.stack, seat.stackBb)
-                  )}
+                <span className="pseat__sub" aria-hidden={renderSeatName ? true : undefined}>
+                  {seat.position ? (
+                    <span className="pseat__pos" title={spokenPosition(seat.position, t) ?? undefined}>
+                      {seat.position}
+                    </span>
+                  ) : null}
+                  <span className="pseat__stack">
+                    {seat.allIn && seat.stack <= 0 ? (
+                      <span className="pseat__allin-text">{words.allIn}</span>
+                    ) : (
+                      format(seat.stack, seat.stackBb)
+                    )}
+                  </span>
                 </span>
               </div>
+
+              {/* One tag, for the moment it happens (see `wearsTag`). Outside
+                  the plate so a folded seat's dimming does not dim the frame
+                  it folds on. The win label arrives pre-formatted in currency,
+                  so it is re-rendered here to honour the big-blind setting. */}
+              {wearsTag(seat) ? (
+                <span className={`pseat__tag pseat__tag--${tone}`} aria-hidden="true">
+                  {seat.winAmount > 0 ? `+${format(seat.winAmount)}` : seat.lastAction}
+                </span>
+              ) : null}
 
               {seat.isButton ? (
                 <span className="pseat__button" title={words.dealerButton} aria-hidden="true">
                   D
-                </span>
-              ) : null}
-
-              {seat.folded ? (
-                <span className="pseat__state" aria-hidden="true">
-                  {words.folded}
-                </span>
-              ) : null}
-
-              {/* The win label arrives pre-formatted in currency, so it is the
-                  one action pill that has to be re-rendered to honour the
-                  big-blind toggle. */}
-              {seat.winAmount > 0 ? (
-                <span className="pseat__action pseat__action--win" aria-hidden="true">
-                  +{format(seat.winAmount)}
-                </span>
-              ) : seat.lastAction ? (
-                <span className={`pseat__action pseat__action--${tone}`} aria-hidden="true">
-                  {seat.lastAction}
                 </span>
               ) : null}
             </div>

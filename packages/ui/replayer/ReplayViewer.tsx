@@ -43,6 +43,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import type { ReactNode } from "react";
 import { useUiStrings } from "../i18n";
@@ -56,12 +57,12 @@ import { ReplayControls } from "./ReplayControls";
 import { ReplaySettingsMenu } from "./ReplaySettingsMenu";
 import { ReplayTable } from "./ReplayTable";
 import { potOddsAt } from "./potOdds";
-import { PotOddsBox, PotOddsPill } from "./PotOddsBox";
+import { PotOddsPrint } from "./PotOddsPrint";
 import { shapeFor, type TableShape } from "./seatLayout";
 import { ShortcutSheet } from "./ShortcutSheet";
 import { durationToken, easingToken } from "./motionTokens";
-import { tierFor, type ReplayTier } from "./dropLadder";
-import { gameLabel, headerStakesLabel, stakesLabel } from "./handFacts";
+import { tierFor, transportFor, type ReplayTier, type TransportLayout } from "./dropLadder";
+import { gameLabel, headerStakesLabel, playedOnLabel, stakesLabel } from "./handFacts";
 import {
   encodePosition,
   frameIndexForPosition,
@@ -207,6 +208,12 @@ export interface ReplaySheet {
 
 const SPEED_KEY = "phc.replayer.speed";
 
+/** What the header's speed button cycles through, from wherever it is. */
+const SPEEDS = [0.5, 1, 1.5, 2, 4];
+
+/** Seats from which a bottom corner of the felt holds a seat (`slotsFor`). */
+const CROWDED_FROM = 7;
+
 /**
  * How long the reader has to stop moving before the position is published.
  *
@@ -260,6 +267,11 @@ const CROSSFADE_FROM = 0.45;
  */
 const useMeasureEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
+/** For `useSyncExternalStore` over a value that never changes on its own. */
+function subscribeNothing(): () => void {
+  return () => {};
+}
+
 /** A CSS `animation`, as opposed to a transition or a scripted (WAAPI) flight. */
 function isStylesheetAnimation(animation: Animation): boolean {
   return "animationName" in animation;
@@ -304,31 +316,39 @@ function useStageShape(ref: React.RefObject<HTMLDivElement | null>, remount?: un
 
 /**
  * Watches the replayer's own box and reports which rungs of the drop ladder
- * have fired.
+ * have fired, and where the transport goes.
  *
  * Measured off `.rp` rather than the viewport, so a replayer in a 480px forum
  * column behaves like a phone without being told it is one — and answered here
- * rather than in a container query because the transport has to choose between
- * two *different controls* for playback speed, which no stylesheet can do. The
- * answer is published as `data-tier` so the CSS side of the ladder reads the
- * same number rather than deriving a second one. See `dropLadder.ts`.
+ * rather than in a container query because the transport changes *which
+ * buttons exist* with the box, which no stylesheet can do. Both answers are
+ * published as data attributes so the CSS reads the same numbers rather than
+ * deriving second ones. See `dropLadder.ts`.
  */
-function useReplayTier(ref: React.RefObject<HTMLDivElement | null>, remount?: unknown): ReplayTier {
+function useReplayBox(
+  ref: React.RefObject<HTMLDivElement | null>,
+  remount?: unknown,
+): { tier: ReplayTier; transport: TransportLayout } {
   const [tier, setTier] = useState<ReplayTier>("lg");
+  const [transport, setTransport] = useState<TransportLayout>("desk");
 
   useMeasureEffect(() => {
     const node = ref.current;
     if (!node || typeof ResizeObserver === "undefined") {
       return;
     }
-    const measure = () => setTier(tierFor(node.getBoundingClientRect().width));
+    const measure = () => {
+      const box = node.getBoundingClientRect();
+      setTier(tierFor(box.width));
+      setTransport(transportFor(box.width, box.height));
+    };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(node);
     return () => observer.disconnect();
   }, [ref, remount]);
 
-  return tier;
+  return { tier, transport };
 }
 
 /**
@@ -448,7 +468,7 @@ function ReplayStage({
     }
     return [...byFrame.values()].sort((a, b) => a.index - b.index);
   }, [marks, frames]);
-  // Street markers are already the chips above the scrubber and the board on
+  // Street markers are already the notches on the transport and the board on
   // the felt; in the log they were three-quarters noise.
   const logFrames = useMemo(() => frames.filter((entry) => entry.kind !== "street"), [frames]);
 
@@ -458,7 +478,7 @@ function ReplayStage({
   // A phone: an opened hand covers the screen, its header leads with a back arrow.
   const takeover = usePhoneTakeover(mode === "full" && phoneTakeover, onClose);
   const shape = useStageShape(stageRef, takeover);
-  const tier = useReplayTier(rootRef, takeover);
+  const { tier, transport } = useReplayBox(rootRef, takeover);
   // Below the `lg` tier there is no flank beside the felt, and a sheet laid
   // over the stage hides the table it is talking about. The host's sheet (the
   // Analysis sheet) docks under the replayer instead, in the page's flow, and
@@ -509,9 +529,24 @@ function ReplayStage({
   const frame = frames[Math.min(index, last)];
   const awardAt = useMemo(() => firstAwardIndex(frames), [frames]);
   const caption = mask.text(frame.description);
-  const odds = useMemo(
-    () => (potOdds && settings.showPotOdds ? potOddsAt(frames, Math.min(index, last)) : null),
-    [potOdds, settings.showPotOdds, frames, index, last],
+  // Only while hero decides: facing a bet, or on the frame hero bets.
+  const odds = useMemo(() => {
+    if (!potOdds || !settings.showPotOdds) return null;
+    const at = Math.min(index, last);
+    const found = potOddsAt(frames, at);
+    if (found?.kind === "betting" && frames[at].seats.find((seat) => seat.isHero)?.isActing !== true) {
+      return null;
+    }
+    return found;
+  }, [potOdds, settings.showPotOdds, frames, index, last]);
+
+  // The date crumb is formatted in the reader's time zone, which a server
+  // render does not know, so the server snapshot leaves it out and the client
+  // fills it in after hydration.
+  const dateCrumb = useSyncExternalStore(
+    subscribeNothing,
+    () => playedOnLabel(hand, en.intlLocale),
+    () => null,
   );
 
   // The two questions every animation in the subtree is answered by. `motion`
@@ -576,10 +611,19 @@ function ReplayStage({
     });
   }, []);
 
-  const changeSpeed = useCallback((next: number) => {
-    setSpeed(next);
-    writeStored(SPEED_KEY, String(next));
+  const cycleSpeed = useCallback(() => {
+    setSpeed((current) => {
+      const next = SPEEDS[(SPEEDS.indexOf(current) + 1) % SPEEDS.length] ?? 1;
+      writeStored(SPEED_KEY, String(next));
+      return next;
+    });
   }, []);
+
+  const toggleLog = useCallback(() => {
+    // The log and a host sheet share the flank beside the felt; one at a time.
+    if (!logOpen) sheet?.onOpenChange(false);
+    setLogOpen((current) => !current);
+  }, [logOpen, sheet]);
 
   /* ------------------------------------------------------- position out - */
 
@@ -750,7 +794,7 @@ function ReplayStage({
         target &&
         (/^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName) || target.isContentEditable)
       ) {
-        // The scrub rail is an `<input type=range>` and owns the arrow keys.
+        // The seek strip is an `<input type=range>` and owns the arrow keys.
         return;
       }
       if (event.metaKey || event.ctrlKey || event.altKey) {
@@ -868,10 +912,11 @@ function ReplayStage({
     ],
   );
 
+  const speedText = speed.toLocaleString(en.intlLocale);
   const fullscreenButton = (
     <button
       type="button"
-      className={`btn btn--icon ${fullscreen.mode !== "off" ? "is-active" : ""}`.trim()}
+      className={`rp__ib ${fullscreen.mode !== "off" ? "is-active" : ""}`.trim()}
       onClick={() => void fullscreen.toggle()}
       aria-pressed={fullscreen.mode !== "off"}
       aria-label={fullscreen.mode === "off" ? t.viewer.fullScreen : t.viewer.exitFullScreen}
@@ -889,9 +934,15 @@ function ReplayStage({
       data-takeover={takeover ? "" : undefined}
       data-docked={docked ? "true" : undefined}
       data-shape={shape}
-      // Which rungs of the drop ladder have fired. The stylesheet reads this
-      // rather than deriving a second answer from a container query.
+      // Which rungs of the drop ladder have fired, and where the transport
+      // sits. The stylesheet reads these rather than deriving second answers
+      // from a container query.
       data-tier={tier}
+      data-transport={transport}
+      // A seat in a bottom corner of the felt, under the corner transport.
+      data-crowded={frame.seats.length >= CROWDED_FROM ? "true" : undefined}
+      // Card faces (Settings -> Cards); `four` is the stylesheet's default.
+      data-cards={settings.cardFace}
       // `full` or `embed`. The stylesheet reads it for exactly one declaration
       // — `--rp-block: 100%` — because everything else that would need to
       // change is already a container query off the stage or off `data-tier`.
@@ -919,25 +970,25 @@ function ReplayStage({
       onKeyDown={onKeyDown}
     >
       {/*
-        Tier 1. Three crumbs that orient you and nothing else: everything that
-        is constant for the whole hand is in the info sheet, and everything the
-        header used to carry that was derived from `hand.results` is a spoiler
-        and is gated there (see `spoilersRevealed`).
+        Tier 1. One thin row laid over the cloth: crumbs that orient you on the
+        left (stakes and game, then the room and the day), round icon buttons
+        on the right. Everything else that is constant for the hand is in the
+        info sheet, and everything derived from `hand.results` is a spoiler and
+        is gated there (see `spoilersRevealed`).
 
-        The strip is dropped whole at the narrow tier rather than ellipsised
-        per item — #58. Four separators around four two-character stubs reads
-        as a rendering bug, not as a deliberate omission.
+        The crumbs are dropped whole at the narrow tier rather than ellipsised
+        per item — #58.
 
         An embed drops the row entirely — not with `display: none`, which would
-        leave three buttons in the accessibility tree that open sheets the embed
-        does not render. The crumbs are in the post the embed is sitting in.
+        leave buttons in the accessibility tree that open sheets the embed does
+        not render. The crumbs are in the post the embed is sitting in.
       */}
       {embed ? null : (
         <div className="rp__header">
           {takeover && onClose ? (
             <button
               type="button"
-              className="btn btn--icon rp__back"
+              className="rp__ib rp__back"
               onClick={onClose}
               aria-label={t.viewer.close}
               title={t.viewer.closeTitle}
@@ -946,15 +997,24 @@ function ReplayStage({
             </button>
           ) : null}
           <div className="rp__meta">
+            <b>{`${headerStakesLabel(hand, t)} · ${gameLabel(hand, t)}`}</b>
             {site ? <span>{site}</span> : null}
-            <span>{headerStakesLabel(hand, t)}</span>
-            <span>{gameLabel(hand, t)}</span>
+            {dateCrumb ? <span>{dateCrumb}</span> : null}
           </div>
           <div className="rp__header-actions">
             {headerExtra}
             <button
               type="button"
-              className={`btn btn--icon ${infoOpen ? "is-active" : ""}`.trim()}
+              className="rp__ib rp__speed"
+              onClick={cycleSpeed}
+              aria-label={t.controls.speedCycle(speedText)}
+              title={t.controls.speed}
+            >
+              {speedText}x
+            </button>
+            <button
+              type="button"
+              className={`rp__ib ${infoOpen ? "is-active" : ""}`.trim()}
               onClick={() => setInfoOpen(true)}
               aria-haspopup="dialog"
               aria-expanded={infoOpen}
@@ -970,12 +1030,41 @@ function ReplayStage({
               open={settingsOpen}
               onOpenChange={setSettingsOpen}
             />
+            <button
+              type="button"
+              className={`rp__ib ${logOpen ? "is-active" : ""}`.trim()}
+              aria-pressed={logOpen}
+              aria-haspopup="dialog"
+              aria-label={t.controls.log}
+              title={t.controls.logTitle}
+              onClick={toggleLog}
+            >
+              <svg className="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+                <path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" />
+              </svg>
+            </button>
+            {sheet ? (
+              <button
+                type="button"
+                className={`rp__ib rp__ib--glyph ${sheet.open ? "is-active" : ""}`.trim()}
+                aria-pressed={sheet.open}
+                aria-haspopup="dialog"
+                aria-label={sheet.label}
+                title={sheet.buttonTitle}
+                onClick={() => {
+                  if (!sheet.open) setLogOpen(false);
+                  sheet.onOpenChange(!sheet.open);
+                }}
+              >
+                <span aria-hidden="true">{sheet.icon}</span>
+              </button>
+            ) : null}
             {headerEnd}
             {takeover ? null : fullscreenButton}
             {onClose && !takeover ? (
               <button
                 type="button"
-                className="btn btn--icon"
+                className="rp__ib"
                 onClick={onClose}
                 aria-label={t.viewer.close}
                 title={t.viewer.closeTitle}
@@ -998,8 +1087,8 @@ function ReplayStage({
           mask={mask}
           format={format}
           focusSeat={focusSeat}
+          heroNote={odds ? <PotOddsPrint odds={odds} /> : null}
         />
-        {odds && tier !== "sm" ? <PotOddsBox odds={odds} format={format} /> : null}
       </div>
 
       <ReplayControls
@@ -1008,36 +1097,22 @@ function ReplayStage({
         anchors={anchors}
         marks={railMarks}
         caption={caption}
-        captionAside={odds && tier === "sm" ? <PotOddsPill odds={odds} format={format} /> : null}
-        tier={tier}
+        layout={transport}
         playing={playing}
-        speed={speed}
-        logOpen={logOpen}
-        compact={embed}
         onSeek={seek}
         onStep={step}
         onTogglePlay={togglePlay}
-        onSpeed={changeSpeed}
-        onToggleLog={() => {
-          // The log and a host sheet share the flank beside the felt; one at a time.
-          if (!logOpen) sheet?.onOpenChange(false);
-          setLogOpen((current) => !current);
-        }}
-        extra={
-          sheet && !embed
-            ? {
-                label: sheet.label,
-                title: sheet.buttonTitle,
-                icon: sheet.icon,
-                open: sheet.open,
-                onToggle: () => {
-                  if (!sheet.open) setLogOpen(false);
-                  sheet.onOpenChange(!sheet.open);
-                },
-              }
-            : undefined
-        }
       />
+
+      {/*
+        The narration, for a screen reader only: there is no caption on screen
+        any more (design 7, round 2), but the sentence is still the news on
+        every step. `aria-atomic` because the whole sentence is the news;
+        `polite` because a scrub can fire ten of these a second.
+      */}
+      <p className="rp-sr" aria-live="polite" aria-atomic="true">
+        {caption}
+      </p>
 
       {/*
         Tier 2. Modal `<dialog>`s, so they paint in the top layer: outside the
