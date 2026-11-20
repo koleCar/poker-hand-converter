@@ -409,7 +409,9 @@
   flex-direction: column;
 }
 
-.leakLine {
+/* Two classes: the shared `.lrow` is a flex column, and the row must be this grid
+   whichever stylesheet loads last. */
+.leaksList .leakLine {
   display: grid;
   grid-template-columns: 18px 8px minmax(180px, 1.3fr) minmax(100px, 1fr) 130px 16px 72px 96px 12px;
   align-items: center;
@@ -509,7 +511,7 @@
 }
 
 @media (max-width: 760px) {
-  .leakLine {
+  .leaksList .leakLine {
     grid-template-columns: 18px 8px minmax(0, 1fr) 16px 84px 12px;
   }
 
@@ -533,6 +535,39 @@
  * in behind it, the volume bars rise. Once, when the chart mounts; nothing
  * moves under `prefers-reduced-motion`.
  */
+/* A phone: the name across the row, the EV lost and the confidence under it. */
+@media (max-width: 640px) {
+  .leaksList .leakLine {
+    grid-template-areas:
+      "rank dot names names chev"
+      ". . value conf chev";
+    grid-template-columns: 18px 8px minmax(0, 1fr) auto 12px;
+    gap: var(--space-1) var(--space-2);
+    padding-block: var(--space-3);
+  }
+
+  .leakRank { grid-area: rank; }
+  .leakNames { grid-area: names; }
+  .leakValue {
+    grid-area: value;
+    text-align: start;
+  }
+
+  .leakChevron { grid-area: chev; }
+
+  .leaksList .leakLine > i { grid-area: dot; }
+  .leaksList .leakLine > [title] { grid-area: conf; }
+
+  .leakPanelNew {
+    margin: 0 0 var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .mixLine {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .lineIn {
     stroke-dasharray: 1;

@@ -8,13 +8,14 @@
  * from every "Learn" link rather than from a tab. Their pages still exist, so
  * they light up the section that now holds them.
  *
- * The tabs wrap on a narrow screen; nothing is hidden behind a "More".
+ * On a phone the tabs are one row that scrolls sideways (an.module.css);
+ * nothing is hidden behind a "More".
  */
 
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
 import styles from "./ui/an.module.css";
@@ -41,9 +42,22 @@ function tabOf(section: AnalysisSection): Tab | null {
   return section;
 }
 
-export function AnalysisNav({ current, children }: { current: AnalysisSection; children?: ReactNode }) {
+/**
+ * `children` are the screen's filters; `status` is a run's state and button,
+ * drawn after them on desktop and on its own line on a phone (where the
+ * filters scroll sideways in one row).
+ */
+export function AnalysisNav({ current, children, status }: { current: AnalysisSection; children?: ReactNode; status?: ReactNode }) {
   const t = useDict().analysis.ui.nav;
   const on = tabOf(current);
+  const navRef = useRef<HTMLElement>(null);
+  // On a phone the row scrolls: bring the lit tab into view (no-op when nothing overflows).
+  useEffect(() => {
+    const nav = navRef.current;
+    const lit = nav?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!nav || !lit || nav.scrollWidth <= nav.clientWidth) return;
+    nav.scrollLeft = lit.offsetLeft - nav.offsetLeft - (nav.clientWidth - lit.offsetWidth) / 2;
+  }, [on]);
   const items: ReadonlyArray<{ id: Tab; href: string; label: string }> = [
     { id: "overview", href: paths.analysis(), label: t.overview },
     { id: "session", href: paths.analysisSession(), label: t.session },
@@ -56,8 +70,8 @@ export function AnalysisNav({ current, children }: { current: AnalysisSection; c
     { id: "charts", href: paths.analysisCharts(), label: t.charts },
   ];
   return (
-    <div className={styles.sub}>
-      <nav className={styles.tabs} aria-label={t.label}>
+    <div className={`${styles.sub} ${styles.navRow}`}>
+      <nav ref={navRef} className={styles.tabs} aria-label={t.label}>
         {items.map((item) => (
           <Link
             key={item.id}
@@ -80,10 +94,11 @@ export function AnalysisNav({ current, children }: { current: AnalysisSection; c
           <path d="M4 19.5V5a2 2 0 0 1 2-2h14v16H6.5a2.5 2.5 0 0 0 0 5H20" />
         </svg>
       </Link>
-      {children ? (
+      {children || status ? (
         <>
           <span className={styles.grow} />
-          <div className={styles.tools}>{children}</div>
+          {children ? <div className={styles.tools}>{children}</div> : null}
+          {status ? <div className={styles.navStatus}>{status}</div> : null}
         </>
       ) : null}
     </div>

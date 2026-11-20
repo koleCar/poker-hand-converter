@@ -377,7 +377,7 @@ function Controls({ state, onChange }: { state: LeaksState; onChange: (patch: Pa
         ))}
       </div>
       <span className={an.grow} />
-      <span className={`${an.xs} ${an.dim}`}>{t.controls.sort}</span>
+      <span className={`${an.xs} ${an.dim} ${an.phoneHide}`}>{t.controls.sort}</span>
       <div className={an.seg} role="group" aria-label={t.controls.sort}>
         {LEAK_SORTS.map((sort) => (
           <button key={sort} type="button" aria-pressed={state.sort === sort} onClick={() => onChange({ sort })}>

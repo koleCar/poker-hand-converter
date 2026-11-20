@@ -1,0 +1,36 @@
+/*
+ * The Analysis screens on a phone. The shared type tokens are sized for a
+ * dense desktop (11-12px secondary text); under 900px every Analysis screen
+ * reads them one step up, so nothing drops under 12px and body text is 15px.
+ * Desktop is untouched: the tokens keep their values there.
+ */
+.root {
+  display: contents;
+}
+
+@media (max-width: 899px) {
+  .root {
+    --font-size-2xs: 12px;
+    --font-size-xs: 13px;
+    --font-size-sm: 13px;
+    --font-size-md: 14px;
+    --font-size-base: 15px;
+    --font-size-lg: 16px;
+  }
+}
+
+/* Phones: the shared `.card` around a section becomes a flat block under a
+   hairline (no card around the page, no card in a card). */
+@media (max-width: 640px) {
+  .root :global(.card) {
+    border: 0;
+    border-block-start: 1px solid var(--border-subtle);
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .root :global(.card:not(.card--flush)) {
+    padding: var(--space-4) 0 0;
+  }
+}
