@@ -57,7 +57,7 @@ import {
   type ListGroup,
 } from "./filter";
 import { stakeLabel } from "./format";
-import { isWholeKind, kindOf, kindOfFormat, withFormats, withKind } from "./gameKind";
+import { holdKind, isWholeKind, kindOf, kindOfFormat, withFormats, withKind, type GameKind } from "./gameKind";
 import type { FacetCount, HandFacets, HandsFeatures, MoreFilter } from "./model";
 
 export type GroupId =
@@ -407,6 +407,27 @@ export const PANES: { section: SectionId; panes: { id: PaneId; groups: GroupId[]
     ],
   },
 ];
+
+/** The Tournament pane's groups: a cash hand has no buy-in, bounty or level. */
+export const TOURNAMENT_GROUPS: readonly GroupId[] = ["buyIn", "bounty", "levels"];
+
+/**
+ * The groups a surface that keeps the kind itself (the desktop's sidebar)
+ * leaves out of its filters: the tournament ones while it shows cash.
+ */
+export function groupsHiddenFor(kind: GameKind | undefined): readonly GroupId[] | undefined {
+  return kind === "cash" ? TOURNAMENT_GROUPS : undefined;
+}
+
+/**
+ * The filter held to the surface's kind (`holdKind`), without the groups that
+ * kind hides: a saved filter's buy-in does not empty the cash list behind a
+ * chip the row no longer shows.
+ */
+export function holdSurfaceKind(filter: FilterState, kind: GameKind, facets: HandFacets | null): FilterState {
+  const held = holdKind(filter, kind, facets);
+  return (groupsHiddenFor(kind) ?? []).reduce((shown, group) => clearGroup(group, shown, facets), held);
+}
 
 /** The pane a group is edited in. */
 export function paneOf(group: GroupId): PaneId {

@@ -34,7 +34,8 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { FilterBar } from "../hands/FilterBar";
 import { EMPTY_FILTER, activeGroups, toQuery, type FilterState } from "../hands/filter";
 import { bigBlindsIn, countIn, signedMoney, unitOf } from "../hands/format";
-import { holdKind, pinKind, type GameKind } from "../hands/gameKind";
+import { pinKind, type GameKind } from "../hands/gameKind";
+import { groupsHiddenFor, holdSurfaceKind } from "../hands/groups";
 import { KindToggle } from "../hands/KindToggle";
 import type { HandFacets, HandFilter } from "../hands/model";
 import { useUiStrings } from "../i18n";
@@ -135,7 +136,7 @@ export function ReportsScreen({
     () =>
       kind === undefined
         ? pinKind(chosen ?? EMPTY_FILTER, facetsSeen).filter
-        : holdKind(chosen ?? EMPTY_FILTER, kind, facetsSeen),
+        : holdSurfaceKind(chosen ?? EMPTY_FILTER, kind, facetsSeen),
     [chosen, kind, facetsSeen],
   );
   const query = useMemo(() => toQuery(filter), [filter]);
@@ -198,6 +199,7 @@ export function ReportsScreen({
         facets={facets}
         onChange={onChoose}
         features={source.filters}
+        hideGroups={groupsHiddenFor(kind)}
         screen="reports"
         saved={source.savedFilters}
         loadFacets={loadFacets}

@@ -23,7 +23,8 @@ import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
 import { FilterBar } from "./FilterBar";
 import { activeGroups, toQuery, type FilterState } from "./filter";
-import { holdKind, kindOf, pinKind, type GameKind } from "./gameKind";
+import { kindOf, pinKind, type GameKind } from "./gameKind";
+import { groupsHiddenFor, holdSurfaceKind } from "./groups";
 import { HandSessionsContext } from "./sessions";
 import type { MenuPoint } from "./ContextMenu";
 import { HandList } from "./HandList";
@@ -135,7 +136,7 @@ export function HandsScreen({
   // own choice out, decide; the first page waits for them).
   const [facetsSeen, setFacetsSeen] = useState<HandFacets | null>(null);
   const filter = useMemo(
-    () => (kind === undefined ? pinKind(chosen, facetsSeen).filter : holdKind(chosen, kind, facetsSeen)),
+    () => (kind === undefined ? pinKind(chosen, facetsSeen).filter : holdSurfaceKind(chosen, kind, facetsSeen)),
     [chosen, kind, facetsSeen],
   );
   // A date preset is resolved when the filter is set ("last 7 days" from now).
@@ -292,6 +293,7 @@ export function HandsScreen({
           facets={facets}
           onChange={onFilterChange}
           features={source.features}
+          hideGroups={groupsHiddenFor(kind)}
           saved={source.savedFilters}
           sorts={source.features.sorts}
           loadFacets={loadFacets}
