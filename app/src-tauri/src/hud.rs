@@ -431,6 +431,10 @@ impl HudState {
         policy_file: Option<PathBuf>,
     ) -> Self {
         let shared = Arc::new(Shared::default());
+        // (T3) The user's tiling and RNG settings: for every handshake, and
+        // read by the RNG box even when the HUD is switched off (the box
+        // would otherwise save its defaults over the user's look).
+        *shared.table_settings() = crate::tiling::read_store(store);
         let off = |error: String| Self {
             supervisor: SupervisorSlot::default(),
             pending: Mutex::new(None),
@@ -462,8 +466,6 @@ impl HudState {
             Some(Ok(writer)) => LayoutWrites::start(writer, Arc::clone(&sync)),
             _ => LayoutWrites::default(),
         };
-        // (T3) The user's tiling settings, for every handshake.
-        *shared.table_settings() = crate::tiling::read_store(store);
 
         let on_event = {
             let app = app.clone();

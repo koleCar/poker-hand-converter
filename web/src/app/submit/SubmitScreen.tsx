@@ -85,7 +85,7 @@ function SubmitForm({
 
   if (!auth.isSignedIn) {
     return (
-      <section className="card stack">
+      <section className={`card stack ${styles.flatCard}`}>
         <h1 className={styles.postTitle}>{en.forum.submit.heading}</h1>
         <div>
           <button type="button" className="btn btn--primary" onClick={() => auth.requestSignIn(en.forum.submit.signIn)}>
@@ -123,7 +123,7 @@ function SubmitForm({
   }
 
   return (
-    <section className="card stack">
+    <section className={`card stack ${styles.flatCard}`}>
       <h1 className={styles.postTitle}>{en.forum.submit.heading}</h1>
       <form className={styles.composer} onSubmit={(event) => void submit(event)}>
         <label className="stack">

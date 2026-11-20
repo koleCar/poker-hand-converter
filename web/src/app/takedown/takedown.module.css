@@ -1,0 +1,13 @@
+/* `/takedown`: on a phone the text sits on the page, not in a card. Tokens only. */
+
+@media (max-width: 640px) {
+  .page.page {
+    padding: 8px 0 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    font-size: var(--font-size-lg);
+    line-height: 1.55;
+  }
+}

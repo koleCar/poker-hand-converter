@@ -162,6 +162,15 @@
   color: var(--text-link);
 }
 
+/* The fold (`IntroFold.tsx`): only on a phone; wider, the panel is always open. */
+.introToggle {
+  display: none;
+}
+
+.introBody {
+  display: contents;
+}
+
 .referenceGroups {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -787,4 +796,397 @@
 
 .moduleReview {
   font-size: var(--font-size-sm);
+}
+
+/* ------------------------------------------------------------ on a phone */
+
+/* Phone widths (the wider layout is untouched): body text at 15px, the
+   course's sections flat instead of boxed, the "how Rail teaches" panel
+   folded under its heading, the map's lessons as one compact grouped list
+   per module (two lines of summary), answer buttons big and filling the row,
+   every link styled as a button at least 44px tall. */
+@media (max-width: 640px) {
+  .page {
+    gap: var(--space-8);
+    font-size: var(--font-size-lg);
+  }
+
+  .pageHead {
+    gap: var(--space-2);
+  }
+
+  .title {
+    font-size: var(--font-size-3xl);
+    line-height: 1.2;
+  }
+
+  .lead {
+    font-size: var(--font-size-lg);
+  }
+
+  .eyebrow,
+  .muted,
+  .related,
+  .moduleReview,
+  .referenceList,
+  .lessonSummary {
+    font-size: var(--font-size-md);
+  }
+
+  .eyebrow a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 44px;
+  }
+
+  .moduleCode,
+  .lessonCode,
+  .checkpointLabel,
+  .tag,
+  .status,
+  .passedTag,
+  .recommended,
+  .recheck,
+  .chosenTag {
+    font-size: var(--font-size-sm);
+  }
+
+  .page [class~="btn"] {
+    min-block-size: 44px;
+    font-size: var(--font-size-lg);
+  }
+
+  .conceptsLink,
+  .panelRow {
+    gap: var(--space-2) var(--space-3);
+  }
+
+  /* The pager: one button per row, full width, the way back first. */
+  .pager {
+    gap: var(--space-3);
+  }
+
+  .pager > * {
+    justify-self: stretch;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .pager > :empty {
+    display: none;
+  }
+
+  .pager > :nth-child(2) {
+    order: -1;
+  }
+
+  /* The intro panel: a flat block, its heading a full-width toggle. */
+  .introPanel {
+    gap: 0;
+    padding: 0;
+    border-width: 1px 0;
+    border-color: var(--border-subtle);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .introHeadingText {
+    display: none;
+  }
+
+  .introToggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    inline-size: 100%;
+    min-block-size: 52px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-primary);
+    font: inherit;
+    font-weight: var(--font-weight-semibold);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .introToggle:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+  }
+
+  .introChevron {
+    flex: none;
+    inline-size: 20px;
+    block-size: 20px;
+    fill: none;
+    stroke: var(--text-secondary);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.2s var(--ease-out);
+  }
+
+  .introPanel[data-open] .introChevron {
+    transform: rotate(180deg);
+  }
+
+  .introBody {
+    display: none;
+  }
+
+  .introPanel[data-open] .introBody {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-block-end: var(--space-4);
+  }
+
+  .referenceGroups {
+    gap: var(--space-4);
+  }
+
+  .referenceList {
+    gap: 0;
+  }
+
+  .referenceList a {
+    display: flex;
+    align-items: center;
+    min-block-size: 44px;
+  }
+
+  /* The map */
+  .map {
+    gap: var(--space-8);
+  }
+
+  .mapBar,
+  .note {
+    gap: var(--space-3);
+  }
+
+  .note {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .track {
+    gap: var(--space-6);
+  }
+
+  .module {
+    gap: var(--space-2);
+  }
+
+  .moduleTitle {
+    font-size: var(--font-size-xl);
+  }
+
+  .moduleReview a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 44px;
+  }
+
+  /* A module's lessons: one rounded list, a hairline between the rows. */
+  .lessons {
+    gap: 0;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-3);
+    background: var(--surface-raised);
+    overflow: hidden;
+  }
+
+  .lessons > li + li {
+    border-block-start: 1px solid var(--border-subtle);
+  }
+
+  .lessonCard,
+  .lessonCard[data-written] {
+    gap: 6px;
+    padding: var(--space-3) var(--space-4);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .lessonCard:not([data-written]) {
+    background: var(--surface-inset);
+  }
+
+  .lessonTitle {
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-normal);
+  }
+
+  .lessonSummary {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .lessonTags {
+    margin-block-start: 0;
+  }
+
+  .tag,
+  .status,
+  .passedTag,
+  .recommended,
+  .recheck {
+    padding: 2px var(--space-2);
+  }
+
+  /* A checkpoint: the answers big, at the thumb. */
+  .checkpoint {
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  /* Short answers share a row, a long one takes the whole row. */
+  .choices {
+    gap: var(--space-2);
+  }
+
+  .choices > .choice,
+  .choices > [class~="btn"] {
+    flex: 1 1 auto;
+    justify-content: center;
+    min-block-size: 48px;
+    padding: var(--space-2) var(--space-4);
+    text-align: center;
+  }
+
+  .splitRow {
+    gap: var(--space-2);
+    padding-block: var(--space-3);
+  }
+
+  .splitLabel {
+    flex-basis: 100%;
+  }
+
+  .splitChoices {
+    gap: var(--space-2);
+    inline-size: 100%;
+  }
+
+  .splitChoices > * {
+    flex: 1 1 0;
+    justify-content: center;
+    min-block-size: 44px;
+  }
+
+  /* An exercise: a flat block between hairlines, so the felt and its
+     buttons get the screen's width. */
+  .exercise {
+    gap: var(--space-4);
+    padding: var(--space-4) 0 0;
+    border-width: 1px 0 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .exercise[data-passed] {
+    border-block-start-width: 2px;
+  }
+
+  .exerciseHead h3 {
+    font-size: var(--font-size-xl);
+  }
+
+  .nextRow > [class~="btn"] {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .answerForm {
+    align-items: stretch;
+  }
+
+  .answerForm input {
+    flex: 1 1 8rem;
+    min-block-size: 44px;
+    font-size: 16px;
+  }
+
+  .optionTable {
+    font-size: var(--font-size-md);
+  }
+
+  .optionTable th,
+  .optionTable td {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  /* The range paint: the grid at the screen's width, names that can be read. */
+  .paintGrid,
+  .paintRow {
+    gap: 1px;
+  }
+
+  .paintGrid {
+    max-width: none;
+  }
+
+  .paintCell {
+    border-radius: 3px;
+    font-size: clamp(0.5625rem, 2.6vw, var(--font-size-sm));
+    letter-spacing: -0.02em;
+  }
+
+  .masteryGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* The panels (the daily dose, a capstone, examples): one level of box. */
+  .panel,
+  .masteryBox,
+  .widget {
+    padding: var(--space-4);
+  }
+
+  .panelHeading,
+  .introHeading {
+    font-size: var(--font-size-xl);
+  }
+
+  .panelRow > [class~="btn"] {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  /* The placement test's tracks: a full-width button each, its size under it. */
+  .outcomes:has(> .panelRow) {
+    gap: var(--space-4);
+    padding-inline-start: 0;
+    list-style: none;
+  }
+
+  .outcomes > .panelRow {
+    gap: 6px;
+  }
+
+  .outcomes > .panelRow > [class~="btn"] {
+    flex-basis: 100%;
+  }
+
+  .exampleCard {
+    padding: var(--space-3) 0;
+    border-width: 1px 0 0;
+    border-radius: 0;
+  }
+
+  .banner {
+    font-size: var(--font-size-md);
+  }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+  .introChevron {
+    transition: none;
+  }
 }

@@ -2375,3 +2375,225 @@
   font-size: 0.62rem;
   opacity: 0.85;
 }
+
+/* ============================================================ phone widths
+ * Under 900px (the shell's phone layout): the settings sheet rises from the
+ * bottom, every chip and button is thumb-sized. Last in the file so these
+ * win over the base rules above. */
+@media (max-width: 899px) {
+  .sheetLayer {
+    align-items: flex-end;
+    justify-content: stretch;
+  }
+
+  .sheet {
+    inline-size: 100%;
+    block-size: auto;
+    max-block-size: calc(100dvh - var(--space-8));
+    padding: 0 var(--space-4) calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+    border-inline-start: 0;
+    border-block-start: 1px solid var(--border-subtle);
+    border-radius: var(--radius-4) var(--radius-4) 0 0;
+    overscroll-behavior: contain;
+  }
+
+  /* The title and its actions stay at the top while the settings scroll. */
+  .sheetHead {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 1;
+    min-block-size: 56px;
+    margin-inline: calc(-1 * var(--space-4));
+    padding: var(--space-2) var(--space-4) 0;
+    background: var(--surface-base);
+  }
+
+  .sheetActions {
+    gap: var(--space-1);
+  }
+
+  .linkButton {
+    min-block-size: 44px;
+    padding-inline: var(--space-2);
+  }
+
+  .chips {
+    gap: var(--space-2);
+  }
+
+  .chip {
+    min-block-size: 44px;
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-2);
+  }
+
+  .next {
+    min-block-size: 48px;
+    padding: 0 var(--space-5, 20px);
+  }
+
+  .input {
+    min-block-size: 44px;
+    font-size: 16px;
+  }
+
+  .mode,
+  .modeLink {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 40px;
+    padding: 0 var(--space-4);
+  }
+
+  .settingsButton {
+    min-block-size: 44px;
+    padding: 0 var(--space-4);
+  }
+
+  .action kbd,
+  .next kbd {
+    display: none;
+  }
+
+  /* The session's name and the settings on one line, its fixed settings
+     as one quiet line under them. */
+  .top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2);
+  }
+
+  .top > .locked {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .top > .locked svg {
+    margin-inline-end: var(--space-1);
+    vertical-align: -1px;
+  }
+
+  .sessionName {
+    justify-self: start;
+    max-inline-size: 100%;
+    min-block-size: 44px;
+  }
+
+  .sessionName strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .menu button {
+    min-block-size: 44px;
+  }
+
+  .iconButton {
+    min-inline-size: 44px;
+    min-block-size: 44px;
+  }
+
+  /* The felt leaves room for the answer under it on one screen. */
+  .trainer {
+    --trainer-table-block: clamp(15rem, 42svh, 24rem);
+  }
+
+  /*
+   * One-handed: the answer buttons stay at the bottom of the screen, above
+   * the shell's tab bar, while the spot is in view; once answered, "Next"
+   * takes their place there.
+   */
+  .spot:not([data-compact]) > .buttons,
+  .spot:not([data-compact]) > .afterRow:has(.nextRow) {
+    position: sticky;
+    inset-block-end: var(--shell-bottom-nav, 0);
+    z-index: 5;
+    margin-inline: calc(-1 * var(--space-1));
+    padding: var(--space-2) var(--space-1);
+    background: var(--surface-base);
+  }
+
+  .spot:not([data-compact]) > .afterRow:has(.nextRow) {
+    padding-block-start: var(--space-5, 20px);
+    background: linear-gradient(to bottom, transparent, var(--surface-base) var(--space-4));
+  }
+
+  /* Answered: the buttons go back to their place, only "Next" stays down. */
+  .spot:not([data-compact]):has(> .afterRow .nextRow) > .buttons {
+    position: static;
+  }
+
+  .buttons {
+    grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+  }
+
+  .action {
+    min-block-size: 56px;
+    font-size: var(--font-size-base);
+  }
+
+  .nextRow {
+    justify-content: space-between;
+  }
+
+  .nextRow > .next {
+    flex: 1 1 auto;
+    justify-content: center;
+    min-block-size: 56px;
+    font-size: var(--font-size-base);
+  }
+
+  .foldHead,
+  .panelToggle {
+    min-block-size: 44px;
+  }
+
+  /* The session's figures: a flat block under the training, not a card. */
+  .side {
+    padding: var(--space-4) 0 0;
+    border: 0;
+    border-block-start: 1px solid var(--border-subtle);
+    border-radius: 0;
+    background: none;
+  }
+
+  .period .mode {
+    min-block-size: 36px;
+    padding: 0 var(--space-3);
+  }
+
+  .sessionTable {
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+
+  .sessionRow {
+    min-block-size: 56px;
+    padding-inline: 0;
+  }
+
+  /* The 13x13 range fills the column; its labels keep a readable size. */
+  .rangeGrid {
+    gap: 1px;
+  }
+
+  .rangeCell {
+    font-size: clamp(9px, 2.6vw, 0.65rem);
+    letter-spacing: -0.03em;
+  }
+
+  .rangeLegend {
+    gap: var(--space-2);
+  }
+
+  .rangeOption {
+    min-block-size: 40px;
+    padding: 0 var(--space-3);
+  }
+}

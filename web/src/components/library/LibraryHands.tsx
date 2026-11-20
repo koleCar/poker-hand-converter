@@ -25,7 +25,8 @@
  *   (Cmd/Ctrl + click, Shift + click, Cmd/Ctrl + A); a right click opens a
  *   menu for the chosen hands (or the one clicked), two or more chosen show
  *   a bar at the window's foot, and the open hand's replayer has a delete
- *   button. Each asks first (`DeleteHandsDialog`); after it the list, its
+ *   button. A phone has Select (or a long press on a row): taps then choose,
+ *   and the bar sits over the tab bar, full width, from the first hand. Each asks first (`DeleteHandsDialog`); after it the list, its
  *   counts and the plan's stored-hands count are read again.
  *
  * The address stays `/library`; the open hand is the page's state, as it was.
@@ -190,12 +191,21 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
     onHandsSaved();
     notifyHandsChanged();
   }, [toDelete, selected, onHandsSaved]);
+  // A phone choosing hands (Select, or a long press) has the bar from the
+  // first hand - or none, with a hint and Delete waiting.
   const chosenBar = useCallback(
-    (keys: string[], clear: () => void) =>
-      keys.length > 1 ? (
+    (keys: string[], clear: () => void, choosing: boolean) =>
+      keys.length > 1 || choosing ? (
         <div className={styles.bar} role="toolbar" aria-label={t.delete.menuLabel(keys.length)}>
-          <span className={styles.barCount}>{t.delete.chosen(keys.length)}</span>
-          <button type="button" className={styles.barAction} onClick={() => setToDelete({ keys, clear })}>
+          <span className={styles.barCount} aria-live="polite">
+            {keys.length === 0 ? t.delete.pickHint : t.delete.chosen(keys.length)}
+          </span>
+          <button
+            type="button"
+            className={styles.barAction}
+            disabled={keys.length === 0}
+            onClick={() => setToDelete({ keys, clear })}
+          >
             {t.delete.button}
           </button>
           <button type="button" className={styles.barClear} aria-label={t.delete.clear} title={t.delete.clear} onClick={clear}>
@@ -384,6 +394,7 @@ function StoredHandPanel({
   return (
     <div className={`${styles.panel} rail-fade`}>
       <ReplayViewer
+        phoneTakeover
         key={handKey}
         // The address does not name the open hand, so a `?t=` left by the
         // last one must not place the next: every hand opens at its start.
@@ -498,6 +509,7 @@ function ConverterHand({ onHandsSaved }: { onHandsSaved: () => void }) {
       {notice ? <p className="notice notice--info">{notice}</p> : null}
       {error ? <p className="notice notice--error">{error}</p> : null}
       <ReplayViewer
+        phoneTakeover
         key={hand.meta.handKey}
         urlSync={false}
         hand={hand}

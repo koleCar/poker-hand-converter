@@ -48,7 +48,7 @@ export function toHandRow(hand: PhfHand): HandRow {
     heroCards: hero?.holeCards ?? [],
     board: primaryBoard(hand),
     pot: formatAmount(hand.results.totalPot, unit),
-    heroNet: net === null ? null : formatAmount(net, unit),
+    heroNet: net === null ? null : `${net > 0 ? "+" : ""}${formatAmount(net, unit)}`,
     netDirection: net === null || net === 0 ? "flat" : net > 0 ? "up" : "down",
     playedAt: played && !Number.isNaN(played.getTime())
       ? played.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })

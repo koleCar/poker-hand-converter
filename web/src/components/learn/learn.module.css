@@ -587,3 +587,67 @@
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
 }
+
+/* ------------------------------------------------------------ on a phone */
+
+/* The calculators' controls at a phone's width (wider is untouched): labels
+   and numbers at a readable size, the radio choices as rows big enough to
+   tap, the card picker's buttons taller. */
+@media (max-width: 640px) {
+  .sliderHead,
+  .subhead,
+  .hint,
+  .caption,
+  .pickerLegend {
+    font-size: var(--font-size-md);
+  }
+
+  .slider input[type="range"] {
+    min-block-size: 36px;
+  }
+
+  .stat dt,
+  .statNote {
+    font-size: var(--font-size-sm);
+  }
+
+  .radios {
+    gap: var(--space-2);
+    font-size: var(--font-size-lg);
+  }
+
+  .radios label {
+    gap: var(--space-2);
+    min-block-size: 44px;
+    padding-inline-end: var(--space-3);
+  }
+
+  .radios input {
+    inline-size: 18px;
+    block-size: 18px;
+  }
+
+  .cardBtn {
+    min-block-size: 2.75rem;
+    font-size: var(--font-size-md);
+  }
+
+  .presetBtn {
+    min-block-size: 44px;
+    padding: var(--space-1) var(--space-2);
+  }
+
+  .tags li {
+    padding: var(--space-1) var(--space-2);
+  }
+}
+
+/* Phones: the concept cards read as a flat list of rows. */
+@media (max-width: 640px) {
+  .conceptCard {
+    border: 0;
+    border-block-end: 1px solid var(--border-subtle);
+    border-radius: 0;
+    background: none;
+  }
+}

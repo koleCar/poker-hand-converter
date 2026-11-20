@@ -143,6 +143,7 @@ export function ReplayPanel({ request, onSaved }: ReplayPanelProps) {
       {loaded ? (
         <section className="card card--flush">
           <ReplayViewer
+            phoneTakeover
             key={loaded.hand.meta.handKey}
             // A new paste opens at its start, not where the last hand stopped.
             urlSync={false}

@@ -644,3 +644,70 @@
   margin-left: auto;
   font-weight: 650;
 }
+
+/* ----------------------------------------------------------- phones - */
+
+/* Under 640px: the steps through the hand stay one row (arrows only, the
+   words are their labels), and every control is finger-sized. */
+@media (max-width: 639px) {
+  .nav {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  .nav > [class~="btn"] {
+    flex: 1 1 0;
+    min-width: 44px;
+    min-height: 44px;
+    padding-inline: 6px;
+    justify-content: center;
+  }
+
+  .nav > .undo {
+    flex: 1.8 1 auto;
+    margin-left: 0;
+  }
+
+  .navWord {
+    display: none;
+  }
+
+  .navStep {
+    flex: none;
+    min-width: 36px;
+    font-size: 13px;
+  }
+
+  .settingsBar {
+    padding: 12px;
+  }
+
+  .settingsBar [class~="btn"],
+  .heroSeg button,
+  .cardsBtn {
+    min-height: 44px;
+  }
+
+  /* "You are": one row; a 9-max table's seats scroll inside it. */
+  .heroSeg {
+    display: flex;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .heroSeg::-webkit-scrollbar {
+    display: none;
+  }
+
+  .heroSeg button {
+    flex: 1 0 auto;
+    min-width: 48px;
+    font-size: 14px;
+  }
+
+  .skipNote {
+    font-size: 13px;
+  }
+}

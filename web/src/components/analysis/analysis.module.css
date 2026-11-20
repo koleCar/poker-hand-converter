@@ -1095,3 +1095,31 @@
   max-inline-size: 72ch;
   margin: var(--space-2) 0 0;
 }
+
+/* A phone: the 13x13 grid fills a 343px column without scrolling sideways;
+   the cells give their labels the room (no padding, 1px gaps) so the hand
+   names stay readable at ~10px instead of shrinking with the viewport. */
+@media (max-width: 559px) {
+  .grid,
+  .gridRow {
+    gap: 1px;
+  }
+
+  .gridCell {
+    padding: 0;
+  }
+
+  .cellName {
+    font-size: clamp(9.5px, 2.8vw, 0.72rem);
+    letter-spacing: -0.04em;
+  }
+
+  .cellBar {
+    min-block-size: 0.3rem;
+  }
+
+  .chartDetail {
+    max-inline-size: none;
+    font-size: var(--font-size-md);
+  }
+}

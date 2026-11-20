@@ -135,3 +135,40 @@
     opacity: 0;
   }
 }
+
+/* Phone: a centred overlay (no anchor, modal) is a bottom sheet — the full
+   width, rounded on top, at most 90 % of the screen tall, clear of the home
+   indicator. An anchored one keeps covering its anchor's box. */
+@media (max-width: 640px) {
+  .ov[data-modal="true"]:not([data-anchored="true"]) {
+    margin: auto 0 0;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    max-block-size: 90dvh;
+  }
+
+  .ov[data-modal="true"]:not([data-anchored="true"]) .ov__panel {
+    padding-block-end: env(safe-area-inset-bottom, 0);
+    border-width: 1px 0 0;
+    border-radius: var(--radius-4) var(--radius-4) 0 0;
+    background: var(--surface-overlay);
+  }
+
+  .ov__title,
+  .ov__note {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: no-preference) {
+  .ov[data-modal="true"][open]:not([data-anchored="true"]) {
+    animation: ov-sheet-in var(--dur-4, 180ms) var(--ease-out, ease-out);
+  }
+}
+
+@keyframes ov-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}

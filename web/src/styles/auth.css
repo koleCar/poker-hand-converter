@@ -267,6 +267,56 @@
   background: var(--bg-elev-2);
 }
 
+/* System / Light / Dark: a small segmented control above "Sign out". */
+.usermenu__theme {
+  display: grid;
+  gap: 6px;
+  padding: 10px 14px 12px;
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.usermenu__theme-label {
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+
+.usermenu__segmented {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+}
+
+.usermenu__segment {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: var(--radius-1);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.usermenu__segment:hover {
+  color: var(--text-primary);
+}
+
+.usermenu__segment[aria-checked="true"] {
+  background: var(--surface-selected);
+  color: var(--text-on-selected);
+}
+
+.usermenu__segment:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
 /* A menu link whose page is loading: a spinner and "Opening…". */
 .usermenu__pending {
   display: inline-flex;
@@ -304,6 +354,160 @@
 
   .usermenu__trigger {
     padding: 4px;
+  }
+
+  /* The account menu is a bottom sheet (portalled to <body> by UserMenu):
+     the full width over a scrim, rows a thumb tall, clear of the home
+     indicator. */
+  .usermenu__sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .usermenu__scrim {
+    position: absolute;
+    inset: 0;
+    background: var(--surface-scrim);
+    backdrop-filter: blur(2px);
+  }
+
+  .usermenu__sheet .usermenu__panel {
+    position: relative;
+    top: auto;
+    right: auto;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-height: 90dvh;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-width: 1px 0 0;
+    border-radius: var(--radius-4) var(--radius-4) 0 0;
+  }
+
+  .usermenu__sheet .usermenu__who {
+    padding: 18px 16px 14px;
+    font-size: var(--font-size-lg);
+  }
+
+  .usermenu__sheet .usermenu__who small {
+    font-size: var(--font-size-md);
+  }
+
+  .usermenu__sheet .usermenu__item {
+    display: flex;
+    align-items: center;
+    min-height: 52px;
+    padding: 0 16px;
+    font-size: var(--font-size-lg);
+  }
+
+  .usermenu__sheet .usermenu__theme {
+    gap: 8px;
+    padding: 12px 16px 14px;
+  }
+
+  .usermenu__sheet .usermenu__theme-label {
+    font-size: var(--font-size-md);
+  }
+
+  .usermenu__sheet .usermenu__segment {
+    min-height: 40px;
+    font-size: var(--font-size-lg);
+  }
+
+  /* The sign-in dialog is a bottom sheet: the full width, rounded on top,
+     its own scroll, clear of the home indicator. */
+  .authdlg__scrim {
+    place-items: end stretch;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .authdlg {
+    box-sizing: border-box;
+    width: 100%;
+    max-height: 92dvh;
+    padding: 24px 16px calc(16px + env(safe-area-inset-bottom, 0));
+    border-width: 1px 0 0;
+    border-radius: var(--radius-4) var(--radius-4) 0 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .authdlg__close {
+    top: 6px;
+    right: 6px;
+    width: 44px;
+    height: 44px;
+    font-size: 17px;
+  }
+
+  .authdlg__title {
+    padding-right: 44px;
+    font-size: var(--font-size-2xl);
+  }
+
+  .authdlg__lead {
+    font-size: var(--font-size-lg);
+  }
+
+  .authdlg__field > span {
+    font-size: var(--font-size-md);
+  }
+
+  /* 16 px stops iOS zooming the page when the field takes focus. */
+  .authdlg__field input {
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+  .authdlg__submit,
+  .authdlg__google {
+    min-height: 48px;
+    font-size: var(--font-size-lg);
+  }
+
+  .authdlg__switch .linkish {
+    min-height: 44px;
+    font-size: var(--font-size-lg);
+  }
+
+  .authdlg__guest {
+    justify-items: stretch;
+  }
+
+  .authdlg__guest .btn {
+    min-height: 44px;
+    font-size: var(--font-size-lg);
+  }
+
+  .authdlg__guest small {
+    font-size: var(--font-size-md);
+  }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: no-preference) {
+  .authdlg {
+    animation: authdlg-sheet-in var(--dur-4, 180ms) var(--ease-out, ease-out);
+  }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: no-preference) {
+  .usermenu__sheet .usermenu__panel {
+    animation: authdlg-sheet-in var(--dur-4, 180ms) var(--ease-out, ease-out);
+  }
+}
+
+@keyframes authdlg-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
   }
 }
 

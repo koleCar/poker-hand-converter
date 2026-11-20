@@ -108,44 +108,6 @@
   gap: 14px;
 }
 
-/* On a phone the sidebar is a disclosure above the page; the rail goes. */
-.sideMenu {
-  display: none;
-  flex: 1 1 100%;
-  border: 1px solid var(--border-subtle);
-  border-radius: 14px;
-  background: var(--surface-raised);
-}
-
-.sideMenu > summary {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 44px;
-  padding: 0 14px;
-  color: var(--text-secondary);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-  list-style: none;
-}
-
-.sideMenu > summary::-webkit-details-marker {
-  display: none;
-}
-
-.sideMenu[open] > summary {
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.sideMenuBody {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 12px;
-  animation: forum-rise 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
 @media (max-width: 1180px) {
   .rail {
     display: none;
@@ -155,10 +117,6 @@
 @media (max-width: 860px) {
   .side {
     display: none;
-  }
-
-  .sideMenu {
-    display: block;
   }
 
   .shell {
@@ -516,6 +474,12 @@
   border-color: var(--warning-border);
 }
 
+/* An unread notification. */
+.card.unread,
+.card.unread:hover {
+  border-color: var(--accent);
+}
+
 .cardBody {
   display: grid;
   gap: 8px;
@@ -634,6 +598,25 @@
   font-size: 12px;
   font-weight: var(--font-weight-semibold);
   font-variant-numeric: tabular-nums;
+}
+
+.cardFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+.cardFoot > .replies {
+  color: inherit;
+}
+
+.repliesNum,
+.boardsChip,
+.fab {
+  display: none;
 }
 
 .meta {
@@ -779,7 +762,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .card,
-  .sideMenuBody,
+  .sheet:popover-open,
   .navLink[aria-current="page"]::before,
   .arrowUp,
   .comment {
@@ -917,6 +900,7 @@
   padding: 8px 10px;
   border-left: 2px solid var(--border-subtle);
   border-radius: 0 12px 12px 0;
+  margin-left: calc(var(--depth, 0) * 16px);
   scroll-margin-top: 90px;
   transition: background 0.15s, border-color 0.15s;
   animation: forum-rise 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
@@ -1148,4 +1132,716 @@
 .pollReference {
   padding-block-start: var(--space-3);
   border-block-start: 1px solid var(--border-subtle);
+}
+
+/* ---------------------------------------------------- boards sheet (phone) */
+
+/* A native popover (BoardsSheet.tsx), opened from the feed's chip row below
+   860px. `display` is set only while open: the UA hides a closed popover. */
+.sheet {
+  inset: auto 0 0;
+  width: 100%;
+  max-width: 100%;
+  max-height: min(85dvh, 720px);
+  margin: 0;
+  padding: 0 max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  border: 1px solid var(--border-subtle);
+  border-bottom: 0;
+  border-radius: 20px 20px 0 0;
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.sheet:popover-open {
+  display: flex;
+  flex-direction: column;
+  animation: forum-sheet 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sheet::backdrop {
+  background: var(--surface-scrim);
+}
+
+.sheetHead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  padding-top: 10px;
+  background: var(--surface-raised);
+  font-size: 16px;
+}
+
+.sheetGrab {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-strong);
+  transform: translateX(-50%);
+}
+
+.sheetClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-left: auto;
+  margin-right: -10px;
+  padding: 0;
+  border: 0;
+  border-radius: 22px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.sheetClose:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.sheetBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.sheetBody .sideSearch {
+  height: 44px;
+  background: var(--surface-inset);
+}
+
+.sheetBody .sideSearch input {
+  font-size: 16px;
+}
+
+.sheetBody .sideNew {
+  min-height: 44px;
+  font-size: 15px;
+}
+
+.sheetBody .navLink {
+  min-height: 48px;
+  font-size: 15px;
+}
+
+.sheetBody .navSection {
+  font-size: 12px;
+}
+
+.sheetBody .navCount {
+  font-size: 13px;
+}
+
+@keyframes forum-sheet {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+/* --------------------------------------------------------------- phones */
+
+@media (max-width: 860px) {
+  .feedPage {
+    gap: 4px;
+  }
+
+  /* The board's name and description, flat: no card around the page top. */
+  .boardHead {
+    padding: 2px 0 6px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .boardHead::after {
+    display: none;
+  }
+
+  /* The chip row already names the board; the head keeps its description. */
+  .boardHead > .navDot,
+  .boardHead > .boardName,
+  .boardHead:not(:has(.boardDesc)) {
+    display: none;
+  }
+
+  .boardDesc {
+    font-size: 14px;
+  }
+
+  /* One row of chips that scrolls sideways: boards, sort, kind. */
+  .filterBar {
+    position: static;
+    flex-wrap: nowrap;
+    gap: 8px;
+    padding: 6px 24px 6px 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    backdrop-filter: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    mask-image: linear-gradient(to right, var(--surface-base) calc(100% - 24px), transparent);
+  }
+
+  .filterBar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filterBar > *,
+  .kinds > * {
+    flex: none;
+    scroll-snap-align: start;
+  }
+
+  .kinds {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .barSpacer {
+    display: none;
+  }
+
+  .boardsChip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 200px;
+    height: 36px;
+    padding: 0 10px 0 12px;
+    border: 1px solid var(--border-default);
+    border-radius: 18px;
+    background: var(--surface-raised);
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 14px;
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+  }
+
+  .boardsChipLabel {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .seg {
+    padding: 2px;
+    border-radius: 18px;
+  }
+
+  .seg a {
+    position: relative;
+    height: 32px;
+    padding: 0 14px;
+    border-radius: 16px;
+    font-size: 14px;
+  }
+
+  .filterChip {
+    position: relative;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 18px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .clearLink {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 36px;
+    font-size: 14px;
+  }
+
+  /* Each chip's tap area is 44px tall although it draws 36. */
+  .boardsChip::after,
+  .seg a::after,
+  .filterChip::after,
+  .clearLink::after,
+  .chipLink::after {
+    content: "";
+    position: absolute;
+    inset: -4px 0;
+  }
+
+  .seg a::after {
+    inset: -6px 0;
+  }
+
+  /* Posts: flat full-width items split by a hairline, not cards. */
+  .feed {
+    gap: 0;
+  }
+
+  .card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px 8px;
+    align-items: center;
+    padding: 16px 0 12px;
+    border: 0;
+    border-bottom: 1px solid var(--border-subtle);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .card:hover {
+    transform: none;
+    border-color: var(--border-subtle);
+    box-shadow: none;
+  }
+
+  .cardPinned {
+    border-bottom-color: var(--warning-border);
+  }
+
+  /* The body and foot hand their children to the card's grid, so the arrows
+     can join the comment count in one action row under the post. */
+  .cardBody,
+  .cardFoot {
+    display: contents;
+  }
+
+  .cardBody > *,
+  .cardFoot > .meta {
+    grid-column: 1 / -1;
+  }
+
+  .card > .votes {
+    order: 1;
+  }
+
+  .cardFoot > .replies {
+    order: 2;
+    grid-column: auto;
+    justify-self: start;
+  }
+
+  .footSep,
+  .repliesFull {
+    display: none;
+  }
+
+  .repliesNum {
+    display: inline;
+  }
+
+  .cardTitle {
+    font-size: 17px;
+    line-height: 1.35;
+  }
+
+  .boardChip {
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  .badge {
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .handStrip {
+    max-width: 100%;
+  }
+
+  .handLine {
+    font-size: 13px;
+  }
+
+  /* Arrows: a horizontal pill, 44px tall. */
+  .card .votes,
+  .postHead .votes {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    min-width: 0;
+    height: 44px;
+    border-radius: 22px;
+    background: var(--surface-inset);
+  }
+
+  .card .arrow,
+  .postHead .arrow {
+    width: 44px;
+    height: 44px;
+    border-radius: 22px;
+    font-size: 12px;
+  }
+
+  .count {
+    min-width: 24px;
+    font-size: 14px;
+  }
+
+  .replies {
+    display: inline-flex;
+    gap: 6px;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 22px;
+    background: var(--surface-inset);
+    color: var(--text-secondary) !important;
+    font-size: 14px;
+    font-weight: var(--font-weight-semibold);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .replies svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .pager {
+    padding-top: 12px;
+  }
+
+  .pager > a {
+    flex: 1;
+    justify-content: center;
+    min-height: 44px;
+    font-size: 15px;
+  }
+
+  /* New post, in reach of a thumb, above the bottom tab bar. */
+  .fab {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right));
+    bottom: calc(var(--shell-bottom-nav, 0px) + 16px);
+    z-index: 30;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 28px;
+    background: var(--accent-bg);
+    color: var(--text-on-accent);
+    box-shadow: var(--shadow-2);
+    text-decoration: none;
+    transition: transform 0.15s;
+  }
+
+  .fab:active {
+    transform: scale(0.94);
+  }
+
+  /* ---- a post's page: flat, no card around the whole page. */
+  .post {
+    gap: 18px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .crumbs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    font-size: 14px;
+  }
+
+  /* Title, then who/when, then one action row: arrows and save/watch/mute. */
+  .postHead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 8px;
+  }
+
+  .postHeadBody {
+    display: contents;
+  }
+
+  .postHeadBody > * {
+    flex: 1 1 100%;
+    order: 2;
+  }
+
+  .postHead > .votes {
+    flex: none;
+    order: 1;
+  }
+
+  .postHeadBody > .stateRow {
+    flex: 1 1 0;
+    order: 1;
+  }
+
+  .postHeadBody > .tags,
+  .postHeadBody > .postTitle,
+  .postHeadBody > .meta {
+    order: 0;
+  }
+
+  .stateRow {
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .stateRow > .btn {
+    flex: none;
+    min-height: 44px;
+    border-radius: 22px;
+    font-size: 14px;
+  }
+
+  .postTitle {
+    font-size: var(--font-size-2xl);
+    line-height: 1.28;
+  }
+
+  .text {
+    font-size: 16px;
+  }
+
+  /* The hand's written recap repeats the replayer: on a phone it goes under
+     the discussion, so the hand and the talk come first. */
+  .post > .handSummary {
+    order: 1;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .spotBar .btn {
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  /* Comment sorts and the /mod tabs: one sideways-scrolling row. */
+  .chips {
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    padding-block: 4px;
+    scrollbar-width: none;
+  }
+
+  .chipLink {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 18px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  /* Whole-page cards (the submit form, signed-out states) sit flat. */
+  .flatCard {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  /* Lists of results (search, notifications, /mod): hairline rows. */
+  .hits {
+    gap: 0;
+  }
+
+  .hits > .card {
+    padding: 14px 0;
+  }
+
+  .card.unread,
+  .card.unread:hover {
+    border-color: var(--border-subtle);
+  }
+
+  .card.unread .cardTitle::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: var(--accent-bg);
+    vertical-align: 2px;
+  }
+
+  /* A search hit's snippet reads as one paragraph, its matches inline. */
+  .snippet {
+    display: block;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* A notification: the post's title on its own line, then the date. */
+  .notifMeta {
+    gap: 2px 8px;
+  }
+
+  .notifMeta > span:first-child {
+    flex-basis: 100%;
+    color: var(--text-secondary);
+  }
+
+  .notifMeta > span[aria-hidden="true"] {
+    display: none;
+  }
+
+    .toolbar .btn,
+  .card .row .btn,
+  .searchForm .btn {
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  .searchForm input {
+    min-height: 44px;
+  }
+
+  .composer > label,
+  .pollSetup > label {
+    gap: 8px;
+  }
+
+  .composer input:not([type="checkbox"], [type="radio"]),
+  .composer select {
+    min-height: 44px;
+  }
+
+  .checkRow {
+    min-height: 44px;
+  }
+
+  .pollOptions {
+    gap: 0 16px;
+  }
+
+  /* The composer: a full-width box with a 16px font (no iOS zoom) and a send
+     button that is easy to hit. */
+  .composer textarea,
+  .composer input,
+  .composer select,
+  .searchForm input,
+  .reportBox textarea,
+  .modBar input {
+    font-size: 16px;
+  }
+
+  .composer textarea {
+    padding: 12px 14px;
+    border-radius: 14px;
+    line-height: 1.45;
+  }
+
+  .composer > div:last-child {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .composer .btn {
+    min-height: 44px;
+    padding-inline: 20px;
+    font-size: 15px;
+  }
+
+  /* Comments: shallower indents (a phone has no room for ten levels of 16px),
+     and action rows that a thumb can hit. */
+  .comment {
+    margin-left: calc(min(var(--depth, 0), 4) * 12px);
+    padding: 10px 0 6px 10px;
+  }
+
+  .comment .meta {
+    font-size: 13px;
+  }
+
+  .comment .text {
+    font-size: 15px;
+  }
+
+  .commentFoot {
+    gap: 4px 8px;
+  }
+
+  /* The action row runs under the face too: room for arrows + three actions. */
+  .comment > .commentFoot {
+    grid-column: 1 / -1;
+  }
+
+  .votesCompact {
+    padding: 2px;
+    border-radius: 22px;
+  }
+
+  .votesCompact .arrow {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    font-size: 12px;
+  }
+
+  .commentActions {
+    flex-wrap: wrap;
+    gap: 0 4px;
+    font-size: 14px;
+  }
+
+  .commentActions > button {
+    min-height: 44px;
+    padding: 0 8px;
+  }
+
+  .chip {
+    padding: 4px 10px;
+    font-size: 13px;
+  }
+
+  .reportBox {
+    max-inline-size: none;
+    font-size: 14px;
+  }
+
+  .reportBox label {
+    min-height: 44px;
+  }
+
+  .modBar {
+    gap: 4px 12px;
+  }
+
+  .modBar > button {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fab {
+    transition: none;
+  }
 }

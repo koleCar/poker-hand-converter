@@ -68,6 +68,11 @@
   font-size: var(--font-size-sm);
 }
 
+/* The filters after the search: the toolbar's own items on the desktop. */
+.filters {
+  display: contents;
+}
+
 .segmented {
   display: flex;
   gap: var(--space-1);
@@ -794,4 +799,134 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- phones */
+
+/* The web under 900 px (the desktop app's window never is): no heading (the
+   Statistics | Players switch names the screen; on a phone it shares this
+   row, so the count sits at the row's end); the search across the screen at
+   16 px (no zoom on focus); finger-sized filters; and, with no player open,
+   the screen is the window's height so the list fills what is left and
+   scrolls on its own. Rows on the page, not in a box, 52 px tall. */
+@media (max-width: 899px) {
+  .title {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .top {
+    flex: none;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: 44px;
+  }
+
+  .count {
+    font-size: var(--font-size-md);
+  }
+
+  .toolbar {
+    flex: none;
+    gap: var(--space-2);
+  }
+
+  .search {
+    flex: 1 1 100%;
+    inline-size: 100%;
+    min-height: 44px;
+    padding-inline: var(--space-4);
+    font-size: 16px;
+  }
+
+  .filters {
+    display: flex;
+    flex: 1 1 100%;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filters > * {
+    flex: none;
+  }
+
+  .toolbar [class~="chip-btn"],
+  .clear {
+    min-height: 44px;
+    font-size: var(--font-size-base);
+  }
+
+  .page:not(:has(.split)) {
+    height: calc(100dvh - var(--shell-bottom-nav, 0px) - 112px);
+    min-height: 28rem;
+  }
+
+  .page:not(:has(.split)) .body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+  }
+
+  .page:not(:has(.split)) .list {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    height: auto;
+  }
+
+  .page:not(:has(.split)) .list > .tableWrap {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .grid {
+    --row: 52px;
+
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: var(--font-size-base);
+  }
+
+  .gridHead {
+    background: var(--surface-base);
+  }
+
+  /* A long column name takes two lines rather than losing its start. */
+  .gridHead > span,
+  .gridHead .sort {
+    white-space: normal;
+    line-height: 1.2;
+  }
+
+  .gridHead .number .sort {
+    justify-content: flex-end;
+    text-align: end;
+  }
+
+  .gridHead .sortMark {
+    display: none;
+  }
+
+  .gridHead .sorted .sortMark {
+    display: inline;
+  }
+
+  /* Room for "Common hands" over its numbers. */
+  .grid .gridRow {
+    grid-template-columns: minmax(0, 1fr) 6.5rem 6rem;
+    column-gap: var(--space-2);
+    padding: 0 var(--space-1);
+  }
 }

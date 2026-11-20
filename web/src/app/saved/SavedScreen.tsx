@@ -39,7 +39,7 @@ function SavedList() {
 
   if (!auth.isSignedIn) {
     return (
-      <section className="card stack">
+      <section className={`card stack ${styles.flatCard}`}>
         <h1 className={styles.postTitle}>{en.social.savedHeading}</h1>
         <div>
           <button type="button" className="btn btn--primary" onClick={() => auth.requestSignIn()}>

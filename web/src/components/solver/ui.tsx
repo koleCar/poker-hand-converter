@@ -11,14 +11,15 @@
  * - `Chip`: a removable pill (an active hand filter);
  * - `MixBar`: a strategy as one stacked bar, a segment per action;
  * - `SignedBb`: a signed amount, green above zero and red below;
- * - `Popover`: a panel under its anchor that Esc or a click outside closes.
+ * - `Popover`: a panel under its anchor that Esc or a click outside closes
+ *   (a bottom sheet on a phone).
  *
  * Colours and sizes are the app's tokens (`solver.module.css`).
  */
 
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import styles from "./solver.module.css";
 
 export interface SegmentOption<T extends string> {
@@ -268,7 +269,7 @@ export function Popover({
       className={`${styles.popover} ${wide ? styles.popoverWide : ""}`}
       role="dialog"
       aria-label={label}
-      style={{ insetInlineStart: `${shift}px` }}
+      style={{ "--popover-left": `${shift}px` } as CSSProperties}
     >
       {children}
     </div>

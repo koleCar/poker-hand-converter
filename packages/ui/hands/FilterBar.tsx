@@ -12,7 +12,10 @@
  *
  * The second is always in view: the quick filters (one-click spots over the
  * same groups) and the saved filters (`SavedRow`: apply, edit, delete, save
- * the filters in force). The order is the list's column headers. The
+ * the filters in force). The order is the list's column headers. On a
+ * phone both lines are one row that scrolls sideways, "Filters (n)" first
+ * (it opens the builder, full screen there), and the chips' panels are
+ * bottom sheets (`Popover`). The
  * row's groups are `filterGroups` of the surface's features (`groups.ts`),
  * the same on every screen: a screen cannot pick its own, so a change to
  * the filters is a change everywhere (2026-11-16, the owner).
@@ -123,9 +126,23 @@ export function FilterBar({
               {t.clearAll}
             </button>
           ) : null}
-          <button type="button" className={styles.tool} onClick={() => openBuilder()}>
+          <button
+            type="button"
+            className={`${styles.tool} ${styles.allFilters}`}
+            aria-label={active > 0 ? `${t.allFilters} (${active})` : undefined}
+            onClick={() => openBuilder()}
+          >
             <SlidersIcon />
             <span className={styles.toolText}>{t.allFilters}</span>
+            {/* A phone's row says "Filters" and how many are set. */}
+            <span className={styles.toolShort} aria-hidden="true">
+              {t.label}
+            </span>
+            {active > 0 ? (
+              <span className={styles.toolCount} aria-hidden="true">
+                {active}
+              </span>
+            ) : null}
           </button>
         </div>
       </div>

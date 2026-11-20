@@ -56,7 +56,7 @@ import { ReplayControls } from "./ReplayControls";
 import { ReplaySettingsMenu } from "./ReplaySettingsMenu";
 import { ReplayTable } from "./ReplayTable";
 import { potOddsAt } from "./potOdds";
-import { PotOddsBox } from "./PotOddsBox";
+import { PotOddsBox, PotOddsPill } from "./PotOddsBox";
 import { shapeFor, type TableShape } from "./seatLayout";
 import { ShortcutSheet } from "./ShortcutSheet";
 import { durationToken, easingToken } from "./motionTokens";
@@ -71,6 +71,8 @@ import {
   type ReplayPosition,
 } from "./position";
 import { useFullscreen } from "./useFullscreen";
+import { usePhoneTakeover } from "./usePhoneTakeover";
+import { createPortal } from "react-dom";
 import { useFrameTransition, useReducedMotion } from "./useFrameTransition";
 import {
   createNameMask,
@@ -151,6 +153,12 @@ interface ReplayViewerProps {
    * to true.
    */
   potOdds?: boolean;
+  /**
+   * `full` mode with an `onClose`: on a phone-width viewport, cover the whole
+   * screen instead of drawing in-flow (see `usePhoneTakeover`). The web's
+   * hand lists opt in; the desktop app's narrow side panel must not.
+   */
+  phoneTakeover?: boolean;
   ref?: React.Ref<ReplayViewerHandle>;
 }
 
@@ -271,7 +279,7 @@ function loops(animation: Animation): boolean {
  * pass renders `classic` and the first client frame corrects it, which is what
  * keeps this safe for the move to Next.
  */
-function useStageShape(ref: React.RefObject<HTMLDivElement | null>): TableShape {
+function useStageShape(ref: React.RefObject<HTMLDivElement | null>, remount?: unknown): TableShape {
   const [shape, setShape] = useState<TableShape>("classic");
 
   useMeasureEffect(() => {
@@ -287,7 +295,9 @@ function useStageShape(ref: React.RefObject<HTMLDivElement | null>): TableShape 
     const observer = new ResizeObserver(measure);
     observer.observe(node);
     return () => observer.disconnect();
-  }, [ref]);
+    // `remount`: the stage node is replaced when the replayer moves in or out
+    // of a phone takeover, and the observer must follow it.
+  }, [ref, remount]);
 
   return shape;
 }
@@ -303,7 +313,7 @@ function useStageShape(ref: React.RefObject<HTMLDivElement | null>): TableShape 
  * answer is published as `data-tier` so the CSS side of the ladder reads the
  * same number rather than deriving a second one. See `dropLadder.ts`.
  */
-function useReplayTier(ref: React.RefObject<HTMLDivElement | null>): ReplayTier {
+function useReplayTier(ref: React.RefObject<HTMLDivElement | null>, remount?: unknown): ReplayTier {
   const [tier, setTier] = useState<ReplayTier>("lg");
 
   useMeasureEffect(() => {
@@ -316,7 +326,7 @@ function useReplayTier(ref: React.RefObject<HTMLDivElement | null>): ReplayTier 
     const observer = new ResizeObserver(measure);
     observer.observe(node);
     return () => observer.disconnect();
-  }, [ref]);
+  }, [ref, remount]);
 
   return tier;
 }
@@ -400,6 +410,7 @@ function ReplayStage({
   marks,
   sheet,
   potOdds = true,
+  phoneTakeover = false,
   ref,
 }: ReplayViewerProps) {
   const embed = mode === "embed";
@@ -444,8 +455,10 @@ function ReplayStage({
   const rootRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const fullscreen = useFullscreen(rootRef);
-  const shape = useStageShape(stageRef);
-  const tier = useReplayTier(rootRef);
+  // A phone: an opened hand covers the screen, its header leads with a back arrow.
+  const takeover = usePhoneTakeover(mode === "full" && phoneTakeover, onClose);
+  const shape = useStageShape(stageRef, takeover);
+  const tier = useReplayTier(rootRef, takeover);
   /** False until the first frame has been painted: a mount is not a change. */
   const settled = useRef(false);
 
@@ -860,10 +873,12 @@ function ReplayStage({
     </button>
   );
 
-  return (
+  const replayer = (
     <div
       className="rp"
       ref={rootRef}
+      // A phone with a dismissable hand: the replayer covers the screen (see usePhoneTakeover).
+      data-takeover={takeover ? "" : undefined}
       data-shape={shape}
       // Which rungs of the drop ladder have fired. The stylesheet reads this
       // rather than deriving a second answer from a container query.
@@ -910,6 +925,17 @@ function ReplayStage({
       */}
       {embed ? null : (
         <div className="rp__header">
+          {takeover && onClose ? (
+            <button
+              type="button"
+              className="btn btn--icon rp__back"
+              onClick={onClose}
+              aria-label={t.viewer.close}
+              title={t.viewer.closeTitle}
+            >
+              <Icon name="chevronLeft" />
+            </button>
+          ) : null}
           <div className="rp__meta">
             {site ? <span>{site}</span> : null}
             <span>{headerStakesLabel(hand, t)}</span>
@@ -936,8 +962,8 @@ function ReplayStage({
               onOpenChange={setSettingsOpen}
             />
             {headerEnd}
-            {fullscreenButton}
-            {onClose ? (
+            {takeover ? null : fullscreenButton}
+            {onClose && !takeover ? (
               <button
                 type="button"
                 className="btn btn--icon"
@@ -964,7 +990,7 @@ function ReplayStage({
           format={format}
           focusSeat={focusSeat}
         />
-        {odds ? <PotOddsBox odds={odds} format={format} /> : null}
+        {odds && tier !== "sm" ? <PotOddsBox odds={odds} format={format} /> : null}
       </div>
 
       <ReplayControls
@@ -973,6 +999,7 @@ function ReplayStage({
         anchors={anchors}
         marks={railMarks}
         caption={caption}
+        captionAside={odds && tier === "sm" ? <PotOddsPill odds={odds} format={format} /> : null}
         tier={tier}
         playing={playing}
         speed={speed}
@@ -1063,4 +1090,8 @@ function ReplayStage({
       )}
     </div>
   );
+
+  // The takeover is drawn at the end of <body>, so no ancestor's overflow,
+  // transform or stacking context can clip it or slide it under the site's bars.
+  return takeover ? createPortal(replayer, document.body) : replayer;
 }

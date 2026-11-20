@@ -90,7 +90,13 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#0b0f14",
+  // The browser's own bar follows the page's theme (the in-app browsers of
+  // Messenger and co. included). An explicit Light/Dark choice re-points
+  // these tags from the theme script and the theme switch.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f8fb" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0f14" },
+  ],
 };
 
 /**
@@ -116,7 +122,7 @@ export const viewport: Viewport = {
  * later is `localStorage.setItem("rail.theme", next)` plus the same attribute
  * write.
  */
-const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem("rail.theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"}document.documentElement.setAttribute("data-theme",t)}catch(e){document.documentElement.setAttribute("data-theme","dark")}})()`;
+const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem("rail.theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"}document.documentElement.setAttribute("data-theme",t);if(localStorage.getItem("rail.theme")){var c=t==="light"?"#f6f8fb":"#0b0f14";document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.setAttribute("content",c)})})}}catch(e){document.documentElement.setAttribute("data-theme","dark")}})()`;
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   /**

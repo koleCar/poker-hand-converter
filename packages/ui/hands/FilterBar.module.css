@@ -1385,3 +1385,191 @@ button.conditionBody:hover {
 .danger {
   color: var(--loss-fg);
 }
+
+/* ------------------------------------------------------------- phones */
+
+/* Only a phone's row says "Filters" and the count (the desktop: "All filters"). */
+.toolShort,
+.toolCount {
+  display: none;
+}
+
+.sheetScrim {
+  display: none;
+}
+
+/* The web under 900 px (the desktop app's window never is): the filter row's
+   two lines become one row that scrolls sideways - "Filters (n)" first, then
+   the set chips, "Clear all", the quick filters and the saved ones - so the
+   list keeps the screen. "+ Add filter" is the builder's search there (the
+   builder fills the screen). The chips' panels are bottom sheets. */
+@media (max-width: 899px) {
+  .wrap {
+    flex: none;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+
+  .wrap::-webkit-scrollbar {
+    display: none;
+  }
+
+  .bar,
+  .chips,
+  .tools,
+  .quick,
+  .quick .pills,
+  .savedRow {
+    display: contents;
+  }
+
+  .quickLabel,
+  .divider,
+  .savedHint,
+  .anchor:has(> .add) {
+    display: none;
+  }
+
+  .quick > *,
+  .chips > *,
+  .tools > *,
+  .quick .pills > *,
+  .savedRow > * {
+    flex: none;
+    scroll-snap-align: start;
+  }
+
+  .allFilters {
+    order: -1;
+    gap: var(--space-2);
+    border-color: var(--border-strong);
+    border-radius: var(--radius-pill);
+  }
+
+  .allFilters .toolText {
+    display: none;
+  }
+
+  .toolShort {
+    display: inline;
+  }
+
+  .toolCount {
+    display: inline-grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 var(--space-1);
+    border-radius: var(--radius-pill);
+    background: var(--accent-bg);
+    color: var(--text-on-accent);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chip,
+  .tool,
+  .textButton,
+  .quick .pill,
+  .savedPill,
+  .savedAdd {
+    height: 40px;
+    min-height: 40px;
+    font-size: var(--font-size-base);
+  }
+
+  .quick .pill {
+    padding: 0 var(--space-4);
+  }
+
+  .chip {
+    max-width: 80vw;
+  }
+
+  .chipRemove {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* The saved filter's ✎ and × only on the one in force (no hover here). */
+  .savedPill:not(.savedOn) .savedTool {
+    display: none;
+  }
+
+  .savedTool {
+    width: 32px;
+  }
+
+  /* A chip's panel, the saved filter's editor, "+ Add filter": a bottom
+     sheet over a dimmed page, above the tab bar. */
+  .sheetScrim {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-menu);
+    display: block;
+    background: rgb(0 0 0 / 45%);
+  }
+
+  .popover.sheet {
+    inset: auto 0 0;
+    z-index: calc(var(--z-menu) + 1);
+    width: 100%;
+    max-width: none;
+    max-height: min(80dvh, calc(100dvh - 48px));
+    padding: var(--space-5) max(var(--space-4), env(safe-area-inset-right))
+      calc(var(--space-4) + env(safe-area-inset-bottom)) max(var(--space-4), env(safe-area-inset-left));
+    border-width: 1px 0 0;
+    border-radius: var(--radius-4) var(--radius-4) 0 0;
+    overscroll-behavior: contain;
+  }
+
+  .popover.sheet .popoverFoot [class~="btn"] {
+    min-height: 44px;
+    padding-inline: var(--space-5);
+  }
+
+  .popover.sheet input {
+    font-size: 16px;
+  }
+
+  /* The builder, full screen: its sections' strip scrolls without a bar,
+     and its head and foot keep clear of the notch and the home indicator. */
+  .builderNav {
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+
+  .builderNav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .builderHead {
+    padding-top: max(var(--space-3), env(safe-area-inset-top));
+  }
+
+  .builderFoot {
+    padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+  }
+
+  .builderSearch input {
+    font-size: 16px;
+  }
+}
+
+/* The touch rule above sets 44 px; the phone row is a touch row too. */
+@media (max-width: 899px) and (pointer: coarse) {
+  .chip,
+  .tool,
+  .textButton,
+  .quick .pill,
+  .savedPill,
+  .savedAdd {
+    height: 44px;
+  }
+}

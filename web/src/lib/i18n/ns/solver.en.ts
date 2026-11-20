@@ -155,7 +155,7 @@ export const solverEn = {
   cellLabel: (hand: string, parts: string[], absent: boolean) =>
     `${hand}: ${absent ? "not in the range" : parts.join(", ")}`,
   part: (label: string, freq: number) => `${label} ${pct1(freq)}`,
-  detailEmpty: "Hover or pick a hand to see what each action is worth.",
+  detailEmpty: "Pick a hand to see what each action is worth.",
   you: "You",
   yourHand: "Your hand",
   comboOff: "Not in this spot",

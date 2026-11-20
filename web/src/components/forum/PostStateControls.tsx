@@ -50,7 +50,7 @@ export function PostStateControls({ post }: { post: string }) {
   }
 
   return (
-    <div className={styles.row}>
+    <div className={`${styles.row} ${styles.stateRow}`}>
       <button
         type="button"
         className={`btn btn--sm ${saved ? "is-active" : ""}`.trim()}

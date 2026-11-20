@@ -9,6 +9,7 @@ import { buildSharePreview } from "./preview";
 import { SHARE_UNAVAILABLE_MESSAGE, createShare, isShareBackendReady } from "./shareClient";
 import { AnalysisShareToggle } from "../analysis/AnalysisShareToggle";
 import { ShareNamesToggle } from "./ShareNamesToggle";
+import { loadShareNamesPreference } from "@rail/ui/share/namesPreference";
 import { ShareToForum } from "./ShareToForum";
 import { Icon } from "@rail/ui/icon/Icon";
 
@@ -169,6 +170,9 @@ export function ShareHandButton({
         handKey: hand.meta.handKey,
         handText: toStandardText(hand),
         preview: buildSharePreview(hand),
+        // The owner's last answer on the names switch, so a fresh link made
+        // after reopening the hand does not quietly hide the names again.
+        showNames: loadShareNamesPreference(),
       });
       setUrl(result.url);
       setSlug(result.slug);

@@ -82,6 +82,16 @@
   gap: var(--space-2);
 }
 
+/* A run's status after the tools: on desktop it sits in the same line, at
+   the tools' own spacing. */
+.navStatus {
+  display: contents;
+}
+
+.navStatus > * {
+  margin-inline-start: calc(var(--space-2) - var(--space-3));
+}
+
 /* The Analysis tabs' filter row: the kind switch, then the Hands list's
    shared filter row taking the rest of the line (2026-11-16). */
 .filterRow {
@@ -986,4 +996,271 @@
   grid-template-columns: repeat(13, minmax(0, 1fr));
   gap: 2px;
   min-inline-size: 280px;
+}
+
+/* ============================================================ phone widths
+ * Last in the file so these win over the base rules above. */
+
+/*
+ * Phones and small tablets: the tabs are one row of chips that scrolls
+ * sideways edge to edge (never wrapped rows), the concept book sits at the
+ * row's end, and the screen's tools take the next line.
+ */
+@media (max-width: 899px) {
+  .navRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-3) var(--space-2);
+  }
+
+  .sub {
+    row-gap: var(--space-3);
+  }
+
+  .tabs {
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+    margin-inline-start: calc(-1 * var(--shell-gutter, 14px));
+    padding: 0 var(--space-6) 0 var(--shell-gutter, 14px);
+    overflow-x: auto;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    scroll-padding-inline: var(--shell-gutter, 14px);
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    mask-image: linear-gradient(90deg, var(--text-primary) calc(100% - 24px), transparent);
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab {
+    flex: none;
+    min-block-size: 44px;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-pill);
+    background: var(--surface-raised);
+    font-size: var(--font-size-sm);
+    white-space: nowrap;
+    scroll-snap-align: start;
+  }
+
+  .tabOn {
+    border-color: transparent;
+    background: var(--surface-selected);
+  }
+
+  .iconLink {
+    inline-size: 44px;
+    block-size: 44px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-pill);
+  }
+
+  .grow {
+    display: none;
+  }
+
+  /* The filters: one row that scrolls sideways, edge to edge. */
+  .tools {
+    flex: 1 1 100%;
+    grid-column: 1 / -1;
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+    min-inline-size: 0;
+    margin-inline-start: calc(-1 * var(--shell-gutter, 14px));
+    padding-inline: var(--shell-gutter, 14px) var(--space-6);
+    overflow-x: auto;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    mask-image: linear-gradient(90deg, var(--text-primary) calc(100% - 24px), transparent);
+  }
+
+  .tools::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tools > * {
+    flex: none;
+  }
+
+  /* A screen that groups its tools again inside the row. */
+  .tools .tools,
+  .tools .sub {
+    display: flex;
+    flex-wrap: nowrap;
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+    mask-image: none;
+  }
+
+  /* A segmented control never pushes the page wider: it fills the line
+     and scrolls if its labels are long. */
+  .seg {
+    max-inline-size: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .seg button {
+    flex: 1 0 auto;
+  }
+
+  .phoneHide {
+    display: none;
+  }
+
+  .navStatus {
+    display: block;
+    grid-column: 1 / -1;
+  }
+
+  .navStatus:empty {
+    display: none;
+  }
+
+  .navStatus > * {
+    margin-inline-start: 0;
+  }
+
+  /* Thumb-sized controls; 16px in a select keeps iOS from zooming. */
+  .dd {
+    block-size: 44px;
+    font-size: var(--font-size-sm);
+  }
+
+  .dd select,
+  .dd input {
+    block-size: 42px;
+    font-size: 16px;
+  }
+
+  .seg button,
+  .segLink {
+    block-size: 40px;
+    padding: 0 var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+
+  .chip {
+    block-size: 44px;
+    padding: 0 var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+
+  .status {
+    flex-wrap: wrap;
+    font-size: var(--font-size-sm);
+  }
+
+  /* The shared Cash | Tournaments switch on the tools line. */
+  .tools :global(.chip-btn) {
+    min-block-size: 44px;
+    padding-inline: var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+
+  .gradeKeys {
+    gap: 0 var(--space-4);
+  }
+
+  .gradeKey {
+    min-block-size: 44px;
+  }
+
+  .gradeBar {
+    block-size: 14px;
+    border-radius: 7px;
+  }
+
+  .posTag {
+    block-size: 24px;
+    font-size: 12px;
+  }
+
+  .cell {
+    block-size: 52px;
+    padding: 0 var(--space-2);
+  }
+
+  .cell small {
+    font-size: 12px;
+  }
+
+  .heatRow {
+    grid-template-columns: 56px repeat(4, minmax(0, 1fr));
+  }
+
+  .linkBtn {
+    min-block-size: 44px;
+  }
+
+  .lrow {
+    min-block-size: 44px;
+    padding-inline: 0;
+  }
+
+  .pager {
+    gap: var(--space-2);
+  }
+
+  /*
+   * The hands list on a phone: cards, position, grade and result on one
+   * line; the line, the EV and the date stay on the hand's own page.
+   */
+  @container (max-width: 620px) {
+    .hrow {
+      grid-template-columns: 76px 52px minmax(0, 1fr) auto;
+      min-block-size: 56px;
+      padding-block: var(--space-2);
+    }
+
+    .hrow > .grade.hideNarrow {
+      display: inline-flex;
+      font-size: var(--font-size-sm);
+    }
+  }
+}
+
+/* Phones: no card around each section; flat blocks split by a hairline. */
+@media (max-width: 640px) {
+  .page {
+    gap: var(--space-5, 20px);
+  }
+
+  .card {
+    padding: var(--space-4) 0 0;
+    border: 0;
+    border-block-start: 1px solid var(--border-subtle);
+    border-radius: 0;
+    background: none;
+  }
+
+  .flush {
+    overflow: visible;
+  }
+
+  .flush > .cardHead,
+  .listHead,
+  .hrow {
+    padding-inline: 0;
+  }
+
+  .flush > .cardHead {
+    padding-block-start: 0;
+  }
+
+  .center {
+    min-block-size: 0;
+    padding-block: var(--space-8);
+  }
+
+  .empty {
+    padding-inline: 0;
+  }
 }

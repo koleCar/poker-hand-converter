@@ -15,6 +15,7 @@ import { boardHue } from "../../lib/forum/boards";
 import type { Board, FeedFilters, FeedKind, FeedPage, FeedSort } from "../../lib/forum/types";
 import type { Dict } from "../../lib/i18n/types";
 import { paths } from "../../lib/routes";
+import { BoardsButton } from "./BoardsSheet";
 import { MyVotesProvider } from "./MyVotes";
 import { PostCard } from "./PostCard";
 import { NavPending, PendingDims, PendingLoader, PendingScope } from "../shell/NavProgress";
@@ -80,6 +81,11 @@ export function Feed({
       {/* A sort, a filter or a page is a navigation: the list dims while it is on its way. */}
       <PendingScope>
         <div className={styles.filterBar} role="toolbar" aria-label={en.forum.filters.label}>
+          <BoardsButton
+            label={board?.name ?? en.forum.allBoards}
+            menuLabel={en.forum.nav.menu}
+            hue={board ? boardHue(board.slug) : undefined}
+          />
           <nav className={styles.seg} aria-label={en.forum.sorts.hot}>
             {SORTS.map((value) => (
               <Link key={value} href={feedHref(slug, value, null, 1, filters)} aria-current={sort === value ? "page" : undefined}>
@@ -151,6 +157,13 @@ export function Feed({
           ) : null}
         </div>
       </PendingScope>
+
+      {/* Phone only: the sidebar's "New post" lives in the sheet, so the feed keeps one in reach of a thumb. */}
+      <Link href={paths.submit()} className={styles.fab} aria-label={en.forum.newPost}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </Link>
     </div>
   );
 }

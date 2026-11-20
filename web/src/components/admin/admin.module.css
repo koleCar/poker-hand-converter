@@ -764,4 +764,213 @@
   .toolbar .count {
     margin-inline-start: 0;
   }
+
+  /* Nothing in a panel may push the page wider than the phone. */
+  .page > *,
+  .panel > * {
+    min-inline-size: 0;
+  }
+
+  /* The section tabs and the filters: one row each that scrolls sideways,
+     never two or three wrapped rows; options a thumb tall. */
+  .sections,
+  .segmented {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-self: stretch;
+    max-inline-size: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+
+  .sections::-webkit-scrollbar,
+  .segmented::-webkit-scrollbar {
+    display: none;
+  }
+
+  .section,
+  .segment {
+    display: inline-flex;
+    flex: 1 0 auto;
+    align-items: center;
+    justify-content: center;
+    min-block-size: 40px;
+    font-size: var(--font-size-base);
+    white-space: nowrap;
+    scroll-snap-align: start;
+  }
+
+  .segmentCount {
+    font-size: var(--font-size-sm);
+  }
+
+  .toolbar {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .search {
+    flex: none;
+    min-inline-size: 0;
+    min-block-size: 44px;
+    font-size: 16px;
+  }
+
+  .table,
+  .fields,
+  .list,
+  .bars {
+    font-size: var(--font-size-md);
+  }
+
+  .table th,
+  .tileLabel,
+  .cardHead h2,
+  .subhead {
+    font-size: var(--font-size-sm);
+  }
+
+  .back,
+  .cardLink {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 44px;
+    font-size: var(--font-size-md);
+  }
+
+  /* Users: the table scrolls inside its box; the account column stays put. */
+  .usersTable th:first-child,
+  .usersTable td:first-child {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 1;
+    max-inline-size: 60vw;
+    background: var(--surface-raised);
+    box-shadow: 1px 0 0 var(--border-subtle);
+  }
+
+  .usersTable .userEmail {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Reports: each row is a compact block - the report on two lines, then
+     who and where on the left, when and the status on the right. */
+  .reportsTable,
+  .reportsTable tbody {
+    display: block;
+  }
+
+  .reportsTable thead {
+    display: none;
+  }
+
+  .reportsTable .row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px var(--space-3);
+    padding: var(--space-3);
+    border-block-end: 1px solid var(--border-subtle);
+  }
+
+  .reportsTable .row > td {
+    padding: 0;
+    border: 0;
+  }
+
+  .reportsTable .row > td:nth-child(1) {
+    grid-column: 1 / -1;
+  }
+
+  .reportsTable .row > td:nth-child(2) {
+    grid-area: 2 / 1;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .reportsTable .row > td:nth-child(3) {
+    grid-area: 3 / 1;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .reportsTable .row > td:nth-child(4) {
+    grid-area: 2 / 2;
+    text-align: end;
+  }
+
+  .reportsTable .row > td:nth-child(5) {
+    grid-area: 3 / 2;
+    justify-self: end;
+  }
+
+  .reportsTable .reportCell {
+    align-items: flex-start;
+    max-inline-size: none;
+  }
+
+  .reportsTable .reportText {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    white-space: normal;
+    font-size: var(--font-size-lg);
+  }
+
+  .reportsTable .detailRow,
+  .reportsTable .detailRow > td {
+    display: block;
+  }
+
+  .detail {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .meta dt,
+  .platform,
+  .userEmail {
+    font-size: var(--font-size-sm);
+  }
+
+  /* A user's page: one column of cards; a feedback line wraps its badges. */
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .card {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .cardHead {
+    flex-wrap: wrap;
+  }
+
+  .list li {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: var(--space-3) 0;
+  }
+
+  .list .listMessage {
+    flex: 1 1 100%;
+    order: -1;
+    white-space: normal;
+  }
+
+  .bars li {
+    grid-template-columns: 72px minmax(0, 1fr) max-content;
+  }
+
+  .pager {
+    justify-content: space-between;
+  }
 }

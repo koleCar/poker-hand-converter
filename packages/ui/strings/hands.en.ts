@@ -20,6 +20,9 @@ export const handsUiEn = {
   loadingMore: "Loading more…",
   /** Beside the count, when several hands are chosen in the list. */
   chosen: (count: number) => `${num(count)} selected`,
+  /** Phones: the header's button that turns taps into choosing hands (and back). */
+  select: "Select",
+  selectDone: "Done",
   listLabel: (order: string) => `Hands, ${order.toLowerCase()}`,
   columns: {
     date: "Date",

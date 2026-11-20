@@ -288,6 +288,132 @@
   }
 }
 
+.groupPlan {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .wrap {
+    gap: 20px;
+    padding: 0 0 32px;
+  }
+
+  /* Phone: no card around the page. The prices become two plan cards, Pro
+     (the one to choose) first with its button the full width, then a flat
+     comparison list: the feature, then a narrow Free and Pro column. */
+  .table {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 8px;
+    border-bottom: 0;
+  }
+
+  .head > div,
+  .head > .first {
+    padding: 0;
+    background: transparent;
+  }
+
+  .head > .first {
+    gap: 8px;
+  }
+
+  .head > .c {
+    gap: 6px;
+    padding: 20px 16px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-4);
+    background: var(--surface-raised);
+  }
+
+  .head > .pro {
+    order: 1;
+    border: 1px solid var(--money-subtle);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--money-fg) 12%, var(--surface-raised)), var(--surface-raised));
+  }
+
+  .head > .c:not(.pro) {
+    order: 2;
+  }
+
+  .price {
+    font-size: var(--font-size-4xl);
+  }
+
+  .per,
+  .bill,
+  .dim {
+    font-size: var(--font-size-md);
+  }
+
+  .cta {
+    min-height: 48px;
+    font-size: var(--font-size-lg);
+  }
+
+  .row:not(.head) {
+    /* Pro's column is wider: "Unlimited" / "Neograničeno" on one line. */
+    grid-template-columns: minmax(0, 1fr) 72px 100px;
+    font-size: var(--font-size-lg);
+  }
+
+  .row:not(.head) > div,
+  .row:not(.head) > div:first-child {
+    grid-column: auto;
+    padding: 12px 4px;
+  }
+
+  .row:not(.head) > div:first-child {
+    padding-left: 0;
+  }
+
+  .group > div:not(:first-child) {
+    display: flex;
+  }
+
+  .group > div,
+  .group > div:first-child {
+    padding-top: 20px;
+    padding-bottom: 8px;
+    background: transparent;
+    font-size: var(--font-size-sm);
+  }
+
+  .groupPlan {
+    display: inline;
+  }
+
+  .note {
+    font-size: var(--font-size-md);
+  }
+
+  .txt,
+  .txtGold {
+    font-size: var(--font-size-md);
+    overflow-wrap: anywhere;
+  }
+
+  .foot {
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--font-size-md);
+    text-align: center;
+  }
+
+  .dot {
+    display: none;
+  }
+}
+
 /* "Pro is coming" (the Pro waitlist): one line, the email, one box, the button. */
 
 .wlForm {

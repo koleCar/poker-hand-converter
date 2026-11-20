@@ -89,3 +89,27 @@
 .table th {
   font-weight: var(--font-weight-semibold);
 }
+
+/* Phone: the text on the page itself, not in a card, at a reading size. */
+@media (max-width: 640px) {
+  .article.article {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .body {
+    font-size: var(--font-size-lg);
+  }
+
+  .body h2 {
+    margin-top: 16px;
+    font-size: var(--font-size-xl);
+  }
+
+  .table table {
+    font-size: var(--font-size-md);
+  }
+}

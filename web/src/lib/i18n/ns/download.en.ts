@@ -54,6 +54,8 @@ export const downloadEn = {
     detail: "Windows 10 or 11 · 64-bit · installer, no admin rights",
   },
   included: "Part of Rail Pro. Once installed, import, the library and the replayer work offline too.",
+  /** On a phone, in place of the installers: there is no mobile app. */
+  computerOnly: "Rail runs on Windows and macOS. Download it from your computer.",
 
   /** In place of the installers until the account's plan allows them. */
   gate: {

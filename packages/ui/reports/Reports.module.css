@@ -287,3 +287,155 @@
   margin: 0;
   font-variant-numeric: tabular-nums;
 }
+
+/* ------------------------------------------------------------- narrow
+   Phones and small tablets only: the desktop app never gets here (its window
+   is at least 900 px wide), and the web's desktop layout is the rules above.
+
+   Up to 899 px the breakdown tabs are one row that scrolls sideways instead
+   of wrapping into three; up to 640 px (a phone) the cards become flat
+   sections divided by a hairline, the summary a compact 2-column block, and
+   the tables keep their first column in place while the rest scrolls inside
+   their own box. */
+
+@media (max-width: 899px) {
+  .tabs,
+  .matrixHead {
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+
+  .tabs::-webkit-scrollbar,
+  .matrixHead::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab,
+  .matrixHead > * {
+    flex: none;
+    scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 640px) {
+  .screen {
+    gap: var(--space-5);
+  }
+
+  .row {
+    min-height: 44px;
+  }
+
+  /* The header row's count is the summary's first figure, right under it:
+     the row keeps only the Cash | Tournaments toggle (a host can put its own
+     navigation beside it). */
+  .row .count {
+    display: none;
+  }
+
+  .notice,
+  .warning,
+  .muted {
+    font-size: var(--font-size-md);
+  }
+
+  /* The summary: one block of 2 x 2 figures, hairlines between them. */
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-3);
+    background: var(--border-subtle);
+  }
+
+  .tile {
+    gap: 2px;
+    padding: var(--space-3) var(--space-4);
+    border: 0;
+    border-radius: 0;
+  }
+
+  /* An odd last figure (no all-in EV yet) takes the whole row. */
+  .tile:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .tile dt {
+    font-size: var(--font-size-md);
+  }
+
+  .tile dd {
+    font-size: var(--font-size-xl);
+  }
+
+  /* Sections, not cards in cards: a hairline above each. */
+  .card {
+    gap: var(--space-3);
+    padding: var(--space-4) 0 0;
+    border: 0;
+    border-block-start: 1px solid var(--border-subtle);
+    border-radius: 0;
+    background: none;
+  }
+
+  .cardHead {
+    flex-wrap: nowrap;
+  }
+
+  .cardTitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .toggle {
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+  }
+
+  .table {
+    font-size: var(--font-size-md);
+  }
+
+  .table th,
+  .table td {
+    padding: var(--space-2) var(--space-2);
+  }
+
+  .table thead th {
+    font-size: var(--font-size-sm);
+  }
+
+  /* The row's name stays put while the numbers scroll under it. */
+  .table th:first-child {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 1;
+    padding-inline-start: 0;
+    background: var(--surface-base);
+    box-shadow: inset -1px 0 0 var(--border-subtle);
+  }
+
+  /* 13 x 13 on a phone: square cells with the hand only; the colour is the
+     value, and a tap shows every number under the grid. */
+  .cell {
+    aspect-ratio: 1;
+    min-block-size: 0;
+    padding: 0;
+  }
+
+  .cellValue {
+    display: none;
+  }
+
+  .cellDetail {
+    font-size: var(--font-size-md);
+  }
+
+  .cellDetail dt {
+    font-size: var(--font-size-sm);
+  }
+}

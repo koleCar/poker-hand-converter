@@ -21,7 +21,12 @@ export function DownloadPage({ en, locale }: { en: Dict; locale: Locale }) {
       <header className={styles.hero}>
         <h1 className={styles.heading}>{t.heading}</h1>
         <p className={styles.lede}>{t.lede}</p>
-        <DownloadButtons />
+        {/* No mobile app: below 900 px the page only shows what the desktop
+            app does, and one line says where to get it. */}
+        <div className={styles.desktopOnly}>
+          <DownloadButtons />
+        </div>
+        <p className={styles.computerOnly}>{t.computerOnly}</p>
         <p className={styles.free}>{t.included}</p>
       </header>
 

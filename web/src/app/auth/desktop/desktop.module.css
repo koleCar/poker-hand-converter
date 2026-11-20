@@ -25,3 +25,29 @@
   flex-wrap: wrap;
   gap: 10px;
 }
+
+/* Phone: on the page itself, not in a card; the buttons the full width, the
+   primary one first. */
+@media (max-width: 640px) {
+  .card.card {
+    padding: 8px 0 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .question {
+    font-size: var(--font-size-xl);
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions > * {
+    min-height: 48px;
+    font-size: var(--font-size-lg);
+  }
+}

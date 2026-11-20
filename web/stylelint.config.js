@@ -26,6 +26,9 @@ export default {
   extends: ["stylelint-config-standard"],
 
   rules: {
+    // CSS Modules' `:global(...)`: a module reaching a shared class (`.btn`,
+    // `.rp`), as the desktop app's config already allows.
+    "selector-pseudo-class-no-unknown": [true, { ignorePseudoClasses: ["global"] }],
     /* BEM. `conv-drop__icon` and `btn--primary` are the house style and are
        not up for renegotiation by a linter default. */
     "selector-class-pattern": null,

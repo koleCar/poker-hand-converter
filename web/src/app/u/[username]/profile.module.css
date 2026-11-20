@@ -77,3 +77,80 @@
 .handLink {
   font-weight: var(--font-weight-semibold);
 }
+
+/* Phones: no cards — the header and the list sit flat on the page. */
+@media (max-width: 860px) {
+  .header,
+  .empty {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .header {
+    gap: 12px 14px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .identity {
+    flex: 1 1 0;
+  }
+
+  .facts {
+    font-size: 14px;
+  }
+
+  .own {
+    display: flex;
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 12px;
+  }
+
+  .own small {
+    font-size: 13px;
+  }
+
+  .own :is(a, button) {
+    min-height: 44px;
+  }
+
+  .header > button {
+    min-height: 44px;
+  }
+
+  .emptyHeading {
+    font-size: 16px;
+  }
+
+  .hands {
+    gap: 0;
+  }
+
+  .hands li {
+    gap: 4px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .hands li:last-child {
+    border-bottom: 0;
+  }
+
+  .hands small {
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .handLink {
+    color: var(--text-primary);
+    font-size: 15px;
+    line-height: 1.35;
+    text-decoration: none;
+  }
+}

@@ -216,3 +216,34 @@
   inline-size: 18px;
   block-size: 18px;
 }
+
+/* Phone (the dialog is a bottom sheet there): the kind switch spans the
+   width with thumb-sized options, a thumbnail's remove button is big enough
+   to hit, and the message is in 16 px so iOS does not zoom. */
+@media (max-width: 640px) {
+  .kinds {
+    display: flex;
+    justify-self: stretch;
+  }
+
+  .kind {
+    flex: 1 1 0;
+    min-block-size: 40px;
+    font-size: var(--font-size-lg);
+  }
+
+  .remove {
+    inline-size: 32px;
+    block-size: 32px;
+  }
+
+  .thumb {
+    inline-size: 104px;
+    block-size: 80px;
+  }
+
+  .label,
+  .note {
+    font-size: var(--font-size-md);
+  }
+}

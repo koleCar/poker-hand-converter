@@ -167,6 +167,13 @@ const PATHS = {
       <path d="M8 11V7a4 4 0 0 1 8 0v4" />
     </>
   ),
+  monitor: (
+    <>
+      <rect x="2" y="3" width="20" height="14" rx="2" />
+      <path d="M8 21h8" />
+      <path d="M12 17v4" />
+    </>
+  ),
   download: (
     <>
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />

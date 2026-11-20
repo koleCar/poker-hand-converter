@@ -20,9 +20,13 @@
  * `onRowsMenu`. The chosen rows are tinted; the hand open in the replayer
  * keeps its accent edge.
  *
+ * On a phone (R-mobile) there is no modifier key: a long press on a row (or
+ * the screen's Select button) turns on `choosing`, where a tap adds or
+ * removes a hand instead of opening it, and each row shows a check.
+ *
  * The desktop app's (R2.7a); in the shared package since R4.5b.
  */
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { CardRow } from "../cards/PlayingCard";
 import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
@@ -49,6 +53,10 @@ const OVERSCAN = 8;
 const PREFETCH_ROWS = 60;
 /** Until the stylesheet is read. */
 const FALLBACK_ROW = 40;
+/** A finger held this long on a row, without moving, starts choosing hands. */
+const LONG_PRESS_MS = 450;
+/** A finger that moves farther than this is scrolling, not pressing. */
+const PRESS_SLOP_PX = 10;
 
 interface HandListProps {
   rows: HandRow[];
@@ -85,6 +93,10 @@ interface HandListProps {
   selection?: HandSelection;
   /** A right click: the hands to act on, in the list's order, and where. */
   onRowsMenu?: (handKeys: string[], at: MenuPoint) => void;
+  /** Choosing hands (a phone): a tap adds or removes a hand, it does not open it. */
+  choosing?: boolean;
+  /** A finger held on a row (with `selection`): start choosing, from that hand. */
+  onLongPress?: (handKey: string) => void;
 }
 
 export function HandList({
@@ -106,6 +118,8 @@ export function HandList({
   enterKey,
   selection,
   onRowsMenu,
+  choosing = false,
+  onLongPress,
 }: HandListProps) {
   const strings = useUiStrings();
   const t = strings.hands;
@@ -270,6 +284,7 @@ export function HandList({
       role="grid"
       aria-label={t.listLabel(orderLabel)}
       aria-multiselectable={selection ? true : undefined}
+      data-choosing={choosing || undefined}
       aria-rowcount={total !== null ? total + 1 : -1}
       aria-busy={loadingMore}
     >
@@ -307,12 +322,18 @@ export function HandList({
               index={index}
               top={index * ROW_HEIGHT}
               // Chosen: tinted. With nothing chosen, the open hand is.
-              selected={selection && selection.size > 0 ? selection.checked.has(row.handKey) : row.handKey === selected}
+              selected={
+                selection && (choosing || selection.size > 0) ? selection.checked.has(row.handKey) : row.handKey === selected
+              }
               current={row.handKey === selected}
               tabbable={index === tabbable}
               format={format}
               unit={unit}
               onSelect={(handKey, event) => {
+                if (choosing && selection) {
+                  selection.toggle(handKey);
+                  return;
+                }
                 if (selection?.click(handKey, event)) return;
                 onSelect(handKey);
                 if (openOnClick) onOpen(handKey);
@@ -325,6 +346,7 @@ export function HandList({
                   : undefined
               }
               onKeyDown={onKeyDown}
+              onLongPress={selection ? onLongPress : undefined}
             />
           );
         })}
@@ -407,10 +429,40 @@ interface RowProps {
   onSelect: (handKey: string, event: { shiftKey: boolean; metaKey: boolean; ctrlKey: boolean }) => void;
   onMenu: ((handKey: string, at: MenuPoint) => void) | undefined;
   onKeyDown: (event: KeyboardEvent<HTMLDivElement>, index: number, row: HandRow) => void;
+  onLongPress: ((handKey: string) => void) | undefined;
 }
 
-function Row({ row, index, top, selected, current, tabbable, format, unit, onSelect, onMenu, onKeyDown }: RowProps) {
+function Row({ row, index, top, selected, current, tabbable, format, unit, onSelect, onMenu, onKeyDown, onLongPress }: RowProps) {
   const t = useUiStrings().hands;
+  // A finger on the row: where it went down, the timer, and whether the
+  // press fired (its click is then swallowed). The last pointer was a finger:
+  // a touch's context menu (Android's long press) is the press's, not the menu's.
+  const press = useRef<{ x: number; y: number; timer: number; fired: boolean } | null>(null);
+  const byTouch = useRef(false);
+  const cancelPress = () => {
+    if (press.current) window.clearTimeout(press.current.timer);
+  };
+  useEffect(() => () => {
+    if (press.current) window.clearTimeout(press.current.timer);
+  }, []);
+  const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    byTouch.current = event.pointerType === "touch";
+    cancelPress();
+    press.current = null;
+    if (!byTouch.current || !onLongPress) return;
+    const handKey = row.handKey;
+    const started = { x: event.clientX, y: event.clientY, fired: false, timer: 0 };
+    started.timer = window.setTimeout(() => {
+      started.fired = true;
+      onLongPress(handKey);
+      navigator.vibrate?.(10);
+    }, LONG_PRESS_MS);
+    press.current = started;
+  };
+  const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const at = press.current;
+    if (at && !at.fired && Math.hypot(event.clientX - at.x, event.clientY - at.y) > PRESS_SLOP_PX) cancelPress();
+  };
   const money = unitOf(row);
   const date = format.playedAt(row.playedAt);
   const blinds = stakes(row);
@@ -445,7 +497,17 @@ function Row({ row, index, top, selected, current, tabbable, format, unit, onSel
       aria-label={t.rowLabel(date, row.siteName, blinds, result)}
       tabIndex={tabbable ? 0 : -1}
       data-key={row.handKey}
-      onClick={(event) => onSelect(row.handKey, event)}
+      onClick={(event) => {
+        if (press.current?.fired) {
+          press.current = null;
+          return;
+        }
+        onSelect(row.handKey, event);
+      }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={cancelPress}
+      onPointerCancel={cancelPress}
       // Shift + click takes a run of hands, not the text between them.
       onMouseDown={(event) => {
         if (event.shiftKey) event.preventDefault();
@@ -454,6 +516,8 @@ function Row({ row, index, top, selected, current, tabbable, format, unit, onSel
         onMenu
           ? (event) => {
               event.preventDefault();
+              // A finger's long press chooses hands instead (`onLongPress`).
+              if (byTouch.current && onLongPress) return;
               // The context-menu key gives no pointer: the row's corner.
               const box = event.currentTarget.getBoundingClientRect();
               const keyboard = event.clientX === 0 && event.clientY === 0;

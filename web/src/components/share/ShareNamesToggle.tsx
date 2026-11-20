@@ -18,6 +18,7 @@ import { setShareNames, shareNamesState, type ShareNamesState } from "../../lib/
 import { useDict } from "../../lib/i18n/client";
 import styles from "../analysis/AnalysisShareToggle.module.css";
 import { SettingRow, TipLine } from "@rail/ui/share/SettingRow";
+import { saveShareNamesPreference } from "@rail/ui/share/namesPreference";
 
 export function ShareNamesToggle({
   slug,
@@ -65,6 +66,8 @@ export function ShareNamesToggle({
     try {
       const saved = await setShareNames(slug, next);
       setState(saved);
+      // Remembered for the next link this owner makes (see namesPreference).
+      saveShareNamesPreference(saved.showNames);
       if (refreshOnChange) router.refresh();
     } catch (err) {
       setState(before);

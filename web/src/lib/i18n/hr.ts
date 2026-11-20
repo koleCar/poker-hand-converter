@@ -189,6 +189,20 @@ export const hr: Dict = {
     analysis: "Analiza",
     learn: "Učenje",
     solver: "Solver library",
+    short: {
+      forum: "Forum",
+      convert: "Učitaj",
+      library: "Ruke",
+      stats: "Statistika",
+      analysis: "Analiza",
+      solver: "Solver",
+      download: "Aplikacija",
+    } as Record<string, string>,
+    /** The More sheet's entry for /download on a phone: a showcase, not a download. */
+    desktopApp: "Desktop aplikacija",
+    more: "Više",
+    menu: "Izbornik",
+    feedback: "Povratna informacija",
   },
 
   home: {
@@ -256,6 +270,13 @@ export const hr: Dict = {
   account: {
     menuProfile: "Postavke profila",
     opening: "Otvaram…",
+    theme: {
+      label: "Tema",
+      hint: "Pamti se u ovom pregledniku. Sustav prati tvoj uređaj.",
+      system: "Sustav",
+      light: "Svijetla",
+      dark: "Tamna",
+    },
   },
 
   profile: {
@@ -396,7 +417,7 @@ export const hr: Dict = {
 
     nav: {
       label: "Forum",
-      menu: "Boardovi i filteri",
+      menu: "Boardovi i pretraga",
       everything: "Sve",
       unanswered: "Bez odgovora",
       saved: "Spremljeno",
@@ -682,6 +703,7 @@ export const hr: Dict = {
       account: "Račun",
       plan: "Plan",
       language: "Jezik",
+      appearance: "Izgled",
       data: "Tvoji podaci",
       danger: "Opasna zona",
     },
