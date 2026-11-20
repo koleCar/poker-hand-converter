@@ -24,6 +24,7 @@ import { stakesLabel } from "@rail/ui/replayer/handFacts";
 import { useT } from "../../i18n";
 import { errorText, ipc, type HandShare, type ShareErrorCode } from "../../lib/ipc";
 import styles from "./ShareHand.module.css";
+import { loadShareNamesPreference, saveShareNamesPreference } from "@rail/ui/share/namesPreference";
 
 type CopyState = "idle" | "copied" | "failed";
 
@@ -127,6 +128,15 @@ export function ShareHand({ handKey, hand }: { handKey: string; hand: PhfHand })
     try {
       const made = await ipc.handShare(handKey, shareTitle(hand));
       setLink(made);
+      // The owner's last answer on the names switch carries over to the new
+      // link (a fresh link starts hidden on the server): see namesPreference.
+      if (loadShareNamesPreference()) {
+        try {
+          setShowNames(await ipc.shareSetNames(made.slug, true));
+        } catch {
+          // The link stands either way; the switch below shows what the server kept.
+        }
+      }
       // Straight into the clipboard when the webview allows it this long
       // after the click; when it does not, the Copy button is right there.
       if (await copyText(made.url, null)) setCopy("copied");
@@ -148,7 +158,9 @@ export function ShareHand({ handKey, hand }: { handKey: string; hand: PhfHand })
     setNamesError(null);
     setShowNames(next);
     try {
-      setShowNames(await ipc.shareSetNames(link.slug, next));
+      const kept = await ipc.shareSetNames(link.slug, next);
+      setShowNames(kept);
+      saveShareNamesPreference(kept);
     } catch (reason: unknown) {
       setShowNames(!next);
       setNamesError(t.names.failed(errorText(reason)));
