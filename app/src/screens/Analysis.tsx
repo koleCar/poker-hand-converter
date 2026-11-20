@@ -11,6 +11,7 @@
  * and the sidebar and the palette leave it out; the shared screens are also
  * told (`hiddenDuringPlay`: they read nothing).
  */
+import { BombPotsTab, MultiwayTab } from "./analysis/PotKinds";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { kindFormats, kindOf, type GameKind } from "@rail/ui/hands/gameKind";
 import { KindSwitch } from "@rail/ui/hands/KindSwitch";
@@ -29,7 +30,8 @@ import { useAppKind } from "../lib/gameKind";
 import { storeReviewSource } from "../lib/reviewSource";
 import { replaceParam, screenHref, useRouteParam } from "../lib/router";
 import { useTablesOpen } from "../lib/useTablesOpen";
-import { AnalysisStatus } from "./analysis/AnalysisStatus";
+import { AnalysisStatus, ShowAnalysisProgress } from "./analysis/AnalysisStatus";
+import { useProgressHidden } from "./analysis/progressHidden";
 import styles from "./analysis/Analysis.module.css";
 import { HandAnalysis } from "./analysis/HandAnalysis";
 import { openInReplayer } from "./analysis/openHand";
@@ -59,6 +61,24 @@ function AnalysisSection({ view }: { view: AnalysisView }) {
     return <HandAnalysis handKey={view.key} actionIndex={view.actionIndex} back={view.back} />;
   }
   const nav = (end?: ReactNode) => <AnalysisNav current={tabOf(view)} end={end} />;
+  if (view.kind === "bomb") {
+    return (
+      <div>
+        <h1 className={styles.visuallyHidden}>{t.analysis.tabs.bomb}</h1>
+        {nav()}
+        <BombPotsTab hidden={hidden} reload={reload} />
+      </div>
+    );
+  }
+  if (view.kind === "multiway") {
+    return (
+      <div>
+        <h1 className={styles.visuallyHidden}>{t.analysis.tabs.multiway}</h1>
+        {nav()}
+        <MultiwayTab hidden={hidden} reload={reload} spots={hidden ? null : <MultiwaySpots reload={reload} />} />
+      </div>
+    );
+  }
   if (view.kind === "leaks") {
     return (
       <div>
@@ -68,6 +88,7 @@ function AnalysisSection({ view }: { view: AnalysisView }) {
           <TopLeaks
             hidden={hidden}
             reload={reload}
+            potKind="hu"
             period={view.period}
             onPeriod={(period) => replaceParam("analysis", viewParam({ kind: "leaks", period }))}
           />
@@ -76,6 +97,12 @@ function AnalysisSection({ view }: { view: AnalysisView }) {
     );
   }
   return <Session view={view} nav={nav} hidden={hidden} reload={reload} />;
+}
+
+/** The multiway spots ranked among themselves (analysis/45): the top leaks with `potKind: "mw"`. */
+function MultiwaySpots({ reload }: { reload: number }) {
+  const [period, setPeriod] = useState<"30d" | "all">("all");
+  return <TopLeaks hidden={false} reload={reload} period={period} potKind="mw" onPeriod={setPeriod} />;
 }
 
 /** A new value each time the background run writes rows: the screens read again. */
@@ -88,10 +115,12 @@ function useRowsWritten(): number {
 /**
  * The header row (2026-11-07): the sections' tabs on the left, the
  * section's own toggle on the right (the session's Cash | Tournaments);
- * the run's status under it.
+ * the run's status under it, or (hidden, 2026-11-18) the button that
+ * shows it again at the row's end.
  */
 function AnalysisNav({ current, end }: { current: AnalysisView["kind"]; end?: ReactNode }) {
   const t = useT();
+  const progressHidden = useProgressHidden();
   return (
     <div className={styles.nav}>
       <div className={styles.navRow}>
@@ -107,9 +136,14 @@ function AnalysisNav({ current, end }: { current: AnalysisView["kind"]; end?: Re
             </a>
           ))}
         </nav>
-        {end ? <div className={styles.navEnd}>{end}</div> : null}
+        {end || progressHidden ? (
+          <div className={styles.navEnd}>
+            {end}
+            {progressHidden ? <ShowAnalysisProgress /> : null}
+          </div>
+        ) : null}
       </div>
-      <AnalysisStatus />
+      {progressHidden ? null : <AnalysisStatus />}
     </div>
   );
 }

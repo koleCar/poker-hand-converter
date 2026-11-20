@@ -42,6 +42,21 @@ export const solverHr: Dict["solver"] = {
   loadError: "Ovaj solve se nije mogao učitati. Pokušaj ponovno za trenutak.",
   retry: "Pokušaj ponovno",
 
+  top: {
+    link: "Kopiraj poveznicu na ovu situaciju",
+    copied: "Poveznica kopirana",
+    table: "Promijeni stol",
+  },
+
+  solving: {
+    title: (street: "turn" | "river") => `Solvam ${street}`,
+    progress: (iteration: number, exploitability: number | null) =>
+      exploitability === null ? `Iteracija ${num(iteration)}` : `Iteracija ${num(iteration)} · ${num(exploitability, 2)} % pota`,
+    note: "Solvano na ovom računalu iz rangeova s flopa, čuva se do kraja sesije.",
+    short: (share: number) => `Solvam ${pct(share)}`,
+    pickBelow: "Odaberi kartu ispod",
+  },
+
   settings: {
     title: "Stol",
     change: "Promijeni",
@@ -75,6 +90,9 @@ export const solverHr: Dict["solver"] = {
     uncaptured: "Ova linija još nije prepisana iz GTO Wizarda.",
     notSolved: (oop: string, ip: string) => `${ip} protiv ${oop}: ova linija još nije u solver libraryju.`,
     setEmpty: "Samo preflop: za ove rangeove još nema postflop solvea.",
+    name: "Preflop",
+    folds: (positions: string) => `${positions} fold`,
+    expand: "Prikaži sve preflop odluke",
   },
 
   flop: {
@@ -104,6 +122,8 @@ export const solverHr: Dict["solver"] = {
     streetName: (street: "flop" | "turn" | "river") => ({ flop: "Flop", turn: "Turn", river: "River" })[street],
     repick: (street: "turn" | "river") => `Odaberi drugu kartu za ${street}`,
     isomorphic: "Karte koje se igraju jednako do na boju riješene su jednom: boja koje nema igra se kao prikazana.",
+    playsAs: (card: string) => `Igra se kao ${card}`,
+    onBoard: (card: string) => `${card} je na boardu`,
     showdown: "Klađenje je gotovo: ruka ide na showdown.",
     ends: {
       fold: "Ruka je gotova.",
@@ -117,6 +137,15 @@ export const solverHr: Dict["solver"] = {
       : kind === "raise"
         ? `Raise ${size(amount)}`
         : (({ fold: "Fold", check: "Check", call: "Call", allin: "All-in" }) as Record<string, string>)[kind] ?? kind,
+  short: (kind: string, sizePot: number, amount: number) =>
+    kind === "bet"
+      ? `B${num(Math.round(sizePot * 100))}`
+      : kind === "raise"
+        ? `R${size(amount)}`
+        : (({ fold: "F", check: "X", call: "C", allin: "AI" }) as Record<string, string>)[kind] ?? kind,
+  count: (count: number) => num(Math.round(count)),
+  blocked: "Blokirano boardom",
+  vsBase: (delta: string, label: string) => `${delta} prema ${label}`,
   share: (share: number, count: number) => `${pct1(share)} · ${combos(Math.round(count))}`,
   shareOnly: pct1,
   combosCount: (count: number) => combos(Math.round(count)),
@@ -136,9 +165,11 @@ export const solverHr: Dict["solver"] = {
   value: (value: number) => `EV ${signedBb(value)}`,
   freq: pct1,
   signedBb,
+  /** An EV without the unit, signed: "+1.25", "−0.40". */
+  signed: (value: number) => signedBb(value).replace(/ bb$/, ""),
   evShort: (value: number) => num(Math.round(value * 100) / 100 || 0, 2),
 
-  tabs: { label: "Prikaz", strategy: "Strategija + EV", ranges: "Rangeovi" },
+  tabs: { label: "Prikaz", strategy: "Strategija + EV", ranges: "Rangeovi", rangeModes: "Što mreže prikazuju" },
 
   ranges: {
     modes: { strategy: "Strategija", ev: "EV", equity: "Equity", range: "Range", eqr: "EQR" },
@@ -228,5 +259,7 @@ export const solverHr: Dict["solver"] = {
     share: pct1,
     active: (mode: "include" | "exclude") => (mode === "include" ? "Samo" : "Bez"),
     remove: (label: string) => `Makni ${label}`,
+    none: (position: string) => `Nijedna ruka iz rangea za ${position} ne prolazi ovaj filter ovdje.`,
+    clearFilter: "Očisti filter",
   },
 };

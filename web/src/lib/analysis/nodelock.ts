@@ -14,7 +14,14 @@
  *   locked solve goes on from it (a warm start). The result chunk holds the
  *   whole turn game.
  *
- * Every result chunk carries the lock's hash (`FlopChunkHeader.lockHash`).
+ * - **Based locks** (§7.4, `LockSet.base`) are solved on their base lock's
+ *   result chunk where a lock is otherwise solved on the library's: a turn
+ *   lock made inside a solved flop lock takes the ranges at the deal from
+ *   the locked flop, and its earlier turn decisions freeze at the unlocked
+ *   turn solved from it. The baseline is that chunk in every step above.
+ *
+ * Every result chunk carries the lock's hash (`FlopChunkHeader.lockHash`),
+ * and a based one its base's (`baseHash`).
  * Not re-exported from `lib/analysis/index.ts` (it reaches `flopJob.ts`).
  */
 
@@ -32,6 +39,7 @@ import {
   liveTurnSpot,
   lockedNodes,
   lockGameStreet,
+  lockNodeActions,
   lockSymmetries,
   NodelockError,
   nodelockHeader,
@@ -68,10 +76,23 @@ export type NodelockSpot =
       card: string;
     };
 
-/** The flop spot of a flop lock: the library's spot, isomorphism limited to what the lock keeps. */
+/**
+ * The flop spot of a flop lock: the library's spot, isomorphism limited to
+ * what the lock keeps, and a range lock's weights in place of the chart's
+ * range (§9.2: the flop is solved from them; preflop is not solved again).
+ */
 export function nodelockFlopSpot(charts: ChartSet, set: LockSet): FlopSpot {
-  const spot = nodelockSpot(charts, set.spot.line, set.spot.flop);
-  return { ...spot, symmetry: lockSymmetries(set, spot.board) };
+  const spot = withRangeLocks(nodelockSpot(charts, set.spot.line, set.spot.flop), set);
+  const nodeActions = lockNodeActions(set);
+  return { ...spot, symmetry: lockSymmetries(set, spot.board), ...(nodeActions ? { nodeActions } : {}) };
+}
+
+/** A flop spot with a set's range locks in place of its ranges (§9.2); the spot itself without any. */
+export function withRangeLocks(spot: FlopSpot, set: LockSet): FlopSpot {
+  if (!set.ranges?.length) return spot;
+  const ranges = [spot.ranges[0], spot.ranges[1]];
+  for (const lock of set.ranges) ranges[lock.player] = Float64Array.from(lock.weights);
+  return { ...spot, ranges: [ranges[0], ranges[1]] };
 }
 
 /** The turn game of a turn or river lock: the chunk's deal on its flop line, the lock's turn card. */
@@ -81,15 +102,19 @@ export function nodelockTurnSpot(baseline: FlopChunk, set: LockSet): Extract<Nod
   const deal = baseline.result.nodes.findIndex((node) => node.kind === "chance" && node.path === parts.flop);
   if (deal < 0) throw new NodelockError(`the chunk has no turn deal after ${parts.flop || "the flop root"}`);
   const spot = liveTurnSpot(baseline, deal, parts.turn);
-  return { street: "turn", spot: { ...spot, symmetry: lockSymmetries(set, spot.board) }, deal, card: parts.turn };
+  const nodeActions = lockNodeActions(set, turnGamePath);
+  return { street: "turn", spot: { ...spot, symmetry: lockSymmetries(set, spot.board), ...(nodeActions ? { nodeActions } : {}) }, deal, card: parts.turn };
 }
 
 /**
- * The game a lock set re-solves. `charts` (the lock's chart set) is needed
- * for a flop lock: the ranges come from it, as the library's did.
+ * The game a lock set re-solves. `baseline` is the chunk it is solved on:
+ * the library chunk, or for a based set (`set.base`) its base lock's result.
+ * `charts` (the lock's chart set) is needed for a flop lock: the ranges come
+ * from it, as the library's did.
  */
 export function nodelockSpotOf(set: LockSet, baseline: FlopChunk, charts?: ChartSet): NodelockSpot {
   checkSpot(set, baseline.header);
+  checkBase(set, baseline);
   if (lockGameStreet(set) === "turn") return nodelockTurnSpot(baseline, set);
   if (!charts) throw new NodelockError("a flop lock needs its chart set");
   if (charts.id !== set.spot.set) throw new NodelockError(`the lock is on ${set.spot.set}, the charts are ${charts.id}`);
@@ -104,14 +129,38 @@ function checkSpot(set: LockSet, header: FlopChunkHeader): void {
 }
 
 /**
+ * The chunk a lock set is solved on is the one it names: the library's (no
+ * `base`, so no `lockHash` in its header), or its base lock's result (its
+ * `lockHash` is `base.lockHash`). A base is a flop-level chunk: a turn
+ * game's chunk deals no turn, and one lock set is one game, so a lock on a
+ * turn lock adds to its nodes instead of building on its result.
+ */
+export function checkBase(set: LockSet, baseline: FlopChunk): void {
+  const solvedOn = baseline.header.lockHash;
+  if (!set.base) {
+    if (solvedOn !== undefined) throw new NodelockError("a lock without a base is solved on the library chunk, not on a locked one");
+    return;
+  }
+  if (solvedOn !== set.base.lockHash) {
+    throw new NodelockError(`the lock is built on ${set.base.lockHash.slice(0, 12)}, the chunk is ${solvedOn === undefined ? "the library's" : solvedOn.slice(0, 12)}`);
+  }
+  const street = baseline.result.street === "flop" ? "flop" : "turn";
+  if (street !== set.base.street) throw new NodelockError(`the base is a ${set.base.street} lock, the chunk a ${street} game`);
+  if (street !== "flop") throw new NodelockError("a lock is built on a flop lock's result, not on a turn game's");
+}
+
+/**
  * The library chunk was solved on this game: the same hands for both
  * players, the same pot and stack. Else the chunk's strategies would be
- * frozen onto another game.
+ * frozen onto another game. A set with range locks (§9.2) changes the hands
+ * on purpose: then only the pot and the stack are checked, and a hand the
+ * chunk lacks is not frozen at an earlier node (`chunkBaseline`).
  */
-export function checkBaseline(built: BuiltSubgame, baseline: FlopChunk): void {
+export function checkBaseline(built: BuiltSubgame, baseline: FlopChunk, set?: LockSet): void {
   const { result, header } = baseline;
   const same = (a: ArrayLike<number>, b: ArrayLike<number>) => a.length === b.length && Array.from(a).every((x, i) => x === b[i]);
-  if (!same(built.combos[0], result.hands[0]) || !same(built.combos[1], result.hands[1]) || built.pot !== header.pot || built.stack !== header.stack) {
+  const hands = Boolean(set?.ranges?.length) || (same(built.combos[0], result.hands[0]) && same(built.combos[1], result.hands[1]));
+  if (!hands || built.pot !== header.pot || built.stack !== header.stack) {
     throw new NodelockError("the library chunk was solved on other ranges than the charts give now");
   }
 }
@@ -147,7 +196,7 @@ export interface NodelockProgressEvent {
 }
 
 export interface NodelockSolveOptions {
-  /** The library chunk of the lock's spot. */
+  /** The chunk the lock is solved on: the library chunk of the lock's spot, or its base lock's result (`set.base`). */
   baseline: FlopChunk;
   maxIterations?: number;
   /** Default: `"i16"` for a flop lock (as the library), `"f32"` for a turn lock (as the live turn). */
@@ -188,6 +237,7 @@ export interface NodelockSolve {
  * `nodelockSpotOf(set, baseline, charts)`.
  */
 export function solveNodelock(spot: NodelockSpot, set: LockSet, options: NodelockSolveOptions): NodelockSolve {
+  checkBase(set, options.baseline);
   const now = options.now ?? Date.now;
   const started = now();
   let last: number | null = null;
@@ -206,7 +256,7 @@ export function solveNodelock(spot: NodelockSpot, set: LockSet, options: Nodeloc
   let run;
   if (spot.street === "flop") {
     built = buildFlopGame(spot.spot);
-    checkBaseline(built, options.baseline);
+    checkBaseline(built, options.baseline, set);
     const how = nodelockFlopRun(set, options.maxIterations);
     solver = options.warm?.solver ?? new Solver(built.game, how.dcfr, { storage: options.storage ?? "i16" });
     warmed = options.warm !== undefined;

@@ -340,7 +340,11 @@ export type SyncPhase =
   | { state: "rateLimited"; retryAtMs: number }
   | { state: "failed"; message: string; retryAtMs: number }
   /** (R6.4) The account's plan does not include desktop sync; hands wait, unsent. */
-  | { state: "planRequired"; feature: string };
+  | { state: "planRequired"; feature: string }
+  /** (Free tier) Today's hands are synced (`cap` a UTC day); the rest goes after `resetsAtMs`. */
+  | { state: "dailyCap"; cap: number | null; resetsAtMs: number }
+  /** (Free tier) The web library is full (`cap` hands); nothing more is sent until it has room. */
+  | { state: "libraryFull"; cap: number | null };
 
 /** (R6.4) `rail_sync::entitlements::Features`. */
 export interface PlanFeatures {
@@ -349,6 +353,9 @@ export interface PlanFeatures {
   reportsFull: boolean;
   analysis: boolean;
   learn: boolean;
+  /** (Free tier) Every solver flop (Free: a few a day). */
+  solverUnlimited: boolean;
+  nodelock: boolean;
 }
 
 /** (R6.4) A Pro feature of the app. */
@@ -374,7 +381,26 @@ export interface EntitlementsStatus {
   handCap: number | null;
   serverReason: string | null;
   offlineGraceDays: number | null;
+  /** (Free tier) The day's caps (null: unlimited or not known) and usage, from the account's last answer. */
+  dailyHandCap: number | null;
+  handsToday: number | null;
+  dailyFlopCap: number | null;
+  /** Today's solver flops (canonical keys, `Ks7d2c`), while the day lasts. */
+  flopsToday: string[];
+  /** When the day's counts start again (00:00 UTC, ms). */
+  dayResetsAtMs: number | null;
+  /** "See Pro": the web's pricing page. */
   upgradeUrl: string;
+}
+
+/** (Free tier) `entitlements::FlopGate`: may a flop's strategy show? */
+export interface FlopGate {
+  /** `offline`: a new flop, and the server cannot be reached to count it. */
+  verdict: "open" | "refused" | "signIn" | "offline";
+  flop: string;
+  flops: string[];
+  cap: number | null;
+  resetsAtMs: number | null;
 }
 
 /** `rail_sync::worker::SyncStatus`. */
@@ -399,6 +425,8 @@ export interface SyncStatus {
   cap: number | null;
   capNow: number | null;
   tablesOpen: boolean;
+  /** Hands the server still has to delete for a "delete every hand" asked here. */
+  deleting: number | null;
 }
 
 /** (R6.5) The web pages the app opens (`account::web_page_path`). */
@@ -1256,6 +1284,12 @@ export interface NodeLockRow {
   summary_json: unknown;
   /** The locked solve's chunk size in bytes; null: no chunk. Not a column: `length(result)`. */
   result_size: number | null;
+  /** (§7.5) A root lock's folder; null: the top level (always null for a child). */
+  folder_id: string | null;
+  /** (§7.4) The lock this one is built on; null: solved on the library. Never changes. */
+  parent_id: string | null;
+  /** Its place among its siblings, ascending (a folder's subfolders and root locks share one list). */
+  sort: number;
 }
 
 /** A row with its chunk (`nodelock_get`). */
@@ -1265,11 +1299,71 @@ export interface NodeLock extends NodeLockRow {
 
 /**
  * What `nodelockSave` takes: the whole row (an upsert replaces it, the chunk included). No `id`
- * (or an empty one) makes a new row; the times are the store's.
+ * (or an empty one) makes a new row; the times are the store's. The place in the tree is the first
+ * save's: `parent_id` (must exist) or, for a root, `folder_id` (unknown: the top level); the new row
+ * goes to the top of its list. Later saves keep the place (moves go through `nodelockMove`).
  */
-export type NodeLockInput = Omit<NodeLockRow, "id" | "created_at" | "updated_at" | "result_size"> & {
+export type NodeLockInput = Omit<
+  NodeLockRow,
+  "id" | "created_at" | "updated_at" | "result_size" | "folder_id" | "parent_id" | "sort"
+> & {
   id?: string | null;
+  parent_id?: string | null;
+  folder_id?: string | null;
 };
+
+/** (§7.5) `rail_store::NodeLockFolder`: a folder of My nodelocks, nested to any depth. */
+export interface NodeLockFolder {
+  id: string;
+  name: string;
+  /** The folder it sits in; null: the top level. */
+  parent_id: string | null;
+  /** Its place among its folder's subfolders and root locks, ascending. */
+  sort: number;
+  created_at: number;
+  updated_at: number;
+}
+
+/** What `nodelockFolderSave` takes: no `id` makes a folder; no `sort`: the top of its list (or where it was). */
+export interface NodeLockFolderInput {
+  id?: string;
+  name: string;
+  parent_id: string | null;
+  sort?: number;
+}
+
+/** A tree item: a lock or a folder (`rail_store::NodeLockItem`). */
+export interface NodeLockItem {
+  kind: "lock" | "folder";
+  id: string;
+}
+
+/**
+ * Where `nodelockMove` puts its items: into `folder_id` (null: the top level), just before `before`,
+ * else just after `after`, else at the top. The anchor must be an item of that folder.
+ */
+export interface NodeLockPlace {
+  folder_id: string | null;
+  before?: NodeLockItem | null;
+  after?: NodeLockItem | null;
+}
+
+/** What a folder delete took: folders (subfolders included) and every lock row (branches included). */
+export interface NodeLockDeleted {
+  folders: number;
+  locks: number;
+}
+
+/**
+ * What a delete would take: `folders` (subfolders included), `locks` (each deleted lock whose parent
+ * stays) and `descendants` (the deleted locks built on another deleted one). `locks + descendants`
+ * is every lock row that goes.
+ */
+export interface NodeLockDeletePreview {
+  folders: number;
+  locks: number;
+  descendants: number;
+}
 
 /** A Solver-library spot, as the history filters by it. */
 export interface NodeLockSpot {
@@ -1370,6 +1464,36 @@ export interface ChartExampleDto {
   evLossBb: number | null;
 }
 
+/** `pot_kinds::MultiwaySummary` (analysis/45). */
+export interface MultiwaySummaryDto {
+  hands: number;
+  /** Thousandths of a big blind. */
+  netBbMilli: number;
+  showdownBbMilli: number;
+  nonShowdownBbMilli: number;
+  decisions: number;
+  graded: number;
+  /** Perfect, Good, Inaccurate, Mistake, Blunder. */
+  grades: [number, number, number, number, number];
+  byPlayers: { players: number; decisions: number; graded: number; off: number; evLossBb: number }[];
+}
+
+/** `pot_kinds::PotKindDecision`: a decision graded Inaccurate or worse. */
+export interface PotKindDecisionDto {
+  handKey: string;
+  ord: number;
+  actionIndex: number;
+  playedAt: string | null;
+  street: string;
+  action: string;
+  scenario: string;
+  grade: string;
+  evLossBb: number;
+  heroCards: string | null;
+  position: string | null;
+  players: number | null;
+}
+
 /** `review::LeakFiltersDto` (R5.4): the top three's scope. */
 export interface LeakFiltersDto {
   gameFormat?: string | null;
@@ -1377,6 +1501,8 @@ export interface LeakFiltersDto {
   gameKind?: HandsGameKind | null;
   position?: string | null;
   potType?: string | null;
+  /** `hu`, `mw` or `bomb` (analysis/45): heads-up, multiway or bomb pot decisions only. */
+  potKind?: "hu" | "mw" | "bomb" | null;
 }
 
 /** `review::SpotSumsDto`: one finest spot's sums, as summed. */
@@ -1544,6 +1670,9 @@ export const ipc = {
   entitlementsStatus: () => invoke<EntitlementsStatus>("entitlements_status"),
   entitlementsCheckNow: () => invoke<void>("entitlements_check_now"),
   entitlementsOpenUpgrade: () => invoke<void>("entitlements_open_upgrade"),
+  entitlementsOpenManage: () => invoke<void>("entitlements_open_manage"),
+  /** (Free tier) Before a flop's strategy shows: the server counts it (preflop never asks). */
+  solverOpenFlop: (flop: string) => invoke<FlopGate>("solver_open_flop", { flop }),
   /** The statistics pass (R2.3). */
   statsStatus: () => invoke<StatsStatus>("stats_status"),
   /** Rebuild every hand's statistics in the background; returns the hands to go through. */
@@ -1569,17 +1698,30 @@ export const ipc = {
   handShare: (handKey: string, title: string | null) => invoke<HandShare>("hand_share", { handKey, title }),
   /** (Trainer) Keep graded answers in the account (`record_trainer_results`, at most 50); how many were kept. */
   trainerResultsRecord: (rows: TrainerResultDto[]) => invoke<number>("trainer_results_record", { rows }),
+  /** Send a bug report, feature request or question (`feedback.rs`); errors are the function's codes or `offline`. */
+  feedbackSend: (input: FeedbackInput) => invoke<null>("feedback_send", { input }),
   /** Open a share link made here in the default browser. */
   shareOpen: (slug: string) => invoke<null>("share_open", { slug }),
   /** The owner's names switch on a link made here; the state the server kept. */
   shareSetNames: (slug: string, show: boolean) => invoke<boolean>("share_set_names", { slug, show }),
   /** The web's post preview for a hand in the store, in the default browser (`share.rs`). */
   forumPreviewOpen: (handKey: string) => invoke<null>("forum_preview_open", { handKey }),
+  /** The hand in the web's library (`/analysis/hand?key=`) at the replayer's position (`a12`, `flop`), in the default browser. */
+  handWebOpen: (handKey: string, position: string | null) => invoke<null>("hand_web_open", { handKey, position }),
   handAnnotations: (handKey: string) => invoke<HandAnnotations>("hand_annotations", { handKey }),
   handSetNote: (handKey: string, note: string) => invoke<HandAnnotations>("hand_set_note", { handKey, note }),
   handAddTag: (handKey: string, tag: string) => invoke<HandAnnotations>("hand_add_tag", { handKey, tag }),
   handRemoveTag: (handKey: string, tag: string) => invoke<HandAnnotations>("hand_remove_tag", { handKey, tag }),
   handsMarks: (handKeys: string[]) => invoke<HandMarks>("hands_marks", { handKeys }),
+  /**
+   * Delete hands here and (by sync) from the account (`delete.rs`); how many
+   * went. A big selection reports its progress ({@link onHandsDeleteProgress}).
+   */
+  handsDelete: (handKeys: string[]) => invoke<number>("hands_delete", { handKeys }),
+  /** Delete every hand here and (by sync) from the account; how many went here. */
+  handsDeleteAll: () => invoke<number>("hands_delete_all"),
+  /** How many hands the store holds. */
+  handsCount: () => invoke<number>("hands_count"),
   /** Put a tag on every hand of `handKeys` (`on`) or take it off; each hand's note and tags after. */
   handsMark: (handKeys: string[], tag: string, on: boolean) =>
     invoke<HandAnnotated[]>("hands_mark", { handKeys, tag, on }),
@@ -1697,6 +1839,9 @@ export const ipc = {
   /** Rows in `rail_store::HandAnalysisIn`'s shape (`analysis/rows.ts`). */
   analysisSave: (rows: unknown[]) => invoke<{ saved: number; missing: number }>("analysis_save", { rows }),
   analysisCounts: (version: string) => invoke<AnalysisCounts>("analysis_counts", { version }),
+  /** The counts month by month (`played_at`'s UTC `YYYY-MM`), newest first. */
+  analysisMonths: (version: string) =>
+    invoke<{ month: string; hands: number; current: number }[]>("analysis_months", { version }),
   /** A hand's stored analysis in the web's `analysis_hand` shape; `null` when none. */
   handAnalysis: (handKey: string) => invoke<Record<string, unknown> | null>("hand_analysis", { handKey }),
   analysisVillains: (players: { site: string; player: string }[], minHands: number) =>
@@ -1724,8 +1869,22 @@ export const ipc = {
     ),
   /** Whether it was there. */
   nodelockRename: (id: string, name: string) => invoke<boolean>("nodelock_rename", { id, name }),
-  /** How many went (unknown ids are skipped). */
+  /** Deletes each with every lock built on it (its branch); how many rows went (unknown ids are skipped). */
   nodelockDelete: (ids: string[]) => invoke<number>("nodelock_delete", { ids }),
+  /** (§7.5) Every folder of My nodelocks. */
+  nodelockFolders: () => invoke<NodeLockFolder[]>("nodelock_folders"),
+  /** Creates (no id) or updates a folder; rejects a parent that is unknown, the folder itself or inside it. */
+  nodelockFolderSave: (f: NodeLockFolderInput) => invoke<NodeLockFolder>("nodelock_folder_save", { folder: f }),
+  /** Deletes folders with their subfolders and every lock (and branch) in them. */
+  nodelockFolderDelete: (ids: string[]) => invoke<NodeLockDeleted>("nodelock_folder_delete", { ids }),
+  /**
+   * Moves root locks and folders (in this order, together; a lock's children go with it). False,
+   * nothing moved: a child lock, a folder into its own subtree, an unknown item or anchor.
+   */
+  nodelockMove: (items: NodeLockItem[], to: NodeLockPlace) => invoke<boolean>("nodelock_move", { items, to }),
+  /** What deleting these locks (with branches) and folders (with contents) would take; changes nothing. */
+  nodelockDeletePreview: (locks: string[], folders: string[]) =>
+    invoke<NodeLockDeletePreview>("nodelock_delete_preview", { locks, folders }),
   /** (R5.5) The user's settings per tournament (`site:id` keys), kept in the store only; a save or delete re-queues its hands. */
   tournamentSettingsList: () =>
     invoke<{ key: string; settings: Record<string, unknown>; updatedAt: string }[]>("tournament_settings_list"),
@@ -1749,6 +1908,13 @@ export const ipc = {
   chartExamples: (version: string, query: CompareDto, key: string, cls: number, action: string, limit: number) =>
     invoke<ChartExampleDto[]>("chart_examples", { version, query, key, cls, action, limit }),
   /** (R5.4) The leak finder's top three: three samples of spot sums, and a leak's costliest decisions. */
+  /** analysis/45: the multiway hands' sums (`review::multiway_summary`). */
+  multiwaySummary: (version: string) => invoke<MultiwaySummaryDto>("multiway_summary", { version }),
+  /** The costliest graded decisions of one pot kind (`mw` or `bomb`). */
+  potKindDecisions: (version: string, kind: "mw" | "bomb", limit: number) =>
+    invoke<PotKindDecisionDto[]>("pot_kind_decisions", { version, kind, limit }),
+  /** Every stored bomb pot's PHF JSON, for the Bomb pots tab to sum. */
+  bombPotPhfs: () => invoke<string[]>("bomb_pot_phfs"),
   topLeaks: (version: string, filters: LeakFiltersDto, period: string) =>
     invoke<TopLeaksDto>("top_leaks", { version, filters, period }),
   /** A leak's examples on its table (`hu`, `9max`, `other`) and pot (`3bp`, `4bp`, `other`); null: every one. */
@@ -1788,6 +1954,11 @@ export function onStatsDataChanged(onChange: () => void): () => void {
     watcher();
     stats();
   };
+}
+
+/** A big delete's progress (`hands_delete`): hands done of the total. */
+export function onHandsDeleteProgress(onChange: (progress: { done: number; total: number }) => void): () => void {
+  return onAppEvent("hands-delete-progress", onChange);
 }
 
 /** Call `onChange` whenever the sync status changed (R1.9; at most once a second). */
@@ -1960,6 +2131,19 @@ export interface TrainerResultDto {
 
 /** The errors `trainer_results_record` answers with a code: the answers wait and go later. */
 export const TRAINER_SYNC_WAIT = ["signedOut", "rateLimited", "plan", "unavailable", "unreachable"] as const;
+
+/** A feedback report as `feedback_send` takes it (`src-tauri/src/feedback.rs`). */
+export interface FeedbackInput {
+  kind: "bug" | "feature" | "question";
+  message: string;
+  email: string | null;
+  website: string;
+  /** Data URLs. */
+  images: string[];
+  /** The screen it was sent from. */
+  page: string;
+  locale: string;
+}
 
 /** A share link made by `hand_share`. */
 export interface HandShare {

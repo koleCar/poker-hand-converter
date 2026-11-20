@@ -301,6 +301,34 @@ pub async fn analysis_counts(
     })
 }
 
+/// How far the analysis is in one month.
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MonthDto {
+    month: String,
+    hands: u64,
+    current: u64,
+}
+
+/// How far the analysis is at `version`, month by month, newest first.
+#[tauri::command]
+pub async fn analysis_months(
+    store: State<'_, StoreState>,
+    version: String,
+) -> Result<Vec<MonthDto>, String> {
+    Ok(open(&store)?
+        .reader()
+        .analysis_months(&version)
+        .map_err(text)?
+        .into_iter()
+        .map(|m| MonthDto {
+            month: m.month,
+            hands: m.hands,
+            current: m.current,
+        })
+        .collect())
+}
+
 /// One hand's stored analysis (`analysis_hand`'s shape), `null` when none.
 #[tauri::command]
 pub async fn hand_analysis(

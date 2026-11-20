@@ -349,7 +349,13 @@ describe("every record satisfies the database's own constraints", () => {
           bbFloor: decision.street !== "preflop",
         });
         const sensitivity = decision.facts.river?.sensitivity ?? decision.facts.turn?.sensitivity ?? decision.facts.multiway?.ev?.sensitivity ?? null;
-        if (decision.approximations.includes("range-sensitive")) {
+        // analysis/45: a bomb pot's grade, whatever it came to, is capped at Inaccurate.
+        const bomb = decision.approximations.includes("bomb-pot");
+        if (bomb) {
+          const shown = decision.approximations.includes("range-sensitive") ? sensitivityGrade(again.grade, sensitivity!.grade).grade : again.grade;
+          expect(decision.grade).toBe(gradeRank(shown) > gradeRank("inaccurate") ? "inaccurate" : shown);
+          expect(decision.score).toBeGreaterThanOrEqual(80);
+        } else if (decision.approximations.includes("range-sensitive")) {
           // analysis/34: the full narrowing's options, its grade bounded one class past the half-strength one.
           expect(sensitivity?.full).toBe(again.grade);
           expect(gradeRank(decision.grade!)).toBeLessThan(gradeRank(again.grade));
@@ -376,7 +382,8 @@ describe("every record satisfies the database's own constraints", () => {
             if (decision.action === "fold") expect(decision.flags.map((f) => f.code)).toContain("fold-nuts");
           }
           if (decision.approximations.includes("range-cap")) {
-            if (decision.approximations.includes("range-sensitive")) expect(gradeRank(decision.grade!)).toBeLessThan(gradeRank("mistake"));
+            if (bomb) expect(gradeRank(decision.grade!)).toBeLessThanOrEqual(gradeRank("inaccurate"));
+            else if (decision.approximations.includes("range-sensitive")) expect(gradeRank(decision.grade!)).toBeLessThan(gradeRank("mistake"));
             else expect(decision.grade).toBe("mistake");
             expect(ev.capped).toBe("blunder");
           }
@@ -402,7 +409,7 @@ describe("every record satisfies the database's own constraints", () => {
             expect(gradeRank(river.sensitivity!.full!) - gradeRank(river.sensitivity!.grade)).toBeGreaterThan(1);
           }
           if (decision.approximations.includes("range-cap")) {
-            expect(decision.grade).toBe("mistake");
+            expect(decision.grade).toBe(bomb ? "inaccurate" : "mistake");
             expect(river.capped).toBe("blunder");
           }
         }
@@ -489,6 +496,18 @@ describe("the explanation layer (§4)", () => {
         const sentences = dict.analysis.explain(decision);
         expect(sentences.length).toBeGreaterThan(0);
         for (const sentence of sentences) expect(sentence).not.toMatch(/undefined|NaN|null|\[object/);
+      }
+    }
+  });
+
+  it("sums every decision up in short in both languages: a verdict and a few points, never longer than the full why", () => {
+    for (const decision of decisions) {
+      for (const dict of [en, hr]) {
+        const short = dict.analysis.brief(decision);
+        expect(short.lead.length).toBeGreaterThan(0);
+        for (const line of [short.lead, ...short.points]) expect(line).not.toMatch(/undefined|NaN|null|\[object/);
+        expect(short.points.length).toBeLessThanOrEqual(8);
+        if (decision.grade) expect(short.lead).not.toBe(short.points[0]);
       }
     }
   });

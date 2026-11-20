@@ -144,6 +144,8 @@ export function ReplayPanel({ request, onSaved }: ReplayPanelProps) {
         <section className="card card--flush">
           <ReplayViewer
             key={loaded.hand.meta.handKey}
+            // A new paste opens at its start, not where the last hand stopped.
+            urlSync={false}
             hand={loaded.hand}
             site={siteLabel(loaded.siteId)}
             onClose={() => setLoaded(null)}

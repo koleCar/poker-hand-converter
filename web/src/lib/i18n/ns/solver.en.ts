@@ -44,6 +44,21 @@ export const solverEn = {
   loadError: "This solve could not be loaded. Try again in a moment.",
   retry: "Try again",
 
+  top: {
+    link: "Copy a link to this spot",
+    copied: "Link copied",
+    table: "Change the table",
+  },
+
+  solving: {
+    title: (street: "turn" | "river") => `Solving the ${street}`,
+    progress: (iteration: number, exploitability: number | null) =>
+      exploitability === null ? `Iteration ${num(iteration)}` : `Iteration ${num(iteration)} · ${num(exploitability, 2)}% of the pot`,
+    note: "Solved on this computer from the flop's ranges, kept for this session.",
+    short: (share: number) => `Solving ${pct(share)}`,
+    pickBelow: "Pick a card below",
+  },
+
   settings: {
     title: "Table",
     change: "Change",
@@ -77,6 +92,9 @@ export const solverEn = {
     uncaptured: "This line is not transcribed from GTO Wizard yet.",
     notSolved: (oop: string, ip: string) => `${ip} vs ${oop}: this line is not in the solver library yet.`,
     setEmpty: "Preflop only: there is no postflop solve for these ranges yet.",
+    name: "Preflop",
+    folds: (positions: string) => `${positions} fold`,
+    expand: "Show every preflop decision",
   },
 
   flop: {
@@ -105,6 +123,8 @@ export const solverEn = {
     streetName: (street: "flop" | "turn" | "river") => ({ flop: "Flop", turn: "Turn", river: "River" })[street],
     repick: (street: "turn" | "river") => `Pick another ${street} card`,
     isomorphic: "Cards that play the same up to suits are solved once: a missing suit plays as the one shown.",
+    playsAs: (card: string) => `Plays as ${card}`,
+    onBoard: (card: string) => `${card} is on the board`,
     showdown: "The betting is over: the hand goes to showdown.",
     ends: {
       fold: "The hand is over.",
@@ -118,6 +138,16 @@ export const solverEn = {
       : kind === "raise"
         ? `Raise ${size(amount)}`
         : (({ fold: "Fold", check: "Check", call: "Call", allin: "All-in" }) as Record<string, string>)[kind] ?? kind,
+  /** An action as a combo tile writes it: X, F, C, AI, B33, R8.5. */
+  short: (kind: string, sizePot: number, amount: number) =>
+    kind === "bet"
+      ? `B${num(Math.round(sizePot * 100))}`
+      : kind === "raise"
+        ? `R${size(amount)}`
+        : (({ fold: "F", check: "X", call: "C", allin: "AI" }) as Record<string, string>)[kind] ?? kind,
+  count: (combos: number) => num(Math.round(combos)),
+  blocked: "Blocked by the board",
+  vsBase: (delta: string, label: string) => `${delta} vs ${label}`,
   share: (share: number, combos: number) => `${pct1(share)} · ${num(Math.round(combos))} combos`,
   shareOnly: pct1,
   combosCount: (combos: number) => `${num(Math.round(combos))} combos`,
@@ -138,9 +168,11 @@ export const solverEn = {
   value: (value: number) => `EV ${signedBb(value)}`,
   freq: pct1,
   signedBb,
+  /** An EV without the unit, signed: "+1.25", "−0.40". */
+  signed: (value: number) => signedBb(value).replace(/ bb$/, ""),
   evShort: (value: number) => num(Math.round(value * 100) / 100 || 0, 2),
 
-  tabs: { label: "View", strategy: "Strategy + EV", ranges: "Ranges" },
+  tabs: { label: "View", strategy: "Strategy + EV", ranges: "Ranges", rangeModes: "What the grids show" },
 
   ranges: {
     modes: { strategy: "Strategy", ev: "EV", equity: "Equity", range: "Range", eqr: "EQR" },
@@ -231,5 +263,7 @@ export const solverEn = {
     share: pct1,
     active: (mode: "include" | "exclude") => (mode === "include" ? "Only" : "Without"),
     remove: (label: string) => `Remove ${label}`,
+    none: (position: string) => `No hand of ${position}'s range passes this filter here.`,
+    clearFilter: "Clear the filter",
   },
 } as const;

@@ -77,6 +77,11 @@ export interface FlopChunkHeader {
    * instead of the flop.
    */
   lockHash?: string;
+  /**
+   * A based nodelock's result (§7.4): the `lockHash` of the lock whose result
+   * it was solved on. Absent when it was solved on the library chunk.
+   */
+  baseHash?: string;
 }
 
 export interface FlopChunk {

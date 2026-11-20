@@ -16,6 +16,7 @@
 
 pub mod auth;
 pub mod entitlements;
+pub mod feedback;
 pub mod floplib;
 pub mod ingest;
 pub mod policy;

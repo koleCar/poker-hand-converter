@@ -38,6 +38,7 @@ const HR: Record<string, string> = {
   "You must be signed in to post.": "Za objavu moraš biti prijavljen/a.",
   "You must be signed in to publish a hand.": "Za objavu ruke moraš biti prijavljen/a.",
   "You must be signed in to read statistics.": "Za statistiku moraš biti prijavljen/a.",
+  "You must be signed in to delete hands.": "Za brisanje ruku moraš biti prijavljen/a.",
   "You must be signed in to rebuild statistics.": "Za obnovu statistike moraš biti prijavljen/a.",
   "You must be signed in to analyse hands.": "Za analizu ruku moraš biti prijavljen/a.",
   "You must be signed in to read the analysis.": "Za analizu moraš biti prijavljen/a.",
@@ -126,6 +127,10 @@ const HR: Record<string, string> = {
     "Biblioteka ti je puna na Free planu. Prijeđi na Pro da nastaviš spremati ruke.",
   "Syncing hands from the desktop app is a Pro feature. Upgrade to Pro to sync.":
     "Sinkronizacija ruku iz desktop aplikacije je Pro značajka. Prijeđi na Pro za sinkronizaciju.",
+  // the Free day's cap and the solver's flops (`20271119110000_free_tier_limits.sql`)
+  "You have saved today's hands on the Free plan. The rest saves after the daily reset, or now with Pro.":
+    "Današnje ruke na Free planu su spremljene. Ostale se spremaju nakon dnevnog resetiranja, ili odmah uz Pro.",
+  "Not a flop.": "To nije flop.",
 
   // Supabase Auth
   "Invalid login credentials": "Pogrešan e-mail ili lozinka.",

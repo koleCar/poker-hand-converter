@@ -356,6 +356,13 @@ export interface Mapped {
 
 const SIZED = new Set(["bet", "raise", "allin"]);
 
+/**
+ * A sized action within this many big blinds of a tree size's street total is
+ * that size exactly (analysis/47): half a cent of a big blind of rounding,
+ * the tolerance the solver's own labels allow (`lib/solver/betting.ts`).
+ */
+export const EXACT_SIZE_BB = 0.006;
+
 /** What mapping an action onto a tree reads of it. */
 export type LineAct = Pick<StreetAct, "type" | "to" | "allIn" | "sizePot">;
 
@@ -379,6 +386,19 @@ export function mapAct(node: SolvedNode, act: LineAct, stack: number): Mapped | 
     return { edges: [allIn.edge], weights: [1], distance: 0 };
   }
   const x = act.sizePot ?? 0;
+  // A size that puts in the tree's own amount, to the cent of a big blind, is
+  // that size. Amounts are quoted to two decimals (the Trainer's menu, a
+  // tree's labels), so 33% of 9.96 is written 3.29 and reads 0.3303 of the
+  // pot: just past 0.33, where the translation would give the 75% a sliver
+  // and `gradeMapped` grade the bet as whichever of the two was better.
+  let exact: { edge: number; off: number } | null = null;
+  for (const { action, edge } of sized) {
+    const off = Math.abs(action.to - act.to);
+    if (off <= EXACT_SIZE_BB && (!exact || off < exact.off)) exact = { edge, off };
+  }
+  if (exact) {
+    return { edges: [exact.edge], weights: [1], distance: Math.abs(node.actions[exact.edge].sizePot - x) };
+  }
   const translation = translateSize(
     x,
     sized.map(({ action }) => action.sizePot),
@@ -821,6 +841,22 @@ export interface StudyRow {
   ev: number[];
 }
 
+/** One combo of the actor's range at a solved node, as the solve plays it. */
+export interface StudyCombo {
+  /** `AhKd`: the higher card first. */
+  cards: string;
+  /** Its class, `HAND_CLASSES` index. */
+  cell: number;
+  /** Reach weight at the node. */
+  weight: number;
+  /** Per option. */
+  freq: number[];
+  /** Per option, bb. */
+  ev: number[];
+  /** Share of the opponent's range at the node it beats now, ties half. */
+  hs: number;
+}
+
 /** The study view of a solved node, the river's or the turn's (§6.1). */
 export interface RiverStudy {
   /** "flop": read from a flop library chunk (`flopStudyAt`), not re-solved. */
@@ -832,6 +868,8 @@ export interface RiverStudy {
   options: StudyOption[];
   /** 169 cells, grid order (`HAND_CLASSES`). */
   cells: StudyRow[];
+  /** Every combo that reaches the node. */
+  combos: StudyCombo[];
   heroClass: string;
   heroCombo: string;
   hero: { freq: number[]; ev: number[] };
@@ -896,6 +934,7 @@ export function studyAt<K extends string>(
   const categories = new Map<K, StudyRow>(list.map((c) => [c.key, emptyRow(actions)]));
   const buckets = { strong: emptyRow(actions), medium: emptyRow(actions), weak: emptyRow(actions) };
   const totals = new Array(actions).fill(0);
+  const combos: StudyCombo[] = [];
   let all = 0;
   for (let i = 0; i < n; i += 1) {
     const w = reach[p][i];
@@ -909,6 +948,14 @@ export function studyAt<K extends string>(
     ];
     all += w;
     for (const row of rows) row.combos += w;
+    combos.push({
+      cards: cardCode(hole[0]) + cardCode(hole[1]),
+      cell: COMBO_CLASS[combo],
+      weight: round2(w),
+      freq: node.actions.map((_, a) => round4(node.strategy[a * n + i])),
+      ev: node.actions.map((_, a) => round3(node.ev[a * n + i])),
+      hs: round3(hsVsVillain[combo]),
+    });
     for (let a = 0; a < actions; a += 1) {
       const f = node.strategy[a * n + i];
       const e = node.ev[a * n + i];
@@ -957,6 +1004,7 @@ export function studyAt<K extends string>(
     board: board.map(cardCode),
     options,
     cells: cells.map(finish),
+    combos,
     heroClass: HAND_CLASSES[COMBO_CLASS[solve.heroCombo]].name,
     heroCombo: cardCode(comboHi(solve.heroCombo)) + cardCode(comboLo(solve.heroCombo)),
     hero: heroRow,

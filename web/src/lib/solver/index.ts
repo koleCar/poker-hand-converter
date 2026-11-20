@@ -23,6 +23,7 @@
  * lock.ts         the exploit lab (Learn L4): lock a node, best-respond, gain and risk
  * split.ts        a flop solve split over turn cards, bit-identical (nodelock, docs/NODELOCK.md §2.2)
  * nodelock.ts     the nodelock model (LockSet, lockHash) and the locked solve (§1, §2.3-2.4)
+ * rangeLock.ts    range locks: the ranges a nodelock solves the flop from (§9)
  * ```
  *
  * **Import rule: this module may import only `lib/phf/types`, `lib/cards` and
@@ -63,19 +64,50 @@ export {
   lockedNodes,
   lockFlopCards,
   lockGameStreet,
+  lockNodeActions,
   lockHash,
   lockPathOf,
   lockSymmetries,
+  LOCK_SET_VERSION,
   NodelockError,
   nodelockHeader,
+  rangesHash,
+  readLockSet,
   sha256Hex,
   splitLockPath,
+  withLockRanges,
   type AppliedLocks,
   type BaselineStrategy,
+  type LockBase,
   type LockEarlier,
   type LockSet,
   type NodeLockSpec,
+  type RangeLock,
 } from "./nodelock";
+export {
+  canonicalRange,
+  classScores,
+  classSet,
+  classWeights,
+  CLASS_SETS,
+  formatRange,
+  handsRange,
+  liveCombos,
+  paintClasses,
+  parseRangeText,
+  quantise,
+  RANGE_QUANTUM,
+  rangeDiff,
+  rangeLocksOf,
+  rangeSize as rangeLockSize,
+  rangesDiffer,
+  rangesWith,
+  scaleEquityTable,
+  scaleRange,
+  type ClassSet,
+  type RangeDiff,
+  type RangeSize,
+} from "./rangeLock";
 export {
   driveAsync,
   driveSync,
@@ -113,6 +145,8 @@ export { ACTION, CHANCE, FOLD, rakeOf, SHOWDOWN, TreeBuilder, type Edge, type Fl
 export { clairvoyanceGame, clairvoyanceSolution, kuhnGame, leducGame } from "./toys";
 export {
   formatAmount,
+  nodeActionsOf,
+  type NodeStand,
   type ActionInfo,
   type ActionKind,
   type BetMenu,

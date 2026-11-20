@@ -105,8 +105,11 @@ const preflopScenarios = {
   "vs-4bet": "Facing a 4-bet or more",
 } as Record<string, string>;
 
-const roles = { pfr: "Preflop raiser", caller: "Preflop caller", limped: "Limped pot" } as Record<string, string>;
+const roles = { pfr: "Preflop raiser", caller: "Preflop caller", limped: "Limped pot", bomb: "Bomb pot" } as Record<string, string>;
 const facing = { first: "first to bet", "vs-bet": "facing a bet", "vs-raise": "facing a raise" } as Record<string, string>;
+
+/** A bomb pot decision (analysis/45: role `bomb`; earlier rows carry only the approximation). */
+const isBombPot = (decision: DecisionAnalysis): boolean => decision.facts.role === "bomb" || decision.approximations.includes("bomb-pot");
 
 /** "Preflop raiser, in position, facing a bet" / "Facing an open". */
 function scenarioLabel(facts: Pick<SpotFacts, "preflopScenario" | "role" | "facing" | "inPosition" | "scenario" | "players">): string {
@@ -296,7 +299,7 @@ const riverReasons = {
 /** Why a multiway decision has no grade (A9). Keyed by `MULTIWAY_SKIP_REASONS`. */
 const multiwayReasons = {
   multiway:
-    "three or more players are in the pot, and no solver models three ranges at once; only a call or fold facing a bet gets an approximate grade",
+    "three or more players saw the flop: nothing solves such a pot, and it plays very differently from a heads-up one, so no decision after the flop is graded",
   "multiway-side-pot": "a side pot (an all-in for less) splits the showdown, which the approximate call does not model",
   "multiway-crowded": "more than three players were still to answer the bet",
   "multiway-range-unknown": "a player's range could not be walked through the hand",
@@ -383,7 +386,7 @@ function approxSentences(decision: DecisionAnalysis): string[] {
       ? "Players still to act call or fold about as often as players behind a call do in stored multiway hands (the narrowing model picks which hands), never re-raise, and raising is not one of the options compared: read this as an estimate, not a solved answer."
       : "Players still to act call or fold by the narrowing model and never re-raise, and raising is not one of the options compared: read this as an estimate, not a solved answer.",
   );
-  if (ev.capped) {
+  if (ev.capped && !isBombPot(decision)) {
     out.push(
       `On these numbers alone this would be a ${gradeWords[ev.capped] ?? ev.capped}. Ranges narrowed by a heuristic model cannot carry that verdict, so the grade is capped at Mistake.`,
     );
@@ -510,7 +513,7 @@ function turnSentences(decision: DecisionAnalysis): string[] {
   if (decision.approximations.includes("size-translated")) {
     out.push("A bet size in this turn line was read as the nearest of the solver's sizes (75% of the pot and all-in, raises 75% and all-in, plus the sizes this hand used).");
   }
-  if (turn.capped) {
+  if (turn.capped && !isBombPot(decision)) {
     out.push(
       `On the solver's numbers alone this would be a ${gradeWords[turn.capped] ?? turn.capped}. Ranges narrowed by a heuristic model on the flop cannot carry that verdict, so the grade is capped at Mistake — only a move that loses whatever the opponent holds is called a Blunder.`,
     );
@@ -580,7 +583,7 @@ function riverSentences(decision: DecisionAnalysis): string[] {
   if (decision.approximations.includes("size-translated")) {
     out.push("Bet sizes in this river line were read as the nearest of the solver's sizes (33%, 75%, 150% of the pot, all-in).");
   }
-  if (river.capped) {
+  if (river.capped && !isBombPot(decision)) {
     out.push(
       `On the solver's numbers alone this would be a ${gradeWords[river.capped] ?? river.capped}. Ranges narrowed by a heuristic model cannot carry that verdict, so the grade is capped at Mistake — only a move that loses whatever the opponent holds is called a Blunder.`,
     );
@@ -713,6 +716,11 @@ function explain(decision: DecisionAnalysis): string[] {
   out.push(...chartSentences(decision));
   out.push(...icmSentencesEn(decision));
   out.push(...approxSentences(decision));
+  if (isBombPot(decision) && decision.grade) {
+    out.push(
+      "A bomb pot: everyone put in the ante and went straight to the flop with any two cards, deep and multiway. Rail has no solved bomb pots, so the numbers above are a rough guide from its multiway model, not a verdict: the grade is capped at Inaccurate.",
+    );
+  }
   out.push(...turnSentences(decision));
   out.push(...riverSentences(decision));
   out.push(...multiwaySentences(decision));
@@ -752,6 +760,129 @@ function explain(decision: DecisionAnalysis): string[] {
     out.push(flagSentence(flag, facts));
   }
   return out.filter(Boolean);
+}
+
+/** The short read of a hand's role against the range it faces (turn and river solves). */
+const roleWords = {
+  value: "a value hand",
+  vulnerable: "ahead, but vulnerable",
+  draw: "a draw",
+  "bluff-catcher": "a bluff-catcher",
+  medium: "a middling hand",
+  air: "air",
+  weak: "too weak to catch bluffs",
+  "thin-value": "thin value at best",
+  showdown: "a showdown hand",
+} as Record<string, string>;
+
+/**
+ * The *why* in short (2026-11-19): the verdict first, then a few plain
+ * points a player reads at a glance — the spot, the price against the
+ * equity, the hand's role, the table, the flags and one caveat. The full
+ * reasoning stays in `explain()`; this only picks from the same record.
+ */
+function brief(decision: DecisionAnalysis): { lead: string; points: string[] } {
+  const facts = decision.facts;
+  const points: string[] = [];
+  const chosen = decision.chosen !== null ? decision.options[decision.chosen] : undefined;
+  const mwEv = decision.source === "approx" ? facts.multiway?.ev : undefined;
+
+  // The verdict.
+  let lead: string | null = null;
+  if (decision.status === "not-analysed") {
+    const reason = decision.reason
+      ? (multiwayReasons[decision.reason] ??
+        chartReasons[decision.reason] ??
+        riverReasons[decision.reason] ??
+        turnReasons[decision.reason] ??
+        tournamentReasonsEn[decision.reason])
+      : undefined;
+    lead = reason ? `Not graded: ${reason}.` : "Not analysed.";
+  } else if (decision.grade && chosen) {
+    const mine = capitalise(optionLabel(chosen));
+    const who = decision.source === "solver" ? "the solver" : "the reference";
+    const better = mwEv
+      ? (decision.options.find((o) => o.action === (mwEv.call > 0 ? "call" : "fold")) ?? null)
+      : betterAlternative(decision);
+    const loss = decision.evLoss ?? 0;
+    if (decision.grade === "perfect" || loss < 0.005 || !better || better === chosen) {
+      lead = mwEv
+        ? chosen.action === "fold"
+          ? "Folding beats calling here."
+          : "Calling beats folding here."
+        : referenceMix(decision).length > 1
+          ? `${mine} is right: ${who} mixes ${mixLabel(decision)}.`
+          : `${mine} is right: ${who} plays it here.`;
+    } else if (decision.grade === "good") {
+      lead = `${mine} is fine: ${who} plays it ${pct(chosen.freq)} of the time.`;
+    } else {
+      lead = `${capitalise(optionLabel(better))} is better: ${optionLabel(chosen)} costs ${num(loss, 2)} bb (${pct(decision.evLossPot ?? 0)} of the pot).`;
+    }
+  }
+
+  // The spot.
+  if (facts.street === "preflop") {
+    points.push(
+      `${scenarioLabel(facts)} in ${facts.position ?? "your seat"} with ${facts.handClass ?? facts.holeCards.join("")}, ${bb(facts.effStackBb)} deep.`,
+    );
+  } else {
+    const t = facts.texture;
+    const board = t
+      ? [textureWords.suits[t.suits], t.trips ? "trips" : t.paired ? "paired" : null, textureWords.highCard[t.highCard]]
+          .filter(Boolean)
+          .join(" ")
+      : null;
+    const drawText = facts.draws.length > 0 ? ` and ${list(facts.draws.map((d) => draws[d] ?? d))}` : "";
+    points.push(
+      `${streets[facts.street]}, ${scenarioLabel(facts).toLowerCase()}: you hold ${handPhrase(facts)}${drawText}${board ? ` on a ${board} board` : ""}.`,
+    );
+  }
+
+  // The price against the equity.
+  const equity = mwEv ? mwEv.equity : (facts.turn?.equity ?? facts.equity?.value ?? null);
+  if (facts.potOdds !== null && facts.toCallBb > 0) {
+    points.push(
+      equity !== null
+        ? `To call you need ${pct(facts.potOdds)} equity; you have about ${pct(equity)}.`
+        : `To call you need ${pct(facts.potOdds)} equity.`,
+    );
+  } else if (facts.betPot !== null && (decision.action === "bet" || decision.action === "raise")) {
+    points.push(`You ${decision.action === "bet" ? "bet" : "raised"} ${pct(facts.betPot)} of the pot${facts.allIn ? ", all in" : ""}.`);
+  }
+
+  // The hand's role (solved turn and river).
+  const solved = decision.source === "solver" ? (facts.river ?? facts.turn) : undefined;
+  if (solved && roleWords[solved.role]) {
+    points.push(`Your hand beats ${pct(solved.heroBeats)} of their range: ${roleWords[solved.role]}.`);
+  }
+
+  // The table.
+  const mw = facts.multiway;
+  if (mw && mw.players >= 3) {
+    points.push(mw.lastToAct ? "You are last to act." : `${capitalise(opponents(mw.behind))} still to act behind you.`);
+    if (mw.reverseImplied && mw.outs && mw.outs.nonNut > 0) {
+      points.push(`Your ${num(mw.outs.nonNut)} outs do not make the nuts: multiway they often make a second-best hand.`);
+    }
+  }
+  if (facts.spr !== null && facts.spr <= 3 && facts.street !== "river") {
+    points.push(`Short stacks (SPR ${num(facts.spr, 1)}): the next bet commits you.`);
+  }
+  if (facts.blockers.length > 0) {
+    points.push(`You block ${list(facts.blockers.map((b) => blockers[b] ?? b))}.`);
+  }
+  for (const flag of decision.flags) points.push(flagSentence(flag, facts));
+
+  // One caveat, the loudest.
+  if (decision.status !== "not-analysed") {
+    const capped = mwEv?.capped ?? facts.turn?.capped ?? facts.river?.capped;
+    if (capped) points.push("Grade capped at Mistake: the ranges are estimated.");
+    else if (mwEv) points.push("A multiway estimate, not a solved answer.");
+    else if (outOfRange(decision)) points.push("Your hand is outside the reference range here.");
+    else if (modelCaveat(decision)) points.push("The charts under-rate this kind of hand: read the grade as a hint.");
+  }
+
+  const all = points.filter(Boolean);
+  return lead ? { lead, points: all } : { lead: all[0] ?? "", points: all.slice(1) };
 }
 
 export const analysisEn = {
@@ -858,7 +989,7 @@ export const analysisEn = {
     "bomb-pot": "Bomb pot on two boards",
     "hero-cards-unknown": "Your cards are unknown",
     "no-decisions": "You had no decision",
-    multiway: "Multiway: facts and notes only",
+    multiway: "Multiway: not graded",
     "multiway-side-pot": "Multiway: a side pot",
     "multiway-crowded": "Multiway: four or more to answer",
     "multiway-range-unknown": "Multiway: a range could not be walked",
@@ -944,7 +1075,7 @@ export const analysisEn = {
     "posted-blind":
       "A player posted a big blind to sit in and checked: read as a one-big-blind limp, though a poster holds any two cards and the charts' limper does not; graded no worse than Inaccurate",
     "bomb-pot":
-      "A bomb pot: everyone anted and saw the flop, so every range starts from any two cards and is narrowed by Rail's multiway model, not a solver; only calls and folds facing a bet, and heads-up turns and rivers, are graded, never worse than Mistake",
+      "A bomb pot: everyone anted and saw the flop, so every range starts from any two cards and is narrowed by Rail's multiway model, not a solver; only calls and folds facing a bet, and heads-up turns and rivers, are graded, never worse than Inaccurate: Rail has no solved bomb pots",
     ...icmApproximationsEn,
   } as Record<string, string>,
 
@@ -1131,6 +1262,7 @@ export const analysisEn = {
     factsHeading: "The spot",
     flagsHeading: "Flags",
     whyHeading: "Why",
+    whyFull: "Full reasoning",
     noFlags: "Nothing flagged: every check that holds whatever the strategy passed.",
     skipped: "Skipped",
     /** The pip on the replayer rail. */
@@ -1188,6 +1320,8 @@ export const analysisEn = {
     backToSession: "Back to the session review",
     loading: "Loading the hand…",
     notFound: "This hand is not in your library.",
+    /** `/analysis/hand?key=`: the desktop app's hand, not on the web yet. */
+    notSynced: "This hand is not in your web library yet. The desktop app sends it when it next syncs: open it again in a minute.",
     fresh:
       "This hand has not been analysed at the current version yet, so this is a fresh analysis computed in your browser. Run the analysis to save it.",
   },
@@ -1398,4 +1532,5 @@ export const analysisEn = {
   /** A hand's facts in words, for the trainer's "your hand here" (`components/trainer`). */
   handFacts: { hand: handPhrase, draws, blockers },
   explain,
+  brief,
 } as const;

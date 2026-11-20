@@ -270,7 +270,9 @@ export class PreflopSolver {
       const kind = tree.type[node];
       if (kind === PF_ACTION) continue;
       const live: number[] = [];
-      let pot = 0;
+      // The antes are dead money in every pot (0 without them). A seat's own
+      // ante is sunk in every outcome, so its values leave it out (a constant).
+      let pot = n * tree.ante;
       for (let p = 0; p < n; p += 1) {
         pot += tree.contrib[node * n + p];
         if (tree.live[node] & (1 << p)) live.push(p);

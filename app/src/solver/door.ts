@@ -20,9 +20,14 @@ export { solverLinkOf } from "@rail/web-lib/analysis/solverWalk";
 
 // The desktop app's nodelock (`docs/NODELOCK.md` §5, `./nodelock/`): the
 // library's slot, the decision's data the editor reads, and the suggestions.
-export type { NodelockAt, NodelockOverride, SolverNodelock } from "@rail/web-solver/host";
+export type { NodelockAt, NodelockMark, NodelockNode, NodelockOverride, SolverNodelock } from "@rail/web-solver/host";
+// Flops a day (the free tier): the library's gate slot, filled by `./gate.tsx`.
+export type { FlopGateAnswer, SolverFlopGate } from "@rail/web-solver/host";
 export { actionColours, ComboText } from "@rail/web-solver/StrategyView";
-export { liveTurnId } from "@rail/web-solver/liveTurn";
+// The library's own controls and stylesheet ("Studio"), so the slot's tools read as part of the screen.
+export { ChevronDown, Chip, IconButton, LockGlyph, MixBar, Popover, Segmented, SignedBb, Switch, ToolButton } from "@rail/web-solver/ui";
+export { default as solverStyles } from "@rail/web-solver/solver.module.css";
+export { liveTurnCached, liveTurnId } from "@rail/web-solver/liveTurn";
 export {
   classOfCombo,
   comboText,
@@ -38,6 +43,28 @@ export {
   type FlopChunk,
 } from "@rail/web-lib/solver";
 export { cardIndex } from "@rail/web-lib/equity";
+// Range locks (`docs/NODELOCK.md` §9): the Ranges step of the nodelock editor.
+export {
+  canonicalRange,
+  classScores,
+  classSet,
+  classWeights,
+  CLASS_SETS,
+  formatRange,
+  handsRange,
+  paintClasses,
+  parseRangeText,
+  rangeDiff,
+  rangeLocksOf,
+  rangesDiffer,
+  rangesWith,
+  scaleEquityTable,
+  scaleRange,
+  type ClassSet,
+  type RangeLock,
+} from "@rail/web-lib/solver";
+export { loadChartSet } from "@rail/web-lib/charts";
+export { lineActs } from "@rail/web-lib/training/preflop";
 // The native nodelock engine (`./nodelock/engine/native.ts`): how a turn lock runs.
 export { LIVE_TURN } from "@rail/web-lib/solver";
 export {

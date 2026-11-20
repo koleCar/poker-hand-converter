@@ -52,6 +52,10 @@ pub struct Tray {
     pub sync_failed: &'static str,
     /// (R6.4) The plan does not include sync.
     pub sync_plan: &'static str,
+    /// (Free tier) Today's hands are synced; the rest after the reset.
+    pub sync_daily_cap: &'static str,
+    /// (Free tier) The web library is full.
+    pub sync_library_full: &'static str,
     /// (R3.10) The HUD line: the HUD process is not running.
     pub hud_off: &'static str,
     /// (R6.4) The plan does not include the HUD.
@@ -203,6 +207,8 @@ pub const TRAY_EN: Tray = Tray {
     sync_rate_limited: "Sync waits: the account's limit for now",
     sync_failed: "Sync problem: see Settings",
     sync_plan: "Sync needs Rail Pro",
+    sync_daily_cap: "Synced today's hands; the rest after the reset",
+    sync_library_full: "Sync waits: the web library is full",
     hud_off: "HUD off",
     hud_locked: "HUD: needs Rail Pro",
     hud_starting: "HUD starting…",
@@ -241,6 +247,8 @@ pub const TRAY_HR: Tray = Tray {
     sync_rate_limited: "Sinkronizacija čeka: ograničenje računa",
     sync_failed: "Problem sa sinkronizacijom: vidi Postavke",
     sync_plan: "Sinkronizacija traži Rail Pro",
+    sync_daily_cap: "Današnje ruke sinkronizirane; ostale nakon resetiranja",
+    sync_library_full: "Sinkronizacija čeka: web knjižnica je puna",
     hud_off: "HUD isključen",
     hud_locked: "HUD: traži Rail Pro",
     hud_starting: "HUD se pokreće…",

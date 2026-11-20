@@ -329,6 +329,103 @@ export const trainerEn = {
   keysHeading: "Shortcuts",
   keys: "1–6 answer · F fold · C call / check · A all-in · N next · S settings",
 
+  /** The short why (`lib/training/brief.ts`): headline, what the play is worth, points, example hands. */
+  brief: {
+    roles: {
+      value: "Value",
+      thin: "Thin value",
+      trap: "Value",
+      "too-thin": "Too thin",
+      showdown: "Showdown value",
+      "bluff-catcher": "Bluff-catcher",
+      bluff: "Bluff",
+      "give-up": "No bluff",
+      weak: "Too weak",
+      protect: "Ahead, vulnerable",
+      vulnerable: "Ahead, vulnerable",
+      "semi-bluff": "Semi-bluff",
+      draw: "Draw",
+      medium: "Middling hand",
+      open: "Open",
+      "three-bet": "3-bet",
+      "four-bet": "4-bet",
+      defend: "Defend",
+    } as Record<string, string>,
+    plays: {
+      "bet-small": "bet small",
+      "bet-big": "bet big",
+      raise: "raise",
+      allin: "all-in",
+      check: "check",
+      call: "call",
+      fold: "fold",
+    } as Record<string, string>,
+    head: (role: string | null, play: string | null) =>
+      role && play ? `${role} — ${play}` : role ? role : play ? play.charAt(0).toUpperCase() + play.slice(1) : "",
+    /** `best` and `other` are option labels (`Bet 3 bb (33%)`). */
+    gain: (kind: "over-yours" | "found" | "equal", best: string, other: string, value: number) => {
+      const low = (label: string) => label.charAt(0).toLowerCase() + label.slice(1);
+      const worth = `+${num(value, 2)} bb`;
+      if (kind === "over-yours") return { before: `${best} earns `, value: worth, after: ` more than your ${low(other)}.` };
+      if (kind === "found") return { before: `You found it: ${low(best)} earns `, value: worth, after: ` more than ${low(other)}.` };
+      return { before: `${best} and ${low(other)} are worth the same here.`, value: "", after: "" };
+    },
+    point: (p: import("../../training/brief").BriefPoint): { lead: string; text: string } => {
+      const names = (list: string[], words: Record<string, string>) => list.map((x) => words[x] ?? x).join(", ");
+      switch (p.kind) {
+        case "beats":
+          return { lead: `Beats ${pct(p.beats)}`, text: "of their range." };
+        case "price":
+          return { lead: `You need ${pct(p.need)}`, text: p.have !== null ? `to call; you have ${pct(p.have)}.` : "to call." };
+        case "equity":
+          return { lead: `${pct(p.equity)} equity`, text: "against their range." };
+        case "polar":
+          return { lead: "Their range is polar:", text: `${pct(p.strong)} strong, ${pct(p.weak)} weak.` };
+        case "merged":
+          return { lead: "Their range is merged:", text: `${pct(p.medium)} middling hands.` };
+        case "removes":
+          return {
+            lead: p.strong > p.weak ? "You block their strong hands:" : "You block their weak hands:",
+            text: `${pct(p.strong)} of the strong, ${pct(p.weak)} of the weak.`,
+          };
+        case "blockers":
+          return { lead: "You block", text: `${names(p.blockers, analysisEn.handFacts.blockers)}.` };
+        case "rivers-weak":
+          return { lead: `${pct(p.share)} of rivers`, text: "turn your hand into a loser." };
+        case "rivers-strong":
+          return { lead: `${pct(p.share)} of rivers`, text: "make your hand strong." };
+        case "draws":
+          return { lead: "Draws:", text: `${names(p.draws, analysisEn.handFacts.draws)}.` };
+        case "spr":
+          return { lead: `SPR ${num(p.spr, 1)}:`, text: "the next bet commits you." };
+        case "capped":
+          return { lead: "Capped at Mistake:", text: "the ranges are estimated." };
+        case "estimate":
+          return { lead: "An estimate:", text: "multiway, not solved." };
+      }
+    },
+    groups: {
+      value: "Value",
+      thin: "Thin value",
+      bluff: "Bluffs",
+      raise: "Raise",
+      bet: "Bet",
+      call: "Call",
+      check: "Check",
+      fold: "Fold",
+    } as Record<string, string>,
+    showHand: (hand: string) => `Show ${hand} in the range`,
+    evOf: (label: string) => `EV of ${label.charAt(0).toLowerCase() + label.slice(1)}`,
+    details: "Details",
+    examples: "Example hands",
+  },
+  /** The range grid's hover: a class, then its combos. */
+  zoom: {
+    combos: (n: number) => `${num(n)} ${n === 1 ? "combo" : "combos"}`,
+    you: "you",
+    actions: { bet: "Bet", raise: "Raise", allin: "All-in", check: "Check", call: "Call", fold: "Fold" } as Record<string, string>,
+  },
+
   /** The analysis' own words, so a trainer answer reads like a graded decision of a real hand. */
   words: {
     grades: analysisEn.grades,

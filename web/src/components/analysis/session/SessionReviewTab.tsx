@@ -19,7 +19,6 @@
 
 import { kindOf, pinFormats } from "@rail/ui/hands/gameKind";
 import Link from "next/link";
-import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useCallback, useMemo, useState } from "react";
 import { shippedChartDeviations, type SessionQuery } from "@rail/ui/review/model";
 import { SessionReviewScreen, type HandLinkProps } from "@rail/ui/review/SessionReviewScreen";
@@ -34,6 +33,7 @@ import { AnalysisNav } from "../AnalysisNav";
 import { useAnalysisKind } from "../analysisKind";
 import { fromSessionQuery, parseSessionQuery, sessionQueryString } from "./sessionQuery";
 import "../../../styles/stats.css";
+import { KindSkeleton, SessionSkeleton, SkStatus } from "../ui/Skeleton";
 
 interface SessionReviewTabProps {
   initialQuery: Record<string, string | string[] | undefined>;
@@ -99,7 +99,10 @@ export function SessionReviewTab({ initialQuery, refreshToken = 0 }: SessionRevi
     return (
       <div className="stats">
         <AnalysisNav current="session" />
-        <RailLoader label={ui.review.loading} showLabel centered />
+        <SkStatus label={ui.review.loading}>
+          <KindSkeleton />
+          <SessionSkeleton />
+        </SkStatus>
       </div>
     );
   }
@@ -126,7 +129,9 @@ export function SessionReviewTab({ initialQuery, refreshToken = 0 }: SessionRevi
       }
       renderState={(kind, text) =>
         kind === "loading" ? (
-          <RailLoader label={text} showLabel centered />
+          <SkStatus label={text}>
+            <SessionSkeleton />
+          </SkStatus>
         ) : (
           <div
             className={kind === "error" ? "notice notice--error" : "card stats-empty"}

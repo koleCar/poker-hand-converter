@@ -102,6 +102,11 @@
   background: var(--surface-hover);
 }
 
+/* Delete: the danger colour, on hover too. */
+.danger {
+  color: var(--danger-fg);
+}
+
 .caret {
   color: var(--text-secondary);
   font-size: var(--font-size-xs);

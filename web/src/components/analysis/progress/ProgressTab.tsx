@@ -51,6 +51,7 @@ import an from "../ui/an.module.css";
 import { WhatChanged } from "../leaks/WhatChanged";
 import { TrendChart, type TrendChartPoint } from "./TrendChart";
 import "../../../styles/stats.css";
+import { ProgressSkeleton, SkStatus } from "../ui/Skeleton";
 
 const PROGRESS_MIGRATION = "supabase/migrations/20270201090000_analysis_leaks.sql";
 const DAY = 24 * 60 * 60 * 1000;
@@ -166,7 +167,9 @@ export function ProgressTab({ initialQuery, refreshToken = 0 }: ProgressTabProps
     return (
       <div className="stats">
         <Header />
-        <RailLoader label={t.loading} showLabel centered />
+        <SkStatus label={t.loading}>
+          <ProgressSkeleton />
+        </SkStatus>
       </div>
     );
   }

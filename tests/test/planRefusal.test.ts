@@ -9,7 +9,10 @@
  * - the bulk upload: a 402 is a `plan` failure with the cap's numbers, and a
  *   save that would go over the Free cap - refused **whole** by the server -
  *   is trimmed to the room left, so every hand that fits is saved, then
- *   pauses (`cap`) and resumes after an upgrade; duplicates cost nothing.
+ *   pauses (`cap`) and resumes after an upgrade; duplicates cost nothing;
+ * - the Free day's cap (`daily_cap`): read with its reset, the prompt's
+ *   words, the save trimmed to the day's room and paused (`daily`); a save
+ *   that starts from the room the page already knows asks for no more.
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -49,6 +52,13 @@ const capError = {
   hint: "hand_cap",
   details: CAP_DETAIL,
 };
+const RESETS = "2026-11-20T00:00:00Z";
+const dailyError = {
+  code: "PT402",
+  message: "You have saved today's hands on the Free plan. The rest saves after the daily reset, or now with Pro.",
+  hint: "daily_cap",
+  details: JSON.stringify({ cap: 500, savedToday: 480, attempted: 100, resetsAt: RESETS }),
+};
 const proError = { code: "PT402", message: "This is a Pro feature. Upgrade to Pro to use it.", hint: "analysis", details: null };
 
 describe("a plan refusal, read", () => {
@@ -62,6 +72,17 @@ describe("a plan refusal, read", () => {
     expect(allowanceOf(planRefusalOf(capError))).toBe(10);
     expect(allowanceOf(planRefusalOf({ ...capError, details: JSON.stringify({ cap: 5, stored: 9, attempted: 1 }) }))).toBe(0);
     expect(allowanceOf(null)).toBe(0);
+  });
+
+  it("the day's cap: its numbers (saved today as `stored`) and the reset", () => {
+    expect(planRefusalOf(dailyError)).toEqual({
+      feature: "daily_cap",
+      cap: { cap: 500, stored: 480, attempted: 100 },
+      resetsAt: RESETS,
+      message: dailyError.message,
+    });
+    expect(allowanceOf(planRefusalOf(dailyError))).toBe(20);
+    expect(planRefusalOf({ ...dailyError, details: JSON.stringify({ cap: 500, savedToday: 1, attempted: 1, resetsAt: "soon" }) })).not.toHaveProperty("resetsAt");
   });
 
   it("only PT402 is one; odd hints and details are dropped, not trusted", () => {
@@ -112,6 +133,8 @@ describe("rpc(): the one handler", () => {
       expect(feature).toEqual({ heading: dict.planNotice.prompt.heading, body: dict.plan.lock.body.analysis });
       const cap = promptText(planRefusalOf(capError) as PlanRefusal, dict, count);
       expect(cap).toEqual({ heading: dict.planNotice.prompt.capHeading, body: dict.planNotice.prompt.cap("10000") });
+      const day = promptText(planRefusalOf(dailyError) as PlanRefusal, dict, count);
+      expect(day).toEqual({ heading: dict.planNotice.prompt.dailyHeading, body: dict.planNotice.prompt.daily("500") });
       const unknown = promptText({ feature: null, cap: null, message: "" }, dict, count);
       expect(unknown.body).toBe(dict.planNotice.prompt.generic);
     }
@@ -137,7 +160,7 @@ function batch(key: string, ids: string[], index = 0): StreamBatch {
  * whose *new* rows would put the library over the cap is refused whole
  * (PT402, the cap's numbers in the detail); duplicates cost nothing.
  */
-function cappedServer(cap: number | null, already: string[] = []) {
+function cappedServer(cap: number | null, already: string[] = [], daily: { cap: number; savedToday: number } | null = null) {
   const stored = new Set(already.map((id) => `weplay:${id}`));
   const calls: number[] = [];
   let limit = cap;
@@ -147,6 +170,17 @@ function cappedServer(cap: number | null, already: string[] = []) {
     ingest: async (_source, rows: IngestRow[]) => {
       calls.push(rows.length);
       const fresh = rows.filter((row) => !stored.has(row.hand_key));
+      if (daily && daily.savedToday + fresh.length > daily.cap) {
+        throw new UploadError(
+          "plan",
+          "ingest_hands: You have saved today's hands on the Free plan.",
+          planRefusalOf({
+            ...dailyError,
+            details: JSON.stringify({ cap: daily.cap, savedToday: daily.savedToday, attempted: fresh.length, resetsAt: RESETS }),
+          }),
+        );
+      }
+      if (daily) daily.savedToday += fresh.length;
       if (limit !== null && stored.size + new Set(fresh.map((r) => r.hand_key)).size > limit) {
         throw new UploadError(
           "plan",
@@ -172,8 +206,9 @@ function cappedServer(cap: number | null, already: string[] = []) {
   return { api, stored, calls, upgrade: () => (limit = null) };
 }
 
-function saverOn(api: UploadApi) {
+function saverOn(api: UploadApi, initialRoom: number | null = null) {
   return createBulkSaver({
+    initialRoom,
     api,
     store: memoryManifestStore(),
     manifest: newManifest("user-1", [{ path: "export.zip", size: 1 }], "upload-cap"),
@@ -266,5 +301,42 @@ describe("the bulk save at the Free cap", () => {
     expect(paused.pauseReason).toBe("plan");
     expect(paused.refused).toBe(0);
     expect(paused.queued).toBe(5);
+  });
+});
+
+describe("the bulk save at the Free day's cap", () => {
+  it("saves what fits today, then pauses with `daily` and the reset", async () => {
+    const server = cappedServer(null, [], { cap: 10, savedToday: 6 });
+    const saver = saverOn(server.api);
+    saver.addBatch(batch("k1", ids("new", 30)));
+    saver.close();
+    const paused = await saver.idle();
+    expect(paused.state).toBe("paused");
+    expect(paused.pauseReason).toBe("daily");
+    expect(paused.inserted).toBe(4);
+    expect(paused.resetsAt).toBe(RESETS);
+    expect(paused.cap).toEqual({ cap: 10, stored: 10 });
+    expect(paused.queued).toBe(26);
+  });
+
+  it("starts from the room the page knows: the first call asks for no more than fits", async () => {
+    const server = cappedServer(null, [], { cap: 10, savedToday: 6 });
+    const saver = saverOn(server.api, 4);
+    saver.addBatch(batch("k1", ids("new", 30)));
+    saver.close();
+    const paused = await saver.idle();
+    expect(server.calls[0]).toBe(4);
+    expect(paused.inserted).toBe(4);
+    expect(paused.pauseReason).toBe("daily");
+  });
+
+  it("no room known (Pro, enforcement off): the usual calls", async () => {
+    const server = cappedServer(null);
+    const saver = saverOn(server.api, null);
+    saver.addBatch(batch("k1", ids("new", 30)));
+    saver.close();
+    const done = await saver.idle();
+    expect(done.state).toBe("done");
+    expect(server.calls).toEqual([30]);
   });
 });

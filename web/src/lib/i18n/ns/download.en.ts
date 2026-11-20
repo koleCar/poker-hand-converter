@@ -5,33 +5,41 @@
 export const downloadEn = {
   metaTitle: "Download the Rail app for macOS and Windows | Rail",
   metaDescription:
-    "Rail's desktop tracker and HUD: imports every hand as you play, puts live stats on the table and syncs with your account. Part of Rail Pro, for macOS and Windows.",
+    "Rail's desktop tracker, HUD and study tools: imports every hand as you play, puts live stats on the table, tiles your tables, and brings a solver, nodelocks and a trainer to your own hands. Part of Rail Pro, for macOS and Windows.",
 
   /** The link in the bar, and its name for a screen reader. */
   getApp: "Get the app",
   getAppLabel: "Download the Rail desktop app",
 
   heading: "Rail on your computer",
-  lede: "A poker tracker and HUD that runs beside your poker room. Rail watches the room's hand-history folder, imports every hand as you play, shows live stats over the table and keeps your library in sync with rail on the web.",
+  lede: "A poker tracker, HUD and study tool that runs beside your poker room. Rail imports every hand as you play, shows live stats over your tables, and puts a solver and a trainer next to your own hands, in sync with rail on the web.",
   promoAlt:
-    "The Rail desktop app: a poker table with HUD stats over every seat, a winnings graph and new hands being imported.",
+    "The Rail desktop app: a solver strategy with a locked node, four tiled tables with HUD stats and an RNG box, a graded trainer spot, leaks ranked by EV lost and new hands being imported.",
 
   features: [
     {
-      title: "Automatic import",
-      body: "Point Rail at your poker room once. Every new hand lands in your library seconds after it ends, old hands included.",
+      title: "Import and live HUD",
+      body: "Point Rail at your poker room once. Every hand lands in your library seconds after it ends, with VPIP, PFR, 3-bet and more over every seat in rooms that allow a HUD.",
     },
     {
-      title: "Live HUD",
-      body: "VPIP, PFR, 3-bet and more over every seat, in the rooms whose rules allow a HUD.",
+      title: "Tiled tables and an RNG",
+      body: "Rail lays your tables out on any monitor, re-tiles them on a hotkey and keeps an RNG box in the corner you can drag, resize and lock.",
     },
     {
-      title: "Replayer, reports, analysis",
-      body: "Step through any hand, filter results by stake, position and session, and see your leaks ranked by EV lost.",
+      title: "Solver and nodelocks",
+      body: "Open any flop from the solver library and see every combo's frequency and EV. Lock how a player really plays and re-solve the spot on your own computer.",
+    },
+    {
+      title: "Trainer",
+      body: "Play single spots or whole hands against the solver, graded with the strategy and why. “For you” deals the spots where you lose the most.",
+    },
+    {
+      title: "Analysis and review",
+      body: "Leaks ranked by EV lost, EV for every option in a hand, and one filter row across Hands, Reports and Analysis. Mark hands for review and step through them in the replayer.",
     },
     {
       title: "Yours, offline too",
-      body: "Hands are stored on your computer and work without a connection. Sign in to sync them with the web and share them to the forum.",
+      body: "Hands are stored on your computer and work without a connection. Sign in to sync them with the web and post them to the forum.",
     },
   ],
 

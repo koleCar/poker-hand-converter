@@ -11,6 +11,7 @@
  * analysis report (`withVersion` in `analysis.ts`).
  */
 
+import { potKindOfScenario, type PotKindOf } from "../analysis/potKinds";
 import { ANALYSIS_VERSION } from "../analysis";
 import type { HandsPot, LeakTable, SpotRow, TrendRow } from "../analysis/leaks";
 import type { OptionAnalysis } from "../analysis/types";
@@ -63,7 +64,12 @@ export interface LeaksReport {
   facets: ReportFacets;
 }
 
-export async function fetchLeaks(filters: AnalysisFilters = {}): Promise<LeaksReport | null> {
+/**
+ * The leak finder's spots. `potKind` (analysis/45): heads-up spots only by
+ * default - multiway and bomb pots have their own Analysis pages - or `mw`
+ * for the Multiway page's spots, `null` for every one.
+ */
+export async function fetchLeaks(filters: AnalysisFilters = {}, potKind: PotKindOf | null = "hu"): Promise<LeaksReport | null> {
   if (!(await currentUserId())) {
     return null;
   }
@@ -96,7 +102,7 @@ export async function fetchLeaks(filters: AnalysisFilters = {}): Promise<LeaksRe
       evLossPot: num(row.evLossPot),
       scoreSum: num(row.scoreSum),
       scoreSq: num(row.scoreSq),
-    })),
+    })).filter((row) => potKind === null || potKindOfScenario(row.scenario) === potKind),
     facets: facetsOf(payload.facets),
   };
 }

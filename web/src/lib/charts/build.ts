@@ -297,7 +297,10 @@ export function buildChartSet(solver: PreflopSolver, options: BuildChartOptions)
       for (let a = 0; a < count; a += 1) freq[a * H + i] = a === best ? 1 : 0;
     }
     out.freq = encodeFreq(freq, count);
-    out.ev = encodeEv(ev.subarray(off, off + count * H));
+    // With an ante, net from the start of the hand: the solver's values leave
+    // out the ante every seat has sunk (a constant), the format's include it.
+    const evs = ev.subarray(off, off + count * H);
+    out.ev = encodeEv(tree.ante ? evs.map((x) => x - tree.ante) : evs);
     out.range = encodeUnit(reach.subarray(actor * H, actor * H + H));
     return out;
   };
@@ -313,7 +316,9 @@ export function buildChartSet(solver: PreflopSolver, options: BuildChartOptions)
       format: "cash" as const,
       players: n,
       positions: [...positions],
-      stackBb: tree.stackBb,
+      // An ante set's depth is the stack before the ante (`game.ante`), as a hand's starting stack is.
+      stackBb: tree.ante ? Math.round((tree.stackBb + tree.ante) * 1e6) / 1e6 : tree.stackBb,
+      ...(tree.ante ? { ante: tree.ante } : {}),
       ...(tree.straddle ? { straddle: { position: tree.straddle.position as ChartPosition, bb: tree.straddle.bb } } : {}),
     },
     model: {

@@ -98,6 +98,21 @@
   gap: var(--space-3);
 }
 
+/* analysis/45: a bomb pot's badge beside the board. */
+.bombBadge {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-pill);
+  background: var(--warning-bg);
+  color: var(--warning-on-tint);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
 .seat {
   padding: 2px var(--space-2);
   border: 1px solid var(--border-default);
@@ -174,12 +189,18 @@
   text-transform: uppercase;
 }
 
+/* Every chip as tall as the tallest on the strip, so a chip with a better play under it does not stand out. */
 .chips {
   display: flex;
+  flex: 1;
   gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.chips > li {
+  display: flex;
 }
 
 /* One decision: its grade's colour along the left edge, the action, what it cost. */
@@ -187,8 +208,10 @@
   --tone: var(--border-strong);
   display: flex;
   flex-direction: column;
+  flex: 1;
+  justify-content: flex-start;
   gap: 2px;
-  min-inline-size: 7.5rem;
+  min-inline-size: 9.5rem;
   padding: var(--space-2) var(--space-3);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-2);
@@ -464,6 +487,40 @@
 .whyLead {
   color: var(--text-primary);
   font-weight: 500;
+}
+
+/* The why in short: a few points under the verdict. */
+.whyPoints {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: var(--space-2) 0 0;
+  padding-inline-start: var(--space-4);
+}
+
+.whyPoints li::marker {
+  color: var(--text-tertiary);
+}
+
+/* The full reasoning, folded away. */
+.whyFull {
+  margin-block-start: var(--space-3);
+  color: var(--text-tertiary);
+}
+
+.whyFull summary {
+  inline-size: fit-content;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+
+.whyFull summary:hover {
+  color: var(--text-primary);
+}
+
+.whyFull p {
+  margin-block-start: var(--space-2);
 }
 
 .facts {

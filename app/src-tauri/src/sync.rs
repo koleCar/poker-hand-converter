@@ -56,6 +56,20 @@ impl SyncState {
         }
     }
 
+    /// (Free tier) What the plan has room for (`SyncWorker::set_plan_room`).
+    pub fn set_plan_room(&self, room: Option<rail_sync::worker::PlanRoom>) {
+        if let Some(worker) = &self.worker {
+            worker.set_plan_room(room);
+        }
+    }
+
+    /// Look again now (hands were deleted: the worker sends the deletions).
+    pub fn wake(&self) {
+        if let Some(worker) = &self.worker {
+            worker.wake();
+        }
+    }
+
     /// Stop the worker (on exit): it lets go of the store's writer at once.
     pub fn stop(&self) {
         if let Some(worker) = &self.worker {
@@ -204,6 +218,8 @@ pub fn tray_line(status: Option<&SyncStatus>) -> String {
         SyncPhase::RateLimited { .. } => text.sync_rate_limited.to_owned(),
         SyncPhase::Failed { .. } => text.sync_failed.to_owned(),
         SyncPhase::PlanRequired { .. } => text.sync_plan.to_owned(),
+        SyncPhase::DailyCap { .. } => text.sync_daily_cap.to_owned(),
+        SyncPhase::LibraryFull { .. } => text.sync_library_full.to_owned(),
     }
 }
 

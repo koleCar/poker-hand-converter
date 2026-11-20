@@ -287,6 +287,8 @@ pub struct LeakFiltersDto {
     game_kind: Option<String>,
     position: Option<String>,
     pot_type: Option<String>,
+    /// `hu`, `mw` or `bomb` (analysis/45); none: every pot.
+    pot_kind: Option<String>,
 }
 
 impl From<LeakFiltersDto> for rail_store::leaks::LeakFilters {
@@ -297,6 +299,7 @@ impl From<LeakFiltersDto> for rail_store::leaks::LeakFilters {
             game_kind: keep(dto.game_kind),
             position: keep(dto.position).map(|p| p.trim().to_uppercase()),
             pot_type: keep(dto.pot_type),
+            pot_kind: keep(dto.pot_kind),
         }
     }
 }
@@ -463,4 +466,36 @@ pub async fn leak_examples(
             ev_loss_pot: e.ev_loss_pot,
         })
         .collect())
+}
+
+/// The multiway hands' sums (analysis/45: the Analysis screen's Multiway tab).
+#[tauri::command]
+pub async fn multiway_summary(
+    store: State<'_, StoreState>,
+    version: String,
+) -> Result<rail_store::pot_kinds::MultiwaySummary, String> {
+    open(&store)?
+        .reader()
+        .multiway_summary(&version)
+        .map_err(text)
+}
+
+/// The costliest graded decisions of one pot kind (`mw` or `bomb`).
+#[tauri::command]
+pub async fn pot_kind_decisions(
+    store: State<'_, StoreState>,
+    version: String,
+    kind: String,
+    limit: usize,
+) -> Result<Vec<rail_store::pot_kinds::PotKindDecision>, String> {
+    open(&store)?
+        .reader()
+        .pot_kind_decisions(&version, &kind, limit)
+        .map_err(text)
+}
+
+/// Every stored bomb pot's PHF, for the window's Bomb pots tab to sum.
+#[tauri::command]
+pub async fn bomb_pot_phfs(store: State<'_, StoreState>) -> Result<Vec<String>, String> {
+    open(&store)?.reader().bomb_pot_phfs().map_err(text)
 }

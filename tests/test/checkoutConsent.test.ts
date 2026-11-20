@@ -2,8 +2,9 @@
  * The consent before Stripe Checkout (Rail R6.3 addendum; EU consumer law,
  * Directive 2011/83/EU art. 16(m), the Croatian ZZP):
  *
- * - the upgrade step's two checkboxes, unticked, both required, the terms
- *   linked, Checkout offered only with both ticked - in English and Croatian;
+ * - the confirmation's two checkboxes (`/pricing`, `CheckoutDialog`),
+ *   unticked, both required, the terms linked, Checkout offered only with
+ *   both ticked - in English and Croatian;
  * - the page never asks the function without both (`startCheckout`);
  * - the wording the page shows is the wording the server records: the
  *   version the page sends is one `billing-checkout` knows, and the hash
@@ -28,7 +29,7 @@ import {
   parseBillingOffer,
   startCheckout,
 } from "../../web/src/lib/billing/checkout.js";
-import { ConsentFields, UpgradeChooser } from "../../web/src/components/plan/PlanPanel.js";
+import { CheckoutDialog, ConsentFields } from "../../web/src/components/plan/CheckoutDialog.js";
 import { BillingSuccessView } from "../../web/src/components/plan/BillingReturn.js";
 import { I18nProvider } from "../../web/src/lib/i18n/client.js";
 import { planEn } from "../../web/src/lib/i18n/ns/plan.en.js";
@@ -48,17 +49,19 @@ const docs = new URL("../../docs/legal/", import.meta.url);
 const OFFER = parseBillingOffer({
   available: true,
   prices: {
-    month: { amount: 699, currency: "eur", interval: "month", taxInclusive: true },
-    year: { amount: 5999, currency: "eur", interval: "year", taxInclusive: true },
+    month: { amount: 2500, currency: "usd", interval: "month", taxInclusive: false },
+    half_year: { amount: 11900, currency: "usd", interval: "half_year", taxInclusive: false },
+    year: { amount: 19900, currency: "usd", interval: "year", taxInclusive: false },
   },
-  earlyDiscountPercent: null,
 });
 
 const render = (locale: "en" | "hr", node: ReturnType<typeof createElement>) =>
   renderToStaticMarkup(createElement(I18nProvider, { locale }, node));
 const chooser = (locale: "en" | "hr", initialConsent = NO_CONSENT) =>
-  render(locale, createElement(UpgradeChooser, { offer: OFFER, earlyUser: false, enforced: true, initialConsent }));
-const upgradeButton = (html: string) => /<button type="button" class="btn btn--primary"[^>]*>[^<]*<\/button>/.exec(html)?.[0] ?? "";
+  render(locale, createElement(CheckoutDialog, { period: "year", prices: OFFER.prices, onClose: () => undefined, initialConsent }));
+/** The pay button: the dialog's first button with a busy-label inside. */
+const upgradeButton = (html: string) =>
+  /<button type="button" class="btn [^"]*"[^>]*>(?:(?!<\/button>).)*(?:Continue to payment|Nastavi na plaćanje)(?:(?!<\/button>).)*<\/button>/.exec(html)?.[0] ?? "";
 const checkboxes = (html: string) => html.match(/<input type="checkbox"[^>]*>/g) ?? [];
 
 describe("the upgrade step's consent", () => {
@@ -93,7 +96,7 @@ describe("the upgrade step's consent", () => {
     const both = chooser("en", { terms: true, immediatePerformance: true });
     expect(checkboxes(both).filter((b) => b.includes("checked"))).toHaveLength(2);
     expect(upgradeButton(both)).not.toContain("disabled");
-    expect(upgradeButton(both)).toContain("Upgrade to Pro");
+    expect(upgradeButton(both)).toContain("Continue to payment");
     expect(both).not.toContain("Tick both boxes");
   });
 
@@ -110,7 +113,16 @@ describe("the upgrade step's consent", () => {
     expect(html).not.toContain("Terms of Use");
     const both = chooser("hr", { terms: true, immediatePerformance: true });
     expect(upgradeButton(both)).not.toContain("disabled");
-    expect(upgradeButton(both)).toContain("Prijeđi na Pro");
+    expect(upgradeButton(both)).toContain("Nastavi na plaćanje");
+  });
+
+  it("shows the chosen period's price today and after, the three periods to switch", () => {
+    const html = chooser("en", NO_CONSENT);
+    expect(html).toContain("Rail Pro");
+    expect(html).toContain("$199.00");
+    expect(html).toContain("Then $199 every year until you cancel.");
+    for (const label of ["Monthly", "6 months", "Yearly"]) expect(html).toContain(label);
+    expect(html).toMatch(/aria-pressed="true"[^>]*>Yearly/);
   });
 
   it("the boxes are disabled while the payment page opens", () => {

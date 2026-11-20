@@ -221,6 +221,41 @@ fn pending_walks_every_hand_once_newest_first() {
         (counts.current, counts.missing()),
         (done.len() as u64, left.len() as u64)
     );
+    // Month by month: newest first, the same hands, the same analysed ones.
+    let months = store.reader().analysis_months(V1).expect("months");
+    assert!(months.len() > 1, "the corpus spans months: {months:?}");
+    assert!(
+        months
+            .windows(2)
+            .all(|w| w[1].month.is_empty() || w[0].month > w[1].month)
+    );
+    assert!(
+        months
+            .iter()
+            .all(|m| m.month.is_empty() || m.month.len() == 7)
+    );
+    assert_eq!(
+        months.iter().map(|m| m.hands).sum::<u64>(),
+        expected.len() as u64
+    );
+    assert_eq!(
+        months.iter().map(|m| m.current).sum::<u64>(),
+        done.len() as u64
+    );
+    let newest = &months[0].month;
+    let in_newest = expected
+        .iter()
+        .filter(|key| {
+            conn.query_row(
+                "SELECT substr(played_at, 1, 7) FROM hand_list WHERE hand_key = ?1",
+                [key.as_str()],
+                |row| row.get::<_, String>(0),
+            )
+            .expect("listed")
+                == *newest
+        })
+        .count();
+    assert_eq!(months[0].hands, in_newest as u64);
 
     // A version bump: every hand is pending again, the old rows are stale.
     assert_eq!(walk(&store, V2, 200), expected);
@@ -1480,6 +1515,7 @@ fn the_top_leaks_sum_the_leak_rows_by_spot() {
         game_kind: None,
         position: Some("BTN".to_owned()),
         pot_type: Some("4bet+".to_owned()),
+        pot_kind: None,
     };
     let filtered = reader.top_leaks(V1, &filters, "all").expect("top");
     let keep = |s: &Saved| s.format == format && s.position == "BTN" && s.pot == "4bet+";
@@ -1514,6 +1550,31 @@ fn the_top_leaks_sum_the_leak_rows_by_spot() {
         0,
         "a format outside its kind: none"
     );
+    // The pot kinds (analysis/45): these rows are all heads-up, no bomb pot.
+    let kind = |k: &str| LeakFilters {
+        pot_kind: Some(k.to_owned()),
+        ..LeakFilters::default()
+    };
+    assert_eq!(
+        reader
+            .top_leaks(V1, &kind("hu"), "all")
+            .expect("top")
+            .sample,
+        top.sample,
+        "heads-up: every row here"
+    );
+    for k in ["mw", "bomb"] {
+        assert_eq!(
+            reader
+                .top_leaks(V1, &kind(k), "all")
+                .expect("top")
+                .sample
+                .graded,
+            0,
+            "{k}: none here"
+        );
+    }
+    assert!(reader.top_leaks(V1, &kind("other"), "all").is_err());
     // Another version has no rows.
     let none = reader.top_leaks("analysis/1", &all, "all").expect("top");
     assert_eq!(none.last, None);
@@ -1736,8 +1797,8 @@ fn migration_20_gives_postflop_leak_rows_their_table() {
     store.close();
     let before = leak_rows(&conn);
     assert_eq!(before.len(), hands.len() * 3);
-    // Versions 22 and 24's tables and version 23's columns go too (back to 19).
-    conn.execute_batch("DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings;
+    // Versions 22, 24, 25 and 26's tables and version 23's columns go too (back to 19).
+    conn.execute_batch("DROP TABLE IF EXISTS deleted_hands; DROP TABLE IF EXISTS node_lock_folders; DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings;
          ALTER TABLE hand_list DROP COLUMN hero_bluff; ALTER TABLE hand_list DROP COLUMN vs_bluff;
          ALTER TABLE recompute_list DROP COLUMN hero_bluff; ALTER TABLE recompute_list DROP COLUMN vs_bluff;")
         .expect("version 21's table");
@@ -1770,8 +1831,8 @@ fn migration_20_gives_postflop_leak_rows_their_table() {
     assert!(tables.len() >= 2, "tables: {tables:?}");
 
     // Again from 19: nothing more to set.
-    // Versions 22 and 24's tables and version 23's columns go too (back to 19).
-    conn.execute_batch("DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings;
+    // Versions 22, 24, 25 and 26's tables and version 23's columns go too (back to 19).
+    conn.execute_batch("DROP TABLE IF EXISTS deleted_hands; DROP TABLE IF EXISTS node_lock_folders; DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings;
          ALTER TABLE hand_list DROP COLUMN hero_bluff; ALTER TABLE hand_list DROP COLUMN vs_bluff;
          ALTER TABLE recompute_list DROP COLUMN hero_bluff; ALTER TABLE recompute_list DROP COLUMN vs_bluff;")
         .expect("version 21's table");

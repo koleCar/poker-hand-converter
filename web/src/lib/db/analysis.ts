@@ -106,6 +106,12 @@ export interface AnalysisFilters {
    * only the hands the list shows (`analysis_hand_ids`).
    */
   hands?: Record<string, unknown>;
+  /**
+   * analysis/45-46: `hu` leaves bomb pots out (20271119240000); the Overview,
+   * Trends and Reports send it, bomb pots and multiway pots having pages of
+   * their own. Absent: every pot.
+   */
+  potKind?: "hu";
 }
 
 /**

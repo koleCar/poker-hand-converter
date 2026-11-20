@@ -24,7 +24,7 @@ import { fetchTopLeaks, spotRow, topOf } from "../../app/src/lib/leaksSource";
 import { reviewHand, storeReviewSource, storeSessionChartsSource } from "../../app/src/lib/reviewSource";
 import { HandAnalysisView, type Loaded } from "../../app/src/screens/analysis/HandAnalysis";
 import { TopLeaksBody } from "../../app/src/screens/analysis/TopLeaks";
-import { describeStatus, progressOf } from "../../app/src/screens/analysis/status";
+import { describeStatus, monthsOf, progressOf } from "../../app/src/screens/analysis/status";
 import { parseView, tabOf, viewParam, type AnalysisView } from "../../app/src/screens/analysis/view";
 import { ANALYSIS_VERSION, analyzeHand, type HandAnalysis } from "../../web/src/lib/analysis/index";
 import { loadCharts } from "../../web/src/lib/charts/index";
@@ -44,6 +44,8 @@ describe("the analysis' views in the address", () => {
       { kind: "session", at: null, gap: 30 },
       { kind: "session", at: "2026-02-20T21:15:00.000Z", gap: 60 },
       { kind: "leaks", period: "all" },
+      { kind: "multiway" },
+      { kind: "bomb" },
       { kind: "hand", key: "pokerstars:123/4?x=1", actionIndex: 7, back: "session?at=2026-02-20T21%3A15%3A00.000Z" },
       { kind: "hand", key: "k", actionIndex: null, back: null },
     ];
@@ -57,6 +59,9 @@ describe("the analysis' views in the address", () => {
     // A hand belongs to the tab it was opened from.
     expect(tabOf(parseView(viewParam({ kind: "hand", key: "k", actionIndex: 1, back: "leaks" })))).toBe("leaks");
     expect(tabOf(parseView(viewParam({ kind: "hand", key: "k", actionIndex: 1, back: null })))).toBe("session");
+    // analysis/45: a hand opened from the Bomb pots or Multiway tab goes back there.
+    expect(tabOf(parseView(viewParam({ kind: "hand", key: "k", actionIndex: 1, back: "bomb" })))).toBe("bomb");
+    expect(tabOf(parseView(viewParam({ kind: "hand", key: "k", actionIndex: 1, back: "multiway" })))).toBe("multiway");
   });
 });
 
@@ -66,6 +71,9 @@ describe("the background run's line", () => {
     reason: null,
     paused: false,
     counts: { hands: 1204, current: 300, stale: 0, missing: 904, offline: 0, notAnalysable: 2 },
+    months: null,
+    month: null,
+    focus: null,
     analysed: 300,
     failed: 0,
     handsPerSecond: 2.4,
@@ -80,7 +88,15 @@ describe("the background run's line", () => {
     // Running: the bar says it all, no line beside it.
     expect(lines(base, en)).toEqual([]);
     const progress = progressOf(base);
-    expect(progress).toEqual({ done: 300, left: 904, total: 1204, share: 300 / 1204, minutes: 6 });
+    expect(progress).toEqual({
+      month: null,
+      done: 300,
+      left: 904,
+      total: 1204,
+      share: 300 / 1204,
+      minutes: 6,
+      all: { left: 904, total: 1204, minutes: 6 },
+    });
     expect(en.analysis.status.left(904, 1204)).toBe("904 of 1,204 hands left");
     expect(hr.analysis.status.left(904, 1204)).toBe("još 904 od 1.204 ruke");
     expect(en.analysis.status.eta(6)).toBe("about 6 min");
@@ -90,6 +106,32 @@ describe("the background run's line", () => {
     // Not running: no bar.
     expect(progressOf({ ...base, phase: "waiting", reason: "tables" })).toBeNull();
     expect(progressOf({ ...base, phase: "idle", counts: { ...base.counts!, current: 1204, missing: 0 } })).toBeNull();
+  });
+
+  it("shows the month under way, every month's state, and the whole store beside them", () => {
+    const months = [
+      { month: "2026-11", hands: 400, current: 400 },
+      { month: "2026-10", hands: 500, current: 200 },
+      { month: "2026-09", hands: 304, current: 0 },
+    ];
+    const status: RunnerStatus = { ...base, months, month: "2026-10" };
+    const progress = progressOf(status);
+    expect(progress).toMatchObject({ month: "2026-10", done: 200, left: 300, total: 500, share: 0.4, minutes: 2 });
+    expect(progress?.all).toEqual({ left: 904, total: 1204, minutes: 6 });
+    expect(monthsOf(status).map((m) => [m.month, m.state, m.left])).toEqual([
+      ["2026-11", "done", 0],
+      ["2026-10", "now", 300],
+      ["2026-09", "waiting", 304],
+    ]);
+    // A month sent to the front is the one under way from then on.
+    expect(monthsOf({ ...status, focus: "2026-09" }).map((m) => m.state)).toEqual(["done", "waiting", "now"]);
+    expect(progressOf({ ...status, focus: "2026-09" })?.month).toBe("2026-09");
+    // The last page's month done: the next older one with hands left.
+    expect(progressOf({ ...status, months: [months[0]!, { ...months[1]!, current: 500 }, months[2]!] })?.month).toBe("2026-09");
+    expect(en.analysis.status.analysing("2026-09")).toBe("Analysing September 2026");
+    expect(hr.analysis.status.analysing("2026-09")).toBe("Analiziram: rujan 2026.");
+    expect(en.analysis.status.month("2026-09")).toBe("Sept 2026");
+    expect(en.analysis.status.month("")).toBe("No date");
   });
 
   it("says why it waits, in both languages", () => {

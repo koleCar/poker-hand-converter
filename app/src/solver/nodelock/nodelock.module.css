@@ -1,50 +1,17 @@
-/* The nodelock outside its editor: the action on a decision's card, the
-   banners above the library's view, My nodelocks, and the sidebar's card. */
+/* The nodelock outside its editor, in the Solver library's look ("Studio",
+   SV-A): the lock marks and their popover, the Library | My nodelocks
+   switch's spinner, and the sidebar's card. The toolbar's controls are the
+   library's own (`ToolButton`, `Switch`). */
 
-.nodeAction {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.nodeAction svg {
-  inline-size: 0.85rem;
-  block-size: 0.85rem;
+.screen {
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
 }
 
 .muted {
   color: var(--text-tertiary);
   font-size: var(--font-size-sm);
-}
-
-/* A solve running at this spot: a quiet line, the view stays usable. */
-.progress {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-2);
-  background: var(--surface-raised);
-}
-
-.progressText {
-  display: grid;
-  flex: 1;
-  gap: 2px;
-  min-inline-size: 0;
-  font-size: var(--font-size-sm);
-  font-variant-numeric: tabular-nums;
-}
-
-.spinner {
-  flex: none;
-  inline-size: 1rem;
-  block-size: 1rem;
-  border: 2px solid var(--border-default);
-  border-block-start-color: var(--warning-fg);
-  border-radius: 50%;
-  animation: spin 0.9s linear infinite;
 }
 
 @keyframes spin {
@@ -53,339 +20,275 @@
   }
 }
 
-/* The Nodelocked banner: amber, the lock's summary, the way back. */
-.banner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-4);
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--warning-border);
-  border-radius: var(--radius-2);
-  background: var(--warning-bg);
-}
-
-/* Off the locked decision in My nodelocks: the view is GTO, said quietly. */
-.bannerOff {
-  border-color: var(--border-subtle);
-  background: var(--surface-raised);
-}
-
-.tag {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: 2px var(--space-2);
-  border-radius: var(--radius-pill);
-  background: var(--warning-fg);
-  color: var(--surface-base);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: var(--letter-spacing-wide);
-  text-transform: uppercase;
-}
-
-.tag svg {
-  inline-size: 0.75rem;
-  block-size: 0.75rem;
-}
-
-.bannerText {
-  display: grid;
-  flex: 1;
-  gap: 2px;
-  min-inline-size: 14rem;
-  font-size: var(--font-size-sm);
-}
-
-.shifts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 var(--space-3);
-  color: var(--warning-on-tint);
-  font-variant-numeric: tabular-nums;
-}
-
-.bannerTools {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-}
-
-.pressed {
-  border-color: var(--warning-border);
-  background: var(--warning-bg);
-  color: var(--warning-fg);
-}
-
-/* The Solver tab's switch: the library, My nodelocks. */
-.screen {
-  display: grid;
-  gap: var(--space-3);
-  min-inline-size: 0;
-}
-
-/* One joined pill, like Cash | Tournaments (`KindToggle.module.css`), a
-   size up: the two sides with a line between, the active one filled. */
-.switch {
-  display: inline-flex;
-  justify-self: start;
-  overflow: hidden;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-pill);
-  background: var(--surface-raised);
-}
-
-.switchTab {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-5);
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: var(--font-size-base);
-  cursor: pointer;
-}
-
-.switchTab + .switchTab {
-  border-inline-start: 1px solid var(--border-default);
-}
-
-.switchTab svg {
-  inline-size: 0.9rem;
-  block-size: 0.9rem;
-}
-
-.switchTab:hover {
-  color: var(--text-primary);
-}
-
-.switchTab[aria-selected="true"] {
-  background: var(--surface-selected);
-  color: var(--text-on-selected);
-  font-weight: var(--font-weight-semibold);
-  cursor: default;
-}
-
+/* My nodelocks' tab while a lock solves. */
 .tabSpinner {
-  inline-size: 0.8rem;
-  block-size: 0.8rem;
-  border: 2px solid currentColor;
+  inline-size: 11px;
+  block-size: 11px;
+  border: 2px solid color-mix(in srgb, var(--warning-fg) 30%, transparent);
   border-block-start-color: var(--warning-fg);
   border-radius: 50%;
-  opacity: 0.8;
   animation: spin 0.9s linear infinite;
 }
 
-/* My nodelocks. */
-.history {
-  display: grid;
-  gap: var(--space-3);
-  min-inline-size: 0;
-}
-
-.historyBar {
-  display: flex;
-  flex-wrap: wrap;
+/* A locked action's lock (§7.3): after its label on the strip and in the panel. */
+.mark {
+  display: inline-flex;
+  flex: none;
   align-items: center;
-  gap: var(--space-2);
+  margin-inline-start: 4px;
+  color: var(--warning-fg);
+  cursor: help;
 }
 
-.search {
-  inline-size: min(100%, 22rem);
+.mark svg {
+  inline-size: 11px;
+  block-size: 11px;
+  stroke-width: 2.4;
 }
 
-.select {
-  max-inline-size: 18rem;
-}
-
-.empty {
-  display: grid;
-  justify-items: center;
-  gap: var(--space-2);
-  padding: var(--space-10) var(--space-4);
-  color: var(--text-secondary);
-}
-
-.empty p {
-  margin: 0;
-}
-
-.link {
-  color: var(--text-link);
-}
-
-.error {
-  margin: 0;
-  color: var(--danger-fg);
-  font-size: var(--font-size-sm);
-}
-
-.table {
-  inline-size: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-sm);
-}
-
-.table th {
-  padding: var(--space-1) var(--space-2);
-  border-block-end: 1px solid var(--border-subtle);
-  color: var(--text-tertiary);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  text-align: start;
-  white-space: nowrap;
-}
-
-.table td {
-  padding: var(--space-2);
-  border-block-end: 1px solid var(--border-subtle);
-  vertical-align: middle;
-}
-
-.row {
-  transition: background-color 0.12s ease;
-}
-
-.rowOpen {
+/* The locked card's corner (the card keeps room for it: `pcardLocked`). */
+.markCorner {
+  position: absolute;
+  inset-block-end: 5px;
+  inset-inline-end: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 19px;
+  block-size: 19px;
+  padding: 0;
+  border: 1px solid var(--warning-border);
+  border-radius: 50%;
+  background: var(--warning-bg);
+  color: var(--warning-fg);
   cursor: pointer;
 }
 
-.rowOpen:hover {
-  background: var(--surface-hover);
+.markCorner svg {
+  inline-size: 10px;
+  block-size: 10px;
+  stroke-width: 2.4;
 }
 
-.rowOpen:hover .nameButton {
+.markCorner:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.mark:hover,
+.mark.markOn {
+  color: var(--text-primary);
+}
+
+.markCorner:hover,
+.markCorner.markOn {
+  border-color: var(--warning-fg);
+}
+
+/* The lock popover: how a decision is locked, as the library's panels. */
+.popover {
+  position: fixed;
+  z-index: var(--z-tooltip);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-4);
+  background: var(--surface-raised-2);
+  box-shadow: var(--elevation-3);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.popover p {
+  margin: 0;
+}
+
+.popHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.popLock {
+  display: inline-flex;
+  flex: none;
+  color: var(--warning-fg);
+}
+
+.popLock svg {
+  inline-size: 13px;
+  block-size: 13px;
+}
+
+.popTitle {
+  flex: 1;
+  min-inline-size: 0;
+  font-weight: var(--font-weight-semibold);
+}
+
+.popFrom,
+.popMuted {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.popLink {
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--text-link);
+  font: inherit;
+  font-style: italic;
+  cursor: pointer;
 }
 
-.rowActive {
-  background: var(--warning-bg);
+.popLink:hover {
+  text-decoration: underline;
 }
 
-.check {
-  inline-size: 2rem;
+.popLink:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
 }
 
-.num {
+.popActions {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* An action: its name, its share as a bar with GTO's tick, `GTO x → y`. */
+.popActions li {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr) 6.25rem;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.popFree {
+  opacity: 0.6;
+}
+
+.popName {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-inline-size: 0;
+}
+
+.popLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.popLocked {
+  display: inline-flex;
+  flex: none;
+  color: var(--warning-fg);
+}
+
+.popLocked svg {
+  inline-size: 10px;
+  block-size: 10px;
+}
+
+.popDot {
+  flex: none;
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: 2px;
+}
+
+.popBar {
+  position: relative;
+  display: block;
+  block-size: 6px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--control-track);
+}
+
+.popBar > span:first-child {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  border-radius: 3px;
+}
+
+.popTick {
+  position: absolute;
+  inset-block: -1px;
+  inline-size: 2px;
+  margin-inline-start: -1px;
+  background: var(--text-primary);
+  opacity: 0.7;
+}
+
+.popNums {
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
   font-variant-numeric: tabular-nums;
   text-align: end;
   white-space: nowrap;
 }
 
-.table th.num {
-  text-align: end;
-}
-
-.nameCell {
-  max-inline-size: 22rem;
-}
-
-.nameButton {
-  padding: 0;
-  border: 0;
-  background: none;
+.popNums strong {
   color: var(--text-primary);
-  font: inherit;
-  font-weight: var(--font-weight-medium);
-  text-align: start;
-  cursor: pointer;
 }
 
-.rename {
+.popMore {
   display: flex;
-  gap: var(--space-1);
+  gap: var(--space-3);
+  align-items: flex-end;
 }
 
-.rename input {
-  min-inline-size: 12rem;
+.miniGrid {
+  display: grid;
+  flex: none;
+  grid-template-columns: repeat(13, 1fr);
+  gap: 1px;
+  inline-size: 9.5rem;
+  aspect-ratio: 1.15;
 }
 
-.spot {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  white-space: nowrap;
-}
-
-.status {
-  padding: 1px var(--space-2);
-  border-radius: var(--radius-pill);
+.miniCell {
+  display: flex;
+  overflow: hidden;
+  border-radius: 1px;
   background: var(--surface-inset);
-  color: var(--text-secondary);
-  font-size: var(--font-size-xs);
-  white-space: nowrap;
 }
 
-.status[data-status="solved"] {
-  background: var(--success-bg);
-  color: var(--success-fg);
+.miniCell > span {
+  block-size: 100%;
 }
 
-.status[data-status="solving"] {
-  background: var(--warning-bg);
-  color: var(--warning-fg);
-}
-
-.status[data-status="failed"] {
-  background: var(--danger-bg);
-  color: var(--danger-fg);
-}
-
-.rowTools {
-  white-space: nowrap;
-  text-align: end;
-}
-
-.row .rowTools > * {
-  opacity: 0;
-  transition: opacity 0.12s ease;
-}
-
-.row:hover .rowTools > *,
-.row:focus-within .rowTools > * {
-  opacity: 1;
-}
-
-.danger {
-  color: var(--danger-fg);
-}
-
-.dangerSolid {
-  border-color: var(--danger-border);
-  background: var(--danger-bg);
-  color: var(--danger-fg);
-}
-
-.dialogBody {
-  margin: 0 0 var(--space-4);
-  color: var(--text-secondary);
-}
-
-.dialogActions {
+.popTools {
   display: flex;
-  justify-content: flex-end;
-  gap: var(--space-2);
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-/* The sidebar's card (`SidebarNodelock`), like a newer Rail's. */
+/* The sidebar's card (`SidebarNodelock`), like a newer Rail's, in the lock colours. */
 .side {
   position: relative;
   display: flex;
   flex: none;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 6px;
   margin-top: auto;
   margin-bottom: var(--space-2);
-  padding: var(--space-3);
+  padding: 10px 12px 12px;
   overflow: hidden;
   border: 1px solid var(--warning-border);
-  border-radius: var(--radius-3);
+  border-radius: var(--radius-4);
   background: var(--warning-bg);
   font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
 }
 
 .sideHead {
@@ -411,7 +314,48 @@
 
 .sideTools {
   display: flex;
-  gap: var(--space-1);
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* The Solver library's small tool button (`ToolButton size="sm"`). */
+.sideButton {
+  display: inline-flex;
+  align-items: center;
+  block-size: 26px;
+  padding: 0 9px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised-2);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sideButton:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+}
+
+.sideButton:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.sideButtonLock,
+.sideButtonLock:hover {
+  border-color: var(--warning-fg);
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+
+.sideButtonQuiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-secondary);
 }
 
 /* The locked board, the one thing that says which solve this is. */
@@ -507,9 +451,16 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spinner,
+  .tabSpinner,
   .sideFillBusy,
   .sideDotBusy {
     animation: none;
   }
+}
+
+/* The Solver tab opened from a hand on a spot that stands in for it (`Solver.tsx` LinkNote). */
+.linkNote {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  cursor: help;
 }

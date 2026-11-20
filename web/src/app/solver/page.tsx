@@ -15,7 +15,8 @@ import styles from "../../components/solver/solver.module.css";
  * preflop line in the charts' letters, `?flop=` the flop as picked, any suits,
  * `?node=` a decision of its solve, `?walk=` a hand's line to a decision on
  * any street); anything malformed is the start of each.
- * Edge to edge (`ServerFrame wide`): the grid is the page.
+ * Edge to edge (`ServerFrame wide`): the grid is the page. The heading is
+ * for readers and crawlers only: the screen itself has no title.
  */
 
 interface PageProps {
@@ -51,7 +52,7 @@ export default async function SolverPage({ searchParams }: PageProps) {
   return (
     <ServerFrame tab="solver" wide>
       <div className={styles.page}>
-        <header className={styles.pageHead}>
+        <header className={styles.visuallyHidden}>
           <h1>{t.heading}</h1>
           <p>{t.intro}</p>
         </header>

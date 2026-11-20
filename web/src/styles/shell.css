@@ -218,6 +218,9 @@
 }
 
 .shell__tab-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-weight: 600;
   font-size: 13.5px;
   line-height: 1.25;
@@ -496,4 +499,73 @@
 
 .langswitch[aria-busy="true"] {
   opacity: 0.7;
+}
+
+/* --------------------------------------------------------------- feedback */
+
+/* "Feedback" (FeedbackButton.tsx): a quiet pill in the bottom right of every
+   page with the shell; on a phone only its icon. Below the dialogs' layer. */
+.feedback-fab {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px 0 12px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 13px;
+  box-shadow: var(--shadow-1);
+  cursor: pointer;
+  transition:
+    color var(--dur-2) var(--ease-standard),
+    border-color var(--dur-2) var(--ease-standard),
+    background var(--dur-2) var(--ease-standard);
+}
+
+.feedback-fab:hover,
+.feedback-fab:focus-visible {
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.feedback-fab:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.feedback-fab__icon {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 640px) {
+  .feedback-fab {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .feedback-fab__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media print {
+  .feedback-fab {
+    display: none;
+  }
 }

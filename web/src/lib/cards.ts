@@ -197,57 +197,164 @@ export function omahaHandClass(cards: string[]): string | null {
 }
 
 /**
- * Normalises a user-typed hand class filter ("aks", "AKS", "ak") into the
- * canonical form. "AK" without a suffix stays suit-agnostic and returns both
- * variants so the caller can match either.
+ * What the hero's hand search asks for: the starting-hand classes the hand
+ * must be one of (`null`, any; empty, none), and the cards it must hold.
  */
-export function parseHandClassQuery(raw: string): string[] | null {
-  const trimmed = raw.trim().replace(/\s+/g, "");
-  const match = trimmed.match(/^([2-9TJQKAtjqka])([2-9TJQKAtjqka])([sSoO])?$/);
-  if (!match) {
-    return null;
-  }
-  const first = match[1].toUpperCase() as Rank;
-  const second = match[2].toUpperCase() as Rank;
-  const suffix = match[3]?.toLowerCase();
-
-  const [high, low] = rankValue(first) >= rankValue(second) ? [first, second] : [second, first];
-  if (high === low) {
-    return [`${high}${low}`];
-  }
-  if (suffix === "s") {
-    return [`${high}${low}s`];
-  }
-  if (suffix === "o") {
-    return [`${high}${low}o`];
-  }
-  return [`${high}${low}s`, `${high}${low}o`];
+export interface HeroHand {
+  classes: string[] | null;
+  cards: string[];
 }
 
-export type HeroQuery =
-  | { kind: "class"; values: string[] }
-  | { kind: "cards"; values: string[] }
-  | { kind: "none" };
+/** The ranks high to low, the order the range grid and the classes use. */
+const HIGH_FIRST: Rank[] = [...RANKS].reverse();
+
+/** "AA", "AKs", "AKo": the higher rank first. */
+function classOf(a: Rank, b: Rank, suited: boolean): string {
+  const [high, low] = rankValue(a) >= rankValue(b) ? [a, b] : [b, a];
+  return high === low ? `${high}${low}` : `${high}${low}${suited ? "s" : "o"}`;
+}
+
+/** The classes of two ranks: a pair, or the suited and offsuit forms ("s"/"o" picks one). */
+function classesOf(a: Rank, b: Rank, suffix: "s" | "o" | null): string[] {
+  if (a === b) return suffix === null ? [classOf(a, b, false)] : [];
+  if (suffix !== null) return [classOf(a, b, suffix === "s")];
+  return [classOf(a, b, true), classOf(a, b, false)];
+}
+
+/** The 169 classes in the grid's order: row by row, the pair on the diagonal. */
+const ALL_CLASSES: string[] = HIGH_FIRST.flatMap((row, i) =>
+  HIGH_FIRST.map((column, j) => (i === j ? `${row}${row}` : i < j ? `${row}${column}s` : `${column}${row}o`)),
+);
+
+const rankOf = (char: string): Rank | null => {
+  const rank = char.toUpperCase() as Rank;
+  return RANKS.includes(rank) ? rank : null;
+};
+
+/** "s" / "ss" suited, "o" / "oo" offsuit, nothing both. */
+const suffixOf = (raw: string | undefined): "s" | "o" | null =>
+  raw ? (raw[0].toLowerCase() as "s" | "o") : null;
+
+const R = "[2-9TJQKA]";
+const SUFFIX = "(ss|oo|s|o)?";
+const CLASS_TOKEN = new RegExp(`^(${R})(${R})${SUFFIX}(\\+)?$`, "i");
+const RANGE_TOKEN = new RegExp(`^(${R})(${R})${SUFFIX}-(${R})(${R})${SUFFIX}$`, "i");
+const ANY_TOKEN = new RegExp(`^(${R})[x*]${SUFFIX}$`, "i");
+const CARDS_TOKEN = new RegExp(`^(?:${R}[shdcx*])+$`, "i");
 
 /**
- * Interprets the hero hole-card filter box.
- *
- * Order matters: "AKs" contains the substring "Ks", which `extractCards` would
- * happily read as the King of spades. The hand-class reading is therefore tried
- * first, and only inputs that cannot be a class fall through to card codes.
+ * One class-shaped word of the search: "AA", "AK", "AKs"/"AKss", "AKo"/"AKoo",
+ * "TT+", "ATs+", "22-66", "A2s-A5s", "Ax", "Axs", "Kxo". Null for a word that
+ * is not one (cards, or junk).
  */
-export function resolveHeroQuery(raw: string): HeroQuery {
-  const trimmed = raw.trim();
-  if (!trimmed) {
-    return { kind: "none" };
+function classToken(token: string): string[] | null {
+  const plain = token.match(CLASS_TOKEN);
+  if (plain) {
+    const a = rankOf(plain[1])!;
+    const b = rankOf(plain[2])!;
+    const suffix = suffixOf(plain[3]);
+    if (a === b && suffix !== null) return null;
+    if (!plain[4]) return classesOf(a, b, suffix);
+    // "TT+": that pair and every pair above it. "ATs+": the kicker up to one
+    // below the high card.
+    if (a === b) return HIGH_FIRST.filter((rank) => rankValue(rank) >= rankValue(a)).map((rank) => classOf(rank, rank, false));
+    const [high, low] = rankValue(a) >= rankValue(b) ? [a, b] : [b, a];
+    return HIGH_FIRST.filter((rank) => rankValue(rank) >= rankValue(low) && rankValue(rank) < rankValue(high)).flatMap(
+      (kicker) => classesOf(high, kicker, suffix),
+    );
   }
-  const classes = parseHandClassQuery(trimmed);
-  if (classes) {
-    return { kind: "class", values: classes };
+  const range = token.match(RANGE_TOKEN);
+  if (range) {
+    const [a1, b1, a2, b2] = [range[1], range[2], range[4], range[5]].map((char) => rankOf(char)!);
+    const suffix = suffixOf(range[3]);
+    if (suffixOf(range[6]) !== suffix) return null;
+    // Pairs "22-66": every pair between. Otherwise the same high card, the
+    // kicker between ("A2s-A5s").
+    if (a1 === b1 && a2 === b2) {
+      if (suffix !== null) return null;
+      const [lo, hi] = [rankValue(a1), rankValue(a2)].sort((x, y) => x - y);
+      return HIGH_FIRST.filter((rank) => rankValue(rank) >= lo && rankValue(rank) <= hi).map((rank) => classOf(rank, rank, false));
+    }
+    const high = rankValue(a1) >= rankValue(b1) ? a1 : b1;
+    const low1 = high === a1 ? b1 : a1;
+    const highTwo = rankValue(a2) >= rankValue(b2) ? a2 : b2;
+    const low2 = highTwo === a2 ? b2 : a2;
+    if (high !== highTwo || low1 === high || low2 === high) return null;
+    const [lo, hi] = [rankValue(low1), rankValue(low2)].sort((x, y) => x - y);
+    return HIGH_FIRST.filter((rank) => rankValue(rank) >= lo && rankValue(rank) <= hi).flatMap((kicker) =>
+      classesOf(high, kicker, suffix),
+    );
   }
-  const cards = extractCards(trimmed);
-  if (cards.length > 0) {
-    return { kind: "cards", values: cards };
+  const any = token.match(ANY_TOKEN);
+  if (any) {
+    // "Ax": every hand with an ace (its pair too); "Axs" / "Axo": the suited
+    // or offsuit ones.
+    const rank = rankOf(any[1])!;
+    const suffix = suffixOf(any[2]);
+    return HIGH_FIRST.flatMap((other) => classesOf(rank, other, suffix));
   }
-  return { kind: "none" };
+  return null;
+}
+
+/**
+ * One cards word: "Ad", "AdAs", "AdKx" (`x` any suit). The cards it names,
+ * and the classes its ranks make when a suit is left open (Hold'em: two
+ * cards then; "Kx" alone is a class word). Null for junk.
+ */
+function cardsToken(token: string): { cards: string[]; classes: string[] | null } | null {
+  if (!CARDS_TOKEN.test(token)) return null;
+  const units = token.match(/../g)!.map((unit) => ({ rank: rankOf(unit[0])!, suit: unit[1].toLowerCase() }));
+  const open = units.some((unit) => unit.suit === "x" || unit.suit === "*");
+  const cards = units.filter((unit) => unit.suit !== "x" && unit.suit !== "*").map((unit) => `${unit.rank}${unit.suit}`);
+  if (!open) return { cards, classes: null };
+  if (units.length !== 2) return null;
+  const [first, second] = units;
+  if (first.rank === second.rank && first.suit === second.suit) return null;
+  // Both suits known would be cards alone; one open: the class, and whether
+  // it can be suited follows from the card that is known.
+  return { cards, classes: classesOf(first.rank, second.rank, null) };
+}
+
+/**
+ * Reads the hero's hand search (the owner, 2026-11-19: "AA", "AdAs", "Ad",
+ * "AKss", "AKoo", ...). Words are split by spaces or commas:
+ *
+ * - classes and ranges add up: "AA, KK, AKs" is any of the three.
+ *   `AA`, `AK` (suited or not), `AKs`/`AKss`, `AKo`/`AKoo`, `TT+`, `ATs+`,
+ *   `22-66`, `A2s-A5s`, `Ax` (any hand with an ace), `Axs`, `Axo`;
+ * - cards with a suit must all be held: "Ad" (the ace of diamonds, any
+ *   game), "AdAs", "Ad Ks"; `x` leaves a suit open, "AdKx";
+ * - cards and classes together: the cards, in one of the classes ("Ad, AA").
+ *
+ * Classes are Hold'em's; a suit-bound card works in any game. Empty text asks
+ * for nothing; junk (a word that is neither) gives null, which a filter
+ * treats as matching no hand rather than every hand.
+ */
+export function parseHeroHand(raw: string): HeroHand | null {
+  const text = raw
+    .replace(/10/g, "T")
+    .replace(/\s*-\s*/g, "-")
+    .replace(/\s+\+/g, "+")
+    .trim();
+  if (!text) return { classes: null, cards: [] };
+  // The class words add up; the cards words' open suits narrow.
+  const union: string[][] = [];
+  const narrow: string[][] = [];
+  const cards: string[] = [];
+  for (const token of text.split(/[\s,;]+/).filter(Boolean)) {
+    const classes = classToken(token);
+    if (classes) {
+      union.push(classes);
+      continue;
+    }
+    const held = cardsToken(token);
+    if (!held) return null;
+    for (const card of held.cards) if (!cards.includes(card)) cards.push(card);
+    if (held.classes) narrow.push(held.classes);
+  }
+  if (union.length === 0 && narrow.length === 0) return { classes: null, cards };
+  const allowed = (value: string) =>
+    (union.length === 0 || union.some((classes) => classes.includes(value))) &&
+    narrow.every((classes) => classes.includes(value));
+  return { classes: ALL_CLASSES.filter(allowed), cards };
 }

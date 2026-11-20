@@ -22,10 +22,12 @@ import { loadingHr } from "./ns/loading.hr";
 import { manualHr } from "./ns/manual.hr";
 import { planHr } from "./ns/plan.hr";
 import { planNoticeHr } from "./ns/planNotice.hr";
+import { pricingHr } from "./ns/pricing.hr";
 import { replayerHr } from "./ns/replayer.hr";
 import { statsHr } from "./ns/stats.hr";
 import { solverHr } from "./ns/solver.hr";
 import { trainerHr } from "./ns/trainer.hr";
+import { adminHr } from "./ns/admin.hr";
 import type { Dict } from "./types";
 
 import { plural } from "./plural";
@@ -38,6 +40,7 @@ export const hr: Dict = {
   stats: statsHr,
   solver: solverHr,
   trainer: trainerHr,
+  admin: adminHr,
   analysis: analysisHr,
   learn: learnHr,
   legal: legalHr,
@@ -50,6 +53,7 @@ export const hr: Dict = {
   download: downloadHr,
   plan: planHr,
   planNotice: planNoticeHr,
+  pricing: pricingHr,
   yourData: yourDataHr,
   loading: loadingHr,
 
@@ -99,6 +103,14 @@ export const hr: Dict = {
     analysisReports: {
       title: "Izvještaji — tvoje frekvencije prema referenci | Rail",
       description: "Tvoje preflop frekvencije u svakoj situaciji koju chartovi pokrivaju, uz frekvencije reference i ruke u kojima si od nje odstupio.",
+    },
+    analysisMultiway: {
+      title: "Multiway potovi | Rail",
+      description: "Tvoji multiway potovi zasebno: rezultati, odluke po broju igrača i situacije koje vrijedi pogledati. Railove ocjene tamo su gruba procjena.",
+    },
+    analysisBomb: {
+      title: "Bomb potovi | Rail",
+      description: "Tvoji bomb potovi zasebno: rezultati po anteu i prvom potezu, ti protiv poola i što linije igrača pokazuju. Rail nema riješene bomb potove.",
     },
     analysisLeaks: {
       title: "Leakovi — situacije koje te najviše koštaju | Rail",

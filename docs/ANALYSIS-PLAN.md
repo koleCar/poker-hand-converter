@@ -7517,3 +7517,97 @@ Each phase appends what it learned that changed the plan.
     - The one 9-max call Perfect → Inaccurate with unchanged flags was not
       traced.
 - 2026-11-12 — Mass data analysis planned (`docs/MDA-PLAN.md`) after a study over the owner's GG and WePlay hands. The pool overfolds turn and river bets; the plan keeps references Rail's own, with the user's own chart sets as the private route for other charts.
+- 2026-11-19 — **Bomb pots: analysis/45 and a calibration study.** A bomb
+  pot was read postflop as a limped pot and graded up to Mistake. Since
+  `analysis/45` it is its own role (`bomb-…` scenarios, "Bomb pot") and
+  every grade there is capped at Inaccurate (score ≥ 80): no bomb pot was
+  ever solved. Study over the owner's 2,606 one-board WePlay bomb pots
+  (`tests/scripts/bomb-pot/extract.test.ts`, local JSONL only; aggregates
+  below). Strength = percentile of the holding among all live combos on
+  that street's board; "model" = the multiway narrowing's range right
+  after the action (or at showdown).
+  - Showdown selection: 40% of losers at showdown muck (569 of 1,404), so
+    shown hands lean strong. Over every shown seat the model's final ranges
+    are about right on average (0.66 model vs ~0.65 corrected), but wrong
+    by line.
+  - **Aggression on the flop and turn is under-narrowed.** Flop raise /
+    check-raise shown 0.82 vs model 0.63-0.65 (≥80th pct 71-75% vs
+    49-52%); turn raise 0.85 vs 0.62; turn barrel by the flop aggressor
+    0.83-0.89 vs 0.70-0.74; flop and turn bets of 40-110% pot 0.75-0.82 vs
+    0.68-0.70. At showdown, flop-raise lines 0.77 vs 0.67, call-call lines
+    0.74 vs 0.61. The general check baseline (+0.04 to +0.11) is the
+    selection effect; the gap beyond it is the model.
+  - **River bets are over-narrowed.** River bets under 70% pot shown
+    0.70-0.74 vs model 0.80-0.85; delayed river bets after passive streets
+    (x/x/b, b/x/b, x/b/b) 0.57-0.65 vs 0.79-0.85. A river bettor who is
+    called shows first, so this is the least biased group.
+  - Most old Mistake/Blunder grades in bomb pots (162 of 177) were folds
+    to small multiway flop/turn bets or to raises: the model's under-
+    narrowed aggressors made those folds look costly.
+  - Population: the first flop bet of 40-70% pot with 6+ players gets
+    everyone to fold 43% (pure-bluff break-even 33%), 70%+ pot 46%
+    (≥41%); under 40% pot only 17% (break-even ≤ 29%). The hero bets 8% of
+    the times the flop is checked to them (villains 17%) and folds 85% to
+    flop bets (villains 78%); hero flop bets average +9.7 bb, the hand
+    overall −0.12 bb (−316 bb over 2,606, within noise).
+  - **The narrowing fit** (`tests/scripts/bomb-pot/narrowing.test.ts`, the
+    `raiserNarrowing` score: 990 river showdowns, 2,245 non-hero seats, 565
+    mucks counted as losing to the hand shown before them). A power t on the
+    heuristic's likelihood per (street, kind) in bomb pots, coordinate search
+    over 0.5…3, 5 folds by hand. Every fold chose the same shape and gained
+    held out: **+0.078 ± 0.017 nats a seat (5/5 folds positive)**. Shipped as
+    `BOMB_POT_EVIDENCE`: bets 0.5 on every street, calls 0.7 / 0.5 / 0.7
+    (flop / turn / river), turn raise 0.7; the rest 1. A probe below the grid
+    edge was worse (bets 0.4: +0.074, 0.3: +0.057; calls 0.4: +0.065).
+    So the model was **too sure** in bomb pots, not too weak: its ranges
+    after a bet or call were too narrow, as `analysis/32` found for every
+    other pot (`BET_EVIDENCE` 0.4, which bomb pots had been left out of).
+    The percentile comparison above reads the mean of a range against what
+    reached showdown; the likelihood score reads the whole range and the
+    mucks, and is the one this repo fits on. The Inaccurate cap stays.
+  - **The Analysis tabs (design `ideas-potkinds` variant C, owner's pick).**
+    Desktop: new sub-tabs Multiway ≈ and Bomb pots ≈; Session review and Top
+    leaks read heads-up only (`LeakFilters::pot_kind` `hu`/`mw`/`bomb`, the
+    session's bad decisions leave out `-mw-` scenarios; bomb pots were
+    already out). Bomb pots: results (showdown / non-showdown), by ante, by
+    first flop move, you vs the pool, first-bet fold-through by size (6+
+    players), the study's aggression table, worst decisions
+    (`lib/analysis/potKinds.ts` over the stored PHF; `pot_kinds.rs`).
+    Multiway: results, decisions by players in, what is graded, the
+    multiway spots ranked among themselves, worst decisions. Each tab and
+    a bomb / multiway hand's view open with a closable note (remembered per
+    kind, an "≈ Approximate" chip reopens it); guide grades carry "≈".
+  - **Web** (same day, owner: "napravi i web verziju tabova"): the views
+    are shared (`packages/ui/potKinds`, strings `potKinds.{en,hr}.ts`); the
+    app and the web only fetch. `/analysis/multiway` and `/analysis/bomb`
+    read migration `20271119230000_analysis_pot_kinds.sql`
+    (`analysis_bomb_hands`, `analysis_multiway_summary`,
+    `analysis_pot_kind_decisions`); the leak finder, the top leaks and the
+    study plan read heads-up spots only (`fetchLeaks` / `fetchTopLeaks`
+    `potKind`, by the scenario: `bomb-…` or `-mw-`). The web hand view shows
+    the same closable note.
+  - **With analysis/46** (#394, landed the same afternoon: no postflop
+    grade after a 3+ way flop, bomb pots unchanged): the Multiway pages show
+    results and how often each spot comes up by players at the decision;
+    the grade columns, "graded here", the multiway spots and the decisions
+    worth a look show only for analyses from before it. The note says Rail
+    does not grade there.
+  - **Overview, Trends and Reports heads-up only** (owner, same evening):
+    migration `20271119240000_analysis_heads_up.sql` re-creates
+    `analysis_scope`, `analysis_overview`, `analysis_breakdown`,
+    `analysis_hands`, `analysis_trend`, `analysis_node_actions` and
+    `analysis_node_hands` from their latest bodies with one addition: a
+    `potKind: 'hu'` filter that leaves bomb pots out - in the summaries
+    that keep the pot type, through the row path where they do not (the
+    trend's day sums, the node totals), and in `analysis_scope` for every
+    scan path. `scopeFilters` and `reportsFilters` always send it; the
+    Overview's pot filter no longer offers "bomb". Multiway needs no filter
+    since analysis/46 (no postflop grade after a 3+ way flop: those
+    decisions only count as not analysed, `multiway`). Checked on the local
+    stack at analysis/44: 200 → 196 hands and 94 → 90 graded on both the
+    summary and the scan path; trends, node actions, breakdown and hands
+    the same.
+  - **Open.** `database.types.ts` was edited by hand for the three
+    pot-kind functions (no clean local stack to regenerate from), so the
+    batch PR's type check is the first proof. Apply both migrations
+    (`20271119230000`, `20271119240000`) to production with the promotion.

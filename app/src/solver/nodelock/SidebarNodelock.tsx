@@ -3,12 +3,15 @@
  * this computer (the locked board, how far it is and the time left, Cancel;
  * with more than one asked for, "1 of 3 done"), then "Nodelock ready" with
  * Open when it is done - the same card as a newer Rail's (`SidebarUpdate`).
- * Collapsed, one icon with a dot.
+ * Collapsed, one icon with a dot. Its buttons are drawn like the Solver
+ * library's (the sidebar is on every screen, so it does not load the
+ * library's own).
  */
 import { Icon } from "@rail/ui/icon/Icon";
 
 import { useT } from "../../i18n";
 import styles from "./nodelock.module.css";
+import { progressLine } from "./progress";
 import { cancelAll, cancelSolve, dismissNotice, openLock, useNodelockSession } from "./session";
 
 export function SidebarNodelock({ collapsed }: { collapsed: boolean }) {
@@ -16,8 +19,7 @@ export function SidebarNodelock({ collapsed }: { collapsed: boolean }) {
   const { running, notice, queue, batch } = useNodelockSession();
   if (!running && !notice) return null;
   const share = running?.share ?? null;
-  const etaS = running?.progress?.etaMs == null ? null : running.progress.etaMs / 1000;
-  const status = running ? (running.progress ? t.progress(share, etaS) : t.starting) : null;
+  const status = running ? progressLine(t, running) : null;
   const line = running ? t.sidebarSolving : notice!.status === "solved" ? t.ready(notice!.name) : t.failed(notice!.name);
 
   if (collapsed) {
@@ -47,11 +49,11 @@ export function SidebarNodelock({ collapsed }: { collapsed: boolean }) {
           <span className={styles.sideBoard}>{running.board}</span>
           <span className={styles.muted}>{status}</span>
           <div className={styles.sideTools}>
-            <button type="button" className="btn btn--sm" onClick={cancelSolve}>
+            <button type="button" className={styles.sideButton} onClick={cancelSolve}>
               {t.cancel}
             </button>
             {queue.length ? (
-              <button type="button" className="btn btn--sm btn--ghost" onClick={cancelAll}>
+              <button type="button" className={`${styles.sideButton} ${styles.sideButtonQuiet}`} onClick={cancelAll}>
                 {t.cancelAll}
               </button>
             ) : null}
@@ -64,11 +66,11 @@ export function SidebarNodelock({ collapsed }: { collapsed: boolean }) {
       ) : (
         <div className={styles.sideTools}>
           {notice!.status === "solved" ? (
-            <button type="button" className="btn btn--sm btn--primary" onClick={() => void openLock(notice!.id)}>
+            <button type="button" className={`${styles.sideButton} ${styles.sideButtonLock}`} onClick={() => void openLock(notice!.id)}>
               {t.open}
             </button>
           ) : null}
-          <button type="button" className="btn btn--sm btn--ghost" onClick={dismissNotice}>
+          <button type="button" className={`${styles.sideButton} ${styles.sideButtonQuiet}`} onClick={dismissNotice}>
             {t.dismiss}
           </button>
         </div>

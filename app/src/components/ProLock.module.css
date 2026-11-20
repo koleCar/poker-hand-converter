@@ -1,32 +1,96 @@
-/* (R6.4) The lock in place of a Pro feature. */
+/* (R6.4, free tier) The lock in place of a Pro feature: a blurred skeleton behind a small card. */
 
 .lock {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  max-width: 40rem;
+  position: relative;
+  min-height: 22rem;
   margin: var(--space-6) 0;
-  padding: var(--space-6);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-3);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-4);
   background: var(--surface-raised);
 }
 
 .compact {
+  min-height: 14rem;
   margin: var(--space-4) 0;
+}
+
+/* The screen's rhythm, no data: grey bars, blurred. */
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  opacity: 0.5;
+  filter: blur(2px);
+}
+
+.skel {
+  display: block;
+  height: 12px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised-2);
+}
+
+.w38 {
+  width: 38%;
+}
+
+.w56 {
+  width: 56%;
+}
+
+.w72 {
+  width: 72%;
+}
+
+.block {
+  width: 80%;
+  height: 90px;
+  border-radius: var(--radius-3);
+}
+
+.cover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: var(--space-4);
 }
 
-.heading {
-  margin: 0;
-  color: var(--text-primary);
-  font-size: var(--font-size-lg);
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 24rem;
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-4);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-2);
+  text-align: center;
+}
+
+/* Pro: the gold of the money tokens. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--money-subtle);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--money-fg) 12%, transparent);
+  color: var(--money-strong);
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
 }
 
-.body {
+.line {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
 }
 
 .reason {
@@ -39,37 +103,50 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-4);
+  justify-content: center;
+  gap: var(--space-2);
 }
 
-.button {
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--accent-border);
+/* "See Pro": gold, as the web's (`plan.module.css`). */
+.gold {
+  height: 30px;
+  padding: 0 var(--space-4);
+  border: 1px solid transparent;
   border-radius: var(--radius-2);
-  background: var(--accent-bg);
-  color: var(--text-on-accent);
+  background: linear-gradient(180deg, var(--money-fg), var(--money-subtle));
+  color: var(--text-inverse);
+  font: inherit;
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
 }
 
-.button:hover {
-  background: var(--accent-bg-hover);
+.gold:hover {
+  background: linear-gradient(180deg, var(--money-strong), var(--money-fg));
 }
 
-.button:disabled {
+.ghost {
+  height: 30px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.ghost:hover {
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
+}
+
+.ghost:disabled {
   cursor: default;
   opacity: 0.6;
 }
 
-.secondary {
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-2);
-  background: var(--surface-inset);
-  color: var(--text-primary);
-  cursor: pointer;
+.gold:focus-visible,
+.ghost:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
 }
-
-.secondary:hover {
-  border-color: var(--border-strong);
-}
-

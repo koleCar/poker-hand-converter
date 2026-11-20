@@ -20,6 +20,7 @@ import { useDict, useLocale } from "../../lib/i18n/client";
 import { INTL_LOCALE } from "../../lib/i18n/dictionaries";
 import { paths } from "../../lib/routes";
 import styles from "./PlanRefusalPrompt.module.css";
+import plan from "./plan.module.css";
 
 function isFeature(value: string | null): value is Feature {
   return value !== null && (FEATURES as readonly string[]).includes(value);
@@ -32,6 +33,9 @@ export function promptText(
   formatCount: (n: number) => string,
 ): { heading: string; body: string } {
   const p = dict.planNotice.prompt;
+  if (refusal.feature === "daily_cap") {
+    return { heading: p.dailyHeading, body: refusal.cap ? p.daily(formatCount(refusal.cap.cap)) : refusal.message || p.generic };
+  }
   if (refusal.feature === "hand_cap" || refusal.cap) {
     return {
       heading: p.capHeading,
@@ -71,7 +75,7 @@ export function PlanRefusalPrompt() {
       </h2>
       <p className={styles.body}>{text.body}</p>
       <div className={styles.actions}>
-        <Link href={paths.upgrade()} className="btn btn--primary btn--sm" onClick={() => setRefusal(null)}>
+        <Link href={paths.pricing()} className={`btn btn--sm ${plan.gold}`} onClick={() => setRefusal(null)}>
           {p.upgrade}
         </Link>
         <button type="button" className="btn btn--ghost btn--sm" onClick={() => setRefusal(null)}>

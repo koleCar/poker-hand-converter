@@ -21,15 +21,26 @@ import { describe, expect, it } from "vitest";
 
 import type { PageHand, PageResult } from "../../app/src/analysis/engine";
 import type { StoreHandRow } from "../../app/src/analysis/rows";
-import { AnalysisRunner, PAGE, type PendingDto, type RunnerCounts, type RunnerDeps, type RunnerGate } from "../../app/src/analysis/runner";
+import {
+  AnalysisRunner,
+  analysisLanes,
+  monthOf,
+  nextMonth,
+  PAGE,
+  type MonthCounts,
+  type PendingDto,
+  type RunnerCounts,
+  type RunnerDeps,
+  type RunnerGate,
+} from "../../app/src/analysis/runner";
 import { BASE, createWorker, OFFLINE_MS, type FetchOutcome, type WorkerRequest, type WorkerResponse } from "../../app/src/analysis/worker";
 import { fetchOutcomeOfError, Stopped, workerAnalyser } from "../../app/src/analysis/workerClient";
 import { FlopLibraryLoader } from "../../web/src/lib/analysis/index";
 
 const V = "analysis/34";
 
-/** A store of `n` hands, newest first by key order: h000 is the newest. */
-function fakeStore(n: number) {
+/** A store of `n` hands, newest first by key order: h000 is the newest (`playedAt` of the i-th, never rising). */
+function fakeStore(n: number, playedAt: (i: number) => string = () => "2026-10-01T00:00:00.000Z") {
   const keys = Array.from({ length: n }, (_, i) => `h${String(i).padStart(3, "0")}`);
   const rows = new Map<string, StoreHandRow>();
   const phf = (key: string) =>
@@ -42,13 +53,25 @@ function fakeStore(n: number) {
       const offline = [...rows.values()].filter((r) => r.analysis_version === V && !r.flop_library).length;
       return { hands: keys.length, current, stale: 0, missing: keys.length - current, offline, notAnalysable: 0 };
     },
+    months(): MonthCounts[] {
+      const out: MonthCounts[] = [];
+      keys.forEach((key, i) => {
+        const month = playedAt(i).slice(0, 7);
+        let m = out.find((o) => o.month === month);
+        if (!m) out.push((m = { month, hands: 0, current: 0 }));
+        m.hands += 1;
+        if (rows.get(key)?.analysis_version === V) m.current += 1;
+      });
+      return out;
+    },
     pending(after: { playedAt: string; handKey: string } | null, limit: number): PendingDto[] {
-      const start = after ? keys.indexOf(after.handKey) + 1 : 0;
+      // A cursor without a key: from the first hand played before it (the keyset's order).
+      const start = !after ? 0 : after.handKey === "" ? keys.findIndex((_, i) => playedAt(i) < after.playedAt) : keys.indexOf(after.handKey) + 1;
       return keys
-        .slice(start)
-        .filter((key) => !rows.has(key))
-        .slice(0, limit)
-        .map((key) => ({ handKey: key, playedAt: "2026-10-01T00:00:00.000Z", phf: phf(key) }));
+        .map((key, i) => ({ handKey: key, playedAt: playedAt(i), phf: phf(key) }))
+        .slice(start < 0 ? keys.length : start)
+        .filter((hand) => !rows.has(hand.handKey))
+        .slice(0, limit);
     },
     offline(limit: number): PendingDto[] {
       return [...rows.values()]
@@ -57,6 +80,11 @@ function fakeStore(n: number) {
         .map((r) => ({ handKey: r.hand_key, playedAt: "", phf: phf(r.hand_key) }));
     },
   };
+}
+
+/** Let pending promise callbacks run. */
+async function flush(): Promise<void> {
+  for (let i = 0; i < 10; i += 1) await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
 function row(handKey: string, flopLibrary: boolean): StoreHandRow {
@@ -90,13 +118,19 @@ interface Harness {
   broken: Set<string>;
   /** While true, a page waits until its signal fires. */
   hang: boolean;
+  /** While true, a page waits until the test finishes it (`finish`). */
+  manual: boolean;
+  /** The pages waiting to be finished, oldest first: finish one with its lane's result. */
+  open: { lane: number; finish: () => void }[];
+  /** The lane each page went to. */
+  lanesUsed: number[];
   clock: number;
   released: number;
   step(): Promise<void>;
 }
 
-function harness(n: number): Harness {
-  const store = fakeStore(n);
+function harness(n: number, playedAt?: (i: number) => string, lanes?: number): Harness {
+  const store = fakeStore(n, playedAt);
   const h: Harness = {
     runner: null as unknown as AnalysisRunner,
     store,
@@ -108,13 +142,18 @@ function harness(n: number): Harness {
     online: true,
     broken: new Set(),
     hang: false,
+    manual: false,
+    open: [],
+    lanesUsed: [],
     clock: 0,
     released: 0,
     step: () => h.runner.step(),
   };
   const deps: RunnerDeps = {
+    lanes,
     gate: async () => h.gate,
     counts: async () => store.counts(),
+    months: async () => store.months(),
     pending: async (_version, after, limit) => store.pending(after, limit),
     offline: async (_version, limit) => store.offline(limit),
     reachable: async () => {
@@ -125,14 +164,21 @@ function harness(n: number): Harness {
       h.villainAsks.push(players);
       return players.map((p) => ({ ...p, hands: 50, vpipOpp: 50, vpip: 20, pfr: 15 }));
     },
-    analyse: (page: PageHand[], _villains, library, signal): Promise<PageResult> => {
+    analyse: (page: PageHand[], _villains, library, signal, _tournaments, lane = 0): Promise<PageResult> => {
       h.pages.push(page.map((hand) => hand.handKey));
+      h.lanesUsed.push(lane);
       h.libraryFlags.push(library);
       h.clock += 1000;
       const result = {
         rows: page.filter((hand) => !h.broken.has(hand.handKey)).map((hand) => row(hand.handKey, library && h.online)),
         failed: page.filter((hand) => h.broken.has(hand.handKey)).map((hand) => hand.handKey),
       };
+      if (h.manual) {
+        return new Promise((resolve, reject) => {
+          h.open.push({ lane, finish: () => resolve(result) });
+          signal.addEventListener("abort", () => reject(new Stopped()), { once: true });
+        });
+      }
       if (!h.hang) return Promise.resolve(result);
       return new Promise((_resolve, reject) => signal.addEventListener("abort", () => reject(new Stopped()), { once: true }));
     },
@@ -218,6 +264,93 @@ describe("the analysis runner", () => {
     h.runner.wake();
     await h.step();
     expect(h.pages[1].slice(0, 2)).toEqual(["new1", "new0"]);
+  });
+
+  it("goes month by month, newest first, says which month, and sends a chosen month to the front", async () => {
+    // h000-h014 November, h015-h034 October, h035-h049 September.
+    const h = harness(50, (i) => (i < 15 ? "2026-11-20T10:00:00.000Z" : i < 35 ? "2026-10-20T10:00:00.000Z" : "2026-09-20T10:00:00.000Z"));
+    await h.step();
+    expect(h.pages[0]).toEqual(h.store.keys.slice(0, PAGE));
+    expect(h.runner.current()).toMatchObject({ month: "2026-11", focus: null });
+    expect(h.runner.current().months).toEqual([
+      { month: "2026-11", hands: 15, current: 0 },
+      { month: "2026-10", hands: 20, current: 0 },
+      { month: "2026-09", hands: 15, current: 0 },
+    ]);
+    // September to the front: its hands, then newest first again.
+    h.runner.focus("2026-09");
+    expect(h.runner.current().focus).toBe("2026-09");
+    await h.step();
+    expect(h.pages[1]).toEqual(h.store.keys.slice(35));
+    expect(h.runner.current().month).toBe("2026-09");
+    await h.step();
+    expect(h.runner.current().focus).toBeNull();
+    await h.step();
+    expect(h.pages[2]).toEqual(h.store.keys.slice(PAGE, 35));
+    expect(h.runner.current().month).toBe("2026-10");
+    expect(h.runner.current().months?.find((m) => m.month === "2026-09")).toEqual({ month: "2026-09", hands: 15, current: 15 });
+    await h.step();
+    expect(h.runner.current().months?.every((m) => m.current === m.hands)).toBe(true);
+    // Not a month: ignored.
+    h.runner.focus("soon");
+    expect(h.runner.current().focus).toBeNull();
+    expect(monthOf("")).toBe("");
+    expect(monthOf("2026-03-01T00:00:00.000Z")).toBe("2026-03");
+    expect(nextMonth("2026-12")).toBe("2027-01");
+    expect(nextMonth("2026-09")).toBe("2026-10");
+  });
+
+  it("keeps a page on every worker, never the same hand twice, and a slow page holds up its own worker only", async () => {
+    const h = harness(100, undefined, 3);
+    h.manual = true;
+    // Three pages start, one per worker, without waiting for each other.
+    await h.step();
+    await h.step();
+    const third = h.step();
+    await flush();
+    expect(h.pages).toEqual([h.store.keys.slice(0, 20), h.store.keys.slice(20, 40), h.store.keys.slice(40, 60)]);
+    expect(h.lanesUsed).toEqual([0, 1, 2]);
+    expect(h.runner.current().phase).toBe("running");
+    // Every worker busy: the turn waits. The second page (lane 1) is done first; the first is the slow one.
+    h.open.splice(1, 1)[0]!.finish();
+    await third;
+    expect(h.store.rows.size).toBe(PAGE);
+    const fourth = h.step();
+    await flush();
+    expect(h.lanesUsed[3]).toBe(1);
+    expect(h.pages[3]).toEqual(h.store.keys.slice(60, 80));
+    // Lane 2 done; the slow first page (lane 0) and lane 1's are still in flight.
+    h.open.find((page) => page.lane === 2)!.finish();
+    await fourth;
+    h.open = h.open.filter((page) => page.lane !== 2);
+    // Woken (new hands): the walk starts from the newest again, but the hands in flight are not read twice.
+    h.runner.wake();
+    await h.step();
+    await h.step();
+    const fifth = h.step();
+    await flush();
+    expect(h.pages[4]).toEqual(h.store.keys.slice(80, 100));
+    expect(h.lanesUsed[4]).toBe(2);
+    const seen = h.pages.flat();
+    expect(new Set(seen).size).toBe(seen.length);
+    h.open.find((page) => page.lane === 2)!.finish();
+    await fifth;
+    h.open = h.open.filter((page) => page.lane !== 2);
+    // A table opens: every page in flight stops; they come back later.
+    h.runner.tablesOpen(true);
+    await flush();
+    expect(h.runner.current()).toMatchObject({ phase: "waiting", reason: "tables" });
+    h.manual = false;
+    h.runner.tablesOpen(false);
+    for (let i = 0; i < 12; i += 1) await h.step();
+    expect(h.store.rows.size).toBe(100);
+    expect(h.runner.current().phase).toBe("idle");
+    // Three lanes at a page a second: three pages' hands a second.
+    expect(h.runner.current().handsPerSecond).toBeGreaterThan(20);
+  });
+
+  it("uses half the cores for workers, at most four, at least one", () => {
+    expect([1, 2, 4, 8, 10, 16].map((cores) => analysisLanes(cores))).toEqual([1, 1, 2, 4, 4, 4]);
   });
 
   it("goes without the flop library while it cannot be reached, then analyses those hands again", async () => {

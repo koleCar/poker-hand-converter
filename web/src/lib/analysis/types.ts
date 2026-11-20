@@ -326,8 +326,29 @@ import type { Position, Street } from "../phf/types";
  *               decisions): blind vs blind after folds to the small blind
  *               and the five rare lines are captured, so `model.missing` is
  *               empty and those hands are graded on the charts.
+ *   analysis/45 A bomb pot is its own postflop role (`bomb`, scenario
+ *               `bomb-ip-vs-bet`…), no longer read as a limped pot, and its
+ *               grades are capped at Inaccurate (score at least that band's):
+ *               no bomb pot was ever solved, so they are a guide, not a
+ *               verdict. Its bets and calls narrow ranges less
+ *               (`BOMB_POT_EVIDENCE`, fitted held out on bomb pot showdowns).
+ *   analysis/46 A hand three or more players saw the flop of has no
+ *               postflop grade: nothing solves such a pot and a three-way
+ *               flop plays very differently. Every postflop decision of it
+ *               is `not-analysed` (`multiway`) with its facts, and keeps
+ *               only the `free-fold` flag - no approximate calls (A9), no
+ *               heads-up solve of a later street (`multiway-history`), no
+ *               multiway flags. Preflop is graded as before; bomb pots keep
+ *               their capped guide grades (analysis/45).
+ *   analysis/47 A bet or raise within half a cent of a big blind of a tree
+ *               size's amount is that size (`EXACT_SIZE_BB`, `mapAct`), on
+ *               every solved street. Amounts quoted to the cent read a hair
+ *               past the tree's fraction (33% of 9.96 bb is 3.29, 0.3303 of
+ *               the pot), so the translation gave the next size up a sliver
+ *               and the hero's size was graded as the better of the two: a
+ *               Trainer 33% bet graded as the 75%.
  */
-export const ANALYSIS_VERSION = "analysis/44" as const;
+export const ANALYSIS_VERSION = "analysis/47" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -551,7 +572,8 @@ export interface Flag {
  *                       multiway heuristic, which was built on pots with
  *                       preflop betting; the grades are the multiway
  *                       approximate ones and heads-up solves after it,
- *                       capped at Mistake. Replaces `antes` there. A bomb
+ *                       capped at Inaccurate since analysis/45 (Mistake
+ *                       before). Replaces `antes` there. A bomb
  *                       pot on two boards is still refused (`bomb-pot`).
  * - `rare-line-depth`   (analysis/13) the line is too rare at the answering
  *                       set's depth to be charted there (`rare-line`), and is
@@ -922,7 +944,8 @@ export type PreflopScenario =
   | "vs-3bet-cold"
   | "vs-4bet";
 
-export type PostflopRole = "pfr" | "caller" | "limped";
+/** `bomb`: a bomb pot (analysis/45), which has no preflop betting and so no raiser or caller. */
+export type PostflopRole = "pfr" | "caller" | "limped" | "bomb";
 export type PostflopFacing = "first" | "vs-bet" | "vs-raise";
 
 /** §4. Everything below is derived from the hand alone, deterministically. */

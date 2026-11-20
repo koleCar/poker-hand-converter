@@ -47,4 +47,25 @@ describe("the native engine's request", () => {
       expect(request.baseline).toBeNull();
     }
   });
+
+  it("is what `nativeRequest` sends for a turn lock built on a flop lock (§7.4): the deal from the base's chunk", async () => {
+    const library = bytes(warm.flop[0].request.baseline);
+    const base = bytes(warm.base);
+    expect(decodeChunk(base).header.lockHash).toBe(lockHash(warm.flop[0].request.lockSet as LockSet));
+    const [onLibrary, ...based] = warm.based as { request: { lockSet: LockSet; options: { maxIterations: number } } }[];
+    expect(wire(await nativeRequest(onLibrary.request.lockSet, library, onLibrary.request.options.maxIterations))).toEqual(onLibrary.request);
+    for (const step of based) {
+      const lockSet = step.request.lockSet;
+      expect(lockSet.base?.lockHash).toBe(decodeChunk(base).header.lockHash);
+      const request = await nativeRequest(lockSet, base, step.request.options.maxIterations);
+      expect(wire(request)).toEqual(step.request);
+      const header = JSON.parse(request.header);
+      expect(header.lockHash).toBe(lockHash(lockSet));
+      expect(header.baseHash).toBe(lockSet.base?.lockHash);
+      // The same lock on the library is another game: other ranges at the deal.
+      expect(request.spot.ranges).not.toEqual(onLibrary.request.spot.ranges);
+      // And it is refused on the library chunk.
+      await expect(nativeRequest(lockSet, library, 1)).rejects.toThrow(/built on/);
+    }
+  });
 });

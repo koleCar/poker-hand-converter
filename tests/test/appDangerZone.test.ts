@@ -19,7 +19,7 @@ import { DangerZone } from "../../app/src/screens/settings/DangerZone";
 import { setInvokeHandler } from "./support/tauriCore";
 
 const render = (locale: "en" | "hr") =>
-  renderToStaticMarkup(createElement(DictProvider, { locale }, createElement(DangerZone)));
+  renderToStaticMarkup(createElement(DictProvider, { locale }, createElement(DangerZone, { accountService: true })));
 
 describe("desktop Settings -> Danger zone", () => {
   it("offers to delete the account, in English", () => {
@@ -34,6 +34,15 @@ describe("desktop Settings -> Danger zone", () => {
     expect(html).toContain(hr.settings.sections.danger);
     expect(html).toContain("Obriši moj račun");
     expect(html).toContain(">Obriši…<");
+  });
+
+  it("always offers to delete every hand; the account only with an account service", () => {
+    const html = renderToStaticMarkup(
+      createElement(DictProvider, { locale: "en" }, createElement(DangerZone, { accountService: false })),
+    );
+    expect(html).toContain(en.settings.danger.deleteHands);
+    expect(html).not.toContain("Delete my account");
+    expect(render("en")).toContain(en.settings.danger.deleteHands);
   });
 
   it("opens a web page by its name only", async () => {

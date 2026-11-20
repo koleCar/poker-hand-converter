@@ -8,9 +8,9 @@
  *   STRIPE_SECRET_KEY          sk_test_... / sk_live_... (or a restricted rk_...)
  *   STRIPE_WEBHOOK_SECRET      whsec_... of the webhook endpoint
  *   STRIPE_PRICE_PRO_MONTH     price_... of Pro, billed monthly
+ *   STRIPE_PRICE_PRO_HALF_YEAR price_... of Pro, billed every 6 months
+ *                              (recurring interval month, interval_count 6)
  *   STRIPE_PRICE_PRO_YEAR      price_... of Pro, billed yearly
- *   STRIPE_EARLY_USER_COUPON   optional: the early users' coupon id, or a
- *                              promotion code id (promo_...)
  *   STRIPE_PORTAL_CONFIGURATION optional: bpc_... (else the default portal)
  *   STRIPE_API_VERSION         optional: overrides the pinned API version
  *   BILLING_SUCCESS_URL        where Checkout returns after paying
@@ -31,15 +31,29 @@ export interface BillingEnv {
   stripeWebhookSecret: string;
   stripeApiVersion: string;
   priceMonth: string;
+  priceHalfYear: string;
   priceYear: string;
-  earlyUserCoupon: string;
   portalConfiguration: string;
   successUrl: string;
   cancelUrl: string;
   portalReturnUrl: string;
 }
 
-export type Period = "month" | "year";
+export type Period = "month" | "half_year" | "year";
+
+/** Every period, in the order the Plan panel shows them. */
+export const PERIODS: readonly Period[] = ["month", "half_year", "year"];
+
+export function isPeriod(value: unknown): value is Period {
+  return value === "month" || value === "half_year" || value === "year";
+}
+
+/** A period as Stripe's recurring price says it: `interval` x `interval_count`. */
+export const PERIOD_RECURRING: Record<Period, { interval: "month" | "year"; count: number }> = {
+  month: { interval: "month", count: 1 },
+  half_year: { interval: "month", count: 6 },
+  year: { interval: "year", count: 1 },
+};
 
 const get = (name: string): string => (Deno.env.get(name) ?? "").trim();
 
@@ -52,8 +66,8 @@ export function billingEnvFromDeno(): BillingEnv {
     stripeWebhookSecret: get("STRIPE_WEBHOOK_SECRET"),
     stripeApiVersion: get("STRIPE_API_VERSION") || STRIPE_API_VERSION_DEFAULT,
     priceMonth: get("STRIPE_PRICE_PRO_MONTH"),
+    priceHalfYear: get("STRIPE_PRICE_PRO_HALF_YEAR"),
     priceYear: get("STRIPE_PRICE_PRO_YEAR"),
-    earlyUserCoupon: get("STRIPE_EARLY_USER_COUPON"),
     portalConfiguration: get("STRIPE_PORTAL_CONFIGURATION"),
     successUrl: get("BILLING_SUCCESS_URL"),
     cancelUrl: get("BILLING_CANCEL_URL"),
@@ -86,25 +100,18 @@ const priceOk = (id: string) => /^price_[A-Za-z0-9]{1,250}$/.test(id);
 
 /** The price id of a period, or null when that period is not on sale. */
 export function priceFor(env: BillingEnv, period: Period): string | null {
-  const id = period === "month" ? env.priceMonth : env.priceYear;
+  const id = period === "month" ? env.priceMonth : period === "half_year" ? env.priceHalfYear : env.priceYear;
   return priceOk(id) ? id : null;
 }
 
 /** Checkout can open: a key, at least one price, both return addresses. */
 export function checkoutReady(env: BillingEnv): boolean {
   return stripeReady(env) &&
-    (priceFor(env, "month") !== null || priceFor(env, "year") !== null) &&
+    PERIODS.some((period) => priceFor(env, period) !== null) &&
     returnUrlOk(env.successUrl) &&
     returnUrlOk(env.cancelUrl);
 }
 
 export function portalReady(env: BillingEnv): boolean {
   return stripeReady(env) && returnUrlOk(env.portalReturnUrl);
-}
-
-/** The early users' discount as Checkout takes it, or null when none is configured. */
-export function earlyDiscount(env: BillingEnv): { coupon: string } | { promotion_code: string } | null {
-  const id = env.earlyUserCoupon;
-  if (!id || id.length > 255 || !/^[A-Za-z0-9_-]+$/.test(id)) return null;
-  return id.startsWith("promo_") ? { promotion_code: id } : { coupon: id };
 }

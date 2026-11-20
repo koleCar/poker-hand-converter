@@ -1,10 +1,15 @@
-//! The user's nodelocks on this computer (docs/NODELOCK.md §3): thin
-//! commands over `rail_store::node_locks`. Kept here only; never synced.
+//! The user's nodelocks on this computer (docs/NODELOCK.md §3, the tree of
+//! §7.5): thin commands over `rail_store::node_locks`. Kept here only;
+//! never synced.
 //!
 //! - `nodelock_list` (the history, newest change first, optionally one
 //!   spot's; no chunk), `nodelock_get` (one row with its chunk),
-//!   `nodelock_save` (upsert; the whole row, chunk included),
-//!   `nodelock_rename`, `nodelock_delete` (many ids at once).
+//!   `nodelock_save` (upsert; the whole row, chunk included; its place in
+//!   the tree, `parent_id` / `folder_id`, is the first save's),
+//!   `nodelock_rename`, `nodelock_delete` (many ids at once, each with its
+//!   branch).
+//! - The tree: `nodelock_folders`, `nodelock_folder_save`,
+//!   `nodelock_folder_delete`, `nodelock_move`, `nodelock_delete_preview`.
 //! - Rows cross as JSON with the table's column names (snake_case), with
 //!   `lock_json` and `summary_json` as JSON values rather than text.
 //! - **The chunk crosses as bytes**, never as a JSON array: `nodelock_get`
@@ -15,7 +20,10 @@
 //!   `result_size` says whether there is a chunk (`null`: none).
 //!   `nodelock_get` of an unknown id answers no bytes at all.
 
-use rail_store::{NodeLockRow, NodeLockSpot, NodeLockStatus, NodeLockStreet};
+use rail_store::{
+    NodeLockDeletePreview, NodeLockDeleted, NodeLockFolder, NodeLockFolderInput, NodeLockItem,
+    NodeLockPlace, NodeLockRow, NodeLockSpot, NodeLockStatus, NodeLockStreet,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::State;
@@ -57,6 +65,17 @@ pub struct NodeLockDto {
     /// The chunk's bytes; `None`: no chunk.
     #[serde(default)]
     pub result_size: Option<i64>,
+    /// A root lock's folder (`None`: the top level). On a save, read for a
+    /// new row only.
+    #[serde(default)]
+    pub folder_id: Option<String>,
+    /// The lock this one is built on (`None`: the library). On a save, read
+    /// for a new row only.
+    #[serde(default)]
+    pub parent_id: Option<String>,
+    /// Its place in its list (ascending). Ignored on a save.
+    #[serde(default)]
+    pub sort: f64,
 }
 
 impl NodeLockDto {
@@ -88,6 +107,9 @@ impl NodeLockDto {
             peak_mb: row.peak_mb,
             summary_json: row.summary_json.map(parse),
             result_size: row.result_size,
+            folder_id: row.folder_id,
+            parent_id: row.parent_id,
+            sort: row.sort,
         };
         (dto, row.result)
     }
@@ -122,6 +144,9 @@ impl NodeLockDto {
             peak_mb: self.peak_mb,
             result,
             result_size: None,
+            folder_id: self.folder_id,
+            parent_id: self.parent_id,
+            sort: 0.0,
         })
     }
 }
@@ -294,7 +319,96 @@ pub async fn nodelock_rename(
         .map_err(text)
 }
 
-/// Delete nodelocks; how many went.
+/// What `nodelock_folder_save` takes: an empty or missing `id` makes a new
+/// folder.
+#[derive(Debug, Clone, Deserialize)]
+pub struct FolderInputDto {
+    #[serde(default)]
+    id: Option<String>,
+    name: String,
+    #[serde(default)]
+    parent_id: Option<String>,
+    #[serde(default)]
+    sort: Option<f64>,
+}
+
+/// Every folder of My nodelocks.
+#[tauri::command]
+pub async fn nodelock_folders(store: State<'_, StoreState>) -> Result<Vec<NodeLockFolder>, String> {
+    open(&store)?.reader().node_lock_folders().map_err(text)
+}
+
+/// Create (no id) or update a folder; the stored folder back. Refused: a
+/// parent that does not exist or is the folder itself or inside it.
+#[tauri::command]
+pub async fn nodelock_folder_save(
+    store: State<'_, StoreState>,
+    folder: FolderInputDto,
+) -> Result<NodeLockFolder, String> {
+    let id = match folder.id {
+        Some(id) if !id.is_empty() => id,
+        _ => new_id()?,
+    };
+    open(&store)?
+        .writer()
+        .map_err(text)?
+        .save_node_lock_folder(
+            NodeLockFolderInput {
+                id,
+                name: folder.name,
+                parent_id: folder.parent_id,
+                sort: folder.sort,
+            },
+            rail_store::time::now_ms(),
+        )
+        .map_err(text)
+}
+
+/// Delete folders with everything in them; how many folders and lock rows
+/// went.
+#[tauri::command]
+pub async fn nodelock_folder_delete(
+    store: State<'_, StoreState>,
+    ids: Vec<String>,
+) -> Result<NodeLockDeleted, String> {
+    open(&store)?
+        .writer()
+        .map_err(text)?
+        .delete_node_lock_folders(ids)
+        .map_err(text)
+}
+
+/// Move root locks and folders into a folder (before / after an item of
+/// it, or at its top); false, nothing moved, when the store refuses (a
+/// child lock, a folder into its own subtree, an unknown item).
+#[tauri::command]
+pub async fn nodelock_move(
+    store: State<'_, StoreState>,
+    items: Vec<NodeLockItem>,
+    to: NodeLockPlace,
+) -> Result<bool, String> {
+    open(&store)?
+        .writer()
+        .map_err(text)?
+        .move_node_locks(items, to, rail_store::time::now_ms())
+        .map_err(text)
+}
+
+/// What deleting these locks (with their branches) and folders (with
+/// everything in them) would take.
+#[tauri::command]
+pub async fn nodelock_delete_preview(
+    store: State<'_, StoreState>,
+    locks: Vec<String>,
+    folders: Vec<String>,
+) -> Result<NodeLockDeletePreview, String> {
+    open(&store)?
+        .reader()
+        .node_lock_delete_preview(locks, folders)
+        .map_err(text)
+}
+
+/// Delete nodelocks with every lock built on them; how many rows went.
 #[tauri::command]
 pub async fn nodelock_delete(
     store: State<'_, StoreState>,
@@ -338,6 +452,9 @@ mod tests {
             peak_mb: Some(1200.0),
             summary_json: Some(json!({"evGain": 0.4})),
             result_size: Some(4),
+            folder_id: None,
+            parent_id: Some("parent-1".to_owned()),
+            sort: 0.0,
         }
     }
 
@@ -371,6 +488,7 @@ mod tests {
             input.lock_json
         );
         assert_eq!(row.status, NodeLockStatus::Solved);
+        assert_eq!(row.parent_id.as_deref(), Some("parent-1"));
 
         let mut stored = row.clone();
         stored.id = "id-1".to_owned();
@@ -393,6 +511,18 @@ mod tests {
         assert_eq!(value["street"], "flop");
         assert_eq!(value["set_id"], "nlhe-cash-6max-100bb");
         assert!(value["lock_json"].is_object());
+        assert_eq!(value["parent_id"], "parent-1");
+        assert!(value["folder_id"].is_null());
+
+        // A window that sends no place (a v1 caller): a root on the top
+        // level.
+        let mut bare = serde_json::to_value(dto()).expect("value");
+        for key in ["parent_id", "folder_id", "sort"] {
+            bare.as_object_mut().expect("object").remove(key);
+        }
+        let json = serde_json::to_vec(&bare).expect("json");
+        let row = save_request(&frame(&json, None).expect("frame")).expect("row");
+        assert_eq!((row.parent_id, row.folder_id), (None, None));
 
         // A lock that is not an object is refused.
         let mut bad = dto();
@@ -410,6 +540,53 @@ mod tests {
         assert!(body_bytes(&InvokeBody::Json(json!({"a": 1}))).is_err());
         let raw = InvokeBody::Raw(vec![4, 5]);
         assert_eq!(&*body_bytes(&raw).expect("bytes"), &[4u8, 5]);
+    }
+
+    /// The tree's arguments as the window sends them.
+    #[test]
+    fn tree_shapes() {
+        let to: NodeLockPlace = serde_json::from_value(
+            json!({"folder_id": "f", "before": {"kind": "folder", "id": "g"}}),
+        )
+        .expect("place");
+        assert_eq!(to.folder_id.as_deref(), Some("f"));
+        assert_eq!(
+            to.before,
+            Some(NodeLockItem {
+                kind: rail_store::NodeLockItemKind::Folder,
+                id: "g".to_owned()
+            })
+        );
+        assert_eq!(to.after, None);
+        let top: NodeLockPlace = serde_json::from_value(json!({"folder_id": null})).expect("top");
+        assert_eq!(top, NodeLockPlace::default());
+        let items: Vec<NodeLockItem> =
+            serde_json::from_value(json!([{"kind": "lock", "id": "a"}])).expect("items");
+        assert_eq!(items[0].kind, rail_store::NodeLockItemKind::Lock);
+        let folder: FolderInputDto =
+            serde_json::from_value(json!({"name": "Passive BB", "parent_id": null}))
+                .expect("folder");
+        assert_eq!((folder.id, folder.sort), (None, None));
+        let preview = serde_json::to_value(NodeLockDeletePreview {
+            folders: 1,
+            locks: 2,
+            descendants: 3,
+        })
+        .expect("preview");
+        assert_eq!(preview, json!({"folders": 1, "locks": 2, "descendants": 3}));
+        let folder = serde_json::to_value(NodeLockFolder {
+            id: "f".to_owned(),
+            name: "F".to_owned(),
+            parent_id: None,
+            sort: -1.0,
+            created_at: 1,
+            updated_at: 2,
+        })
+        .expect("folder");
+        assert_eq!(
+            folder,
+            json!({"id": "f", "name": "F", "parent_id": null, "sort": -1.0, "created_at": 1, "updated_at": 2})
+        );
     }
 
     /// A new id is a uuid v4.

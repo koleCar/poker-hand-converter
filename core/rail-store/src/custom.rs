@@ -256,27 +256,7 @@ pub fn custom_page(reader: &Reader) -> Result<Option<CustomPage>> {
             return Ok(None);
         }
         let generation = current_gen(conn)?;
-        let mut stmt = conn.prepare_cached(
-            "SELECT id, rev, predicate, counted_to FROM custom_stats
-             WHERE predicate IS NOT NULL ORDER BY id",
-        )?;
-        let mut stats: Vec<(PageStat, CustomCounter)> = Vec::new();
-        let mut rows = stmt.query([])?;
-        while let Some(row) = rows.next()? {
-            let text: String = row.get(2)?;
-            match CustomCounter::parse(&text) {
-                Ok(counter) => stats.push((
-                    PageStat {
-                        id: row.get(0)?,
-                        rev: row.get(1)?,
-                        counted_to: row.get(3)?,
-                    },
-                    counter,
-                )),
-                // Saved by a build whose fields this one does not have.
-                Err(error) => log::warn!("custom statistic {}: {error}", row.get::<_, i64>(0)?),
-            }
-        }
+        let stats = counted_stats(conn)?;
         let Some(low) = stats.iter().map(|(stat, _)| stat.counted_to).min() else {
             return Ok(None);
         };
@@ -334,69 +314,221 @@ pub fn custom_page(reader: &Reader) -> Result<Option<CustomPage>> {
         ..CustomPage::default()
     };
     for hand in hands {
-        let wanted: Vec<&(PageStat, CustomCounter)> = stats
-            .iter()
-            .filter(|(stat, _)| stat.counted_to < hand.id)
-            .collect();
-        let Some(kept) = seats.get(&hand.id) else {
-            continue;
-        };
-        if wanted.is_empty() {
-            continue;
-        }
-        let phf = match hand_from(&hand.phf, hand.phf_size) {
-            Ok(phf) => phf,
-            Err(error) => {
-                log::warn!("custom statistics: {}: {error}", hand.hand_key);
-                continue;
-            }
-        };
-        let events = hand_events(&phf);
-        let day = day_of(hand.played_at.as_deref()).to_owned();
-        // The HUD's sums: `aggregate`'s defaults (bomb pots out); and their
-        // part from a hand the user did not play (R3.7).
-        let counted = Exclusions::default().admits(hand.kind).0;
-        let observed = !kept.iter().any(|seat| seat.is_hero);
-        for seat in kept {
-            let Some(seat_events) = events.seats.iter().find(|s| s.seat == seat.seat) else {
-                continue;
-            };
-            for (stat, counter) in &wanted {
-                let counts = counter.count(&events, seat_events);
-                if counts.opp == 0 && counts.made == 0 {
-                    continue;
-                }
-                let (made, opp) = (i64::from(counts.made), i64::from(counts.opp));
-                if seat.is_hero {
-                    page.hero_rows.push((stat.id, hand.id, made, opp));
-                    page.heroes
-                        .entry((
-                            stat.id,
-                            hand.segment_id,
-                            seat.position.clone(),
-                            day.clone(),
-                            hand.kind,
-                        ))
-                        .or_default()
-                        .add(made, opp);
-                }
-                if counted {
-                    let key = (
-                        stat.id,
-                        hand.site.clone(),
-                        seat.player.clone(),
-                        seat.scope.clone(),
-                        hand.segment_id,
-                    );
-                    if observed {
-                        page.observed.entry(key.clone()).or_default().add(made, opp);
-                    }
-                    page.players.entry(key).or_default().add(made, opp);
-                }
-            }
+        if let Some(kept) = seats.get(&hand.id) {
+            count_hand(&mut page, &stats, &hand, kept, |stat, id| {
+                stat.counted_to < id
+            });
         }
     }
     Ok(Some(page))
+}
+
+/// Count one hand's kept seats into `page` for every statistic `wanted`
+/// takes (by the statistic and the hand's `hand_stats.id`).
+fn count_hand(
+    page: &mut CustomPage,
+    stats: &[(PageStat, CustomCounter)],
+    hand: &PageHand,
+    kept: &[KeptSeat],
+    wanted: impl Fn(&PageStat, i64) -> bool,
+) {
+    let wanted: Vec<&(PageStat, CustomCounter)> = stats
+        .iter()
+        .filter(|(stat, _)| wanted(stat, hand.id))
+        .collect();
+    if wanted.is_empty() {
+        return;
+    }
+    let phf = match hand_from(&hand.phf, hand.phf_size) {
+        Ok(phf) => phf,
+        Err(error) => {
+            log::warn!("custom statistics: {}: {error}", hand.hand_key);
+            return;
+        }
+    };
+    let events = hand_events(&phf);
+    let day = day_of(hand.played_at.as_deref()).to_owned();
+    // The HUD's sums: `aggregate`'s defaults (bomb pots out); and their
+    // part from a hand the user did not play (R3.7).
+    let counted = Exclusions::default().admits(hand.kind).0;
+    let observed = !kept.iter().any(|seat| seat.is_hero);
+    for seat in kept {
+        let Some(seat_events) = events.seats.iter().find(|s| s.seat == seat.seat) else {
+            continue;
+        };
+        for (stat, counter) in &wanted {
+            let counts = counter.count(&events, seat_events);
+            if counts.opp == 0 && counts.made == 0 {
+                continue;
+            }
+            let (made, opp) = (i64::from(counts.made), i64::from(counts.opp));
+            if seat.is_hero {
+                page.hero_rows.push((stat.id, hand.id, made, opp));
+                page.heroes
+                    .entry((
+                        stat.id,
+                        hand.segment_id,
+                        seat.position.clone(),
+                        day.clone(),
+                        hand.kind,
+                    ))
+                    .or_default()
+                    .add(made, opp);
+            }
+            if counted {
+                let key = (
+                    stat.id,
+                    hand.site.clone(),
+                    seat.player.clone(),
+                    seat.scope.clone(),
+                    hand.segment_id,
+                );
+                if observed {
+                    page.observed.entry(key.clone()).or_default().add(made, opp);
+                }
+                page.players.entry(key).or_default().add(made, opp);
+            }
+        }
+    }
+}
+
+/// The statistics with a predicate this build can count, parsed.
+fn counted_stats(conn: &Connection) -> Result<Vec<(PageStat, CustomCounter)>> {
+    let mut stmt = conn.prepare_cached(
+        "SELECT id, rev, predicate, counted_to FROM custom_stats
+         WHERE predicate IS NOT NULL ORDER BY id",
+    )?;
+    let mut stats: Vec<(PageStat, CustomCounter)> = Vec::new();
+    let mut rows = stmt.query([])?;
+    while let Some(row) = rows.next()? {
+        let text: String = row.get(2)?;
+        match CustomCounter::parse(&text) {
+            Ok(counter) => stats.push((
+                PageStat {
+                    id: row.get(0)?,
+                    rev: row.get(1)?,
+                    counted_to: row.get(3)?,
+                },
+                counter,
+            )),
+            // Saved by a build whose fields this one does not have.
+            Err(error) => log::warn!("custom statistic {}: {error}", row.get::<_, i64>(0)?),
+        }
+    }
+    Ok(stats)
+}
+
+/// (Hand deletion, store version 26) Take these hands' counts out of the
+/// custom statistics before their rows go: each statistic that counted a
+/// hand (`counted_to` at or past its `hand_stats.id`) loses exactly what the
+/// pass added for it - the hand's decision events counted again on its kept
+/// seats - and its `custom_hero_rows` go. Rollup rows left at 0 / 0 go too.
+/// `ids` are `hand_stats.id`s whose rows are still stored.
+pub(crate) fn uncount_hands(conn: &Connection, ids: &[i64]) -> Result<()> {
+    if ids.is_empty() {
+        return Ok(());
+    }
+    let mut delete_rows = conn.prepare_cached("DELETE FROM custom_hero_rows WHERE hand_id = ?1")?;
+    let stats = counted_stats(conn)?;
+    if stats.is_empty() {
+        for id in ids {
+            delete_rows.execute([id])?;
+        }
+        return Ok(());
+    }
+    let mut page = CustomPage::default();
+    let mut read_hand = conn.prepare_cached(
+        "SELECT d.id, d.hand_key, d.segment_id, s.site, d.played_at,
+                d.is_bomb_pot, d.has_straddle, d.has_cashout, h.phf, h.phf_size
+         FROM hand_stats d
+         JOIN segments s ON s.id = d.segment_id
+         JOIN hands h ON h.hand_key = d.hand_key
+         WHERE d.id = ?1",
+    )?;
+    let mut read_seats = conn.prepare_cached(
+        "SELECT seat, player, scope, is_hero, coalesce(position, '')
+         FROM seat_stats WHERE hand_id = ?1",
+    )?;
+    for &id in ids {
+        let hand = read_hand
+            .query_row([id], |row| {
+                Ok(PageHand {
+                    id: row.get(0)?,
+                    hand_key: row.get(1)?,
+                    segment_id: row.get(2)?,
+                    site: row.get(3)?,
+                    played_at: row.get(4)?,
+                    kind: kind_from(row, 5)?,
+                    phf: row.get(8)?,
+                    phf_size: row.get(9)?,
+                })
+            })
+            .optional()?;
+        let Some(hand) = hand else { continue };
+        let kept = read_seats
+            .query_map([id], |row| {
+                Ok(KeptSeat {
+                    seat: row.get(0)?,
+                    player: row.get(1)?,
+                    scope: row.get(2)?,
+                    is_hero: row.get(3)?,
+                    position: row.get(4)?,
+                })
+            })?
+            .collect::<rusqlite::Result<Vec<_>>>()?;
+        count_hand(&mut page, &stats, &hand, &kept, |stat, id| {
+            stat.counted_to >= id
+        });
+        delete_rows.execute([id])?;
+    }
+    let mut take = conn.prepare_cached(
+        "UPDATE custom_hero_rollups SET made = made - ?6, opp = opp - ?7
+         WHERE stat_id = ?1 AND segment_id = ?2 AND position = ?3 AND day = ?4 AND kind = ?5",
+    )?;
+    let mut drop_zero = conn.prepare_cached(
+        "DELETE FROM custom_hero_rollups
+         WHERE stat_id = ?1 AND segment_id = ?2 AND position = ?3 AND day = ?4 AND kind = ?5
+           AND made = 0 AND opp = 0",
+    )?;
+    for ((stat, segment, position, day, kind), counts) in &page.heroes {
+        take.execute(params![
+            stat,
+            segment,
+            position,
+            day,
+            kind,
+            counts.made,
+            counts.opp
+        ])?;
+        drop_zero.execute(params![stat, segment, position, day, kind])?;
+    }
+    for (table, sums) in [
+        ("custom_player_rollups", &page.players),
+        ("custom_player_rollups_observed", &page.observed),
+    ] {
+        let mut take = conn.prepare_cached(&format!(
+            "UPDATE {table} SET made = made - ?6, opp = opp - ?7
+             WHERE stat_id = ?1 AND site = ?2 AND player = ?3 AND scope = ?4 AND segment_id = ?5"
+        ))?;
+        let mut drop_zero = conn.prepare_cached(&format!(
+            "DELETE FROM {table}
+             WHERE stat_id = ?1 AND site = ?2 AND player = ?3 AND scope = ?4 AND segment_id = ?5
+               AND made = 0 AND opp = 0"
+        ))?;
+        for ((stat, site, player, scope, segment), counts) in sums {
+            take.execute(params![
+                stat,
+                site,
+                player,
+                scope,
+                segment,
+                counts.made,
+                counts.opp
+            ])?;
+            drop_zero.execute(params![stat, site, player, scope, segment])?;
+        }
+    }
+    Ok(())
 }
 
 /// Write a page: for each statistic still as it was when the page was read

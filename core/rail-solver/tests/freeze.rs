@@ -68,6 +68,7 @@ fn uniform_lock(path: &str, player: u8, actions: &[&str], action: usize) -> Node
         actions: actions.iter().map(|s| (*s).to_owned()).collect(),
         strategy,
         locked: vec![1; NUM_COMBOS],
+        custom: None,
     }
 }
 
@@ -84,6 +85,7 @@ fn lock_set(nodes: Vec<NodeLockSpec>, earlier: LockEarlier) -> LockSet {
         nodes,
         earlier,
         target_pct: 1.0,
+        ranges: None,
     }
 }
 
@@ -262,4 +264,77 @@ fn a_nodelock_request_solves() {
     // A cancel is an error.
     let cancelled = run_nodelock(&request, &AtomicBool::new(true), |_| {});
     assert_eq!(cancelled.err().as_deref(), Some("cancelled"));
+}
+
+/// A range lock (docs/NODELOCK.md §9.2): the spot's ranges are not the
+/// library chunk's, on purpose. With `ranges` in the set the solve runs from
+/// them, the added hands free at the earlier nodes; without, it is refused.
+#[test]
+fn a_range_locked_request_solves() {
+    use std::sync::atomic::AtomicBool;
+
+    use rail_solver::cards::{RangeInput, to_range};
+    use rail_solver::lock::RangeLock;
+    use rail_solver::nodelock::{NodelockRequest, RequestOptions, run_nodelock};
+
+    let fx = load("flop-small");
+    let mut spot = spot_of(&fx);
+    let chunk = fx["expect"]["bytes"].as_str().unwrap().to_owned();
+    let library = decode(&bytes(&fx["expect"]["bytes"])).unwrap();
+    // Player 1 gets every combo the board leaves at a quarter, on top of its range.
+    let board = rail_solver::cards::parse_cards(&spot.board).unwrap();
+    let mut wide = to_range(&spot.ranges[1]).unwrap();
+    for (combo, w) in wide.iter_mut().enumerate() {
+        let (hi, lo) = (
+            rail_solver::cards::combo_hi(combo),
+            rail_solver::cards::combo_lo(combo),
+        );
+        if *w == 0.0 && !board.contains(&hi) && !board.contains(&lo) {
+            *w = 0.25;
+        }
+    }
+    spot.ranges[1] = RangeInput::Weights(wide.clone());
+    let node = library
+        .nodes
+        .iter()
+        .find(|n| n.player == 0 && n.path.starts_with("X-B"))
+        .unwrap();
+    let labels: Vec<&str> = node.labels.iter().map(String::as_str).collect();
+    let mut spec = uniform_lock(&node.path, 0, &labels, 0);
+    spec.street = "flop".into();
+    let mut lock_set = lock_set(vec![spec], LockEarlier::All);
+    lock_set.spot.turn = None;
+    lock_set.spot.river = None;
+    let request = |lock_set: LockSet| NodelockRequest {
+        spot: spot.clone(),
+        lock_set,
+        baseline: Some(chunk.clone()),
+        header: fx["header"].as_str().unwrap().to_owned(),
+        options: RequestOptions {
+            max_iterations: 4,
+            target_pct: 0.0,
+            check_from: Some(4),
+            check_every: 4,
+            dcfr: rail_solver::cfr::DcfrParams {
+                alpha: 1.5,
+                beta: 0.0,
+                gamma: 3.0,
+            },
+        },
+        threads: Some(2),
+        storage: None,
+        memory_budget: None,
+    };
+    let refused = run_nodelock(&request(lock_set.clone()), &AtomicBool::new(false), |_| {});
+    assert!(refused.err().unwrap().contains("other ranges"));
+
+    lock_set.version = 2;
+    lock_set.ranges = Some(vec![RangeLock {
+        player: 1,
+        weights: wide,
+    }]);
+    let out = run_nodelock(&request(lock_set), &AtomicBool::new(false), |_| {}).unwrap();
+    let decoded = decode(&out.chunk).unwrap();
+    assert!(decoded.hands[1].len() > library.hands[1].len());
+    assert_eq!(decoded.hands[0], library.hands[0]);
 }

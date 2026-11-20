@@ -475,3 +475,11 @@ verify_jwt = false
 [functions.account-delete]
 enabled = true
 verify_jwt = false
+
+# Feedback from the web and the desktop app (20271119090000_feedback.sql).
+# `verify_jwt = false`: visitors send reports too, with no token at all; a
+# bearer token, when there is one, is verified with GoTrue inside.
+# Deploy with `supabase functions deploy feedback --no-verify-jwt`.
+[functions.feedback]
+enabled = true
+verify_jwt = false

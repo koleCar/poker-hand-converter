@@ -52,6 +52,10 @@ export const paths = {
    * filter's groups (`components/analysis/session/sessionQuery.ts`).
    */
   analysisSession: (query?: string) => (query ? `/analysis/session?${query}` : "/analysis/session"),
+  /** analysis/45: the multiway pots on their own (three or more players at a decision). Private. */
+  analysisMultiway: () => "/analysis/multiway",
+  /** analysis/45: the bomb pots on their own. Private. */
+  analysisBomb: () => "/analysis/bomb",
   /** Progress (phase A6): score and EV lost over time. Private; `query` is its filters and view. */
   analysisProgress: (query?: string) => (query ? `/analysis/progress?${query}` : "/analysis/progress"),
   /**
@@ -119,6 +123,9 @@ export const paths = {
   /** One hand's analysis: the replayer with the Analysis sheet open. */
   analysisHand: (handId: string, query?: string) =>
     `/analysis/h/${encodeURIComponent(handId)}${query ? `?${query}` : ""}`,
+  /** A hand of the library by its dedupe key (the desktop app's "Open on the web"): resolves to `analysisHand`. */
+  analysisHandByKey: (handKey: string, position?: string | null) =>
+    `/analysis/hand?key=${encodeURIComponent(handKey)}${position ? `&t=${encodeURIComponent(position)}` : ""}`,
   sharedHand: (slug: string) => `/h/${encodeURIComponent(slug)}`,
   /**
    * A public profile. Every top-level segment here is also a row in
@@ -132,11 +139,13 @@ export const paths = {
   /** Account -> Plan: the plan, its limits and usage (R6.2). */
   settingsPlan: () => "/settings#plan",
   /**
-   * Where "Upgrade to Pro" leads: the Plan panel, which offers monthly or
-   * yearly and opens Stripe Checkout (R6.3) - or says paid plans open soon
-   * while Stripe is not configured.
+   * The pricing page: Free against Pro, the three billing periods, and the
+   * upgrade (a confirmation, then Stripe Checkout). Public. `period` opens
+   * it on that period; `from=app` is the desktop app's link.
    */
-  upgrade: () => "/settings#plan",
+  pricing: (period?: "month" | "half_year" | "year") => (period ? `/pricing?period=${period}` : "/pricing"),
+  /** Where "Upgrade" and "See Pro" lead: the pricing page. */
+  upgrade: () => "/pricing",
   /**
    * Where Stripe Checkout returns (R6.3): after paying, and when the buyer
    * goes back. The owner sets these as `BILLING_SUCCESS_URL` and
@@ -173,6 +182,13 @@ export const paths = {
   notifications: () => "/notifications",
   saved: () => "/saved",
   mod: () => "/mod",
+  /** Admins only (`20271119100000_admin.sql`): every account. `admin` is a reserved (staff) username. */
+  admin: () => "/admin",
+  adminUser: (id: string) => `/admin/users/${encodeURIComponent(id)}`,
+  /** The feedback reports, optionally one account's. */
+  adminReports: (user?: string) => (user ? `/admin/reports?user=${encodeURIComponent(user)}` : "/admin/reports"),
+  /** The Pro waitlist (`20271119210000_pro_waitlist.sql`). */
+  adminWaitlist: () => "/admin/waitlist",
   takedown: () => "/takedown",
   /** The desktop app for macOS and Windows: what it does, and the two installers. Public; a reserved username (`20271103100000_download_route.sql`). */
   download: () => "/download",

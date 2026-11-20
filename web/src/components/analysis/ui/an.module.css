@@ -800,3 +800,190 @@
 .hrow:hover .dim {
   color: var(--text-secondary);
 }
+
+/* ---------------------------------------------------------------- motion
+ *
+ * Skeletons while a part loads, and the parts arriving: bars grow from their
+ * start, the grade bar wipes in, heat cells follow the metric. Everything
+ * here stops under `prefers-reduced-motion: reduce` (the content simply
+ * appears; skeletons stay as still grey blocks).
+ */
+
+.sk {
+  position: relative;
+  display: block;
+  flex: none;
+  max-inline-size: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-2);
+  /* Text colour, faint: a visible block on the raised card in either theme. */
+  background: color-mix(in srgb, var(--text-primary) 7%, transparent);
+}
+
+.skRound {
+  border-radius: var(--radius-pill);
+}
+
+/* The first load's page: the same column as `.page`, minus the nav. */
+.skPage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* A draw that runs every frame while the screen waits: the sweep. */
+@media (prefers-reduced-motion: no-preference) {
+  .sk::after {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in srgb, var(--text-primary) 9%, transparent) 50%,
+      transparent 100%
+    );
+    transform: translateX(-100%);
+    animation: an-sweep 1.4s var(--ease-standard) infinite;
+    content: "";
+  }
+
+  /* Invisible for the first 150ms, like RailLoader: a fast read never flashes grey. */
+  .skWrap {
+    animation: an-fade var(--dur-3) var(--ease-out) 150ms both;
+  }
+
+  /* The grade bar wipes in from its start. */
+  .gradeBar {
+    animation: an-wipe 700ms var(--ease-out) 120ms backwards;
+  }
+
+  .gradeBar button {
+    transition:
+      opacity var(--dur-2) var(--ease-standard),
+      flex-grow var(--dur-4) var(--ease-out);
+  }
+
+  /* Leak and plan bars grow from zero when they first show. */
+  .hbar > i,
+  .mbar > i,
+  .runBar > i {
+    transform-origin: left center;
+    animation: an-grow 650ms var(--ease-out) 180ms backwards;
+  }
+
+  .hbar > i:dir(rtl),
+  .mbar > i:dir(rtl),
+  .runBar > i:dir(rtl) {
+    transform-origin: right center;
+  }
+
+  /* A metric switch recolours the cells instead of swapping them. */
+  .cell {
+    transition:
+      transform var(--dur-1) var(--ease-standard),
+      box-shadow var(--dur-1) var(--ease-standard),
+      background-color var(--dur-4) var(--ease-out);
+  }
+
+  /* Heat rows arrive one after another (`.rail-stagger` on `.heat`), each cell a beat later. */
+  .heatIn .cell {
+    animation: an-pop var(--dur-4) var(--ease-out) backwards;
+  }
+
+  .heatIn .cell:nth-child(3) { animation-delay: 30ms; }
+  .heatIn .cell:nth-child(4) { animation-delay: 60ms; }
+  .heatIn .cell:nth-child(5) { animation-delay: 90ms; }
+}
+
+@keyframes an-sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes an-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes an-wipe {
+  from {
+    clip-path: inset(0 100% 0 0 round 5px);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0 round 5px);
+  }
+}
+
+@keyframes an-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes an-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+/* The analysis run's progress, under its status line. */
+.runBar {
+  position: relative;
+  display: inline-block;
+  inline-size: 72px;
+  block-size: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--surface-inset);
+}
+
+.runBar > i {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  border-radius: 2px;
+  background: var(--accent);
+  transition: inline-size var(--dur-3) var(--ease-out);
+}
+
+/* The content after the nav, as one block for `.rail-stagger`. */
+.contents {
+  display: contents;
+}
+
+/* ------------------------------------------------------- tab skeletons */
+
+/* A skeleton's column: the same rhythm as the tabs' `.stats` column. */
+.skStack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-inline-size: 0;
+}
+
+/* Session figures. */
+.skTiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+}
+
+/* Charts: the 13×13 grid beside its help. */
+.skChartRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-5, 20px);
+}
+
+.skGrid13 {
+  display: grid;
+  flex: 0 1 620px;
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+  gap: 2px;
+  min-inline-size: 280px;
+}

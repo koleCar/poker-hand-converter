@@ -70,8 +70,9 @@
 //! - (T7) table tiling's global hotkeys ([`hotkeys`],
 //!   `tauri-plugin-global-shortcut`, added in `setup` and called from Rust
 //!   only; no plugin permission for the window).
-//! - the user's nodelocks ([`nodelock_store`], docs/NODELOCK.md §3): the
-//!   history of locked solves, kept in the store on this computer only.
+//! - the user's nodelocks ([`nodelock_store`], docs/NODELOCK.md §3, §7.5):
+//!   the locked solves and the My nodelocks tree, kept in the store on this
+//!   computer only.
 //! - nodelock solves on this computer ([`nodelock_solve`], docs/NODELOCK.md
 //!   §2.5): the native engine (`core/rail-solver`) on its own threads.
 
@@ -85,10 +86,12 @@ pub mod account;
 pub mod analysis;
 pub mod commands;
 pub mod custom_stats;
+pub mod delete;
 #[cfg(debug_assertions)]
 pub mod dev;
 pub mod entitlements;
 pub mod export;
+pub mod feedback;
 pub mod folder_settings;
 pub mod folders;
 pub mod hand_time;
@@ -442,6 +445,8 @@ pub fn run() {
         entitlements::entitlements_status,
         entitlements::entitlements_check_now,
         entitlements::entitlements_open_upgrade,
+        entitlements::entitlements_open_manage,
+        entitlements::solver_open_flop,
         stats::stats_status,
         stats::stats_rebuild,
         stats::stats_recompute_ev,
@@ -460,6 +465,8 @@ pub fn run() {
         share::share_open,
         share::share_set_names,
         share::forum_preview_open,
+        share::hand_web_open,
+        feedback::feedback_send,
         trainer::trainer_results_record,
         hands::hand_annotations,
         hands::hand_set_note,
@@ -467,6 +474,9 @@ pub fn run() {
         hands::hand_remove_tag,
         hands::hands_marks,
         hands::hands_mark,
+        delete::hands_delete,
+        delete::hands_delete_all,
+        delete::hands_count,
         hands::saved_filters,
         hands::save_filter,
         hands::delete_saved_filter,
@@ -526,6 +536,7 @@ pub fn run() {
         analysis::analysis_offline,
         analysis::analysis_save,
         analysis::analysis_counts,
+        analysis::analysis_months,
         analysis::hand_analysis,
         analysis::analysis_villains,
         analysis::analysis_clear,
@@ -547,11 +558,19 @@ pub fn run() {
         review::chart_examples,
         review::top_leaks,
         review::leak_examples,
+        review::multiway_summary,
+        review::pot_kind_decisions,
+        review::bomb_pot_phfs,
         nodelock_store::nodelock_list,
         nodelock_store::nodelock_get,
         nodelock_store::nodelock_save,
         nodelock_store::nodelock_rename,
         nodelock_store::nodelock_delete,
+        nodelock_store::nodelock_delete_preview,
+        nodelock_store::nodelock_folders,
+        nodelock_store::nodelock_folder_save,
+        nodelock_store::nodelock_folder_delete,
+        nodelock_store::nodelock_move,
         nodelock_solve::nodelock_engine_info,
         nodelock_solve::nodelock_solve_start,
         nodelock_solve::nodelock_solve_cancel,
@@ -615,6 +634,8 @@ pub fn run() {
         entitlements::entitlements_status,
         entitlements::entitlements_check_now,
         entitlements::entitlements_open_upgrade,
+        entitlements::entitlements_open_manage,
+        entitlements::solver_open_flop,
         stats::stats_status,
         stats::stats_rebuild,
         stats::stats_recompute_ev,
@@ -633,6 +654,7 @@ pub fn run() {
         share::share_open,
         share::share_set_names,
         share::forum_preview_open,
+        share::hand_web_open,
         trainer::trainer_results_record,
         hands::hand_annotations,
         hands::hand_set_note,
@@ -640,6 +662,9 @@ pub fn run() {
         hands::hand_remove_tag,
         hands::hands_marks,
         hands::hands_mark,
+        delete::hands_delete,
+        delete::hands_delete_all,
+        delete::hands_count,
         hands::saved_filters,
         hands::save_filter,
         hands::delete_saved_filter,
@@ -699,6 +724,7 @@ pub fn run() {
         analysis::analysis_offline,
         analysis::analysis_save,
         analysis::analysis_counts,
+        analysis::analysis_months,
         analysis::hand_analysis,
         analysis::analysis_villains,
         analysis::analysis_clear,
@@ -720,11 +746,19 @@ pub fn run() {
         review::chart_examples,
         review::top_leaks,
         review::leak_examples,
+        review::multiway_summary,
+        review::pot_kind_decisions,
+        review::bomb_pot_phfs,
         nodelock_store::nodelock_list,
         nodelock_store::nodelock_get,
         nodelock_store::nodelock_save,
         nodelock_store::nodelock_rename,
         nodelock_store::nodelock_delete,
+        nodelock_store::nodelock_delete_preview,
+        nodelock_store::nodelock_folders,
+        nodelock_store::nodelock_folder_save,
+        nodelock_store::nodelock_folder_delete,
+        nodelock_store::nodelock_move,
         nodelock_solve::nodelock_engine_info,
         nodelock_solve::nodelock_solve_start,
         nodelock_solve::nodelock_solve_cancel,

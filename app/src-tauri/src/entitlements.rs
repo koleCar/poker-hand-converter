@@ -27,6 +27,14 @@
 //!   Re-evaluated every minute too, so the grace period ends on time
 //!   offline.
 //!
+//! **The free tier** (2026-11-19): sync is free (Free's features include
+//! `desktop_sync`, its fallbacks too), its caps are the server's - the room
+//! the last check saw goes to the sync worker (`SyncWorker::set_plan_room`)
+//! to size its batches. The solver's flops a day: [`solver_open_flop`] asks
+//! the server before a flop's strategy shows (preflop never); offline,
+//! today's flops the last answer listed stay open and a new one waits for a
+//! connection. "See Pro" opens the web's pricing page.
+//!
 //! **Enforcement is off today**: the server says `enforced: false` (or the
 //! app was never told), every feature is open, signed in or not.
 
@@ -34,9 +42,11 @@ use std::sync::{Mutex, PoisonError};
 use std::time::Duration;
 
 use rail_sync::entitlements::{
-    ACCOUNT_KEY, AccountCheck, Effective, EnforcementCheck, Inputs, PUBLIC_KEY, effective,
+    ACCOUNT_KEY, AccountCheck, Effective, EffectivePlan, EnforcementCheck, Inputs, PUBLIC_KEY,
+    effective, flop_key,
 };
 use rail_sync::ingest::{IngestClient, IngestError};
+use rail_sync::worker::PlanRoom;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, Runtime, State};
 use tokio::sync::Notify;
@@ -87,6 +97,8 @@ pub struct EntitlementsState {
     effective: Mutex<Option<Effective>>,
     check: Mutex<CheckInfo>,
     wake: Notify,
+    /// The server's client, for [`solver_open_flop`] (set by [`setup`]).
+    client: std::sync::OnceLock<IngestClient>,
 }
 
 impl EntitlementsState {
@@ -107,6 +119,7 @@ impl EntitlementsState {
             effective: Mutex::new(None),
             check: Mutex::new(CheckInfo::default()),
             wake: Notify::new(),
+            client: std::sync::OnceLock::new(),
         }
     }
 
@@ -146,6 +159,59 @@ impl EntitlementsState {
             .unwrap_or_else(PoisonError::into_inner)
             .account
             .clone()
+    }
+
+    /// `user_id`'s own check, taken while enforcement was on.
+    fn enforced_check_of(&self, user_id: Option<&str>) -> Option<AccountCheck> {
+        self.kept_account()
+            .filter(|check| Some(check.user_id.as_str()) == user_id && check.entitlements.enforced)
+    }
+
+    /// (Free tier) What the sync worker may send for `user_id`: the room the
+    /// last check saw. `None` while everything is open or with no check.
+    fn plan_room(&self, user_id: Option<&str>, effective: &Effective) -> Option<PlanRoom> {
+        if effective.plan == EffectivePlan::Open {
+            return None;
+        }
+        let check = self.enforced_check_of(user_id)?;
+        let e = check.entitlements;
+        Some(PlanRoom {
+            user_id: check.user_id,
+            checked_at_ms: check.fetched_at_ms,
+            daily_cap: e.daily_hand_cap,
+            saved_today: e.hands_today,
+            resets_at_ms: e.day_resets_at_ms,
+            library_cap: e.hand_cap,
+            stored: e.hands_stored,
+        })
+    }
+
+    /// (Free tier) Today's solver flops as `user_id`'s last answer listed
+    /// them, while that day lasts.
+    fn flops_today(&self, user_id: Option<&str>, now_ms: i64) -> Vec<String> {
+        self.kept_account()
+            .filter(|check| Some(check.user_id.as_str()) == user_id)
+            .filter(|check| {
+                check
+                    .entitlements
+                    .day_resets_at_ms
+                    .is_some_and(|at| at > now_ms)
+            })
+            .map(|check| check.entitlements.flops_today)
+            .unwrap_or_default()
+    }
+
+    /// (Free tier) The server's answer about the day's flops, into the
+    /// kept check (so it holds offline). `false`: not this account's check.
+    fn note_flops(&self, user_id: &str, answer: &FlopAnswer) -> Option<AccountCheck> {
+        let mut kept = self.kept.lock().unwrap_or_else(PoisonError::into_inner);
+        let check = kept.account.as_mut().filter(|c| c.user_id == user_id)?;
+        check.entitlements.flops_today.clone_from(&answer.flops);
+        check.entitlements.daily_flop_cap = answer.cap;
+        if answer.resets_at_ms.is_some() {
+            check.entitlements.day_resets_at_ms = answer.resets_at_ms;
+        }
+        Some(check.clone())
     }
 }
 
@@ -187,7 +253,7 @@ fn refresh<R: Runtime>(app: &AppHandle<R>, state: &EntitlementsState, force: boo
                 now.enforcement
             );
         }
-        apply(app, &now);
+        apply(app, &now, state.plan_room(user.as_deref(), &now));
         if let Err(error) = app.emit(CHANGED_EVENT, ()) {
             log::debug!("{CHANGED_EVENT}: {error}");
         }
@@ -195,14 +261,15 @@ fn refresh<R: Runtime>(app: &AppHandle<R>, state: &EntitlementsState, force: boo
     now
 }
 
-/// Act on an answer: the HUD, sync. (The analysis' gate and the window
-/// read it when they ask.)
-fn apply<R: Runtime>(app: &AppHandle<R>, effective: &Effective) {
+/// Act on an answer: the HUD, sync and its room. (The analysis' gate and
+/// the window read it when they ask.)
+fn apply<R: Runtime>(app: &AppHandle<R>, effective: &Effective, room: Option<PlanRoom>) {
     if let Some(hud) = app.try_state::<crate::hud::HudState>() {
         hud.apply_plan(effective.features.hud);
     }
     if let Some(sync) = app.try_state::<crate::sync::SyncState>() {
         sync.set_plan_allows(effective.features.desktop_sync);
+        sync.set_plan_room(room);
     }
 }
 
@@ -297,6 +364,9 @@ pub fn setup<R: Runtime>(app: &AppHandle<R>) {
                 None
             }
         });
+    if let Some(client) = &client {
+        let _ = state.client.set(client.clone());
+    }
     let handle = app.clone();
     tauri::async_runtime::spawn(async move { run(handle, client).await });
 }
@@ -375,7 +445,15 @@ pub struct EntitlementsDto {
     /// The server's reason (`subscription`, `grace`, `granted`, ...).
     pub server_reason: Option<String>,
     pub offline_grace_days: Option<u32>,
-    /// Where "Upgrade" leads (the web's Plan panel).
+    /// (Free tier) The day's caps (`None`: unlimited, or not known) and
+    /// usage, from this account's last answer; the counts are of the day
+    /// that ends at `day_resets_at_ms` (empty once it has).
+    pub daily_hand_cap: Option<u64>,
+    pub hands_today: Option<u64>,
+    pub daily_flop_cap: Option<u32>,
+    pub flops_today: Vec<String>,
+    pub day_resets_at_ms: Option<i64>,
+    /// Where "See Pro" leads (the web's pricing page).
     pub upgrade_url: String,
 }
 
@@ -384,19 +462,41 @@ fn status<R: Runtime>(app: &AppHandle<R>, state: &EntitlementsState) -> Entitlem
     let account = state
         .kept_account()
         .filter(|check| Some(&check.user_id) == user.as_ref());
+    let now = now_ms();
+    let today = account
+        .as_ref()
+        .is_some_and(|a| a.entitlements.day_resets_at_ms.is_some_and(|at| at > now));
     EntitlementsDto {
-        effective: state.evaluate(user.as_deref(), now_ms()),
+        effective: state.evaluate(user.as_deref(), now),
         check: *state.check.lock().unwrap_or_else(PoisonError::into_inner),
         hands_stored: account.as_ref().map(|a| a.entitlements.hands_stored),
         hand_cap: account.as_ref().and_then(|a| a.entitlements.hand_cap),
         server_reason: account.as_ref().map(|a| a.entitlements.reason.clone()),
         offline_grace_days: account.as_ref().map(|a| a.entitlements.offline_grace_days),
+        daily_hand_cap: account.as_ref().and_then(|a| a.entitlements.daily_hand_cap),
+        hands_today: account
+            .as_ref()
+            .map(|a| if today { a.entitlements.hands_today } else { 0 }),
+        daily_flop_cap: account.as_ref().and_then(|a| a.entitlements.daily_flop_cap),
+        flops_today: state.flops_today(user.as_deref(), now),
+        day_resets_at_ms: account
+            .as_ref()
+            .and_then(|a| a.entitlements.day_resets_at_ms),
         upgrade_url: upgrade_url(),
     }
 }
 
-/// The web's Plan panel (`paths.upgrade()`), where Pro is bought (R6.3).
+/// The web's pricing page, told the visitor came from the app.
 pub fn upgrade_url() -> String {
+    format!(
+        "{}/pricing?from=app",
+        crate::account::web_url().trim_end_matches('/')
+    )
+}
+
+/// The web's Plan panel (`paths.upgrade()`): the subscription, invoices,
+/// cancelling (R6.3).
+pub fn manage_url() -> String {
     format!(
         "{}/settings#plan",
         crate::account::web_url().trim_end_matches('/')
@@ -418,11 +518,151 @@ pub fn entitlements_check_now(state: State<'_, EntitlementsState>) {
     state.check_soon();
 }
 
-/// "Upgrade": the web's Plan panel in the default browser.
+/// "See Pro": the web's pricing page in the default browser.
 #[tauri::command]
 pub fn entitlements_open_upgrade() -> Result<(), String> {
     // Ours: the configured https origin and a fixed path.
     open::that_detached(upgrade_url()).map_err(|error| error.to_string())
+}
+
+/// "Manage plan": the web's Plan panel in the default browser.
+#[tauri::command]
+pub fn entitlements_open_manage() -> Result<(), String> {
+    open::that_detached(manage_url()).map_err(|error| error.to_string())
+}
+
+/// (Free tier) May a flop's strategy show?
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum FlopVerdict {
+    /// Shown: Pro, enforcement off, one of today's flops, or a new one the
+    /// server just counted.
+    Open,
+    /// Today's flops are used.
+    Refused,
+    /// Enforced and signed out: flops need a (free) account.
+    SignIn,
+    /// A new flop, and the server cannot be reached to count it.
+    Offline,
+}
+
+/// The server's `solver_open_flop()` answer, as kept.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct FlopAnswer {
+    pub allowed: bool,
+    pub flops: Vec<String>,
+    pub cap: Option<u32>,
+    pub resets_at_ms: Option<i64>,
+}
+
+/// [`solver_open_flop`]'s answer, for the window.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FlopGate {
+    pub verdict: FlopVerdict,
+    /// The flop's canonical key.
+    pub flop: String,
+    /// Today's flops (canonical keys), the cap (`None`: unlimited), and
+    /// when the day ends.
+    pub flops: Vec<String>,
+    pub cap: Option<u32>,
+    pub resets_at_ms: Option<i64>,
+}
+
+/// (Free tier) Before a flop's strategy shows or a flop is solved: may it?
+/// Preflop never asks. Everything open (enforcement off, Pro): yes, no
+/// call. Free: the server counts it (`solver_open_flop`); offline, today's
+/// flops the last answer listed stay open and a new one waits.
+#[tauri::command]
+pub async fn solver_open_flop<R: Runtime>(
+    app: AppHandle<R>,
+    flop: String,
+) -> Result<FlopGate, String> {
+    let key = flop_key(&flop).ok_or_else(|| "not a flop".to_owned())?;
+    let Some(state) = app.try_state::<EntitlementsState>() else {
+        return Ok(open_gate(key, Vec::new(), None, None));
+    };
+    let user = user_of(&app);
+    let now = now_ms();
+    let effective = state.evaluate(user.as_deref(), now);
+    let gate = |verdict, flops: Vec<String>, cap, resets_at_ms| FlopGate {
+        verdict,
+        flop: key.clone(),
+        flops,
+        cap,
+        resets_at_ms,
+    };
+    if effective.features.solver_unlimited {
+        return Ok(gate(FlopVerdict::Open, Vec::new(), None, None));
+    }
+    let Some(user_id) = user else {
+        return Ok(gate(FlopVerdict::SignIn, Vec::new(), None, None));
+    };
+    let kept = state.enforced_check_of(Some(&user_id));
+    let kept_cap = kept.as_ref().and_then(|c| c.entitlements.daily_flop_cap);
+    let kept_resets = kept.as_ref().and_then(|c| c.entitlements.day_resets_at_ms);
+    let account = app
+        .try_state::<AccountState>()
+        .and_then(|state| state.0.clone());
+    let answer = match (state.client.get(), account) {
+        (Some(client), Some(account)) => client
+            .solver_open_flop_as(account.as_ref(), &key)
+            .await
+            .map(|a| FlopAnswer {
+                allowed: a.allowed,
+                flops: a.flops,
+                cap: a.cap,
+                resets_at_ms: a.resets_at_ms,
+            }),
+        _ => Err(IngestError::Transient("no client".into())),
+    };
+    match answer {
+        Ok(answer) => {
+            if let Some(check) = state.note_flops(&user_id, &answer) {
+                keep(&app, ACCOUNT_KEY, &check);
+                if let Err(error) = app.emit(CHANGED_EVENT, ()) {
+                    log::debug!("{CHANGED_EVENT}: {error}");
+                }
+            }
+            let verdict = if answer.allowed {
+                FlopVerdict::Open
+            } else {
+                FlopVerdict::Refused
+            };
+            Ok(gate(verdict, answer.flops, answer.cap, answer.resets_at_ms))
+        }
+        // A server that does not count flops (no such function): it is the
+        // gate, and it lets every flop through.
+        Err(IngestError::Refused { status, code }) => {
+            log::info!("solver: the flop was not counted ({status} {code}); open");
+            Ok(gate(FlopVerdict::Open, Vec::new(), None, None))
+        }
+        Err(error) => {
+            log::info!("solver: today's flops not reachable ({error})");
+            let flops = state.flops_today(Some(&user_id), now);
+            let verdict = if flops.contains(&key) {
+                FlopVerdict::Open
+            } else {
+                FlopVerdict::Offline
+            };
+            Ok(gate(verdict, flops, kept_cap, kept_resets))
+        }
+    }
+}
+
+fn open_gate(
+    flop: String,
+    flops: Vec<String>,
+    cap: Option<u32>,
+    resets_at_ms: Option<i64>,
+) -> FlopGate {
+    FlopGate {
+        verdict: FlopVerdict::Open,
+        flop,
+        flops,
+        cap,
+        resets_at_ms,
+    }
 }
 
 /// For tests: an answer kept as if checked.
@@ -434,6 +674,7 @@ impl EntitlementsState {
             effective: Mutex::new(None),
             check: Mutex::new(CheckInfo::default()),
             wake: Notify::new(),
+            client: std::sync::OnceLock::new(),
         }
     }
 }
@@ -452,7 +693,8 @@ mod tests {
         ServerEntitlements::parse(
             serde_json::json!({
                 "plan": plan, "reason": "x", "enforced": true, "offlineGraceDays": 14,
-                "features": { "desktop_sync": pro, "hud": pro, "reports_full": pro, "analysis": pro, "learn": pro },
+                "features": { "desktop_sync": true, "hud": pro, "reports_full": pro, "analysis": pro, "learn": pro,
+                              "solver_unlimited": pro, "nodelock": pro },
             })
             .to_string()
             .as_bytes(),
@@ -522,8 +764,77 @@ mod tests {
     }
 
     #[test]
-    fn the_upgrade_page_is_the_webs_plan_panel() {
-        assert!(upgrade_url().ends_with("/settings#plan"));
+    fn see_pro_is_the_pricing_page_and_manage_the_plan_panel() {
+        assert!(upgrade_url().ends_with("/pricing?from=app"));
         assert!(upgrade_url().starts_with("http"));
+        assert!(manage_url().ends_with("/settings#plan"));
+    }
+
+    fn free_check(fetched_at_ms: i64, resets_at_ms: i64) -> AccountCheck {
+        let mut entitlements = answer("free");
+        entitlements.daily_hand_cap = Some(500);
+        entitlements.hands_today = 120;
+        entitlements.hand_cap = Some(10_000);
+        entitlements.hands_stored = 4_000;
+        entitlements.daily_flop_cap = Some(3);
+        entitlements.flops_today = vec!["Ks7d2c".into()];
+        entitlements.day_resets_at_ms = Some(resets_at_ms);
+        AccountCheck {
+            user_id: "u1".into(),
+            fetched_at_ms,
+            entitlements,
+        }
+    }
+
+    /// (Free tier) The sync worker gets the room the account's own check
+    /// saw; nothing while everything is open or for another account.
+    #[test]
+    fn the_room_for_sync_is_the_accounts_own_check() {
+        let now = now_ms();
+        let state = EntitlementsState::with(Some(free_check(now - DAY / 2, now + DAY / 2)), None);
+        let e = state.evaluate(Some("u1"), now);
+        assert_eq!(e.plan, EffectivePlan::Free);
+        assert!(e.features.desktop_sync, "sync is free");
+        let room = state.plan_room(Some("u1"), &e).unwrap();
+        assert_eq!(
+            (
+                room.daily_cap,
+                room.saved_today,
+                room.library_cap,
+                room.stored
+            ),
+            (Some(500), 120, Some(10_000), 4_000)
+        );
+        assert_eq!(room.checked_at_ms, now - DAY / 2);
+        assert_eq!(
+            state.plan_room(Some("u2"), &state.evaluate(Some("u2"), now)),
+            None
+        );
+        let open = state.evaluate(None, now);
+        let mut open_too = open.clone();
+        open_too.plan = EffectivePlan::Open;
+        assert_eq!(state.plan_room(Some("u1"), &open_too), None);
+        // Today's flops hold while the day lasts.
+        assert_eq!(state.flops_today(Some("u1"), now), ["Ks7d2c"]);
+        assert!(state.flops_today(Some("u1"), now + DAY).is_empty());
+        assert!(state.flops_today(Some("u2"), now).is_empty());
+        // The server's answer about a new flop is kept in the check.
+        let kept = state
+            .note_flops(
+                "u1",
+                &FlopAnswer {
+                    allowed: true,
+                    flops: vec!["Ks7d2c".into(), "QhJh4s".into()],
+                    cap: Some(3),
+                    resets_at_ms: Some(now + DAY),
+                },
+            )
+            .unwrap();
+        assert_eq!(kept.entitlements.flops_today.len(), 2);
+        assert_eq!(
+            state.flops_today(Some("u1"), now + DAY / 2 + 1),
+            ["Ks7d2c", "QhJh4s"]
+        );
+        assert!(state.note_flops("u2", &FlopAnswer::default()).is_none());
     }
 }

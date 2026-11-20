@@ -107,7 +107,10 @@ const preflopScenarios = {
   "vs-4bet": "Protiv 4-beta ili više",
 } as Record<string, string>;
 
-const roles = { pfr: "Preflop raiser", caller: "Preflop caller", limped: "Limpani pot" } as Record<string, string>;
+/** Odluka u bomb potu (analysis/45: uloga `bomb`; stariji retci nose samo aproksimaciju). */
+const isBombPot = (decision: DecisionAnalysis): boolean => decision.facts.role === "bomb" || decision.approximations.includes("bomb-pot");
+
+const roles = { pfr: "Preflop raiser", caller: "Preflop caller", limped: "Limpani pot", bomb: "Bomb pot" } as Record<string, string>;
 const facing = { first: "prvi na betu", "vs-bet": "protiv beta", "vs-raise": "protiv raisea" } as Record<string, string>;
 
 function scenarioLabel(facts: Pick<SpotFacts, "preflopScenario" | "role" | "facing" | "inPosition" | "scenario" | "players">): string {
@@ -256,7 +259,7 @@ const turnReasons = {
 /** Kraj rečenice "Bez ocjene: …" za multiway odluku (A9), po `MULTIWAY_SKIP_REASONS`. */
 const multiwayReasons = {
   multiway:
-    "u potu su tri ili više igrača, a nijedan solver ne modelira tri raspona odjednom; približnu ocjenu dobiva samo call ili fold na flopu, turnu ili riveru protiv beta",
+    "flop su vidjela tri ili više igrača: takav pot ništa ne solva, a igra se sasvim drukčije od heads-upa, pa nijedna odluka nakon flopa nema ocjenu",
   "multiway-side-pot": "side pot (all-in za manje) dijeli showdown, a približni call to ne modelira",
   "multiway-crowded": "na bet je trebalo odgovoriti više od tri igrača",
   "multiway-range-unknown": "raspon jednog igrača nije se mogao provesti kroz ruku",
@@ -337,7 +340,7 @@ function approxSentences(decision: DecisionAnalysis): string[] {
       ? "Igrači koji su još na potezu callaju ili foldaju otprilike onoliko često koliko to čine igrači iza calla u spremljenim multiway rukama (model sužavanja bira koje ruke), nikad ne re-raiseaju, a raise nije među uspoređenim opcijama: čitaj ovo kao procjenu, ne kao riješen odgovor."
       : "Igrači koji su još na potezu callaju ili foldaju prema modelu sužavanja i nikad ne re-raiseaju, a raise nije među uspoređenim opcijama: čitaj ovo kao procjenu, ne kao riješen odgovor.",
   );
-  if (ev.capped) {
+  if (ev.capped && !isBombPot(decision)) {
     out.push(
       `Samo po ovim brojevima ovo bi bila ${gradeWords[ev.capped] ?? ev.capped}. Rasponi suženi heurističkim modelom ne mogu nositi tu presudu, pa je ocjena ograničena na Grešku.`,
     );
@@ -449,7 +452,7 @@ function turnSentences(decision: DecisionAnalysis): string[] {
   if (decision.approximations.includes("size-translated")) {
     out.push("Veličina beta u ovoj turn liniji pročitana je kao najbliža solverova veličina (75 % pota i all-in, raise 75 % i all-in, uz veličine iz ove ruke).");
   }
-  if (turn.capped) {
+  if (turn.capped && !isBombPot(decision)) {
     out.push(
       `Samo po solverovim brojevima ovo bi bila ocjena ${gradeWords[turn.capped] ?? turn.capped}. Rasponi koje je na flopu suzio heuristički model ne mogu nositi takvu presudu, pa je ocjena ograničena na Grešku — Gruba greška je samo potez koji gubi što god protivnik drži.`,
     );
@@ -519,7 +522,7 @@ function riverSentences(decision: DecisionAnalysis): string[] {
   if (decision.approximations.includes("size-translated")) {
     out.push("Veličine betova u ovoj river liniji pročitane su kao najbliže solverove veličine (33 %, 75 %, 150 % pota, all-in).");
   }
-  if (river.capped) {
+  if (river.capped && !isBombPot(decision)) {
     out.push(
       `Samo po solverovim brojevima ovo bi bila ocjena ${gradeWords[river.capped] ?? river.capped}. Rasponi suženi heurističkim modelom ne mogu nositi takvu presudu, pa je ocjena ograničena na Grešku — Gruba greška je samo potez koji gubi što god protivnik drži.`,
     );
@@ -692,6 +695,11 @@ function explain(decision: DecisionAnalysis): string[] {
   out.push(...chartSentences(decision));
   out.push(...icmSentencesHr(decision));
   out.push(...approxSentences(decision));
+  if (isBombPot(decision) && decision.grade) {
+    out.push(
+      "Bomb pot: svi su uložili ante i otišli ravno na flop s bilo koje dvije karte, duboko i multiway. Rail nema riješene bomb potove, pa su brojke iznad gruba procjena iz modela za multiway, ne presuda: ocjena je ograničena na Netočno.",
+    );
+  }
   out.push(...turnSentences(decision));
   out.push(...riverSentences(decision));
   out.push(...multiwaySentences(decision));
@@ -731,6 +739,129 @@ function explain(decision: DecisionAnalysis): string[] {
     out.push(flagSentence(flag, facts));
   }
   return out.filter(Boolean);
+}
+
+/** Kratko o ulozi ruke protiv raspona s kojim se suočava (rješenja turna i rivera). */
+const roleWords = {
+  value: "value ruka",
+  vulnerable: "ispred, ali ranjiva",
+  draw: "draw",
+  "bluff-catcher": "bluff-catcher",
+  medium: "srednja ruka",
+  air: "zrak",
+  weak: "preslaba i za hvatanje blefova",
+  "thin-value": "u najboljem slučaju tanki value",
+  showdown: "ruka za showdown",
+} as Record<string, string>;
+
+/**
+ * *Zašto* ukratko (2026-11-19): prvo presuda, zatim nekoliko jasnih
+ * natuknica — situacija, cijena prema equityju, uloga ruke, stol, zastavice
+ * i jedno upozorenje. Cijelo obrazloženje ostaje u `explain()`; ovo samo
+ * bira iz istog zapisa.
+ */
+function brief(decision: DecisionAnalysis): { lead: string; points: string[] } {
+  const facts = decision.facts;
+  const points: string[] = [];
+  const chosen = decision.chosen !== null ? decision.options[decision.chosen] : undefined;
+  const mwEv = decision.source === "approx" ? facts.multiway?.ev : undefined;
+
+  // Presuda.
+  let lead: string | null = null;
+  if (decision.status === "not-analysed") {
+    const reason = decision.reason
+      ? (multiwayReasons[decision.reason] ??
+        chartReasons[decision.reason] ??
+        riverReasons[decision.reason] ??
+        turnReasons[decision.reason] ??
+        tournamentReasonsHr[decision.reason])
+      : undefined;
+    lead = reason ? `Bez ocjene: ${reason}.` : "Nije analizirano.";
+  } else if (decision.grade && chosen) {
+    const mine = capitalise(optionLabel(chosen));
+    const who = decision.source === "solver" ? "solver" : "referenca";
+    const better = mwEv
+      ? (decision.options.find((o) => o.action === (mwEv.call > 0 ? "call" : "fold")) ?? null)
+      : betterAlternative(decision);
+    const loss = decision.evLoss ?? 0;
+    if (decision.grade === "perfect" || loss < 0.005 || !better || better === chosen) {
+      lead = mwEv
+        ? chosen.action === "fold"
+          ? "Fold je ovdje bolji od calla."
+          : "Call je ovdje bolji od folda."
+        : referenceMix(decision).length > 1
+          ? `${mine} je ispravno: ${who} miješa ${mixLabel(decision)}.`
+          : `${mine} je ispravno: ${who} ovdje igra isto.`;
+    } else if (decision.grade === "good") {
+      lead = `${mine} je u redu: ${who} to igra u ${pct(chosen.freq)} slučajeva.`;
+    } else {
+      lead = `${capitalise(optionLabel(better))} je bolji: ${optionLabel(chosen)} košta ${num(loss, 2)} bb (${pct(decision.evLossPot ?? 0)} pota).`;
+    }
+  }
+
+  // Situacija.
+  if (facts.street === "preflop") {
+    points.push(
+      `${scenarioLabel(facts)} na ${facts.position ?? "tvojem sjedalu"} s ${facts.handClass ?? facts.holeCards.join("")}, efektivno ${bb(facts.effStackBb)}.`,
+    );
+  } else {
+    const t = facts.texture;
+    const board = t
+      ? [textureWords.suits[t.suits], t.trips ? "trips" : t.paired ? "uparen" : null, textureWords.highCard[t.highCard]]
+          .filter(Boolean)
+          .join(", ")
+      : null;
+    const drawText = facts.draws.length > 0 ? ` i ${list(facts.draws.map((d) => draws[d] ?? d))}` : "";
+    points.push(
+      `${streets[facts.street]}, ${scenarioLabel(facts).toLowerCase()}: imaš ${handPhrase(facts)}${drawText}${board ? `; board je ${board}` : ""}.`,
+    );
+  }
+
+  // Cijena prema equityju.
+  const equity = mwEv ? mwEv.equity : (facts.turn?.equity ?? facts.equity?.value ?? null);
+  if (facts.potOdds !== null && facts.toCallBb > 0) {
+    points.push(
+      equity !== null
+        ? `Za call treba ${pct(facts.potOdds)} equityja; imaš oko ${pct(equity)}.`
+        : `Za call treba ${pct(facts.potOdds)} equityja.`,
+    );
+  } else if (facts.betPot !== null && (decision.action === "bet" || decision.action === "raise")) {
+    points.push(`${decision.action === "bet" ? "Betao/la" : "Raiseao/la"} si ${pct(facts.betPot)} pota${facts.allIn ? ", all-in" : ""}.`);
+  }
+
+  // Uloga ruke (riješeni turn i river).
+  const solved = decision.source === "solver" ? (facts.river ?? facts.turn) : undefined;
+  if (solved && roleWords[solved.role]) {
+    points.push(`Tvoja ruka pobjeđuje ${pct(solved.heroBeats)} protivnikova raspona: ${roleWords[solved.role]}.`);
+  }
+
+  // Stol.
+  const mw = facts.multiway;
+  if (mw && mw.players >= 3) {
+    points.push(mw.lastToAct ? "Ti si zadnji na potezu." : `Iza tebe je još na potezu: ${opponentsNom(mw.behind)}.`);
+    if (mw.reverseImplied && mw.outs && mw.outs.nonNut > 0) {
+      points.push(`Tvojih ${num(mw.outs.nonNut)} outova ne daje nuts: multiway često daju drugu najbolju ruku.`);
+    }
+  }
+  if (facts.spr !== null && facts.spr <= 3 && facts.street !== "river") {
+    points.push(`Kratki stackovi (SPR ${num(facts.spr, 1)}): sljedeći bet te veže.`);
+  }
+  if (facts.blockers.length > 0) {
+    points.push(`Blokiraš ${list(facts.blockers.map((b) => blockers[b] ?? b))}.`);
+  }
+  for (const flag of decision.flags) points.push(flagSentence(flag, facts));
+
+  // Jedno upozorenje, najglasnije.
+  if (decision.status !== "not-analysed") {
+    const capped = mwEv?.capped ?? facts.turn?.capped ?? facts.river?.capped;
+    if (capped) points.push("Ocjena ograničena na Grešku: rasponi su procijenjeni.");
+    else if (mwEv) points.push("Procjena za multiway pot, ne riješen odgovor.");
+    else if (outOfRange(decision)) points.push("Tvoja ruka je ovdje izvan referentnog raspona.");
+    else if (modelCaveat(decision)) points.push("Chartovi podcjenjuju ovakve ruke: ocjenu čitaj kao naznaku.");
+  }
+
+  const all = points.filter(Boolean);
+  return lead ? { lead, points: all } : { lead: all[0] ?? "", points: all.slice(1) };
 }
 
 export const analysisHr: Dict["analysis"] = {
@@ -832,7 +963,7 @@ export const analysisHr: Dict["analysis"] = {
     "bomb-pot": "Bomb pot s dvije ploče",
     "hero-cards-unknown": "Tvoje karte nisu poznate",
     "no-decisions": "Nisi imao/la nijednu odluku",
-    multiway: "Multiway: samo činjenice i bilješke",
+    multiway: "Multiway: bez ocjene",
     "multiway-side-pot": "Multiway: side pot",
     "multiway-crowded": "Multiway: četiri ili više na potezu",
     "multiway-range-unknown": "Multiway: raspon se nije mogao provesti",
@@ -918,7 +1049,7 @@ export const analysisHr: Dict["analysis"] = {
     "posted-blind":
       "Igrač je postao big blind da uđe u igru i checkao: čitano kao limp od jednog big blinda, iako takav igrač ima bilo koje dvije karte, a limper iz chartova nema; ocjena nije gora od Netočno",
     "bomb-pot":
-      "Bomb pot: svi su uložili ante i vidjeli flop, pa svaki raspon kreće od bilo koje dvije karte i sužava ga Railov model za multiway, ne solver; ocjenjuju se samo call i fold protiv beta te heads-up turn i river, nikad gore od Greška",
+      "Bomb pot: svi su uložili ante i vidjeli flop, pa svaki raspon kreće od bilo koje dvije karte i sužava ga Railov model za multiway, ne solver; ocjenjuju se samo call i fold protiv beta te heads-up turn i river, nikad gore od Netočno: Rail nema riješene bomb potove",
     ...icmApproximationsHr,
   } as Record<string, string>,
 
@@ -1100,6 +1231,7 @@ export const analysisHr: Dict["analysis"] = {
     factsHeading: "Situacija",
     flagsHeading: "Oznake",
     whyHeading: "Zašto",
+    whyFull: "Cijelo obrazloženje",
     noFlags: "Ništa nije označeno: prošla je svaka provjera koja vrijedi bez obzira na strategiju.",
     skipped: "Preskočeno",
     mark: (street: string, action: string, note: string | null) =>
@@ -1155,6 +1287,7 @@ export const analysisHr: Dict["analysis"] = {
     backToSession: "Natrag na pregled sesije",
     loading: "Učitavam ruku…",
     notFound: "Ova ruka nije u tvojoj biblioteci.",
+    notSynced: "Ova ruka još nije u tvojoj web biblioteci. Desktop aplikacija je šalje pri sljedećoj sinkronizaciji: otvori je ponovno za minutu.",
     fresh:
       "Ova ruka još nije analizirana u trenutnoj verziji, pa je ovo svježa analiza izračunata u tvojem pregledniku. Pokreni analizu da je spremiš.",
   },
@@ -1345,4 +1478,5 @@ export const analysisHr: Dict["analysis"] = {
   /** Činjenice o ruci riječima, za trenerov "tvoja ruka ovdje" (`components/trainer`). */
   handFacts: { hand: handPhrase, draws, blockers },
   explain,
+  brief,
 };

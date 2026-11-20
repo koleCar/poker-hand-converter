@@ -65,3 +65,4 @@ export {
   type VillainPlayer,
 } from "@rail/web-lib/db/villainCounters";
 export type { PhfHand } from "@rail/web-lib/phf/types";
+export { bombSummary } from "@rail/web-lib/analysis/potKinds";

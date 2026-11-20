@@ -1,68 +1,39 @@
-/* Plans (R6.2): the Pro badge, the lock on a Pro feature, the usage bar. Tokens only. */
+/* Plans (R6.2): the Pro badge, the gold call to action, the lock on a Pro screen, the usage meter. Tokens only. */
 
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 1px 6px;
-  border: 1px solid var(--accent-border);
-  border-radius: var(--radius-sm);
-  color: var(--accent-fg);
-  font-size: 10px;
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: 0.04em;
-  line-height: 1.4;
-  text-transform: uppercase;
+  height: 18px;
+  padding: 0 7px;
+  border: 1px solid var(--money-subtle);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--money-fg) 12%, transparent);
+  color: var(--money-strong);
+  font-size: 10.5px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+  line-height: 1;
   vertical-align: middle;
+  white-space: nowrap;
 }
 
-.panel {
-  gap: 12px;
-  max-width: 62ch;
+/* Worn with `.btn`: the gold of Pro (`--m-*` through the money tokens). */
+.gold {
+  border-color: transparent;
+  background: linear-gradient(180deg, var(--money-fg), var(--money-subtle));
+  color: var(--text-inverse);
+  font-weight: 650;
 }
 
-.heading {
-  margin: 0;
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-}
-
-.subheading {
-  margin: 0;
-  font-size: 13px;
-  font-weight: var(--font-weight-semibold);
-}
-
-.current {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
+.gold:hover:not(:disabled) {
+  border-color: transparent;
+  background: linear-gradient(180deg, var(--money-strong), var(--money-fg));
+  color: var(--text-inverse);
 }
 
 .small {
   margin: 0;
   font-size: 13px;
-}
-
-.lock {
-  display: grid;
-  gap: 10px;
-  max-width: 62ch;
-}
-
-.lockHead {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-}
-
-.lockBody {
-  margin: 0;
 }
 
 .actions {
@@ -72,12 +43,113 @@
   gap: 10px;
 }
 
+/* A locked Pro screen: a blurred skeleton of the screen, a small card over it. */
+
+.lock {
+  position: relative;
+  min-height: 360px;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+}
+
+.lockCompact {
+  min-height: 220px;
+}
+
+.lockPreview {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  opacity: 0.5;
+  filter: blur(2px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.skel {
+  height: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised-2);
+}
+
+.skelTall {
+  height: 110px;
+}
+
+.lockCover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  text-align: center;
+}
+
+.lockLine {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* A locked control (Nodelock): the lock and the tooltip on hover or focus. */
+
+.lockedControl {
+  position: relative;
+  display: inline-flex;
+}
+
+.lockedControl button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tip {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  display: none;
+  padding: 8px 10px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-overlay);
+  box-shadow: var(--shadow-1);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+/* Bridges the gap to the button, so the pointer reaches the tooltip's link. */
+.tip::before {
+  position: absolute;
+  inset: -8px 0 auto;
+  height: 8px;
+  content: "";
+}
+
+.lockedControl:hover .tip,
+.lockedControl:focus-within .tip {
+  display: block;
+}
+
+.tip a {
+  margin-left: 4px;
+  color: var(--money-fg);
+}
+
+/* The library meter: yellow over 90 %, red when full. */
+
 .meter {
   width: 100%;
   max-width: 420px;
-  height: 8px;
+  height: 6px;
   overflow: hidden;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   background: var(--line);
 }
 
@@ -86,55 +158,12 @@
   background: var(--accent-bg);
 }
 
+.meterNear {
+  background: var(--ev-fg);
+}
+
 .meterFull {
   background: var(--danger-fg);
-}
-
-.list {
-  margin: 0;
-  padding-left: 1.2em;
-  display: grid;
-  gap: 4px;
-}
-
-/* Paying (R6.3): the period chooser and the portal button. */
-
-.billing {
-  display: grid;
-  gap: 10px;
-}
-
-.periods {
-  display: grid;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  min-width: 0;
-}
-
-.period {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-}
-
-.periodOn {
-  border-color: var(--accent-border);
-}
-
-.period input {
-  margin-top: 3px;
-}
-
-.periodText {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
 }
 
 /* The two consents before Checkout (R6.3 addendum): native checkboxes, the text wraps beside them. */
@@ -143,8 +172,9 @@
   display: grid;
   gap: 8px;
   margin: 0;
-  padding: 0;
-  border: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
   min-width: 0;
 }
 
@@ -169,10 +199,18 @@
 /* `/billing/success` and `/billing/cancel`: one card. */
 
 .returnCard {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 12px;
-  max-width: 62ch;
-  margin: 0 auto;
+  max-width: 52ch;
+  margin: 48px auto 0;
+  padding: 36px;
+  text-align: center;
+}
+
+.returnDone {
+  border-color: var(--money-subtle);
 }
 
 .returnHeading {
@@ -180,4 +218,16 @@
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-semibold);
   letter-spacing: var(--letter-spacing-tight);
+}
+
+.returnTitle {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.dim {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: 12px;
 }

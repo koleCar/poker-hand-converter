@@ -11,6 +11,11 @@
  * Open (notice, history) ─▶ the row's chunk ─▶ My nodelocks on its spot (`#/solver/lock=<id>&…`)
  * ```
  *
+ * **Locks on locks** (§7.4): a solve asked for inside an open lock carries
+ * its plan (`lineage.ts`'s `planChildLock`): the new row is the parent's
+ * child, and a based set is solved on its base row's stored chunk, not the
+ * library's.
+ *
  * The library tab is always the clean solve: a locked solution shows only in
  * My nodelocks, never on the library's own view.
  */
@@ -23,6 +28,8 @@ import { solverParam } from "../param";
 import { lockHashOf, type LockSet, type NodelockEngine, type NodelockProgress, type NodelockSummary } from "./contract";
 import { nodelockData, type NodeLockInput, type NodeLockRow } from "./data";
 import { pickEngine } from "./engine";
+import { readLockSet } from "./engine/door";
+import { lockChain, resolvePlan, type LockPlan, type LockRef } from "./lineage";
 
 export interface RunningSolve {
   id: string;
@@ -69,12 +76,26 @@ export interface ActiveLock {
   lockSet: LockSet;
   summary: NodelockSummary;
   override: NodelockOverride;
+  /** Its parent, then the parent's, to the root (`planChildLock`'s `ancestors`); empty for a lock on the library. */
+  ancestors: LockRef[];
 }
 
 export interface EditorOpen {
   at: NodelockAt;
   /** A saved lock being edited (or duplicated): its lock fills the editor. */
   from: { lockSet: LockSet; preset: string | null; name: string | null } | null;
+  /**
+   * Opened inside a lock (§7.4): the open lock and its chain, for
+   * `planChildLock`. `edit`: Edit lock, a sibling of the lock that owns the
+   * node (`planEditLock`). Absent: a lock on the library.
+   */
+  within?: EditorWithin | null;
+}
+
+export interface EditorWithin {
+  open: LockRef;
+  ancestors: LockRef[];
+  edit: boolean;
 }
 
 export interface NodelockSession {
@@ -89,7 +110,7 @@ export interface NodelockSession {
   /** Counts Opens: the Solver tab reads its view again from the route. */
   opened: number;
   /** A saved lock to edit (Edit lock, Duplicate and edit): the editor opens once the library shows its decision. */
-  pendingEdit: { view: NodelockSummary["view"]; from: NonNullable<EditorOpen["from"]> } | null;
+  pendingEdit: { view: NodelockSummary["view"]; from: NonNullable<EditorOpen["from"]>; within?: EditorWithin | null } | null;
 }
 
 let state: NodelockSession = {
@@ -148,8 +169,8 @@ export function lockKey(at: Pick<NodelockAt, "set" | "line" | "flop" | "turn">):
   return at.turn ? `${chunk}/${liveTurnId(at.turn.chance, at.turn.card)}` : chunk;
 }
 
-export function openEditor(at: NodelockAt, from: EditorOpen["from"] = null): void {
-  set({ editor: { at, from } });
+export function openEditor(at: NodelockAt, from: EditorOpen["from"] = null, within: EditorWithin | null = null): void {
+  set({ editor: { at, from, within } });
 }
 
 export function closeEditor(): void {
@@ -174,22 +195,47 @@ export function lockIdOf(param: string | null): string | null {
   return new URLSearchParams(param).get("lock") || null;
 }
 
-/** Leaves the locked solution for the library's clean solve, on the same view. */
-export function backToGto(view: string): void {
-  set({ compare: false });
-  go("solver", view);
-}
-
 export function dismissNotice(): void {
   set({ notice: null });
 }
 
 export interface SolveRequest {
   at: NodelockAt;
+  /** `plan.set` when there is a plan. */
   lockSet: LockSet;
   name: string;
   preset: string | null;
   summary: NodelockSummary;
+  /**
+   * Where the row goes and what it is solved on (`planChildLock`,
+   * `planEditLock`, `planRemoveLock`). Absent: a root on the library, at the
+   * top level.
+   */
+  plan?: Pick<LockPlan, "parentId" | "baseRowId" | "folderId">;
+  /**
+   * Names this request's row for a request queued after it (§9.3: new
+   * ranges under a turn node solve the flop first): a later plan's
+   * `pending:<chainKey>` parent and base become this row's id once it is
+   * saved.
+   */
+  chainKey?: string;
+}
+
+/** Rows saved for a `chainKey`, by key: what a `pending:<key>` stands for. */
+const chained = new Map<string, string>();
+
+/**
+ * The chunk a lock is solved on, as bytes: its base row's stored result
+ * (§7.4), or the library chunk as served.
+ */
+async function baselineOf(request: SolveRequest): Promise<Uint8Array> {
+  const { at, lockSet, plan } = request;
+  if (lockSet.base) {
+    const base = plan?.baseRowId ? await nodelockData.get(plan.baseRowId) : null;
+    if (!base?.result || base.status !== "solved" || base.lock_hash !== lockSet.base.lockHash) throw new Error("the lock's base is not solved");
+    return base.result;
+  }
+  return new Uint8Array(await ipc.flopLibraryFile(`${at.set}/${at.library.header.tree}/${at.line}/${at.flop}.bin`));
 }
 
 /**
@@ -238,7 +284,11 @@ async function run(engine: NodelockEngine, request: SolveRequest): Promise<boole
   }
   const now = Date.now();
   const { lockSet, at } = request;
-  const node = lockSet.nodes[0];
+  // A plan built on a row queued before it (§9.3): that row's id, once saved.
+  const plan = request.plan ? resolvePlan(request.plan, chained) : undefined;
+  if (plan === null) return false;
+  // A ranges-only lock (§9) locks no decision: the flop's, with no node path.
+  const node = lockSet.nodes[0] ?? null;
   const row: NodeLockInput = {
     name: request.name,
     set_id: lockSet.spot.set,
@@ -246,8 +296,8 @@ async function run(engine: NodelockEngine, request: SolveRequest): Promise<boole
     flop: lockSet.spot.flop,
     turn: lockSet.spot.turn ?? null,
     river: lockSet.spot.river ?? null,
-    street: node.street,
-    node_path: node.path,
+    street: node?.street ?? "flop",
+    node_path: node?.path ?? "",
     lock_json: lockSet,
     lock_hash: await lockHashOf(lockSet),
     preset: request.preset,
@@ -259,16 +309,20 @@ async function run(engine: NodelockEngine, request: SolveRequest): Promise<boole
     seconds: null,
     peak_mb: null,
     summary_json: request.summary,
+    parent_id: plan?.parentId ?? null,
+    // Only a root lives in a folder: children move with their root.
+    folder_id: plan?.parentId ? null : (plan?.folderId ?? null),
   };
   let id: string;
   let baseline: Uint8Array;
   try {
-    // The library chunk the lock is made on, as served (the engine checks its ranges against it).
-    baseline = new Uint8Array(await ipc.flopLibraryFile(`${at.set}/${at.library.header.tree}/${at.line}/${at.flop}.bin`));
+    // The chunk the lock is made on: the library's as served, or its base lock's (the engine checks it).
+    baseline = await baselineOf({ ...request, plan });
     id = await nodelockData.save(row);
   } catch {
     return false;
   }
+  if (request.chainKey) chained.set(request.chainKey, id);
   const saved = { ...row, id };
   controller = new AbortController();
   const signal = controller.signal;
@@ -329,11 +383,15 @@ export function cancelAll(): void {
   controller?.abort();
 }
 
-/** A stored row's lock and summary, or null when they do not read. */
+/**
+ * A stored row's lock and summary, or null when they do not read. The lock
+ * goes through `readLockSet`: v1 and v2 (range locks, §9.1) read, a newer or
+ * broken one does not.
+ */
 export function parseRow(row: NodeLockRow): { lockSet: LockSet; summary: NodelockSummary } | null {
-  const lockSet = row.lock_json as LockSet | null;
+  const lockSet = readLockSet(row.lock_json);
   const summary = row.summary_json as NodelockSummary | null;
-  return summary?.view && lockSet?.nodes?.length ? { lockSet, summary } : null;
+  return summary?.view && lockSet ? { lockSet, summary } : null;
 }
 
 /** The Solver tab's route for a lock's view. */
@@ -342,10 +400,28 @@ export function viewParam(summary: NodelockSummary): string {
 }
 
 /**
+ * A lock's ancestors (nearest first) and, for a based lock, its base's
+ * chunk. Rows from a store without `parent_id` give no ancestors; the base
+ * is then found by its hash.
+ */
+async function lineageOf(row: NodeLockRow, lockSet: LockSet): Promise<{ ancestors: LockRef[]; base: Uint8Array | null } | null> {
+  const rows = await nodelockData.list().catch(() => [] as NodeLockRow[]);
+  const chain = lockChain(rows.some((r) => r.id === row.id) ? rows : [...rows, row], row.id) ?? [];
+  const ancestors = chain.slice(1);
+  if (!lockSet.base) return { ancestors, base: null };
+  const hash = lockSet.base.lockHash;
+  const baseRow = ancestors.find((lock) => lock.row.lock_hash === hash)?.row ?? rows.find((r) => r.lock_hash === hash && r.status === "solved");
+  const base = baseRow ? await nodelockData.get(baseRow.id).catch(() => null) : null;
+  return base?.result && base.status === "solved" ? { ancestors, base: base.result } : null;
+}
+
+/**
  * Shows a solved nodelock in My nodelocks: its chunk replaces the library's
  * (a flop lock) or one live turn's (a turn or river lock), on the view it was
- * made from. `navigate: false` when the route already names it (the app
- * reopened on it). False when it cannot be read.
+ * made from. A turn lock built on a flop lock (§7.4) shows on that lock's
+ * flop: the base's chunk replaces the library's too. `navigate: false` when
+ * the route already names it (the app reopened on it). False when it cannot
+ * be read.
  */
 export async function openLock(id: string, { navigate = true }: { navigate?: boolean } = {}): Promise<boolean> {
   const row = await nodelockData.get(id).catch(() => null);
@@ -363,14 +439,22 @@ export async function openLock(id: string, { navigate = true }: { navigate?: boo
   const turnId = summary.view.turn ?? null;
   const { result: _result, ...listed } = row;
   void _result;
+  const lineage = await lineageOf(listed, lockSet);
+  if (!lineage) return false;
+  let baseFlop: ReturnType<typeof decodeChunk> | null;
+  try {
+    baseFlop = lineage.base ? decodeChunk(lineage.base) : null;
+  } catch {
+    return false;
+  }
   const override: NodelockOverride =
-    lockSet.nodes[0].street === "flop" || !turnId
+    (lockSet.nodes[0]?.street ?? "flop") === "flop" || !turnId
       ? { key, id: row.id, flop: chunk, turn: null }
-      : { key, id: row.id, flop: null, turn: { id: turnId, chunk } };
+      : { key, id: row.id, flop: baseFlop, turn: { id: turnId, chunk } };
   // The route first: My nodelocks mounts the locked view it names.
   if (navigate) go("solver", lockParam(row.id, viewParam(summary)));
   set({
-    active: { row: listed, lockSet, summary, override },
+    active: { row: listed, lockSet, summary, override, ancestors: lineage.ancestors },
     notice: state.notice?.id === id ? null : state.notice,
     editor: null,
     compare: false,
@@ -399,12 +483,22 @@ export function editLock(row: NodeLockRow, name: string | null): boolean {
   return true;
 }
 
-/** The library shows `at`: a pending edit made at this decision opens the editor here. */
+/**
+ * Edits a decision of the open lock that is not on screen (Edit lock in a
+ * lock popover, §7.3): My nodelocks moves to it, and the editor opens there
+ * on its lock once the view shows it.
+ */
+export function editInLock(lockId: string, view: NodelockSummary["view"], from: NonNullable<EditorOpen["from"]>, within: EditorWithin): void {
+  go("solver", lockParam(lockId, solverParam(view)));
+  set({ editor: null, opened: state.opened + 1, pendingEdit: { view, from, within } });
+}
+
+/** The view shows `at`: a pending edit made at this decision opens the editor here (on the library, or in a lock for an edit inside it). */
 export function arrivedAt(at: NodelockAt): void {
   const pending = state.pendingEdit;
-  if (!pending || at.locked) return;
+  if (!pending || (at.locked && !pending.within)) return;
   const view = pending.view;
   const turn = at.turn ? liveTurnId(at.turn.chance, at.turn.card) : undefined;
   if (at.set !== view.set || at.preflop !== view.line || at.node !== view.node || turn !== view.turn) return;
-  set({ pendingEdit: null, editor: { at, from: pending.from } });
+  set({ pendingEdit: null, editor: { at, from: pending.from, within: pending.within ?? null } });
 }

@@ -1,118 +1,45 @@
-/* The nodelock editor (`Editor.tsx`): a full-window overlay laid out like
-   GTO Wizard's - set strategy on the left, the grid on the right, the solve
-   at the bottom - in the Solver library's own look (its grid, its colours). */
+/* The nodelock editor (`Editor.tsx`) in the Solver library's look ("Studio",
+   SV-A; NE-A): over the library under its action strip (`--editor-top`,
+   `--editor-left`, `--editor-right`, measured), the grid on the left as the
+   library's, the panel on the right with a slider per action, a slim bar at
+   the bottom. The library's controls and grid cells come from its stylesheet;
+   this one lays them out and adds the editor's own pieces. */
 
 .editor {
-  inline-size: 100vw;
-  max-inline-size: 100vw;
-  block-size: 100dvh;
-  max-block-size: 100dvh;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: var(--surface-base);
-  color: var(--text-primary);
+  position: fixed;
+  inset: var(--editor-top, 8px) var(--editor-right, 8px) 8px var(--editor-left, 8px);
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
+  inline-size: auto;
+  max-inline-size: none;
+  block-size: auto;
+  max-block-size: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-4);
+  background: var(--surface-raised-2);
+  box-shadow: var(--elevation-3);
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
 }
 
 .editor:not([open]) {
   display: none;
 }
 
+/* The line above stays in view: the editor covers the library's body, nothing else is dimmed. */
 .editor::backdrop {
-  background: var(--surface-scrim);
-}
-
-.head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-3) var(--space-5);
-  border-block-end: 1px solid var(--border-subtle);
-}
-
-.where {
-  margin: 0;
-  color: var(--text-secondary);
-}
-
-.where strong {
-  color: var(--text-primary);
-}
-
-.headTools {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  margin-inline-start: auto;
-}
-
-.body {
-  display: grid;
-  grid-template-columns: minmax(18rem, 24rem) minmax(0, 1fr);
-  min-block-size: 0;
-}
-
-.left {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-4) var(--space-5);
-  border-inline-end: 1px solid var(--border-subtle);
-  overflow-y: auto;
-}
-
-.leftBody {
-  display: grid;
-  gap: var(--space-3);
-}
-
-.right {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-5);
-  min-inline-size: 0;
-  overflow-y: auto;
-}
-
-.tabs {
-  display: inline-flex;
-  gap: 2px;
-  padding: 2px;
-  border-radius: var(--radius-2);
-  background: var(--surface-inset);
-  align-self: start;
-}
-
-.tab {
-  padding: var(--space-1) var(--space-3);
-  border: 0;
-  border-radius: var(--radius-1);
   background: transparent;
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-}
-
-.tab:hover {
-  color: var(--text-primary);
-}
-
-.tab[aria-selected="true"] {
-  background: var(--surface-raised);
-  color: var(--text-primary);
-  box-shadow: var(--shadow-1);
 }
 
 .label {
   margin: 0;
   color: var(--text-tertiary);
-  font-size: var(--font-size-xs);
+  font-size: 11px;
   font-weight: var(--font-weight-semibold);
-  letter-spacing: var(--letter-spacing-wide);
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
@@ -126,263 +53,74 @@
   color: var(--text-secondary);
 }
 
-.dot {
-  display: inline-block;
-  flex: none;
-  inline-size: 0.6rem;
-  block-size: 0.6rem;
-  border-radius: 2px;
-  margin-inline-end: var(--space-1);
-}
+/* ------------------------------------------------------------- the head */
 
-/* A slider row: the action, the slider with GTO's tick, the typed %, the hold lock. */
-.sliderRow {
-  display: grid;
-  grid-template-columns: minmax(5.5rem, auto) minmax(0, 1fr) 4.2rem 1.75rem;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.sliderName {
-  display: inline-flex;
-  align-items: center;
-  font-size: var(--font-size-sm);
-  white-space: nowrap;
-}
-
-.slider {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.slider input {
-  inline-size: 100%;
-  accent-color: var(--accent);
-}
-
-.gtoTick {
-  position: absolute;
-  inset-block: 2px;
-  inset-inline-start: var(--gto);
-  inline-size: 2px;
-  border-radius: 1px;
-  background: var(--text-primary);
-  opacity: 0.8;
-  pointer-events: none;
-}
-
-.number {
-  inline-size: 100%;
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-1);
-  background: var(--surface-inset);
-  color: var(--text-primary);
-  font: inherit;
-  font-size: var(--font-size-sm);
-  font-variant-numeric: tabular-nums;
-  text-align: end;
-}
-
-.iconButton {
-  display: inline-grid;
-  place-items: center;
-  inline-size: 1.75rem;
-  block-size: 1.75rem;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: var(--radius-1);
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-}
-
-.iconButton:hover {
-  border-color: var(--border-default);
-  color: var(--text-primary);
-}
-
-.iconButton svg {
-  inline-size: 0.9rem;
-  block-size: 0.9rem;
-}
-
-.iconButton.on {
-  color: var(--warning-fg);
-}
-
-.brushPresets,
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--space-1) var(--space-3);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-pill);
-  background: var(--surface-raised);
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-}
-
-.chip:hover {
-  border-color: var(--border-hover);
-  color: var(--text-primary);
-}
-
-.chip.on {
-  border-color: var(--accent-border);
-  background: var(--accent-subtle);
-  color: var(--text-primary);
-}
-
-.mixBar {
-  display: flex;
-  overflow: hidden;
-  block-size: 6px;
-  border-radius: var(--radius-pill);
-  background: var(--surface-inset);
-}
-
-.mixBar > span {
-  display: block;
-  flex-basis: 0;
-}
-
-.suggestions {
-  display: grid;
-  gap: var(--space-2);
-  margin-block-start: auto;
-  padding-block-start: var(--space-3);
-  border-block-start: 1px solid var(--border-subtle);
-}
-
-/* Hand classes: a list of made hands and draws, each a clickable row. */
-.classes {
-  display: grid;
-  gap: var(--space-3);
-}
-
-.classesWide {
-  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
-  align-items: start;
-}
-
-.classGroup ul {
-  display: grid;
-  gap: 2px;
-  margin: var(--space-1) 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.classRow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 1.75rem;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.classPick {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 2.5rem minmax(4rem, 7rem);
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid transparent;
-  border-radius: var(--radius-1);
-  background: transparent;
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: var(--font-size-sm);
-  text-align: start;
-  cursor: pointer;
-}
-
-.classPick:hover {
-  background: var(--surface-hover);
-  color: var(--text-primary);
-}
-
-.classPick.on {
-  border-color: var(--accent-border);
-  background: var(--surface-selected);
-  color: var(--text-primary);
-}
-
-.className {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.classCombos {
-  color: var(--text-tertiary);
-  font-variant-numeric: tabular-nums;
-  text-align: end;
-}
-
-.classLocked {
-  display: inline-grid;
-  place-items: center;
-  color: var(--warning-fg);
-}
-
-.classLocked svg {
-  inline-size: 0.8rem;
-  block-size: 0.8rem;
-}
-
-.classSliders {
-  display: grid;
-  gap: var(--space-2);
-  padding-block-start: var(--space-2);
-  border-block-start: 1px solid var(--border-subtle);
-}
-
-.toolbar {
+.head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
+  gap: 10px;
+  padding: 10px 14px;
+  border-block-end: 1px solid var(--border-subtle);
 }
 
-.lockTools {
+.headLock {
+  display: inline-flex;
+  color: var(--warning-fg);
+}
+
+.headPot {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.headCount {
+  color: var(--warning-fg);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------- the body */
+
+.body {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(19rem, 23rem);
+  gap: 14px;
+  min-block-size: 0;
+  padding: 14px;
+}
+
+/* The grid's side: laid out by its own height, so the grid is as large as it fits. */
+.main {
   display: flex;
-  gap: var(--space-1);
+  flex-direction: column;
+  gap: 10px;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: auto;
+  container-type: size;
 }
 
-.lockTools svg {
-  inline-size: 0.85rem;
-  block-size: 0.85rem;
-}
-
-/* The current strategy: the range's mix, GTO's boundaries as ticks. */
+/* The range's mix, GTO's boundaries as ticks. */
 .current {
   display: grid;
-  gap: var(--space-1);
+  gap: 6px;
 }
 
 .currentBar {
   position: relative;
   display: flex;
+  block-size: 10px;
   overflow: hidden;
-  block-size: 12px;
-  border-radius: var(--radius-1);
+  border-radius: 5px;
   background: var(--surface-inset);
 }
 
 .currentBar > span {
   flex-basis: 0;
-  transition: flex-grow 0.25s var(--ease-out, ease);
+  transition: flex-grow 0.25s var(--ease-out);
 }
 
 .currentBar > .currentTick {
@@ -390,15 +128,16 @@
   inset-block: 0;
   inline-size: 2px;
   margin-inline-start: -1px;
+  border-radius: 1px;
   background: var(--text-primary);
-  opacity: 0.85;
+  opacity: 0.8;
 }
 
 .currentLegend {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-1) var(--space-4);
+  gap: 4px var(--space-4);
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
   font-variant-numeric: tabular-nums;
@@ -407,7 +146,7 @@
 .currentLegend > span {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
 .currentLegend strong {
@@ -416,90 +155,33 @@
 
 .currentLegend small {
   color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
 }
 
-.lockedCount {
-  margin-inline-start: auto;
-  color: var(--warning-fg);
-}
-
-/* The grid: the Solver library's cells, painted or picked, with a lock badge. */
+/* The library's grid, as large as the editor's height allows; painted with a drag in Hands. */
 .grid {
-  display: grid;
-  gap: 2px;
-  inline-size: 100%;
-  max-inline-size: max(26rem, calc((100dvh - 17rem) * 1.3));
-  user-select: none;
+  max-inline-size: max(18rem, calc((100cqb - 5.75rem) * 1.25));
   touch-action: none;
 }
 
-.gridRow {
-  display: grid;
-  grid-template-columns: repeat(13, minmax(0, 1fr));
-  gap: 2px;
+.gridOnly {
+  min-inline-size: 0;
 }
 
 .cellWrap {
   position: relative;
-  display: flex;
-  min-inline-size: 0;
 }
 
-.cell {
-  position: relative;
-  inline-size: 100%;
-  min-inline-size: 0;
-  aspect-ratio: 1.3;
-  padding: 0;
-  border: 0;
-  border-radius: 2px;
-  background: var(--surface-inset);
-  color: var(--text-primary);
-  font: inherit;
-  cursor: pointer;
-  overflow: hidden;
-}
-
-.cell:hover:not(:disabled) {
-  box-shadow: inset 0 0 0 1px var(--border-hover);
-}
-
-.cell:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 1px;
-  z-index: 1;
-}
-
-.cellOff {
-  opacity: 0.35;
+.cell:disabled {
   cursor: default;
 }
 
-.cellPicked {
-  box-shadow: inset 0 0 0 2px var(--text-primary);
+.cell:disabled:hover {
+  box-shadow: none;
 }
 
-.cellFill {
-  position: absolute;
-  inset-inline: 0;
-  inset-block-end: 0;
-  display: flex;
-}
-
-.cellFill > span {
-  display: block;
-  block-size: 100%;
-}
-
-.cellName {
-  position: absolute;
-  inset-block-start: 3px;
-  inset-inline-start: 4px;
-  font-size: clamp(0.5rem, 0.95vw, 0.9rem);
-  font-weight: var(--font-weight-semibold);
-  line-height: 1;
-  white-space: nowrap;
-  text-shadow: 0 1px 2px var(--surface-scrim);
+.cellLocked {
+  box-shadow: inset 0 0 0 1px var(--warning-border);
 }
 
 .badge {
@@ -508,16 +190,18 @@
   inset-inline-end: 2px;
   display: grid;
   place-items: center;
-  inline-size: 0.9rem;
-  block-size: 0.9rem;
+  inline-size: 14px;
+  block-size: 14px;
   border-radius: 3px;
   background: var(--warning-fg);
   color: var(--surface-base);
+  pointer-events: none;
 }
 
 .badge svg {
-  inline-size: 0.6rem;
-  block-size: 0.6rem;
+  inline-size: 9px;
+  block-size: 9px;
+  stroke-width: 2.6;
 }
 
 .badgePart {
@@ -539,21 +223,28 @@
 }
 
 .badgeButton:hover {
-  background: color-mix(in srgb, var(--warning-fg) 25%, transparent);
   border-start-start-radius: 4px;
+  background: color-mix(in srgb, var(--warning-fg) 25%, transparent);
 }
 
+.badgeButton:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
+
+/* One hand's combos beside the grid. */
 .gridWithCombos {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(12rem, 18rem);
-  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr) minmax(11rem, 16rem);
+  gap: 14px;
   align-items: start;
+  min-inline-size: 0;
 }
 
 .tiles {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-1);
+  gap: 6px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -565,17 +256,22 @@
   inline-size: 100%;
   aspect-ratio: 1.2;
   padding: 0;
+  overflow: hidden;
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-1);
+  border-radius: var(--radius-2);
   background: var(--surface-inset);
   color: var(--text-primary);
   font: inherit;
   cursor: pointer;
-  overflow: hidden;
 }
 
 .tile:hover {
-  border-color: var(--border-hover);
+  border-color: var(--border-strong);
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
 }
 
 .tileLocked {
@@ -598,17 +294,349 @@
   inset-block-start: 4px;
   inset-inline-start: 6px;
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
   text-shadow: 0 1px 2px var(--surface-scrim);
 }
 
-/* The footer: earlier nodes, accuracy, and the solve with what it uses. */
+/* ------------------------------------------------------------ the panel */
+
+.panel {
+  min-block-size: 0;
+  overflow-y: auto;
+}
+
+.panel .modes {
+  display: flex;
+}
+
+.panel .modes button {
+  flex: 1;
+  justify-content: center;
+}
+
+.modeBody {
+  display: grid;
+  gap: 12px;
+}
+
+/* An action: dot · name · GTO · the typed % · hold; the slider under it. */
+.slider {
+  display: grid;
+  gap: 2px;
+}
+
+.sliderHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 12.5px;
+}
+
+.sliderName {
+  flex: 1;
+  min-inline-size: 0;
+  overflow: hidden;
+  font-weight: var(--font-weight-medium);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.number {
+  inline-size: 4.25rem;
+  block-size: 26px;
+  padding: 0 7px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.number:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+/* The lock's own sizes: add a bet or raise by its % of the pot, all-in, put Check/Fold back. */
+.sizes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding-block-start: var(--space-2);
+  border-block-start: 1px solid var(--border-subtle);
+  font-size: 12.5px;
+}
+
+.sizesLabel {
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.sizesUnit {
+  margin-inline-start: -4px;
+  color: var(--text-tertiary);
+}
+
+/* Hold an action at its share, or lock a hand class: the lock colours when on. */
+.hold {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: 26px;
+  block-size: 26px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.hold svg {
+  inline-size: 13px;
+  block-size: 13px;
+}
+
+.hold:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.hold:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.holdOn,
+.holdOn:hover {
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+
+/* The slider: a thin track filled in the action's colour to the value (`--v`), GTO's tick at `--g`. */
+.range {
+  position: relative;
+  display: flex;
+  align-items: center;
+  block-size: 22px;
+}
+
+.range::before {
+  position: absolute;
+  inset-inline: 0;
+  block-size: 4px;
+  border-radius: 2px;
+  background: var(--control-track);
+  content: "";
+}
+
+.rangeFill {
+  position: absolute;
+  inset-inline-start: 0;
+  inline-size: calc(7px + (100% - 14px) * var(--v));
+  block-size: 4px;
+  border-radius: 2px;
+}
+
+.rangeTick {
+  position: absolute;
+  inset-block: 4px;
+  inset-inline-start: calc(7px + (100% - 14px) * var(--g));
+  inline-size: 2px;
+  margin-inline-start: -1px;
+  border-radius: 1px;
+  background: var(--text-primary);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.range input {
+  position: relative;
+  inline-size: 100%;
+  block-size: 22px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+}
+
+.range input::-webkit-slider-runnable-track {
+  block-size: 22px;
+  background: transparent;
+}
+
+.range input::-webkit-slider-thumb {
+  inline-size: 14px;
+  block-size: 14px;
+  margin-block-start: 4px;
+  border: 2px solid var(--surface-raised);
+  border-radius: 50%;
+  background: var(--text-primary);
+  box-shadow: 0 1px 3px var(--surface-scrim);
+  appearance: none;
+}
+
+.range input:focus-visible {
+  border-radius: var(--radius-2);
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  block-size: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.chip[aria-pressed="true"] {
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+  color: var(--accent-on-subtle);
+}
+
+.suggestions {
+  display: grid;
+  gap: var(--space-2);
+  margin-block-start: auto;
+  padding-block-start: 12px;
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+/* Hand classes: made hands and draws, a row each (the library's filter rows). */
+.classes {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.classesWide {
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  align-items: start;
+}
+
+.classGroup {
+  display: grid;
+  gap: 2px;
+}
+
+.classGroup ul {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.classRow {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.classPick {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) 2.75rem minmax(4rem, 7rem);
+  gap: var(--space-2);
+  align-items: center;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  text-align: start;
+  cursor: pointer;
+}
+
+.classPick:hover {
+  background: var(--surface-hover);
+}
+
+.classPick:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.classPick[aria-pressed="true"] {
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+  color: var(--accent-on-subtle);
+}
+
+.className {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.classCombos {
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.classLocked {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: 26px;
+  color: var(--warning-fg);
+}
+
+.classLocked svg {
+  inline-size: 12px;
+  block-size: 12px;
+}
+
+.classSliders {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border-radius: var(--radius-3);
+  background: var(--surface-inset);
+}
+
+/* ------------------------------------------------- the bar at the bottom */
+
 .foot {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-3) var(--space-6);
-  padding: var(--space-3) var(--space-5);
+  gap: 10px 18px;
+  padding: 10px 14px;
   border-block-start: 1px solid var(--border-subtle);
   background: var(--surface-raised);
 }
@@ -616,67 +644,71 @@
 .footGroup {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--space-2);
 }
 
-.footGroup .label {
-  margin-inline-end: var(--space-2);
-}
-
-.seg {
-  padding: var(--space-1) var(--space-3);
-  border: 1px solid var(--border-default);
-  background: var(--surface-base);
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-}
-
-.seg:first-of-type {
-  border-start-start-radius: var(--radius-1);
-  border-end-start-radius: var(--radius-1);
-}
-
-.seg:last-of-type {
-  border-start-end-radius: var(--radius-1);
-  border-end-end-radius: var(--radius-1);
-}
-
-.seg:hover {
-  color: var(--text-primary);
-}
-
-.seg[aria-checked="true"] {
-  border-color: var(--accent-border);
-  background: var(--accent-subtle);
-  color: var(--text-primary);
-}
-
-.solve {
+.footText {
   display: grid;
-  justify-items: end;
-  gap: var(--space-1);
-  margin-inline-start: auto;
+  flex: 1 1 16rem;
+  gap: 2px;
+  min-inline-size: 0;
+}
+
+.footText p {
+  margin: 0;
+}
+
+.planLine {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.planLine em {
+  color: var(--warning-fg);
+  font-style: normal;
 }
 
 .engineLine {
-  margin: 0;
   color: var(--text-tertiary);
   font-size: var(--font-size-xs);
 }
 
+.message {
+  color: var(--warning-fg);
+  font-size: var(--font-size-sm);
+}
+
+.estimate {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 @media (max-width: 900px) {
   .body {
+    grid-template-rows: none;
     grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
   }
 
-  .left {
-    border-inline-end: 0;
-    border-block-end: 1px solid var(--border-subtle);
+  .main {
+    overflow: visible;
+    container-type: inline-size;
+  }
+
+  .grid {
+    max-inline-size: none;
   }
 
   .gridWithCombos {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .currentBar > span {
+    transition: none;
   }
 }

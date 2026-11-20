@@ -35,6 +35,7 @@ export const playersUiHr: typeof playersUiEn = {
   clearFilters: "Očisti filtre",
   hidden: (count) =>
     `${cap(ruku(count))} protivnika iz soba koje skrivaju korisnička imena (poput GGPokera) ${plural(count, "ulazi", "ulaze", "ulazi")} u tvoju statistiku, ali ${plural(count, "nije", "nisu", "nije")} na popisu: ime ondje traje jednu sesiju, pa ga se ne može pratiti iz sesije u sesiju.`,
+  hiddenDismiss: "Sakrij ovu obavijest",
   listLabel: "Protivnici, najviše zajedničkih ruku prvo",
   columns: {
     name: "Igrač",

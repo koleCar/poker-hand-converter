@@ -1,0 +1,45 @@
+import type { feedbackUiEn } from "./feedback.en";
+
+/** The feedback dialog's words, Croatian: the shape of `feedback.en.ts`. */
+export const feedbackUiHr: typeof feedbackUiEn = {
+  open: "Javi nam",
+  openTitle: "Prijavi grešku, predloži značajku ili postavi pitanje",
+  title: "Pošalji povratnu informaciju",
+  kindLabel: "O čemu se radi?",
+  kinds: {
+    bug: "Greška",
+    feature: "Prijedlog",
+    question: "Pitanje",
+  },
+  placeholder: {
+    bug: "Što se dogodilo i što si očekivao?",
+    feature: "Što bi htio da Rail radi?",
+    question: "Što te zanima?",
+  },
+  messageLabel: "Opis",
+  images: "Snimke zaslona",
+  addImage: "Dodaj sliku",
+  dropHint: "Ispusti, zalijepi ili dodaj do 3 slike",
+  removeImage: (n: number) => `Ukloni sliku ${n}`,
+  imageAlt: (n: number) => `Snimka zaslona ${n}`,
+  emailLabel: "Email za odgovor (neobavezno)",
+  emailPlaceholder: "ti@primjer.com",
+  signedInAs: (email: string) => `Odgovorit ćemo na ${email}.`,
+  send: "Pošalji",
+  sending: "Šaljem…",
+  cancel: "Odustani",
+  close: "Zatvori",
+  sent: "Hvala! Čitamo svaku prijavu.",
+  sendAnother: "Pošalji još jednu",
+  errors: {
+    empty: "Prvo napiši kratak opis.",
+    imageType: "Samo PNG, JPEG, WebP ili GIF slike.",
+    imageRead: "Tu sliku nije moguće pročitati.",
+    tooMany: "Najviše 3 slike.",
+    invalid_request: "Nešto u prijavi nije prihvaćeno. Provjeri email i pokušaj ponovno.",
+    too_large: "Slike su prevelike. Pokušaj s manje ili manjim slikama.",
+    rate_limited: "Poslao si nekoliko prijava u kratkom vremenu. Pokušaj ponovno kasnije.",
+    unavailable: "Povratnu informaciju trenutno nije moguće poslati. Pokušaj ponovno za trenutak.",
+    offline: "Nema veze. Provjeri internet i pokušaj ponovno.",
+  },
+};

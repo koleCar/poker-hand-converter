@@ -910,8 +910,6 @@ export type Database = {
       }
       billing_settings: {
         Row: {
-          early_user_cutoff: string | null
-          early_user_discount_percent: number
           enforcement_enabled: boolean
           id: boolean
           offline_grace_days: number
@@ -919,8 +917,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          early_user_cutoff?: string | null
-          early_user_discount_percent?: number
           enforcement_enabled?: boolean
           id?: boolean
           offline_grace_days?: number
@@ -928,8 +924,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          early_user_cutoff?: string | null
-          early_user_discount_percent?: number
           enforcement_enabled?: boolean
           id?: boolean
           offline_grace_days?: number
@@ -1410,6 +1404,57 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          app_version: string | null
+          client_hash: string | null
+          created_at: string
+          email: string | null
+          id: string
+          images: string[]
+          kind: string
+          locale: string | null
+          message: string
+          page: string | null
+          platform: string | null
+          source: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          app_version?: string | null
+          client_hash?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          images?: string[]
+          kind: string
+          locale?: string | null
+          message: string
+          page?: string | null
+          platform?: string | null
+          source: string
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          app_version?: string | null
+          client_hash?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          images?: string[]
+          kind?: string
+          locale?: string | null
+          message?: string
+          page?: string | null
+          platform?: string | null
+          source?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       hand_analysis: {
         Row: {
           analysed: number
@@ -1502,6 +1547,24 @@ export type Database = {
           origin?: Database["public"]["Enums"]["hand_origin"]
           owner_id?: string
           seq?: number
+        }
+        Relationships: []
+      }
+      hand_daily_counts: {
+        Row: {
+          day: string
+          hands: number
+          owner_id: string
+        }
+        Insert: {
+          day: string
+          hands?: number
+          owner_id: string
+        }
+        Update: {
+          day?: string
+          hands?: number
+          owner_id?: string
         }
         Relationships: []
       }
@@ -2131,6 +2194,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      hand_tombstones: {
+        Row: {
+          all_before: string | null
+          deleted_at: string
+          hand_id: string | null
+          hand_key: string | null
+          owner_id: string
+          seq: number
+        }
+        Insert: {
+          all_before?: string | null
+          deleted_at?: string
+          hand_id?: string | null
+          hand_key?: string | null
+          owner_id: string
+          seq?: never
+        }
+        Update: {
+          all_before?: string | null
+          deleted_at?: string
+          hand_id?: string | null
+          hand_key?: string | null
+          owner_id?: string
+          seq?: never
+        }
+        Relationships: []
+      }
+      hand_wipes: {
+        Row: {
+          before: string
+          owner_id: string
+          rebuild: boolean
+          started_at: string
+        }
+        Insert: {
+          before: string
+          owner_id: string
+          rebuild?: boolean
+          started_at?: string
+        }
+        Update: {
+          before?: string
+          owner_id?: string
+          rebuild?: boolean
+          started_at?: string
+        }
+        Relationships: []
       }
       hands: {
         Row: {
@@ -3142,18 +3253,24 @@ export type Database = {
       }
       plan_limits: {
         Row: {
+          daily_flop_cap: number | null
+          daily_hand_cap: number | null
           features: string[]
           hand_cap: number | null
           plan: string
           updated_at: string
         }
         Insert: {
+          daily_flop_cap?: number | null
+          daily_hand_cap?: number | null
           features?: string[]
           hand_cap?: number | null
           plan: string
           updated_at?: string
         }
         Update: {
+          daily_flop_cap?: number | null
+          daily_hand_cap?: number | null
           features?: string[]
           hand_cap?: number | null
           plan?: string
@@ -3654,6 +3771,33 @@ export type Database = {
         }
         Relationships: []
       }
+      pro_waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          id: number
+          locale: string
+          source: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: never
+          locale?: string
+          source: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: never
+          locale?: string
+          source?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           ban_reason: string | null
@@ -3664,8 +3808,6 @@ export type Database = {
           created_at: string
           current_period_end: string | null
           digest: string
-          early_user: boolean
-          early_user_since: string | null
           id: string
           is_shadowbanned: boolean
           karma: number
@@ -3688,8 +3830,6 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           digest?: string
-          early_user?: boolean
-          early_user_since?: string | null
           id: string
           is_shadowbanned?: boolean
           karma?: number
@@ -3712,8 +3852,6 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           digest?: string
-          early_user?: boolean
-          early_user_since?: string | null
           id?: string
           is_shadowbanned?: boolean
           karma?: number
@@ -4008,6 +4146,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      solver_flop_claims: {
+        Row: {
+          claimed_at: string
+          day: string
+          flop: string
+          owner_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          day: string
+          flop: string
+          owner_id: string
+        }
+        Update: {
+          claimed_at?: string
+          day?: string
+          flop?: string
+          owner_id?: string
+        }
+        Relationships: []
       }
       study_plans: {
         Row: {
@@ -4536,6 +4695,51 @@ export type Database = {
         Args: { p_description?: string; p_name: string; p_slug: string }
         Returns: string
       }
+      admin_feedback: {
+        Args: {
+          p_kind?: string
+          p_limit?: number
+          p_offset?: number
+          p_status?: string
+          p_user?: string
+        }
+        Returns: {
+          app_version: string
+          created_at: string
+          email: string
+          id: string
+          images: string[]
+          kind: string
+          locale: string
+          message: string
+          page: string
+          platform: string
+          source: string
+          status: string
+          total: number
+          user_email: string
+          user_id: string
+          username: string
+        }[]
+      }
+      admin_feedback_counts: { Args: never; Returns: Json }
+      admin_feedback_set_status: {
+        Args: { p_id: string; p_status: string }
+        Returns: undefined
+      }
+      admin_pro_waitlist: {
+        Args: { p_limit?: number; p_offset?: number }
+        Returns: {
+          created_at: string
+          email: string
+          id: number
+          locale: string
+          source: string
+          total: number
+          user_id: string
+          username: string
+        }[]
+      }
       admin_purge: {
         Args: {
           p_public_id: string
@@ -4557,7 +4761,53 @@ export type Database = {
         }
         Returns: string
       }
+      admin_user: { Args: { p_id: string }; Returns: Json }
+      admin_users: {
+        Args: {
+          p_desc?: boolean
+          p_limit?: number
+          p_offset?: number
+          p_search?: string
+          p_sort?: string
+        }
+        Returns: {
+          banned: boolean
+          created_at: string
+          email: string
+          email_confirmed: boolean
+          feedback: number
+          hands: number
+          id: string
+          last_hand_at: string
+          last_sign_in_at: string
+          plan: string
+          plan_status: string
+          posts: number
+          role: string
+          total: number
+          username: string
+        }[]
+      }
       analysis_best_action: { Args: { p_options: Json }; Returns: string }
+      analysis_bomb_hands: {
+        Args: {
+          p_before_id?: string
+          p_before_played?: string
+          p_limit?: number
+          p_stats_version?: string
+        }
+        Returns: {
+          created_at: string
+          hand_key: string
+          id: string
+          parser_version: string
+          phf: Json
+          played_at: string
+          site: string
+          source_filename: string
+          standard_text: string
+        }[]
+      }
       analysis_breakdown: {
         Args: { p_filters?: Json; p_group?: string }
         Returns: Json
@@ -4718,6 +4968,10 @@ export type Database = {
       analysis_leaks: { Args: { p_filters?: Json }; Returns: Json }
       analysis_leaks_scan: { Args: { p_filters?: Json }; Returns: Json }
       analysis_month_of: { Args: { p_at: string }; Returns: string }
+      analysis_multiway_summary: {
+        Args: { p_stats_version?: string; p_version: string }
+        Returns: Json
+      }
       analysis_node_actions: { Args: { p_filters?: Json }; Returns: Json }
       analysis_node_actions_scan: { Args: { p_filters?: Json }; Returns: Json }
       analysis_node_hands: {
@@ -4746,6 +5000,10 @@ export type Database = {
       }
       analysis_overview: { Args: { p_filters?: Json }; Returns: Json }
       analysis_overview_scan: { Args: { p_filters?: Json }; Returns: Json }
+      analysis_pot_kind_decisions: {
+        Args: { p_kind: string; p_limit?: number; p_version: string }
+        Returns: Json
+      }
       analysis_public_facts: { Args: { p_facts: Json }; Returns: Json }
       analysis_public_flags: { Args: { p_flags: Json }; Returns: Json }
       analysis_public_options: { Args: { p_options: Json }; Returns: Json }
@@ -4840,7 +5098,6 @@ export type Database = {
         Returns: {
           current_period_end: string
           customer_id: string
-          early_user: boolean
           plan: string
           plan_status: string
           subscription_id: string
@@ -4868,12 +5125,29 @@ export type Database = {
         Args: { p_consent: string; p_owner: string; p_session_id: string }
         Returns: boolean
       }
+      billing_day_resets_at: { Args: never; Returns: string }
       billing_enforced: { Args: never; Returns: boolean }
       billing_events_prune: { Args: { p_keep?: string }; Returns: number }
-      billing_mark_early_users: { Args: never; Returns: number }
       billing_owner_of_customer: {
         Args: { p_customer_id: string }
         Returns: string
+      }
+      billing_plan_limits: {
+        Args: { p_owner: string }
+        Returns: {
+          daily_flop_cap: number | null
+          daily_hand_cap: number | null
+          features: string[]
+          hand_cap: number | null
+          plan: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "plan_limits"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       billing_plan_state: {
         Args: { p_owner: string }
@@ -4914,6 +5188,7 @@ export type Database = {
         Returns: undefined
       }
       billing_stored_hands: { Args: { p_owner: string }; Returns: number }
+      billing_utc_day: { Args: never; Returns: string }
       can_moderate_board: { Args: { p_board_id: string }; Returns: boolean }
       can_moderate_post: { Args: { p_public_id: string }; Returns: boolean }
       claim_desktop_sign_in: { Args: never; Returns: undefined }
@@ -4960,10 +5235,13 @@ export type Database = {
         }
         Returns: Json
       }
+      delete_all_hands: { Args: { p_confirm: string }; Returns: Json }
       delete_comment: {
         Args: { p_post_public_id: string; p_seq: number }
         Returns: boolean
       }
+      delete_hands: { Args: { p_ids: string[] }; Returns: Json }
+      delete_hands_by_key: { Args: { p_keys: string[] }; Returns: Json }
       delete_post: { Args: { p_public_id: string }; Returns: boolean }
       drill_due_by_spot: {
         Args: { p_kind?: string; p_until?: string; p_version: string }
@@ -5129,6 +5407,13 @@ export type Database = {
         Args: { p_post_public_id: string; p_seq?: number }
         Returns: Json
       }
+      hand_delete_owned: {
+        Args: { p_ids: string[]; p_owner: string }
+        Returns: {
+          hand_key: string
+          id: string
+        }[]
+      }
       hand_facts_missing: { Args: { p_facts_version: string }; Returns: number }
       hand_phf_matches: {
         Args: {
@@ -5203,6 +5488,21 @@ export type Database = {
         Args: { p_owner: string; p_rows: number }
         Returns: undefined
       }
+      hand_tombstones_since: {
+        Args: { p_after_at?: string; p_after_seq?: number; p_limit?: number }
+        Returns: {
+          all_before: string
+          deleted_at: string
+          hand_id: string
+          hand_key: string
+          seq: number
+        }[]
+      }
+      hand_wipe_continue: {
+        Args: { p_owner: string; p_rebuild?: boolean; p_until: string }
+        Returns: Json
+      }
+      hand_wipe_finish: { Args: { p_owner: string }; Returns: undefined }
       hands_needing_analysis: {
         Args: { p_after?: string; p_limit?: number; p_version: string }
         Returns: {
@@ -5299,6 +5599,10 @@ export type Database = {
       is_card_array: { Args: { p_cards: string[] }; Returns: boolean }
       is_moderator: { Args: never; Returns: boolean }
       is_position_array: { Args: { p_positions: string[] }; Returns: boolean }
+      join_pro_waitlist: {
+        Args: { p_email: string; p_locale?: string; p_source: string }
+        Returns: Json
+      }
       library_act_sql: { Args: { p_name: string }; Returns: string }
       library_beyond_rollups: { Args: { p_filter: Json }; Returns: boolean }
       library_builder_ids: { Args: { p_filter: Json }; Returns: string[] }
@@ -5476,6 +5780,7 @@ export type Database = {
       my_player_notes: { Args: { p_site?: string }; Returns: Json }
       my_post_state: { Args: { p_public_id: string }; Returns: Json }
       my_post_votes: { Args: { p_public_ids: string[] }; Returns: Json }
+      my_pro_waitlist: { Args: never; Returns: Json }
       my_profile: { Args: never; Returns: Json }
       my_published_hand_ids: { Args: { p_hand_ids: string[] }; Returns: Json }
       my_saved_posts: {
@@ -5778,6 +6083,10 @@ export type Database = {
       set_username: { Args: { p_username: string }; Returns: Json }
       share_anonymised_phf: { Args: { p_phf: Json }; Returns: Json }
       share_names_state: { Args: { p_slug: string }; Returns: Json }
+      solver_flop_key: { Args: { p_flop: string }; Returns: string }
+      solver_flops_of: { Args: { p_owner: string }; Returns: string[] }
+      solver_flops_today: { Args: never; Returns: Json }
+      solver_open_flop: { Args: { p_flop: string }; Returns: Json }
       stats_coverage: { Args: { p_version: string }; Returns: Json }
       stats_empty_graph: { Args: { p_version: string }; Returns: Json }
       stats_ev_missing: {

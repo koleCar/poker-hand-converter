@@ -69,6 +69,7 @@ import { leaksQuery, parseLeaksState, type LeaksState } from "./leaksState";
 import styles from "./leaks.module.css";
 import an from "../ui/an.module.css";
 import "../../../styles/stats.css";
+import { LeaksTabSkeleton, SkStatus } from "../ui/Skeleton";
 
 /** The migration the screen needs, named in the not-installed notice. An identifier, not prose. */
 const LEAKS_MIGRATION = "supabase/migrations/20270201090000_analysis_leaks.sql";
@@ -222,7 +223,9 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
     return (
       <div className="stats">
         <Header />
-        <RailLoader label={t.loading} showLabel centered />
+        <SkStatus label={t.loading}>
+          <LeaksTabSkeleton />
+        </SkStatus>
       </div>
     );
   }

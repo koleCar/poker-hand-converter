@@ -1,9 +1,10 @@
 /**
  * The window's side of the analysis worker (`worker.ts`, R5.4): one worker
- * at a time (the analysis is a background job: one core at most), created
- * when first needed and terminated when a page is stopped - a table opened
- * (A10), the user paused it, the app is quitting. A page analysed but not
- * written is simply analysed again later.
+ * per client, created when first needed and terminated when a page is
+ * stopped - a table opened (A10), the user paused it, the app is quitting.
+ * A page analysed but not written is simply analysed again later. The
+ * runner keeps a few clients, one page each at a time (`service.ts`'s
+ * `analysisLanes`, 2026-11-19).
  *
  * The worker's flop library fetches are answered here by `fetchFile` (in
  * the app: Rust's `flop_library_file` - the disk, else the web's public

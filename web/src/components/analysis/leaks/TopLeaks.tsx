@@ -96,21 +96,23 @@ interface TopLeaksProps {
   backQuery: string;
   /** The period to open on (tests; the card's toggle changes it). */
   initialPeriod?: TopPeriod;
+  /** analysis/45: heads-up spots (default) or the Multiway page's (`mw`). */
+  potKind?: "hu" | "mw";
 }
 
-export function TopLeaks({ scopeKey, generation, backQuery, initialPeriod = "30d" }: TopLeaksProps) {
+export function TopLeaks({ scopeKey, generation, backQuery, initialPeriod = "30d", potKind = "hu" }: TopLeaksProps) {
   const t = useDict().analysis.topLeaks;
   const [period, setPeriod] = useState<TopPeriod>(initialPeriod);
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [examples, setExamples] = useState<Examples | null>(null);
   const [error, setError] = useState<{ key: string; message: string; missing: boolean } | null>(null);
-  const requestKey = `${scopeKey}|${period}|${generation}`;
+  const requestKey = `${scopeKey}|${period}|${generation}|${potKind}`;
 
   useEffect(() => {
     let live = true;
     const scope = JSON.parse(scopeKey) as AnalysisFilters;
     (async () => {
-      const report = await fetchTopLeaks(scope, period);
+      const report = await fetchTopLeaks(scope, period, potKind);
       if (!live) return;
       const top = report ? topOf(report) : [];
       setLoaded({ key: requestKey, report, top });
@@ -143,7 +145,7 @@ export function TopLeaks({ scopeKey, generation, backQuery, initialPeriod = "30d
     return () => {
       live = false;
     };
-  }, [scopeKey, period, generation, requestKey]);
+  }, [scopeKey, period, generation, potKind, requestKey]);
 
   const current = loaded?.key === requestKey ? loaded : null;
   const failed = error?.key === requestKey ? error : null;

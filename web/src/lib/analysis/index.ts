@@ -143,6 +143,7 @@ export {
   CHECK_VALUE,
   CHECKED_TO_RIVER_VALUE,
   BET_EVIDENCE,
+  BOMB_POT_EVIDENCE,
   INITIATIVE_CHECK_POWER,
   FLOOR,
   HEADS_UP_CHECK_AIR,
@@ -306,6 +307,7 @@ export {
   type LibraryModel,
 } from "./flopLibrary";
 export {
+  EXACT_SIZE_BB,
   MIN_LINE_REACH,
   RIVER_CATEGORIES,
   RIVER_MAX_ITERATIONS,
@@ -338,6 +340,7 @@ export {
   type StreetAct,
   type StudyOption,
   type StudyRow,
+  type StudyCombo,
 } from "./river";
 export {
   ALLIN_MAX_POT,

@@ -50,6 +50,9 @@ pub struct SpotInput {
     pub river_raise_cap: Option<u32>,
     #[serde(default)]
     pub isomorphism: Option<bool>,
+    /// Nodes offering their own actions (`nodeActions`): a nodelock's custom sizes.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub node_actions: Option<std::collections::BTreeMap<String, Vec<String>>>,
     /// Flop games: keep the turn and river nodes' info (tests).
     #[serde(default)]
     pub deep_info: Option<bool>,
@@ -101,6 +104,7 @@ pub fn rules_of(
         raise_cap: raise_cap.unwrap_or(2),
         all_in_threshold: spot.all_in_threshold.unwrap_or(0.0),
         min_bet: spot.min_bet.unwrap_or(0.0),
+        node_actions: spot.node_actions.clone(),
     })
 }
 
@@ -230,6 +234,9 @@ pub fn build_river_game(spot: &SpotInput) -> Result<BuiltSubgame, SolverInputErr
         &strengths(&h0.cards, &board),
         &strengths(&h1.cards, &board),
     )];
+    if let Some(e) = state.build.error.take() {
+        return Err(e);
+    }
     let tree = state.build.builder.finish(root);
     let game = Game {
         edge_mirrors: vec![u32::MAX; tree.children.len()],
@@ -440,6 +447,9 @@ pub fn build_turn_game(spot: &SpotInput) -> Result<BuiltSubgame, SolverInputErro
             ShowdownBoard::new(&strengths(&h0.cards, &five), &strengths(&h1.cards, &five))
         })
         .collect();
+    if let Some(e) = state.build.error.take() {
+        return Err(e);
+    }
     let tree = state.build.builder.finish(root);
     let mut game = Game {
         edge_mirrors: Vec::new(),

@@ -20,10 +20,12 @@
 import { handsUiEn } from "@rail/ui/strings/hands.en";
 import { playersUiEn } from "@rail/ui/strings/players.en";
 import { reportsUiEn } from "@rail/ui/strings/reports.en";
-import { countIn } from "./format";
+import { countIn, monthIn } from "./format";
 
 /** Counts in English digits ("1,204"), whatever the window's language. */
 const n = countIn("en");
+const monthLong = monthIn("en", "long");
+const monthShort = monthIn("en", "short");
 
 /** A share as a percentage, one decimal at most ("41.5%"). */
 function pct(share: number): string {
@@ -485,11 +487,19 @@ export const en = {
       mismatch: (owner: string) => `Hands synced to ${owner}`,
       declined: (email: string) => `Kept apart from ${email}`,
       syncing: (sent: number, total: number) => `Syncing ${n(sent)} of ${n(total)}`,
+      /** A "delete all hands" reaching the account: hands still to go there. */
+      deleting: (left: number) => `Deleting hands on your account · ${n(left)} left`,
       upToDate: "Up to date",
       offline: "Offline",
       rateLimited: (time: string) => `Limit reached; continues at ${time}`,
       failed: (time: string) => `Failed; tries again at ${time}`,
       planRequired: "Part of Rail Pro",
+      dailyCap: (total: number | null, time: string) =>
+        total
+          ? `${hands(total)} synced today — the rest syncs after ${time}, or now with Pro`
+          : `Today's hands are synced — the rest syncs after ${time}, or now with Pro`,
+      libraryFull: (total: number | null) =>
+        total ? `Your web library is full (${n(total)})` : "Your web library is full",
       refused: (count: number) => `${hands(count)} refused`,
       upload: "Upload",
       keepApart: "Keep apart",
@@ -507,25 +517,35 @@ export const en = {
    * analysis, full reports, sync) and its lines in Settings, Account.
    */
   plan: {
-    heading: "Part of Rail Pro",
+    /** The small badge on a lock. */
+    pro: "Pro",
+    /** A lock's one line: what the locked screen or control does. */
     features: {
-      hud: "The HUD at your poker tables is part of Rail Pro.",
-      analysis: "The analysis of your hands - grades, leaks, session review and your own charts - is part of Rail Pro.",
-      reportsFull:
-        "Reports by situation and the Players screen are part of Rail Pro. Your basic statistics stay free: the summary, every statistic, the graph and the breakdowns by position, stake, room, table size and format.",
-      desktopSync: "Syncing your hands with the web is part of Rail Pro.",
-      learn: "Learn is part of Rail Pro.",
+      hud: "Stats on your tables while you play",
+      analysis: "Find your leaks from your own hands",
+      reportsFull: "Every situation and opponent in your hands",
+      desktopSync: "Sync the desktop app with the web",
+      learn: "Learn is part of Pro",
+      solverUnlimited: "Every flop, every day",
+      nodelock: "Lock a strategy and solve again",
     },
+    /** Screens with a line of their own (their feature is shared). */
+    screens: {
+      trainer: "Train the spots from your own hands",
+      players: "Every opponent you played, profiled",
+    },
+    /** Why, when it is not just the Free plan. */
     reasons: {
-      signedOut:
-        "Sign in with a Rail Pro account to use it. Without an account Rail keeps importing your hands, your library, the replayer and your basic statistics.",
-      notChecked: "Rail checks your plan when it is online. Connect to the internet, or check again.",
+      signedOut: "Sign in to use it.",
+      notChecked: "Rail checks your plan when it is online.",
       free: "Your account is on the Free plan.",
-      graceExpired: (days: number) =>
-        `Reconnect to keep Pro: Rail has not reached the server to check your plan for more than ${days} days.`,
+      graceExpired: (days: number) => `Reconnect to keep Pro: the plan was last checked over ${days} days ago.`,
     },
+    /** A locked control's tooltip. */
+    tip: (what: string) => `${what} is part of Pro.`,
     signIn: "Sign in",
-    upgrade: "Upgrade to Pro",
+    upgrade: "See Pro",
+    manage: "Manage plan",
     checkAgain: "Check again",
     checking: "Checking…",
     /** Settings' plan badge: what can be used now. */
@@ -540,14 +560,26 @@ export const en = {
     settings: {
       heading: "Plan",
       loading: "Reading your plan…",
-      open: "Everything in Rail is available.",
-      pro: "Rail Pro.",
-      proUntil: (date: string) =>
-        `Rail Pro. It keeps working offline until ${date}; Rail checks again by itself whenever it is online.`,
-      free: "Free: importing, your library, the replayer and basic statistics. The HUD, the analysis and full reports need Rail Pro.",
-      handsStored: (count: number, total: number) => `${hands(count)} in your web library of ${n(total)} on the Free plan.`,
-      lastChecked: (time: string) => `Plan last checked ${time}.`,
-      offline: "The server could not be reached to check; Rail uses the last answer.",
+      library: "Library",
+      libraryCount: (stored: number, total: number) => `${n(stored)} / ${n(total)}`,
+      today: "Today",
+      handsToday: (saved: number, total: number) => `${n(saved)} / ${n(total)} hands`,
+      flopsToday: (opened: number, total: number) => `${n(opened)} / ${n(total)} flops`,
+      resets: (time: string) => `resets ${time}`,
+    },
+    /** The solver's flops a day (Free). */
+    solver: {
+      today: "Today's flops",
+      count: (used: number, total: number) => `${n(used)} / ${n(total)}`,
+      left: (count: number) => `${n(count)} left`,
+      open: (flop: string) => `Open ${flop}`,
+      otherLine: "Not solved on this line",
+      refused: (total: number, time: string) =>
+        `You've opened today's ${n(total)} flops. They stay open, with any turn and river, until ${time}. Every flop with Pro.`,
+      signIn: (total: number) => `Sign in to open flops. A free account opens ${n(total)} a day.`,
+      offline: "Connect to the internet to open a new flop. Today's flops stay open.",
+      tryAgain: "Try again",
+      nodelock: "Nodelock",
     },
   },
 
@@ -570,6 +602,15 @@ export const en = {
     danger: {
       deleteAccount: "Delete my account",
       delete: "Delete…",
+      /** Every hand in the store, here and on the account. */
+      deleteHands: "Delete all hands",
+      deleteHandsTitle: "Delete all hands?",
+      deleteHandsBody: (count: number) =>
+        `${hands(count)} will be deleted here and from your Rail account. This cannot be undone.`,
+      deleteHandsType: (count: number) => `Type ${n(count)} or DELETE`,
+      deleteHandsConfirm: "Delete all",
+      deleteHandsDone: (count: number) => `${hands(count)} deleted`,
+      deleteHandsNone: "No hands to delete",
       openFailed: (reason: string) => `The browser did not open: ${reason}`,
     },
 
@@ -1025,6 +1066,7 @@ export const en = {
       label: (count: number) => (count === 1 ? "Hand" : hands(count)),
       replay: (count: number) => (count === 1 ? "Replay hand" : `Replay ${hands(count)}`),
       export: (count: number) => (count === 1 ? "Export hand to .txt" : `Export ${hands(count)} to .txt`),
+      delete: (count: number) => (count === 1 ? "Delete hand…" : `Delete ${hands(count)}…`),
       /** The "Tag" submenu: tags put on or taken off the chosen hands. */
       mark: "Tag",
       /** The bar at the window's foot while two or more hands are chosen. */
@@ -1032,7 +1074,19 @@ export const en = {
         replay: "Replay",
         tag: "Tag",
         export: "Export .txt",
+        delete: "Delete",
         clear: "Clear the selection",
+      },
+      /** Deleting hands: the confirmation, with the count. */
+      remove: {
+        title: (count: number) => (count === 1 ? "Delete this hand?" : `Delete ${hands(count)}?`),
+        body: "Deleted here and from your Rail account. This cannot be undone.",
+        confirm: "Delete",
+        cancel: "Cancel",
+        deleting: "Deleting…",
+        progress: (done: number, total: number) => `${n(done)} of ${hands(total)}`,
+        done: (count: number) => (count === 1 ? "Hand deleted" : `${hands(count)} deleted`),
+        failed: (reason: string) => `The hands were not deleted: ${reason}`,
       },
       markers: {
         label: "Tags",
@@ -1075,7 +1129,23 @@ export const en = {
       failed: (reason: string) => `The hand did not load: ${reason}`,
       close: "Close",
       openInWeb: "Open on the web",
-      openInWebSoon: "Opening hands on the web comes with sync of tags and notes.",
+      openInWebTitle: "Open this hand in your web library, at this point of the hand",
+      /** The header button that opens the Solver tab at the hand's spot (`solver/handSpot.ts`). */
+      openInSolver: "Solver",
+      openInSolverTitle: "Open the Solver at this spot of the hand",
+      solverLooking: "Finding the spot…",
+      solverNone: "The Solver has no spot here: three or more saw the flop, or no table or line of the hand is in the charts.",
+      /** The Solver tab opened from a hand on a spot that stands in for it (`solver/handSpot.ts`). */
+      spotNote: {
+        flop: "≈ last flop decision",
+        flopTitle:
+          "The library has no turn or river of this flop (it was read from a similar flop): this is the hero's last flop decision.",
+        preflop: "≈ preflop ranges",
+        preflopTitle:
+          "The library has no solve of this heads-up spot after the flop (a line it does not solve): these are the ranges the hand went to the flop with.",
+        depth: (set: number, hand: number) => `≈ ${set}bb (hand ${hand}bb)`,
+        depthTitle: "No chart set at the hand's stack depth: the nearest one is shown.",
+      },
       /** The header button that opens the hand's tags and note. */
       notes: "Tags and note",
       notesSummary: (tags: number, note: boolean) =>
@@ -1214,6 +1284,7 @@ export const en = {
       comfortable: "Comfortable lists and tables",
       language: "Switch to Croatian (Hrvatski)",
       refused: "Show refused hands",
+      feedback: "Send feedback: report a bug, request a feature or ask a question",
       current: "In use",
     },
     keywords: {
@@ -1223,6 +1294,7 @@ export const en = {
       density: "density compact comfortable rows spacing size",
       language: "language croatian hrvatski english jezik",
       refused: "refused quarantine errors unreadable",
+      feedback: "feedback report bug issue problem feature request idea question help contact support",
       settings: "settings preferences options update upgrade version",
     },
     hints: {
@@ -1240,7 +1312,7 @@ export const en = {
   /** The analysis (R5.4): its screen, the background run's status, a hand's grades. */
   analysis: {
     tabsLabel: "Analysis sections",
-    tabs: { session: "Session review", leaks: "Top leaks" },
+    tabs: { session: "Session review", leaks: "Top leaks", multiway: "Multiway ≈", bomb: "Bomb pots ≈" },
     unavailable: "The analysis is only available inside the Rail app.",
     loading: "Opening the analysis…",
     status: {
@@ -1268,6 +1340,18 @@ export const en = {
       error: (message: string) => `The last page did not finish: ${message}`,
       pause: "Pause",
       resume: "Resume",
+      /** (2026-11-18) The hands under way: one month at a time, newest first. */
+      analysing: (month: string) => (month ? `Analysing ${monthLong(month)}` : "Analysing hands without a date"),
+      /** A month in the list under the bar. */
+      month: (month: string) => (month ? monthShort(month) : "No date"),
+      months: "Months",
+      monthsLabel: "The analysis month by month",
+      monthDone: "done",
+      monthFirst: (month: string) => `Analyse ${month ? monthLong(month) : "these hands"} next`,
+      /** Every hand: what is left of how many, about how long. */
+      inAll: "In all",
+      hide: "Hide the analysis progress",
+      show: "Show the analysis progress",
     },
     session: {
       notAnalysed: "Analysed in the background",
@@ -1299,6 +1383,8 @@ export const en = {
       bb: (value: string) => `${value} bb`,
     },
     hand: {
+      /** analysis/45: the badge on a bomb pot. */
+      bombBadge: (ante: number | null) => (ante === null ? "Bomb pot" : `Bomb pot · ${ante} bb ante`),
       title: "Hand analysis",
       /** The Solver beside the decisions: the spot of the one picked. */
       solver: {
@@ -1432,7 +1518,7 @@ export const en = {
       permission: "Needs a permission",
       fix: "Fix ›",
       pro: "HUD is part of Pro",
-      upgrade: "Upgrade ›",
+      upgrade: "See Pro ›",
       signIn: "Sign in ›",
       checkAgain: "Check again ›",
     },
@@ -1538,6 +1624,7 @@ export const en = {
   nodelock: {
     action: "Nodelock",
     actionTitle: (position: string) => `Lock ${position}'s strategy here and solve the rest against it, on this computer`,
+    lockActor: (position: string) => `Lock ${position}`,
     editorLabel: (position: string) => `Nodelock: ${position}'s strategy`,
     close: "Close",
     modesLabel: "Set strategy by",
@@ -1554,6 +1641,19 @@ export const en = {
     brush: "Paint with",
     brushHint: "Click or drag over hands. Painted hands are locked; the others adapt.",
     rangeHint: "Hands closest to indifference move first. The tick is GTO.",
+    sizes: {
+      bet: "Add a bet",
+      raise: "Add a raise",
+      pct: "Size, % of the pot",
+      placeholder: "150",
+      add: "Add",
+      allIn: "All-in",
+      reset: "Library sizes",
+      remove: (action: string) => `Take ${action} away`,
+      back: (action: string) => `Put ${action} back`,
+      customHint: "This decision offers its own actions, so its tree is solved from scratch. A new size has no GTO.",
+      errors: { tooSmall: "Type a size above 0.", there: "That size is already there.", noBet: "No chips are left for a bet here." },
+    },
     classesHint: "Pick a class, then set how often it takes each action.",
     classesNone: "No hands of this class reach the decision.",
     made: "Made hands",
@@ -1579,15 +1679,29 @@ export const en = {
     nothingLocked: "Lock at least one hand first.",
     progress: (share: number | null, etaS: number | null) =>
       share === null ? "Estimating the time…" : `${Math.floor(share * 100)}%${etaS === null ? "" : ` · about ${clock(etaS)} left`}`,
+    iterations: (iteration: number, exploitabilityPct: number | null) =>
+      `Iteration ${n(iteration)}${exploitabilityPct === null ? "" : ` · ${n(Math.round(exploitabilityPct * 100) / 100)}% of the pot`}`,
+    estimate: (seconds: number) => `≈ ${seconds < 60 ? `${n(Math.max(1, Math.round(seconds)))} s` : `${n(Math.round(seconds / 60))} min`} on this computer`,
     batch: (done: number, total: number) => `${n(done)} of ${n(total)} done`,
     cancelAll: "Cancel all",
     starting: "Starting the solve…",
     cancel: "Cancel",
     solvingHere: "Solving on this computer. Keep studying; Rail tells you when it is ready.",
-    nodelocked: "Nodelocked",
-    backToGto: "Back to GTO",
     editLock: "Edit lock",
     compare: "Compare with GTO",
+    removeLock: "Remove this lock",
+    markLabel: "Locked: how",
+    markAfter: (step: string) => `after ${step}`,
+    markFrom: "From",
+    markFixed: (fixed: number, reaching: number) => `${n(fixed)} of ${n(reaching)} combos fixed · the rest adapt`,
+    markAllFixed: "All combos fixed",
+    markRange: "Range",
+    markPainted: "Hands painted",
+    planAdds: (parent: string, street: "flop" | "turn") => `Adds to ${parent}'s ${street} locks: the ${street} is solved again`,
+    planBuilds: (parent: string) => `Builds on ${parent}: the turn is solved from its result`,
+    planSibling: (of: string, street: "flop" | "turn") => `A new lock beside ${of}: the ${street} is solved again`,
+    planLibrary: (street: "flop" | "turn") => `A new lock on the library's solve: the ${street} is solved from GTO`,
+    markOnlyNode: "The only locked decision: lock another one first, or go back to GTO in the Library",
     gto: "GTO",
     shareDelta: (delta: number) => `${delta >= 0 ? "+" : "−"}${n(Math.round(Math.abs(delta) * 1000) / 10)} pp`,
     shift: (label: string, gto: number, locked: number) => `${label} ${pct(gto)} → ${pct(locked)}`,
@@ -1600,53 +1714,99 @@ export const en = {
     dismiss: "Dismiss",
     name: (who: string, board: string, ip: string, oop: string) => `${who} · ${board} · ${ip} vs ${oop}`,
     copyName: (name: string) => `${name} (copy)`,
+    /** The Ranges step (§9.4): the ranges that reach the flop, a range lock. */
+    ranges: {
+      step: "Ranges",
+      scope: "Change the ranges that reach the flop: the flop is solved again from them. Preflop is not solved again.",
+      playersLabel: "Whose range",
+      tab: (position: string, share: number) => `${position} ${pct(share)}`,
+      changed: "Changed",
+      weight: "Weight",
+      weightLabel: "Weight to paint, % of each hand's combos",
+      paintHint: "Click or drag over hands to paint them at this weight. The tick is GTO.",
+      sets: { pairs: "Pairs", suited: "Suited", offsuit: "Offsuit", broadways: "Broadways", axSuited: "Ax suited", suitedConnectors: "Suited connectors" } as Record<string, string>,
+      setTitle: (name: string) => `Paint every ${name.toLowerCase()} hand at this weight`,
+      scaleLabel: "Percentage points of all hands",
+      widen: "Widen",
+      tighten: "Tighten",
+      scaleTitle: "Whole hands from the range's edge: the strongest below its best first (to tighten, the weakest in it), by preflop equity against the other range",
+      scaleBusy: "Working out preflop equity…",
+      textLabel: (position: string) => `${position}'s range as text`,
+      gridLabel: (position: string) => `${position}'s range: click or drag to paint`,
+      textPlaceholder: "AA,KK,AKs,AQo:0.5,…",
+      apply: "Apply",
+      copy: "Copy",
+      copied: "Copied",
+      textError: (message: string) => `Not a range: ${message.replace(/^.*: /, "")}`,
+      reset: "Reset to GTO",
+      summary: (position: string, act: string, share: number, gto: number) => `${position} ${act} ${pct(share)} (GTO ${pct(gto)})`,
+      diff: (added: number, removed: number) => `+${n(Math.round(added))} −${n(Math.round(removed))} combos`,
+      combos: (combos: number) => `${n(Math.round(combos * 10) / 10)} combos`,
+      cell: (hand: string, weight: number, gto: number) => `${hand}: ${pct(weight)} (GTO ${pct(gto)})`,
+      next: (position: string) => `Lock ${position}`,
+      nextTitle: (position: string) => `On to ${position}'s strategy at this decision; the ranges go with it`,
+      solveRanges: "Solve these ranges",
+      solveRangesTitle: "Solve the flop from these ranges, no decision locked",
+      shift: (position: string, pp: number) => `${position} ${pp >= 0 ? "+" : "−"}${n(Math.abs(pp))}%`,
+      lineage: (shifts: string) => `Ranges: ${shifts}`,
+      name: (shifts: string, board: string) => `Ranges ${shifts} · ${board}`,
+      turnFirst: "New ranges solve the flop first, then this decision on it: two solves.",
+    },
     tabsLabel: "Solver",
     library: "Library",
     mine: "My nodelocks",
     libraryHint: "The clean GTO solve, no nodelocks",
     mineHint: "The spots you nodelocked, solved on this computer",
     opening: "Opening the nodelock…",
-    offSpot: "This view is GTO: the lock changes another decision.",
-    toLockedSpot: "Go to the locked spot",
-    search: "Search by name, cards or line",
     searchLabel: "Search nodelocks",
-    allSpots: "All spots",
-    spotFilter: "Spot",
-    empty: "No nodelocks yet.",
-    emptyLink: "Lock a decision in the library",
-    noMatch: "No nodelock matches.",
-    columns: {
-      name: "Name",
-      spot: "Spot",
-      node: "Locked node",
-      preset: "Preset",
-      date: "Date",
-      status: "Status",
-      accuracy: "Accuracy",
-      time: "Time",
-      engine: "Engine",
-    },
     status: { draft: "Draft", solving: "Solving", solved: "Solved", failed: "Failed", cancelled: "Cancelled" } as Record<string, string>,
     nodeAt: (position: string, street: string, path: string) => `${position} · ${street}${path ? ` · ${path}` : ""}`,
     streets: { flop: "Flop", turn: "Turn", river: "River" } as Record<string, string>,
     custom: "Custom",
-    selectAll: "Select all",
-    select: (name: string) => `Select ${name}`,
     rename: "Rename",
     renameLabel: (name: string) => `New name for ${name}`,
-    save: "Save",
     duplicate: "Duplicate and edit",
     delete: "Delete",
-    deleteSelected: (count: number) => `Delete ${count === 1 ? "1 nodelock" : `${n(count)} nodelocks`}`,
-    deleteTitle: (count: number) => (count === 1 ? "Delete this nodelock?" : `Delete ${n(count)} nodelocks?`),
-    deleteBody: (count: number) =>
-      `${count === 1 ? "Its lock and solve are" : "Their locks and solves are"} removed from this computer. This cannot be undone.`,
     deleting: "Deleting…",
     keep: "Keep",
     loadError: "Nodelocks could not be read.",
     openError: "This nodelock could not be opened.",
     retry: "Try again",
     actions: (name: string) => `Actions for ${name}`,
+    /** My nodelocks' tree (§7.1). */
+    tree: {
+      label: "My nodelocks",
+      pick: "Pick a nodelock, or lock a decision in the Library",
+      none: "No nodelocks yet",
+      noMatch: "No nodelock matches",
+      newFolder: "New folder",
+      newFolderName: "New folder",
+      newFolderHere: "New folder here",
+      search: "Search by name, cards or line",
+      collapseAll: "Collapse all",
+      toLockedSpot: "Go to the locked spot",
+      hide: "Hide the list",
+      show: "Show the list",
+      resize: "Drag to resize the list",
+      moveTo: "Move to…",
+      topLevel: "Top level",
+      menuMany: (count: number) => `${n(count)} items`,
+      childStays: "A lock built on another one stays under it",
+      solving: (share: number | null) => (share === null ? "Solving" : `Solving · ${Math.floor(share * 100)}%`),
+      queued: "Waiting: starts when the solve before it ends",
+      lockedNodes: (count: number) => (count === 1 ? "1 locked node" : `${n(count)} locked nodes`),
+      deleteQuestion: (folders: number, locks: number, built: number) => {
+        const extra = [
+          folders ? (folders === 1 ? "1 folder" : `${n(folders)} folders`) : "",
+          built ? (built === 1 ? "1 lock built on them" : `${n(built)} locks built on them`) : "",
+        ].filter(Boolean);
+        const total = locks + built;
+        if (!total) return folders === 1 ? "Delete 1 empty folder?" : `Delete ${n(folders)} empty folders?`;
+        return `Delete ${total === 1 ? "1 nodelock" : `${n(total)} nodelocks`}${extra.length ? ` (${extra.join(", ")})` : ""}?`;
+      },
+      deleteBody: "Removed from this computer. This cannot be undone.",
+      deleteSolving: "The solve running is cancelled first.",
+    },
   },
 
   /** The HUD popup (R3.8): a click on a player's panel at the table. */

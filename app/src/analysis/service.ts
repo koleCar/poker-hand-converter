@@ -21,7 +21,7 @@ import {
   type TournamentSettings,
   type TournamentSettingsMap,
 } from "./library";
-import { AnalysisRunner, type RunnerDeps, type RunnerStatus } from "./runner";
+import { AnalysisRunner, analysisLanes, type RunnerDeps, type RunnerStatus } from "./runner";
 import type { FetchOutcome } from "./worker";
 import { fetchOutcomeOfError, workerAnalyser } from "./workerClient";
 
@@ -50,7 +50,8 @@ async function fetchLibraryFile(path: string): Promise<FetchOutcome> {
   }
 }
 
-const pageWorker = workerAnalyser(fetchLibraryFile);
+const LANES = analysisLanes();
+const pageWorkers = Array.from({ length: LANES }, () => workerAnalyser(fetchLibraryFile));
 
 /**
  * (R5.5) The user's tournament settings from the store, those the library's
@@ -70,17 +71,22 @@ export async function tournamentSettings(): Promise<TournamentSettingsMap | null
 export const appDeps: RunnerDeps = {
   gate: () => ipc.analysisGate(),
   counts: (version) => ipc.analysisCounts(version),
+  months: (version) => ipc.analysisMonths(version),
   pending: (version, after, limit) => ipc.analysisPending(version, after, limit),
   offline: (version, limit) => ipc.analysisOffline(version, limit),
   reachable: () => ipc.flopLibraryReachable().catch(() => false),
   villains: (players, minHands) => ipc.analysisVillains(players, minHands),
-  analyse: (page, villains, library, signal, tournaments) => pageWorker.analyse(page, villains, library, signal, undefined, tournaments),
+  lanes: LANES,
+  analyse: (page, villains, library, signal, tournaments, lane = 0) =>
+    (pageWorkers[lane] ?? pageWorkers[0]!).analyse(page, villains, library, signal, undefined, tournaments),
   tournaments: () => tournamentSettings(),
   save: (rows) => ipc.analysisSave(rows),
   sleep,
   now: () => Date.now(),
-  // Idle: the worker goes, and with it the chart sets it loaded (hundreds of MB).
-  release: () => pageWorker.stop(),
+  // Idle: the workers go, and with them the chart sets they loaded (hundreds of MB each).
+  release: () => {
+    for (const worker of pageWorkers) worker.stop();
+  },
 };
 
 export const runner = new AnalysisRunner(appDeps);
@@ -100,6 +106,11 @@ export function startAnalysis(): void {
 export async function setAnalysisPaused(paused: boolean): Promise<void> {
   await ipc.analysisSetPaused(paused);
   runner.paused(paused);
+}
+
+/** Analyse `month` (`YYYY-MM`) next; null: newest first again. */
+export function focusAnalysisMonth(month: string | null): void {
+  runner.focus(month);
 }
 
 /** The runner's status, for a screen. */

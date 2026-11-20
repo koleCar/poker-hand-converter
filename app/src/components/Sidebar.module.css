@@ -345,6 +345,38 @@
   margin-top: 0;
 }
 
+/* "Feedback" (FeedbackItem): a screen link's look on a button, at the foot
+   above the account; it takes the auto margin unless an update card did. */
+.feedback {
+  flex: none;
+  width: 100%;
+  margin-top: auto;
+  border: none;
+  background: transparent;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.update + .feedback {
+  margin-top: 0;
+}
+
+/* The compact update dot tucks into the next row; keep the feedback item clear of it. */
+.updateCompact + .feedback {
+  margin-top: var(--space-3);
+}
+
+/* The sidebar's 24px gap is for sections; these two are one foot. */
+.feedback + .account {
+  margin-top: calc(-1 * var(--space-4));
+}
+
+.feedback:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
+
 /* Who is signed in (R1.7), pushed to the sidebar's foot. */
 .account {
   display: flex;

@@ -6,14 +6,17 @@
  * replayed in the replayer window - several with their list beside it -
  * tagged (`MarkPanel`: a dropdown of the tags, presets first, and a field
  * for a tag of one's own; "Review" queues the spot for the solver), or saved
- * as one hand-history .txt (`export.rs`), the text Rail and the web read back.
- * What a save did is said for a few seconds at the window's foot.
+ * as one hand-history .txt (`export.rs`), the text Rail and the web read back,
+ * or deleted (2026-11-19: behind a confirmation with the count,
+ * `DeleteHands`). What a save or a delete did is said for a few seconds at
+ * the window's foot.
  */
 import { ContextMenu, type MenuPoint } from "@rail/ui/hands/ContextMenu";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useT } from "../i18n";
 import { errorText, ipc } from "../lib/ipc";
+import { DeleteHands } from "./DeleteHands";
 import styles from "./HandActions.module.css";
 import { MarkPanel } from "./MarkPanel";
 
@@ -43,6 +46,10 @@ export function useHandActions(): HandActions {
   const t = useT().hands.actions;
   const [menu, setMenu] = useState<{ keys: string[]; at: MenuPoint } | null>(null);
   const [notice, setNotice] = useState<{ text: string; error: boolean } | null>(null);
+  // The hands asked to be deleted, waiting for the confirmation; and what
+  // lets the chosen ones go once they are.
+  const [deleting, setDeleting] = useState<string[] | null>(null);
+  const chosen = useRef<{ keys: readonly string[]; clear: () => void } | null>(null);
 
   useEffect(() => {
     if (notice === null) return;
@@ -73,8 +80,18 @@ export function useHandActions(): HandActions {
   }, [t]);
 
   const bar = useCallback(
-    (keys: readonly string[], clear: () => void) =>
-      keys.length > 1 ? <ChosenBar handKeys={keys} onClear={clear} onReplay={replay} onSave={save} /> : null,
+    (keys: readonly string[], clear: () => void) => {
+      chosen.current = { keys, clear };
+      return keys.length > 1 ? (
+        <ChosenBar
+          handKeys={keys}
+          onClear={clear}
+          onReplay={replay}
+          onSave={save}
+          onDelete={setDeleting}
+        />
+      ) : null;
+    },
     [replay, save],
   );
 
@@ -89,7 +106,21 @@ export function useHandActions(): HandActions {
             { label: t.replay(menu.keys.length), onSelect: () => replay(menu.keys) },
             { label: t.mark, submenu: () => <MarkPanel handKeys={menu.keys} /> },
             { label: t.export(menu.keys.length), onSelect: () => save(menu.keys) },
+            { label: t.delete(menu.keys.length), onSelect: () => setDeleting(menu.keys) },
           ]}
+        />
+      ) : null}
+      {deleting !== null ? (
+        <DeleteHands
+          handKeys={deleting}
+          onClose={() => setDeleting(null)}
+          onDone={(deleted) => {
+            // The chosen hands let go when any of them went.
+            const gone = new Set(deleting);
+            if (chosen.current?.keys.some((key) => gone.has(key))) chosen.current.clear();
+            setDeleting(null);
+            setNotice({ text: t.remove.done(deleted), error: false });
+          }}
         />
       ) : null}
       {notice !== null ? (
@@ -109,18 +140,20 @@ export function useHandActions(): HandActions {
 /**
  * The chosen hands' actions, in view while two or more are chosen: how
  * many, Replay, Tag (the tags as a dropdown, a field for a new one), Export,
- * and × to let them go (Escape does too, in the list).
+ * Delete, and × to let them go (Escape does too, in the list).
  */
 function ChosenBar({
   handKeys,
   onClear,
   onReplay,
   onSave,
+  onDelete,
 }: {
   handKeys: readonly string[];
   onClear: () => void;
   onReplay: (keys: string[]) => void;
   onSave: (keys: string[]) => void;
+  onDelete: (keys: string[]) => void;
 }) {
   const ui = useT().hands;
   const t = ui.actions;
@@ -179,6 +212,9 @@ function ChosenBar({
       </div>
       <button type="button" className={styles.action} onClick={() => onSave(keys)}>
         {t.bar.export}
+      </button>
+      <button type="button" className={`${styles.action} ${styles.danger}`} onClick={() => onDelete(keys)}>
+        {t.bar.delete}
       </button>
       <button type="button" className={styles.dismiss} aria-label={t.bar.clear} title={t.bar.clear} onClick={onClear}>
         ×

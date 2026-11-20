@@ -19,7 +19,7 @@
 //! 15; the hand analysis and the user's own preflop charts: 16; a postflop leak
 //! row's table: 20; plain GG cash hands moved from `standard` to `ggpoker`:
 //! 21; who was caught bluffing on each street: 23; the user's nodelocks,
-//! local only: 24). A
+//! local only: 24; their folders and tree: 25). A
 //! migration may also fill in Rust what its SQL cannot ([`after_sql`]: 14
 //! sums the seat rows' blobs, 20 and 23 read the hands' PHF, 21 rewrites it), in the same
 //! transaction.
@@ -132,6 +132,14 @@ pub const MIGRATIONS: &[Migration] = &[
     Migration {
         name: "0024_node_locks.sql",
         sql: include_str!("../migrations/0024_node_locks.sql"),
+    },
+    Migration {
+        name: "0025_node_lock_tree.sql",
+        sql: include_str!("../migrations/0025_node_lock_tree.sql"),
+    },
+    Migration {
+        name: "0026_deleted_hands.sql",
+        sql: include_str!("../migrations/0026_deleted_hands.sql"),
     },
 ];
 

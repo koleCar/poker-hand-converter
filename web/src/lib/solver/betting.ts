@@ -27,6 +27,7 @@
  */
 
 import { cardCode } from "../equity";
+import { SolverInputError } from "./combos";
 import { TreeBuilder, type Edge, type Rake } from "./tree";
 
 export interface BetMenu {
@@ -56,6 +57,13 @@ export interface BettingRules {
   allInThreshold: number;
   /** Smallest bet, in chips. */
   minBet: number;
+  /**
+   * A node's own actions, by its path (`X-B1.82`): the labels it offers in
+   * place of the menu's, as a nodelock's custom sizes set them (`B8.25`
+   * bets to 8.25). A label the menu gives keeps the menu's exact amount; any
+   * other is taken at its own (`nodeActionsOf`).
+   */
+  nodeActions?: Readonly<Record<string, readonly string[]>>;
 }
 
 export type ActionKind = "fold" | "check" | "call" | "bet" | "raise" | "allin";
@@ -175,18 +183,10 @@ export function buildStreet(ctx: StreetContext, base: readonly [number, number],
       return { label, kind, amount, to, sizePot };
     };
 
+    // The menu's actions, then the node's own in their place where it has them.
+    let planned: ActionInfo[] = [];
     if (toCall > EPS) {
-      const fold = describe("fold", 0, 0);
-      actions.push(fold);
-      edges.push({ label: fold.label, child: builder.fold(me, pot, total0, total1, rake) });
-
-      const call = describe("call", Math.min(toCall, behindMe), 0);
-      actions.push(call);
-      const c: [number, number] = [total0, total1];
-      c[me] += call.amount;
-      const allIn = stack - c[me] <= EPS || behindOp <= EPS;
-      edges.push({ label: call.label, child: ctx.close(c[0], c[1], allIn, join(call.label)) });
-
+      planned.push(describe("fold", 0, 0), describe("call", Math.min(toCall, behindMe), 0));
       if (raises < rules.raiseCap && behindOp > EPS && behindMe > toCall + EPS) {
         const potAfterCall = potNow + toCall;
         const floor = toCall + Math.max(lastIncrement, rules.minBet);
@@ -198,40 +198,45 @@ export function buildStreet(ctx: StreetContext, base: readonly [number, number],
         );
         for (const amount of amounts) {
           const kind: ActionKind = behindMe - amount <= EPS ? "allin" : "raise";
-          const info = describe(kind, amount, (amount - toCall) / potAfterCall);
-          actions.push(info);
-          const next: [number, number] = [street[0], street[1]];
-          next[me] += amount;
-          const increment = next[me] - street[op];
-          edges.push({
-            label: info.label,
-            child: node(next, op, raises + 1, increment, checked, join(info.label)),
-          });
+          planned.push(describe(kind, amount, (amount - toCall) / potAfterCall));
         }
       }
     } else {
-      const check = describe("check", 0, 0);
-      actions.push(check);
-      edges.push({
-        label: check.label,
-        child: checked
-          ? ctx.close(total0, total1, false, join(check.label))
-          : node(street, op, raises, lastIncrement, true, join(check.label)),
-      });
+      planned.push(describe("check", 0, 0));
       if (behindMe > EPS) {
         const amounts = sized(menu.bet, (x) => x * potNow, rules.minBet, (amount) => amount / potNow);
         for (const amount of amounts) {
           const kind: ActionKind = behindMe - amount <= EPS ? "allin" : "bet";
-          const info = describe(kind, amount, amount / potNow);
-          actions.push(info);
-          const next: [number, number] = [street[0], street[1]];
-          next[me] += amount;
-          edges.push({
-            label: info.label,
-            child: node(next, op, raises, amount, checked, join(info.label)),
-          });
+          planned.push(describe(kind, amount, amount / potNow));
         }
       }
+    }
+    const own = rules.nodeActions?.[at];
+    if (own) planned = nodeActionsOf(at, own, planned, { street: street[me], toCall, behind: behindMe, pot: potNow });
+
+    for (const info of planned) {
+      actions.push(info);
+      let child: number;
+      if (info.kind === "fold") {
+        child = builder.fold(me, pot, total0, total1, rake);
+      } else if (info.kind === "call") {
+        const c: [number, number] = [total0, total1];
+        c[me] += info.amount;
+        const allIn = stack - c[me] <= EPS || behindOp <= EPS;
+        child = ctx.close(c[0], c[1], allIn, join(info.label));
+      } else if (info.kind === "check") {
+        child = checked
+          ? ctx.close(total0, total1, false, join(info.label))
+          : node(street, op, raises, lastIncrement, true, join(info.label));
+      } else {
+        const next: [number, number] = [street[0], street[1]];
+        next[me] += info.amount;
+        child =
+          toCall > EPS
+            ? node(next, op, raises + 1, next[me] - street[op], checked, join(info.label))
+            : node(next, op, raises, info.amount, checked, join(info.label));
+      }
+      edges.push({ label: info.label, child });
     }
 
     const id = builder.action(me, edges);
@@ -247,6 +252,60 @@ export function buildStreet(ctx: StreetContext, base: readonly [number, number],
   };
 
   return node([0, 0], ctx.first, 0, 0, false, path);
+}
+
+/** Where a node stands, for its own actions: the actor's street total, what it has to call, its chips behind and the pot. */
+export interface NodeStand {
+  street: number;
+  toCall: number;
+  behind: number;
+  pot: number;
+}
+
+/**
+ * A node's own actions (`BettingRules.nodeActions`) from their labels: a
+ * label among the menu's (`menu`) keeps the menu's action, exact amount
+ * included; another is read off the label (`B8.25` bets to 8.25, `A100`
+ * is all-in). Throws on a label that is not legal here: a check facing a
+ * bet, a bet below a raise's minimum, an all-in that is not the stack.
+ */
+export function nodeActionsOf(path: string, labels: readonly string[], menu: readonly ActionInfo[], at: NodeStand): ActionInfo[] {
+  const fail = (label: string, why: string): never => {
+    throw new SolverInputError(`${path || "the root"}: ${label} ${why}`);
+  };
+  if (!labels.length) fail("(none)", "leaves the node without an action");
+  const seen = new Set<string>();
+  return labels.map((label) => {
+    if (seen.has(label)) fail(label, "is there twice");
+    seen.add(label);
+    const known = menu.find((a) => a.label === label);
+    if (known) return known;
+    const facing = at.toCall > EPS;
+    const letter = label[0];
+    if (letter === "X" || letter === "F" || letter === "C") {
+      if (label.length > 1) fail(label, "is not an action");
+      if ((letter === "X") === facing) fail(label, facing ? "faces a bet" : "has no bet to answer");
+      return letter === "X"
+        ? { label, kind: "check", amount: 0, to: at.street, sizePot: 0 }
+        : letter === "F"
+          ? { label, kind: "fold", amount: 0, to: at.street, sizePot: 0 }
+          : { label, kind: "call", amount: Math.min(at.toCall, at.behind), to: at.street + Math.min(at.toCall, at.behind), sizePot: 0 };
+    }
+    const to = Number(label.slice(1));
+    if (!(letter === "B" || letter === "R" || letter === "A") || !Number.isFinite(to)) fail(label, "is not an action");
+    const amount = to - at.street;
+    const sizePot = (a: number) => (facing ? (a - at.toCall) / (at.pot + at.toCall) : a / at.pot);
+    if (letter === "A") {
+      // The label rounds to two decimals; the stack is exact.
+      if (Math.abs(amount - at.behind) > 0.006) fail(label, `is not all-in (${formatAmount(at.street + at.behind)})`);
+      return { label, kind: "allin", amount: at.behind, to: at.street + at.behind, sizePot: sizePot(at.behind) };
+    }
+    if ((letter === "R") !== facing) fail(label, facing ? "is a bet facing a bet" : "raises no bet");
+    if (!(amount > (facing ? at.toCall : 0) + EPS)) fail(label, "is too small");
+    if (facing && amount - at.toCall < at.toCall - 0.006) fail(label, "raises less than the minimum");
+    if (!(amount < at.behind - EPS)) fail(label, "is the stack or more: that is all-in");
+    return { label, kind: facing ? "raise" : "bet", amount, to, sizePot: sizePot(amount) };
+  });
 }
 
 /** Path segment for a dealt card. */

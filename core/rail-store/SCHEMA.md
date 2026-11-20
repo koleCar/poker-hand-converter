@@ -59,6 +59,8 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 20 | `0020_leak_row_table.sql` | no schema change: a flop, turn or river `analysis_leak_rows.chart_set` is now its hand's table (the web's `analysis_hand_table_set`, 20271102090000); **filled in the migration's transaction** for the rows stored before (`table_set::fill_leak_table_sets`: SQL cannot read the compressed PHF; one read of each hand with a postflop row and no set), rows whose hand no set answers keep `''`; nothing re-analysed |
 | 22 | `0022_hud_settings.sql` | (T3) `hud_settings`: the user's table tiling and RNG settings (one JSON object per kind and key, synced like the designs); empty, nothing to rebuild |
 | 24 | `0024_node_locks.sql` | (docs/NODELOCK.md §3) `node_locks` and its indexes `node_locks_updated`, `node_locks_spot`: the user's nodelocks, solved on this computer, **never synced**; empty, nothing to rebuild |
+| 25 | `0025_node_lock_tree.sql` | (docs/NODELOCK.md §7.5) the My nodelocks tree: `node_lock_folders` and `node_lock_folders_parent`; `node_locks.folder_id`, `parent_id`, `sort` and `node_locks_parent`, `node_locks_folder`. Existing rows: no folder, no parent, `sort` = -`updated_at` (newest first); **never synced** |
+| 26 | `0026_deleted_hands.sql` | (2026-11-19) `deleted_hands` and `deleted_hands_owed_idx`: the keys of the hands the user deleted (here, or on the web and pulled), and whether the account's copy is still owed its deletion; empty, nothing to rebuild |
 
 No migration is reserved for a later step today; each lands as the next
 free number.
@@ -1165,7 +1167,7 @@ runner grades them again with the new settings.
 | `Reader::top_leaks(version, filters, period)` (`rail_store::leaks`) | the top three's sums over `analysis_leak_rows` (the web's `analysis_top_leaks`): per spot key and chart set the decisions, those worse than Perfect, the mistakes, the EV lost and the score's sum and sum of squares - a postflop spot also per pot (`pot`: `3bp`, `4bp`, the web's `analysis_leaks`) - for the period (`30d` or `all`), the last 30 days of play and the 30 before (UTC days back from the last graded hand); filters: format, the hero's seat, pot type |
 | `Reader::leak_examples(version, filters, days, keys, scope, limit)` | the decisions behind one leak (`analysis_leak_examples`): worse than Perfect at any of its spot keys (at most 200), on its table and pot (`LeakScope`: `hu` / `9max` / `other`, `3bp` / `4bp` / `other`; none: every one), costliest first, at most 30, with the hand's stakes and cards |
 
-## Nodelocks (version 24, docs/NODELOCK.md §3)
+## Nodelocks (version 24, docs/NODELOCK.md §3; the tree: version 25, §7.5)
 
 The user's nodelocks: a lock on a Solver-library spot, solved on this
 computer (the app's worker or native engine) and **kept here only**.
@@ -1191,9 +1193,34 @@ so).
 | `engine`, `threads`, `iterations`, `exploitability_pct`, `seconds`, `peak_mb` | TEXT / INTEGER / REAL NULL | how the solve ran |
 | `summary_json` | TEXT NULL | the list's headline numbers (JSON; not read here) |
 | `result` | BLOB NULL | the locked solve's chunk (~100 KB; at most 64 MiB) |
+| `folder_id` | TEXT NULL | (25) a root lock's folder (`node_lock_folders.id`, no foreign key); NULL: the top level, and always for a child |
+| `parent_id` | TEXT NULL | (25) the lock this one is built on (§7.4; no foreign key, so a version-24 store opens unchanged); NULL: on the library. Set by the first save, never changed |
+| `sort` | REAL | (25) its place in its list, ascending (default 0; migrated rows -`updated_at`) |
 
-Index `node_locks_updated` (`updated_at` DESC) for the history, and
-`node_locks_spot` (`set_id`, `line`, `flop`) for one spot's.
+Index `node_locks_updated` (`updated_at` DESC) for the history,
+`node_locks_spot` (`set_id`, `line`, `flop`) for one spot's, and (25)
+`node_locks_parent`, `node_locks_folder` for the tree.
+
+### `node_lock_folders` (25)
+
+| Column | Type | |
+| --- | --- | --- |
+| `id` | TEXT | PK; a uuid v4 (the app makes it) |
+| `name` | TEXT | 1 - 200 characters, trimmed (checked by the writer) |
+| `parent_id` | TEXT NULL | the folder it sits in (FK, `ON DELETE CASCADE`); NULL: the top level |
+| `sort` | REAL | its place in its list, ascending |
+| `created_at`, `updated_at` | INTEGER | ms; `updated_at` the last save or move |
+
+Index `node_lock_folders_parent` (`parent_id`).
+
+**The tree.** A list is either a folder's subfolders and root locks
+together (`parent_id IS ?` on the folders, `parent_id IS NULL AND
+folder_id IS ?` on the locks; NULL: the top level) or one lock's children
+(`node_locks.parent_id = ?`). Each is ordered by `sort` ascending (ties:
+folders first, then id). `sort` is a fractional index: a move takes the
+gap between its neighbours; when a gap would get below 1e-6 (or a double
+cannot split it, as between the migrated ~1e12 values), the list is
+renumbered 0, 1, 2, ... in one transaction.
 
 A row still `solving` when the store opens was cut off by the app's last
 exit: `Store::open` makes it `cancelled` (`node_locks::cancel_solving`,
@@ -1205,5 +1232,64 @@ exit: `Store::open` makes it `cancelled` (`node_locks::cancel_solving`,
 | `Reader::node_lock(id)` | one row with its chunk |
 | `WriterHandle::save_node_lock(row, now)` | insert or replace the whole row, `result` included (none clears it); keeps the first `created_at` |
 | `WriterHandle::rename_node_lock(id, name, now)` | the name; `updated_at` = now |
-| `WriterHandle::delete_node_locks(ids)` | many in one transaction; unknown ids skipped |
+| `WriterHandle::save_node_lock(row, now)` (25) | a new row's place: under `parent_id` (must exist, else refused) or, for a root, in `folder_id` (unknown: the top level), at the top of its list; a later save keeps `folder_id`, `parent_id`, `sort` |
+| `WriterHandle::delete_node_locks(ids)` | many in one transaction, (25) each with its branch (every lock down `parent_id`); unknown ids skipped; returns the rows deleted |
+| `Reader::node_lock_folders()` (25) | every folder, by parent then `sort` |
+| `WriterHandle::save_node_lock_folder(input, now)` (25) | insert or update (name, parent, sort; no sort: the top of a new list, else kept); refuses a parent that is unknown, the folder itself or inside it |
+| `WriterHandle::move_node_locks(items, to, now)` (25) | root locks and folders into `to.folder_id`, before `to.before`, else after `to.after`, else at the top; false and nothing changed for a child lock, a folder into its own subtree, an unknown item, target or anchor |
+| `WriterHandle::delete_node_lock_folders(ids)` (25) | the folders, their subfolders, every lock in them and their branches, in one transaction; returns `{ folders, locks }` |
+| `Reader::node_lock_delete_preview(locks, folders)` (25) | what the two deletes would take: `{ folders, locks, descendants }` (`descendants`: deleted locks whose parent is deleted too) |
 
+
+## Deleted hands (version 26, 2026-11-19)
+
+The owner: "users must be able to delete hands - one, a selection, or
+all". `rail_store::delete`; the app's commands in
+`app/src-tauri/src/delete.rs`; the account's copy by the sync worker
+(`rail-sync`, `delete_hands_by_key`, `delete_all_hands`,
+`hand_tombstones_since`; server migration `20271119200000_hand_deletion.sql`).
+
+### `deleted_hands`
+
+| Column | Type | |
+| --- | --- | --- |
+| `hand_key` | TEXT PK | the importer's dedupe key: the import (a folder read again, a manual import) skips it |
+| `deleted_at` | INTEGER | ms |
+| `server` | INTEGER | 1: the account's copy is owed a `delete_hands_by_key` (oldest first, `deleted_hands_owed_idx`); 0: nothing owed (sent, or the server told us) |
+
+The pull (`import_pulled`) skips a key whose `server` is 1 (that copy is
+about to go) and takes back one with 0 - the server serves it again because
+it was uploaded again after its deletion - dropping its row.
+
+### How each table follows a deleted hand
+
+**A selection** (`WriterHandle::delete_hands`, one transaction per call;
+the app sends 500 a call) - exact, nothing waits for a rebuild:
+
+| Table | How |
+| --- | --- |
+| `hands`, `hand_stats`, `seat_stats`, `ev_rows`, `ev_pending`, `outbox`, `sync_rejected`, `hand_analysis`, `decision_analysis`, `analysis_leak_rows`, `chart_decisions` | deleted (`hands` by key, the rest by cascade) |
+| `hand_list`, `player_hands` | deleted by their triggers on `hand_stats` / `seat_stats` |
+| `hand_notes`, `hand_tags` | deleted by key (no foreign key) |
+| `player_rollups`, `player_rollups_observed`, `hero_rollups`, `player_summary`, `player_hidden` | the hand's stored seat rows (current generation) summed by `stats::Pending::count`, as an import adds them, and taken off (`Pending::negate` + `flush`); a row left with no hands goes. A newest (`last_played_at`) or earliest (`first_played_at`) date the hand held is looked up again among the rows left: a name's hands through `player_hands` (and the hands past `players.indexed` directly), a session scope's within its UTC day (`hand_stats_played_idx`), the hero's (or a nameless seat's) through `hand_list` newest first in the segment. Edge left as is: a name that is both the hero and an opponent within one segment, whose date only an opponent's hand held, is looked up among the opponent's hands |
+| `custom_hero_rows`, `custom_hero_rollups`, `custom_player_rollups`, `custom_player_rollups_observed` | each statistic whose pass counted the hand (`counted_to` at or past its `hand_stats.id`) loses what the pass added: the hand's decision events counted again on its kept seats (`custom::uncount_hands`); rows left at 0 / 0 go; a `counted_to` past the last `hand_stats.id` comes back to it (an id SQLite gives again would be skipped) |
+| `files.hands`, `source_days` (`source_totals` by trigger) | one fewer for the file that delivered it, and for its folder's import day |
+| `recompute_*` | a running rows job starts again (its twins summed the hand); the EV job's list loses the hand |
+| `segments`, `files`, `quarantine` | kept |
+
+**Every hand** (`WriterHandle::delete_all_hands`): every key tombstoned,
+then the tables above emptied by one statement each, with the two per-row
+triggers dropped and created again in the same transaction (500k hands in
+seconds); `files` keep their offsets (`hands` = 0), so nothing is read
+again; custom statistics keep their definitions (`counted_to` = 0). With
+`owe_server`, `kv` `sync.delete_all` asks the worker for
+`delete_all_hands`.
+
+**From the server** (the pull, before `hands_since`; cursor `kv`
+`sync.tombstones.<user>`): a key's deletion is `delete_hands` with nothing
+owed, the key tombstoned even when this store never had it; "every hand
+stored up to T" deletes the hands here synced at or before T (`synced_at`,
+this computer's clock: a hand synced in the same moment on a computer whose
+clock runs ahead may stay) - a hand still in the outbox stays and is sent.
+The worker skips the tombstone of its own delete-all (`kv`
+`sync.own_wipe.<user>`).

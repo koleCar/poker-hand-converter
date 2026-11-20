@@ -44,7 +44,7 @@ const HEADS_UP_SET = "nlhe-cash-hu-100bb";
  * neither).
  */
 export function turnTarget(where: AreaWhere): TurnTarget | null {
-  if (where.street !== "turn" || where.scenario.includes("-mw-") || where.pot === FOUR_BET_POT) return null;
+  if (where.street !== "turn" || where.scenario.includes("-mw-") || where.scenario.startsWith("bomb-") || where.pot === FOUR_BET_POT) return null;
   const facing = where.family === "vs-bet" || where.family === "vs-raise" || /-vs-(bet|raise)$/.test(where.scenario);
   const match = /^(pfr|caller|limped)-(ip|oop)-/.exec(where.scenario);
   const side: RiverSeat | "any" = facing ? "ip" : match ? (match[2] as RiverSeat) : "any";

@@ -23,7 +23,6 @@
 "use client";
 
 import { KindSwitch } from "@rail/ui/hands/KindSwitch";
-import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -45,6 +44,7 @@ import { AnalysisNav } from "./AnalysisNav";
 import { useAnalysisKind } from "./analysisKind";
 import { POSITION_VALUES, POT_VALUES, listQuery, parseListState, scopeFilters, type AnalysisListState } from "./listState";
 import { EvHeatmap, HandsList, OverviewHead, TopLeaksMini, TrainMini } from "./overview/OverviewParts";
+import { OverviewSkeleton } from "./overview/OverviewSkeleton";
 import styles from "./ui/an.module.css";
 
 /** The migration the tab needs, named in the not-installed notice. An identifier, not prose. */
@@ -183,7 +183,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
     return (
       <div className={styles.page}>
         <AnalysisNav current="overview" />
-        <div className={`${styles.card} ${styles.center}`}>
+        <div className={`${styles.card} ${styles.center} rail-enter`}>
           <strong>{t.tab.signInHeading}</strong>
           <button type="button" className="btn btn--primary" onClick={() => auth.requestSignIn()}>
             {t.tab.signIn}
@@ -197,7 +197,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
     return (
       <div className={styles.page}>
         <AnalysisNav current="overview" />
-        <div className={`${styles.card} ${styles.center}`}>
+        <div className={`${styles.card} ${styles.center} rail-enter`}>
           <strong>{t.tab.notInstalledHeading}</strong>
           <p className={styles.muted}>
             {t.tab.notInstalledBefore}
@@ -228,7 +228,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
     return (
       <div className={styles.page}>
         <AnalysisNav current="overview" />
-        <RailLoader label={t.tab.loading} showLabel centered />
+        <OverviewSkeleton label={t.tab.loading} />
       </div>
     );
   }
@@ -246,7 +246,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
     return (
       <div className={styles.page}>
         <AnalysisNav current="overview" />
-        <div className={`${styles.card} ${styles.center}`}>
+        <div className={`${styles.card} ${styles.center} rail-enter`}>
           <strong>{t.tab.noHandsHeading}</strong>
           <Link href={paths.convert()} className="btn btn--primary">
             {t.ui.empty.upload}
@@ -260,7 +260,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
     return (
       <div className={styles.page}>
         <AnalysisNav current="overview" />
-        <div className={`${styles.card} ${styles.center}`}>
+        <div className={`${styles.card} ${styles.center} rail-enter`}>
           {/* A version bump is not "nothing analysed": say what changed. */}
           <strong>{coverage.stale > 0 ? t.tab.updatedHeading : t.tab.emptyHeading}</strong>
           {runStatus}
@@ -298,8 +298,15 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
         {runStatus}
       </AnalysisNav>
 
+      {/* Everything under the nav arrives in order, once: the figures, the map and the side, then the hands. */}
+      <div className={`${styles.contents} rail-stagger`}>
       {overview ? (
-        <OverviewHead overview={overview} grade={state.grade} onGrade={(grade) => updateState({ grade, page: 0 })} />
+        <OverviewHead
+          overview={overview}
+          grade={state.grade}
+          onGrade={(grade) => updateState({ grade, page: 0 })}
+          busy={status === "loading"}
+        />
       ) : null}
 
       <div className={styles.mainSide}>
@@ -320,6 +327,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
       </div>
 
       <HandsList state={shownState} onChange={updateState} generation={generation} flags={overview?.flags ?? []} />
+      </div>
     </div>
   );
 }
@@ -356,6 +364,9 @@ function RunStatus({
         <span className={styles.spinner} aria-hidden="true" />
         {ui.running(run.progress.processed, run.target)}
         {eta !== null && eta !== undefined ? ` ${t.run.eta(eta)}` : ""}
+        <span className={styles.runBar} aria-hidden="true">
+          <i style={{ inlineSize: `${run.target > 0 ? Math.min(100, (run.progress.processed / run.target) * 100) : 0}%` }} />
+        </span>
         <button type="button" className="btn btn--ghost btn--sm" onClick={onStop}>
           {ui.stop}
         </button>

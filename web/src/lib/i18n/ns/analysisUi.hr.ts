@@ -18,6 +18,8 @@ export const uiHr: Dict["analysis"]["ui"] = {
     reports: "Izvještaji",
     train: "Vježbaj",
     charts: "Chartovi",
+    multiway: "Multiway ≈",
+    bomb: "Bomb potovi ≈",
     concepts: "Pojmovi",
   },
   run: {

@@ -60,8 +60,10 @@ export const GTOW_CHARTS_VERSION = "gtow/1";
  * `charts/7`'s, the heads-up 100bb set `charts/8`'s, the heads-up 150bb set
  * `charts/9`'s, the 9-max 60bb set `charts/10`'s. Since `charts/11` every
  * shipped set is a GTO Wizard transcription (`GTOW_CHARTS_VERSION`); the
- * generator's versions stay readable for its own tests. `CHARTS_VERSION`
- * names the library (`registry.ts`).
+ * generator's versions stay readable for its own tests, and so is
+ * `charts/12-draft`, Rail's own sets in the making (`railSets.ts`, written
+ * outside the repo by the v0 runner; none ships). `CHARTS_VERSION` names the
+ * library (`registry.ts`).
  */
 export const CHART_SET_VERSIONS: readonly string[] = [
   "charts/2",
@@ -74,6 +76,7 @@ export const CHART_SET_VERSIONS: readonly string[] = [
   "charts/9",
   "charts/10",
   "charts/11",
+  "charts/12-draft",
   GTOW_CHARTS_VERSION,
 ];
 

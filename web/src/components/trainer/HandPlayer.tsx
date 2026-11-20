@@ -21,11 +21,10 @@ import { nextSeed, STREAK_GRADES, type GradedAnswer, type TrainerAnswer } from "
 import type { PlayOptions, PlayStep } from "../../lib/training/play";
 import { ActionButtons, groupChoices, groupForKey, TimebankBar, useTimebank, type Choice } from "./Decision";
 import { feltOf } from "./felt";
-import { bestIndex, useDecisionTabs, useOptionText, Verdict } from "./Feedback";
+import { DecisionPanel } from "./DecisionPanel";
+import { bestIndex, useOptionText, Verdict } from "./Feedback";
 import { useTrainerHost } from "./host";
-import { InfoTabs } from "./InfoTabs";
 import type { TrainerSettings } from "./settings";
-import { RangePanel } from "./RangePanel";
 import { cardsText, handDecisionKey, type SessionAnswer } from "./sessions";
 import { ActionStrip, StatusRow } from "./SpotFelt";
 import { TableBox, TrainerTable, type HeroMove } from "./TrainerTable";
@@ -139,13 +138,7 @@ function OneHand({ request, settings, onScored, onAnswer, onHandDone, newHand }:
     return { action: option.action as HeroMove["action"], toBb: option.sizeBb, allIn: option.allIn };
   }, [decision, picked]);
 
-  const tabs = useDecisionTabs({
-    decision: verdict,
-    spot: null,
-    settings,
-    range: decision && host.playRange && step ? <RangePanel target={step} read={host.playRange} strategy={settings.range === "strategy" || Boolean(answered)} /> : host.playRange ? null : undefined,
-    study: host.study && graded && verdict ? host.study(graded, null) : null,
-  });
+  const study = host.study && graded && verdict ? host.study(graded, null) : null;
 
   const pick = useCallback(
     (index: number) => {
@@ -350,7 +343,17 @@ function OneHand({ request, settings, onScored, onAnswer, onHandDone, newHand }:
           ) : null}
         </div>
       ) : null}
-      {decision ? <InfoTabs tabs={tabs} /> : null}
+      {decision ? (
+        <DecisionPanel
+          decision={verdict}
+          spot={null}
+          settings={settings}
+          target={step ?? null}
+          read={host.playRange ?? null}
+          answered={Boolean(graded)}
+          study={study}
+        />
+      ) : null}
 
       {over ? (
         <div className={styles.after}>

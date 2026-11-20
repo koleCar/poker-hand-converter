@@ -44,16 +44,19 @@ import { loadingEn } from "./ns/loading.en";
 import { manualEn } from "./ns/manual.en";
 import { planEn } from "./ns/plan.en";
 import { planNoticeEn } from "./ns/planNotice.en";
+import { pricingEn } from "./ns/pricing.en";
 import { replayerEn } from "./ns/replayer.en";
 import { statsEn } from "./ns/stats.en";
 import { solverEn } from "./ns/solver.en";
 import { trainerEn } from "./ns/trainer.en";
+import { adminEn } from "./ns/admin.en";
 
 export const en = {
   // The component namespaces, one file each (`ns/`).
   stats: statsEn,
   solver: solverEn,
   trainer: trainerEn,
+  admin: adminEn,
   analysis: analysisEn,
   learn: learnEn,
   legal: legalEn,
@@ -66,6 +69,7 @@ export const en = {
   download: downloadEn,
   plan: planEn,
   planNotice: planNoticeEn,
+  pricing: pricingEn,
   yourData: yourDataEn,
   loading: loadingEn,
 
@@ -116,6 +120,14 @@ export const en = {
     analysisReports: {
       title: "Reports — your frequencies against the reference | Rail",
       description: "Your preflop frequencies at every spot the charts cover, next to the reference's, with the hands where you left it.",
+    },
+    analysisMultiway: {
+      title: "Multiway pots | Rail",
+      description: "Your multiway pots on their own: results, decisions by players in, and the spots worth a second look. Rail's grades there are a rough guide.",
+    },
+    analysisBomb: {
+      title: "Bomb pots | Rail",
+      description: "Your bomb pots on their own: results by ante and first move, you against the pool, and what players' lines show. Rail has no solved bomb pots.",
     },
     analysisLeaks: {
       title: "Leaks — the spots that cost you the most | Rail",

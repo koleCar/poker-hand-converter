@@ -1,8 +1,9 @@
 /**
  * `/solver`'s Solver library: the shared browser (`SolverLibrary`) with the
  * web as its host - the dictionary of the page's language, the public
- * bucket's flop library, a full solve where one is served (local), and the
- * view kept in the address bar so a link lands on it.
+ * bucket's flop library, a full solve where one is served (local), the view
+ * kept in the address bar so a link lands on it, and the Free plan's flops a
+ * day (`../plan/SolverGate.tsx`; nothing while enforcement is off).
  */
 
 "use client";
@@ -13,6 +14,7 @@ import { flopLibraryBase, FlopLibraryLoader } from "../../lib/analysis/flopLibra
 import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
 import { SUPABASE_URL } from "../../lib/supabase/config";
+import { useLockedSolverTools, useWebFlopGate } from "../plan/SolverGate";
 import { SolverHostProvider, type SolverHost } from "./host";
 import { SolverLibrary, type SolverView } from "./SolverLibrary";
 
@@ -35,7 +37,20 @@ function libraryLoader(): FlopLibraryLoader | null {
 export function WebSolverLibrary(props: Omit<ComponentProps<typeof SolverLibrary>, "onView">) {
   const t = useDict().solver;
   const router = useRouter();
-  const host = useMemo<SolverHost>(() => ({ t, loader: libraryLoader(), fullSolveBase: fullSolveBase() }), [t]);
+  // Flops a day and the locked Nodelock: only for Free (or signed out) while paid plans are enforced.
+  const flops = useWebFlopGate();
+  const lockedTools = useLockedSolverTools();
+  const host = useMemo<SolverHost>(
+    () => ({
+      t,
+      loader: libraryLoader(),
+      fullSolveBase: fullSolveBase(),
+      link: (view) => `${window.location.origin}${paths.solver(view)}`,
+      flops,
+      lockedTools,
+    }),
+    [t, flops, lockedTools],
+  );
   const onView = useCallback((view: SolverView) => router.replace(paths.solver(view), { scroll: false }), [router]);
   return (
     <SolverHostProvider host={host}>

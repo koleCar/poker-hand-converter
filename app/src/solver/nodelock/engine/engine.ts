@@ -20,6 +20,7 @@
  */
 import {
   applyNodelock,
+  checkBase,
   checkBaseline,
   chunkBaseline,
   decodeChunk,
@@ -32,6 +33,7 @@ import {
   nodelockHeader,
   NodelockError,
   nodelockSpotOf,
+  rangesHash,
   SplitCoordinator,
   splitCards,
   type FlopChunk,
@@ -87,9 +89,13 @@ function abortError(signal: AbortSignal): unknown {
   return signal.reason ?? new DOMException("The nodelock solve was cancelled", "AbortError");
 }
 
-/** The cache key of a flop spot's split solve: what the parts' games are built from. */
+/**
+ * The cache key of a flop spot's split solve: what the parts' games are built
+ * from. A range lock (§9) changes the game's ranges: its hash is in the key.
+ */
 function spotKey(lockSet: LockSet, spec: SplitSpec, chartsHash: string): string {
-  return JSON.stringify([lockSet.spot.set, chartsHash, lockSet.spot.line, lockSet.spot.flop, spec.spot.symmetry ?? null, spec.dcfr ?? null, spec.storage]);
+  const ranges = rangesHash(lockSet.ranges);
+  return JSON.stringify([lockSet.spot.set, chartsHash, lockSet.spot.line, lockSet.spot.flop, spec.spot.symmetry ?? null, spec.dcfr ?? null, spec.storage, spec.spot.nodeActions ?? null, ranges]);
 }
 
 interface Warm {
@@ -128,6 +134,7 @@ export function createWorkerEngine(options: WorkerEngineOptions = {}): NodelockE
   async function solveFlop(req: NodelockRequest, onProgress: (p: NodelockProgress) => void, signal: AbortSignal, started: number): Promise<NodelockResult> {
     const { lockSet } = req;
     const baseline = decodeChunk(req.baseline);
+    checkBase(lockSet, baseline);
     const { spot, chartsHash } = await flopSpotOf(lockSet, baseline);
     if (signal.aborted) throw abortError(signal);
     const how = nodelockFlopRun(lockSet, req.maxIterations);
@@ -143,7 +150,7 @@ export function createWorkerEngine(options: WorkerEngineOptions = {}): NodelockE
     } else {
       warm = null;
       const coordinator = new SplitCoordinator(spec, []);
-      checkBaseline(coordinator.built, baseline);
+      checkBaseline(coordinator.built, baseline, lockSet);
       const groups = splitCards(coordinator.built, threads);
       const ready = await Promise.all(groups.map((cards, i) => pool.call(i, { type: "part", key, spec, cards })));
       const answers = ready.map((r) => r as Extract<EngineResponse, { type: "ready" }>);

@@ -85,7 +85,7 @@ function title(kind: LeakKind, where: Where): string {
   return kinds[kind];
 }
 
-const roleWords = { pfr: "kao preflop raiser", caller: "kao preflop caller", limped: "u limpanom potu" } as Record<string, string>;
+const roleWords = { pfr: "kao preflop raiser", caller: "kao preflop caller", limped: "u limpanom potu", bomb: "u bomb potu" } as Record<string, string>;
 const facingWords = { first: "prvi na potezu", "vs-bet": "protiv beta", "vs-raise": "protiv raisea" } as Record<string, string>;
 
 const capital = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
@@ -142,7 +142,7 @@ function spotContext(where: Where): string {
     return "Bilo koja situacija";
   }
   // Multiway situacija (A9) glasi `caller-mw-oop-vs-bet`: "ip" je zadnji na potezu.
-  const match = /^(pfr|caller|limped)-(?:(mw)-)?(ip|oop)-(first|vs-bet|vs-raise)$/.exec(where.scenario);
+  const match = /^(pfr|caller|limped|bomb)-(?:(mw)-)?(ip|oop)-(first|vs-bet|vs-raise)$/.exec(where.scenario);
   if (match) {
     const place = match[2]
       ? match[3] === "ip"

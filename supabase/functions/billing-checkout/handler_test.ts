@@ -30,7 +30,6 @@ interface Account {
   plan?: string;
   plan_status?: string | null;
   current_period_end?: string | null;
-  early_user?: boolean;
 }
 
 function account(fields: Account = {}) {
@@ -40,7 +39,6 @@ function account(fields: Account = {}) {
     plan: "free",
     plan_status: null,
     current_period_end: null,
-    early_user: false,
     ...fields,
   };
 }
@@ -59,23 +57,32 @@ function routes(overrides: Record<string, Route> = {}, acct: Account = {}): Reco
       body: {
         id: "price_promonth",
         active: true,
-        unit_amount: 699,
-        currency: "eur",
+        unit_amount: 2500,
+        currency: "usd",
         tax_behavior: "inclusive",
         recurring: { interval: "month" },
+      },
+    },
+    "GET /v1/prices/price_prohalfyear": {
+      body: {
+        id: "price_prohalfyear",
+        active: true,
+        unit_amount: 11900,
+        currency: "usd",
+        tax_behavior: "inclusive",
+        recurring: { interval: "month", interval_count: 6 },
       },
     },
     "GET /v1/prices/price_proyear": {
       body: {
         id: "price_proyear",
         active: true,
-        unit_amount: 5999,
-        currency: "eur",
+        unit_amount: 19900,
+        currency: "usd",
         tax_behavior: "inclusive",
-        recurring: { interval: "year" },
+        recurring: { interval: "year", interval_count: 1 },
       },
     },
-    "GET /v1/coupons/EARLY30": { body: { id: "EARLY30", percent_off: 30, duration: "forever" } },
     ...overrides,
   };
 }
@@ -157,33 +164,26 @@ Deno.test("checkout: a new customer, Stripe Tax on, the account's id as the refe
   });
 });
 
-Deno.test("checkout: an existing customer is reused; an early user gets the coupon (or promotion code)", async () => {
-  const { calls } = await call(post(order("month")), routes({}, { customer_id: "cus_old1", early_user: true }));
+Deno.test("checkout: an existing customer is reused; never a discount", async () => {
+  const { calls } = await call(post(order("month")), routes({}, { customer_id: "cus_old1" }));
   assert(!calls.some((c) => c.key === "POST /v1/customers"), "no new customer");
   const form = sessionCall(calls)!.form!;
   assertEquals(form.get("customer"), "cus_old1");
   assertEquals(form.get("line_items[0][price]"), "price_promonth");
-  assertEquals(form.get("discounts[0][coupon]"), "EARLY30");
+  assert(!sessionCall(calls)!.body!.includes("discounts"), "no discount (the early-user coupon is gone)");
   assertEquals(form.get("locale"), "en");
   assertEquals(form.get("custom_text[submit][message]"), SUBMIT_MESSAGE.en);
-
-  const promo = await call(
-    post(order("month")),
-    routes({}, { customer_id: "cus_old1", early_user: true }),
-    testEnv({ earlyUserCoupon: "promo_early" }),
-  );
-  assertEquals(sessionCall(promo.calls)!.form!.get("discounts[0][promotion_code]"), "promo_early");
 });
 
-Deno.test("checkout: no discount for an account that is not an early user, or with no coupon configured", async () => {
-  const late = await call(post(order("month")), routes({}, { early_user: false }));
-  assert(!sessionCall(late.calls)!.body!.includes("discounts"), "no discount");
-  const none = await call(
-    post(order("month")),
-    routes({}, { early_user: true }),
-    testEnv({ earlyUserCoupon: "" }),
-  );
-  assert(!sessionCall(none.calls)!.body!.includes("discounts"), "no coupon configured");
+Deno.test("checkout: the half-year period buys the half-year price", async () => {
+  const { response, calls } = await call(post(order("half_year")), routes());
+  assertEquals(response.status, 200);
+  assertEquals(sessionCall(calls)!.form!.get("line_items[0][price]"), "price_prohalfyear");
+  const record = calls.find((c) => c.key === "POST /rest/v1/rpc/billing_record_consent")!;
+  assertEquals(record.json!.p_period, "half_year");
+  const noHalf = testEnv({ priceHalfYear: "" });
+  assertEquals((await call(post(order("half_year")), routes(), noHalf)).response.status, 503);
+  assertEquals((await call(post(order("quarter")), routes())).response.status, 400);
 });
 
 Deno.test("checkout: the stored customer wins a race (billing_set_customer returns the first)", async () => {
@@ -357,19 +357,31 @@ Deno.test("checkout: over the budget -> 429; Stripe or the database down -> 5xx"
   assertEquals((await call(post(order("month")), dbDown)).response.status, 503);
 });
 
-Deno.test("config (GET): prices and the discount as Stripe has them; nothing secret", async () => {
+Deno.test("config (GET): the three periods' prices as Stripe has them; nothing secret", async () => {
   const { response, body } = await call(get(), routes());
   assertEquals(response.status, 200);
   assertEquals(body, {
     available: true,
     prices: {
-      month: { amount: 699, currency: "eur", interval: "month", taxInclusive: true },
-      year: { amount: 5999, currency: "eur", interval: "year", taxInclusive: true },
+      month: { amount: 2500, currency: "usd", interval: "month", taxInclusive: true },
+      half_year: { amount: 11900, currency: "usd", interval: "half_year", taxInclusive: true },
+      year: { amount: 19900, currency: "usd", interval: "year", taxInclusive: true },
     },
-    earlyDiscountPercent: 30,
   });
   const text = JSON.stringify(body);
-  assert(!text.includes("price_") && !text.includes("sk_") && !text.includes("EARLY30"), "no ids or keys");
+  assert(!text.includes("price_") && !text.includes("sk_") && !text.includes("discount"), "no ids, keys or discount");
+});
+
+Deno.test("config (GET): a period without its price is null, the others stay on sale", async () => {
+  const { body } = await call(get(), routes(), testEnv({ priceHalfYear: "" }));
+  assertEquals([body.available, body.prices.half_year, body.prices.month.amount], [true, null, 2500]);
+  // A half-year price id that is really monthly (interval count 1) is not sold as a half year.
+  const wrongCount = routes({
+    "GET /v1/prices/price_prohalfyear": {
+      body: { active: true, unit_amount: 5, currency: "usd", recurring: { interval: "month", interval_count: 1 } },
+    },
+  });
+  assertEquals((await call(get(), wrongCount)).body.prices.half_year, null);
 });
 
 Deno.test("config (GET): unconfigured, Stripe down or a wrong price -> available false, never an error", async () => {
@@ -379,8 +391,7 @@ Deno.test("config (GET): unconfigured, Stripe down or a wrong price -> available
   });
   assertEquals((await call(get(), down)).body, {
     available: false,
-    prices: { month: null, year: null },
-    earlyDiscountPercent: null,
+    prices: { month: null, half_year: null, year: null },
   });
   const wrongInterval = routes({
     "GET /v1/prices/price_proyear": {
@@ -397,5 +408,5 @@ Deno.test("config (GET): cached for ten minutes", async () => {
   const { fetchFn, calls } = fakeFetch(routes());
   await handle(get(), ENV, fetchFn);
   await handle(get(), ENV, fetchFn);
-  assertEquals(calls.filter((c) => c.key.startsWith("GET /v1/prices/")).length, 2, "two prices, read once");
+  assertEquals(calls.filter((c) => c.key.startsWith("GET /v1/prices/")).length, 3, "three prices, read once");
 });

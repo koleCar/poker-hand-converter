@@ -89,7 +89,7 @@ function title(kind: LeakKind, where: Where): string {
   return kinds[kind];
 }
 
-const roleWords = { pfr: "as the preflop raiser", caller: "as the preflop caller", limped: "in a limped pot" } as Record<string, string>;
+const roleWords = { pfr: "as the preflop raiser", caller: "as the preflop caller", limped: "in a limped pot", bomb: "in a bomb pot" } as Record<string, string>;
 const facingWords = { first: "first to act", "vs-bet": "facing a bet", "vs-raise": "facing a raise" } as Record<string, string>;
 
 /** "BB vs BTN open", "CO first in"; a full-ring or heads-up spot says so: "UTG first in (9-max)", "BB vs SB open (heads-up)". */
@@ -144,7 +144,7 @@ function spotContext(where: Where): string {
     return "Any spot";
   }
   // A multiway spot (A9) reads `caller-mw-oop-vs-bet`: "ip" is last to act among the players in.
-  const match = /^(pfr|caller|limped)-(?:(mw)-)?(ip|oop)-(first|vs-bet|vs-raise)$/.exec(where.scenario);
+  const match = /^(pfr|caller|limped|bomb)-(?:(mw)-)?(ip|oop)-(first|vs-bet|vs-raise)$/.exec(where.scenario);
   if (match) {
     const where2 = match[2]
       ? match[3] === "ip"

@@ -10,18 +10,28 @@
  * solved on this computer, under two tabs:
  *
  * - Library: always the clean solve, with the Nodelock action on a decision.
- * - My nodelocks: the list (`#/solver/locks`), and a solved lock opened on
- *   its spot (`#/solver/lock=<id>&set=…`): the locked solution, its banner.
+ *   The switch sits at the start of the library's top row (`SolverHost.top`).
+ * - My nodelocks: the open lock on its spot (`#/solver/lock=<id>&set=…`),
+ *   the tree of the user's locks (§7.1) left of its grid and panel
+ *   (`SolverHost.side`, SV-A); one quiet line beside the tree when none is
+ *   open (`#/solver/locks`).
+ *
+ * The switch is the first thing of the top row in both.
+ *
+ * (Free tier) While plans are enforced and the plan lacks every flop, the
+ * library asks before a flop's strategy shows (`solver/gate.tsx`, the host's
+ * `flops`): today's flops in the top row, a small Pro card past the day's
+ * cap. The Nodelock action is locked on such a plan (`useNodelockSlot`).
  */
 import { RailLoader } from "@rail/ui/loader/RailLoader";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useT } from "../i18n";
 import { replaceParam, useRouteParam } from "../lib/router";
-import { SolverHostProvider, SolverLibrary, type SolverView } from "../solver/door";
+import { SolverHostProvider, SolverLibrary, solverStyles, type SolverView } from "../solver/door";
+import { useAppFlopGate } from "../solver/gate";
 import { useSolverHost } from "../solver/host";
 import { Editor } from "../solver/nodelock/Editor";
-import { History, SolverTabs } from "../solver/nodelock/History";
 import styles from "../solver/nodelock/nodelock.module.css";
 import {
   LOCKS_PARAM,
@@ -33,14 +43,18 @@ import {
   type ActiveLock,
 } from "../solver/nodelock/session";
 import { useNodelockSlot } from "../solver/nodelock/slot";
+import { SolverTabs } from "../solver/nodelock/SolverTabs";
+import { NodelockSide } from "../solver/nodelock/tree/NodelockSplit";
+import treeStyles from "../solver/nodelock/tree/tree.module.css";
 import { parseSolverParam, solverParam } from "../solver/param";
 
 /** The library's last view, for the switch back from My nodelocks. */
 let lastView: string | null = null;
-/** My nodelocks' last place (the list, or a lock open on its spot), for the switch back from the library. */
+/** My nodelocks' last place (nothing open, or a lock open on its spot), for the switch back from the library. */
 let lastLocks: string = LOCKS_PARAM;
 
 export function Solver() {
+  const t = useT().nodelock;
   const param = useRouteParam();
   const session = useNodelockSession();
   const base = useSolverHost();
@@ -49,17 +63,71 @@ export function Solver() {
   useEffect(() => {
     if (locks && param) lastLocks = param;
   }, [locks, param]);
+  const solving = session.running !== null;
+  // Kept while nothing it shows changes: the library's host is rebuilt when it does (a solve's progress must not).
+  const libraryParam = lastView;
+  const locksParam = lastLocks;
+  // A link from a hand (`handSpot.ts`) opens the library afresh on its spot, even with the tab already open.
+  const link = param && !locks && /(?:^|&)(?:walk|path|hero)=/.test(param) ? param : null;
+  const [opened, setOpened] = useState(link);
+  if (link && link !== opened) setOpened(link);
+  const note = useMemo(() => (opened ? parseSolverParam(opened) : null), [opened]);
+  const tabs = useMemo(
+    () => (
+      <>
+        <SolverTabs locks={locks} libraryParam={libraryParam} locksParam={locksParam} solving={solving} />
+        {!locks && note ? <LinkNote approx={note.approx} set={note.set} handDepth={note.handDepth} /> : null}
+      </>
+    ),
+    [locks, libraryParam, locksParam, solving, note],
+  );
   return (
     <div className={styles.screen}>
-      <SolverTabs locks={locks} libraryParam={lastView} locksParam={lastLocks} solving={session.running !== null} />
-      {lockId ? <OpenLock id={lockId} /> : locks ? <History libraryParam={lastView} /> : <Library key={session.opened} lock={null} />}
+      {lockId ? (
+        <OpenLock key={lockId} id={lockId} top={tabs} />
+      ) : locks ? (
+        <Shell top={tabs} side={<NodelockSide openId={null} />}>
+          <p className={treeStyles.pick}>{t.tree.pick}</p>
+        </Shell>
+      ) : (
+        <Library key={`${session.opened}|${opened ?? ""}`} lock={null} top={tabs} />
+      )}
       {session.editor ? <Editor open={session.editor} solverT={base.t} /> : null}
     </div>
   );
 }
 
+/** What a hand's link shows in place of its spot (`handSpot.ts`): one quiet line, the reason in its title. */
+function LinkNote({ approx, set, handDepth }: { approx: "flop" | "preflop" | null; set: string | null; handDepth: number | null }) {
+  const t = useT().hands.panel.spotNote;
+  const depth = set ? /-(\d{1,3})bb(?:-|$)/.exec(set) : null;
+  const parts: Array<{ text: string; title: string }> = [];
+  if (approx === "flop") parts.push({ text: t.flop, title: t.flopTitle });
+  if (approx === "preflop") parts.push({ text: t.preflop, title: t.preflopTitle });
+  if (depth && handDepth !== null) parts.push({ text: t.depth(Number(depth[1]), handDepth), title: t.depthTitle });
+  if (!parts.length) return null;
+  return (
+    <span className={styles.linkNote} title={parts.map((p) => p.title).join("\n")}>
+      {parts.map((p) => p.text).join(" · ")}
+    </span>
+  );
+}
+
+/** My nodelocks with no lock on screen yet: the library's top row and the tree's column, as the library lays them out. */
+function Shell({ top, side, children }: { top: ReactNode; side: ReactNode; children: ReactNode }) {
+  return (
+    <div className={solverStyles.solver}>
+      <div className={solverStyles.top}>{top}</div>
+      <div className={solverStyles.withSide}>
+        {side}
+        <div className={solverStyles.withSideMain}>{children}</div>
+      </div>
+    </div>
+  );
+}
+
 /** My nodelocks on one lock: read from the store when the route names one not open yet (the app reopened on it). */
-function OpenLock({ id }: { id: string }) {
+function OpenLock({ id, top }: { id: string; top: ReactNode }) {
   const t = useT().nodelock;
   const session = useNodelockSession();
   const active = session.active?.row.id === id ? session.active : null;
@@ -71,11 +139,19 @@ function OpenLock({ id }: { id: string }) {
       if (!ok) replaceParam("solver", LOCKS_PARAM);
     });
   }, [id, active]);
-  if (!active) return <RailLoader label={t.opening} centered />;
-  return <Library key={session.opened} lock={active} />;
+  const side = useMemo(() => <NodelockSide openId={id} />, [id]);
+  if (!active) {
+    return (
+      <Shell top={top} side={side}>
+        <RailLoader label={t.opening} centered />
+      </Shell>
+    );
+  }
+  return <Library key={session.opened} lock={active} top={top} side={side} />;
 }
 
-function Library({ lock }: { lock: ActiveLock | null }) {
+/** `top`: the start of the library's top row (the Library | My nodelocks switch); `side`: My nodelocks' tree. */
+function Library({ lock, top = null, side = null }: { lock: ActiveLock | null; top?: ReactNode; side?: ReactNode }) {
   const base = useSolverHost();
   const param = useRouteParam();
   // Read once: afterwards the library owns the view and only writes it back.
@@ -83,7 +159,8 @@ function Library({ lock }: { lock: ActiveLock | null }) {
   const shown = useRef(lock ? viewParam(lock.summary) : (lastView ?? ""));
   const view = useCallback(() => shown.current, []);
   const nodelock = useNodelockSlot(lock, view);
-  const host = useMemo(() => ({ ...base, nodelock }), [base, nodelock]);
+  const flops = useAppFlopGate();
+  const host = useMemo(() => ({ ...base, nodelock, top, side, flops }), [base, nodelock, top, side, flops]);
   const lockId = lock?.row.id ?? null;
   const onView = useCallback(
     (next: SolverView) => {
@@ -105,6 +182,9 @@ function Library({ lock }: { lock: ActiveLock | null }) {
         initialFlop={initial.flop}
         initialNode={initial.node}
         initialTurn={initial.turn}
+        initialPath={initial.path}
+        initialWalk={initial.walk}
+        hero={initial.hero}
         onView={onView}
       />
     </SolverHostProvider>

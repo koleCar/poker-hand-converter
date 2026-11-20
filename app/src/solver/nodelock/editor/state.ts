@@ -21,6 +21,8 @@
  * indexed `i`; a strategy is `[action][i]`.
  */
 
+import type { LockAction } from "../spot";
+
 /** Combos in a hold'em deck: the length of a lock's per-combo arrays. */
 export const LOCK_COMBOS = 1326;
 
@@ -41,6 +43,12 @@ export interface Strategy {
   strategy: number[][];
   /** Per hand: 1 = locked (fixed in the solve), 0 = adapts. */
   locked: number[];
+  /**
+   * The node's actions when the lock changed them (`editor/sizes.ts`): the
+   * strategy's rows are these. Absent: the library's. Kept in every undo
+   * step, so a size added or taken away is undone like a change of mix.
+   */
+  actions?: readonly LockAction[];
 }
 
 export interface EditorState extends Strategy {
@@ -63,6 +71,8 @@ export type EditorAction =
   | { type: "reset" }
   /** A suggestion (or a saved lock being edited), whole. */
   | { type: "load"; strategy: number[][]; locked: number[]; preset: string | null }
+  /** The node's actions changed (`withActions`), the strategy carried over to them (`carryStrategy`). */
+  | { type: "actions"; actions: readonly LockAction[] | undefined; strategy: number[][]; locked: number[] }
   | { type: "undo" }
   | { type: "redo" };
 
@@ -90,9 +100,14 @@ function reaching(spot: EditorSpot, i: number): boolean {
  */
 function commit(state: EditorState, next: Strategy, preset = state.preset, merge = false): EditorState {
   if (merge && state.past.length) return { ...state, ...next, preset, future: [] };
-  const past = [...state.past, { strategy: state.strategy, locked: state.locked }];
+  const past = [...state.past, snapshot(state)];
   if (past.length > HISTORY) past.shift();
-  return { ...next, preset, past, future: [] };
+  return { actions: state.actions, ...next, preset, past, future: [] };
+}
+
+/** The present as an undo step. */
+function snapshot(state: Strategy): Strategy {
+  return { strategy: state.strategy, locked: state.locked, actions: state.actions };
 }
 
 /** A hand's locks set, unlocked hands back on GTO's mix. */
@@ -110,17 +125,19 @@ export function editorReducer(spot: EditorSpot, state: EditorState, action: Edit
         ...state,
         ...prev,
         past: state.past.slice(0, -1),
-        future: [{ strategy: state.strategy, locked: state.locked }, ...state.future],
+        future: [snapshot(state), ...state.future],
       };
     }
     case "redo": {
       if (!state.future.length) return state;
       const [next, ...rest] = state.future;
-      return { ...state, ...next, past: [...state.past, { strategy: state.strategy, locked: state.locked }], future: rest };
+      return { ...state, ...next, past: [...state.past, snapshot(state)], future: rest };
     }
     case "reset":
       if (!state.locked.some(Boolean)) return state;
       return commit(state, { strategy: gtoOf(spot), locked: new Array<number>(spot.hands.length).fill(0) }, null);
+    case "actions":
+      return commit(state, { strategy: action.strategy, locked: action.locked, actions: action.actions });
     case "load":
       return commit(state, { strategy: action.strategy.map((row) => row.slice()), locked: action.locked.slice() }, action.preset);
     case "lockAll":

@@ -1672,20 +1672,23 @@ Turning it on is one statement (launch checklist in the plan):
 update public.billing_settings set enforcement_enabled = true;
 ```
 
-**Data.** `billing_settings` (one row: the switch, `early_user_cutoff`,
-`early_user_discount_percent`, `payment_grace_days`, `offline_grace_days`) and
-`plan_limits` (per plan: `hand_cap`, null = unlimited, and `features` from the
-fixed set `desktop_sync`, `hud`, `reports_full`, `analysis`, `learn`). Both
-sealed (RLS, no policies, no grants); the owner edits them in SQL.
+**Data.** `billing_settings` (one row: the switch, `payment_grace_days`,
+`offline_grace_days`) and `plan_limits` (per plan: `hand_cap`,
+`daily_hand_cap`, `daily_flop_cap`, null = unlimited, and `features` from the
+fixed set `desktop_sync`, `hud`, `reports_full`, `analysis`, `learn`,
+`solver_unlimited`, `nodelock`; Free: 10 000 / 500 a day / 3 flops a day,
+`{desktop_sync}`, since `20271119110000`). Both sealed (RLS, no policies, no
+grants); the owner edits them in SQL. The day's usage: `hand_daily_counts`
+(one row per account, bumped per insert statement by `hands_enforce_plan()`
+while enforcement is on) and `solver_flop_claims` (owner, UTC day, canonical
+flop; written by `solver_open_flop()`, read with `solver_flops_today()`).
 
-**The plan on the profile.** `plan`, `plan_period`, `plan_status`,
-`current_period_end`, `plan_updated_at`, `early_user`, `early_user_since`,
+**The plan on the profile.** `plan`, `plan_period` (`month`, `half_year`,
+`year`), `plan_status`, `current_period_end`, `plan_updated_at`,
 `billing_customer_id`, `billing_subscription_id`. `profiles` stays sealed, so
 no client reads or writes any of it; `profiles_public` is unchanged. Written
-only by `billing_set_plan(...)` (service role). Accounts created before
-`early_user_cutoff` (all of them while it is null) are early users, marked by
-a before-insert trigger on `profiles` and, after the cutoff moves, by
-`billing_mark_early_users()`.
+only by `billing_set_plan(...)` (service role). (The early-user mark and its
+discount were removed in `20271119120000`.)
 
 **The effective plan** (`billing_plan_state`): off -> Pro; no profile ->
 Free; `pro` with no status (granted by hand) -> Pro until

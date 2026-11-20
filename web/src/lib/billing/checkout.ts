@@ -12,7 +12,8 @@
  * page; the page re-reads `my_entitlements()` to show it.
  *
  * Until the owner configures Stripe (or deploys the functions), the offer is
- * `available: false` and the Plan panel says paid plans open soon.
+ * `available: false`: `/pricing` shows the list prices ({@link LIST_PRICES})
+ * and every upgrade opens "Pro is coming", the Pro waitlist (`waitlist.ts`).
  *
  * Before Checkout the page asks for two consents (EU consumer law: Pro
  * starts at once, R6.3 addendum): the terms, and the request that Pro start
@@ -21,10 +22,16 @@
  * them and records them before it opens the session.
  */
 
-import type { Entitlements } from "../db/entitlements";
+import type { BillingPeriod, Entitlements } from "../db/entitlements";
 import { getBrowserSupabase } from "../supabase/browser";
 
-export type Period = "month" | "year";
+export type Period = BillingPeriod;
+
+/** Every period Pro is sold by, in the order the pricing page offers them. */
+export const PERIODS: readonly Period[] = ["month", "half_year", "year"];
+
+/** Months in a period: the pricing page's "per month". */
+export const PERIOD_MONTHS: Record<Period, number> = { month: 1, half_year: 6, year: 12 };
 
 export interface BillingPrice {
   /** In the currency's minor unit (cents), as Stripe has it. */
@@ -38,12 +45,39 @@ export interface BillingPrice {
 
 export interface BillingOffer {
   available: boolean;
-  prices: { month: BillingPrice | null; year: BillingPrice | null };
-  /** The early users' coupon as Stripe has it; null when none is configured. */
-  earlyDiscountPercent: number | null;
+  prices: Record<Period, BillingPrice | null>;
 }
 
-export const NO_OFFER: BillingOffer = { available: false, prices: { month: null, year: null }, earlyDiscountPercent: null };
+export const NO_OFFER: BillingOffer = { available: false, prices: { month: null, half_year: null, year: null } };
+
+/**
+ * The owner's list prices (USD, set in Stripe): what `/pricing` shows while
+ * Stripe's own answer is not there (signed out, or checkout not open yet).
+ */
+export const LIST_PRICES: Record<Period, BillingPrice> = {
+  month: { amount: 2500, currency: "usd", interval: "month", taxInclusive: false },
+  half_year: { amount: 11900, currency: "usd", interval: "half_year", taxInclusive: false },
+  year: { amount: 19900, currency: "usd", interval: "year", taxInclusive: false },
+};
+
+/** Each period's price: Stripe's when on sale, else the list price. */
+export function shownPrices(offer: BillingOffer | null): Record<Period, BillingPrice> {
+  const on = offer?.available ? offer.prices : null;
+  return {
+    month: on?.month ?? LIST_PRICES.month,
+    half_year: on?.half_year ?? LIST_PRICES.half_year,
+    year: on?.year ?? LIST_PRICES.year,
+  };
+}
+
+/** How much a longer period saves against paying monthly, in whole percent (0 for none). */
+export function savingPercent(prices: Record<Period, BillingPrice>, period: Period): number {
+  const monthly = prices.month.amount;
+  const price = prices[period];
+  if (period === "month" || monthly <= 0 || price.currency !== prices.month.currency) return 0;
+  const full = monthly * PERIOD_MONTHS[period];
+  return Math.max(0, Math.round(((full - price.amount) / full) * 100));
+}
 
 /** Refusals the functions answer with, plus `failed` for anything else. */
 export type BillingError =
@@ -106,6 +140,15 @@ export function consentStatements(words: {
 type Row = Record<string, unknown>;
 const obj = (value: unknown): Row => (value && typeof value === "object" && !Array.isArray(value) ? (value as Row) : {});
 
+/**
+ * The interval Stripe names for a period: six months is a monthly price
+ * with `interval_count` 6, which the function may pass on either way.
+ */
+function intervalFits(row: Row, period: Period): boolean {
+  if (row.interval === period) return true;
+  return period === "half_year" && row.interval === "month" && row.intervalCount === 6;
+}
+
 function parsePrice(raw: unknown, period: Period): BillingPrice | null {
   const row = obj(raw);
   if (
@@ -114,7 +157,7 @@ function parsePrice(raw: unknown, period: Period): BillingPrice | null {
     row.amount < 0 ||
     typeof row.currency !== "string" ||
     !/^[a-z]{3}$/i.test(row.currency) ||
-    row.interval !== period
+    !intervalFits(row, period)
   ) {
     return null;
   }
@@ -126,12 +169,11 @@ export function parseBillingOffer(raw: unknown): BillingOffer {
   const row = obj(raw);
   const prices = obj(row.prices);
   const month = parsePrice(prices.month, "month");
+  const halfYear = parsePrice(prices.half_year, "half_year");
   const year = parsePrice(prices.year, "year");
-  const percent = row.earlyDiscountPercent;
   return {
-    available: row.available === true && (month !== null || year !== null),
-    prices: { month, year },
-    earlyDiscountPercent: typeof percent === "number" && percent > 0 && percent <= 100 ? percent : null,
+    available: row.available === true && (month !== null || halfYear !== null || year !== null),
+    prices: { month, half_year: halfYear, year },
   };
 }
 
@@ -146,8 +188,11 @@ export function isStripeUrl(value: unknown): value is string {
   }
 }
 
-/** A price in the reader's language: `6,99 €`, `€6.99`. */
-export function formatPrice(amount: number, currency: string, intl: string): string {
+/**
+ * A price in the reader's language: `6,99 €`, `€6.99`, `$199.00`. `whole` drops the
+ * cents when there are none (`$199`, the pricing table's style).
+ */
+export function formatPrice(amount: number, currency: string, intl: string, whole = false): string {
   const code = currency.toUpperCase();
   let digits = 2;
   try {
@@ -155,12 +200,15 @@ export function formatPrice(amount: number, currency: string, intl: string): str
   } catch {
     return `${(amount / 100).toFixed(2)} ${code}`;
   }
-  return new Intl.NumberFormat(intl, { style: "currency", currency: code }).format(amount / 10 ** digits);
-}
-
-/** What a percentage off leaves, rounded to the minor unit as Stripe does. */
-export function discounted(amount: number, percent: number): number {
-  return Math.round((amount * (100 - percent)) / 100);
+  const value = amount / 10 ** digits;
+  const round = whole && Number.isInteger(value);
+  // `narrowSymbol`: `$199`, not `US$199` in British English (the prices are USD).
+  return new Intl.NumberFormat(intl, {
+    style: "currency",
+    currency: code,
+    currencyDisplay: "narrowSymbol",
+    ...(round ? { minimumFractionDigits: 0, maximumFractionDigits: 0 } : {}),
+  }).format(value);
 }
 
 /**
