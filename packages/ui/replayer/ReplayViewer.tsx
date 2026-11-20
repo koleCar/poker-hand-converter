@@ -459,6 +459,14 @@ function ReplayStage({
   const takeover = usePhoneTakeover(mode === "full" && phoneTakeover, onClose);
   const shape = useStageShape(stageRef, takeover);
   const tier = useReplayTier(rootRef, takeover);
+  // Below the `lg` tier there is no flank beside the felt, and a sheet laid
+  // over the stage hides the table it is talking about. The host's sheet (the
+  // Analysis sheet) docks under the replayer instead, in the page's flow, and
+  // the replayer gives up some height for it (`data-docked` in replayer.css).
+  // A takeover and full screen keep the overlay: each owns the whole screen,
+  // so there is no page below it to dock into.
+  const docked =
+    Boolean(sheet?.open) && mode !== "embed" && !takeover && fullscreen.mode === "off" && tier !== "lg";
   /** False until the first frame has been painted: a mount is not a change. */
   const settled = useRef(false);
 
@@ -879,6 +887,7 @@ function ReplayStage({
       ref={rootRef}
       // A phone with a dismissable hand: the replayer covers the screen (see usePhoneTakeover).
       data-takeover={takeover ? "" : undefined}
+      data-docked={docked ? "true" : undefined}
       data-shape={shape}
       // Which rungs of the drop ladder have fired. The stylesheet reads this
       // rather than deriving a second answer from a container query.
@@ -1069,7 +1078,7 @@ function ReplayStage({
 
           <ShortcutSheet open={keysOpen} onClose={() => setKeysOpen(false)} anchor={stageRef} />
 
-          {sheet ? (
+          {sheet && !docked ? (
             <Overlay
               // Read while stepping, like the log: never modal.
               modal={false}
@@ -1093,5 +1102,35 @@ function ReplayStage({
 
   // The takeover is drawn at the end of <body>, so no ancestor's overflow,
   // transform or stacking context can clip it or slide it under the site's bars.
-  return takeover ? createPortal(replayer, document.body) : replayer;
+  if (takeover) {
+    return createPortal(replayer, document.body);
+  }
+  if (docked && sheet) {
+    return (
+      <>
+        {replayer}
+        <section className="rp-dock" aria-label={sheet.label}>
+          <div className="rp-dock__head">
+            <h2 className="rp-dock__title">{sheet.label}</h2>
+            {sheet.note ? <div className="rp-dock__note">{sheet.note}</div> : null}
+            <button
+              type="button"
+              className="btn btn--icon rp-dock__close"
+              onClick={() => sheet.onOpenChange(false)}
+              aria-label={en.closeNamed(sheet.label)}
+            >
+              ✕
+            </button>
+          </div>
+          <div className="rp-dock__body">
+            {sheet.render({
+              frame,
+              seek: (target) => seek(frameIndexForPosition(frames, target)),
+            })}
+          </div>
+        </section>
+      </>
+    );
+  }
+  return replayer;
 }

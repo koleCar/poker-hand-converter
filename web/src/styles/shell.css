@@ -849,9 +849,10 @@
 /* A standalone replayer inside the shell on a phone (an analysed hand, a
    lesson's table): exactly the screen between the top bar and the bottom tab
    bar, so its transport is never below the fold or under the tab bar. A
-   dismissable hand covers the whole screen instead (usePhoneTakeover). */
+   dismissable hand covers the whole screen instead (usePhoneTakeover), and
+   one with its sheet docked underneath is shorter (replayer.css). */
 @media (max-width: 899px) {
-  .shell--mnav .shell__main .rp[data-mode="full"]:not([data-takeover]) {
+  .shell--mnav .shell__main .rp[data-mode="full"]:not([data-takeover], [data-docked]) {
     --rp-block: calc(100dvh - 53px - var(--shell-bottom-nav, 0px) - 24px);
   }
 }

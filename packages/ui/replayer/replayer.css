@@ -1175,6 +1175,58 @@
   inline-size: min(26rem, 52%);
 }
 
+/* Below `lg` the host's sheet docks under the replayer instead (see `docked` in
+   ReplayViewer.tsx): the felt stays in view, the sheet reads at the full
+   width, and the page scrolls. The replayer gives up height so the sheet's
+   head shows on first paint. The doubled class outweighs the surfaces'
+   `--rp-block` above and in the web's shell and share sheets. */
+.rp.rp[data-docked="true"] {
+  --rp-block: clamp(19rem, 56dvh, 32rem);
+}
+
+.rp-dock {
+  border-block-start: 1px solid var(--border-subtle);
+  background: var(--surface-raised);
+}
+
+.rp-dock__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-inline-size: 0;
+  padding: 0.25rem 0.25rem 0.25rem 0.75rem;
+  border-block-end: 1px solid var(--border-subtle);
+  background: var(--surface-raised);
+}
+
+.rp-dock__title {
+  flex: none;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--text-tertiary);
+}
+
+.rp-dock__note {
+  flex: 1;
+  min-inline-size: 0;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rp-dock__close {
+  flex: none;
+  margin-inline-start: auto;
+  min-inline-size: var(--rp-hit, 2.75rem);
+  min-block-size: var(--rp-hit, 2.75rem);
+}
+
 .rp[data-tier="lg"] .rp-ov--info .ov__panel,
 .rp[data-tier="lg"] .rp-ov--settings .ov__panel,
 .rp[data-tier="lg"] .rp-ov--keys .ov__panel {
