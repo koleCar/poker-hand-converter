@@ -298,8 +298,6 @@ export function ReplayTable({
   // is laid out by flexbox inside a container query, so where it actually is
   // depends on how many pots there are and how big the box got.
   const potsRef = useRef<HTMLDivElement | null>(null);
-  const potTotal =
-    frame.potWithBets > frame.pot ? format(frame.potWithBets, frame.potWithBetsBb) : null;
 
   // `holeCards`, not `dealtCards`: the deal block only lists the cards the room
   // printed up front (the hero's, in every format we read), while `holeCards`
@@ -417,22 +415,13 @@ export function ReplayTable({
                 className={`rp__pot ${index > 0 ? "rp__pot--side" : ""}`.trim()}
               >
                 {/* "Pot $X", small word and big number; "Main" and "Side"
-                    once an all-in has split it. */}
+                    once an all-in has split it. Only what is already in the
+                    middle: the street's bets sit on their chips until swept,
+                    so the pill never jumps to a running total. */}
                 <span className="rp__pot-label">
                   {t.frames.potName(pot.name)}
                 </span>
                 <span className="rp__pot-value">{format(pot.amount, pot.amountBb)}</span>
-                {/* Outstanding bets belong to whichever pot they end up in,
-                    which is not decided until they are swept, so the running
-                    total sits on the last pile rather than split across them.
-                    The number alone on the felt; the word "total" stays for
-                    a screen reader and the hover title. */}
-                {index === frame.pots.length - 1 && potTotal !== null ? (
-                  <span className="rp__pot-total" title={words.potTotal(potTotal)}>
-                    <span aria-hidden="true">{potTotal}</span>
-                    <span className="rp-sr">{words.potTotal(potTotal)}</span>
-                  </span>
-                ) : null}
               </div>
             ))}
           </div>
@@ -574,9 +563,12 @@ export function ReplayTable({
           // blind; everyone else's visibility is the replay position's call.
           const revealed = seat.isHero && !settings.showHeroCards ? null : known;
           // A folded seat's cards are gone, as at a real table; its dimmed
-          // plate is what says it is out.
-          const backs: Array<string | null> =
-            seat.hasCards && !seat.folded ? Array.from({ length: holeCount }, () => null) : [];
+          // plate is what says it is out. The space they took stays: a seat
+          // block is anchored by a share of its own height, so dropping the
+          // cards would slide the plate across the felt mid-hand (and the
+          // same before the deal). Hidden backs hold the size instead.
+          const backs: Array<string | null> = Array.from({ length: holeCount }, () => null);
+          const cardsGone = !revealed && !seat.hasCards;
           const cards = revealed ?? backs;
           const tone = seat.winAmount > 0 ? "win" : seat.lastActionTone;
           const aim = aimFor(slot, ratio);
@@ -615,7 +607,14 @@ export function ReplayTable({
             >
               {/* Behind the plate's top edge; the hero's are the board's size. */}
               <div
-                className={`pseat__cards ${onSeatCardsClick ? "pseat__cards--clickable" : ""}`.trim()}
+                className={[
+                  "pseat__cards",
+                  onSeatCardsClick ? "pseat__cards--clickable" : "",
+                  cardsGone ? "pseat__cards--gone" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+                aria-hidden={cardsGone ? true : undefined}
                 onClick={
                   onSeatCardsClick
                     ? (event) => {
@@ -627,7 +626,9 @@ export function ReplayTable({
               >
                 {cards.map((code, index) => (
                   <PlayingCard
-                    key={`${seat.seatNo}-${index}-${code ?? "back"}`}
+                    // Hidden backs get their own key, so the real ones mount
+                    // (and deal in) when the cards arrive.
+                    key={`${seat.seatNo}-${index}-${cardsGone ? "gone" : (code ?? "back")}`}
                     code={code}
                     size="md"
                     dimmed={seat.folded}

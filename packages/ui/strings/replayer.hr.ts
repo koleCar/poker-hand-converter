@@ -173,8 +173,6 @@ export const replayerHr: ReplayerStrings = {
   },
 
   odds: {
-    toCall: "za call",
-    bluff: "foldova za blef",
     facingLabel: (share, ratio) => `Pot odds: call treba ${share} equityja, ${ratio} prema 1`,
     bluffLabel: (share) => `Blef treba ${share} foldova`,
   },
@@ -262,7 +260,6 @@ export const replayerHr: ReplayerStrings = {
   table: {
     brand: "rail",
     pot: "Pot",
-    potTotal: (amount) => `ukupno ${amount}`,
     board: "Board",
     secondRunout: "Drugi runout",
     runTwo: "Run 2",

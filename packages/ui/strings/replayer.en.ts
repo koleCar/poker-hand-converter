@@ -80,8 +80,6 @@ export const replayerEn = {
   },
 
   odds: {
-    toCall: "to call",
-    bluff: "folds for a bluff",
     facingLabel: (share: string, ratio: string) => `Pot odds: a call needs ${share} equity, ${ratio} to 1`,
     bluffLabel: (share: string) => `A bluff needs ${share} folds`,
   },
@@ -168,7 +166,6 @@ export const replayerEn = {
   table: {
     brand: "rail",
     pot: "Pot",
-    potTotal: (amount: string) => `${amount} total`,
     board: "Board",
     secondRunout: "Second runout",
     runTwo: "Run 2",
