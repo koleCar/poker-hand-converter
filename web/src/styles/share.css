@@ -546,7 +546,7 @@
     background: var(--surface-base);
   }
 
-  .sharepage .sharepage__replay > .rp {
+  .sharepage .sharepage__replay > .rp:not([data-docked]) {
     --rp-block: calc(100dvh - 53px);
   }
 
