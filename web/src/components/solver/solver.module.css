@@ -404,6 +404,7 @@
 .popover {
   position: absolute;
   inset-block-start: calc(100% + 4px);
+  inset-inline-start: var(--popover-left, 0);
   z-index: 30;
   display: flex;
   flex-direction: column;
@@ -1852,4 +1853,546 @@ button.pcardHead:focus-visible {
 .suitToggle:focus-visible {
   outline: 2px solid var(--border-focus);
   outline-offset: 1px;
+}
+
+/* ------------------------------------------------------------- on a phone */
+
+/* One column at a phone's width (the desktop's layout is untouched): the
+   table as a full-width summary line that opens a bottom sheet, the action
+   strip (preflop, board, the decisions) as one row that scrolls to the screen
+   edge, the toolbar as one scrolling row, the grid as wide as the screen,
+   then the decision's numbers as a flat block. Everything tappable is at
+   least 44px tall. The page sits in the shell's wide mode (an 8px gutter):
+   the text blocks add 8px more so they line up with the other screens. */
+@media (max-width: 640px) {
+  .solver {
+    gap: var(--space-3);
+
+    /* A container would be the containing block of the sheets below
+       (`position: fixed`); its queries only ever widen the layout anyway. */
+    container-type: normal;
+  }
+
+  .message {
+    margin-inline: var(--space-2);
+    font-size: var(--font-size-lg);
+  }
+
+  .empty {
+    min-block-size: 16rem;
+    font-size: var(--font-size-lg);
+  }
+
+  .empty .link {
+    min-block-size: 44px;
+  }
+
+  /* The controls */
+  .seg button {
+    block-size: 40px;
+    padding: 0 14px;
+    font-size: var(--font-size-base);
+  }
+
+  .segSm button {
+    block-size: 40px;
+    padding: 0 12px;
+    font-size: var(--font-size-base);
+  }
+
+  .iconButton,
+  .iconButtonSm {
+    inline-size: 44px;
+    block-size: 44px;
+  }
+
+  .iconButton svg {
+    inline-size: 18px;
+    block-size: 18px;
+  }
+
+  .toolButton,
+  .toolButtonSm {
+    block-size: 44px;
+    padding: 0 14px;
+    font-size: var(--font-size-base);
+  }
+
+  .switch {
+    block-size: 44px;
+    font-size: var(--font-size-base);
+  }
+
+  .chip {
+    block-size: 44px;
+    padding: 0 14px;
+    font-size: var(--font-size-md);
+  }
+
+  /* A popover (the table, the flop picker) is a bottom sheet: full width,
+     the page dimmed behind it, over the shell's bottom bar. */
+  .popover,
+  .popoverWide {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: var(--z-overlay);
+    gap: var(--space-3);
+    inline-size: auto;
+    max-inline-size: none;
+    max-block-size: 88dvh;
+    padding: 6px max(16px, env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-width: 1px 0 0;
+    border-color: var(--border-default);
+    border-radius: 20px 20px 0 0;
+    background: var(--surface-raised);
+    box-shadow: 0 0 0 100vmax var(--surface-scrim);
+    font-size: var(--font-size-base);
+    animation: solver-sheet-in 0.22s var(--ease-out);
+  }
+
+  /* The grip */
+  .popover::before {
+    flex: none;
+    align-self: center;
+    inline-size: 36px;
+    block-size: 4px;
+    margin-block: 4px 2px;
+    border-radius: 2px;
+    background: var(--border-default);
+    content: "";
+  }
+
+  /* The top row */
+  .top {
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+    padding-inline: var(--space-2);
+  }
+
+  .top > .anchor {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  .top .spacer {
+    display: none;
+  }
+
+  .selector {
+    justify-content: space-between;
+    inline-size: 100%;
+    block-size: 44px;
+    padding: 0 14px;
+    font-size: var(--font-size-lg);
+  }
+
+  .settings {
+    gap: var(--space-4);
+  }
+
+  /* In the sheet: the label above, the options in a row that scrolls. */
+  .settingsRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+    font-size: var(--font-size-md);
+  }
+
+  .settingsRow .seg {
+    max-inline-size: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .settingsRow .seg button {
+    flex: 1 0 auto;
+    justify-content: center;
+  }
+
+  /* The action strip: scrolls to the screen's edge, a card snaps to the start. */
+  .strip {
+    gap: var(--space-2);
+    margin-inline: calc(-1 * var(--space-2));
+    padding: 2px var(--space-4) 6px;
+    scroll-padding-inline: var(--space-4);
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+
+  .strip > * {
+    scroll-snap-align: start;
+  }
+
+  .pcard {
+    min-inline-size: 9rem;
+    border-radius: 12px;
+    font-size: var(--font-size-base);
+  }
+
+  .pcardSummary {
+    min-inline-size: 10rem;
+  }
+
+  .pcardStreet {
+    min-inline-size: 7.5rem;
+  }
+
+  .pcardHead {
+    min-block-size: 36px;
+    padding: 6px 12px 4px;
+    font-size: var(--font-size-md);
+  }
+
+  .pcardLine {
+    padding: 3px 12px;
+  }
+
+  .pcardLine b {
+    min-inline-size: 34px;
+  }
+
+  .pcardQuiet {
+    font-size: var(--font-size-sm);
+  }
+
+  .opt {
+    gap: var(--space-2);
+    min-block-size: 44px;
+    padding: 0 8px;
+  }
+
+  .optDot {
+    inline-size: 9px;
+    block-size: 9px;
+  }
+
+  .optShare {
+    font-size: var(--font-size-sm);
+  }
+
+  /* The next street's card: the deck's cards big enough to tap. */
+  .deal {
+    gap: var(--space-2);
+    margin-inline: var(--space-2);
+  }
+
+  .dealHead {
+    font-size: var(--font-size-base);
+  }
+
+  .deck,
+  .deckRow {
+    gap: 4px;
+  }
+
+  .pc {
+    block-size: 40px;
+    font-size: var(--font-size-md);
+  }
+
+  .pc:hover:not(:disabled) {
+    transform: none;
+  }
+
+  /* The flop picker, in its sheet: the slots and the close button on one
+     row, Clear and Random sharing the next. */
+  .pickerTop .spacer {
+    display: none;
+  }
+
+  .slots {
+    flex: 1 1 auto;
+    gap: 6px;
+  }
+
+  .pickerTop .iconButton {
+    order: 1;
+  }
+
+  /* The row break before Clear and Random */
+  .pickerTop::after {
+    flex-basis: 100%;
+    order: 1;
+    content: "";
+  }
+
+  .pickerTop .toolButton {
+    flex: 1 1 0;
+    justify-content: center;
+    order: 2;
+  }
+
+  .slotEmpty,
+  .slotCard {
+    min-inline-size: 2.5rem;
+    block-size: 3.25rem;
+  }
+
+  .pickerNote {
+    font-size: var(--font-size-sm);
+  }
+
+  .solvedList {
+    gap: var(--space-2);
+    max-block-size: none;
+    overflow-y: visible;
+  }
+
+  .solvedFlop {
+    min-block-size: 44px;
+    padding: 4px 10px;
+  }
+
+  /* The toolbar: one row that scrolls sideways, never two. */
+  .tools {
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+    margin-inline: calc(-1 * var(--space-2));
+    padding-inline: var(--space-4);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tools .spacer {
+    display: none;
+  }
+
+  /* The live turn's solve */
+  .solve {
+    min-block-size: 16rem;
+    margin-inline: var(--space-2);
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .solveLine {
+    font-size: var(--font-size-md);
+  }
+
+  .solveNote {
+    font-size: var(--font-size-sm);
+  }
+
+  /* The grid: the screen's width, square cells, names that can be read. */
+  .grid,
+  .gridRow {
+    gap: 1px;
+  }
+
+  .cell {
+    aspect-ratio: 1;
+    border-radius: 3px;
+  }
+
+  .cellName {
+    inset-block-start: 1px;
+    inset-inline-start: 2px;
+    font-size: clamp(0.5625rem, 2.75cqi, 0.8rem);
+    letter-spacing: -0.02em;
+  }
+
+  .cellHero::after {
+    inset-block-end: 2px;
+    inset-inline-end: 2px;
+    inline-size: 5px;
+    block-size: 5px;
+  }
+
+  /* The panel: a flat block under the grid, not a card. */
+  .panel {
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-2) 0;
+    border-width: 1px 0 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: var(--font-size-lg);
+  }
+
+  .over strong {
+    font-size: var(--font-size-xl);
+  }
+
+  .acts {
+    gap: 2px;
+  }
+
+  .act {
+    grid-template-columns: 12px minmax(0, 1fr) auto 4.5rem 4rem;
+    min-block-size: 48px;
+    padding: 0 var(--space-2);
+    font-size: var(--font-size-lg);
+  }
+
+  .actDot {
+    inline-size: 12px;
+    block-size: 12px;
+  }
+
+  .actGto,
+  .actCombos {
+    font-size: var(--font-size-sm);
+  }
+
+  .actShare {
+    font-size: var(--font-size-xl);
+  }
+
+  .actEv {
+    font-size: var(--font-size-md);
+  }
+
+  .panelTab {
+    flex: 1 1 0;
+    min-block-size: 44px;
+    font-size: var(--font-size-lg);
+  }
+
+  .handBlock > p {
+    font-size: var(--font-size-md);
+  }
+
+  .handBlock .handHead {
+    font-size: var(--font-size-lg);
+  }
+
+  .handName {
+    font-size: var(--font-size-2xl);
+  }
+
+  .handCat {
+    font-size: var(--font-size-md);
+  }
+
+  .handDelta,
+  .youTag,
+  .positionTag {
+    font-size: var(--font-size-sm);
+  }
+
+  /* Two tiles across, their numbers at a readable size. */
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
+  .tile {
+    gap: 6px;
+    padding: var(--space-2) 10px;
+  }
+
+  .tileCards {
+    font-size: var(--font-size-lg);
+  }
+
+  .tileYou {
+    font-size: var(--font-size-sm);
+  }
+
+  .tileLine,
+  .tileOffText {
+    font-size: var(--font-size-sm);
+  }
+
+  /* The Ranges tab: the grids one under the other, at the screen's width. */
+  .ranges {
+    gap: var(--space-4);
+  }
+
+  .rangeHead {
+    padding-inline: var(--space-2);
+    font-size: var(--font-size-base);
+  }
+
+  .toAct {
+    font-size: var(--font-size-sm);
+  }
+
+  .rangeGrid {
+    gap: 1px;
+  }
+
+  .heat {
+    aspect-ratio: 1;
+    font-size: clamp(0.5625rem, 2.75cqi, 0.7rem);
+    letter-spacing: -0.02em;
+  }
+
+  .stats {
+    gap: var(--space-3);
+    padding-inline: var(--space-2);
+    font-size: var(--font-size-md);
+  }
+
+  .modeSelect {
+    min-block-size: 44px;
+    padding: 0 var(--space-3);
+    font-size: 16px;
+  }
+
+  .curveSvg {
+    block-size: 11rem;
+  }
+
+  .curveLegend,
+  .otherCombos thead th {
+    font-size: var(--font-size-sm);
+  }
+
+  .otherCombos {
+    font-size: var(--font-size-md);
+  }
+
+  .otherCombos th,
+  .otherCombos td {
+    padding: 8px var(--space-1);
+  }
+
+  /* The hand filters */
+  .filters {
+    gap: var(--space-3);
+    font-size: var(--font-size-base);
+  }
+
+  .filters p,
+  .filterHead {
+    font-size: var(--font-size-sm);
+  }
+
+  .suitRow {
+    gap: var(--space-3);
+  }
+
+  .suitGroup {
+    gap: 6px;
+  }
+
+  .suitToggle {
+    min-inline-size: 44px;
+    min-block-size: 44px;
+    font-size: var(--font-size-lg);
+  }
+
+  .filterPick {
+    grid-template-columns: minmax(0, 1fr) 3.6rem minmax(3.5rem, 6rem);
+    min-block-size: 44px;
+    padding: 0 var(--space-2);
+  }
+
+  .filterAbove {
+    min-inline-size: 36px;
+    font-size: var(--font-size-sm);
+  }
+}
+
+@keyframes solver-sheet-in {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+  .popover {
+    animation: none;
+  }
 }

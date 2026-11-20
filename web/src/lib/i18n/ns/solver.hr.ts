@@ -152,7 +152,7 @@ export const solverHr: Dict["solver"] = {
   gridLabel: (position: string) => `${position}: strategija za svih 169 ruku`,
   cellLabel: (hand: string, parts: string[], absent: boolean) => `${hand}: ${absent ? "nije u rasponu" : parts.join(", ")}`,
   part: (label: string, freq: number) => `${label} ${pct1(freq)}`,
-  detailEmpty: "Pređi mišem ili odaberi ruku da vidiš koliko vrijedi koja akcija.",
+  detailEmpty: "Odaberi ruku da vidiš koliko vrijedi koja akcija.",
   you: "Ti",
   yourHand: "Tvoja ruka",
   comboOff: "Nije u ovom spotu",
