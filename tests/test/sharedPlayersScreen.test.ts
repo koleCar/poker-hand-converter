@@ -360,6 +360,28 @@ describe("the screen, rendered", () => {
         expect(html.includes(`aria-label="${p.colourFilter}"`)).toBe(features.colours);
       });
 
+      it(`the surface's own kind on ${name} source, ${locale}: no Cash | Tournaments switch`, () => {
+        const html = render(
+          locale,
+          createElement(PlayersScreen, {
+            source: fakeSource(features),
+            definitions: WEB_DEFINITIONS,
+            selected: null,
+            onSelect: () => undefined,
+            kind: "chips",
+            onHandsWith: () => undefined,
+            title: "Players",
+            hideTitle: true,
+            emptyText: "No opponents",
+            notesFootnote: null,
+            renderState: (kind: string, text: string) => createElement("p", { "data-state": kind }, text),
+          }),
+        );
+        expect(html).toContain(p.searchPlaceholder);
+        expect(html).not.toContain(`aria-label="${p.kinds.label}"`);
+        expect(html).not.toContain(`>${p.kinds.chips}<`);
+      });
+
       it(`a profile on ${name} source, ${locale}: the facts, the words it keeps, the statistics, the breakdown`, () => {
         const html = render(
           locale,

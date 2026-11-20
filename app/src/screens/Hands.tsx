@@ -18,6 +18,8 @@
  * window's foot, or a right click, replays them - the window steps through
  * them in its sidebar, and the row of the hand it shows is marked here -
  * tags them, or saves them as a .txt (`components/HandActions`).
+ *
+ * Only the hands of the kind of game chosen in the sidebar (`lib/gameKind.ts`).
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { HandsScreen } from "@rail/ui/hands/HandsScreen";
@@ -28,6 +30,7 @@ import { RecomputeNotice, useRecompute } from "../components/RecomputeNotice";
 import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
 import { useRowHeight } from "../lib/appearance";
+import { useAppKind } from "../lib/gameKind";
 import { storeHandsSource } from "../lib/handsSource";
 import { inApp, ipc, onHandAnnotated, onReplayerClosed, onReplayerShowing } from "../lib/ipc";
 import { replaceParam, useRouteParam } from "../lib/router";
@@ -51,6 +54,7 @@ export function Hands() {
   );
   const rebuild = useRecompute();
   const rowHeight = useRowHeight();
+  const { kind } = useAppKind();
   // Every hand in the store, for "N of M hands" under a filter.
   const [storeHands, setStoreHands] = useState<number | null>(null);
   useEffect(() => {
@@ -144,6 +148,7 @@ export function Hands() {
       </div>
     );
   }
+  if (kind === null) return <StateMessage kind="loading">{t.hands.loading}</StateMessage>;
 
   return (
     <>
@@ -152,6 +157,7 @@ export function Hands() {
       source={storeHandsSource}
       filter={filter}
       onFilterChange={setFilter}
+      kind={kind}
       selected={selected}
       onSelect={select}
       onOpen={open}

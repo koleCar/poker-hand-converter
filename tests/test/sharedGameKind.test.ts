@@ -11,6 +11,7 @@ import { EMPTY_FILTER } from "@rail/ui/hands/filter";
 import {
   defaultKind,
   hasBothKinds,
+  holdKind,
   isKindFormats,
   isWholeKind,
   kindCounts,
@@ -66,6 +67,23 @@ describe("the Game chip, kept to one kind", () => {
     expect(isWholeKind({ ...EMPTY_FILTER, formats: ["sng"] }, both)).toBe(false);
     expect(isWholeKind({ ...EMPTY_FILTER, formats: ["cash"] }, both)).toBe(true);
     expect(isWholeKind(EMPTY_FILTER, both)).toBe(false);
+  });
+});
+
+describe("a kind the surface keeps itself (the desktop's sidebar)", () => {
+  const both = facets({ cash: 10, tournament: 5, sng: 3 });
+
+  it("holds the filter to it: a narrower choice within it stays, anything else is the whole kind", () => {
+    expect(holdKind({ ...EMPTY_FILTER, formats: ["sng"] }, "tournament", both).formats).toEqual(["sng"]);
+    expect(holdKind({ ...EMPTY_FILTER, formats: ["cash"] }, "tournament", both).formats).toEqual(["tournament", "sng"]);
+    expect(holdKind({ ...EMPTY_FILTER, formats: ["cash", "sng"] }, "cash", both).formats).toEqual(["cash"]);
+    expect(holdKind(EMPTY_FILTER, "cash", both).formats).toEqual(["cash"]);
+    expect(holdKind(EMPTY_FILTER, "tournament", null).formats).toEqual(["tournament", "sng", "spin"]);
+  });
+
+  it("keeps every other choice", () => {
+    const filter = { ...EMPTY_FILTER, positions: ["BTN"], formats: ["cash"] };
+    expect(holdKind(filter, "tournament", both).positions).toEqual(["BTN"]);
   });
 });
 

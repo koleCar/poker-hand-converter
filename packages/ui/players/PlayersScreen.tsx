@@ -8,7 +8,9 @@
  *
  * One game kind at a time, never both (the owner's rule, 2026-11-04): the
  * Cash / Tournaments toggle, opening on the kind with more hands - tournament
- * chips and cash do not add up to one result, as on Hands and Reports.
+ * chips and cash do not add up to one result, as on Hands and Reports. A
+ * surface that keeps the kind itself (the desktop's sidebar) passes it as
+ * `kind`: the list and the profile hold to it and have no switch.
  *
  * Who is listed is the surface's store's rule (docs/DATABASE.md "Player
  * identity and anonymized rooms"): a positional room's seat labels never, an
@@ -99,6 +101,8 @@ export interface PlayersScreenProps {
   /** The open player (the app's route, the web's page state). */
   selected: PlayerRef | null;
   onSelect: (player: PlayerRef | null) => void;
+  /** The kind of game the surface shows, chosen elsewhere (the desktop's sidebar); none: the screen's own switch. */
+  kind?: ShownKind;
   /** "Hands with this player": the surface opens its Hands on them, in the profile's kind. */
   onHandsWith: (player: PlayerRef, kind: ShownKind) => void;
   /** The heading's words, and its level on the surface's page. */
@@ -131,6 +135,7 @@ export function PlayersScreen({
   definitions,
   selected,
   onSelect,
+  kind: fixedKind,
   onHandsWith,
   title,
   titleTag: Title = "h1",
@@ -211,7 +216,7 @@ export function PlayersScreen({
 
   // The kind shown: the reader's, else the one with more hands. Until that
   // is known the screen asks for both once, only for the counts.
-  const shownKind: ShownKind | null = query.kind ?? defaultKind;
+  const shownKind: ShownKind | null = fixedKind ?? query.kind ?? defaultKind;
   const kind: GameKind = shownKind ?? "all";
   const ask = useMemo<PlayerQuery>(
     () => ({
@@ -305,7 +310,7 @@ export function PlayersScreen({
   }
 
   const kindHands = (value: ShownKind) => (list === null ? null : value === "cash" ? list.cashHands : list.chipsHands);
-  const kinds = (
+  const kinds = fixedKind !== undefined ? null : (
     <KindsSwitch
       label={p.kinds.label}
       names={p.kinds}
@@ -442,6 +447,7 @@ export function PlayersScreen({
               site={selected.site}
               player={selected.player}
               kind={shownKind}
+              kindFixed={fixedKind !== undefined}
               definitions={definitions}
               notesFootnote={notesFootnote}
               renderState={renderState}

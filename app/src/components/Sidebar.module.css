@@ -432,3 +432,67 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* The kind of game every screen shows (`SidebarKind`): one joined pill as
+   wide as the sidebar, the shown kind filled. */
+.kinds {
+  display: flex;
+  flex: none;
+  overflow: hidden;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+}
+
+.kinds > button {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-1) var(--space-2);
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kinds > button + button {
+  border-inline-start: 1px solid var(--border-default);
+}
+
+.kinds > button:hover:not(:disabled, [aria-pressed="true"]) {
+  color: var(--text-primary);
+}
+
+.kinds > button[aria-pressed="true"] {
+  background: var(--surface-selected);
+  color: var(--text-on-selected);
+  font-weight: var(--font-weight-semibold);
+}
+
+.kinds > button:disabled,
+.kindFlip:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+/* Collapsed: the shown kind's first letter, on the icons' centre line; a
+   click shows the other kind. */
+.kindFlip {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-selected);
+  color: var(--text-on-selected);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}

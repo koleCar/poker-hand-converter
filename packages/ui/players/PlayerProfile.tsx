@@ -42,6 +42,7 @@ export function PlayerProfile({
   site,
   player,
   kind,
+  kindFixed = false,
   definitions,
   notesFootnote,
   renderState,
@@ -54,6 +55,8 @@ export function PlayerProfile({
   player: string;
   /** The list's kind; null while the screen finds the kind with more hands. */
   kind: ShownKind | null;
+  /** The kind is the surface's (the desktop's sidebar): the profile has no switch of its own. */
+  kindFixed?: boolean;
   definitions: readonly Definition[] | null;
   notesFootnote: string | null;
   renderState: RenderState;
@@ -72,7 +75,7 @@ export function PlayerProfile({
   // The profile's own game kind (R2.8): the list's until the reader picks
   // one here, for this player (a new player opens on the list's again).
   const [ownKind, setOwnKind] = useState<ShownKind | null>(null);
-  const shownKind = ownKind ?? kind;
+  const shownKind = kindFixed ? kind : (ownKind ?? kind);
 
   useEffect(() => {
     if (shownKind === null) return;
@@ -108,19 +111,21 @@ export function PlayerProfile({
           <p className={styles.muted}>{profile?.siteName ?? site}</p>
         </div>
         <div className={styles.profileActions}>
-          <div className={styles.segmented} role="group" aria-label={t.kind} title={t.kindHint}>
-            {SHOWN_KINDS.map((value) => (
-              <button
-                key={value}
-                type="button"
-                className={`chip-btn${shownKind === value ? " is-active" : ""}`}
-                aria-pressed={shownKind === value}
-                onClick={() => setOwnKind(value)}
-              >
-                {players.kinds[value]}
-              </button>
-            ))}
-          </div>
+          {kindFixed ? null : (
+            <div className={styles.segmented} role="group" aria-label={t.kind} title={t.kindHint}>
+              {SHOWN_KINDS.map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={`chip-btn${shownKind === value ? " is-active" : ""}`}
+                  aria-pressed={shownKind === value}
+                  onClick={() => setOwnKind(value)}
+                >
+                  {players.kinds[value]}
+                </button>
+              ))}
+            </div>
+          )}
           {together !== null && profileKind !== null ? (
             <button
               type="button"

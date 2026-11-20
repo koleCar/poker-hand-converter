@@ -10,6 +10,7 @@ import { openFeedback } from "./Feedback";
 import { MOD_KEY, openPalette } from "./Palette";
 import styles from "./Sidebar.module.css";
 import { SidebarNodelock } from "../solver/nodelock/SidebarNodelock";
+import { SidebarKind } from "./SidebarKind";
 import { SidebarUpdate } from "./SidebarUpdate";
 
 /** One icon per screen: all a collapsed sidebar shows of it. */
@@ -121,6 +122,8 @@ export function Sidebar({ current, tablesOpen }: { current: Screen; tablesOpen: 
           {shortcut("k")}
         </kbd>
       </button>
+      {/* The one kind of game every screen shows (cash or tournaments). */}
+      <SidebarKind collapsed={collapsed} />
       <ul className={styles.list}>
         {offeredScreens(SCREENS, tablesOpen).map((screen) => (
           <li key={screen}>
