@@ -270,7 +270,7 @@ export const handsUiHr: typeof handsUiEn = {
         board: { title: "Board i tekstura", text: "Karte na boardu ili kakav je bio flop." },
         players: { title: "Igrači", text: "Tko je bio za stolom, koliko ih je bilo i čije su karte viđene." },
         stacks: { title: "Stackovi", text: "Koliko se duboko igralo i uvjeti igre." },
-        game: { title: "Soba i ulozi", text: "Soba, ulozi, varijanta i veličina stola. Cash ili turniri je prekidač iznad liste." },
+        game: { title: "Soba i ulozi", text: "Soba, ulozi, varijanta i veličina stola." },
         date: { title: "Datum i vrijeme", text: "Kada je ruka odigrana: datumi, zadnje ruke, dani i sati." },
         result: { title: "Rezultat i EV", text: "Kako je završila, koliko je narasla i kako ju je analiza ocijenila." },
         sizing: { title: "Veličine beta", text: "Koliko je hero otvorio i betao, kao udio pota." },
