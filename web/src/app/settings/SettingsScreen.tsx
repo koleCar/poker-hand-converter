@@ -12,6 +12,7 @@ import { LanguageSwitch } from "../../components/shell/LanguageSwitch";
 import { PlanPanel } from "../../components/plan/PlanPanel";
 import { YourDataPanel } from "../../components/account/YourDataPanel";
 import { DeleteAllHands } from "../../components/account/DeleteAllHands";
+import { ThemeSwitch } from "../../components/account/ThemeSwitch";
 import { ACCOUNT_DELETED_FLAG, AccountDeletedNotice } from "../../components/account/DeleteAccountPanel";
 import rows from "../../components/account/rows.module.css";
 import { useAuth } from "../../lib/auth";
@@ -26,7 +27,8 @@ import { paths } from "../../lib/routes";
  * Client half of `/settings`: Profile settings, laid out like the desktop
  * app's Settings - no title, a small label over each card of rows (the label,
  * the value, the action). Account (the name, the email, posting, the
- * password), Plan, Language, Your data, and the danger zone, which only links
+ * password), Plan, Language, Appearance (the theme), Your data, and the
+ * danger zone, which only links
  * to `/settings/delete-account`.
  *
  * The username is chosen once (`20271116130500_username_set_once.sql`): it is
@@ -81,6 +83,20 @@ function SettingsBody() {
             <span className={rows.muted}>{en.language.hint}</span>
             <span className={rows.actions}>
               <LanguageSwitch variant="full" classNames={{ group: rows.segmented, option: rows.segment }} />
+            </span>
+          </div>
+        </div>
+      </section>
+      <section className={rows.group} aria-labelledby="settings-appearance">
+        <h2 id="settings-appearance" className={rows.groupLabel}>
+          {g.appearance}
+        </h2>
+        <div className={rows.card}>
+          <div className={rows.row}>
+            <span className={rows.rowLabel}>{en.account.theme.label}</span>
+            <span className={rows.muted}>{en.account.theme.hint}</span>
+            <span className={rows.actions}>
+              <ThemeSwitch classNames={{ group: rows.segmented, option: rows.segment }} />
             </span>
           </div>
         </div>

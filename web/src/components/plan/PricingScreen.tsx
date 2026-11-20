@@ -260,8 +260,18 @@ function Pricing({ initialPeriod, source }: { initialPeriod: Period; source: Wai
           "group" in row ? (
             <div key={row.group} className={`${p.row} ${p.group}`} role="row">
               <div role="cell">{row.group}</div>
-              <div role="cell" />
-              <div role="cell" className={p.pro} />
+              {/* The plans' names over each group, shown on a phone only: there
+                  the prices are cards above the table, not its column heads. */}
+              <div role="cell" className={p.c}>
+                <span className={p.groupPlan} aria-hidden="true">
+                  {t.free}
+                </span>
+              </div>
+              <div role="cell" className={`${p.c} ${p.pro}`}>
+                <span className={p.groupPlan} aria-hidden="true">
+                  {t.pro}
+                </span>
+              </div>
             </div>
           ) : (
             <div key={row.label} className={p.row} role="row">
@@ -281,9 +291,9 @@ function Pricing({ initialPeriod, source }: { initialPeriod: Period; source: Wai
       </div>
       <ul className={p.foot}>
         <li>{t.foot.cancel}</li>
-        <li aria-hidden="true">·</li>
+        <li className={p.dot} aria-hidden="true">·</li>
         <li>{t.foot.keep}</li>
-        <li aria-hidden="true">·</li>
+        <li className={p.dot} aria-hidden="true">·</li>
         <li>{t.foot.tax}</li>
       </ul>
       {confirming ? (

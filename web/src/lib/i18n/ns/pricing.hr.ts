@@ -99,6 +99,7 @@ export const pricingHr: Dict["pricing"] = {
     done: "Sada si na Pro planu",
     openAnalysis: "Otvori analizu",
     getApp: "Preuzmi desktop aplikaciju",
+    seeApp: "Pogledaj desktop aplikaciju",
     receipt: "Račun je poslan na tvoj email.",
   },
   cancel: {

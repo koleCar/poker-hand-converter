@@ -514,6 +514,102 @@
   .tile > .actions:empty {
     display: none;
   }
+
+  /* Phone type scale: body 15, secondary 13, nothing under 12. */
+  .groupLabel {
+    padding-left: 0;
+    font-size: var(--font-size-sm);
+  }
+
+  .row {
+    min-height: 56px;
+    padding: 14px 16px;
+  }
+
+  .row > .rowLabel,
+  .muted,
+  .fieldLabel,
+  .note,
+  .error,
+  .success,
+  .list,
+  .what {
+    font-size: var(--font-size-md);
+  }
+
+  .muted {
+    line-height: 1.45;
+  }
+
+  .strong,
+  .text {
+    font-size: var(--font-size-lg);
+  }
+
+  .big {
+    font-size: var(--font-size-xl);
+  }
+
+  .badge {
+    height: 26px;
+    font-size: var(--font-size-md);
+  }
+
+  .what {
+    padding: 14px 16px;
+  }
+
+  /* A segmented control (Language, Theme) takes its own line, the full width,
+     options a thumb tall. */
+  .actions:has(> .segmented) {
+    grid-column: 1 / -1;
+    justify-content: stretch;
+    padding-top: var(--space-2);
+  }
+
+  .segmented {
+    display: flex;
+    flex: 1 1 auto;
+  }
+
+  .segment {
+    flex: 1 1 0;
+    min-height: 40px;
+    font-size: var(--font-size-lg);
+  }
+
+  .switch {
+    width: 50px;
+    height: 30px;
+  }
+
+  .switch::before {
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .switch:checked::before {
+    transform: translateX(20px);
+  }
+
+  /* Fields: the full width, 16 px so iOS does not zoom, a thumb tall. */
+  .fields input:not([type="checkbox"], [type="radio"]) {
+    max-width: none;
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .buttons > * {
+    flex: 1 1 auto;
+    min-height: 44px;
+  }
+
+  .back {
+    min-height: 44px;
+    font-size: var(--font-size-md);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

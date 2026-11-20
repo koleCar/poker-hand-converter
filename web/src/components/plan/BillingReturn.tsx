@@ -78,7 +78,9 @@ export function BillingSuccessView({ running, slow }: { running: boolean; slow: 
             {t.openAnalysis}
           </Link>
           <Link href={paths.download()} className="btn">
-            {t.getApp}
+            {/* A phone cannot download the app: there it only shows it. */}
+            <span className={styles.wideOnly}>{t.getApp}</span>
+            <span className={styles.narrowOnly}>{t.seeApp}</span>
           </Link>
         </div>
         <p className={styles.dim}>{t.receipt}</p>
