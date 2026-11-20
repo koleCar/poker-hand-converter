@@ -921,7 +921,8 @@
 /* The hand you are here to read is the board's size. */
 .rp__felt .pseat--hero {
   --seat-card: var(--board-card-full);
-  --tuck: calc(var(--seat-card) * 0.23);
+  /* Shallow, so the big suit in the card's corner stays readable. */
+  --tuck: calc(var(--seat-card) * 0.14);
 }
 
 /* A hand turned over at the showdown opens out, and sits above its
