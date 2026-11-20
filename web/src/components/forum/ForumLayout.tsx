@@ -2,8 +2,9 @@
  * Forum v2's frame: the board sidebar on the left, the page in the middle and,
  * on a wide screen, a rail of top and unanswered posts on the right.
  *
- * Server-rendered like the rest of the forum. On a phone the sidebar folds
- * into a "Boards and filters" disclosure above the page, and the rail goes.
+ * Server-rendered like the rest of the forum. On a phone the sidebar becomes
+ * a bottom sheet (`BoardsSheet`, opened from the feed's chip row), and the
+ * rail goes.
  */
 
 import Link from "next/link";
@@ -13,6 +14,7 @@ import type { Board, FeedFilters, ForumPost } from "../../lib/forum/types";
 import type { Dict } from "../../lib/i18n/types";
 import { paths } from "../../lib/routes";
 import { NavPending } from "../shell/NavProgress";
+import { BoardsSheet } from "./BoardsSheet";
 import { feedHref } from "./Feed";
 import styles from "./forum.module.css";
 
@@ -132,17 +134,9 @@ export function ForumLayout({ t: en, boards, counts, current, nav, rail, childre
       <aside className={styles.side} aria-label={en.forum.nav.label}>
         <SideNav {...side} />
       </aside>
-      <details className={styles.sideMenu}>
-        <summary>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-            <path d="M4 7h16M4 12h16M4 17h10" />
-          </svg>
-          {en.forum.nav.menu}
-        </summary>
-        <div className={styles.sideMenuBody}>
-          <SideNav {...side} />
-        </div>
-      </details>
+      <BoardsSheet title={en.forum.nav.menu} closeLabel={en.chrome.close}>
+        <SideNav {...side} />
+      </BoardsSheet>
       <div className={styles.main}>{children}</div>
       {rail ? (
         <aside className={styles.rail} aria-label={en.forum.rail.top}>

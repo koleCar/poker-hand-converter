@@ -283,3 +283,111 @@
   width: 16px;
   height: 16px;
 }
+
+/* Phones: one column of flat sections, readable controls, and the publish
+   button pinned above the bottom tab bar so it is always in reach. */
+@media (max-width: 860px) {
+  .page {
+    padding-bottom: 72px;
+  }
+
+  .bar {
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+  }
+
+  .bar > .publish {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right));
+    bottom: calc(var(--shell-bottom-nav, 0px) + 12px);
+    left: max(16px, env(safe-area-inset-left));
+    z-index: 30;
+    justify-content: center;
+    min-height: 48px;
+    font-size: 16px;
+    box-shadow: var(--shadow-2);
+  }
+
+  .bar > :first-child {
+    min-height: 44px;
+  }
+
+  .hint {
+    font-size: 13px;
+  }
+
+  .layout {
+    gap: var(--space-4);
+  }
+
+  .settings {
+    gap: 0;
+  }
+
+  .panel {
+    gap: var(--space-3);
+    padding: var(--space-4) 0;
+    border: 0;
+    border-top: 1px solid var(--border-subtle);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .panel:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .label,
+  .field > span {
+    font-size: 13px;
+  }
+
+  .field {
+    gap: 6px;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .seg button {
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .chips {
+    gap: var(--space-2);
+  }
+
+  .chip {
+    height: 36px;
+    padding: 0 14px;
+    font-size: 13px;
+  }
+
+  .mode {
+    padding: var(--space-3);
+  }
+
+  .modeName {
+    font-size: 15px;
+  }
+
+  .modeHint,
+  .warn,
+  .small {
+    font-size: 13px;
+  }
+
+  .confirm {
+    min-height: 44px;
+  }
+
+  .ghost {
+    font-size: 14px;
+  }
+}

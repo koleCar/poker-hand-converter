@@ -7,6 +7,7 @@
  */
 
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { anchorLabel } from "../../lib/forum/anchor";
 import type { ForumComment } from "../../lib/forum/types";
 import type { Dict } from "../../lib/i18n/types";
@@ -47,7 +48,7 @@ export function CommentThread({
             key={comment.seq}
             id={`c-${comment.seq}`}
             className={styles.comment}
-            style={{ marginLeft: `${Math.min(comment.depth - 1, 9) * 16}px` }}
+            style={{ "--depth": Math.min(comment.depth - 1, 9) } as CSSProperties}
           >
             {gone ? (
               <p className={styles.tombstone}>{comment.removed ? en.forum.comments.removed : en.forum.comments.deleted}</p>

@@ -199,7 +199,7 @@ export default async function PostPage({ params, searchParams }: { params: Param
           </nav>
           <header className={styles.postHead}>
             <VoteButtons post={post.publicId} upvotes={post.upvotes} downvotes={post.downvotes} disabled={post.isLocked} />
-            <div className="stack">
+            <div className={`stack ${styles.postHeadBody}`}>
               {post.poll || post.kind === "hand" || post.isPinned || post.isLocked ? (
                 <div className={styles.tags}>
                   {post.poll ? (
@@ -278,7 +278,7 @@ export default async function PostPage({ params, searchParams }: { params: Param
           ) : null}
 
           {hand ? (
-            <section className="card">
+            <section className={`card ${styles.handSummary}`}>
               <HandSummary t={en} hand={hand} />
             </section>
           ) : null}
@@ -298,7 +298,7 @@ export default async function PostPage({ params, searchParams }: { params: Param
               <section id="comments" className="stack">
                 <div className={styles.toolbar}>
                   <h2 className={styles.cardTitle}>{en.forum.comments.heading(post.commentCount)}</h2>
-                  <nav className={styles.chips}>
+                  <nav className={`${styles.chips} ${styles.commentSorts}`}>
                     {(["best", "new", "top"] as const).map((value) => (
                       <Link
                         key={value}

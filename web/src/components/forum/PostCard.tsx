@@ -1,7 +1,9 @@
 /**
  * One post in a feed (forum v2). Server-rendered; the arrows and the cards are
  * islands. The board chip carries the board's colour, a hand post shows its
- * cards, and the row underneath says who, when and how much talk.
+ * cards, and the row underneath says who, when and how much talk. On a phone
+ * the card is a flat full-width item and the arrows move down into an action
+ * row beside the comment count (CSS only: the same elements, re-placed).
  */
 
 import Link from "next/link";
@@ -57,25 +59,30 @@ export function PostCard({ post, t: en, index = 0 }: { post: ForumPost; t: Dict;
             <span className={styles.handLine}>{[post.hand.stakesLabel, post.hand.heroPosition].filter(Boolean).join(" · ")}</span>
           </Link>
         ) : null}
-        <p className={styles.meta}>
-          <Face username={post.author?.username ?? null} />
-          {post.author ? (
-            <Link href={paths.profile(post.author.username)} className={styles.author}>
-              {post.author.username}
-            </Link>
-          ) : (
-            <span>{en.forum.deletedAuthor}</span>
-          )}
-          <span className={styles.sep} aria-hidden="true" />
-          <time dateTime={post.createdAt}>{formatPostDate(post.createdAt, en.chrome.intl)}</time>
-          <span className={styles.sep} aria-hidden="true" />
-          <Link href={`${href}#comments`} className={styles.replies}>
+        <div className={styles.cardFoot}>
+          <p className={styles.meta}>
+            <Face username={post.author?.username ?? null} />
+            {post.author ? (
+              <Link href={paths.profile(post.author.username)} className={styles.author}>
+                {post.author.username}
+              </Link>
+            ) : (
+              <span>{en.forum.deletedAuthor}</span>
+            )}
+            <span className={styles.sep} aria-hidden="true" />
+            <time dateTime={post.createdAt}>{formatPostDate(post.createdAt, en.chrome.intl)}</time>
+          </p>
+          <span className={`${styles.sep} ${styles.footSep}`} aria-hidden="true" />
+          <Link href={`${href}#comments`} className={styles.replies} aria-label={en.forum.commentCount(post.commentCount)}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L3 21l1.6-5.4A8.5 8.5 0 1 1 21 12z" />
             </svg>
-            {en.forum.commentCount(post.commentCount)}
+            <span className={styles.repliesFull}>{en.forum.commentCount(post.commentCount)}</span>
+            <span className={styles.repliesNum} aria-hidden="true">
+              {post.commentCount}
+            </span>
           </Link>
-        </p>
+        </div>
       </div>
     </article>
   );
