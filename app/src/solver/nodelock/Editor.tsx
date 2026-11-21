@@ -324,6 +324,11 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
     return list;
   }, [target, solverT]);
   const shownClass = klass ? classes.find((c) => c.id.group === klass.group && c.id.index === klass.index) ?? null : null;
+  /** The picked class's sliders, under its row in the panel. */
+  const classSliders = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (mode === "classes" && klass) classSliders.current?.scrollIntoView({ block: "nearest" });
+  }, [mode, klass]);
   const classMaskOf = useMemo(() => (shownClass ? classMask(target, shownClass.id) : null), [shownClass, target]);
 
   const pickSuggestion = (archetype: Archetype) => {
@@ -594,6 +599,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
     const classGto = libraryClass ? target.actions.map((a) => (a.gto === null ? 0 : libraryClass[a.gto])) : null;
     left = (
       <>
+        {mask ? null : <p className={styles.hint}>{t.classesHint}</p>}
         <ClassList
           classes={classes}
           state={state}
@@ -603,23 +609,23 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
           onPick={(id) => setKlass(id)}
           madeLabel={t.made}
           drawLabel={t.draws}
+          detail={
+            mask && classShares && classGto ? (
+              // Right under the picked class, scrolled into view: no hunt for the sliders below a long list (#409).
+              <div ref={classSliders} className={styles.classSliders}>
+                {target.actions.map((_, a) =>
+                  sliderRow(
+                    a,
+                    classShares[a],
+                    (v, merge) => dispatch({ type: "frequency", action: a, target: v, mask, held, merge }),
+                    gtoOf(a, classGto),
+                    target.actions.length > 2,
+                  ),
+                )}
+              </div>
+            ) : null
+          }
         />
-        {mask && classShares && classGto ? (
-          <div className={styles.classSliders}>
-            <p className={styles.label}>{shownClass?.name}</p>
-            {target.actions.map((_, a) =>
-              sliderRow(
-                a,
-                classShares[a],
-                (v, merge) => dispatch({ type: "frequency", action: a, target: v, mask, held, merge }),
-                gtoOf(a, classGto),
-                target.actions.length > 2,
-              ),
-            )}
-          </div>
-        ) : (
-          <p className={styles.hint}>{t.classesHint}</p>
-        )}
       </>
     );
   }
@@ -977,6 +983,7 @@ function ClassList({
   lockLabel,
   madeLabel,
   drawLabel,
+  detail = null,
   wide = false,
 }: {
   classes: Array<{ id: ClassId; name: string; hands: number[] }>;
@@ -989,6 +996,8 @@ function ClassList({
   lockLabel?: (name: string) => string;
   madeLabel: string;
   drawLabel: string;
+  /** Shown right under the picked class's row (the side panel's sliders). */
+  detail?: ReactNode;
   wide?: boolean;
 }) {
   const groups: Array<["made" | "draw", string]> = [
@@ -1008,7 +1017,7 @@ function ClassList({
                 const { mix, reach } = mixOf(target, state, c.hands);
                 const locked = c.hands.filter((i) => state.locked[i]).length;
                 const on = picked?.group === c.id.group && picked.index === c.id.index;
-                return (
+                return [
                   <li key={`${group}${c.id.index}`} className={styles.classRow}>
                     <button type="button" className={styles.classPick} aria-pressed={on} onClick={() => onPick(c.id)}>
                       <span className={styles.className}>{c.name}</span>
@@ -1031,8 +1040,13 @@ function ClassList({
                         <LockGlyph />
                       </span>
                     ) : null}
-                  </li>
-                );
+                  </li>,
+                  on && detail ? (
+                    <li key={`${group}${c.id.index}-detail`} className={styles.classDetail}>
+                      {detail}
+                    </li>
+                  ) : null,
+                ];
               })}
             </ul>
           </div>
