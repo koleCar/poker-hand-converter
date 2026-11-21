@@ -1671,8 +1671,11 @@ export const en = {
     accuracyLabel: "Accuracy",
     accuracy: { standard: "Standard 1%", quick: "Quick 2.5%" },
     solve: "Solve on this computer",
-    engineLine: (threads: number, cores: number, memoryMb: number) =>
-      `Uses up to ${n(threads)} of ${n(cores)} cores and about ${memoryMb >= 1000 ? `${n(Math.round(memoryMb / 100) / 10)} GB` : `${n(Math.round(memoryMb / 10) * 10)} MB`}. Nothing leaves this computer.`,
+    speedLabel: "Speed",
+    speeds: { slow: "Slow", medium: "Medium", fast: "Fast" },
+    /** What a speed uses: under the choice, and on each option. */
+    speedLine: (threads: number, cores: number, memoryMb: number) =>
+      `${n(threads)} of ${n(cores)} cores · about ${memoryMb >= 1000 ? `${n(Math.round(memoryMb / 100) / 10)} GB` : `${n(Math.round(memoryMb / 10) * 10)} MB`}`,
     noEngine: "This build of Rail cannot solve nodelocks yet.",
     queued: "Another nodelock is solving: this one starts right after it.",
     startError: "The solve could not start. Try again.",

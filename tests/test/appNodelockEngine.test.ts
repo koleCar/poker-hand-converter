@@ -5,9 +5,9 @@
  * chunk; the next lock on the spot goes on warm; a cancel rejects and keeps
  * the warm parts; a turn lock comes back as a turn chunk.
  */
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createWorkerEngine, etaOf, type LockSet, type NodelockProgress } from "../../app/src/solver/nodelock/engine/index";
+import { createWorkerEngine, etaOf, speedStorage, speedThreads, type LockSet, type NodelockProgress } from "../../app/src/solver/nodelock/engine/index";
 import { createNodelockWorker, type WorkerScope } from "../../app/src/solver/nodelock/engine/worker";
 import { FLOP_PROFILE } from "../../web/src/lib/analysis/flopLibrary";
 import { solveNodelock, withRangeLocks } from "../../web/src/lib/analysis/nodelock";
@@ -161,6 +161,56 @@ describe("the worker engine", () => {
     // 4% at 40, 2% at 80: halving per doubling, so 1% at 160.
     expect(etaOf([{ iteration: 40, pct: 4 }, { iteration: 80, pct: 2 }], 80, 1000, 1, 300)).toBeCloseTo(80_000, 3);
     expect(etaOf([{ iteration: 40, pct: 4 }, { iteration: 80, pct: 0.5 }], 80, 1000, 1, 300)).toBe(0);
+  });
+});
+
+describe("the solve's speed (#409)", () => {
+  it("is half the cores, all but one, or all; 16-bit on the flop unless Fast", () => {
+    expect([1, 2, 8, 10].map((cores) => ["slow", "medium", "fast"].map((speed) => speedThreads(speed as "slow", cores)))).toEqual([
+      [1, 1, 1],
+      [1, 1, 2],
+      [4, 7, 8],
+      [5, 9, 10],
+    ]);
+    expect([speedStorage("slow"), speedStorage("medium"), speedStorage("fast")]).toEqual(["i16", "i16", null]);
+  });
+
+  describe("on the worker engine (4 cores)", () => {
+    beforeEach(() => {
+      vi.stubGlobal("navigator", { hardwareConcurrency: 4 });
+    });
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+    const { chunk, bytes } = baseline();
+    const root = chunk.result.nodes[0];
+    const ip = chunk.result.nodes[root.children[root.labels.indexOf("X")]];
+    const facing = chunk.result.nodes[ip.children[ip.labels.findIndex((l) => l.startsWith("B"))]];
+    const set: LockSet = {
+      version: 1,
+      spot: { set: "test", line: "btn-bb", flop: "Ks8s2d" },
+      nodes: [{ street: "flop", path: facing.path, player: facing.player as 0 | 1, actions: facing.labels, strategy: facing.labels.map((label) => new Array<number>(NUM_COMBOS).fill(label === "C" ? 1 : 0)), locked: new Array<number>(NUM_COMBOS).fill(1) }],
+      earlier: "player",
+      targetPct: 1,
+    };
+    const engine = createWorkerEngine({ threads: 4, makeWorker: () => fakeWorker(), flopSpotOf: async () => ({ spot: SPOT, chartsHash: "h" }), now: () => Date.now() });
+    const solve = (speed?: "slow" | "medium" | "fast") => engine.solve({ lockSet: set, baseline: bytes, maxIterations: 6, ...(speed ? { speed } : {}) }, () => {}, new AbortController().signal);
+
+    it("splits over the speed's threads, the same solve whatever the speed, and goes on warm only at the same speed", async () => {
+      const slow = await solve("slow");
+      expect(slow.stats).toMatchObject({ threads: 2, warm: false });
+      expect((await solve("slow")).stats).toMatchObject({ threads: 2, warm: true });
+      const medium = await solve("medium");
+      expect(medium.stats).toMatchObject({ threads: 3, warm: false });
+      expect((await solve("fast")).stats).toMatchObject({ threads: 4, warm: false });
+      expect((await solve()).stats).toMatchObject({ threads: 4, warm: true });
+      const reference = decodeChunk(solveNodelock({ street: "flop", spot: SPOT }, set, { baseline: chunk, maxIterations: 6 }).chunk);
+      for (const out of [slow, medium]) {
+        const decoded = decodeChunk(out.chunk);
+        expect(decoded.result.exploitabilityPct).toBe(reference.result.exploitabilityPct);
+        reference.result.nodes.forEach((node, k) => expect(Array.from(decoded.result.nodes[k].strategy)).toEqual(Array.from(node.strategy)));
+      }
+    });
   });
 });
 

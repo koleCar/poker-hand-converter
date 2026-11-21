@@ -9,7 +9,7 @@
  * │ the range's mix, GTO's ticks                   │ an action per row: a slider    │
  * │ 13×13 grid (paint, locked edges)               │ with GTO's tick, the typed %,  │
  * │ or the classes, or one hand's combos           │ hold; Suggestions              │
- * ├ Earlier nodes [..] · Accuracy [..] · the plan, the engine · ≈ time [Solve] ┤
+ * ├ Earlier nodes [..] · Accuracy [..] · Speed [..] · the plan, what it uses · ≈ time [Solve] ┤
  * ```
  *
  * The head names no decision: the library's action strip above says which
@@ -50,7 +50,7 @@ import type { LockEarlier, LockSet, NodelockSummary, RangeLock, RangeShift } fro
 import { actionsFromLabels, carryStrategy, isLibrary, passiveActions, sizeAction, sortActions, withActions } from "./editor/sizes";
 import { editorReducer, fromLockArrays, initialState, lockedCount, sameStrategy, sharesOf, strategyToSolve, type EditorAction, type EditorState } from "./editor/state";
 import { initialRangeEdit, rangeEditLocks, rangeEditReducer, rangeShifts, shiftPp } from "./editor/ranges";
-import { engineInfo, type EngineInfo } from "./engine";
+import { engineInfo, loadSpeed, saveSpeed, SOLVE_SPEEDS, type EngineInfo, type SolveSpeed } from "./engine";
 import { lockHash, rangesHash, withLockRanges } from "./engine/door";
 import styles from "./Editor.module.css";
 import { nodelockData } from "./data";
@@ -118,12 +118,14 @@ function useFrame(): CSSProperties {
 /**
  * About how long the solve takes, in seconds, with the native engine (the
  * workers' pace depends too much on the computer to say): a flop game ≈ 75 s
- * at 1 % of the pot, a turn game on the flop's result ≈ 3 s, each scaled by
- * (1 / accuracy)^0.75. Null for the workers, or before the engine is known.
+ * at 1 % of the pot on all cores but one, a turn game on the flop's result
+ * ≈ 3 s, each scaled by (1 / accuracy)^0.75 and by the speed's share of
+ * those threads. Null for the workers, or before the engine is known.
  */
-function estimateSeconds(info: EngineInfo | null, game: "flop" | "turn", accuracy: number): number | null {
+function estimateSeconds(info: EngineInfo | null, speed: SolveSpeed, game: "flop" | "turn", accuracy: number): number | null {
   if (info?.kind !== "native" || !(accuracy > 0)) return null;
-  return (game === "flop" ? 75 : 3) * (1 / accuracy) ** 0.75;
+  const threads = Math.max(1, info.speeds[speed].threads);
+  return (game === "flop" ? 75 : 3) * (1 / accuracy) ** 0.75 * (Math.max(1, info.cores - 1) / threads);
 }
 
 /** Undo (back) and Redo: a curved arrow. */
@@ -199,6 +201,8 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
   const [klass, setKlass] = useState<ClassId | null>(null);
   const [earlier, setEarlier] = useState<LockEarlier>(open.from?.lockSet.earlier ?? "player");
   const [accuracy, setAccuracy] = useState<number>(open.from?.lockSet.targetPct ?? 1);
+  /** How hard the solve works this computer (#409): kept on it, Medium by default. */
+  const [speed, setSpeed] = useState<SolveSpeed>(loadSpeed);
   const [info, setInfo] = useState<EngineInfo | null>(null);
   const [suggested, setSuggested] = useState<NodelockSuggestion | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -787,10 +791,10 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
   }
 
   const running = session.running;
-  const memoryMb = info?.memoryMb ?? 0;
+  const speedLine = (x: SolveSpeed) => (info ? t.speedLine(info.speeds[x].threads, info.cores, info.speeds[x].memoryMb) : "");
   // The game the solve runs: a flop lock's flop, else the turn's (a river lock solves the turn's game too).
   const game = footer ? (footer.kind === "builds" ? "turn" : footer.street) : target.street === "flop" ? "flop" : "turn";
-  const estimate = estimateSeconds(info, game, accuracy);
+  const estimate = estimateSeconds(info, speed, game, accuracy);
 
   return (
     <dialog
@@ -955,10 +959,23 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
             onChange={(x) => setAccuracy(Number(x))}
           />
         </div>
+        <div className={styles.footGroup}>
+          <span className={styles.label}>{t.speedLabel}</span>
+          <Segmented
+            size="sm"
+            label={t.speedLabel}
+            value={speed}
+            options={SOLVE_SPEEDS.map((x) => ({ value: x, label: t.speeds[x], title: speedLine(x) || undefined }))}
+            onChange={(x) => {
+              setSpeed(x);
+              saveSpeed(x);
+            }}
+          />
+        </div>
         <div className={styles.footText}>
           {target.street !== "flop" && rangesMoved ? <p className={styles.planLine}>{t.ranges.turnFirst}</p> : footer ? <p className={styles.planLine}>{footerLine(t, footer)}</p> : null}
           <p className={message ? styles.message : styles.engineLine} role={message ? "alert" : undefined}>
-            {message ?? (running ? t.queued : info === null ? "" : info.kind === null ? t.noEngine : t.engineLine(info.threads, info.cores, memoryMb))}
+            {message ?? (running ? t.queued : info === null ? "" : info.kind === null ? t.noEngine : speedLine(speed))}
           </p>
         </div>
         {estimate !== null ? <span className={styles.estimate}>{t.estimate(estimate)}</span> : null}

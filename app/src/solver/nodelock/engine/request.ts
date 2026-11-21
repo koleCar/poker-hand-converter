@@ -31,6 +31,10 @@ export interface NativeRequest {
   /** The result chunk's header (`nodelockHeader`, `lockHash` in it), as `JSON.stringify` writes it. */
   header: string;
   options: { maxIterations: number | undefined; targetPct: number | undefined; checkFrom: number | undefined; checkEvery: number | undefined; dcfr: { alpha: number; beta: number; gamma: number } };
+  /** Worker threads (the solve's speed, `speed.ts`); absent: all cores but one. */
+  threads?: number;
+  /** Storage; absent: float32 when it fits the memory budget, else 16-bit (a flop lock), float32 (a turn). */
+  storage?: "f32" | "i16";
 }
 
 /**

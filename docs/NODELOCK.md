@@ -310,7 +310,9 @@ plus:
 ### 2.5 The two engines
 
 - **Worker engine** (`app/src/solver/nodelock/engine/`): a pool of
-  `navigator.hardwareConcurrency - 1` module workers in the app's webview.
+  `navigator.hardwareConcurrency - 1` module workers in the app's webview
+  (since #409 the app's pool has one per core, and a solve uses as many as
+  its speed says, §5.2).
   - Messages are transferable `Float32Array`s, with no SharedArrayBuffer (the
     webview is not cross-origin isolated).
   - It is the fallback, and the first engine to ship.
@@ -572,9 +574,30 @@ With the native engine the bar says about how long the solve takes
 - **Footer.**
   - "Lock earlier nodes": None / This player's / All (default This player's).
   - Accuracy: Standard 1 % / Quick 2.5 %.
-  - Primary **Solve on this computer**, with the engine line underneath:
-    "Uses up to 9 of 10 cores and about 1.2 GB. Nothing leaves this
-    computer."
+  - Speed: Slow / Medium / Fast (default Medium), kept on this computer
+    (`engine/speed.ts`, #409). Beside it what the speed uses: "9 of 10
+    cores · about 1.1 GB" (each option's tooltip says it too).
+  - Primary **Solve on this computer**.
+
+**Speed (#409).** The owner asked for the user to choose how much of the
+computer a solve takes, so it need not take all of its memory:
+
+| Speed | Threads | A flop lock, native | A flop lock, workers |
+|---|---|---|---|
+| Slow | half the cores | 16-bit, ~1.1 GB | ~1.05 GB + 70 MB a worker |
+| Medium (default) | all cores but one | 16-bit, ~1.1 GB | same rule |
+| Fast | every core | float32 when it fits two fifths of the memory (~3.1 GB), else 16-bit | same rule |
+
+- The request carries `speed`; the native engine sends `threads` and, for a
+  flop lock below Fast, `storage: "i16"` (`rail_solver::nodelock::NodelockRequest`
+  already reads both, no Rust change). The worker pool holds a worker per
+  core and splits over the speed's count; workers past it are stopped.
+- Float32 bought no speed in §0's measurement (75 s vs 73 s at 9 threads):
+  threads make the difference, memory is what Fast spends.
+- A turn or river lock is small at any speed and keeps its storage.
+- Another speed is another warm key (threads, storage): the next solve is
+  cold.
+- The `≈` estimate scales by (cores − 1) / the speed's threads.
 
 ### 5.3 Solving
 - The solve does not block. Progress shows the iteration, accuracy, elapsed

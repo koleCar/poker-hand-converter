@@ -597,7 +597,7 @@
 
 .footText {
   display: grid;
-  flex: 1 1 16rem;
+  flex: 1 1 10rem;
   gap: 2px;
   min-inline-size: 0;
 }
