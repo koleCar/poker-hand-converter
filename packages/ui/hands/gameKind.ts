@@ -107,6 +107,17 @@ export function withFormats(filter: FilterState, next: readonly string[], facets
 }
 
 /**
+ * The filter held to a kind the surface keeps itself (the desktop's, chosen
+ * in its sidebar): the formats chosen when every one is of that kind (the
+ * Game chip narrowing within it), else the whole kind - the formats the
+ * hands have, every one when unknown.
+ */
+export function holdKind(filter: FilterState, kind: GameKind, facets: HandFacets | null): FilterState {
+  const own = filter.formats.length > 0 && filter.formats.every((format) => kindOfFormat(format) === kind);
+  return own ? filter : withKind(filter, kind, facets);
+}
+
+/**
  * The filter the screen shows: as chosen when it holds one kind (or the hands
  * hold only one), else narrowed to the kind with more hands - among the
  * formats chosen, when some are. `defaulted` says the screen picked it.

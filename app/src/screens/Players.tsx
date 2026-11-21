@@ -6,6 +6,7 @@
  * definitions, the open player in the address (`#/players/<site>:<name>`,
  * which is how the command palette and the HUD popup open one), the
  * rebuild and indexing notices, and "hands with this player" into Hands.
+ * Only the kind of game chosen in the sidebar (`lib/gameKind.ts`).
  */
 import { useEffect, useState } from "react";
 import { withKind } from "@rail/ui/hands/gameKind";
@@ -16,6 +17,7 @@ import { RecomputeNotice, recomputing } from "../components/RecomputeNotice";
 import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
 import { useRowHeight } from "../lib/appearance";
+import { useAppKind } from "../lib/gameKind";
 import { inApp, ipc, type StatsStatus } from "../lib/ipc";
 import { storePlayersSource } from "../lib/playersSource";
 import { go, replaceParam, useRouteParam } from "../lib/router";
@@ -58,6 +60,7 @@ export function Players() {
   const definitions = useStatDefinitions();
   const rebuild = useRebuild();
   const rowHeight = useRowHeight();
+  const { kind } = useAppKind();
 
   if (!inApp) {
     return (
@@ -76,8 +79,11 @@ export function Players() {
     </p>
   ) : null;
 
+  if (kind === null) return <StateMessage kind="loading">{p.loading}</StateMessage>;
+
   return (
     <PlayersScreen
+      kind={kind === "cash" ? "cash" : "chips"}
       source={storePlayersSource}
       definitions={definitions}
       selected={selected}

@@ -823,11 +823,6 @@
   line-height: var(--line-height-tight);
 }
 
-.rp__pot-total {
-  font-size: var(--fs-pot-label);
-  color: rgb(232 238 246 / 60%);
-}
-
 .rp__boards {
   display: flex;
   flex-direction: column;
@@ -977,6 +972,13 @@
 
 .pseat .pcard {
   --card-w: var(--seat-card);
+}
+
+/* No cards (folded, or not dealt yet): the backs keep their room, unseen, so
+   the plate never moves. */
+.pseat__cards--gone {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 /* Face-down cards carry no information, so a covered PLO6 hand closes up to
@@ -1208,18 +1210,11 @@
 }
 
 .pseat__odds b {
-  font-size: 1.36em;
+  font-size: 1.12em;
   font-weight: 750;
   color: rgb(232 246 238 / 50%);
 }
 
-/* A narrow portrait felt stacks it on two lines. */
-.rp[data-shape="tall"] .pseat__odds {
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-  line-height: 1.15;
-}
 
 /* ------------------------------------------------------- cards on the felt */
 
@@ -1553,6 +1548,21 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  /* Press and hold scrubs (`useHoldToScrub`): the page must not pan, select
+     or open a callout under the finger meanwhile. */
+  touch-action: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Scrubbing from a button: the fill follows the finger without lag, and the
+   button it started on lets go of its hover. */
+.rp__transport[data-scrubbing] .rp__progress {
+  transition: none;
+}
+
+.rp__transport[data-scrubbing] .rp__tb {
+  background: transparent;
 }
 
 /* A phone held upright: a full-width strip under the felt. */

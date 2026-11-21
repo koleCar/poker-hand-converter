@@ -41,6 +41,8 @@ interface FilterBarProps {
   onChange: (filter: FilterState) => void;
   /** What the surface can filter by: the row's groups are `filterGroups` of it. */
   features: HandsFeatures;
+  /** Groups left out of the row and the builder (`groupsHiddenFor`: the tournament ones while the desktop shows cash). */
+  hideGroups?: readonly GroupId[];
   /** Whose saved filters the row lists. */
   screen?: FilterScreen;
   /** Where saved filters are kept; none, no saved filters. */
@@ -76,6 +78,7 @@ export function FilterBar({
   facets,
   onChange,
   features,
+  hideGroups,
   screen = "hands",
   saved,
   loadFacets,
@@ -84,7 +87,10 @@ export function FilterBar({
   const t = words.hands.filters;
   const savedState = useSavedFilters(saved, screen);
   const [builder, setBuilder] = useState<{ pane: PaneId | undefined } | null>(null);
-  const groups = useMemo(() => filterGroups(features), [features]);
+  const groups = useMemo(
+    () => filterGroups(features).filter((group) => !hideGroups?.includes(group)),
+    [features, hideGroups],
+  );
   const rowGroups = useMemo(() => groups.filter((group) => group !== "sort"), [groups]);
   const quick = useMemo(() => quickFor(rowGroups), [rowGroups]);
   const set = shownSet(rowGroups, filter, facets);

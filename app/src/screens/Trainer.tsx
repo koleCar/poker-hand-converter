@@ -16,7 +16,8 @@ import { storedSettings, useAppTrainerHost, useOutboxFlush } from "../trainer/ho
 export function Trainer() {
   const t = useT();
   const [initial] = useState(storedSettings);
-  const kinds = useAppKind(null, true);
+  // "For you" deals the leaks of the kind of game chosen in the sidebar.
+  const kinds = useAppKind();
   const host = useAppTrainerHost(kinds.kind);
   useOutboxFlush();
   // "For you" reads one kind of game's leaks: wait for the kind (a moment, once).

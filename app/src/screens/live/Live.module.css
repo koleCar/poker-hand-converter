@@ -90,41 +90,6 @@
   }
 }
 
-/* The Cash | Tournaments switch (`KindSwitch`) as one pill: the two buttons
-   side by side with a straight line between them, the active one filled. */
-.kinds {
-  display: inline-flex;
-  margin-inline-start: auto;
-  overflow: hidden;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-pill);
-  background: var(--surface-raised);
-}
-
-.kinds :global(.chip-btn) {
-  padding: var(--space-1-5, 6px) var(--space-4);
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-}
-
-.kinds :global(.chip-btn) + :global(.chip-btn) {
-  border-inline-start: 1px solid var(--border-default);
-}
-
-.kinds :global(.chip-btn.is-active) {
-  background: var(--surface-selected);
-  color: var(--text-on-selected);
-  font-weight: var(--font-weight-semibold);
-}
-
-.kinds :global(.chip-btn:disabled) {
-  cursor: default;
-  opacity: 0.4;
-}
-
 .muted {
   color: var(--text-secondary);
 }

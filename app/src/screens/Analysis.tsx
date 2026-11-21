@@ -10,17 +10,18 @@
  * shell shows "not during play" in its place while a poker table is open,
  * and the sidebar and the palette leave it out; the shared screens are also
  * told (`hiddenDuringPlay`: they read nothing).
+ *
+ * Every section shows the kind of game chosen in the sidebar
+ * (`lib/gameKind.ts`); none has a Cash | Tournaments switch of its own.
  */
 import { BombPotsTab, MultiwayTab } from "./analysis/PotKinds";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import { kindFormats, kindOf, type GameKind } from "@rail/ui/hands/gameKind";
-import { KindSwitch } from "@rail/ui/hands/KindSwitch";
+import { kindFormats } from "@rail/ui/hands/gameKind";
 import { useUiStrings } from "@rail/ui/i18n";
 import { shippedChartDeviations, type SessionQuery } from "@rail/ui/review/model";
 import { SessionReviewScreen, type HandLinkProps } from "@rail/ui/review/SessionReviewScreen";
 
 import { ChosenLink, HandTable } from "../components/HandTable";
-import headerStyles from "../components/ScreenHeader.module.css";
 import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
 import { onAnalysisRows } from "../analysis/service";
@@ -114,9 +115,8 @@ function useRowsWritten(): number {
 
 /**
  * The header row (2026-11-07): the sections' tabs on the left, the
- * section's own toggle on the right (the session's Cash | Tournaments);
- * the run's status under it, or (hidden, 2026-11-18) the button that
- * shows it again at the row's end.
+ * section's own controls on the right; the run's status under it, or
+ * (hidden, 2026-11-18) the button that shows it again at the row's end.
  */
 function AnalysisNav({ current, end }: { current: AnalysisView["kind"]; end?: ReactNode }) {
   const t = useT();
@@ -161,16 +161,13 @@ function Session({
 }) {
   const t = useT();
   const ui = useUiStrings();
-  // One kind of game at a time (`lib/gameKind.ts`): the switch's, else the
-  // last shown, else the one with more hands.
-  const [askedKind, setAskedKind] = useState<GameKind | null>(null);
-  const kinds = useAppKind(askedKind, inApp && !hidden, reload);
+  // One kind of game at a time: the sidebar's (`lib/gameKind.ts`).
+  const { kind } = useAppKind();
   const query: SessionQuery | null = useMemo(
-    () => (kinds.kind === null ? null : { at: view.at, gapMinutes: view.gap, filter: { formats: kindFormats(kinds.kind) } }),
-    [view.at, view.gap, kinds.kind],
+    () => (kind === null ? null : { at: view.at, gapMinutes: view.gap, filter: { formats: kindFormats(kind) } }),
+    [view.at, view.gap, kind],
   );
   const onQuery = useCallback((next: SessionQuery) => {
-    setAskedKind(kindOf(next.filter.formats ?? []));
     replaceParam("analysis", viewParam({ kind: "session", at: next.at, gap: next.gapMinutes }));
   }, []);
 
@@ -190,31 +187,17 @@ function Session({
     [],
   );
 
-  // The Cash | Tournaments switch, in the header row (the review's own is not shown).
-  const kindSwitch = hidden ? null : (
-    <KindSwitch
-      kind={kinds.kind}
-      counts={kinds.counts}
-      className={headerStyles.toggle}
-      onChange={(kind) =>
-        query === null
-          ? setAskedKind(kind)
-          : onQuery({ ...query, at: null, filter: { ...query.filter, formats: kindFormats(kind) } })
-      }
-    />
-  );
-
   if (query === null) {
     return (
       <>
-        {nav(kindSwitch)}
+        {nav()}
         <StateMessage kind="loading">{ui.review.loading}</StateMessage>
       </>
     );
   }
 
   return (
-    <HandTable resetKey={`${view.at ?? ""}|${kinds.kind ?? ""}`}>
+    <HandTable resetKey={`${view.at ?? ""}|${kind ?? ""}`}>
       <SessionReviewScreen
         source={storeReviewSource}
         deviationSource={shippedChartDeviations}
@@ -223,7 +206,7 @@ function Session({
         renderHandLink={renderHandLink}
         title={t.analysis.tabs.session}
         hideTitle
-        notice={nav(kindSwitch)}
+        notice={nav()}
         reloadToken={reload}
         coverageAction={<span>{t.analysis.session.notAnalysed}</span>}
         hiddenDuringPlay={hidden}

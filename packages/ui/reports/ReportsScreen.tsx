@@ -19,7 +19,9 @@
  * the web always refused it (chips with cash: no result; two currencies: big
  * blinds only). On a library with both cash and tournaments the report
  * shows one kind - the Cash / Tournaments toggle's, else the one with more
- * hands (`hands/gameKind.ts`) - so there is always a result and a graph.
+ * hands (`hands/gameKind.ts`) - so there is always a result and a graph. A
+ * surface that keeps the kind itself (the desktop's sidebar) passes it as
+ * `kind`, and the screen has no toggle of its own.
  *
  * The desktop app's screen (R2.7b, `app/src/screens/Reports.tsx` before
  * R4.5c), lifted out of it: the filter, the tab and where they live (the
@@ -32,7 +34,8 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { FilterBar } from "../hands/FilterBar";
 import { EMPTY_FILTER, activeGroups, toQuery, type FilterState } from "../hands/filter";
 import { bigBlindsIn, countIn, signedMoney, unitOf } from "../hands/format";
-import { pinKind } from "../hands/gameKind";
+import { pinKind, type GameKind } from "../hands/gameKind";
+import { groupsHiddenFor, holdSurfaceKind } from "../hands/groups";
 import { KindToggle } from "../hands/KindToggle";
 import type { HandFacets, HandFilter } from "../hands/model";
 import { useUiStrings } from "../i18n";
@@ -77,6 +80,11 @@ export interface ReportsScreenProps {
    * Cash | Tournaments toggle on the right.
    */
   hideTitle?: boolean;
+  /**
+   * The kind of game the surface shows, chosen elsewhere (the desktop's
+   * sidebar): the report holds to it and has no Cash / Tournaments toggle.
+   */
+  kind?: GameKind;
   /** Under the filters: the surface's lines (a recompute, a rebuild). */
   notice?: ReactNode;
   /** No hands at all, in the surface's words. */
@@ -108,6 +116,7 @@ export function ReportsScreen({
   title,
   titleTag: Title = "h1",
   hideTitle = false,
+  kind,
   notice,
   emptyText,
   renderState,
@@ -123,7 +132,13 @@ export function ReportsScreen({
   // Cash and tournaments never add up: a filter that does not pick one kind
   // shows the one with more hands, and the toggle says which (the Game
   // chip's counts, which leave its own choice out, decide).
-  const filter = useMemo(() => pinKind(chosen ?? EMPTY_FILTER, facetsSeen).filter, [chosen, facetsSeen]);
+  const filter = useMemo(
+    () =>
+      kind === undefined
+        ? pinKind(chosen ?? EMPTY_FILTER, facetsSeen).filter
+        : holdSurfaceKind(chosen ?? EMPTY_FILTER, kind, facetsSeen),
+    [chosen, kind, facetsSeen],
+  );
   const query = useMemo(() => toQuery(filter), [filter]);
   // The first report waits for the counts that pick its kind.
   const state = useReport(source, query, facetsSeen !== null, reloadToken);
@@ -177,13 +192,14 @@ export function ReportsScreen({
         ) : null}
         {refetching ? <RailLoader size="inline" label={r.loading} /> : null}
         {hideTitle ? <span className={styles.spacer} /> : null}
-        <KindToggle filter={filter} facets={facetsSeen} onChange={onChoose} />
+        {kind === undefined ? <KindToggle filter={filter} facets={facetsSeen} onChange={onChoose} /> : null}
       </header>
       <FilterBar
         filter={filter}
         facets={facets}
         onChange={onChoose}
         features={source.filters}
+        hideGroups={groupsHiddenFor(kind)}
         screen="reports"
         saved={source.savedFilters}
         loadFacets={loadFacets}

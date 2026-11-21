@@ -11,6 +11,7 @@ import { EMPTY_FILTER } from "@rail/ui/hands/filter";
 import {
   defaultKind,
   hasBothKinds,
+  holdKind,
   isKindFormats,
   isWholeKind,
   kindCounts,
@@ -21,6 +22,7 @@ import {
   withFormats,
   withKind,
 } from "@rail/ui/hands/gameKind";
+import { groupsHiddenFor, holdSurfaceKind } from "@rail/ui/hands/groups";
 import { KindSwitch } from "@rail/ui/hands/KindSwitch";
 import { KindToggle } from "@rail/ui/hands/KindToggle";
 import type { HandFacets } from "@rail/ui/hands/model";
@@ -66,6 +68,37 @@ describe("the Game chip, kept to one kind", () => {
     expect(isWholeKind({ ...EMPTY_FILTER, formats: ["sng"] }, both)).toBe(false);
     expect(isWholeKind({ ...EMPTY_FILTER, formats: ["cash"] }, both)).toBe(true);
     expect(isWholeKind(EMPTY_FILTER, both)).toBe(false);
+  });
+});
+
+describe("a kind the surface keeps itself (the desktop's sidebar)", () => {
+  const both = facets({ cash: 10, tournament: 5, sng: 3 });
+
+  it("holds the filter to it: a narrower choice within it stays, anything else is the whole kind", () => {
+    expect(holdKind({ ...EMPTY_FILTER, formats: ["sng"] }, "tournament", both).formats).toEqual(["sng"]);
+    expect(holdKind({ ...EMPTY_FILTER, formats: ["cash"] }, "tournament", both).formats).toEqual(["tournament", "sng"]);
+    expect(holdKind({ ...EMPTY_FILTER, formats: ["cash", "sng"] }, "cash", both).formats).toEqual(["cash"]);
+    expect(holdKind(EMPTY_FILTER, "cash", both).formats).toEqual(["cash"]);
+    expect(holdKind(EMPTY_FILTER, "tournament", null).formats).toEqual(["tournament", "sng", "spin"]);
+  });
+
+  it("cash hides the Tournament pane's groups; tournaments keep them", () => {
+    expect(groupsHiddenFor("cash")).toEqual(["buyIn", "bounty", "levels"]);
+    expect(groupsHiddenFor("tournament")).toBeUndefined();
+    expect(groupsHiddenFor(undefined)).toBeUndefined();
+  });
+
+  it("a buy-in, bounty or level chosen earlier does not narrow the cash hands", () => {
+    const filter = { ...EMPTY_FILTER, buyIn: ">10", bounty: true, levels: ["early"], positions: ["BTN"] };
+    const cash = holdSurfaceKind(filter, "cash", both);
+    expect([cash.buyIn, cash.bounty, cash.levels, cash.positions, cash.formats]).toEqual(["", null, [], ["BTN"], ["cash"]]);
+    const chips = holdSurfaceKind(filter, "tournament", both);
+    expect([chips.buyIn, chips.bounty, chips.levels]).toEqual([">10", true, ["early"]]);
+  });
+
+  it("keeps every other choice", () => {
+    const filter = { ...EMPTY_FILTER, positions: ["BTN"], formats: ["cash"] };
+    expect(holdKind(filter, "tournament", both).positions).toEqual(["BTN"]);
   });
 });
 

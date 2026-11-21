@@ -1327,6 +1327,12 @@ export const analysisEn = {
   },
 
   /** The river study (A4): the hero's range at a solved river node. */
+  /** The grid's hover (`@rail/ui` ComboZoom): the class box's combos, the hero's tag, each action in a word (its size follows). */
+  zoom: {
+    combos: (n: number) => `${num(n, n % 1 === 0 ? 0 : 1)} ${n === 1 ? "combo" : "combos"}`,
+    you: "you",
+    actions: { bet: "Bet", raise: "Raise", allin: "All-in", check: "Check", call: "Call", fold: "Fold" } as Record<string, string>,
+  },
   river: {
     study: "Study the river",
     hideStudy: "Hide the study",

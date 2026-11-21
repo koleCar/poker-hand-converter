@@ -17,6 +17,7 @@
  */
 import { Icon } from "@rail/ui/icon/Icon";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
+import { ComboCards, GridZoom, aggressiveFirst, zoomAnchor, type ZoomAction, type ZoomAnchor, type ZoomCombo } from "@rail/ui/charts/ComboZoom";
 import { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
 import { useLocale, useT } from "../../i18n";
@@ -25,7 +26,6 @@ import {
   actionColours,
   availableArchetypes,
   cardIndex,
-  ComboText,
   DRAWS,
   HAND_CLASSES,
   IconButton,
@@ -190,6 +190,9 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
     setHeld(target.actions.map(() => false));
   }
   const [cell, setCell] = useState<number | null>(null);
+  /** The hovered cell measured for the zoom (GTO Wizard's hover); none while a brush stroke paints. */
+  const [zoom, setZoom] = useState<ZoomAnchor | null>(null);
+  const zoomWrap = useRef<HTMLDivElement>(null);
   const [klass, setKlass] = useState<ClassId | null>(null);
   const [earlier, setEarlier] = useState<LockEarlier>(open.from?.lockSet.earlier ?? "player");
   const [accuracy, setAccuracy] = useState<number>(open.from?.lockSet.targetPct ?? 1);
@@ -229,6 +232,23 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
   }, []);
 
   const colours = useMemo(() => actionColours(target.actions.map((a) => ({ kind: a.kind, amount: a.amount }))), [target]);
+  const zoomActions = useMemo<ZoomAction[]>(
+    () => target.actions.map((a, k) => ({ label: a.name, size: a.kind === "bet" ? solverT.zoom.size(a.amount) : null, className: colours[k] })),
+    [target, colours, solverT],
+  );
+  const zoomOrder = useMemo(() => aggressiveFirst(target.actions.map((a) => ({ kind: a.kind, size: a.amount }))), [target]);
+  const zoomWords = { combos: solverT.zoom.combos, you: solverT.you };
+  /** A hand of the grid as a combo card: its cards, its mix now, a lock when it is locked. */
+  const comboOf = (i: number): ZoomCombo => ({
+    cards: target.cards[i],
+    freq: state.strategy.map((row) => row[i]),
+    label: t.cellLabel(target.cards[i], mixLabel(state.strategy.map((row) => row[i])), Boolean(state.locked[i])),
+    mark: state.locked[i] ? (
+      <span className={styles.zoomLock} aria-hidden="true">
+        <LockGlyph />
+      </span>
+    ) : null,
+  });
   /** Inside a lock: what the solve will be (§7.4), for the footer's line; the strategy does not change it. */
   const footer = useMemo(() => {
     if (!open.within) return null;
@@ -617,7 +637,10 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
       className={`${solverStyles.grid} ${styles.grid}`}
       role="grid"
       aria-label={t.editorLabel(target.position)}
-      onPointerLeave={() => (painting.current = false)}
+      onPointerLeave={() => {
+        painting.current = false;
+        setZoom(null);
+      }}
     >
       {Array.from({ length: 13 }, (_, row) => (
         <div key={row} role="row" className={solverStyles.gridRow}>
@@ -647,10 +670,12 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
                     if (mode !== "hands" || view === "combos") return;
                     event.preventDefault();
                     painting.current = true;
+                    setZoom(null);
                     paint(c.hands, false);
                   }}
-                  onPointerEnter={() => {
+                  onPointerEnter={(event) => {
                     if (painting.current && mode === "hands" && view !== "combos") paint(c.hands, true);
+                    else if (!painting.current && zoomWrap.current) setZoom(zoomAnchor(k, event.currentTarget, zoomWrap.current));
                   }}
                   onClick={(event) => {
                     // A paint happened on pointer down; a keyboard click paints here.
@@ -714,38 +739,36 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
   } else {
     main = (
       <div className={view === "combos" ? styles.gridWithCombos : styles.gridOnly}>
-        {grid}
+        <div ref={zoomWrap} className={solverStyles.gridZoomWrap}>
+          {grid}
+          {zoom && cells[zoom.cell]?.hands.length ? (
+            <GridZoom
+              anchor={zoom}
+              name={cells[zoom.cell].name}
+              count={cells[zoom.cell].hands.length}
+              freq={mixOf(target, state, cells[zoom.cell].hands).mix}
+              combos={cells[zoom.cell].hands.map(comboOf)}
+              actions={zoomActions}
+              order={zoomOrder}
+              words={zoomWords}
+              locale={locale}
+            />
+          ) : null}
+        </div>
         {view === "combos" ? (
           cell !== null && cells[cell].hands.length ? (
-            <ul className={styles.tiles} aria-label={cells[cell].name}>
-              {cells[cell].hands.map((i) => {
-                const mix = state.strategy.map((row) => row[i]);
-                return (
-                  <li key={i}>
-                    <button
-                      type="button"
-                      className={`${styles.tile} ${state.locked[i] ? styles.tileLocked : ""}`}
-                      aria-label={t.cellLabel(target.cards[i], mixLabel(mix), Boolean(state.locked[i]))}
-                      onClick={() => (mode === "hands" ? paint([i], false) : dispatch({ type: "toggleLock", hands: [i] }))}
-                    >
-                      <span className={styles.tileFill} aria-hidden="true">
-                        {mix.map((x, a) => (
-                          <span key={a} className={colours[a]} style={{ blockSize: `${x * 100}%` }} />
-                        ))}
-                      </span>
-                      <span className={styles.tileCards}>
-                        <ComboText cards={target.cards[i]} />
-                      </span>
-                      {state.locked[i] ? (
-                        <span className={styles.badge} aria-hidden="true">
-                          <LockGlyph />
-                        </span>
-                      ) : null}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+            <ComboCards
+              label={cells[cell].name}
+              combos={cells[cell].hands.map(comboOf)}
+              actions={zoomActions}
+              order={zoomOrder}
+              words={zoomWords}
+              onPick={(_, n) => {
+                const i = cells[cell].hands[n];
+                if (mode === "hands") paint([i], false);
+                else dispatch({ type: "toggleLock", hands: [i] });
+              }}
+            />
           ) : (
             <p className={styles.hint}>{t.pickCell}</p>
           )

@@ -12,6 +12,8 @@
  * On a library with both cash and tournaments the list shows one kind - the
  * Cash / Tournaments toggle's, else the one with more hands
  * (`gameKind.ts`); the filter the surface keeps is narrowed when it is read.
+ * A surface that keeps the kind itself (the desktop's sidebar) passes it as
+ * `kind`, and the screen has no toggle of its own.
  *
  * The desktop app's screen (R2.7a, `app/src/screens/Hands.tsx` before
  * R4.5b), lifted out of it.
@@ -21,7 +23,8 @@ import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
 import { FilterBar } from "./FilterBar";
 import { activeGroups, toQuery, type FilterState } from "./filter";
-import { kindOf, pinKind } from "./gameKind";
+import { kindOf, pinKind, type GameKind } from "./gameKind";
+import { groupsHiddenFor, holdSurfaceKind } from "./groups";
 import { HandSessionsContext } from "./sessions";
 import type { MenuPoint } from "./ContextMenu";
 import { HandList } from "./HandList";
@@ -39,6 +42,11 @@ export interface HandsScreenProps {
   source: HandsSource;
   filter: FilterState;
   onFilterChange: (filter: FilterState) => void;
+  /**
+   * The kind of game the surface shows, chosen elsewhere (the desktop's
+   * sidebar): the list holds to it and has no Cash / Tournaments toggle.
+   */
+  kind?: GameKind;
   /** The hand open beside the list (its row key), if any. */
   selected: string | null;
   onSelect: (handKey: string) => void;
@@ -98,6 +106,7 @@ export function HandsScreen({
   source,
   filter: chosen,
   onFilterChange,
+  kind,
   selected,
   onSelect,
   onOpen,
@@ -126,7 +135,10 @@ export function HandsScreen({
   // shows the one with more hands (the Game chip's counts, which leave its
   // own choice out, decide; the first page waits for them).
   const [facetsSeen, setFacetsSeen] = useState<HandFacets | null>(null);
-  const filter = useMemo(() => pinKind(chosen, facetsSeen).filter, [chosen, facetsSeen]);
+  const filter = useMemo(
+    () => (kind === undefined ? pinKind(chosen, facetsSeen).filter : holdSurfaceKind(chosen, kind, facetsSeen)),
+    [chosen, kind, facetsSeen],
+  );
   // A date preset is resolved when the filter is set ("last 7 days" from now).
   // The pot and the result sort in the unit the list shows (`$` sorts by
   // money, not by big blinds); other orders do not refetch on the toggle.
@@ -256,7 +268,7 @@ export function HandsScreen({
               {moneySymbol ?? t.units.money}
             </button>
           </div>
-          <KindToggle filter={filter} facets={facets} onChange={onFilterChange} />
+          {kind === undefined ? <KindToggle filter={filter} facets={facets} onChange={onFilterChange} /> : null}
           {onRowsMenu && list.rows.length > 0 ? (
             <button
               type="button"
@@ -281,6 +293,7 @@ export function HandsScreen({
           facets={facets}
           onChange={onFilterChange}
           features={source.features}
+          hideGroups={groupsHiddenFor(kind)}
           saved={source.savedFilters}
           sorts={source.features.sorts}
           loadFacets={loadFacets}

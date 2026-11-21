@@ -3,10 +3,10 @@
  * cards — only while the hero has a decision (design 7, round 2).
  *
  * No box and no pill: a box over the felt competed with the board for the
- * eye, and the number is something you glance at, not read. Facing a bet it is
- * the equity a call needs and the price (`29% to call · 2.5 : 1`); when hero's
- * own bet is the one standing, the fold rate a bluff needs
- * (`40% folds for a bluff`). The maths is `potOdds.ts`.
+ * eye, and the number is something you glance at, not read. Only the share is
+ * printed: facing a bet, the equity a call needs (`29%`); when hero's own bet
+ * is the one standing, the fold rate a bluff needs (`40%`). The words and the
+ * price stay in the accessible label. The maths is `potOdds.ts`.
  *
  * Not a live region: it changes on most steps, and the replayer's caption
  * (read to a screen reader only) already narrates the action.
@@ -32,7 +32,6 @@ export function PotOddsPrint({ odds }: { odds: PotOdds }) {
     return (
       <span className="pseat__odds" role="note" aria-label={words.facingLabel(share, ratio)}>
         <b aria-hidden="true">{share}</b>
-        <span aria-hidden="true">{`${words.toCall} · ${ratio} : 1`}</span>
       </span>
     );
   }
@@ -41,7 +40,6 @@ export function PotOddsPrint({ odds }: { odds: PotOdds }) {
   return (
     <span className="pseat__odds" role="note" aria-label={words.bluffLabel(share)}>
       <b aria-hidden="true">{share}</b>
-      <span aria-hidden="true">{words.bluff}</span>
     </span>
   );
 }
