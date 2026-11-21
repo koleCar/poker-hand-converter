@@ -6,7 +6,8 @@
  * tab in the address (`#/reports/<tab>`, which is how the command palette
  * opens one), the filter kept while the app runs and the one the palette
  * hands over, the recompute notice, and the starting hands hidden while a
- * poker table is open (A10).
+ * poker table is open (A10). Only the hands of the kind of game chosen in
+ * the sidebar (`lib/gameKind.ts`).
  */
 import { useEffect, useState } from "react";
 import { ReportsScreen, isTab, type Tab } from "@rail/ui/reports/ReportsScreen";
@@ -17,6 +18,7 @@ import { RecomputeNotice, useRecompute } from "../components/RecomputeNotice";
 import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
 import { hiddenDuringPlay } from "../lib/duringPlay";
+import { useAppKind } from "../lib/gameKind";
 import { inApp } from "../lib/ipc";
 import { storeReportSource } from "../lib/reportSource";
 import { replaceParam, useRouteParam } from "../lib/router";
@@ -58,6 +60,7 @@ export function Reports() {
   );
   const definitions = useStatDefinitions();
   const rebuild = useRecompute();
+  const { kind } = useAppKind();
   const tablesOpen = useTablesOpen();
   // (R6.4) The breakdowns by situation are full reports (Pro); the rest of
   // the screen is the basic statistics, free on every plan.
@@ -84,8 +87,11 @@ export function Reports() {
     );
   }
 
+  if (kind === null) return <StateMessage kind="loading">{r.loading}</StateMessage>;
+
   return (
     <ReportsScreen
+      kind={kind}
       source={storeReportSource}
       definitions={definitions}
       chosen={chosen}

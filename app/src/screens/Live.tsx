@@ -3,8 +3,8 @@
  * played. Redesigned after the owner's brief of 2026-11-05 ("as clean as
  * possible"): no title - the sidebar says where the reader is - only the
  * session's state in one pill (playing since when, for how long, at how many
- * tables; else offline) beside the Cash | Tournaments switch; under it the
- * graph with its toolbar, the statistics as coloured tiles and the hands.
+ * tables; else offline); under it the graph with its toolbar, the
+ * statistics as coloured tiles and the hands.
  *
  * A session is the latest run of the hero's hands with no break longer than
  * the web's 30 minutes, across every table (`stats_sessions`' rule,
@@ -13,9 +13,9 @@
  * session, which opens Reports filtered to exactly its hands.
  *
  * One kind of game at a time, never cash and tournament hands together
- * (the owner's rule, 2026-11-04): the Cash | Tournaments switch, opening on
- * the kind being played (else the one with more hands in its latest
- * session); a cash evening split by a tournament is two cash sessions.
+ * (the owner's rule, 2026-11-04): the one chosen in the sidebar
+ * (`lib/gameKind.ts`, 2026-11-20); a cash evening split by a tournament is
+ * two cash sessions.
  *
  * The unit (big blinds or money) is the screen's, not the graph's: the
  * result, the per-100 rate, the hands' results and the last session all
@@ -26,12 +26,12 @@
  * import status lives in Settings, Folders.
  */
 import { kindFormats, withKind, type GameKind } from "@rail/ui/hands/gameKind";
-import { KindSwitch } from "@rail/ui/hands/KindSwitch";
 import { useCallback, useEffect, useState } from "react";
 
 import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
 import { liveDateFormat } from "../i18n/format";
+import { useAppKind } from "../lib/gameKind";
 import { errorText, inApp, ipc, onStatsDataChanged, type Report, type Session } from "../lib/ipc";
 import { go, screenHref } from "../lib/router";
 import { bigBlinds, signedMoney } from "./hands/format";
@@ -48,23 +48,23 @@ const DAY_TIME = liveDateFormat({ weekday: "short", day: "numeric", month: "shor
 
 interface SessionState {
   session: Session | null;
-  /** The kind shown and both kinds' hands (null until read). */
+  /** The kind shown (null until read). */
   kind: GameKind | null;
-  counts: Record<GameKind, number> | null;
   loaded: boolean;
   error: string | null;
 }
 
+/** The latest session of the sidebar's kind (`asked` null: not decided yet, nothing is read). */
 function useSession(asked: GameKind | null): SessionState {
-  const [state, setState] = useState<SessionState>({ session: null, kind: null, counts: null, loaded: false, error: null });
+  const [state, setState] = useState<SessionState>({ session: null, kind: null, loaded: false, error: null });
   const load = useCallback(() => {
+    if (asked === null) return;
     ipc
       .today(asked)
       .then((today) =>
         setState({
           session: today.session,
           kind: today.kind,
-          counts: { cash: today.kinds.cash.hands, tournament: today.kinds.tournament.hands },
           loaded: true,
           error: null,
         }),
@@ -87,9 +87,8 @@ function useSession(asked: GameKind | null): SessionState {
 export function Live() {
   const t = useT();
   const d = t.live;
-  const [askedKind, setAskedKind] = useState<GameKind | null>(null);
   const [unit, setUnit] = useState<LiveUnit>("bb");
-  const { session, kind, counts, loaded, error } = useSession(askedKind);
+  const { session, kind, loaded, error } = useSession(useAppKind().kind);
   const live = session !== null && session.current;
   const shownUnit: LiveUnit = unit === "money" && session !== null && hasMoney(session) ? "money" : "bb";
 
@@ -140,9 +139,6 @@ export function Live() {
               <span className={styles.statusMeta}> · {d.status.noSession}</span>
             </span>
           )
-        ) : null}
-        {inApp && loaded && kind !== null ? (
-          <KindSwitch kind={kind} counts={counts} onChange={setAskedKind} className={styles.kinds} />
         ) : null}
       </header>
       {body}

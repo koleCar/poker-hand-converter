@@ -90,10 +90,6 @@ export interface ReplayerStrings {
     anonymousTable: string;
   };
   odds: {
-    /** After the equity a call needs: `29% to call · 2.5 : 1`. */
-    toCall: string;
-    /** After the fold rate hero's bet needs: `40% folds for a bluff`. */
-    bluff: string;
     facingLabel: (share: string, ratio: string) => string;
     bluffLabel: (share: string) => string;
   };
@@ -176,7 +172,6 @@ export interface ReplayerStrings {
     /** The wordmark pressed into the felt under the board. */
     brand: string;
     pot: string;
-    potTotal: (amount: string) => string;
     board: string;
     secondRunout: string;
     runTwo: string;

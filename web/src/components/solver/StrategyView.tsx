@@ -12,11 +12,13 @@
  * its colour, its name (a lock mark, GTO's share when comparing), the combos,
  * the share and its EV, signed. Hovering a row shows only that action in the
  * grid, a click keeps it lit. Under them `Hand | Filters`: the hovered (or
- * picked) hand - its name, what it makes on the board, its EV - as tiles, one
- * per combo, three across, each with its mix as a bar (as long as its reach)
- * and every action's frequency and EV; a combo the board takes out stays as
- * a hatched tile, so the blockers show. The hero's hand, when the view comes
- * from one of their decisions, is marked in the grid and on its tile.
+ * picked) hand - its name, what it makes on the board, its EV - as combo
+ * cards (`@rail/ui` ComboZoom, GTO Wizard's look): each filled with its mix as
+ * bands (as tall as its reach), every action's frequency and EV; a combo the
+ * board takes out stays as a hatched card, so the blockers show. Hovering a
+ * cell also zooms it over the grid: the class box and its combos under it.
+ * The hero's hand, when the view comes from one of their decisions, is marked
+ * in the grid and on its card.
  *
  * Accessibility as in the chart browser's grid: one tab stop with arrow
  * keys, every cell a button that reads its mix in words, the detail a polite
@@ -26,6 +28,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { ComboCards, GridZoom, aggressiveFirst, zoomAnchor, type ZoomAction, type ZoomAnchor, type ZoomCombo } from "@rail/ui/charts/ComboZoom";
 import { SUIT_SYMBOL, type Suit } from "../../lib/cards";
 import { useSolverDict, type StrategyCompare } from "./host";
 import type { ExploreCombo } from "../../lib/solver";
@@ -47,6 +50,11 @@ export interface ViewAction {
   ev: number | null;
   /** No hand of the range takes it (`playedOptions`): left out of the action boxes and the EV rows. */
   hidden?: boolean;
+  /** `bet`, `raise`, `check`…, and its amount in bb: the hover lists the bets biggest first. */
+  kind?: string;
+  amount?: number;
+  /** A bet's size in bb after its label on the hover, `(4.1)`. */
+  size?: string | null;
 }
 
 export interface ViewClass {
@@ -168,14 +176,6 @@ function tilesOf(model: StrategyModel, index: number): Tile[] {
   return allCombos(name).map((cards) => ({ cards, combo: listed.find((c) => sameCombo(c.cards, cards)) ?? null }));
 }
 
-function dominant(freq: readonly number[]): number {
-  let best = 0;
-  freq.forEach((f, a) => {
-    if (f > freq[best]) best = a;
-  });
-  return best;
-}
-
 /**
  * A hand hovered in another tab's view: the acting player's class opens in the
  * panel as on the grid (`index`); anything else brings its own `panel`.
@@ -252,6 +252,9 @@ function Grid({
   }, [hero, model.actor]);
   const [focusIndex, setFocusIndex] = useState(heroIndex ?? 0);
   const [hovered, setHovered] = useState<number | null>(null);
+  /** The hovered cell measured for the zoom (GTO Wizard's hover), cleared on leaving the grid. */
+  const [anchor, setAnchor] = useState<ZoomAnchor | null>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const [picked, setPicked] = useState<number | null>(heroIndex);
   const [hoveredAction, setHoveredAction] = useState<number | null>(null);
   /** An action row clicked: only that action stays lit in the grid until it is clicked again. */
@@ -265,6 +268,12 @@ function Grid({
   const tiles = useMemo(() => (shown === null ? [] : tilesOf(model, shown)), [model, shown]);
   const labels = model.actions.map((a) => a.label);
   const colours = model.actions.map((a) => a.colour);
+  const zoomActions = useMemo<ZoomAction[]>(
+    () => model.actions.map((a) => ({ label: a.label, size: a.size, className: a.colour, hidden: a.hidden })),
+    [model.actions],
+  );
+  const order = useMemo(() => aggressiveFirst(model.actions.map((a) => ({ kind: a.kind ?? "", size: a.amount }))), [model.actions]);
+  const words = { combos: t.zoom.combos, you: t.you, ev: t.ev };
   const onHand = useCallback((hand: MainHand | null) => {
     if (hand && "panel" in hand) {
       setHovered(null);
@@ -310,7 +319,10 @@ function Grid({
         className={`${styles.grid} ${fade ? "rail-fade" : ""}`}
         role="grid"
         aria-label={t.gridLabel(model.actor)}
-        onPointerLeave={() => setHovered(null)}
+        onPointerLeave={() => {
+          setHovered(null);
+          setAnchor(null);
+        }}
       >
         {Array.from({ length: 13 }, (_, row) => (
           <div key={row} role="row" className={styles.gridRow}>
@@ -345,7 +357,10 @@ function Grid({
                     }}
                     onFocus={() => setFocusIndex(index)}
                     onKeyDown={(event) => move(event, index)}
-                    onPointerEnter={() => setHovered(index)}
+                    onPointerEnter={(event) => {
+                      setHovered(index);
+                      if (wrapRef.current) setAnchor(zoomAnchor(index, event.currentTarget, wrapRef.current));
+                    }}
                   >
                     {data.state === "absent" ? null : (
                       <span className={styles.cellFill} aria-hidden="true" style={{ blockSize: `${Math.max(10, data.fill * 100)}%` }}>
@@ -372,7 +387,10 @@ function Grid({
 
   return (
     <>
-      <div className={styles.gridWrap}>{left}</div>
+      <div ref={wrapRef} className={`${styles.gridWrap} ${styles.gridZoomWrap}`}>
+        {left}
+        {anchor && !mainView && !empty && anchor.cell === hovered ? <Zoom model={model} anchor={anchor} actions={zoomActions} order={order} words={words} hero={hero && heroIndex === anchor.cell ? hero.cards : null} /> : null}
+      </div>
 
       <aside className={styles.panel}>
         {overview}
@@ -453,18 +471,14 @@ function Grid({
                 {detail.state === "absent" ? (
                   <p className={analysis.muted}>{t.absent}</p>
                 ) : (
-                  <ul className={styles.tiles} aria-label={t.combosLabel}>
-                    {tiles.map((x) => (
-                      <ComboTile
-                        key={x.cards}
-                        tile={x}
-                        actions={model.actions}
-                        colours={colours}
-                        board={model.board ?? null}
-                        hero={isHeroTile(x.cards)}
-                      />
-                    ))}
-                  </ul>
+                  <ComboCards
+                    label={t.combosLabel}
+                    combos={tiles.map((x) => panelCombo(x, model, isHeroTile(x.cards), t))}
+                    actions={zoomActions}
+                    order={order}
+                    words={words}
+                    withEv
+                  />
                 )}
               </>
             ) : (
@@ -477,70 +491,54 @@ function Grid({
   );
 }
 
-/**
- * One combo: its cards, its mix as a bar (as long as its reach) and every
- * action the range plays with this combo's frequency and EV.
- */
-function ComboTile({
-  tile,
-  actions,
-  colours,
-  board,
-  hero,
-}: {
-  tile: Tile;
-  actions: ViewAction[];
-  colours: readonly string[];
-  board: readonly string[] | null;
-  hero: boolean;
-}) {
-  const t = useSolverDict();
+/** A tile of the panel as a combo card: its mix, EV and reach, or why it is not here. */
+function panelCombo(tile: Tile, model: StrategyModel, hero: boolean, t: ReturnType<typeof useSolverDict>): ZoomCombo {
   const combo = tile.combo;
   if (!combo) {
+    const board = model.board ?? null;
     const blocked = board !== null && (board.includes(tile.cards.slice(0, 2)) || board.includes(tile.cards.slice(2, 4)));
-    const why = blocked ? t.blocked : t.comboOff;
-    return (
-      <li className={`${styles.tile} ${styles.tileOff}`} aria-label={`${tile.cards}: ${why}`}>
-        <span className={styles.tileHead}>
-          <span className={styles.tileCards}>
-            <ComboText cards={tile.cards} />
-          </span>
-        </span>
-        <span className={styles.tileOffText}>{why}</span>
-      </li>
-    );
+    return { cards: tile.cards, freq: [], off: blocked ? t.blocked : t.comboOff, label: `${tile.cards}: ${blocked ? t.blocked : t.comboOff}` };
   }
-  const top = dominant(combo.freq);
-  const parts = combo.freq.map((f, a) => (f >= SHOWN_FREQ ? t.part(actions[a].label, f) : null)).filter((p): p is string => p !== null);
-  return (
-    <li
-      className={`${styles.tile} ${combo.weight === 0 ? styles.tileFaint : ""} ${hero ? styles.tileHero : ""}`}
-      aria-label={t.tileLabel(tile.cards, parts, t.value(combo.value))}
-    >
-      <span className={styles.tileHead}>
-        <span className={styles.tileCards}>
-          <ComboText cards={tile.cards} />
-        </span>
-        {hero ? <span className={styles.tileYou}>{t.you}</span> : null}
-      </span>
-      <MixBar mix={combo.freq} colours={colours} thin reach={combo.weight > 0 ? combo.weight : 1} />
-      <span className={styles.tileLines} aria-hidden="true">
-        {actions.map((action, a) =>
-          action.hidden ? null : (
-            <span
-              key={action.key}
-              className={`${styles.tileLine} ${a === top ? styles.tileLineTop : ""} ${combo.freq[a] < SHOWN_FREQ ? styles.tileLineNone : ""}`}
-            >
-              <span>
-                {action.short} {t.freq(combo.freq[a])}
-              </span>
-              <SignedBb value={combo.ev[a]} text={t.signed(combo.ev[a])} />
-            </span>
-          ),
-        )}
-      </span>
-    </li>
-  );
+  const parts = combo.freq.map((f, a) => (f >= SHOWN_FREQ ? t.part(model.actions[a].label, f) : null)).filter((p): p is string => p !== null);
+  return {
+    cards: tile.cards,
+    freq: combo.freq,
+    ev: combo.ev,
+    reach: combo.weight,
+    you: hero,
+    label: t.tileLabel(tile.cards, parts, t.value(combo.value)),
+  };
+}
+
+/**
+ * The hover: the class zoomed over its cell, its combos that reach the
+ * decision under it (flop decisions: preflop every combo plays the class's
+ * mix, so the class box shows alone).
+ */
+function Zoom({
+  model,
+  anchor,
+  actions,
+  order,
+  words,
+  hero,
+}: {
+  model: StrategyModel;
+  anchor: ZoomAnchor;
+  actions: ZoomAction[];
+  order: number[];
+  words: { combos: (n: number) => string; you: string };
+  hero: string | null;
+}) {
+  const data = model.classes[anchor.cell];
+  if (!data || data.state === "absent") return null;
+  const name = GRID_CELLS[anchor.cell].name;
+  const listed = model.combos ? model.combos(anchor.cell).filter((c) => c.weight > 0) : null;
+  const combos: ZoomCombo[] = (listed ?? [])
+    .map((c) => ({ cards: c.cards, freq: c.freq, you: hero !== null && sameCombo(hero, c.cards) }))
+    .sort((x, y) => allCombos(name).findIndex((c) => sameCombo(c, x.cards)) - allCombos(name).findIndex((c) => sameCombo(c, y.cards)));
+  const count = listed ? listed.length : Math.round(allCombos(name).length * data.fill * 10) / 10;
+  return <GridZoom anchor={anchor} name={name} count={count} freq={data.freq} combos={combos} actions={actions} order={order} words={words} />;
 }
 
 /**

@@ -16,6 +16,7 @@
 "use client";
 
 import { useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { GridZoom, aggressiveFirst, zoomAnchor, type ZoomAction, type ZoomAnchor } from "@rail/ui/charts/ComboZoom";
 import type { ChartNode } from "../../lib/charts";
 import { useDict } from "../../lib/i18n/client";
 import styles from "./analysis.module.css";
@@ -37,13 +38,23 @@ interface ChartGridProps {
   title?: string;
 }
 
+/** A class's combos: 6 for a pair, 4 suited, 12 offsuit. */
+function comboCount(name: string): number {
+  return name.length === 2 ? 6 : name.endsWith("s") ? 4 : 12;
+}
+
 export function ChartGrid({ node, highlight = null, title }: ChartGridProps) {
-  const t = useDict().analysis.charts;
+  const dict = useDict();
+  const t = dict.analysis.charts;
+  const zoomT = dict.analysis.zoom;
   const startIndex = Math.max(0, GRID_CELLS.findIndex((cell) => cell.name === highlight));
   const [focusIndex, setFocusIndex] = useState(startIndex);
   const [hovered, setHovered] = useState<string | null>(null);
   const [picked, setPicked] = useState<string | null>(null);
   const buttons = useRef<Array<HTMLButtonElement | null>>([]);
+  /** The hovered cell measured for the zoom (GTO Wizard's hover). */
+  const [zoom, setZoom] = useState<ZoomAnchor | null>(null);
+  const zoomWrap = useRef<HTMLDivElement>(null);
 
   const labels = node.options.map((option) => t.action(option.action, option.toBb));
   const totals = useMemo(() => actionTotals(node), [node]);
@@ -51,6 +62,9 @@ export function ChartGrid({ node, highlight = null, title }: ChartGridProps) {
     node.actor,
     lineSteps(node.line, node.seats).map((step) => ({ position: step.position, verb: t.verbs[step.verb] ?? step.verb })),
   );
+  const zoomActions: ZoomAction[] = node.options.map((option, a) => ({ label: labels[a], className: ACTION_CLASS[option.action] }));
+  const order = aggressiveFirst(node.options.map((option) => ({ kind: option.action, size: option.toBb })));
+  const zoomed = zoom ? cellData(node, GRID_CELLS[zoom.cell].name) : null;
   const shown = hovered ?? picked ?? highlight;
   const detail = shown ? cellData(node, shown) : null;
 
@@ -106,6 +120,7 @@ export function ChartGrid({ node, highlight = null, title }: ChartGridProps) {
       </ul>
 
       <div className={styles.chartBody}>
+        <div ref={zoomWrap} className={styles.gridZoomWrap} onPointerLeave={() => setZoom(null)}>
         <div className={styles.grid} role="grid" aria-label={t.gridLabel(spot)}>
           {Array.from({ length: 13 }, (_, row) => (
             <div key={row} role="row" className={styles.gridRow}>
@@ -137,7 +152,10 @@ export function ChartGrid({ node, highlight = null, title }: ChartGridProps) {
                       }}
                       onFocus={() => setFocusIndex(index)}
                       onKeyDown={(event) => move(event, index)}
-                      onPointerEnter={() => setHovered(cell.name)}
+                      onPointerEnter={(event) => {
+                        setHovered(cell.name);
+                        if (zoomWrap.current) setZoom(zoomAnchor(index, event.currentTarget, zoomWrap.current));
+                      }}
                       onPointerLeave={() => setHovered((current) => (current === cell.name ? null : current))}
                     >
                       <span className={styles.cellName}>{cell.name}</span>
@@ -158,6 +176,19 @@ export function ChartGrid({ node, highlight = null, title }: ChartGridProps) {
               })}
             </div>
           ))}
+        </div>
+        {zoom && zoomed && zoomed.range >= OFF_RANGE_WEIGHT ? (
+          <GridZoom
+            anchor={zoom}
+            name={zoomed.name}
+            count={Math.round(comboCount(zoomed.name) * Math.min(1, zoomed.range) * 10) / 10}
+            freq={zoomed.freq}
+            combos={[]}
+            actions={zoomActions}
+            order={order}
+            words={zoomT}
+          />
+        ) : null}
         </div>
 
         <div className={styles.chartDetail} aria-live="polite">

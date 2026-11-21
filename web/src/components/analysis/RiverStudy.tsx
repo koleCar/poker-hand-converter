@@ -28,6 +28,7 @@
 
 "use client";
 
+import { GridZoom, aggressiveFirst, zoomAnchor, type ZoomAction, type ZoomAnchor } from "@rail/ui/charts/ComboZoom";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
@@ -35,7 +36,7 @@ import { villainsOfFacts } from "../../lib/analysis/analyze";
 import type { DecisionAnalysis, FlopFacts } from "../../lib/analysis/types";
 import type { RiverStudy as Study, StudyOption, StudyRow } from "../../lib/analysis/river";
 import { studyFlop, studyRiver, studyTurn } from "../../lib/db";
-import { useDict } from "../../lib/i18n/client";
+import { useDict, useLocale } from "../../lib/i18n/client";
 import type { PhfHand } from "../../lib/phf/types";
 import styles from "./analysis.module.css";
 import own from "./riverStudy.module.css";
@@ -313,6 +314,8 @@ function StudyBody({ study, flop }: { study: Study; flop: FlopFacts | null }) {
   );
 }
 
+const SUIT_ORDER = "shdc";
+
 function RiverGrid({ study, labels, classes }: { study: Study; labels: string[]; classes: string[] }) {
   const t = useStudyStrings(study.street ?? "river");
   const startIndex = Math.max(0, GRID_CELLS.findIndex((cell) => cell.name === study.heroClass));
@@ -320,6 +323,27 @@ function RiverGrid({ study, labels, classes }: { study: Study; labels: string[];
   const [hovered, setHovered] = useState<string | null>(null);
   const [picked, setPicked] = useState<string | null>(null);
   const buttons = useRef<Array<HTMLButtonElement | null>>([]);
+  const { zoom: zoomT } = useDict().analysis;
+  const locale = useLocale();
+  /** The hovered cell measured for the zoom (GTO Wizard's hover). */
+  const [zoom, setZoom] = useState<ZoomAnchor | null>(null);
+  const zoomWrap = useRef<HTMLDivElement>(null);
+  const zoomActions = useMemo<ZoomAction[]>(
+    () =>
+      study.options.map((o, a) => ({
+        label: zoomT.actions[o.allIn ? "allin" : o.action] ?? o.action,
+        size:
+          o.sizeBb !== null && !o.allIn && (o.action === "bet" || o.action === "raise")
+            ? `${o.sizePot ? `${Math.round(o.sizePot * 100)}% ` : ""}(${o.sizeBb.toLocaleString(locale, { maximumFractionDigits: 1 })})`
+            : null,
+        className: classes[a],
+      })),
+    [study.options, classes, zoomT, locale],
+  );
+  const order = useMemo(
+    () => aggressiveFirst(study.options.map((o) => ({ kind: o.allIn ? "allin" : o.action, size: o.sizeBb }))),
+    [study.options],
+  );
   const shown = hovered ?? picked ?? study.heroClass;
   const shownIndex = GRID_CELLS.findIndex((cell) => cell.name === shown);
   const detail = shownIndex >= 0 ? study.cells[shownIndex] : null;
@@ -360,6 +384,7 @@ function RiverGrid({ study, labels, classes }: { study: Study; labels: string[];
   return (
     <div className={styles.chart}>
       <div className={styles.chartBody}>
+        <div ref={zoomWrap} className={styles.gridZoomWrap} onPointerLeave={() => setZoom(null)}>
         <div className={styles.grid} role="grid" aria-label={t.gridLabel(spot)}>
           {Array.from({ length: 13 }, (_, row) => (
             <div key={row} role="row" className={styles.gridRow}>
@@ -391,7 +416,10 @@ function RiverGrid({ study, labels, classes }: { study: Study; labels: string[];
                       }}
                       onFocus={() => setFocusIndex(index)}
                       onKeyDown={(event) => move(event, index)}
-                      onPointerEnter={() => setHovered(cell.name)}
+                      onPointerEnter={(event) => {
+                        setHovered(cell.name);
+                        if (zoomWrap.current) setZoom(zoomAnchor(index, event.currentTarget, zoomWrap.current));
+                      }}
                       onPointerLeave={() => setHovered((current) => (current === cell.name ? null : current))}
                     >
                       <span className={styles.cellName}>{cell.name}</span>
@@ -408,6 +436,23 @@ function RiverGrid({ study, labels, classes }: { study: Study; labels: string[];
               })}
             </div>
           ))}
+        </div>
+        {zoom && (study.cells[zoom.cell]?.combos ?? 0) > 0 ? (
+          <GridZoom
+            anchor={zoom}
+            name={GRID_CELLS[zoom.cell].name}
+            count={study.combos.filter((c) => c.cell === zoom.cell && c.weight > 0).length}
+            freq={study.cells[zoom.cell].freq}
+            combos={study.combos
+              .filter((c) => c.cell === zoom.cell && c.weight > 0)
+              .sort((x, y) => SUIT_ORDER.indexOf(x.cards[1]) - SUIT_ORDER.indexOf(y.cards[1]) || SUIT_ORDER.indexOf(x.cards[3]) - SUIT_ORDER.indexOf(y.cards[3]))
+              .map((c) => ({ cards: c.cards, freq: c.freq, you: c.cards === study.heroCombo }))}
+            actions={zoomActions}
+            order={order}
+            words={zoomT}
+            locale={locale}
+          />
+        ) : null}
         </div>
 
         <div className={styles.chartDetail} aria-live="polite">

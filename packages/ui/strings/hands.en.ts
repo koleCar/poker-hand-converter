@@ -272,7 +272,7 @@ export const handsUiEn = {
         board: { title: "Board & texture", text: "The cards on the board, or what the flop looked like." },
         players: { title: "Players", text: "Who was at the table, how many, and whose cards were seen." },
         stacks: { title: "Stacks", text: "How deep it was played, and the game's conditions." },
-        game: { title: "Room & stakes", text: "Room, stakes, variant and table size. Cash or tournaments is the switch above the list." },
+        game: { title: "Room & stakes", text: "Room, stakes, variant and table size." },
         date: { title: "Date & time", text: "When the hand was played: dates, the latest hands, days and hours." },
         result: { title: "Result & EV", text: "How it ended, how big it got, and how the analysis graded it." },
         sizing: { title: "Bet sizing", text: "How big hero opened and bet, as a share of the pot." },

@@ -144,6 +144,11 @@ export const solverHr: Dict["solver"] = {
         ? `R${size(amount)}`
         : (({ fold: "F", check: "X", call: "C", allin: "AI" }) as Record<string, string>)[kind] ?? kind,
   count: (count: number) => num(Math.round(count)),
+  /** The hover's class box and combo cards (`@rail/ui` ComboZoom): a bet's size in bb after its label, the class's combos. */
+  zoom: {
+    size: (amount: number) => `(${size(amount)})`,
+    combos: (n: number) => `${num(n, n % 1 === 0 ? 0 : 1)} ${plural(Math.round(n), "kombinacija", "kombinacije", "kombinacija")}`,
+  },
   blocked: "Blokirano boardom",
   vsBase: (delta: string, label: string) => `${delta} prema ${label}`,
   share: (share: number, count: number) => `${pct1(share)} · ${combos(Math.round(count))}`,

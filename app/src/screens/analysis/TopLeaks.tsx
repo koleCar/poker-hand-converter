@@ -8,12 +8,10 @@
  * 30 before), your actions in the spot against the target's as two bars,
  * and up to five example hands as a table whose rows open the hand in the
  * replayer's window. A period toggle (the last 30 days of play, or all
- * time), and the Cash | Tournaments switch: one kind of game's leaks at a
- * time, never both (`lib/gameKind.ts`). The web's longer explanations are
- * the elements' titles.
+ * time); the leaks are of the kind of game chosen in the sidebar
+ * (`lib/gameKind.ts`), never both. The web's longer explanations are the
+ * elements' titles.
  */
-import type { GameKind } from "@rail/ui/hands/gameKind";
-import { KindSwitch } from "@rail/ui/hands/KindSwitch";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
@@ -105,9 +103,7 @@ export function TopLeaks({
 }) {
   const w = useLeakWords();
   const [loaded, setLoaded] = useState<Loaded>({ status: "loading" });
-  const [askedKind, setAskedKind] = useState<GameKind | null>(null);
-  const kinds = useAppKind(askedKind, !hidden, reload);
-  const gameKind = kinds.kind;
+  const gameKind = useAppKind().kind;
   const key = `${period}|${gameKind ?? ""}|${potKind}|${reload}`;
 
   useEffect(() => {
@@ -138,7 +134,6 @@ export function TopLeaks({
   return (
     <section className={styles.leaks} aria-label={w.top.heading}>
       <div className={styles.leaksHead}>
-        <KindSwitch kind={gameKind} counts={kinds.counts} onChange={setAskedKind} />
         <div className={styles.segmented} role="group" aria-label={w.top.period}>
           {TOP_PERIODS.map((value) => (
             <button key={value} type="button" className={styles.segment} aria-pressed={period === value} onClick={() => onPeriod(value)}>
