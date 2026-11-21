@@ -9,7 +9,7 @@
  *   ─▶ Range / Hand classes mode: an action's share of the range (or of a class) set to a target;
  *      the hands closest to indifference move first, and the range is locked
  *   ─▶ Hands mode: paint a mix onto hands; painted hands are locked
- *   ─▶ Lock all / Unlock all / Invert, a lock badge per cell, Reset, a suggestion loaded whole
+ *   ─▶ Lock all / Unlock all / Invert, a cell's lock, Reset (to where the editor opened), a suggestion loaded whole
  *   ─▶ lockSpec: the lock of this node, over the 1,326 canonical combos
  * ```
  *
@@ -68,7 +68,12 @@ export type EditorAction =
   | { type: "lockAll" }
   | { type: "unlockAll" }
   | { type: "invert" }
-  | { type: "reset" }
+  /**
+   * Back to `to`: where the editor opened (GTO, or the lock being edited),
+   * its actions too, so a size taken away comes back. Without `to`, GTO on
+   * the actions shown. Undoable.
+   */
+  | { type: "reset"; to?: Strategy; preset?: string | null }
   /** A suggestion (or a saved lock being edited), whole. */
   | { type: "load"; strategy: number[][]; locked: number[]; preset: string | null }
   /** The node's actions changed (`withActions`), the strategy carried over to them (`carryStrategy`). */
@@ -133,9 +138,11 @@ export function editorReducer(spot: EditorSpot, state: EditorState, action: Edit
       const [next, ...rest] = state.future;
       return { ...state, ...next, past: [...state.past, snapshot(state)], future: rest };
     }
-    case "reset":
-      if (!state.locked.some(Boolean)) return state;
-      return commit(state, { strategy: gtoOf(spot), locked: new Array<number>(spot.hands.length).fill(0) }, null);
+    case "reset": {
+      const to = action.to ?? { strategy: gtoOf(spot), locked: new Array<number>(spot.hands.length).fill(0), actions: state.actions };
+      if (sameStrategy(state, to)) return state;
+      return commit(state, { strategy: to.strategy.map((row) => row.slice()), locked: to.locked.slice(), actions: to.actions }, action.preset ?? null);
+    }
     case "actions":
       return commit(state, { strategy: action.strategy, locked: action.locked, actions: action.actions });
     case "load":
@@ -168,6 +175,14 @@ export function editorReducer(spot: EditorSpot, state: EditorState, action: Edit
     case "frequency":
       return commit(state, moveFrequency(spot, state, action.action, action.target, action.mask ?? null, action.held ?? []), state.preset, action.merge);
   }
+}
+
+/** The same strategy, locks and actions (Reset has nothing to do). */
+export function sameStrategy(a: Strategy, b: Strategy): boolean {
+  const labels = (x: Strategy) => (x.actions ? x.actions.map((action) => action.label).join(" ") : null);
+  if (labels(a) !== labels(b) || a.strategy.length !== b.strategy.length || a.locked.length !== b.locked.length) return false;
+  if (a.locked.some((x, i) => x !== b.locked[i])) return false;
+  return a.strategy.every((row, k) => row.length === b.strategy[k].length && row.every((x, i) => Math.abs(x - b.strategy[k][i]) <= EPS));
 }
 
 function normalised(mix: readonly number[]): number[] {

@@ -48,7 +48,7 @@ import {
 } from "../door";
 import type { LockEarlier, LockSet, NodelockSummary, RangeLock, RangeShift } from "./contract";
 import { actionsFromLabels, carryStrategy, isLibrary, passiveActions, sizeAction, sortActions, withActions } from "./editor/sizes";
-import { editorReducer, fromLockArrays, initialState, lockedCount, sharesOf, strategyToSolve, type EditorAction, type EditorState } from "./editor/state";
+import { editorReducer, fromLockArrays, initialState, lockedCount, sameStrategy, sharesOf, strategyToSolve, type EditorAction, type EditorState } from "./editor/state";
 import { initialRangeEdit, rangeEditLocks, rangeEditReducer, rangeShifts, shiftPp } from "./editor/ranges";
 import { engineInfo, type EngineInfo } from "./engine";
 import { lockHash, rangesHash, withLockRanges } from "./engine/door";
@@ -142,17 +142,18 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
   const suggestDict = locale === "hr" ? nodelockSuggestHr : nodelockSuggestEn;
   /** The library's decision; `target` is it with the lock's own actions (`editor/sizes.ts`). */
   const base = useMemo(() => lockTarget(open.at, solverT), [open.at, solverT]);
+  /** Where the editor opens, and where Reset goes back to: GTO of the view (a lock's solution inside one), or the lock being edited, with its actions. */
+  const [opening] = useState<EditorState>(() => {
+    const start = initialState(base.spot);
+    const node = open.from?.lockSet.nodes.find((x) => x.path === base.path);
+    if (!node) return start;
+    const own = node.custom ? actionsFromLabels(base, node.actions, solverT.action) : null;
+    const at = own ? withActions(base, own) : base;
+    return { ...start, ...fromLockArrays(at.spot, node), ...(own ? { actions: own } : {}), preset: open.from?.preset ?? null };
+  });
   const [state, dispatch] = useReducer(
     (s: EditorState, a: EditorAction) => editorReducer(withActions(base, s.actions ?? base.library).spot, s, a),
-    undefined,
-    () => {
-      const start = initialState(base.spot);
-      const node = open.from?.lockSet.nodes.find((x) => x.path === base.path);
-      if (!node) return start;
-      const own = node.custom ? actionsFromLabels(base, node.actions, solverT.action) : null;
-      const at = own ? withActions(base, own) : base;
-      return { ...start, ...fromLockArrays(at.spot, node), ...(own ? { actions: own } : {}), preset: open.from?.preset ?? null };
-    },
+    opening,
   );
   const target = useMemo(() => withActions(base, state.actions ?? base.library), [base, state.actions]);
   /** Inside a lock that gave this node its own sizes: the shown actions are already the lock's, so every lock here keeps `custom`. */
@@ -836,7 +837,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
         <IconButton size="sm" label={t.redo} disabled={!state.future.length} onClick={() => dispatch({ type: "redo" })}>
           <TurnGlyph back={false} />
         </IconButton>
-        <ToolButton size="sm" disabled={!counts.locked} onClick={() => dispatch({ type: "reset" })}>
+        <ToolButton size="sm" disabled={sameStrategy(state, opening)} onClick={() => dispatch({ type: "reset", to: opening, preset: opening.preset })}>
           {t.reset}
         </ToolButton>
         <IconButton size="sm" label={t.close} onClick={closeEditor}>

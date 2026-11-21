@@ -557,7 +557,9 @@ With the native engine the bar says about how long the solve takes
   - Modes **Hands / Range / Hand classes**.
   - Per-action sliders with typed % and a hold lock per action.
   - Paint brush (choose an action or a mix, then click or drag over the grid).
-  - Reset, Undo, Redo.
+  - Reset, Undo, Redo. Reset goes back to where the editor opened: GTO of
+    the view (inside a lock, that lock's solution), or the lock being edited,
+    its actions included, so a size taken away comes back (#409).
   - A **Suggestions** block: archetype chips with a one-line explanation. A
     click fills the editor; the user can still edit.
 - **Right: the 13×13 grid.**

@@ -163,6 +163,24 @@ describe("nodelock editor state", () => {
     expect(editorReducer(SPOT, state, { type: "undo" }).locked).toEqual([1, 1, 1, 1, 0]);
   });
 
+  it("resets to where the editor opened: its locks and the actions taken away", () => {
+    const check = { label: "X", name: "Check", kind: "check", amount: 0, sizePot: 0, gto: 0 } as const;
+    // Opened on a lock: hand 1 always bets.
+    const opening = run({ type: "paint", hands: [1], mix: [0, 1] });
+    const start = { strategy: opening.strategy, locked: opening.locked, actions: opening.actions };
+    // The bet taken away (the strategy carried to check only), then Reset.
+    const removed = editorReducer(SPOT, opening, { type: "actions", actions: [check], strategy: [[1, 1, 1, 1, 1]], locked: [0, 0, 0, 0, 0] });
+    expect(removed.actions).toEqual([check]);
+    const reset = editorReducer(SPOT, removed, { type: "reset", to: start, preset: "tight" });
+    expect(reset.actions).toBeUndefined();
+    expect(reset.strategy).toEqual(opening.strategy);
+    expect(reset.locked).toEqual([0, 1, 0, 0, 0]);
+    expect(reset.preset).toBe("tight");
+    expect(editorReducer(SPOT, reset, { type: "undo" }).actions).toEqual([check]);
+    // Already there: nothing to do.
+    expect(editorReducer(SPOT, reset, { type: "reset", to: start })).toBe(reset);
+  });
+
   it("writes the lock over the 1,326 combos and reads it back", () => {
     const state = run({ type: "paint", hands: [1], mix: [0.25, 0.75] });
     const lock = lockArrays(SPOT, state);
