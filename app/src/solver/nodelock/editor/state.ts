@@ -323,3 +323,19 @@ export function lockedCount(spot: EditorSpot, state: Strategy): { locked: number
   }
   return { locked, reaching: all };
 }
+
+/**
+ * The strategy Solve locks (#410). Hands locked: the state as it is. None
+ * locked: a node whose actions the lock changed (`ownActions`, sizes added or
+ * taken away) is still a lock, since the tree changes. With one action left
+ * every reaching hand plays it, so all are fixed at it (the lock marks show
+ * it); with more, every hand adapts on the new actions. Null: nothing would
+ * change.
+ */
+export function strategyToSolve(spot: EditorSpot, state: Strategy, ownActions: boolean): Strategy | null {
+  if (lockedCount(spot, state).locked > 0) return state;
+  if (!ownActions) return null;
+  if (state.strategy.length !== 1) return state;
+  const locked = state.locked.map((_, i) => (reaching(spot, i) ? 1 : 0));
+  return { ...state, strategy: [state.strategy[0].map(() => 1)], locked };
+}

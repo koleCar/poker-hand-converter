@@ -1124,6 +1124,14 @@ library's.
   labels (`B8.25` bets to 8.25, `A97.5` is all-in). Absent on a lock that
   keeps the tree's actions, so v1 hashes don't change. A lock made inside a
   lock that gave the node its own sizes keeps `custom` there.
+- **Own sizes alone are a lock** (#410): with no hand locked, Solve still
+  solves a node whose actions changed (`strategyToSolve` in
+  `editor/state.ts`). With one action left (the donk bet taken away, Check
+  only) every reaching hand is fixed at it, so the marks show it; with more,
+  every hand adapts on the new actions. Only a node with the library's
+  actions and nothing locked says "Lock at least one hand first". This holds
+  inside a lock too, at any depth (a turn lock on a flop lock's result, then
+  another node of that turn added to it).
 - **Tree**: `lockNodeActions(set, pathOf)` gives the spot's `nodeActions`
   (path → labels), which `nodelockFlopSpot` / `nodelockTurnSpot` set. Both
   builders (`betting.ts` `nodeActionsOf`, `betting.rs` `node_actions_of`)

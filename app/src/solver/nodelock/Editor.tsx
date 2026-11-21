@@ -46,7 +46,7 @@ import {
 } from "../door";
 import type { LockEarlier, LockSet, NodelockSummary, RangeLock, RangeShift } from "./contract";
 import { actionsFromLabels, carryStrategy, isLibrary, passiveActions, sizeAction, sortActions, withActions } from "./editor/sizes";
-import { editorReducer, fromLockArrays, initialState, lockedCount, sharesOf, type EditorAction, type EditorState } from "./editor/state";
+import { editorReducer, fromLockArrays, initialState, lockedCount, sharesOf, strategyToSolve, type EditorAction, type EditorState } from "./editor/state";
 import { initialRangeEdit, rangeEditLocks, rangeEditReducer, rangeShifts, shiftPp } from "./editor/ranges";
 import { engineInfo, type EngineInfo } from "./engine";
 import { lockHash, rangesHash, withLockRanges } from "./engine/door";
@@ -337,13 +337,15 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
 
   const solve = async () => {
     setMessage(null);
-    if (!counts.locked) {
+    // Sizes added or taken away are a lock on their own, with no hand fixed (#410).
+    const locking = strategyToSolve(target.spot, state, custom || inherited);
+    if (!locking) {
       setMessage(t.nothingLocked);
       return;
     }
     const { at } = target;
     const spot = spotOf(at, target.river);
-    const spec = lockSpec(target, state, inherited);
+    const spec = lockSpec(target, locking, inherited);
     // New ranges under a turn or river node: the flop with them first, then this lock on it (§9.3).
     const chained = target.street !== "flop" && rangesMoved;
     let first: LockPlan | null = null;

@@ -14,6 +14,7 @@ import {
   lockArrays,
   lockedCount,
   shareOf,
+  strategyToSolve,
   type EditorAction,
   type EditorSpot,
   type EditorState,
@@ -188,5 +189,27 @@ describe("nodelock editor steps", () => {
     expect(state.locked).toEqual([1, 1, 1, 0, 0]);
     expect(state.past).toHaveLength(1);
     expect(editorReducer(SPOT, state, { type: "undo" }).locked).toEqual([0, 0, 0, 0, 0]);
+  });
+});
+
+describe("what Solve locks (#410)", () => {
+  it("locks the hands locked, and nothing when none is and the actions are the library's", () => {
+    const painted = run({ type: "paint", hands: [1], mix: [1, 0] });
+    expect(strategyToSolve(SPOT, painted, false)).toBe(painted);
+    expect(strategyToSolve(SPOT, painted, true)).toBe(painted);
+    expect(strategyToSolve(SPOT, initialState(SPOT), false)).toBeNull();
+  });
+
+  it("solves a node whose sizes the lock changed with no hand fixed", () => {
+    const state = initialState(SPOT);
+    expect(strategyToSolve(SPOT, state, true)).toBe(state);
+  });
+
+  it("fixes every reaching hand at the one action left (the donk bet taken away)", () => {
+    const checkOnly: EditorSpot = { ...SPOT, gto: [[1, 1, 1, 1, 1]], ev: [SPOT.ev[0]] };
+    const solved = strategyToSolve(checkOnly, initialState(checkOnly), true);
+    expect(solved?.locked).toEqual([1, 1, 1, 1, 0]);
+    expect(solved?.strategy).toEqual([[1, 1, 1, 1, 1]]);
+    expect(lockedCount(checkOnly, solved!)).toEqual({ locked: 4, reaching: 4 });
   });
 });
