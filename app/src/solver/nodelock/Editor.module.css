@@ -64,17 +64,6 @@
   border-block-end: 1px solid var(--border-subtle);
 }
 
-.headLock {
-  display: inline-flex;
-  color: var(--warning-fg);
-}
-
-.headPot {
-  color: var(--text-tertiary);
-  font-size: var(--font-size-sm);
-  font-variant-numeric: tabular-nums;
-}
-
 .headCount {
   color: var(--warning-fg);
   font-size: var(--font-size-xs);

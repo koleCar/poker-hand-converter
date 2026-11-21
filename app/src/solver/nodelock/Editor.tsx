@@ -4,7 +4,7 @@
  * the line being locked stays in view above it.
  *
  * ```
- * ┌ 🔒 BB to act · board · pot ·········· 312 of 1,081 locked  ↶ ↷ Reset × ┐
+ * ┌ [Ranges] ···························· 312 of 1,081 locked  ↶ ↷ Reset × ┐
  * │ [Range | Hand classes | Combos] ··· Lock all … │ [Range | Hands | Hand classes] │
  * │ the range's mix, GTO's ticks                   │ an action per row: a slider    │
  * │ 13×13 grid (paint, locked edges)               │ with GTO's tick, the typed %,  │
@@ -12,11 +12,13 @@
  * ├ Earlier nodes [..] · Accuracy [..] · the plan, the engine · ≈ time [Solve] ┤
  * ```
  *
+ * The head names no decision: the library's action strip above says which
+ * one it is, and on which flop (#409).
+ *
  * The state is `editor/state.ts`'s reducer; this file draws it and turns the
  * clicks into its steps. Solving hands the lock to `session.ts`.
  */
 import { Icon } from "@rail/ui/icon/Icon";
-import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { ComboCards, GridZoom, aggressiveFirst, zoomAnchor, type ZoomAction, type ZoomAnchor, type ZoomCombo } from "@rail/ui/charts/ComboZoom";
 import { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
@@ -820,12 +822,6 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
           <span className={rangeStyles.back}>{t.ranges.step}</span>
           {shifts ? <span className={rangeStyles.backShift}>{shiftText(shifts)}</span> : null}
         </ToolButton>
-        <span className={styles.headLock} aria-hidden="true">
-          <LockGlyph />
-        </span>
-        <strong>{solverT.panel.toAct(target.position)}</strong>
-        <CardRow cards={[...target.at.board]} size="xs" />
-        <span className={styles.headPot}>{solverT.panel.pot(target.pot, target.toCall)}</span>
         <span className={solverStyles.spacer} />
         <span className={styles.headCount}>{t.locked(counts.locked, counts.reaching)}</span>
         <IconButton size="sm" label={t.undo} disabled={!state.past.length} onClick={() => dispatch({ type: "undo" })}>
