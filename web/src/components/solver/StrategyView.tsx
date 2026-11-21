@@ -15,8 +15,9 @@
  * picked) hand - its name, what it makes on the board, its EV - as combo
  * cards (`@rail/ui` ComboZoom, GTO Wizard's look): each filled with its mix as
  * bands (as tall as its reach), every action's frequency and EV; a combo the
- * board takes out stays as a hatched card, so the blockers show. Hovering a
- * cell also zooms it over the grid: the class box and its combos under it.
+ * board takes out stays as a hatched card, so the blockers show. The panel
+ * is where a hovered hand shows: only while it is on `Filters` does hovering
+ * a cell zoom it over the grid instead (the class box and its combos under it).
  * The hero's hand, when the view comes from one of their decisions, is marked
  * in the grid and on its card.
  *
@@ -389,7 +390,8 @@ function Grid({
     <>
       <div ref={wrapRef} className={`${styles.gridWrap} ${styles.gridZoomWrap}`}>
         {left}
-        {anchor && !mainView && !empty && anchor.cell === hovered ? <Zoom model={model} anchor={anchor} actions={zoomActions} order={order} words={words} hero={hero && heroIndex === anchor.cell ? hero.cards : null} /> : null}
+        {/* The panel's Hand block already shows the hovered hand: the zoom only while the panel is on the filters. */}
+        {showFilters && anchor && !mainView && !empty && anchor.cell === hovered ? <Zoom model={model} anchor={anchor} actions={zoomActions} order={order} words={words} hero={hero && heroIndex === anchor.cell ? hero.cards : null} /> : null}
       </div>
 
       <aside className={styles.panel}>
@@ -511,7 +513,7 @@ function panelCombo(tile: Tile, model: StrategyModel, hero: boolean, t: ReturnTy
 }
 
 /**
- * The hover: the class zoomed over its cell, its combos that reach the
+ * The hover while the panel shows the filters: the class zoomed over its cell, its combos that reach the
  * decision under it (flop decisions: preflop every combo plays the class's
  * mix, so the class box shows alone).
  */

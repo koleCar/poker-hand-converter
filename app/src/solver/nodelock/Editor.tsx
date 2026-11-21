@@ -741,7 +741,8 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
       <div className={view === "combos" ? styles.gridWithCombos : styles.gridOnly}>
         <div ref={zoomWrap} className={solverStyles.gridZoomWrap}>
           {grid}
-          {zoom && cells[zoom.cell]?.hands.length ? (
+          {/* The Combos view lists the combos beside the grid: no zoom under the pointer there. */}
+          {zoom && view !== "combos" && cells[zoom.cell]?.hands.length ? (
             <GridZoom
               anchor={zoom}
               name={cells[zoom.cell].name}
