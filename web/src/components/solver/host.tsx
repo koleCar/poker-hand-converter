@@ -117,7 +117,11 @@ export interface NodelockOverride {
   turn: { id: string; chunk: FlopChunk } | null;
 }
 
-/** GTO at the decision on screen, for comparing a locked solution with it: actions pair by tree label. */
+/**
+ * GTO at the decision on screen, for comparing a locked solution with it.
+ * Actions pair by tree label; EV deltas are the locked solve's minus GTO's,
+ * bb, for the actor (`compareWith` in `SolverLibrary.tsx`).
+ */
 export interface StrategyCompare {
   /** What the baseline is called, e.g. "GTO". */
   label: string;
@@ -127,8 +131,12 @@ export interface StrategyCompare {
   shares: Array<number | null>;
   /** GTO's actions the decision on screen does not offer (a lock took them away), with GTO's share. */
   missing: Array<{ key: string; label: string; colour: string; share: number }>;
-  /** Per grid class: the mix and the EV per GTO action, and the class's EV. */
-  classes: Array<{ freq: number[]; ev: number[]; value: number }>;
+  /** Per grid class: its EV gain over GTO, bb, its combos weighed as they reach the decision now; null when none compares. */
+  classes: Array<number | null>;
+  /** A combo's EV gain over GTO (cards as shown, `AhKd`), bb, or null. */
+  combo: (cards: string) => number | null;
+  /** Per hand of the actor, in the shown solve's order: EV gain over GTO, bb; NaN where GTO has no such hand. */
+  hands: Float64Array;
 }
 
 /**

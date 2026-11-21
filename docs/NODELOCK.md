@@ -1148,6 +1148,17 @@ library's.
   listed after the others, dimmed, at 0 % beside GTO's share. An action the
   lock kept but no hand takes (held at 0 %) also stays listed while
   comparing.
+- **EV against GTO** (#411, `compareWith` in `SolverLibrary.tsx`): while
+  comparing, each combo card in the panel ends with its EV gain over GTO
+  (`+0.42 vs GTO`), the hand's line shows the class's, and every row of the
+  Filters tab its category's, signed and green/red. A hand's EV at a
+  decision is the actor's, in bb, net from the start of the street with the
+  pot winnable (`solve.ts`); the locked solve and GTO reach the decision by
+  the same path from the same pot, so the difference is what the lock gains
+  that hand (whatever the opponent's range and play became). Hands pair by
+  combo. A class or category weighs its combos by how they reach the
+  decision in the locked solve, so the gain is the same hands' and not a
+  change of which hands get here.
 
 ## 9. Range locks: the ranges that reach the flop (owner, 2026-11-19)
 

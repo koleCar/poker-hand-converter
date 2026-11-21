@@ -310,6 +310,8 @@ function Grid({
   const isHeroTile = (cards: string) => shown === heroIndex && !!hero && sameCombo(hero.cards, cards);
   const visible = model.actions.map((action) => (action.hidden ? 0 : action.share));
   const category = shown !== null && detail?.state !== "absent" ? (model.category?.(shown) ?? null) : null;
+  /** Compare with GTO: what the shown class gains over GTO, bb. */
+  const classGain = compare && shown !== null ? (compare.classes[shown] ?? null) : null;
 
   let left: ReactNode;
   if (mainView) left = fade ? <div className="rail-fade">{mainView}</div> : mainView;
@@ -479,10 +481,8 @@ function Grid({
                   {detail.state === "absent" ? null : (
                     <>
                       <SignedBb className={styles.handValue} value={detail.value} text={t.signedBb(detail.value)} />
-                      {compare ? (
-                        <span className={styles.handDelta}>
-                          {t.vsBase(t.signedBb(detail.value - compare.classes[shown].value), compare.label)}
-                        </span>
+                      {compare && classGain !== null ? (
+                        <SignedBb className={styles.handDelta} value={classGain} text={t.vsBase(t.signedBb(classGain), compare.label)} />
                       ) : null}
                     </>
                   )}
@@ -492,7 +492,7 @@ function Grid({
                 ) : (
                   <ComboCards
                     label={t.combosLabel}
-                    combos={tiles.map((x) => panelCombo(x, model, isHeroTile(x.cards), t))}
+                    combos={tiles.map((x) => panelCombo(x, model, isHeroTile(x.cards), t, compare))}
                     actions={zoomActions}
                     order={order}
                     words={words}
@@ -511,7 +511,7 @@ function Grid({
 }
 
 /** A tile of the panel as a combo card: its mix, EV and reach, or why it is not here. */
-function panelCombo(tile: Tile, model: StrategyModel, hero: boolean, t: ReturnType<typeof useSolverDict>): ZoomCombo {
+function panelCombo(tile: Tile, model: StrategyModel, hero: boolean, t: ReturnType<typeof useSolverDict>, compare: StrategyCompare | null = null): ZoomCombo {
   const combo = tile.combo;
   if (!combo) {
     const board = model.board ?? null;
@@ -519,13 +519,17 @@ function panelCombo(tile: Tile, model: StrategyModel, hero: boolean, t: ReturnTy
     return { cards: tile.cards, freq: [], off: blocked ? t.blocked : t.comboOff, label: `${tile.cards}: ${blocked ? t.blocked : t.comboOff}` };
   }
   const parts = combo.freq.map((f, a) => (f >= SHOWN_FREQ ? t.part(model.actions[a].label, f) : null)).filter((p): p is string => p !== null);
+  // Compare with GTO: what the combo gains over GTO here, as its rows' EVs read (no unit).
+  const gain = compare ? compare.combo(tile.cards) : null;
+  const delta = compare && gain !== null ? { value: gain, text: t.vsBase(t.signed(gain), compare.label) } : null;
   return {
     cards: tile.cards,
     freq: combo.freq,
     ev: combo.ev,
     reach: combo.weight,
     you: hero,
-    label: t.tileLabel(tile.cards, parts, t.value(combo.value)),
+    delta,
+    label: t.tileLabel(tile.cards, parts, t.value(combo.value)) + (delta ? `, ${delta.text}` : ""),
   };
 }
 

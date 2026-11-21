@@ -240,6 +240,9 @@ export const solverEn = {
     suit: (suit: string, suited: boolean) => (suited ? `Suited ${suit}${suit}` : `Offsuit with a ${suit}`),
     andAbove: (label: string) => `${label} and everything above it`,
     forPlayer: (position: string) => `Shares of ${position}'s range at this decision`,
+    /** Compare with GTO: the rows' last figure. */
+    evGain: (label: string) => `Right: what each gains over ${label}, EV in bb`,
+    evGainOf: (row: string, delta: string, label: string) => `${row}: ${delta} vs ${label}`,
     groups: { made: "Hands", draw: "Draws", eq: "EQ buckets – simple", band: "EQ buckets – advanced" },
     made: {
       straightFlush: "Straight flush",

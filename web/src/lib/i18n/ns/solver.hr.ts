@@ -236,6 +236,9 @@ export const solverHr: Dict["solver"] = {
     suit: (suit: string, suited: boolean) => (suited ? `Suited ${suit}${suit}` : `Offsuit s ${suit}`),
     andAbove: (label: string) => `${label} i sve iznad`,
     forPlayer: (position: string) => `Udjeli rangea igrača ${position} na ovoj odluci`,
+    /** Compare with GTO: the rows' last figure. */
+    evGain: (label: string) => `Desno: koliko svaka dobiva prema ${label}, EV u bb`,
+    evGainOf: (row: string, delta: string, label: string) => `${row}: ${delta} prema ${label}`,
     groups: { made: "Ruke", draw: "Drawovi", eq: "EQ grupe – jednostavno", band: "EQ grupe – detaljno" },
     made: {
       straightFlush: "Straight flush",
