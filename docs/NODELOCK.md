@@ -563,7 +563,10 @@ With the native engine the bar says about how long the solve takes
 - **Right: the 13×13 grid.**
   - Views Range / Hand classes / Combos.
   - A Current-strategy bar with the GTO marks.
-  - Lock all, Unlock all, Invert, and a lock badge on locked cells.
+  - Lock all, Unlock all, Invert. A locked cell has an amber edge (fainter
+    when only some of its combos are), no glyph: the lock glyph shows only
+    under the pointer at a cell's corner, where a click locks or unlocks it
+    (#409).
 - **Footer.**
   - "Lock earlier nodes": None / This player's / All (default This player's).
   - Accuracy: Standard 1 % / Quick 2.5 %.

@@ -7,7 +7,7 @@
  * ┌ 🔒 BB to act · board · pot ·········· 312 of 1,081 locked  ↶ ↷ Reset × ┐
  * │ [Range | Hand classes | Combos] ··· Lock all … │ [Range | Hands | Hand classes] │
  * │ the range's mix, GTO's ticks                   │ an action per row: a slider    │
- * │ 13×13 grid (paint, lock badges)                │ with GTO's tick, the typed %,  │
+ * │ 13×13 grid (paint, locked edges)               │ with GTO's tick, the typed %,  │
  * │ or the classes, or one hand's combos           │ hold; Suggestions              │
  * ├ Earlier nodes [..] · Accuracy [..] · the plan, the engine · ≈ time [Solve] ┤
  * ```
@@ -661,7 +661,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
                     styles.cell,
                     c.hands.length ? "" : solverStyles.cellFaint,
                     cell === k ? solverStyles.cellPicked : "",
-                    allLocked ? styles.cellLocked : "",
+                    allLocked ? styles.cellLocked : lockedHere ? styles.cellPart : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
@@ -691,11 +691,6 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
                     </span>
                   ) : null}
                   <span className={solverStyles.cellName}>{c.name}</span>
-                  {lockedHere ? (
-                    <span className={`${styles.badge} ${allLocked ? "" : styles.badgePart}`} aria-hidden="true">
-                      <LockGlyph />
-                    </span>
-                  ) : null}
                 </button>
                 {c.hands.length && mode !== "hands" ? (
                   <button
@@ -704,7 +699,9 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
                     title={t.toggleLock(c.name)}
                     aria-label={t.toggleLock(c.name)}
                     onClick={() => dispatch({ type: "toggleLock", hands: c.hands })}
-                  />
+                  >
+                    <LockGlyph />
+                  </button>
                 ) : null}
               </div>
             );
