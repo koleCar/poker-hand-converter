@@ -153,6 +153,8 @@ export const solverEn = {
   },
   blocked: "Blocked by the board",
   vsBase: (delta: string, label: string) => `${delta} vs ${label}`,
+  /** Compare with GTO: an action GTO plays that the locked decision no longer offers. */
+  notOffered: (label: string) => `Not offered in this lock; ${label} plays it`,
   share: (share: number, combos: number) => `${pct1(share)} · ${num(Math.round(combos))} combos`,
   shareOnly: pct1,
   combosCount: (combos: number) => `${num(Math.round(combos))} combos`,
@@ -177,7 +179,7 @@ export const solverEn = {
   signed: (value: number) => signedBb(value).replace(/ bb$/, ""),
   evShort: (value: number) => num(Math.round(value * 100) / 100 || 0, 2),
 
-  tabs: { label: "View", strategy: "Strategy + EV", ranges: "Ranges", rangeModes: "What the grids show" },
+  tabs: { label: "View", strategy: "Strategy + EV", ranges: "Ranges" },
 
   ranges: {
     modes: { strategy: "Strategy", ev: "EV", equity: "Equity", range: "Range", eqr: "EQR" },
@@ -206,6 +208,12 @@ export const solverEn = {
       (ev === null ? "" : ` · EV ${num(ev, 2)} bb`),
     otherNote: (position: string) => `${position} does not act here: each combo's weight in the range, equity and EV (bb).`,
     hoverEmpty: "Hover a hand to see its combos, equity and EV.",
+    scale: {
+      ev: (pot: number) => ["0", `${num(pot, 1)} bb`] as const,
+      equity: () => [pct(0), pct(1)] as const,
+      eqr: () => [pct(0), pct(2)] as const,
+    },
+    scaleLabel: (mode: string, low: string, high: string) => `${mode}: red ${low}, yellow halfway, green ${high}`,
     cellValue: {
       strategy: () => "",
       ev: (value: number) => num(value, 1),
@@ -232,6 +240,9 @@ export const solverEn = {
     suit: (suit: string, suited: boolean) => (suited ? `Suited ${suit}${suit}` : `Offsuit with a ${suit}`),
     andAbove: (label: string) => `${label} and everything above it`,
     forPlayer: (position: string) => `Shares of ${position}'s range at this decision`,
+    /** Compare with GTO: the rows' last figure. */
+    evGain: (label: string) => `Right: what each gains over ${label}, EV in bb`,
+    evGainOf: (row: string, delta: string, label: string) => `${row}: ${delta} vs ${label}`,
     groups: { made: "Hands", draw: "Draws", eq: "EQ buckets – simple", band: "EQ buckets – advanced" },
     made: {
       straightFlush: "Straight flush",

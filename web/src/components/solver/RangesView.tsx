@@ -3,15 +3,19 @@
  * the way a solver's viewer compares them.
  *
  * ```
- * out of position's grid │ both ranges: combos, equity, EV, EQR, │ in position's grid
- *                        │ the equity curves, then made hands /  │
- *                        │ draws / equity buckets, each's share  │
+ * BB [EV ▾]   0 ━━━━ 6.2  │ both ranges: combos, equity, EV, EQR, │ UTG to act [Strategy ▾]
+ * out of position's grid  │ the equity curves, then made hands /  │ in position's grid
+ *                         │ draws / equity buckets, each's share  │
  * ```
  *
- * Each cell is coloured by the measure the toolbar picks (`mode`: equity, EV,
- * the range's weight or EQR) from the inset's dark to the accent's light, so
- * where a range is strong shows at a glance. Everything counts only the
- * combos that pass the hand filter (`masks`); the curves draw them bold.
+ * Each grid has its own measure (`modes`, by role, so it stays put as the
+ * line is walked): the player to act's opens on their strategy, the Strategy
+ * tab's cell (the action colours, as tall as the class's reach); the other
+ * measures - EV, equity, EQR - are a heat map, red low through yellow to
+ * green high, with its scale beside the picker; Range is the weight alone.
+ * A cell's fill is as tall as the share of the class in the range, as on the
+ * Strategy tab. Everything counts only the combos that pass the hand filter
+ * (`masks`); the curves draw them bold.
  *
  * Hovering a hand opens it in the panel on the right (`onHand`): the player to
  * act's as on the Strategy tab, each combo with its own mix; the other's as a
@@ -23,19 +27,25 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useSolverDict } from "./host";
-import { DRAWS, EQ_BANDS, EQ_BUCKETS, filterId, MADE_HANDS, comboIds, type FilterGroup } from "../../lib/solver";
+import { classOfCombo, DRAWS, EQ_BANDS, EQ_BUCKETS, filterId, MADE_HANDS, comboIds, type FilterGroup } from "../../lib/solver";
 import { GRID_CELLS } from "../analysis/chartSpots";
 import analysis from "../analysis/analysis.module.css";
 import { filterLabel } from "./HandFilters";
 import type { RangeData } from "./rangeData";
-import { ComboText, type MainHand } from "./StrategyView";
+import { ComboText, SHOWN_FREQ, type MainHand, type StrategyModel } from "./StrategyView";
 import { SignedBb } from "./ui";
 import styles from "./solver.module.css";
 
 type Pair<T> = [T, T];
-/** What the two grids are coloured by (the toolbar's segment). */
-export type RangeMode = "equity" | "ev" | "range" | "eqr";
-export const RANGE_MODES: readonly RangeMode[] = ["equity", "ev", "range", "eqr"];
+/** What a grid shows: the actor's strategy (theirs only), or a measure of each class. */
+export type RangeMode = "strategy" | "ev" | "equity" | "range" | "eqr";
+const RANGE_MODES: readonly RangeMode[] = ["strategy", "ev", "equity", "range", "eqr"];
+/** Each grid's measure by role, not by seat: the player to act's and the other's. */
+export interface RangeModes {
+  actor: RangeMode;
+  other: RangeMode;
+}
+export const DEFAULT_RANGE_MODES: RangeModes = { actor: "strategy", other: "ev" };
 type Group = Exclude<FilterGroup, "suit">;
 const GROUPS: Array<{ group: Group; values: readonly string[] }> = [
   { group: "made", values: MADE_HANDS },
@@ -43,17 +53,28 @@ const GROUPS: Array<{ group: Group; values: readonly string[] }> = [
   { group: "eq", values: EQ_BUCKETS },
   { group: "band", values: EQ_BANDS },
 ];
-/** EQR at which a cell is fully lit. */
-const EQR_TOP = 1.5;
+/** EQR at the green end of the scale: 100% (the hand realises its equity) sits in the middle. */
+const EQR_TOP = 2;
+/** A class's fill is never shorter than this, so a thin one still shows its colour. */
+const MIN_FILL = 0.1;
 
-/** The inset's dark (0) to the accent's light (1): a measure's shade, never a money colour. */
-function shade(t: number): string {
-  const x = Math.round(Math.max(0, Math.min(1, t)) * 100);
-  return `color-mix(in srgb, var(--accent-on-subtle) ${x}%, var(--surface-inset))`;
+/** The heat map, 0..1: the loss red (low) through the EV yellow (the middle) to the profit green (high). */
+function heat(t: number): string {
+  const x = Math.max(0, Math.min(1, t));
+  return x < 0.5
+    ? `color-mix(in oklab, var(--ev-fg) ${Math.round(x * 200)}%, var(--loss-fg))`
+    : `color-mix(in oklab, var(--profit-fg) ${Math.round((x - 0.5) * 200)}%, var(--ev-fg))`;
+}
+
+/** Where a class's mean sits on the heat map: equity as it is, EV as a share of the pot, EQR up to `EQR_TOP`. */
+function heatLevel(mode: RangeMode, mean: number, pot: number): number {
+  return mode === "ev" ? mean / pot : mode === "eqr" ? mean / EQR_TOP : mean;
 }
 
 interface SideView {
   reach: Float64Array;
+  /** Per class (grid order): its combos that pass the filter, reached or not (a fill's 100%). */
+  classCombos: Float64Array;
   /** Reach summed, the filter applied and not. */
   combos: number;
   full: number;
@@ -74,8 +95,10 @@ function sideView(data: RangeData, p: 0 | 1, mask: Uint8Array | null): SideView 
   let eqSum = 0;
   let eqWeight = 0;
   const shares = new Map<string, number>();
-  side.reach.forEach((r) => {
+  const classCombos = new Float64Array(169);
+  side.reach.forEach((r, i) => {
     full += r;
+    if (!mask || mask[i]) classCombos[classOfCombo(side.hands[i])] += 1;
   });
   reach.forEach((r, i) => {
     if (r <= 0) return;
@@ -94,6 +117,7 @@ function sideView(data: RangeData, p: 0 | 1, mask: Uint8Array | null): SideView 
   const pot = data.ranges.pot;
   return {
     reach,
+    classCombos,
     combos,
     full,
     ev: meanEv,
@@ -106,13 +130,18 @@ function sideView(data: RangeData, p: 0 | 1, mask: Uint8Array | null): SideView 
 export function RangesView({
   data,
   masks,
-  mode,
+  strategy,
+  modes,
+  onModes,
   onHand,
 }: {
   data: RangeData;
   masks: Pair<Uint8Array> | null;
-  /** What the grids are coloured by. */
-  mode: RangeMode;
+  /** The player to act's decision, as the Strategy tab draws it (the hand filter applied): their grid's Strategy. */
+  strategy: StrategyModel;
+  /** What each grid shows, by role. */
+  modes: RangeModes;
+  onModes: (modes: RangeModes) => void;
   onHand?: (hand: MainHand | null) => void;
 }) {
   const t = useSolverDict();
@@ -126,8 +155,14 @@ export function RangesView({
   const river = ranges.board.length >= 5;
   const groups = GROUPS.filter((g) => !(river && g.group === "draw") && (data.equity || (g.group !== "eq" && g.group !== "band")));
   const shownGroup: Group = groups.some((g) => g.group === group) ? group : "made";
-  /** EV (and EQR) is not stored for a side right after a dealt card: its grid shows equity. */
-  const modeOf = (p: 0 | 1): RangeMode => ((mode === "ev" || mode === "eqr") && !ranges.sides[p].ev ? "equity" : mode);
+  const role = (p: 0 | 1): keyof RangeModes => (p === ranges.actor ? "actor" : "other");
+  /** Strategy is the actor's alone; EV (and EQR) is not stored for a side right after a dealt card: its grid shows equity. */
+  const choices = (p: 0 | 1): RangeMode[] =>
+    RANGE_MODES.filter((m) => (m !== "strategy" || p === ranges.actor) && ((m !== "ev" && m !== "eqr") || ranges.sides[p].ev));
+  const modeOf = (p: 0 | 1): RangeMode => {
+    const mode = modes[role(p)];
+    return choices(p).includes(mode) ? mode : mode === "strategy" ? "ev" : "equity";
+  };
 
   // Equity is worked out a moment after the click: the inline loader until then.
   const equityLoading = <RailLoader size="inline" label={t.ranges.equityLoading} />;
@@ -191,8 +226,29 @@ export function RangesView({
           <span className={styles.rangeHead}>
             <strong>{ranges.sides[p].position}</strong>
             {p === ranges.actor ? <span className={styles.toAct}>{t.preflop.toAct}</span> : null}
+            <select
+              className={styles.modeSelect}
+              aria-label={t.ranges.mode(ranges.sides[p].position)}
+              value={modeOf(p)}
+              onChange={(event) => onModes({ ...modes, [role(p)]: event.target.value as RangeMode })}
+            >
+              {choices(p).map((m) => (
+                <option key={m} value={m}>
+                  {t.ranges.modes[m]}
+                </option>
+              ))}
+            </select>
+            <HeatScale mode={modeOf(p)} pot={ranges.pot} />
           </span>
-          <RangeGrid data={data} view={views[p]} p={p} mode={modeOf(p)} hovered={hover?.p === p ? hover.k : null} onHover={(k) => setHover(k === null ? null : { p, k })} />
+          <RangeGrid
+            data={data}
+            view={views[p]}
+            p={p}
+            mode={modeOf(p)}
+            strategy={strategy}
+            hovered={hover?.p === p ? hover.k : null}
+            onHover={(k) => setHover(k === null ? null : { p, k })}
+          />
         </div>
       ))}
 
@@ -295,11 +351,26 @@ function OtherHand({ data, view, p, k }: { data: RangeData; view: SideView; p: 0
   );
 }
 
+/** The heat map's scale beside a grid's picker: its two ends, red to green (none for Strategy and Range). */
+function HeatScale({ mode, pot }: { mode: RangeMode; pot: number }) {
+  const t = useSolverDict();
+  if (mode !== "ev" && mode !== "equity" && mode !== "eqr") return null;
+  const [low, high] = t.ranges.scale[mode](pot);
+  return (
+    <span className={styles.heatScale} role="img" aria-label={t.ranges.scaleLabel(t.ranges.modes[mode], low, high)}>
+      <span>{low}</span>
+      <span className={styles.heatScaleBar} aria-hidden="true" />
+      <span>{high}</span>
+    </span>
+  );
+}
+
 function RangeGrid({
   data,
   view,
   p,
   mode,
+  strategy,
   hovered,
   onHover,
 }: {
@@ -307,6 +378,7 @@ function RangeGrid({
   view: SideView;
   p: 0 | 1;
   mode: RangeMode;
+  strategy: StrategyModel;
   hovered: number | null;
   onHover: (k: number | null) => void;
 }) {
@@ -335,30 +407,41 @@ function RangeGrid({
             weight += r * (mode === "eqr" ? eq[i] * pot : 1);
           }
         }
-        const mean = mode === "range" ? combos : weight > 0 ? sum / weight : null;
-        const label = mean === null || combos === 0 ? "" : t.ranges.cellValue[mode](mean);
-        // The shade: equity as it is, EV as a share of the pot, the range as the class's mean reach, EQR up to 150%.
-        const level =
-          mean === null || combos === 0
-            ? null
-            : mode === "ev"
-              ? mean / pot
-              : mode === "range"
-                ? hands.length > 0
-                  ? combos / hands.length
-                  : 0
-                : mode === "eqr"
-                  ? mean / EQR_TOP
-                  : mean;
+        const out = combos === 0;
+        // As tall as the share of the class in the range (the filter's combos), as on the Strategy tab.
+        const height = `${Math.max(MIN_FILL, view.classCombos[k] > 0 ? Math.min(1, combos / view.classCombos[k]) : 0) * 100}%`;
+        let fill: ReactNode = null;
+        let label = "";
+        if (mode === "strategy") {
+          // The Strategy tab's cell: the class's mix as action-coloured columns.
+          const model = strategy.classes[k];
+          label = model.freq
+            .map((freq, a) => (freq >= SHOWN_FREQ ? t.part(strategy.actions[a].label, freq) : null))
+            .filter(Boolean)
+            .join(", ");
+          fill =
+            out || model.state === "absent" ? null : (
+              <span className={styles.cellFill} aria-hidden="true" style={{ blockSize: height }}>
+                {model.freq.map((freq, a) =>
+                  freq > 0 ? <span key={a} className={strategy.actions[a].colour} style={{ inlineSize: `${freq * 100}%` }} /> : null,
+                )}
+              </span>
+            );
+        } else {
+          const mean = mode === "range" ? combos : weight > 0 ? sum / weight : null;
+          label = mean === null || out ? "" : t.ranges.cellValue[mode](mean);
+          const background = mode === "range" ? "var(--accent-bg)" : mean === null ? null : heat(heatLevel(mode, mean, pot));
+          fill = out || background === null ? null : <span className={styles.cellFill} aria-hidden="true" style={{ blockSize: height, background }} />;
+        }
         return (
           <div
             key={cell.name}
-            className={`${styles.heat} ${combos === 0 ? styles.heatOut : ""} ${k === hovered ? styles.heatHover : ""}`}
-            style={level === null ? undefined : { background: shade(level) }}
+            className={`${styles.heat} ${out ? styles.heatOut : ""} ${k === hovered ? styles.heatHover : ""}`}
             title={t.ranges.cellLabel(cell.name, combos, label || null)}
             onPointerEnter={() => onHover(k)}
           >
-            {cell.name}
+            {fill}
+            <span className={styles.heatName}>{cell.name}</span>
           </div>
         );
       })}

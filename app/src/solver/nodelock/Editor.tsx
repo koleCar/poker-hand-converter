@@ -4,19 +4,21 @@
  * the line being locked stays in view above it.
  *
  * ```
- * ┌ 🔒 BB to act · board · pot ·········· 312 of 1,081 locked  ↶ ↷ Reset × ┐
+ * ┌ [Ranges] ···························· 312 of 1,081 locked  ↶ ↷ Reset × ┐
  * │ [Range | Hand classes | Combos] ··· Lock all … │ [Range | Hands | Hand classes] │
  * │ the range's mix, GTO's ticks                   │ an action per row: a slider    │
- * │ 13×13 grid (paint, lock badges)                │ with GTO's tick, the typed %,  │
+ * │ 13×13 grid (paint, locked edges)               │ with GTO's tick, the typed %,  │
  * │ or the classes, or one hand's combos           │ hold; Suggestions              │
- * ├ Earlier nodes [..] · Accuracy [..] · the plan, the engine · ≈ time [Solve] ┤
+ * ├ Earlier nodes [..] · Accuracy [..] · Speed [..] · the plan, what it uses · ≈ time [Solve] ┤
  * ```
+ *
+ * The head names no decision: the library's action strip above says which
+ * one it is, and on which flop (#409).
  *
  * The state is `editor/state.ts`'s reducer; this file draws it and turns the
  * clicks into its steps. Solving hands the lock to `session.ts`.
  */
 import { Icon } from "@rail/ui/icon/Icon";
-import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { ComboCards, GridZoom, aggressiveFirst, zoomAnchor, type ZoomAction, type ZoomAnchor, type ZoomCombo } from "@rail/ui/charts/ComboZoom";
 import { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
@@ -46,9 +48,9 @@ import {
 } from "../door";
 import type { LockEarlier, LockSet, NodelockSummary, RangeLock, RangeShift } from "./contract";
 import { actionsFromLabels, carryStrategy, isLibrary, passiveActions, sizeAction, sortActions, withActions } from "./editor/sizes";
-import { editorReducer, fromLockArrays, initialState, lockedCount, sharesOf, type EditorAction, type EditorState } from "./editor/state";
+import { editorReducer, fromLockArrays, initialState, lockedCount, sameStrategy, sharesOf, strategyToSolve, type EditorAction, type EditorState } from "./editor/state";
 import { initialRangeEdit, rangeEditLocks, rangeEditReducer, rangeShifts, shiftPp } from "./editor/ranges";
-import { engineInfo, type EngineInfo } from "./engine";
+import { engineInfo, loadSpeed, saveSpeed, SOLVE_SPEEDS, type EngineInfo, type SolveSpeed } from "./engine";
 import { lockHash, rangesHash, withLockRanges } from "./engine/door";
 import styles from "./Editor.module.css";
 import { nodelockData } from "./data";
@@ -116,12 +118,14 @@ function useFrame(): CSSProperties {
 /**
  * About how long the solve takes, in seconds, with the native engine (the
  * workers' pace depends too much on the computer to say): a flop game ≈ 75 s
- * at 1 % of the pot, a turn game on the flop's result ≈ 3 s, each scaled by
- * (1 / accuracy)^0.75. Null for the workers, or before the engine is known.
+ * at 1 % of the pot on all cores but one, a turn game on the flop's result
+ * ≈ 3 s, each scaled by (1 / accuracy)^0.75 and by the speed's share of
+ * those threads. Null for the workers, or before the engine is known.
  */
-function estimateSeconds(info: EngineInfo | null, game: "flop" | "turn", accuracy: number): number | null {
+function estimateSeconds(info: EngineInfo | null, speed: SolveSpeed, game: "flop" | "turn", accuracy: number): number | null {
   if (info?.kind !== "native" || !(accuracy > 0)) return null;
-  return (game === "flop" ? 75 : 3) * (1 / accuracy) ** 0.75;
+  const threads = Math.max(1, info.speeds[speed].threads);
+  return (game === "flop" ? 75 : 3) * (1 / accuracy) ** 0.75 * (Math.max(1, info.cores - 1) / threads);
 }
 
 /** Undo (back) and Redo: a curved arrow. */
@@ -140,17 +144,18 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
   const suggestDict = locale === "hr" ? nodelockSuggestHr : nodelockSuggestEn;
   /** The library's decision; `target` is it with the lock's own actions (`editor/sizes.ts`). */
   const base = useMemo(() => lockTarget(open.at, solverT), [open.at, solverT]);
+  /** Where the editor opens, and where Reset goes back to: GTO of the view (a lock's solution inside one), or the lock being edited, with its actions. */
+  const [opening] = useState<EditorState>(() => {
+    const start = initialState(base.spot);
+    const node = open.from?.lockSet.nodes.find((x) => x.path === base.path);
+    if (!node) return start;
+    const own = node.custom ? actionsFromLabels(base, node.actions, solverT.action) : null;
+    const at = own ? withActions(base, own) : base;
+    return { ...start, ...fromLockArrays(at.spot, node), ...(own ? { actions: own } : {}), preset: open.from?.preset ?? null };
+  });
   const [state, dispatch] = useReducer(
     (s: EditorState, a: EditorAction) => editorReducer(withActions(base, s.actions ?? base.library).spot, s, a),
-    undefined,
-    () => {
-      const start = initialState(base.spot);
-      const node = open.from?.lockSet.nodes.find((x) => x.path === base.path);
-      if (!node) return start;
-      const own = node.custom ? actionsFromLabels(base, node.actions, solverT.action) : null;
-      const at = own ? withActions(base, own) : base;
-      return { ...start, ...fromLockArrays(at.spot, node), ...(own ? { actions: own } : {}), preset: open.from?.preset ?? null };
-    },
+    opening,
   );
   const target = useMemo(() => withActions(base, state.actions ?? base.library), [base, state.actions]);
   /** Inside a lock that gave this node its own sizes: the shown actions are already the lock's, so every lock here keeps `custom`. */
@@ -196,6 +201,8 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
   const [klass, setKlass] = useState<ClassId | null>(null);
   const [earlier, setEarlier] = useState<LockEarlier>(open.from?.lockSet.earlier ?? "player");
   const [accuracy, setAccuracy] = useState<number>(open.from?.lockSet.targetPct ?? 1);
+  /** How hard the solve works this computer (#409): kept on it, Medium by default. */
+  const [speed, setSpeed] = useState<SolveSpeed>(loadSpeed);
   const [info, setInfo] = useState<EngineInfo | null>(null);
   const [suggested, setSuggested] = useState<NodelockSuggestion | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -322,6 +329,11 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
     return list;
   }, [target, solverT]);
   const shownClass = klass ? classes.find((c) => c.id.group === klass.group && c.id.index === klass.index) ?? null : null;
+  /** The picked class's sliders, under its row in the panel. */
+  const classSliders = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (mode === "classes" && klass) classSliders.current?.scrollIntoView({ block: "nearest" });
+  }, [mode, klass]);
   const classMaskOf = useMemo(() => (shownClass ? classMask(target, shownClass.id) : null), [shownClass, target]);
 
   const pickSuggestion = (archetype: Archetype) => {
@@ -337,13 +349,15 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
 
   const solve = async () => {
     setMessage(null);
-    if (!counts.locked) {
+    // Sizes added or taken away are a lock on their own, with no hand fixed (#410).
+    const locking = strategyToSolve(target.spot, state, custom || inherited);
+    if (!locking) {
       setMessage(t.nothingLocked);
       return;
     }
     const { at } = target;
     const spot = spotOf(at, target.river);
-    const spec = lockSpec(target, state, inherited);
+    const spec = lockSpec(target, locking, inherited);
     // New ranges under a turn or river node: the flop with them first, then this lock on it (§9.3).
     const chained = target.street !== "flop" && rangesMoved;
     let first: LockPlan | null = null;
@@ -590,6 +604,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
     const classGto = libraryClass ? target.actions.map((a) => (a.gto === null ? 0 : libraryClass[a.gto])) : null;
     left = (
       <>
+        {mask ? null : <p className={styles.hint}>{t.classesHint}</p>}
         <ClassList
           classes={classes}
           state={state}
@@ -599,23 +614,23 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
           onPick={(id) => setKlass(id)}
           madeLabel={t.made}
           drawLabel={t.draws}
+          detail={
+            mask && classShares && classGto ? (
+              // Right under the picked class, scrolled into view: no hunt for the sliders below a long list (#409).
+              <div ref={classSliders} className={styles.classSliders}>
+                {target.actions.map((_, a) =>
+                  sliderRow(
+                    a,
+                    classShares[a],
+                    (v, merge) => dispatch({ type: "frequency", action: a, target: v, mask, held, merge }),
+                    gtoOf(a, classGto),
+                    target.actions.length > 2,
+                  ),
+                )}
+              </div>
+            ) : null
+          }
         />
-        {mask && classShares && classGto ? (
-          <div className={styles.classSliders}>
-            <p className={styles.label}>{shownClass?.name}</p>
-            {target.actions.map((_, a) =>
-              sliderRow(
-                a,
-                classShares[a],
-                (v, merge) => dispatch({ type: "frequency", action: a, target: v, mask, held, merge }),
-                gtoOf(a, classGto),
-                target.actions.length > 2,
-              ),
-            )}
-          </div>
-        ) : (
-          <p className={styles.hint}>{t.classesHint}</p>
-        )}
       </>
     );
   }
@@ -659,7 +674,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
                     styles.cell,
                     c.hands.length ? "" : solverStyles.cellFaint,
                     cell === k ? solverStyles.cellPicked : "",
-                    allLocked ? styles.cellLocked : "",
+                    allLocked ? styles.cellLocked : lockedHere ? styles.cellPart : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
@@ -689,11 +704,6 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
                     </span>
                   ) : null}
                   <span className={solverStyles.cellName}>{c.name}</span>
-                  {lockedHere ? (
-                    <span className={`${styles.badge} ${allLocked ? "" : styles.badgePart}`} aria-hidden="true">
-                      <LockGlyph />
-                    </span>
-                  ) : null}
                 </button>
                 {c.hands.length && mode !== "hands" ? (
                   <button
@@ -702,7 +712,9 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
                     title={t.toggleLock(c.name)}
                     aria-label={t.toggleLock(c.name)}
                     onClick={() => dispatch({ type: "toggleLock", hands: c.hands })}
-                  />
+                  >
+                    <LockGlyph />
+                  </button>
                 ) : null}
               </div>
             );
@@ -741,7 +753,8 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
       <div className={view === "combos" ? styles.gridWithCombos : styles.gridOnly}>
         <div ref={zoomWrap} className={solverStyles.gridZoomWrap}>
           {grid}
-          {zoom && cells[zoom.cell]?.hands.length ? (
+          {/* The Combos view lists the combos beside the grid: no zoom under the pointer there. */}
+          {zoom && view !== "combos" && cells[zoom.cell]?.hands.length ? (
             <GridZoom
               anchor={zoom}
               name={cells[zoom.cell].name}
@@ -778,10 +791,10 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
   }
 
   const running = session.running;
-  const memoryMb = info?.memoryMb ?? 0;
+  const speedLine = (x: SolveSpeed) => (info ? t.speedLine(info.speeds[x].threads, info.cores, info.speeds[x].memoryMb) : "");
   // The game the solve runs: a flop lock's flop, else the turn's (a river lock solves the turn's game too).
   const game = footer ? (footer.kind === "builds" ? "turn" : footer.street) : target.street === "flop" ? "flop" : "turn";
-  const estimate = estimateSeconds(info, game, accuracy);
+  const estimate = estimateSeconds(info, speed, game, accuracy);
 
   return (
     <dialog
@@ -820,12 +833,6 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
           <span className={rangeStyles.back}>{t.ranges.step}</span>
           {shifts ? <span className={rangeStyles.backShift}>{shiftText(shifts)}</span> : null}
         </ToolButton>
-        <span className={styles.headLock} aria-hidden="true">
-          <LockGlyph />
-        </span>
-        <strong>{solverT.panel.toAct(target.position)}</strong>
-        <CardRow cards={[...target.at.board]} size="xs" />
-        <span className={styles.headPot}>{solverT.panel.pot(target.pot, target.toCall)}</span>
         <span className={solverStyles.spacer} />
         <span className={styles.headCount}>{t.locked(counts.locked, counts.reaching)}</span>
         <IconButton size="sm" label={t.undo} disabled={!state.past.length} onClick={() => dispatch({ type: "undo" })}>
@@ -834,7 +841,7 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
         <IconButton size="sm" label={t.redo} disabled={!state.future.length} onClick={() => dispatch({ type: "redo" })}>
           <TurnGlyph back={false} />
         </IconButton>
-        <ToolButton size="sm" disabled={!counts.locked} onClick={() => dispatch({ type: "reset" })}>
+        <ToolButton size="sm" disabled={sameStrategy(state, opening)} onClick={() => dispatch({ type: "reset", to: opening, preset: opening.preset })}>
           {t.reset}
         </ToolButton>
         <IconButton size="sm" label={t.close} onClick={closeEditor}>
@@ -952,10 +959,23 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
             onChange={(x) => setAccuracy(Number(x))}
           />
         </div>
+        <div className={styles.footGroup}>
+          <span className={styles.label}>{t.speedLabel}</span>
+          <Segmented
+            size="sm"
+            label={t.speedLabel}
+            value={speed}
+            options={SOLVE_SPEEDS.map((x) => ({ value: x, label: t.speeds[x], title: speedLine(x) || undefined }))}
+            onChange={(x) => {
+              setSpeed(x);
+              saveSpeed(x);
+            }}
+          />
+        </div>
         <div className={styles.footText}>
           {target.street !== "flop" && rangesMoved ? <p className={styles.planLine}>{t.ranges.turnFirst}</p> : footer ? <p className={styles.planLine}>{footerLine(t, footer)}</p> : null}
           <p className={message ? styles.message : styles.engineLine} role={message ? "alert" : undefined}>
-            {message ?? (running ? t.queued : info === null ? "" : info.kind === null ? t.noEngine : t.engineLine(info.threads, info.cores, memoryMb))}
+            {message ?? (running ? t.queued : info === null ? "" : info.kind === null ? t.noEngine : speedLine(speed))}
           </p>
         </div>
         {estimate !== null ? <span className={styles.estimate}>{t.estimate(estimate)}</span> : null}
@@ -981,6 +1001,7 @@ function ClassList({
   lockLabel,
   madeLabel,
   drawLabel,
+  detail = null,
   wide = false,
 }: {
   classes: Array<{ id: ClassId; name: string; hands: number[] }>;
@@ -993,6 +1014,8 @@ function ClassList({
   lockLabel?: (name: string) => string;
   madeLabel: string;
   drawLabel: string;
+  /** Shown right under the picked class's row (the side panel's sliders). */
+  detail?: ReactNode;
   wide?: boolean;
 }) {
   const groups: Array<["made" | "draw", string]> = [
@@ -1012,7 +1035,7 @@ function ClassList({
                 const { mix, reach } = mixOf(target, state, c.hands);
                 const locked = c.hands.filter((i) => state.locked[i]).length;
                 const on = picked?.group === c.id.group && picked.index === c.id.index;
-                return (
+                return [
                   <li key={`${group}${c.id.index}`} className={styles.classRow}>
                     <button type="button" className={styles.classPick} aria-pressed={on} onClick={() => onPick(c.id)}>
                       <span className={styles.className}>{c.name}</span>
@@ -1035,8 +1058,13 @@ function ClassList({
                         <LockGlyph />
                       </span>
                     ) : null}
-                  </li>
-                );
+                  </li>,
+                  on && detail ? (
+                    <li key={`${group}${c.id.index}-detail`} className={styles.classDetail}>
+                      {detail}
+                    </li>
+                  ) : null,
+                ];
               })}
             </ul>
           </div>

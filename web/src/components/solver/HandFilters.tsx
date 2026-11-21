@@ -8,7 +8,11 @@
  * picked categories add up; across groups a combo has to match each. Every row
  * shows the share of the acting player's range it holds here and, as a bar,
  * how that part of the range plays (the actions' colours); its ▲ picks it and
- * every row above it (a hand and everything stronger). The active filters
+ * every row above it (a hand and everything stronger). A category no hand of
+ * the range can be under the other groups' picks (a set among suited hands)
+ * leaves the list, and such a suit is disabled. Comparing a nodelock with
+ * GTO, every row also shows what its hands gain over GTO (EV, bb, weighed by
+ * how they reach the decision now). The active filters
  * show as chips on the view's toolbar (`ActiveFilters`), each removed by a
  * click.
  */
@@ -25,12 +29,13 @@ import {
   EQ_BUCKETS,
   filterId,
   MADE_HANDS,
+  passes,
   type FilterGroup,
   type HandFilter,
 } from "../../lib/solver";
 import analysis from "../analysis/analysis.module.css";
 import type { RangeData } from "./rangeData";
-import { Chip, MixBar, Segmented, ToolButton } from "./ui";
+import { Chip, MixBar, Segmented, SignedBb, ToolButton } from "./ui";
 import styles from "./solver.module.css";
 
 type Dict = SolverDict;
@@ -44,6 +49,8 @@ interface Row {
   share: number;
   /** Per action: its share of the category's reach. */
   mix: number[];
+  /** Compare with GTO: the category's EV gain, bb, or null. */
+  gain: number | null;
 }
 
 /** A filter id's label. */
@@ -89,12 +96,15 @@ export function HandFilters({
   filter,
   onFilter,
   colours,
+  compare = null,
 }: {
   data: RangeData | null;
   filter: HandFilter;
   onFilter: (next: HandFilter) => void;
   /** The actions' colours (`actionColours`), in the node's order. */
   colours: readonly string[];
+  /** The nodelock's Compare with GTO: per hand of the actor (`data`'s order), its EV gain over the baseline, bb (NaN: none). */
+  compare?: { label: string; hands: Float64Array } | null;
 }) {
   const t = useSolverDict();
   const [mode, setMode] = useState<Mode>("include");
@@ -102,8 +112,9 @@ export function HandFilters({
 
   // The acting player's share of each category, filter or not, and how it plays.
   const shares = useMemo(() => {
-    const out = new Map<string, { share: number; mix: number[] }>();
+    const out = new Map<string, { share: number; mix: number[]; gain: number; gainWeight: number }>();
     if (!data) return out;
+    const gains = compare && compare.hands.length === data.ranges.sides[data.ranges.actor].hands.length ? compare.hands : null;
     const p = data.ranges.actor;
     const side = data.ranges.sides[p];
     const size = side.hands.length;
@@ -115,10 +126,14 @@ export function HandFilters({
       for (const id of comboIds(data.cards[p][i], data.features[p][i], data.equity ? data.equity[p][i] : Number.NaN)) {
         let entry = out.get(id);
         if (!entry) {
-          entry = { share: 0, mix: new Array<number>(data.actions).fill(0) };
+          entry = { share: 0, mix: new Array<number>(data.actions).fill(0), gain: 0, gainWeight: 0 };
           out.set(id, entry);
         }
         entry.share += r;
+        if (gains && !Number.isNaN(gains[i])) {
+          entry.gain += r * gains[i];
+          entry.gainWeight += r;
+        }
         for (let a = 0; a < data.actions; a += 1) entry.mix[a] += r * data.strategy[a * size + i];
       }
     });
@@ -127,15 +142,50 @@ export function HandFilters({
       entry.share = all > 0 ? entry.share / all : 0;
     }
     return out;
-  }, [data]);
+  }, [data, compare]);
+
+  // The categories some hand of the range still has under the other groups' picks: a pick never empties its own group.
+  const possible = useMemo(() => {
+    const out = new Set<string>();
+    if (!data) return out;
+    const p = data.ranges.actor;
+    const side = data.ranges.sides[p];
+    const without = new Map<string, HandFilter>();
+    const others = (group: string) => {
+      let f = without.get(group);
+      if (!f) {
+        const keep = (id: string) => !id.startsWith(`${group}:`);
+        f = { include: filter.include.filter(keep), exclude: filter.exclude.filter(keep) };
+        without.set(group, f);
+      }
+      return f;
+    };
+    side.hands.forEach((_, i) => {
+      if (side.reach[i] <= 0) return;
+      const ids = comboIds(data.cards[p][i], data.features[p][i], data.equity ? data.equity[p][i] : Number.NaN);
+      for (const id of ids) {
+        if (!out.has(id) && passes(others(id.slice(0, id.indexOf(":"))), ids)) out.add(id);
+      }
+    });
+    return out;
+  }, [data, filter]);
 
   if (!data) return null;
   const river = data.ranges.board.length >= 5;
   const rows = (group: FilterGroup, values: readonly string[]): Row[] =>
     values
       .map((value) => filterId(group, value))
-      .filter((id) => (shares.get(id)?.share ?? 0) > 0 || picked.includes(id))
-      .map((id) => ({ id, label: filterLabel(id, t), share: shares.get(id)?.share ?? 0, mix: shares.get(id)?.mix ?? [] }));
+      .filter((id) => ((shares.get(id)?.share ?? 0) > 0 && possible.has(id)) || picked.includes(id))
+      .map((id) => {
+        const entry = shares.get(id);
+        return {
+          id,
+          label: filterLabel(id, t),
+          share: entry?.share ?? 0,
+          mix: entry?.mix ?? [],
+          gain: entry && entry.gainWeight > 0 ? entry.gain / entry.gainWeight : null,
+        };
+      });
 
   const set = (next: string[]) => onFilter({ ...filter, [mode]: next });
   const toggle = (id: string) => set(picked.includes(id) ? picked.filter((x) => x !== id) : [...picked, id]);
@@ -175,12 +225,14 @@ export function HandFilters({
             <span className={analysis.muted}>{suited ? t.filters.suited : t.filters.offsuit}</span>
             {SUITS.map((suit) => {
               const id = filterId("suit", `${suited ? "s" : "o"}${suit}`);
+              const on = picked.includes(id);
               return (
                 <button
                   key={suit}
                   type="button"
                   className={`${styles.suitToggle} ${styles[`suitText${suit.toUpperCase()}`] ?? ""}`}
-                  aria-pressed={picked.includes(id)}
+                  aria-pressed={on}
+                  disabled={!on && !possible.has(id)}
                   aria-label={filterLabel(id, t)}
                   title={filterLabel(id, t)}
                   onClick={() => toggle(id)}
@@ -194,6 +246,7 @@ export function HandFilters({
       </div>
 
       <p className={analysis.muted}>{t.filters.forPlayer(data.ranges.sides[data.ranges.actor].position)}</p>
+      {compare ? <p className={analysis.muted}>{t.filters.evGain(compare.label)}</p> : null}
       {!data.equity ? <p className={analysis.muted}>{t.ranges.computing}</p> : null}
 
       <div className={styles.filterGroups}>
@@ -212,13 +265,22 @@ export function HandFilters({
                     <li key={row.id} className={styles.filterRow}>
                       <button
                         type="button"
-                        className={`${styles.filterPick} ${on ? (mode === "include" ? styles.filterOn : styles.filterOff) : ""} ${other ? styles.filterOther : ""}`}
+                        className={`${styles.filterPick} ${compare ? styles.filterPickGain : ""} ${on ? (mode === "include" ? styles.filterOn : styles.filterOff) : ""} ${other ? styles.filterOther : ""}`}
                         aria-pressed={on}
                         onClick={() => toggle(row.id)}
                       >
                         <span className={styles.filterName}>{row.label}</span>
                         <span className={styles.filterShare}>{t.filters.share(row.share)}</span>
                         <MixBar mix={row.mix} colours={colours} thin />
+                        {compare ? (
+                          row.gain === null ? (
+                            <span />
+                          ) : (
+                            <span title={t.filters.evGainOf(row.label, t.signedBb(row.gain), compare.label)}>
+                              <SignedBb className={styles.filterGain} value={row.gain} text={t.signed(row.gain)} />
+                            </span>
+                          )
+                        ) : null}
                       </button>
                       <button
                         type="button"

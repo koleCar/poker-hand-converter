@@ -19,8 +19,9 @@
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 
-import { decodeChunk, loadChartSet, nodelockSpotOf, type LockSet } from "./door";
+import { decodeChunk, loadChartSet, lockGameStreet, nodelockSpotOf, type LockSet } from "./door";
 import { nativeRequestOf, type NativeRequest } from "./request";
+import { speedStorage, speedThreads, type SolveSpeed } from "./speed";
 import type { NodelockEngine, NodelockProgress, NodelockStats } from "./types";
 
 export { nativeRequestOf, type NativeRequest } from "./request";
@@ -90,7 +91,7 @@ export async function createNativeEngine(): Promise<NodelockEngine | null> {
       if (signal.aborted) throw new DOMException("cancelled", "AbortError");
       busy = true;
       try {
-        return await solveNative(req, onProgress, signal);
+        return await solveNative(req, info.cores, onProgress, signal);
       } finally {
         busy = false;
       }
@@ -98,12 +99,24 @@ export async function createNativeEngine(): Promise<NodelockEngine | null> {
   };
 }
 
+/**
+ * The request with the speed's threads and, for a flop lock, its storage
+ * (`speed.ts`, #409). Rust's own defaults (all cores but one, float32 when it
+ * fits the memory) stand without a speed.
+ */
+export function withSpeed(request: NativeRequest, lockSet: LockSet, speed: SolveSpeed | undefined, cores: number): NativeRequest {
+  if (!speed) return request;
+  const storage = lockGameStreet(lockSet) === "flop" ? speedStorage(speed) : null;
+  return { ...request, threads: speedThreads(speed, cores), ...(storage ? { storage } : {}) };
+}
+
 async function solveNative(
   req: Parameters<NodelockEngine["solve"]>[0],
+  cores: number,
   onProgress: (p: NodelockProgress) => void,
   signal: AbortSignal,
 ): ReturnType<NodelockEngine["solve"]> {
-  const request = await nativeRequest(req.lockSet, req.baseline, req.maxIterations);
+  const request = withSpeed(await nativeRequest(req.lockSet, req.baseline, req.maxIterations), req.lockSet, req.speed, cores);
   // Listen first: the solve may report before `start` answers.
   let id: string | null = null;
   const early: (ProgressEvent | DoneEvent)[] = [];

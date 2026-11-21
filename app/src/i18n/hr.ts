@@ -1609,8 +1609,11 @@ export const hr: Dict = {
     accuracyLabel: "Točnost",
     accuracy: { standard: "Standardna 1%", quick: "Brza 2,5%" },
     solve: "Solvaj na ovom računalu",
-    engineLine: (threads: number, cores: number, memoryMb: number) =>
-      `Koristi do ${n(threads)} od ${n(cores)} jezgri i oko ${memoryMb >= 1000 ? `${n(Math.round(memoryMb / 100) / 10)} GB` : `${n(Math.round(memoryMb / 10) * 10)} MB`}. Ništa ne napušta ovo računalo.`,
+    speedLabel: "Brzina",
+    speeds: { slow: "Sporo", medium: "Srednje", fast: "Brzo" },
+    /** What a speed uses: under the choice, and on each option. */
+    speedLine: (threads: number, cores: number, memoryMb: number) =>
+      `${n(threads)} od ${n(cores)} jezgri · oko ${memoryMb >= 1000 ? `${n(Math.round(memoryMb / 100) / 10)} GB` : `${n(Math.round(memoryMb / 10) * 10)} MB`}`,
     noEngine: "Ova verzija Raila još ne može solvati nodelockove.",
     queued: "Drugi nodelock se solva: ovaj kreće odmah nakon njega.",
     startError: "Solve se nije mogao pokrenuti. Pokušaj ponovno.",
@@ -1745,6 +1748,8 @@ export const hr: Dict = {
       },
       deleteBody: "Briše se s ovog računala. Ovo se ne može poništiti.",
       deleteSolving: "Solve koji je u tijeku prvo se prekida.",
+      cancelSolve: "Prekini solve",
+      cancelQueue: "Prekini sve solveove",
     },
   },
 

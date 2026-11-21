@@ -9,7 +9,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import { nativeRequest } from "../../app/src/solver/nodelock/engine/native";
+import { nativeRequest, withSpeed } from "../../app/src/solver/nodelock/engine/native";
 import { nativeRequestOf } from "../../app/src/solver/nodelock/engine/request";
 import { decodeChunk, lockHash, lockSymmetries, NUM_COMBOS, type LockSet } from "../../web/src/lib/solver/index";
 import { smallFlopSpot } from "../scripts/rail-solver/small";
@@ -37,6 +37,22 @@ describe("the native engine's request", () => {
     expect(JSON.parse(request.header).lockHash).toBe(lockHash(lockSet));
     expect(app.lockHash).toBe(lockHash(lockSet));
     expect(app.nextLockHash).toBe(lockHash(app.next.lockSet as LockSet));
+  });
+
+  it("carries the speed's threads, and 16-bit storage for a flop lock unless Fast (#409)", async () => {
+    const lockSet = app.request.lockSet as LockSet;
+    const request = app.request as Parameters<typeof withSpeed>[0];
+    expect(withSpeed(request, lockSet, undefined, 10)).toBe(request);
+    expect(withSpeed(request, lockSet, "slow", 10)).toMatchObject({ threads: 5, storage: "i16" });
+    expect(withSpeed(request, lockSet, "medium", 10)).toMatchObject({ threads: 9, storage: "i16" });
+    const fast = withSpeed(request, lockSet, "fast", 10);
+    expect(fast.threads).toBe(10);
+    expect("storage" in fast).toBe(false);
+    // A turn lock keeps its float32 game at any speed.
+    const turn = warm.turn[0].request as Parameters<typeof withSpeed>[0];
+    const slowTurn = withSpeed(turn, turn.lockSet, "slow", 10);
+    expect(slowTurn.threads).toBe(5);
+    expect("storage" in slowTurn).toBe(false);
   });
 
   it("is what `nativeRequest` sends for a turn lock: the deal's live turn, no baseline", async () => {

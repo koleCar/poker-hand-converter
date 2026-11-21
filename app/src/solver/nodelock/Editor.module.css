@@ -64,17 +64,6 @@
   border-block-end: 1px solid var(--border-subtle);
 }
 
-.headLock {
-  display: inline-flex;
-  color: var(--warning-fg);
-}
-
-.headPot {
-  color: var(--text-tertiary);
-  font-size: var(--font-size-sm);
-  font-variant-numeric: tabular-nums;
-}
-
 .headCount {
   color: var(--warning-fg);
   font-size: var(--font-size-xs);
@@ -180,33 +169,13 @@
   box-shadow: none;
 }
 
+/* A locked cell: an amber edge, no glyph (#409); part of its combos locked: a fainter one. */
 .cellLocked {
   box-shadow: inset 0 0 0 1px var(--warning-border);
 }
 
-.badge {
-  position: absolute;
-  inset-block-end: 2px;
-  inset-inline-end: 2px;
-  display: grid;
-  place-items: center;
-  inline-size: 14px;
-  block-size: 14px;
-  border-radius: 3px;
-  background: var(--warning-fg);
-  color: var(--surface-base);
-  pointer-events: none;
-}
-
-.badge svg {
-  inline-size: 9px;
-  block-size: 9px;
-  stroke-width: 2.6;
-}
-
-.badgePart {
-  background: var(--surface-raised);
-  color: var(--warning-fg);
+.cellPart {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--warning-border) 45%, transparent);
 }
 
 /* A cell's lock, clicked at its corner (Range and Hand classes modes). */
@@ -214,9 +183,12 @@
   position: absolute;
   inset-block-end: 0;
   inset-inline-end: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
   inline-size: 40%;
   block-size: 45%;
-  padding: 0;
+  padding: 0 3px 3px 0;
   border: 0;
   background: transparent;
   cursor: pointer;
@@ -225,6 +197,20 @@
 .badgeButton:hover {
   border-start-start-radius: 4px;
   background: color-mix(in srgb, var(--warning-fg) 25%, transparent);
+}
+
+/* The lock glyph shows only under the pointer: what a click at the corner does. */
+.badgeButton svg {
+  inline-size: 9px;
+  block-size: 9px;
+  stroke-width: 2.6;
+  color: var(--warning-fg);
+  opacity: 0;
+}
+
+.badgeButton:hover svg,
+.badgeButton:focus-visible svg {
+  opacity: 1;
 }
 
 .badgeButton:focus-visible {
@@ -583,6 +569,12 @@
   padding: 10px;
   border-radius: var(--radius-3);
   background: var(--surface-inset);
+  scroll-margin-block: 8px;
+}
+
+/* The picked class's sliders, under its row. */
+.classDetail {
+  margin-block: 2px 6px;
 }
 
 /* ------------------------------------------------- the bar at the bottom */
@@ -605,7 +597,7 @@
 
 .footText {
   display: grid;
-  flex: 1 1 16rem;
+  flex: 1 1 10rem;
   gap: 2px;
   min-inline-size: 0;
 }
