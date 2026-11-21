@@ -92,7 +92,7 @@ export interface StrategyHero {
 }
 
 /** Below this an action rounds to nothing (it reads `<0.1%`): left out of a cell's spoken mix. */
-const SHOWN_FREQ = 0.0005;
+export const SHOWN_FREQ = 0.0005;
 /** An action row being hovered leaves the others this faint in the grid. */
 const DIMMED = 0.12;
 const RANKS = "AKQJT98765432";

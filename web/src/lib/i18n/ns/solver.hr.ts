@@ -174,7 +174,7 @@ export const solverHr: Dict["solver"] = {
   signed: (value: number) => signedBb(value).replace(/ bb$/, ""),
   evShort: (value: number) => num(Math.round(value * 100) / 100 || 0, 2),
 
-  tabs: { label: "Prikaz", strategy: "Strategija + EV", ranges: "Rangeovi", rangeModes: "Što mreže prikazuju" },
+  tabs: { label: "Prikaz", strategy: "Strategija + EV", ranges: "Rangeovi" },
 
   ranges: {
     modes: { strategy: "Strategija", ev: "EV", equity: "Equity", range: "Range", eqr: "EQR" },
@@ -202,6 +202,12 @@ export const solverHr: Dict["solver"] = {
       (ev === null ? "" : ` · EV ${num(ev, 2)} bb`),
     otherNote: (position: string) => `${position} ovdje ne odlučuje: za svaku kombinaciju težina u rasponu, equity i EV (bb).`,
     hoverEmpty: "Prijeđi mišem preko ruke da vidiš kombinacije, equity i EV.",
+    scale: {
+      ev: (pot: number) => ["0", `${num(pot, 1)} bb`] as const,
+      equity: () => [pct(0), pct(1)] as const,
+      eqr: () => [pct(0), pct(2)] as const,
+    },
+    scaleLabel: (mode: string, low: string, high: string) => `${mode}: crveno ${low}, žuto na pola, zeleno ${high}`,
     cellValue: {
       strategy: () => "",
       ev: (value: number) => num(value, 1),

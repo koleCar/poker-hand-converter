@@ -177,7 +177,7 @@ export const solverEn = {
   signed: (value: number) => signedBb(value).replace(/ bb$/, ""),
   evShort: (value: number) => num(Math.round(value * 100) / 100 || 0, 2),
 
-  tabs: { label: "View", strategy: "Strategy + EV", ranges: "Ranges", rangeModes: "What the grids show" },
+  tabs: { label: "View", strategy: "Strategy + EV", ranges: "Ranges" },
 
   ranges: {
     modes: { strategy: "Strategy", ev: "EV", equity: "Equity", range: "Range", eqr: "EQR" },
@@ -206,6 +206,12 @@ export const solverEn = {
       (ev === null ? "" : ` · EV ${num(ev, 2)} bb`),
     otherNote: (position: string) => `${position} does not act here: each combo's weight in the range, equity and EV (bb).`,
     hoverEmpty: "Hover a hand to see its combos, equity and EV.",
+    scale: {
+      ev: (pot: number) => ["0", `${num(pot, 1)} bb`] as const,
+      equity: () => [pct(0), pct(1)] as const,
+      eqr: () => [pct(0), pct(2)] as const,
+    },
+    scaleLabel: (mode: string, low: string, high: string) => `${mode}: red ${low}, yellow halfway, green ${high}`,
     cellValue: {
       strategy: () => "",
       ev: (value: number) => num(value, 1),

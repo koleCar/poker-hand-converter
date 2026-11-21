@@ -1413,6 +1413,7 @@ button.pcardHead:focus-visible {
 }
 
 .heat {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1432,6 +1433,29 @@ button.pcardHead:focus-visible {
 
 .heatOut {
   opacity: 0.15;
+}
+
+/* Over the cell's fill (`.cellFill`: the strategy's columns, or the measure's colour). */
+.heatName {
+  position: relative;
+}
+
+/* A grid's heat map scale, at the end of its head: low (red) to high (green). */
+.heatScale {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-inline-start: auto;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.heatScaleBar {
+  inline-size: 4rem;
+  block-size: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--loss-fg), var(--ev-fg), var(--profit-fg));
 }
 
 .heatHover {

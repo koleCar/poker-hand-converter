@@ -29,7 +29,7 @@
  * chunk's ranges at the deal (liveTurn.ts): a few seconds, nothing stored.
  *
  * A flop decision has two tabs: the actor's strategy (StrategyView) and both
- * ranges side by side (RangesView, coloured by the toolbar's measure). The
+ * ranges side by side (RangesView, each grid by its own measure). The
  * hand filters (HandFilters) sit in the panel beside either and stay set
  * while the line is walked.
  *
@@ -78,7 +78,7 @@ import { DealPicker, FlopCard, PostflopCards, type Where } from "./PostflopBar";
 import { PreflopCards, Strip, TableSelect, type TableOption } from "./PreflopBar";
 import { preflopState } from "./preflop";
 import { filterMasks, useRangeData, type RangeData } from "./rangeData";
-import { RANGE_MODES, RangesView, type RangeMode } from "./RangesView";
+import { DEFAULT_RANGE_MODES, RangesView, type RangeModes } from "./RangesView";
 import { actionColours, StrategyView, type StrategyHero, type StrategyModel } from "./StrategyView";
 import { IconButton, Segmented } from "./ui";
 import styles from "./solver.module.css";
@@ -181,8 +181,8 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
   /** A street's betting is over and its card is being picked: the deal's node (flop chunk: the turn; turn file: the river). */
   const [deal, setDeal] = useState<number | null>(null);
   const [tab, setTab] = useState<"strategy" | "ranges">("strategy");
-  /** What the Ranges tab's grids are coloured by (the toolbar's second segment). */
-  const [rangeMode, setRangeMode] = useState<RangeMode>("equity");
+  /** What the Ranges tab's grids show, by role: kept as the line is walked. */
+  const [rangeModes, setRangeModes] = useState<RangeModes>(DEFAULT_RANGE_MODES);
   /** The preflop cards opened from their summary (the line is at the flop): until the line changes. */
   const [preflopOpen, setPreflopOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -605,15 +605,6 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
             setSwappedAt(model.id);
           }}
         />
-        {ranges ? (
-          <Segmented
-            size="sm"
-            label={t.tabs.rangeModes}
-            value={rangeMode}
-            options={RANGE_MODES.map((m) => ({ value: m, label: t.ranges.modes[m] }))}
-            onChange={setRangeMode}
-          />
-        ) : null}
         <ActiveFilters filter={filter} onFilter={setFilter} />
         <span className={styles.spacer} />
         {at && nodelock ? nodelock.nodeAction(at) : null}
@@ -628,7 +619,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
         compare={compare}
         actionMark={mark ? (key) => (mark.actions.has(key) ? mark.render(key) : null) : undefined}
         hero={hero}
-        main={ranges ? (onHand) => <RangesView data={rangeData} masks={masks} mode={rangeMode} onHand={onHand} /> : undefined}
+        main={ranges ? (onHand) => <RangesView data={rangeData} masks={masks} strategy={model} modes={rangeModes} onModes={setRangeModes} onHand={onHand} /> : undefined}
         empty={
           include && filterActive(filter) && (model.reach ?? 1) <= 0 ? (
             <div className={styles.empty}>
