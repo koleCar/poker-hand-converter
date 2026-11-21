@@ -151,6 +151,8 @@ export const solverHr: Dict["solver"] = {
   },
   blocked: "Blokirano boardom",
   vsBase: (delta: string, label: string) => `${delta} prema ${label}`,
+  /** Compare with GTO: an action GTO plays that the locked decision no longer offers. */
+  notOffered: (label: string) => `Nije ponuđeno u ovom locku; ${label} je igra`,
   share: (share: number, count: number) => `${pct1(share)} · ${combos(Math.round(count))}`,
   shareOnly: pct1,
   combosCount: (count: number) => combos(Math.round(count)),

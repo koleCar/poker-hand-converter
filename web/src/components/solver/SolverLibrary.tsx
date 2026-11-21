@@ -591,7 +591,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
         />
       );
     }
-    const compare = at?.locked && nodelock?.compare ? compareWith(at, chunkKey, include, nodelock.compareLabel, nodelock.shareDelta) : null;
+    const compare = at?.locked && nodelock?.compare ? compareWith(at, chunkKey, include, nodelock.compareLabel, nodelock.shareDelta, t) : null;
     const ranges = tab === "ranges" && rangeData;
     toolbar = (
       <div className={styles.tools}>
@@ -859,8 +859,10 @@ function flopModel(
 /**
  * GTO at the decision a locked solution shows (the app's nodelock compare):
  * the library's flop decision on the same path, or on a turn the library's
- * own live turn when it was solved this session. Null when there is none, or
- * the trees differ.
+ * own live turn when it was solved this session. Null when there is none.
+ *
+ * Actions pair by their tree label: a lock that took an action away (its own
+ * sizes, §8) lists GTO's as `missing`, a size of its own has no GTO share.
  */
 function compareWith(
   at: NodelockAt,
@@ -868,20 +870,52 @@ function compareWith(
   include: Uint8Array | undefined,
   label: string,
   shareDelta: (delta: number) => string,
+  t: Dict,
 ): StrategyCompare | null {
   const base = at.turn ? liveTurnCached(chunkKey, at.turn.chance, at.turn.card) : at.library;
   if (!base) return null;
   const shown = at.chunk.result.nodes[at.node];
   const index = nodeAt(base.result, shown.path);
   const node = base.result.nodes[index];
-  // A lock with its own sizes (`NodeLockSpec.custom`) offers other actions here: nothing to compare them with.
-  if (!node || node.kind !== "action" || node.labels.join(" ") !== shown.labels.join(" ")) return null;
-  const sameHands = base.result.hands[node.player].length === at.chunk.result.hands[shown.player].length;
-  const view = exploreNode(base, index, sameHands ? include : undefined);
+  if (!node || node.kind !== "action" || shown.kind !== "action" || node.player !== shown.player) return null;
+  const player = shown.player as 0 | 1;
+
+  // The same hands in both solves, matched by combo (a range lock may leave some out).
+  const handsHere = at.chunk.result.hands[player];
+  const handsBase = base.result.hands[player];
+  const inBase = new Map<number, number>();
+  handsBase.forEach((combo, j) => inBase.set(combo, j));
+  const toBase = Array.from(handsHere, (combo) => inBase.get(combo) ?? -1);
+  let baseInclude: Uint8Array | undefined;
+  if (include) {
+    baseInclude = new Uint8Array(handsBase.length);
+    toBase.forEach((j, i) => {
+      if (j >= 0) baseInclude![j] = include[i];
+    });
+  }
+  const view = exploreNode(base, index, baseInclude);
+
+  const baseLabels = node.labels;
+  const shares = shown.labels.map((key) => {
+    const a = baseLabels.indexOf(key);
+    return a >= 0 ? view.totals[a].share : null;
+  });
+  const colours = actionColours(view.actions);
+  const missing = view.actions
+    .map((action, a) => ({ action, a }))
+    .filter(({ action, a }) => !shown.labels.includes(action.label) && view.totals[a].share > 0)
+    .map(({ action, a }) => ({
+      key: action.label,
+      label: t.action(action.kind, action.sizePot, action.amount),
+      colour: colours[a],
+      share: view.totals[a].share,
+    }));
+
   return {
     label,
     shareDelta,
-    shares: view.totals.map((x) => x.share),
+    shares,
+    missing,
     classes: view.classes.map((c) => ({ freq: c.freq, ev: c.ev, value: c.value })),
   };
 }

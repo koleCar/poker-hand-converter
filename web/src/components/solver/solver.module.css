@@ -1181,6 +1181,16 @@ button.pcardHead:focus-visible {
   opacity: 0.45;
 }
 
+/* Compare with GTO: an action GTO plays that the lock no longer offers. */
+.actGone {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.actGone:hover {
+  background: none;
+}
+
 .actDot {
   inline-size: 10px;
   block-size: 10px;

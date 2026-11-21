@@ -399,8 +399,11 @@ function Grid({
         <MixBar mix={visible} colours={colours} />
 
         <div className={styles.acts} role="group" aria-label={t.panel.actions}>
-          {model.actions.map((action, a) =>
-            action.hidden ? null : (
+          {model.actions.map((action, a) => {
+            const gto = compare ? (compare.shares[a] ?? null) : null;
+            // Compare keeps an action GTO plays that the lock took to nothing: it shows at 0 %.
+            if (action.hidden && !(gto !== null && gto >= SHOWN_FREQ)) return null;
+            return (
               <button
                 key={action.key}
                 type="button"
@@ -416,9 +419,9 @@ function Grid({
                 <span className={styles.actLabel}>
                   {action.label}
                   {actionMark ? actionMark(action.key) : null}
-                  {compare ? (
-                    <span className={styles.actGto} title={compare.shareDelta(action.share - (compare.shares[a] ?? 0))}>
-                      {compare.label} {t.shareOnly(compare.shares[a] ?? 0)}
+                  {compare && gto !== null ? (
+                    <span className={styles.actGto} title={compare.shareDelta(action.share - gto)}>
+                      {compare.label} {t.shareOnly(gto)}
                     </span>
                   ) : null}
                 </span>
@@ -426,8 +429,22 @@ function Grid({
                 <span className={styles.actShare}>{t.shareOnly(action.share)}</span>
                 {action.ev === null ? <span /> : <SignedBb className={styles.actEv} value={action.ev} text={t.signed(action.ev)} />}
               </button>
-            ),
-          )}
+            );
+          })}
+          {compare?.missing.map((gone) => (
+            <div key={gone.key} className={`${styles.act} ${styles.actGone}`} title={t.notOffered(compare.label)}>
+              <span className={`${styles.actDot} ${gone.colour}`} aria-hidden="true" />
+              <span className={styles.actLabel}>
+                {gone.label}
+                <span className={styles.actGto}>
+                  {compare.label} {t.shareOnly(gone.share)}
+                </span>
+              </span>
+              <span className={styles.actCombos} />
+              <span className={styles.actShare}>{t.shareOnly(0)}</span>
+              <span />
+            </div>
+          ))}
         </div>
 
         {filters ? (

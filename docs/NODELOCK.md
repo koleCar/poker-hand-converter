@@ -1141,9 +1141,13 @@ library's.
 - **Cost**: the earlier nodes still freeze at the library's strategies. The
   locked node's subtree is new, so a flop lock with its own sizes solves
   like any flop lock (it was never warm across spots anyway).
-- **Compare and popover**: a node is paired with the library's only when
-  the labels match. A custom node shows no GTO; the row summary's `shifts`
-  has GTO 0 for a new size.
+- **Compare and popover**: the popover pairs a node with the library's only
+  when the labels match; the row summary's `shifts` has GTO 0 for a new
+  size. Compare with GTO (#411) pairs actions by label: a size of the lock's
+  own shows no GTO figure, and an action GTO plays that the lock removed is
+  listed after the others, dimmed, at 0 % beside GTO's share. An action the
+  lock kept but no hand takes (held at 0 %) also stays listed while
+  comparing.
 
 ## 9. Range locks: the ranges that reach the flop (owner, 2026-11-19)
 

@@ -153,6 +153,8 @@ export const solverEn = {
   },
   blocked: "Blocked by the board",
   vsBase: (delta: string, label: string) => `${delta} vs ${label}`,
+  /** Compare with GTO: an action GTO plays that the locked decision no longer offers. */
+  notOffered: (label: string) => `Not offered in this lock; ${label} plays it`,
   share: (share: number, combos: number) => `${pct1(share)} · ${num(Math.round(combos))} combos`,
   shareOnly: pct1,
   combosCount: (combos: number) => `${num(Math.round(combos))} combos`,
