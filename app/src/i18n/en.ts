@@ -1806,6 +1806,8 @@ export const en = {
       },
       deleteBody: "Removed from this computer. This cannot be undone.",
       deleteSolving: "The solve running is cancelled first.",
+      cancelSolve: "Cancel the solve",
+      cancelQueue: "Cancel every solve",
     },
   },
 

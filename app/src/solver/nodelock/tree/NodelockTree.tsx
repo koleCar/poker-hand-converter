@@ -12,7 +12,8 @@
  *   the drop is refused and the row shakes.
  * - Right-click or the row's `⋯`: Open, Rename, New folder here, Move to…,
  *   Duplicate and edit, Delete. The toolbar: New folder, Search, Collapse all.
- * - The solve running shows on its row (a bar, its progress on hover); the
+ * - The solve running shows on its row (a bar, its progress on hover); its
+ *   menu also cancels it (and the solves waiting, when there are some). The
  *   solves waiting after it are listed under the tree.
  *
  * The pure part (the tree, search, drop rules) is `./model.ts`.
@@ -27,7 +28,7 @@ import { go } from "../../../lib/router";
 import { solverStyles, ToolButton } from "../../door";
 import { nodelockData, onNodelocksChanged, type NodeLockFolder, type NodeLockRow } from "../data";
 import { progressLine } from "../progress";
-import { boardText, cancelSolve, editLock, LOCKS_PARAM, nodelockSession, openLock, parseRow, useNodelockSession } from "../session";
+import { boardText, cancelAll, cancelSolve, editLock, LOCKS_PARAM, nodelockSession, openLock, parseRow, useNodelockSession } from "../session";
 import { HoverCard } from "./HoverCard";
 import {
   ancestors,
@@ -340,12 +341,18 @@ export function NodelockTree({ openId, onHide }: { openId: string | null; onHide
     const single = keys.length === 1 ? tree.byKey.get(keys[0]) : undefined;
     const movable = canMove(tree, keys);
     const choices = movable ? folderChoices(tree, keys) : [];
+    // The solve running on this row is cancelled here (the sidebar only names it, #406).
+    const solving = single?.kind === "lock" && session.running?.id === single.item.id;
+    const cancel: MenuItem[] = solving
+      ? [{ label: tt.cancelSolve, onSelect: cancelSolve }, ...(session.queue.length ? [{ label: tt.cancelQueue, onSelect: cancelAll }] : [])]
+      : [];
     return [
       {
         label: t.open,
         disabled: !(single?.kind === "lock" && single.item.status === "solved"),
         onSelect: () => single && void openRow(single),
       },
+      ...cancel,
       { label: t.rename, disabled: !single, onSelect: () => single && startRename(single.key) },
       { label: tt.newFolderHere, onSelect: () => void newFolder(folderHere(tree, keys[0])) },
       {

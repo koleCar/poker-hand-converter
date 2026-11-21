@@ -1745,6 +1745,8 @@ export const hr: Dict = {
       },
       deleteBody: "Briše se s ovog računala. Ovo se ne može poništiti.",
       deleteSolving: "Solve koji je u tijeku prvo se prekida.",
+      cancelSolve: "Prekini solve",
+      cancelQueue: "Prekini sve solveove",
     },
   },
 
