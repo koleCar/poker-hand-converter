@@ -8,7 +8,9 @@
  * picked categories add up; across groups a combo has to match each. Every row
  * shows the share of the acting player's range it holds here and, as a bar,
  * how that part of the range plays (the actions' colours); its ▲ picks it and
- * every row above it (a hand and everything stronger). The active filters
+ * every row above it (a hand and everything stronger). A category no hand of
+ * the range can be under the other groups' picks (a set among suited hands)
+ * leaves the list, and such a suit is disabled. The active filters
  * show as chips on the view's toolbar (`ActiveFilters`), each removed by a
  * click.
  */
@@ -25,6 +27,7 @@ import {
   EQ_BUCKETS,
   filterId,
   MADE_HANDS,
+  passes,
   type FilterGroup,
   type HandFilter,
 } from "../../lib/solver";
@@ -129,12 +132,38 @@ export function HandFilters({
     return out;
   }, [data]);
 
+  // The categories some hand of the range still has under the other groups' picks: a pick never empties its own group.
+  const possible = useMemo(() => {
+    const out = new Set<string>();
+    if (!data) return out;
+    const p = data.ranges.actor;
+    const side = data.ranges.sides[p];
+    const without = new Map<string, HandFilter>();
+    const others = (group: string) => {
+      let f = without.get(group);
+      if (!f) {
+        const keep = (id: string) => !id.startsWith(`${group}:`);
+        f = { include: filter.include.filter(keep), exclude: filter.exclude.filter(keep) };
+        without.set(group, f);
+      }
+      return f;
+    };
+    side.hands.forEach((_, i) => {
+      if (side.reach[i] <= 0) return;
+      const ids = comboIds(data.cards[p][i], data.features[p][i], data.equity ? data.equity[p][i] : Number.NaN);
+      for (const id of ids) {
+        if (!out.has(id) && passes(others(id.slice(0, id.indexOf(":"))), ids)) out.add(id);
+      }
+    });
+    return out;
+  }, [data, filter]);
+
   if (!data) return null;
   const river = data.ranges.board.length >= 5;
   const rows = (group: FilterGroup, values: readonly string[]): Row[] =>
     values
       .map((value) => filterId(group, value))
-      .filter((id) => (shares.get(id)?.share ?? 0) > 0 || picked.includes(id))
+      .filter((id) => ((shares.get(id)?.share ?? 0) > 0 && possible.has(id)) || picked.includes(id))
       .map((id) => ({ id, label: filterLabel(id, t), share: shares.get(id)?.share ?? 0, mix: shares.get(id)?.mix ?? [] }));
 
   const set = (next: string[]) => onFilter({ ...filter, [mode]: next });
@@ -175,12 +204,14 @@ export function HandFilters({
             <span className={analysis.muted}>{suited ? t.filters.suited : t.filters.offsuit}</span>
             {SUITS.map((suit) => {
               const id = filterId("suit", `${suited ? "s" : "o"}${suit}`);
+              const on = picked.includes(id);
               return (
                 <button
                   key={suit}
                   type="button"
                   className={`${styles.suitToggle} ${styles[`suitText${suit.toUpperCase()}`] ?? ""}`}
-                  aria-pressed={picked.includes(id)}
+                  aria-pressed={on}
+                  disabled={!on && !possible.has(id)}
                   aria-label={filterLabel(id, t)}
                   title={filterLabel(id, t)}
                   onClick={() => toggle(id)}

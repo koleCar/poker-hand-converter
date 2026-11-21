@@ -1660,6 +1660,15 @@ button.pcardHead:focus-visible {
   border-color: var(--border-strong);
 }
 
+.suitToggle:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.suitToggle:disabled:hover {
+  border-color: var(--border-default);
+}
+
 .suitToggle[aria-pressed="true"] {
   border-color: var(--accent-border);
   background: var(--accent-subtle);
