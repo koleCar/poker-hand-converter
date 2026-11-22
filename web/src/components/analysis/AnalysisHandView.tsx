@@ -57,9 +57,13 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
   const [loaded, setLoaded] = useState<Loaded>({ status: "loading" });
   const [sheetOpen, setSheetOpen] = useState(true);
   const fromSession = cameFromSession(query);
-  const back = fromSession
-    ? paths.analysisSession(sessionQueryString(parseSessionQuery(query)))
-    : paths.analysis(listQuery(parseListState(query)));
+  // Opened from an Analytics drill-down (`from=stats&stat=<id>`): back to that stat.
+  const fromStat = query.from === "stats" && typeof query.stat === "string" && query.stat !== "" ? query.stat : null;
+  const back = fromStat
+    ? paths.statsStat(fromStat)
+    : fromSession
+      ? paths.analysisSession(sessionQueryString(parseSessionQuery(query)))
+      : paths.analysis(listQuery(parseListState(query)));
   const linkedPosition = useMemo<ReplayPosition | null>(() => {
     const raw = query.t;
     return decodePosition(Array.isArray(raw) ? raw[0] : raw);
@@ -105,7 +109,7 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
 
   const backLink = (
     <Link href={back} className={`btn btn--ghost btn--sm ${styles.back}`}>
-      ← {fromSession ? t.hand.backToSession : t.hand.back}
+      ← {fromStat ? t.hand.backToStat : fromSession ? t.hand.backToSession : t.hand.back}
     </Link>
   );
 

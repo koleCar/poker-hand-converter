@@ -797,11 +797,351 @@ button.openStat:hover {
   color: var(--text-link);
   font: inherit;
   font-size: var(--font-size-sm);
+  text-decoration: none;
   cursor: pointer;
 }
 
 .link:hover {
   text-decoration: underline;
+}
+
+/* --------------------------------------------------------- Drill-down
+   One stat (board AN-Drill): the bar, the spots on the left, the open
+   spot's bet sizes, hand classes and hands on the right. */
+
+.drill {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.drillBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+}
+
+.drillName {
+  font-size: var(--font-size-md, 15px);
+  font-weight: var(--font-weight-semibold);
+}
+
+.drillYou {
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.drillTarget {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.drillCost {
+  color: var(--loss-fg);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.drillBar :global(.btn) {
+  align-self: center;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.spotList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.spotBtn {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.spotBtn:hover {
+  background: var(--surface-hover);
+}
+
+.spotBtn:focus-visible,
+.sizeRow:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+/* The open spot: the accent edge on a faint accent ground, as an open Streets block. */
+.spotBtn.on {
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+  box-shadow: inset 0 0 0 1px var(--accent-border);
+}
+
+.spotBtn b {
+  overflow: hidden;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spotMore {
+  align-self: flex-start;
+  padding: var(--space-1) var(--space-2);
+}
+
+.spotV {
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.spotSub {
+  overflow: hidden;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drillMain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-inline-size: 0;
+}
+
+.sizes {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+}
+
+.sizeHead,
+.sizeRow {
+  display: grid;
+  grid-template-columns: 96px 64px repeat(var(--cells, 3), minmax(0, 1fr)) 72px;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+}
+
+.sizeHead {
+  border-block-end: 1px solid var(--border-default);
+  background: var(--surface-raised-2);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.sizeRow {
+  inline-size: 100%;
+  border: 0;
+  border-block-end: 1px solid var(--border-subtle);
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+  cursor: pointer;
+}
+
+.sizeRow:last-child {
+  border-block-end: 0;
+}
+
+.sizeRow:hover {
+  background: var(--surface-hover);
+}
+
+.sizeRow.on {
+  background: var(--accent-subtle);
+  box-shadow: inset 3px 0 0 var(--accent-fg);
+}
+
+.sizeName {
+  font-weight: var(--font-weight-semibold);
+  text-align: start;
+}
+
+.sizeHead > :first-child {
+  text-align: start;
+}
+
+.sizeRow .cost {
+  grid-area: auto;
+}
+
+.cell b {
+  font-weight: var(--font-weight-semibold);
+}
+
+.cell span {
+  margin-inline-start: 6px;
+  color: var(--text-tertiary);
+}
+
+.end {
+  text-align: end;
+}
+
+.classes,
+.handsBox {
+  display: flex;
+  flex-direction: column;
+}
+
+.classes > .sub,
+.handsBox > .sub {
+  padding-block-end: var(--space-2);
+}
+
+.classRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 180px) 132px 104px 76px;
+  gap: var(--space-3);
+  align-items: center;
+  padding: 7px 0;
+  border-block-start: 1px solid var(--border-subtle);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.classRow.classHead {
+  border-block-start: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.className {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shareCell {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.share {
+  position: relative;
+  flex: 1 1 0;
+  overflow: hidden;
+  block-size: 8px;
+  border-radius: 4px;
+  background: var(--surface-sunken, var(--surface-raised-2));
+}
+
+/* The share's bar: the fold colour, the tone's when the class is off target. */
+.share i {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  background: var(--chart-fold);
+}
+
+.share i.off {
+  background: var(--warning-fg);
+}
+
+.share i.far {
+  background: var(--danger-fg);
+}
+
+.shareText {
+  inline-size: 40px;
+  text-align: end;
+}
+
+.gain {
+  color: var(--profit-fg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.hands {
+  display: flex;
+  flex-direction: column;
+}
+
+.handRow {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.handLink {
+  display: grid;
+  flex: 1 1 0;
+  grid-template-columns: 84px 128px 72px minmax(0, 1fr) 84px;
+  gap: var(--space-3);
+  align-items: center;
+  min-inline-size: 0;
+  padding: 6px var(--space-1);
+  color: inherit;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+}
+
+.handLink.bare {
+  grid-template-columns: 84px minmax(0, 1fr) 84px;
+}
+
+a.handLink:hover {
+  background: var(--surface-hover);
+}
+
+a.handLink:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
+
+.handRow > .link {
+  flex: none;
+  inline-size: 72px;
+  text-align: end;
+}
+
+.handCards {
+  display: inline-flex;
+  min-inline-size: 0;
+}
+
+.handWhat {
+  overflow: hidden;
+  color: var(--text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.handEv {
+  color: var(--profit-fg);
+  font-weight: var(--font-weight-semibold);
+  text-align: end;
 }
 
 /* ------------------------------------------------------------- narrow
@@ -887,6 +1227,110 @@ button.openStat:hover {
   .openSpots,
   .findingSpots {
     padding-inline: var(--space-3);
+  }
+
+  /* The drill-down: the spots over the rest; the size table without its times, the classes and hands on two lines. */
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sizeHead,
+  .sizeRow {
+    grid-template-columns: 64px repeat(var(--cells, 3), minmax(0, 1fr)) 52px;
+    gap: var(--space-2);
+    padding-inline: var(--space-2);
+  }
+
+  .sizeHead > :nth-child(2),
+  .sizeRow > :nth-child(2) {
+    display: none;
+  }
+
+  .cell span {
+    display: block;
+    margin-inline-start: 0;
+  }
+
+  .classRow {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "name solver worth"
+      "share share practise";
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .classRow > :nth-child(1) {
+    grid-area: name;
+  }
+
+  .classRow > :nth-child(2) {
+    grid-area: share;
+  }
+
+  .classRow > :nth-child(3) {
+    grid-area: solver;
+  }
+
+  .classRow > :nth-child(4) {
+    grid-area: worth;
+  }
+
+  .classRow > :nth-child(5) {
+    grid-area: practise;
+  }
+
+  .classRow.classHead {
+    display: none;
+  }
+
+  .handRow {
+    align-items: flex-start;
+  }
+
+  .handLink {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "cards board ev"
+      "size what what";
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .handLink > :nth-child(1) {
+    grid-area: cards;
+  }
+
+  .handLink > :nth-child(2) {
+    grid-area: board;
+  }
+
+  .handLink > :nth-child(3) {
+    grid-area: size;
+  }
+
+  .handLink > :nth-child(4) {
+    grid-area: what;
+  }
+
+  .handLink > :nth-child(5) {
+    grid-area: ev;
+  }
+
+  .handLink.bare {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "cards what ev";
+  }
+
+  .handLink.bare > :nth-child(2) {
+    grid-area: what;
+  }
+
+  .handLink.bare > :nth-child(3) {
+    grid-area: ev;
+  }
+
+  .handRow > .link {
+    inline-size: auto;
+    padding-block-start: 6px;
   }
 }
 

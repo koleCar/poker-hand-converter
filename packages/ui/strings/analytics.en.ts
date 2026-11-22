@@ -148,6 +148,79 @@ export const analyticsUiEn = {
       allStats: "All stats →",
       pool: "How your pool plays →",
     },
+    /** The drill-down (Step 8): one stat by spot, bet size and hand class, then its hands. */
+    drill: {
+      back: "← Analytics",
+      /** A stat's spots row's way in: "By bet size and hand →". */
+      link: "By bet size and hand →",
+      /** The stat's target in the bar: "target 33–38% · Solver". */
+      target: (range: string, source: string) => `target ${range}% · ${source}`,
+      /** The bar's way to the Trainer: "Practise BB vs SB · 20–40% ▸". */
+      practise: (what: string) => `Practise ${what} ▸`,
+      practiseClass: "Practise ▸",
+      playIt: "Play it ▸",
+      spots: "Spots",
+      /** A spot's sample under its name: "41 times". */
+      times: (count: string, n: number) => `${count} ${n === 1 ? "time" : "times"}`,
+      sizes: {
+        label: "By bet size",
+        size: "Bet size",
+        times: "Times",
+        /** The first action's head: "Fold · you / solver". */
+        youRef: (action: string, ref: string) => `${action} · you / ${ref}`,
+        ref: { charts: "charts", solver: "solver" } as Record<string, string>,
+      },
+      /** The classes' head line: "What you fold · BB vs SB · 20–40% · strongest first". */
+      classesTitle: (what: string, scope: string) => `${what} · ${scope} · strongest first`,
+      classHead: "Hand class",
+      /** By the stat's action class. */
+      what: {
+        fold: "What you fold",
+        call: "What you call",
+        raise: "What you raise",
+        bet: "What you bet",
+        vpip: "What you play",
+        pfr: "What you raise",
+      } as Record<string, string>,
+      share: {
+        fold: "Share of your folds",
+        call: "Share of your calls",
+        raise: "Share of your raises",
+        bet: "Share of your bets",
+        vpip: "Share of your hands played",
+        pfr: "Share of your raises",
+      } as Record<string, string>,
+      /** What each taken decision gave up: a fold's is what a call is worth. */
+      worth: { fold: "Call is worth", other: "Given up each" } as Record<string, string>,
+      /** The hands' head line: "Your folds the solver plays · biggest first". */
+      handsTitle: (what: string) => `${what} · biggest first`,
+      /** The stat too high: the decisions that took its action. */
+      handsHigh: {
+        fold: "Your folds the solver plays",
+        call: "Your calls the solver folds",
+        raise: "Your raises the solver avoids",
+        bet: "Your bets the solver checks",
+        vpip: "Hands you played the solver folds",
+        pfr: "Your raises the solver avoids",
+      } as Record<string, string>,
+      /** The stat too low: the decisions that did not, where the solver would have. */
+      handsLow: {
+        fold: "Hands you went on with the solver folds",
+        call: "Hands the solver calls and you did not",
+        raise: "Hands the solver raises and you did not",
+        bet: "Your checks the solver bets",
+        vpip: "Hands you folded the solver plays",
+        pfr: "Hands the solver raises and you did not",
+      } as Record<string, string>,
+      /** What the other way was worth: "+1.24 bb". */
+      bb: (value: string) => `+${value} bb`,
+      /** A hand row's name for assistive technology: "Open the hand A♠K♦". */
+      openHand: (cards: string) => `Open the hand ${cards}`,
+      handsLoading: "Finding the hands…",
+      handsError: (reason: string) => `The hands did not load: ${reason}`,
+      noHands: "No hands to show here yet.",
+      noDrill: "This stat has no breakdown by spot and hand.",
+    },
     graph: "Winnings over hands",
     stats: {
       order: "Order",

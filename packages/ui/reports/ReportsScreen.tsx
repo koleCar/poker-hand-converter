@@ -13,6 +13,10 @@
  * - **Pool** (Step 10): one quiet line until then.
  * - **All stats** (Step 5, `analytics/AllStats.tsx`): the catalogue's stats
  *   against their targets, from the surface's checker (`AnalyticsChecker`).
+ * - **A stat's drill-down** (Step 8, `analytics/Drill.tsx`) instead of the
+ *   tabs, when the surface's route names one (`drill`): spots, bet sizes,
+ *   hand classes and hands; "By bet size and hand →" under a stat's spots
+ *   leads there through the surface's `drillNav`.
  * - **Breakdown** (open question 1's default): what Reports showed - the
  *   statistics as matrices (`ReportStats.tsx`) and the breakdowns
  *   (`Breakdown.tsx`), then the surface's footer.
@@ -40,8 +44,9 @@ import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, 
 
 import { AllStats, AllStatsControls } from "../analytics/AllStats";
 import an from "../analytics/Analytics.module.css";
+import { Drill, DrillNavContext, type DrillHandLinkProps, type DrillNav } from "../analytics/Drill";
 import { FiguresRow } from "../analytics/FiguresRow";
-import type { AnalyticsChecker } from "../analytics/model";
+import type { AnalyticsChecker, CheckerExampleQuery } from "../analytics/model";
 import { Overview } from "../analytics/Overview";
 import { Streets, StreetsKey } from "../analytics/Streets";
 import { useChecker } from "../analytics/useChecker";
@@ -75,6 +80,7 @@ import { useReport } from "./useReport";
 
 export { isTab, type Tab };
 export { isAnalyticsView, type AnalyticsView };
+export type { DrillHandLinkProps, DrillNav };
 
 /** The money view's currency, when the sample has one. */
 function moneyOf(units: Units): WinrateGraphMoney | null {
@@ -140,6 +146,17 @@ export interface ReportsScreenProps {
    * 9's). Absent: no link.
    */
   practiseHref?: (query: string) => string;
+  /**
+   * The drill-down (Step 8) of this stat instead of the tabs: the surface's
+   * route (`#/reports/stat/<id>`, `/stats/<id>`). Null or absent: the tabs.
+   */
+  drill?: string | null;
+  /** The routes into a stat's drill-down and back; absent: no "By bet size and hand →". */
+  drillNav?: DrillNav;
+  /** How a drill-down hand opens (the surface's replayer). */
+  renderHandLink?: (props: DrillHandLinkProps) => ReactNode;
+  /** Around the drill-down's hands (the desktop's `HandTable`). */
+  wrapHands?: (children: ReactNode, resetKey: string) => ReactNode;
   /** After the breakdowns: the surface's own panels over the same filter (the web's sessions and opponents). */
   footer?: (query: HandFilter, report: Report | null) => ReactNode;
   /** A new value reads everything again (the web's rebuild finishing). */
@@ -167,6 +184,10 @@ export function ReportsScreen({
   checker,
   checkerLock,
   practiseHref,
+  drill = null,
+  drillNav,
+  renderHandLink,
+  wrapHands,
   footer,
   reloadToken = 0,
 }: ReportsScreenProps) {
@@ -203,7 +224,8 @@ export function ReportsScreen({
 
   // Overview, Streets and All stats: the checker's sums, read while one of them is open (never on the Free plan).
   const checkerLocked = checkerLock !== undefined && checkerLock !== null;
-  const checks = view === "overview" || view === "streets" || view === "stats";
+  const drilling = drill !== null && drill !== "";
+  const checks = drilling || view === "overview" || view === "streets" || view === "stats";
   const checked = useChecker(checker, query, checks && !checkerLocked && facetsSeen !== null, reloadToken);
   const checkerLoading = checker !== undefined && !checked.loaded && checked.error === null;
   const coded = useMemo(
@@ -215,6 +237,10 @@ export function ReportsScreen({
     [checked.sums, coded],
   );
   const partial = useMemo(() => (checker ? checker.partial(query) : false), [checker, query]);
+  const examples = useMemo(() => {
+    const read = checker?.examples;
+    return read ? (example: CheckerExampleQuery) => read.call(checker, query, example) : undefined;
+  }, [checker, query]);
 
   const money = report ? moneyOf(report.units) : null;
   const shownUnit = unit === "money" && money ? "money" : "bb";
@@ -222,7 +248,7 @@ export function ReportsScreen({
 
   // Another filter's report on its way: the previous one stays, dimmed.
   const refetching = (state.loading && report !== null) || (checked.loading && checked.sums !== null);
-  const figures = hasFigures(view);
+  const figures = !drilling && hasFigures(view);
 
   let body;
   if (state.error !== null && report === null) {
@@ -235,7 +261,24 @@ export function ReportsScreen({
     body = (
       <>
         {figures ? <FiguresRow report={report} unit={shownUnit} money={money} onUnit={setUnit} /> : null}
-        {view === "overview" ? (
+        {drilling ? (
+          <Drill
+            key={drill}
+            catalogue={ANALYTICS}
+            statId={drill}
+            sums={checked.sums}
+            result={result}
+            lock={checkerLocked ? checkerLock : undefined}
+            loading={checkerLoading}
+            error={checked.error}
+            partial={partial}
+            examples={examples}
+            examplesKey={`${JSON.stringify(query)}#${String(reloadToken)}`}
+            renderHandLink={renderHandLink}
+            wrapHands={wrapHands}
+            practiseHref={practiseHref}
+          />
+        ) : view === "overview" ? (
           <>
             <section className={an.graph} aria-label={a.graph}>
               <WinrateGraph graph={report.graph} unit={shownUnit} money={money} />
@@ -300,7 +343,7 @@ export function ReportsScreen({
     );
   }
 
-  return (
+  const screen = (
     <div className={styles.screen} aria-busy={state.loading}>
       <header className={hideTitle ? `${styles.top} ${styles.row}` : styles.top}>
         <Title className={hideTitle ? styles.visuallyHidden : styles.title}>{title}</Title>
@@ -328,23 +371,26 @@ export function ReportsScreen({
       {report && !report.units.mixedKind && report.units.mixedCurrency ? (
         <p className={styles.notice}>{r.units.mixedCurrency}</p>
       ) : null}
-      {report && report.graph.allInEv.pending > 0 && view === "overview" ? (
+      {report && report.graph.allInEv.pending > 0 && view === "overview" && !drilling ? (
         <p className={styles.notice} role="status">
           {r.evPending(report.graph.allInEv.pending)}
         </p>
       ) : null}
-      <div className={an.bar}>
-        <ViewTabs view={view} onView={onView} />
-        <span className={an.spacer} />
-        {view === "stats" && !checkerLocked ? <AllStatsControls order={order} onOrder={setOrder} show={show} onShow={setShow} /> : null}
-        {view === "streets" && !checkerLocked ? <StreetsKey /> : null}
-      </div>
+      {drilling ? null : (
+        <div className={an.bar}>
+          <ViewTabs view={view} onView={onView} />
+          <span className={an.spacer} />
+          {view === "stats" && !checkerLocked ? <AllStatsControls order={order} onOrder={setOrder} show={show} onShow={setShow} /> : null}
+          {view === "streets" && !checkerLocked ? <StreetsKey /> : null}
+        </div>
+      )}
       <div className={`${styles.results} rail-dims`} aria-busy={refetching}>
         {body}
       </div>
-      {footer && view === "breakdown" ? footer(query, report) : null}
+      {footer && view === "breakdown" && !drilling ? footer(query, report) : null}
     </div>
   );
+  return drillNav ? <DrillNavContext.Provider value={drillNav}>{screen}</DrillNavContext.Provider> : screen;
 }
 
 /** The screen's tabs (the ARIA tabs pattern: arrow keys move between them). */

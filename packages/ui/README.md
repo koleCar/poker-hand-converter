@@ -69,7 +69,7 @@ this README is the working summary.
 | `players/` | The Players screen: `PlayersScreen`, `PlayerTable`, `PlayerProfile`, `PlayerWords` (colour, labels, note), `model.ts` (`PlayersSource`). |
 | `review/` | The session review: `SessionReviewScreen`, `select.ts` (each list ranked, a hand shown once), `model.ts` (`SessionReviewSource`, `DeviationSource`). |
 | `charts/` | The user's own preflop charts: `ChartsScreen`, `ChartEditor`, `ChartGrid`, `ChartCompare`; pure modules for the stored shape (`model.ts`), situation keys (`nodeKey.ts`), range text in and out (`ranges.ts`), Rail JSON (`exchange.ts`), the comparison (`compare.ts`); `source.ts` (`PreflopChartsSource`) and `sessionSource.ts` (`SessionChartsSource`, "off your own charts" in the review). |
-| `analytics/` | The Analytics screen's parts (docs/ANALYTICS.md): `model.ts` (`CheckerSource`, `AnalyticsChecker`, the grouped sums), `spot.ts` (`spotName`), `findings.ts` (a stat's gap, a breakdown row's name, a finding's headline and why-sentence in words), `view.ts` (the tabs, the figures, the All stats rows, the spot bars, the checker's filter), `FiguresRow`, `AllStats`, `useChecker`. The judging itself is `model/checker.ts`. |
+| `analytics/` | The Analytics screen's parts (docs/ANALYTICS.md): `model.ts` (`CheckerSource`, `AnalyticsChecker`, the grouped sums), `spot.ts` (`spotName`), `findings.ts` (a stat's gap, a breakdown row's name, a finding's headline and why-sentence in words), `view.ts` (the tabs, the figures, the All stats rows, the spot bars, the checker's filter, the drill-down's model and routes), `FiguresRow`, `AllStats`, `Streets`, `Overview`, `Drill` (one stat by spot, bet size, hand class and hand), `useChecker`. The judging itself is `model/checker.ts`. |
 | `palette/` | `CommandPalette` (the shell: field, grouped list, keys, hints) and `fuzzy.ts` (`fuzzyMatch`, `rankItems`). What it finds is the surface's. |
 | `data.tsx` | `DataSource` (`hand(id)`), `DataSourceProvider`, `useHand`. |
 | `i18n.tsx` | `UiStrings` (every word the components show), `UiStringsProvider`, `useUiStrings`. |
@@ -89,7 +89,7 @@ nothing a source can answer and never knows where the data lives.
 | `DataSource` (`data.tsx`) | anything that loads a hand by id | `web/src/lib/db/dataSource.ts` | `app/src/lib/dataSource.ts` |
 | `HandsSource` (`hands/model.ts`) | `HandsScreen` | `web/src/lib/db/handsSource.ts` | `app/src/lib/handsSource.ts` |
 | `ReportSource` (`reports/model.ts`) | `ReportsScreen` | `web/src/lib/db/reportSource.ts` | `app/src/lib/reportSource.ts` |
-| `AnalyticsChecker` (`analytics/model.ts`) | `ReportsScreen`'s All stats | `webChecker` in `web/src/components/stats/StatsTab.tsx` (over `lib/db/analyticsRows.ts`) | `storeChecker` in `app/src/screens/Reports.tsx` (over `lib/checkerSource.ts`) |
+| `AnalyticsChecker` (`analytics/model.ts`) | `ReportsScreen`'s Overview, Streets, All stats and drill-down (sums and example hands) | `webChecker` in `web/src/components/stats/StatsTab.tsx` (over `lib/db/analyticsRows.ts`) | `storeChecker` in `app/src/screens/Reports.tsx` (over `lib/checkerSource.ts`) |
 | `PlayersSource` (`players/model.ts`) | `PlayersScreen` | `web/src/lib/db/playersSource.ts` | `app/src/lib/playersSource.ts` |
 | `SessionReviewSource` (`review/model.ts`) | `SessionReviewScreen` | `web/src/lib/db/sessionReview.ts` | `app/src/lib/reviewSource.ts` |
 | `PreflopChartsSource` (`charts/source.ts`) | `ChartsScreen` | `web/src/lib/db/preflopCharts.ts` | `app/src/lib/chartsSource.ts` |

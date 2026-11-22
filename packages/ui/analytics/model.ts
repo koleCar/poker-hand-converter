@@ -128,4 +128,10 @@ export interface AnalyticsChecker {
   sums(query: HandFilter): Promise<CheckerSums | null>;
   /** The filter sets groups the checker does not follow (they are left out). */
   partial(query: HandFilter): boolean;
+  /**
+   * The drill-down's hands (Step 8): the decisions behind a stat's spot,
+   * size or class over the same filter, the costliest first. Absent: the
+   * drill-down shows no hands.
+   */
+  examples?(query: HandFilter, example: CheckerExampleQuery): Promise<CheckerExample[]>;
 }

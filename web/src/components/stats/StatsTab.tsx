@@ -23,6 +23,11 @@
  * function missing from its schema cache; `isMissingSchemaError` is that
  * check, a code rather than a string match.
  *
+ * A stat's drill-down (docs/ANALYTICS.md Step 8) is `/stats/<id>` on this same
+ * screen: the address says which (`drillOfPath`), and moving in and out is a
+ * `history.pushState`, so the filter and the tab stay; its hands open on
+ * their analysis page at the decision, with a way back to the stat.
+ *
  * Live arrival (Rail R1.10): hands synced by the desktop app while the screen
  * is open re-read the numbers in place, and the ones without statistics get
  * them derived (`/api/stats/rebuild`) without a click. One catch-up at a
@@ -31,12 +36,21 @@
 
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FilterState } from "@rail/ui/hands/filter";
 import type { HandFilter } from "@rail/ui/hands/model";
 import type { AnalyticsChecker } from "@rail/ui/analytics/model";
-import { checkerFiltersOf } from "@rail/ui/analytics/view";
-import { ReportsScreen, type AnalyticsView, type Tab } from "@rail/ui/reports/ReportsScreen";
+import { checkerFiltersOf, drillOfPath } from "@rail/ui/analytics/view";
+import {
+  ReportsScreen,
+  type AnalyticsView,
+  type DrillHandLinkProps,
+  type DrillNav,
+  type Tab,
+} from "@rail/ui/reports/ReportsScreen";
+import { encodePosition } from "@rail/ui/replayer/position";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import reportStyles from "@rail/ui/reports/Reports.module.css";
 import {
@@ -87,6 +101,24 @@ const webChecker: AnalyticsChecker = {
     return checkerSource.checker(partial ? { ...filters, hands: libraryFilter(query) } : filters);
   },
   partial: () => false,
+  examples: (query, example) => {
+    const { filters, partial } = checkerFiltersOf(query);
+    return checkerSource.examples(partial ? { ...filters, hands: libraryFilter(query) } : filters, example);
+  },
+};
+
+/**
+ * The drill-down's way in and out (docs/ANALYTICS.md Step 8): `/stats/<id>`
+ * and back to `/stats`, as history entries of this one screen (Next keeps
+ * `usePathname` in step with `history.pushState`), so the filter and the tab
+ * stay as they were.
+ */
+const webDrillNav: DrillNav = {
+  href: (stat) => (stat === null ? paths.stats() : paths.statsStat(stat)),
+  go: (stat) => {
+    window.history.pushState(null, "", stat === null ? paths.stats() : paths.statsStat(stat));
+    window.scrollTo({ top: 0 });
+  },
 };
 
 
@@ -108,6 +140,21 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   const [chosen, setChosen] = useState<FilterState | null>(null);
   const [view, setView] = useState<AnalyticsView>("overview");
   const [tab, setTab] = useState<Tab>("position");
+  // `/stats/<id>`: that stat's drill-down (Step 8), over the tab it was opened from.
+  const drill = drillOfPath(usePathname());
+  // A drill-down hand opens on its analysis page, at the decision; its Back returns to the stat.
+  const renderHandLink = useCallback(
+    ({ handId, actionIndex, label, className, children }: DrillHandLinkProps) => {
+      const back = drill === null ? "" : `&from=stats&stat=${encodeURIComponent(drill)}`;
+      const position = encodeURIComponent(encodePosition({ kind: "action", actionIndex }));
+      return (
+        <Link href={paths.analysisHand(handId, `t=${position}${back}`)} className={className} aria-label={label}>
+          {children}
+        </Link>
+      );
+    },
+    [drill],
+  );
 
   const base = useMemo(() => webReportSource(dict.converter.library.standardFormat), [dict]);
   // Full reports (situations, sessions, opponents) are Pro (R6.2); basic
@@ -339,6 +386,9 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
         checker={webChecker}
         checkerLock={analysisLocked ? <ProLock feature="analysis" compact /> : undefined}
         practiseHref={paths.analysisTrain}
+        drill={drill}
+        drillNav={webDrillNav}
+        renderHandLink={renderHandLink}
         footer={(query) => {
           if (fullLocked) {
             return <ProLock feature="reports_full" compact />;

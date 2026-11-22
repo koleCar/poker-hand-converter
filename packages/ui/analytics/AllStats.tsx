@@ -23,6 +23,7 @@ import { fixedIn } from "../stats/format";
 import { gapText, statName } from "./findings";
 import { spotName } from "./spot";
 import styles from "./Analytics.module.css";
+import { DrillWayIn } from "./Drill";
 import {
   allStatsItems,
   isOff,
@@ -313,6 +314,7 @@ export function StatSpots({
         </>
       )}
       <div className={styles.links}>
+        {lines.length > 0 ? <DrillWayIn stat={stat} /> : null}
         {limit !== undefined && lines.length > limit ? (
           <button type="button" className={styles.link} aria-expanded={all} onClick={() => setAll(!all)}>
             {all ? s.fewerSpots : s.allSpots(countIn(ui.intlLocale, lines.length))}

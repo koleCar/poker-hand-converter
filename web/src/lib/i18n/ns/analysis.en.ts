@@ -1318,6 +1318,7 @@ export const analysisEn = {
   hand: {
     back: "Back to analysis",
     backToSession: "Back to the session review",
+    backToStat: "Back to the stat",
     loading: "Loading the hand…",
     notFound: "This hand is not in your library.",
     /** `/analysis/hand?key=`: the desktop app's hand, not on the web yet. */

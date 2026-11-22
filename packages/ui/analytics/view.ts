@@ -23,6 +23,11 @@
  *   target, from the stats that share the expanded stat's opportunity (the
  *   same decisions, `count` before `=>`), the rest of the bar what none of
  *   them counts.
+ * - **Drill-down** (Step 8, `drillOf`): one stat's analysed spots, and for
+ *   the open spot its bet sizes (fold / call / raise against the target)
+ *   and hand classes, from the checker over that spot's (and size's)
+ *   groups; its routes (`#/reports/stat/<id>`, `/stats/<id>`) and the
+ *   Trainer's queries (`drillQuery`, `playQuery`).
  */
 
 import type { HandFilter } from "../hands/model";
@@ -39,6 +44,7 @@ import type {
   StatGroupDef,
 } from "../model/checker";
 import type { Graph } from "../reports/model";
+import { checkStats, type CheckerSumsIn } from "../model/checker";
 import type { CheckerFilters } from "./model";
 
 /* ------------------------------------------------------------ views -- */
@@ -623,4 +629,212 @@ export function practiseQuery(finding: CheckerFinding): string {
   if (finding.why.spot) query.set("spot", finding.why.spot);
   if (finding.why.handClass) query.set("classes", finding.why.handClass);
   return query.toString();
+}
+
+/* ------------------------------------------------------- Drill-down -- */
+
+/**
+ * The drill-down's route (docs/ANALYTICS.md Step 8): the desktop's
+ * `#/reports/stat/<id>` carries `stat/<id>` as the screen's parameter; the
+ * web's `/stats/<id>` the id alone.
+ */
+export const DRILL_PREFIX = "stat/";
+
+/** The desktop route parameter of a stat's drill-down. */
+export function drillParam(statId: string): string {
+  return `${DRILL_PREFIX}${statId}`;
+}
+
+/** The stat a route parameter drills into (`stat/<id>`), else null. */
+export function drillOfParam(param: string | null | undefined): string | null {
+  if (!param || !param.startsWith(DRILL_PREFIX)) return null;
+  const id = param.slice(DRILL_PREFIX.length);
+  return id === "" ? null : id;
+}
+
+/** The stat a web path drills into (`/stats/<id>`), else null. */
+export function drillOfPath(pathname: string | null | undefined): string | null {
+  const match = /^\/stats\/([^/]+)\/?$/.exec(pathname ?? "");
+  if (!match?.[1]) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return null;
+  }
+}
+
+/** Whether a stat has a drill-down: a rate (a share or a coded stat has no spots, sizes or classes of its own). */
+export function isDrillable(stat: CatalogueStat | undefined): boolean {
+  return stat?.kind === "rate";
+}
+
+/** One cell of the bet-size table: an action's share for the player and the target. */
+export interface DrillCell {
+  action: BarAction;
+  you: number | null;
+  target: number | null;
+  /** The drilled stat's own action carries the checker's tone; the others `none`. */
+  tone: CheckerTone;
+}
+
+export interface DrillSize {
+  /** The drilled stat's figures at this size (the cost, the sample). */
+  row: CheckerRow;
+  /** Fold / call / raise (the stats over the same decisions), in the bar's order. */
+  cells: DrillCell[];
+}
+
+export interface DrillClass {
+  row: CheckerRow;
+  /** Off target the stat's way (or not sure yet): "Practise ▸" on it. */
+  practise: boolean;
+}
+
+export interface DrillModel {
+  stat: CatalogueStat;
+  /** The stat over every spot; null with no checker result or no number. */
+  checked: CheckedStat | null;
+  /** The stat's spots with analysed decisions, the costliest first (the checker's order). */
+  spots: CheckerRow[];
+  /** The spot shown on the right: the chosen one, else the first; null with none. */
+  spot: string | null;
+  /** The spot's bet sizes with a sample, catalogue order; none preflop or without a bet faced. */
+  sizes: DrillSize[];
+  /** The chosen size when the spot has it; null = every size. */
+  size: string | null;
+  /** The spot's (and size's) hand classes with a sample, strongest first; none preflop. */
+  classes: DrillClass[];
+  /** The bet-size table's columns. */
+  actions: BarAction[];
+}
+
+/** The sums of one spot (and one size): the same groups, fewer of them. */
+function sumsWhere(sums: CheckerSumsIn, spot: string, size: string | null): CheckerSumsIn {
+  return {
+    hands: sums.hands,
+    pending: sums.pending,
+    groups: sums.groups.filter((group) => group.spot === spot && (size === null || group.size === size)),
+  };
+}
+
+/**
+ * The drill-down of one stat (board AN-Drill): its spots (the checker's
+ * order) and, for the chosen spot (the costliest by default), the bet sizes
+ * with fold / call / raise for the player and the target, and the hand
+ * classes, strongest first, of the chosen size or of every size. The
+ * figures are the checker's over the spot's (and size's) groups: the same
+ * judging as every other row. Null when the stat is not a rate.
+ */
+export function drillOf(
+  catalogue: Catalogue,
+  sums: CheckerSumsIn | null,
+  result: CheckerResult | null,
+  statId: string,
+  chosenSpot: string | null,
+  chosenSize: string | null,
+): DrillModel | null {
+  const stat = catalogue.get(statId);
+  if (!stat || stat.kind !== "rate") return null;
+  const checked = result?.stats.find((entry) => entry.id === statId) ?? null;
+  // Spots with analysed decisions only: one seen but never analysed has no number to show.
+  const spots = (checked?.spots ?? []).filter((row) => row.n > 0);
+  const spot = spots.find((row) => row.key === chosenSpot)?.key ?? spots[0]?.key ?? null;
+  const siblings = siblingsOf(catalogue, stat).filter((sibling) => sibling.kind === "rate");
+  const empty: DrillModel = { stat, checked, spots, spot, sizes: [], size: null, classes: [], actions: [] };
+  if (sums === null || spot === null) return empty;
+
+  const inSpot = checkStats(catalogue, sumsWhere(sums, spot, null));
+  const figuresOf = (from: CheckerResult, id: string) => from.stats.find((entry) => entry.id === id) ?? null;
+  const own = figuresOf(inSpot, statId);
+  // The cells are the stats over the same decisions that have a number in this spot (river fold alone
+  // when no river raise was analysed), as the Streets bars.
+  const present = siblings.filter((sibling) => sibling.id === statId || (figuresOf(inSpot, sibling.id)?.n ?? 0) > 0);
+  const sizes: DrillSize[] = (own?.sizes ?? [])
+    .filter((row) => row.key !== "" && row.n > 0)
+    .map((row) => {
+      const you = new Map<string, number | null>();
+      const target = new Map<string, number | null>();
+      for (const sibling of present) {
+        if (sibling.kind !== "rate") continue;
+        const same = figuresOf(inSpot, sibling.id)?.sizes.find((entry) => entry.key === row.key);
+        you.set(sibling.class, same?.player ?? null);
+        target.set(sibling.class, same?.target ?? null);
+      }
+      return { row, cells: cellsOf(stat.class, you, target, row.tone) };
+    });
+  const size = sizes.find((entry) => entry.row.key === chosenSize)?.row.key ?? null;
+  const scope = size === null ? own : figuresOf(checkStats(catalogue, sumsWhere(sums, spot, size)), statId);
+  const direction = checked?.direction ?? null;
+  const classes: DrillClass[] = (scope?.classes ?? [])
+    .filter((row) => row.key !== "" && row.n > 0)
+    .map((row) => ({
+      row,
+      // Off target the stat's way; too much of the action also needs the class to be a real part of it (5%+ of it).
+      practise:
+        direction !== null &&
+        row.direction === direction &&
+        (isOff(row.tone) || row.tone === "few") &&
+        (direction === "low" || (row.shareOfTaken ?? 0) >= 0.05),
+    }));
+  const actions = sizes[0]?.cells.map((cell) => cell.action) ?? [];
+  return { stat, checked, spots, spot, sizes, size, classes, actions };
+}
+
+/**
+ * A size's cells: the player's and the target's bars (fold / call / raise,
+ * or one action and the rest), a part "—" where its side has no number; the
+ * stat's own action carries its tone.
+ */
+function cellsOf(
+  cls: string,
+  youValues: ReadonlyMap<string, number | null>,
+  targetValues: ReadonlyMap<string, number | null>,
+  tone: CheckerTone,
+): DrillCell[] {
+  const shape = new Map([...youValues.keys()].map((key) => [key, 0]));
+  const actions = (barOf(shape) ?? []).map((part) => part.action);
+  const you = barOf(youValues);
+  const target = barOf(targetValues);
+  const own = cls === "vpip" ? "play" : cls === "pfr" ? "raise" : cls;
+  return actions.map((action, index) => ({
+    action,
+    you: you?.[index]?.value ?? null,
+    target: target?.[index]?.value ?? null,
+    tone: action === own ? tone : "none",
+  }));
+}
+
+/**
+ * The Trainer's query from the drill-down (docs/ANALYTICS.md Step 9:
+ * `from=analytics&stat=…&spot=…&size=…&classes=…`): "Practise <spot> ▸"
+ * passes the classes off target the stat's way, a class's "Practise ▸" that
+ * class alone.
+ */
+export function drillQuery(statId: string, spot: string | null, size: string | null, classes: readonly string[]): string {
+  const query = new URLSearchParams({ from: "analytics", stat: statId });
+  if (spot) query.set("spot", spot);
+  if (size) query.set("size", size);
+  if (classes.length > 0) query.set("classes", classes.join(","));
+  return query.toString();
+}
+
+/**
+ * A hand's "Play it ▸" (Step 9 deals it as a fixed spot): the drill-down's
+ * query plus the decision (`hand` = the hand's id on the surface, `ord` =
+ * the decision's order, `action` = its action index).
+ */
+export function playQuery(
+  statId: string,
+  example: { handId: string; ord: number; actionIndex: number; spot: string; size: string; handClass: string },
+): string {
+  const query = new URLSearchParams(drillQuery(statId, example.spot || null, example.size || null, example.handClass ? [example.handClass] : []));
+  query.set("hand", example.handId);
+  query.set("ord", String(example.ord));
+  query.set("action", String(example.actionIndex));
+  return query.toString();
+}
+
+/** Which of the stat's decisions the hand list shows: those that took the action when it is too high, else those that did not. */
+export function drillSide(checked: CheckedStat | null): "high" | "low" {
+  return checked?.direction === "low" ? "low" : "high";
 }
