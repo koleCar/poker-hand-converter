@@ -37,6 +37,7 @@
 pub mod analytics;
 pub mod analytics_rows;
 pub mod anonymization;
+pub mod checker;
 pub mod context;
 pub mod counters;
 pub mod custom;

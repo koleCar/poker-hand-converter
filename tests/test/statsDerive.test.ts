@@ -112,6 +112,7 @@ describe("the module stays importable from a server", () => {
       "analytics.ts",
       "analyticsRows.ts",
       "builderFacts.ts",
+      "checker.ts",
       "context.ts",
       "definitions.ts",
       "derive.ts",

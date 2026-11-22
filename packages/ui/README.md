@@ -69,11 +69,12 @@ this README is the working summary.
 | `players/` | The Players screen: `PlayersScreen`, `PlayerTable`, `PlayerProfile`, `PlayerWords` (colour, labels, note), `model.ts` (`PlayersSource`). |
 | `review/` | The session review: `SessionReviewScreen`, `select.ts` (each list ranked, a hand shown once), `model.ts` (`SessionReviewSource`, `DeviationSource`). |
 | `charts/` | The user's own preflop charts: `ChartsScreen`, `ChartEditor`, `ChartGrid`, `ChartCompare`; pure modules for the stored shape (`model.ts`), situation keys (`nodeKey.ts`), range text in and out (`ranges.ts`), Rail JSON (`exchange.ts`), the comparison (`compare.ts`); `source.ts` (`PreflopChartsSource`) and `sessionSource.ts` (`SessionChartsSource`, "off your own charts" in the review). |
+| `analytics/` | The Analytics screen's pure parts (docs/ANALYTICS.md): `model.ts` (`CheckerSource`, the grouped sums), `spot.ts` (`spotName`), `findings.ts` (a stat's gap, a breakdown row's name, a finding's headline and why-sentence in words). The judging itself is `model/checker.ts`. |
 | `palette/` | `CommandPalette` (the shell: field, grouped list, keys, hints) and `fuzzy.ts` (`fuzzyMatch`, `rankItems`). What it finds is the surface's. |
 | `data.tsx` | `DataSource` (`hand(id)`), `DataSourceProvider`, `useHand`. |
 | `i18n.tsx` | `UiStrings` (every word the components show), `UiStringsProvider`, `useUiStrings`. |
 | `strings/` | Data, not components: the English and Croatian dictionaries for the replayer, stats, hands, reports, players, review and charts, and the Croatian `plural`. Both surfaces spread these into their own dictionaries, so the text is identical. |
-| `model/` | The one door out: re-exports of the web's framework-free library (`phf.ts`, `replay.ts`, `cards.ts`, `stats.ts` types, `replayStrings.ts`). |
+| `model/` | The one door out: re-exports of the web's framework-free library (`phf.ts`, `replay.ts`, `cards.ts`, `stats.ts` types, `replayStrings.ts`, `checker.ts`: the Analytics checker and its catalogue). |
 | `screens/` | Two Playwright scripts, not part of the package: `screens.mjs` (before/after screenshot and cascade comparison of the web, R2.6) and `responsive.mjs` (the phone check at 375 × 812 against a local stack). |
 
 ---
