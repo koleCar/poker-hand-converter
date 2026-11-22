@@ -732,6 +732,75 @@ Status: done in 96824995 (2026-11-22)
 - **Done when:** two clicks from a red stat reach a spot's hand classes,
   and three reach a hand.
 
+Status: done in 58f9bc2d (2026-11-22)
+
+- **As built:** the shared `packages/ui/analytics/Drill.tsx` over the pure
+  `drillOf` (`analytics/view.ts`), shown by `ReportsScreen` instead of the
+  tabs when the surface passes `drill` (the stat id from its route).
+  - **Routes.** Desktop `#/reports/stat/<id>` (`drillOfParam`; "← Analytics"
+    returns to the tab or split it was opened from). Web `/stats/<id>`
+    (`web/src/app/stats/[stat]/page.tsx`, the same `StatsScreen`; the stat
+    is read from the address with `drillOfPath`). The way in is "By bet size
+    and hand →" in `StatSpots`' links row, so it is under an All stats row,
+    an open Streets block and an open Overview finding alike
+    (`DrillNavContext`: the surface's `drillNav.href`, and on the web
+    `drillNav.go` = `history.pushState`, so the filter and the tab stay).
+  - **Content.** The bar: back, the stat, the player's number in its tone,
+    "target 37–41% · Solver", the cost, "Practise <spot> ▸". Spots on the
+    left (the checker's order, costliest first, the first open). On the
+    right, for the open spot: the bet sizes (fold / call / raise for the
+    player over the reference, the stat's own action in its tone, the cost;
+    a click narrows the classes and hands to that size), "What you fold ·
+    <spot> · strongest first" (share of the folds as a bar, fold rate you /
+    solver, "Call is worth", "Practise ▸"), then the hands
+    (`AnalyticsChecker.examples` → `analytics_checker_examples` on both
+    surfaces), each a link to the hand and "Play it ▸". The figures are the
+    checker's (`checkStats`) over the open spot's (and size's) groups.
+  - **Hands.** Desktop: `ChosenLink` in a `HandTable` (`wrapHands`), a click
+    opens the replayer's window, several can be chosen. Web: the hand's
+    analysis page at the decision (`/analysis/h/<id>?t=a<index>&from=stats&stat=<id>`),
+    whose Back now reads "Back to the stat".
+  - **Trainer.** `drillQuery` = `from=analytics&stat=…&spot=…&size=…&classes=…`
+    (Step 9's), `playQuery` adds `hand=<id>&ord=<n>&action=<index>`; both
+    through the existing `practiseHref` (web `/analysis/train?…`, desktop
+    `#/trainer/<query>`).
+  - **Pro:** the drill-down sits behind the same `checkerLock` (feature
+    `analysis`): the Free plan sees the way back, the stat's name and the lock.
+  - Tests: `tests/test/analyticsDrill.test.ts` (routes, `drillOf` against the
+    checker over one spot, sizes, classes, Practise, queries, EN + HR
+    renders, the lock, the way in, and the "two clicks / three clicks" walk).
+    No SQL, no Rust, no migration.
+- **Deviations:**
+  - **Every size first.** The board opens the first bet size; the
+    drill-down opens with every size of the spot and a click on a size
+    narrows the classes and hands to it (a second click widens again):
+    real samples per spot and size are small.
+  - **The classes show the player's fold rate beside the solver's**
+    ("Fold · you / solver"), not the solver's alone: a share of the folds
+    next to the solver's fold rate does not say whether a class is folded
+    too much. The bar is the share of the folds, amber / red when the class
+    is off target.
+  - **"Practise ▸" on a class** when it is off target (or not sure yet) the
+    stat's way and, for a stat that is too high, at least 5% of its actions
+    (the board: solver folds ≤ 10% and share ≥ 5%). "Practise <spot> ▸"
+    deals from the three costliest of them.
+  - **The hands follow the gap's direction:** too high lists the actions
+    taken where the solver did otherwise, too low the missed ones; 8 shown
+    (of 16 asked), only those that gave up EV. The heading names it per
+    action ("Your folds the solver plays", "Your checks the solver bets", …).
+  - **Spots:** analysed ones only (a spot seen but never analysed has no
+    number), the first eight and "All N spots" (real preflop samples have
+    60+). Preflop has no size table and no classes (the rows carry none):
+    the spots and their hands.
+  - **No "Open N hands →" and no bar key** under the drill-down: the Hands
+    list cannot filter by checker rows yet, and the size table is numbers.
+  - **The desktop's replayer opens at the hand**, not at the decision
+    (`replayer_open` takes the hand only); the web's opens at the decision.
+  - **The web keeps the filter while moving in and out** (history entries of
+    one screen); a reload of `/stats/<id>`, or the hand page's Back, opens it
+    with the default filter.
+  - Shares and coded stats have no drill-down (no link; a typed route says so).
+
 ### Step 9 — Into the Trainer
 
 - **Target.** `FocusTarget` gains:
