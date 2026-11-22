@@ -492,6 +492,77 @@ Status: done in 31e3ec19 (+ fixes 943b06f8, dbe2a586) (2026-11-22)
   test holds: no tone stronger than *few* below `sample.min`, and a player
   equal to the reference is always *ok*.
 
+Status: done in 7186bb30 (2026-11-22)
+
+- **As built:**
+  - **Twins.** TS `web/src/lib/stats/checker.ts` (`checkStats(catalogue,
+    sums, coded?)`, pure, in the server-safe stats folder; `packages/ui`
+    reaches it through `model/checker.ts`, the desktop app through
+    `@rail/web-lib`) and Rust `rail_stats::checker` (`check_stats`). Same
+    output field for field: `f64` one operation at a time in the same
+    order, groups summed in input order, numbers out rounded to 6 decimals
+    half away from zero, decisions made on the unrounded values.
+  - **Input:** the catalogue, `CheckerSums` (`hands`, `pending`, `groups`),
+    and optionally the player's coded counts (`{ wtsd: { made, opp } }`)
+    from the rollups.
+  - **Per stat** (catalogue order): `opps`, `oppsTaken`, `n`, `taken`,
+    `player`, `target`, `half`, `bandLow` / `bandHigh` (clamped 0–100),
+    `gap`, `direction` (`high` / `low`), `tone`, `costHigh`, `costLow`,
+    `cost` (in the gap's direction), `coverage`, `source` (`charts`
+    preflop, `solver` after), and the breakdowns `spots` (costliest first
+    in the stat's direction, then by sample, then key), `sizes` and
+    `classes` (catalogue order). Each row has the same figures plus
+    `shareOfTaken` ("share of your folds") and `worth` (ΣevHigh / taken:
+    "a call is worth", bb). A share's class rows are its composition (each
+    class's part of your actions against the reference's, `weak` marked).
+    Coded stats carry the player's number only (tone `none`).
+  - **Tone:** in the band → `ok` (whatever the sample); outside it under
+    `sample.min` → `few`; more than twice the half-width outside the band
+    (|gap| > 3 × half) → `far`; else `off`; no analysed decision or a
+    reference that never takes the action → `none`.
+  - **Findings:** stats `off` / `far` merged by family and **lean**
+    (`tight` / `loose`), ranked by summed cost, with `stats` (`counted`
+    flag), `lead`, `direction`, `tone` and `why` (the lead stat's costliest
+    spot, and its hand class with the most extra or missing actions against
+    the reference: rate, target, share of the taken, worth).
+  - **Words:** `packages/ui/analytics/findings.ts` (`gapText`,
+    `percentText`, `pointsText`, `statName`, `breakdownName`,
+    `findingHeadline`, `findingWhy`) over the new `checker` and `findings`
+    entries of `strings/analytics.{en,hr}.ts`: headlines per family and
+    lean (the weak shares have their own), why-templates per family and
+    lean.
+  - **Tests:** fixture `core/rail-stats/tests/data/analytics/checker/`
+    (`cases.json`: Step 2's sums and eight made-up libraries; `expected.json`:
+    the results and their EN + HR words), held by
+    `tests/test/analyticsChecker.test.ts` (TS + words + properties;
+    `ANALYTICS_CHECKER_WRITE=1` rewrites both files) and
+    `core/rail-stats/tests/checker.rs` (Rust equals the TS on every number,
+    properties). No migration.
+- **Deviations:**
+  - **Findings merge by family and lean, not by the raw direction.** A
+    family mixes folds and raises (BB fold vs steal with 3-bet, fold to
+    3-bet with 4-bet), so "too high" means opposite things inside one
+    family. The lean turns a fold stat's direction around (folding too much
+    and 3-betting too little are both `tight`; a weak share too high is
+    `loose`). The headline templates are per family and lean.
+  - **No double counting goes past `within`.** A stat is listed but not
+    summed when its `within` (or a share's `of`) is in the finding, and
+    also when a costlier summed stat of the finding judges the same
+    decisions: the same Streets block, or both preflop (an open raise is
+    also a PFR and a VPIP; fold to 3-bet and 4-bet share their decisions).
+    Otherwise one decision's EV loss would be summed twice.
+  - **`ok` wins over `few`.** A player inside the band is `ok` even below
+    `sample.min`; `few` is for a gap outside the band on a small sample.
+    That is how both properties hold together.
+  - **The why's hand class is the one with the most extra actions over
+    the reference** (taken − the reference's expected count), not simply the
+    most taken: "nothing" is the most folded class and the solver folds it
+    too.
+  - **The words are rendered in TypeScript only.** Both apps show the
+    findings from the shared screen, so the Rust twin returns the numbers
+    and keys (template = family + lean, the why's numbers) and the golden
+    file holds the EN and HR text the TS renders from them.
+
 ### Step 4 — Analytics screen shell
 
 - Rename the navigation label (desktop sidebar, web nav, strings) to
