@@ -230,12 +230,20 @@ function slotStyle(slot: SeatSlot): React.CSSProperties {
   };
 }
 
+/**
+ * The chip spot, as custom properties the stylesheet turns into `left` /
+ * `top`: a slot with a short-felt spot (`sx` / `sy`) is moved there by a
+ * container query, which an inline `left` would not let it do.
+ */
 function chipStyle(slot: SeatSlot): React.CSSProperties {
   return {
-    left: `${slot.cx * 100}%`,
-    top: `${slot.cy * 100}%`,
+    "--chip-x": `${slot.cx * 100}%`,
+    "--chip-y": `${slot.cy * 100}%`,
+    ...(slot.sx !== undefined && slot.sy !== undefined
+      ? { "--chip-sx": `${slot.sx * 100}%`, "--chip-sy": `${slot.sy * 100}%` }
+      : {}),
     translate: chipTranslate(slot.chipAnchor),
-  };
+  } as React.CSSProperties;
 }
 
 interface SweepChip {
