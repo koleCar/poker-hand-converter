@@ -645,6 +645,46 @@ Status: done in 17682892 (2026-11-22)
   opens the spots below, using the same component as the All stats row.
 - **Done when:** it reads the same rows as Step 5; no new query is needed.
 
+Status: done in 96824995 (2026-11-22)
+
+- **As built:** `packages/ui/analytics/Streets.tsx` over `streetColumns`
+  (`analytics/view.ts`). One block per catalogue `group` (showdown left
+  out), in the column of its street. A block's bars are the group's rates
+  over the first rate's decisions (`count` before `=>`): fold / call /
+  raise (flop and river facing a bet, preflop overall from VPIP / PFR) or
+  one action filling from the left (open raise, 3-bet, cbet, barrel, river
+  bet, fold to a 3-bet). The block's words are its costliest off-target
+  stat's (`gapText`), else not sure / in range; its cost that stat's. A
+  click opens the block under the columns: each of its stats against its
+  target (a pick when there are several, weak shares included), then the
+  chosen stat's spots with All stats' component (`StatSpots`, exported from
+  `AllStats.tsx` with `ActionBar`). It reads the checker result
+  `ReportsScreen` already holds (`useChecker` now on Overview, Streets and
+  All stats). The key (fold / call / raise or bet, upper bar you) sits in
+  the tab row as on the board.
+- **Deviations:**
+  - **No double counting in a block or a column.** A block costs its
+    costliest stat only (its stats judge the same decisions: the probe is
+    inside the turn fold, fold and raise share theirs). A column sums its
+    blocks, except that preflop's Overall (VPIP / PFR counts every preflop
+    decision, `any`) overlaps the other preflop blocks: the column takes the
+    larger of it and their sum.
+  - **The bars use the stats with a number.** A rate without a player's
+    number leaves its part out (river fold alone when no river raise was
+    analysed) instead of blanking the bar; a block with no number at all
+    shows its label and "—", and is not clickable.
+  - **The costliest off-target block opens first**, as the board shows one
+    open; nothing opens when nothing is off.
+  - **An open block or finding shows its six costliest spots** with an
+    "All N spots" toggle (real samples have 60+ preflop spots); All stats
+    keeps the full list.
+  - **On a phone** the columns stack and the open block shows under its own
+    column; from 721 to 1100 px the columns are two a row.
+  - Free plan: the lock above the columns; the player's bars from the
+    rollups' coded twins where every part has one (VPIP / PFR, open raise,
+    3-bet, cbet, barrel, fold to 3-bet / 4-bet); no target bar, words,
+    costs, or opening.
+
 ### Step 7 — Overview tab
 
 - The graph, then the three finding cards (Step 3). Each card opens to its
@@ -653,6 +693,30 @@ Status: done in 17682892 (2026-11-22)
   Pool.
 - **Done when:** with no finding off target, the cards give way to one line
   ("Nothing clearly off at this sample") and the pills.
+
+Status: done in 96824995 (2026-11-22)
+
+- **As built:** `packages/ui/analytics/Overview.tsx` under the graph, over
+  `overviewOf` (the first three of `result.findings`, the stats with tone
+  `ok` as pills, and the state: `findings`, `clear` = "Nothing clearly off
+  at this sample.", `unanalysed` = no analysed decision at all, "Targets
+  show once your hands are analysed."). A card: number, `findingHeadline`,
+  each of its stats ("Turn · Fold vs bet 62% target 37–41%", the number in
+  its tone), the summed cost in bb/100. The first card is open (the
+  board's); open, it shows `findingWhy`, "Practise this ▸" and the lead
+  stat's spots (`StatSpots`). Below: "In range" pills, then "All stats →"
+  and "How your pool plays →" (switch the tab).
+- **"Practise this ▸"** links to the Trainer route Step 9 names, with
+  `practiseQuery(finding)` = `from=analytics&stat=<lead>&spot=<why.spot>`
+  `&classes=<why.handClass>` (no `size`: the finding has none). Web:
+  `/analysis/train?…` (the Trainer ignores the keys until Step 9; checked
+  that it opens normally). Desktop: `#/trainer/<query>` (the query is the
+  route parameter, since `#/trainer?…` is not a route), left out while the
+  Trainer is hidden during play. A new `ReportsScreen` prop
+  `practiseHref(query)`; without it the link is not offered.
+- **Deviations:** the Free plan shows the graph, the lock and the two
+  links (pills are judged against targets, so they are Pro too). A finding
+  whose summed cost rounds under 0.05 bb/100 shows "—" for its cost.
 
 ### Step 8 — Drill-down
 
