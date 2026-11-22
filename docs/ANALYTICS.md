@@ -577,6 +577,26 @@ Status: done in 7186bb30 (2026-11-22)
   routes still open it, and lint, typecheck and lint:css pass in
   `packages/ui`, `web` and `app`.
 
+Status: done in 17682892 (2026-11-22)
+
+- **As built:** the shared `ReportsScreen` is the Analytics screen; both
+  surfaces pass `view` / `onView` (`AnalyticsView`: `overview`, `streets`,
+  `stats`, `pool`, `breakdown`), the Breakdown split `tab`, an
+  `AnalyticsChecker` and an optional `checkerLock`. Desktop route:
+  `#/reports/<view>`, and `#/reports/<split>` (the palette's old links)
+  opens Breakdown at that split; `#/reports` opens Overview. Web: `/stats`,
+  the tab in page state.
+- **Deviations:**
+  - Open question 1's default: a fifth tab **Breakdown** holds today's
+    statistics matrices, the breakdown tabs and the web's footer
+    (sessions, opponents). The old summary tiles are gone; the figures row
+    replaces them.
+  - The figures are rates per 100 hands from the graph's last point (won,
+    all-in EV, showdown, non-showdown), in bb/100 or the currency per 100
+    money hands, as the board shows them; the hand count is the figures
+    row's on the first three tabs and the header's on Pool and Breakdown.
+  - Streets and Pool are one quiet line each until Steps 6 and 10.
+
 ### Step 5 — All stats tab
 
 - Build it from `AN-Main` (All stats): grouped rows, the band track, the
@@ -588,6 +608,36 @@ Status: done in 7186bb30 (2026-11-22)
   comes from.
 - **Done when:** the fixture hero who over-folds the flop shows flop fold
   red with a cost, and a fixture "perfect" hero shows every row in range.
+
+Status: done in 17682892 (2026-11-22)
+
+- **As built:** `packages/ui/analytics/AllStats.tsx` over the pure view
+  model `analytics/view.ts` (`allStatsItems`, `trackOf`, `spotLines`,
+  `barOf`, `siblingsOf`, `figuresOf`, `codedOf`, `checkerFiltersOf`) and
+  `useChecker` (reads the checker only while All stats is open). Bars: the
+  stats with the same opportunity (`count` before `=>`) make one bar per
+  spot (flop/river fold + raise -> fold / call / raise; VPIP + PFR -> fold /
+  call / raise; a bet stat -> bet / check; a stat alone -> its class and an
+  unnamed rest). Tests: `tests/test/analyticsScreen.test.ts`.
+- **Deviations:**
+  - Costs are always bb/100 (the $ toggle changes the figures and the
+    graph only): a stat's cost has no money of its own without a per-hand
+    big blind.
+  - The target column shows the band ("37–41"), as the board does; the
+    exact target and source are in the hover's second line.
+  - A spot row shows its numbers whatever its tone ("Fold 57% vs 38%"),
+    since most spot rows are `few` on a real sample (Step 3's note); its
+    cost shows when it is `off`, `far` or `few`.
+  - Where the checker has no number for a stat (nothing analysed, or the
+    Free plan), the coded twin from the rollups stands in: the player's
+    number only, "No target".
+  - Filters: the web sends the Hands list's filter (`hands`) for groups
+    the checker keys cannot say; the desktop store's checker reads only
+    dates, kind / one format, one position and one pot type, and All stats
+    says so in one line when other groups are set (the store does not yet
+    filter checker rows by the Hands filter).
+  - Free plan: the surfaces' compact Pro lock (feature `analysis`) above
+    the rows, the order / show controls hidden, rows not expandable.
 
 ### Step 6 — Streets tab
 
