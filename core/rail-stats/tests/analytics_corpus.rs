@@ -204,6 +204,7 @@ fn events_json(events: &HandEvents) -> Value {
                 "preflopAggressor": seat.preflop_aggressor,
                 "stackBb": seat.stack_bb,
                 "effectiveBb": seat.effective_bb,
+                "effectiveFirstActionBb": seat.effective_first_action_bb,
                 "sawFlop": seat.saw_flop,
                 "sawTurn": seat.saw_turn,
                 "sawRiver": seat.saw_river,

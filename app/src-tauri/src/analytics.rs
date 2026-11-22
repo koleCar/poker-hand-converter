@@ -53,6 +53,9 @@ pub struct CheckerFiltersDto {
     pot_type: Option<String>,
     pot_kind: Option<String>,
     membership_version: Option<String>,
+    /// The effective stack's chips (docs/ANALYTICS.md Step 11).
+    #[serde(default)]
+    eff_stacks: Vec<String>,
 }
 
 impl From<CheckerFiltersDto> for CheckerFilters {
@@ -67,6 +70,7 @@ impl From<CheckerFiltersDto> for CheckerFilters {
             pot_type: keep(dto.pot_type),
             pot_kind: keep(dto.pot_kind),
             membership_version: keep(dto.membership_version),
+            eff_stacks: dto.eff_stacks,
         }
     }
 }

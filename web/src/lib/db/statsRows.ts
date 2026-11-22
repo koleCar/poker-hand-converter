@@ -113,6 +113,8 @@ export type HandFactsInsert = {
   tour_level: number | null;
   hero_bluff: number;
   vs_bluff: number;
+  /** The hero's effective stack at its first preflop action, tenths of the largest forced blind (facts/2). */
+  eff_stack_tenths: number | null;
 };
 
 /**
@@ -169,6 +171,7 @@ export function handDerivation(
       tour_level: facts.level,
       hero_bluff: facts.bluff[0],
       vs_bluff: facts.bluff[1],
+      eff_stack_tenths: facts.effStack,
     },
   };
 }

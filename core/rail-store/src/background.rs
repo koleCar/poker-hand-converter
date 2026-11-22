@@ -176,6 +176,9 @@ pub enum Step {
     /// Hands whose opponents' results the Pool tab sums (docs/ANALYTICS.md
     /// Step 10, [`crate::pool::pool_step`]; 0: a page went stale).
     Pooled(usize),
+    /// List rows whose effective stack was filled (docs/ANALYTICS.md Step
+    /// 11, [`crate::eff_stack::backfill_step`]).
+    Stacked(usize),
     /// EV rows computed, and the time the computation took.
     Computed(usize, Duration),
     /// A page of a recompute's EV job: hands evaluated (0: its end), and
@@ -247,6 +250,9 @@ pub fn step(reader: &Reader, writer: &WriterHandle, heavy: bool) -> Result<Step>
     if let Some(n) = crate::pool::pool_step(reader, writer)? {
         return Ok(Step::Pooled(n));
     }
+    if let Some(n) = crate::eff_stack::backfill_step(reader, writer)? {
+        return Ok(Step::Stacked(n));
+    }
     if !heavy {
         return Ok(Step::Nothing);
     }
@@ -273,6 +279,8 @@ pub struct Drained {
     pub checked: usize,
     /// Hands the Pool tab's results were summed over.
     pub pooled: usize,
+    /// List rows whose effective stack was filled.
+    pub stacked: usize,
     pub ev_rows: usize,
     pub ev_time: Duration,
     /// Hands a recompute's EV job evaluated.
@@ -289,6 +297,7 @@ pub fn drain(reader: &Reader, writer: &WriterHandle) -> Result<Drained> {
             Step::Counted(n) => drained.counted += n,
             Step::Checked(n) => drained.checked += n,
             Step::Pooled(n) => drained.pooled += n,
+            Step::Stacked(n) => drained.stacked += n,
             Step::Computed(n, took) => {
                 drained.ev_rows += n;
                 drained.ev_time += took;
@@ -493,7 +502,7 @@ fn run(shared: &Shared, reader: &Reader, writer: &WriterHandle) {
                 shared.status().last_error = None;
                 refresh(shared, reader, Activity::Indexing);
             }
-            Ok(Step::Counted(_) | Step::Checked(_) | Step::Pooled(_)) => {
+            Ok(Step::Counted(_) | Step::Checked(_) | Step::Pooled(_) | Step::Stacked(_)) => {
                 shared.status().last_error = None;
                 refresh(shared, reader, Activity::Counting);
             }

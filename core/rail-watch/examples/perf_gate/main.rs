@@ -510,6 +510,7 @@ fn background_pass(db: &Path, budget: Option<u64>, report: &mut Report) {
             | Step::Counted(_)
             | Step::Checked(_)
             | Step::Pooled(_)
+            | Step::Stacked(_)
             | Step::Reevaluated(..) => {}
             Step::Indexed(n) => {
                 indexed += n;

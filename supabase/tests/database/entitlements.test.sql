@@ -272,7 +272,7 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 'vote_poll', 'vote_post',
                 -- the library (under the cap) and the converter's failure registry
                 'get_hand', 'ingest_hands', 'library_count', 'library_facets', 'library_list', 'library_page',
-                'library_result', 'library_rows', 'library_size', 'library_stack', 'library_stake',
+                'library_result', 'library_rows', 'library_size', 'library_stack', 'library_stake', 'rail_stack_bucket',
                 'library_table_names', 'library_where', 'library_beyond_rollups', 'library_builder_where',
                 'library_builder_ids', 'library_act_sql', 'library_number', 'record_conversion_failures',
                 'register_web_hand_source', 'save_hands',

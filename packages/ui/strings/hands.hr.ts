@@ -75,6 +75,7 @@ export const handsUiHr: typeof handsUiEn = {
       potType: "Pot",
       result: "Rezultat",
       stack: "Stack",
+      effStack: "Efektivni stack",
       allIn: "All-in",
       notes: "Bilješke",
       tags: "Oznake",

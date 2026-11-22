@@ -249,6 +249,10 @@ pub struct CheckerFilters {
     pub pot_kind: Option<String>,
     /// Default [`MEMBERSHIP_VERSION`].
     pub membership_version: Option<String>,
+    /// The hero's effective stack at its first preflop action, the Hands
+    /// filter's chips (docs/ANALYTICS.md Step 11; ids of the `filter` stack
+    /// buckets, `hand_list.eff_stack_tenths`). Empty: every stack.
+    pub eff_stacks: Vec<String>,
 }
 
 impl CheckerFilters {
@@ -268,6 +272,21 @@ impl CheckerFilters {
             Some("bomb") => " AND r.pot_type = 'bomb'",
             Some(_) => return Err(Error::OutOfRange("pot kind")),
         })
+    }
+
+    /// The effective stack's clause over the list row of the hand whose
+    /// `played_at` and `hand_key` are these expressions; '' for every stack.
+    /// The ranges come from the bucket file, nothing from the caller.
+    fn stack_sql(&self, played_at: &str, hand_key: &str) -> String {
+        if self.eff_stacks.is_empty() {
+            return String::new();
+        }
+        let ranges = crate::hand_list::stack_clause(&self.eff_stacks, "l.eff_stack_tenths")
+            .unwrap_or_else(|| "0".to_owned());
+        format!(
+            " AND EXISTS (SELECT 1 FROM hand_list l WHERE l.played_at = {played_at}
+                 AND l.hand_key = {hand_key} AND {ranges})"
+        )
     }
 }
 
@@ -380,6 +399,8 @@ impl Reader {
         )?;
         let membership = filters.membership();
         let kind = filters.kind_sql()?;
+        let stack = filters.stack_sql("r.played_at", "r.hand_key");
+        let hands_stack = filters.stack_sql("coalesce(h.played_at, '')", "a.hand_key");
         let position = filters.position.as_ref().map(|p| p.trim().to_uppercase());
         self.with(|conn| {
             let args = params![
@@ -402,7 +423,7 @@ impl Reader {
                         total(CASE WHEN r.ref_share IS NOT NULL AND r.taken = 0 AND r.best_in = 1
                                    THEN r.ev_loss_bb END),
                         count(DISTINCT r.hand_key)
-                 FROM analysis_checker_rows r {SCOPE}{kind}
+                 FROM analysis_checker_rows r {SCOPE}{kind}{stack}
                  GROUP BY r.stat, r.spot, r.size, r.hand_class
                  ORDER BY r.stat, r.spot, r.size, r.hand_class"
             );
@@ -438,7 +459,7 @@ impl Reader {
                    AND (?4 IS NULL OR a.checker_position = ?4)
                    AND (?5 IS NULL OR a.pot_type = ?5)
                    AND (?6 IS NULL OR (h.played_at > '' AND h.played_at >= ?6))
-                   AND (?7 IS NULL OR (h.played_at > '' AND h.played_at < ?7)){hands_kind}"
+                   AND (?7 IS NULL OR (h.played_at > '' AND h.played_at < ?7)){hands_kind}{hands_stack}"
             );
             let hands: i64 = conn.query_row(
                 &hands_sql,
@@ -482,6 +503,7 @@ impl Reader {
         )?;
         let membership = filters.membership();
         let kind = filters.kind_sql()?;
+        let stack = filters.stack_sql("r.played_at", "r.hand_key");
         let position = filters.position.as_ref().map(|p| p.trim().to_uppercase());
         let side = match query.side {
             CheckerSide::High => " AND r.taken = 1",
@@ -496,7 +518,7 @@ impl Reader {
                  FROM analysis_checker_rows r
                  JOIN hands h ON h.hand_key = r.hand_key
                  LEFT JOIN decision_analysis d ON d.hand_key = r.hand_key AND d.ord = r.ord
-                 {SCOPE}{kind}{side}
+                 {SCOPE}{kind}{stack}{side}
                    AND r.stat = ?8 AND r.ref_share IS NOT NULL
                    AND (?9 IS NULL OR r.spot = ?9)
                    AND (?10 IS NULL OR r.size = ?10)

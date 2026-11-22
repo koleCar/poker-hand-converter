@@ -319,15 +319,11 @@ function sessions(list) {
   });
 }
 
-const STACK_BANDS = [
-  ["0-20", 200],
-  ["20-40", 400],
-  ["40-70", 700],
-  ["70-100", 1000],
-  ["100-150", 1500],
-  ["150-250", 2500],
-];
-const stackBand = (tenths) => STACK_BANDS.find(([, below]) => tenths < below)?.[0] ?? "250+";
+// The Breakdown's stack bands: `config/stats/stack-buckets.json`'s
+// `breakdown` buckets (a negative stack counts with the first).
+const STACK_BANDS = JSON.parse(readFileSync(join(ROOT, "config/stats/stack-buckets.json"), "utf8")).breakdown;
+const stackBand = (tenths) =>
+  STACK_BANDS.reduce((band, bucket) => (tenths >= bucket.min ? bucket.id : band), STACK_BANDS[0].id);
 
 function split(list, key) {
   const groups = new Map();

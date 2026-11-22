@@ -183,10 +183,19 @@ describe("the checker's inputs", () => {
     expect(checkerFiltersOf({ formats: ["cash"], from: "2026-01-01T00:00:00Z", positions: ["BTN"], potTypes: ["3bet"] })).toEqual({
       filters: { from: "2026-01-01T00:00:00Z", gameFormat: "cash", position: "BTN", potType: "3bet" },
       partial: false,
+      hands: false,
     });
     expect(checkerFiltersOf({ formats: ["tournament", "sng", "spin"], sites: [], tags: [], allIn: null })).toEqual({
       filters: { gameKind: "tournament" },
       partial: false,
+      hands: false,
+    });
+    // The effective stack (Step 11): the desktop's store follows it, the web
+    // reads it through the Hands filter.
+    expect(checkerFiltersOf({ effStacks: ["80-120"], formats: ["cash"] })).toEqual({
+      filters: { gameFormat: "cash", effStacks: ["80-120"] },
+      partial: false,
+      hands: true,
     });
     expect(checkerFiltersOf({ positions: ["BTN", "CO"] }).partial).toBe(true);
     expect(checkerFiltersOf({ sites: ["pokerstars"] }).partial).toBe(true);

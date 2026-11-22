@@ -19,14 +19,16 @@
 
 import type { PhfHand, Position } from "../phf/types";
 import { primaryBoard } from "../phf/types";
+import { effectiveFirstActionBb } from "./events";
 import type { StatsRow } from "./mapping";
 
 /**
  * The facts' version (`hand_facts.facts_version`). Bumped when a fact's
  * meaning changes: every stored hand is then derived again (the rebuild
- * route, `hands_needing_stats`' `p_facts_version`).
+ * route, `hands_needing_stats`' `p_facts_version`). `facts/2`: the effective
+ * stack (docs/ANALYTICS.md Step 11).
  */
-export const FACTS_VERSION = "facts/1" as const;
+export const FACTS_VERSION = "facts/2" as const;
 
 /** The builder's facts of one hand (`facts::HandExtras`). */
 export interface BuilderFacts {
@@ -53,6 +55,12 @@ export interface BuilderFacts {
   level: number | null;
   /** Caught bluffing: the hero's streets, then any opponent's (1 flop, 2 turn, 4 river). */
   bluff: [number, number];
+  /**
+   * The hero's effective stack at its first preflop action, tenths of the
+   * largest forced blind (`effectiveFirstActionBb` / 100, rounded down): the
+   * Effective stack filter's (docs/ANALYTICS.md Step 11).
+   */
+  effStack: number | null;
 }
 
 /** A hero's made hand, weakest first; stored as its index. */
@@ -367,6 +375,12 @@ export function keptRows(rows: readonly StatsRow[], positional: boolean): StatsR
   return kept;
 }
 
+/** The hero's effective stack in tenths of the largest forced blind (thousandths / 100, rounded down). */
+export function effStackTenths(hand: PhfHand, heroSeat: number): number | null {
+  const thousandths = effectiveFirstActionBb(hand, heroSeat);
+  return thousandths === null ? null : Math.floor(thousandths / 100);
+}
+
 /** Derive the builder's facts of `hand` from its PHF and its kept rows ({@link keptRows}). */
 export function builderFacts(hand: PhfHand, rows: readonly StatsRow[]): BuilderFacts {
   const facts: BuilderFacts = {
@@ -383,6 +397,7 @@ export function builderFacts(hand: PhfHand, rows: readonly StatsRow[]): BuilderF
     bounty: false,
     level: null,
     bluff: [0, 0],
+    effStack: null,
   };
   const hero = rows.find((row) => row.is_hero);
   const flopSeers = rows.filter((row) => row.flop_seen > 0);
@@ -421,6 +436,7 @@ export function builderFacts(hand: PhfHand, rows: readonly StatsRow[]): BuilderF
       }
     }
     sizes(hand, hero.seat, facts);
+    facts.effStack = effStackTenths(hand, hero.seat);
   }
   facts.bluff = caughtBluffing(hand, rows);
   const tournament = hand.tournament;

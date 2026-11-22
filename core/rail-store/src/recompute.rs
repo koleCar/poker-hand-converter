@@ -655,7 +655,7 @@ const SEAT_POSITION: usize = 4;
 const SEAT_TOTALS: usize = 9;
 
 /// `hand_list`'s columns, in this order.
-const LIST_COLUMNS: [&str; 40] = [
+const LIST_COLUMNS: [&str; 41] = [
     "played_at",
     "hand_key",
     "site_hand_id",
@@ -696,6 +696,7 @@ const LIST_COLUMNS: [&str; 40] = [
     "tour_level",
     "hero_bluff",
     "vs_bluff",
+    "eff_stack_tenths",
 ];
 const LIST_SEGMENT: usize = 3;
 const LIST_ALL_IN: usize = 10;
@@ -831,6 +832,7 @@ fn list_values(hand_key: &str, stats: &PreparedStats, segment_id: i64) -> Result
         stats.list.extras.level.map_or(Value::Null, int),
         int(stats.list.extras.bluff[0]),
         int(stats.list.extras.bluff[1]),
+        stats.list.extras.eff_stack_tenths.map_or(Value::Null, int),
     ])
 }
 

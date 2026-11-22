@@ -427,3 +427,97 @@ fn filters_examples_and_a_deleted_hand() {
         .expect("count");
     assert_eq!(left, 0);
 }
+
+/// (docs/ANALYTICS.md Step 11) The Effective stack chips narrow the checker
+/// to the hands the Hands list shows with them: per bucket, the sums are
+/// the fixture rows of the list's hands in it, and the buckets add up to
+/// the whole.
+#[test]
+fn the_effective_stack_narrows_to_the_lists_hands() {
+    let (path, store, _keys) = fixture_store("checker-eff-stack");
+    let conn = Connection::open(&path).expect("open");
+    let all = store
+        .reader()
+        .checker_sums(VERSION, &CheckerFilters::default())
+        .expect("sums");
+    let buckets: Vec<String> =
+        rail_stats::stack_buckets::buckets(rail_stats::stack_buckets::Scheme::Filter)
+            .iter()
+            .map(|bucket| bucket.id.clone())
+            .collect();
+    let (mut hands, mut opps, mut spread) = (0, 0, 0);
+    for bucket in &buckets {
+        let filters = CheckerFilters {
+            eff_stacks: vec![bucket.clone()],
+            ..CheckerFilters::default()
+        };
+        let sums = store
+            .reader()
+            .checker_sums(VERSION, &filters)
+            .expect("sums");
+        // The decisions of the list's hands in the bucket.
+        let list = rail_store::hand_list::HandFilter {
+            eff_stacks: vec![bucket.clone()],
+            ..rail_store::hand_list::HandFilter::default()
+        };
+        let in_list: Vec<String> = store
+            .reader()
+            .hand_page(&list, None, 500)
+            .expect("page")
+            .rows
+            .into_iter()
+            .map(|row| row.hand_key)
+            .collect();
+        let want_opps: i64 = in_list
+            .iter()
+            .map(|key| {
+                conn.query_row(
+                    "SELECT count(*) FROM analysis_checker_rows WHERE hand_key = ?1",
+                    [key],
+                    |r| r.get::<_, i64>(0),
+                )
+                .expect("count")
+            })
+            .sum();
+        let got_opps: i64 = sums.groups.iter().map(|g| g.opps).sum();
+        assert_eq!(got_opps, want_opps, "{bucket}: the list's decisions");
+        assert!(
+            sums.hands <= i64::try_from(in_list.len()).expect("n"),
+            "{bucket}: hands"
+        );
+        let examples = store
+            .reader()
+            .checker_examples(
+                VERSION,
+                &filters,
+                &ExampleQuery {
+                    stat: "vpip".to_owned(),
+                    spot: None,
+                    size: None,
+                    hand_class: None,
+                    side: CheckerSide::Any,
+                    limit: 100,
+                },
+            )
+            .expect("examples");
+        assert!(
+            examples.iter().all(|e| in_list.contains(&e.hand_key)),
+            "{bucket}: examples"
+        );
+        hands += sums.hands;
+        opps += got_opps;
+        if got_opps > 0 {
+            spread += 1;
+        }
+    }
+    assert_eq!(hands, all.hands, "the buckets add up to every hand");
+    assert_eq!(opps, all.groups.iter().map(|g| g.opps).sum::<i64>());
+    assert!(spread >= 2, "the fixture spans buckets");
+    // A chip that is no bucket: nothing.
+    let none = CheckerFilters {
+        eff_stacks: vec!["7-8".to_owned()],
+        ..CheckerFilters::default()
+    };
+    let sums = store.reader().checker_sums(VERSION, &none).expect("sums");
+    assert_eq!((sums.hands, sums.groups.len()), (0, 0));
+}

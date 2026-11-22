@@ -148,7 +148,17 @@ export function codedForChecker(catalogue: Catalogue, coded: Readonly<Record<str
 /* ---------------------------------------------------------- filters -- */
 
 /** Filter groups the checker reads (or that change nothing about which hands are in). */
-const FOLLOWED = new Set(["formats", "from", "to", "positions", "potTypes", "utcOffsetMinutes", "sort", "potUnit"]);
+const FOLLOWED = new Set([
+  "formats",
+  "from",
+  "to",
+  "positions",
+  "potTypes",
+  "effStacks",
+  "utcOffsetMinutes",
+  "sort",
+  "potUnit",
+]);
 
 function isSet(value: unknown): boolean {
   if (value === undefined || value === null) return false;
@@ -159,12 +169,14 @@ function isSet(value: unknown): boolean {
 
 /**
  * The screen's filter as the checker reads it on both surfaces: the dates,
- * the kind of game (or one format), one position, one pot type. `partial`
- * when the filter sets anything else (or several positions or pot types):
- * the web hands those over as the Hands list's filter (`hands`), the
- * desktop's checker leaves them out and the screen says so.
+ * the kind of game (or one format), one position, one pot type, the
+ * effective stack's chips (docs/ANALYTICS.md Step 11). `partial` when the
+ * filter sets anything else (or several positions or pot types): the
+ * desktop's checker leaves them out and the screen says so. `hands`: the web
+ * hands the Hands list's filter over (its SQL checker reads the effective
+ * stack, like every group beyond its keys, through `analysis_hand_ids`).
  */
-export function checkerFiltersOf(query: HandFilter): { filters: CheckerFilters; partial: boolean } {
+export function checkerFiltersOf(query: HandFilter): { filters: CheckerFilters; partial: boolean; hands: boolean } {
   const filters: CheckerFilters = {};
   let partial = false;
   if (query.from) filters.from = query.from;
@@ -185,10 +197,12 @@ export function checkerFiltersOf(query: HandFilter): { filters: CheckerFilters; 
   const potTypes = query.potTypes ?? [];
   if (potTypes.length === 1) filters.potType = potTypes[0];
   else if (potTypes.length > 1) partial = true;
+  const effStacks = query.effStacks ?? [];
+  if (effStacks.length > 0) filters.effStacks = effStacks;
   for (const [key, value] of Object.entries(query)) {
     if (!FOLLOWED.has(key) && isSet(value)) partial = true;
   }
-  return { filters, partial };
+  return { filters, partial, hands: partial || effStacks.length > 0 };
 }
 
 /* -------------------------------------------------------- All stats -- */

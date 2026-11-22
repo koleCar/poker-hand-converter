@@ -3,420 +3,420 @@
   "hands": [
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=1/1,pfr=1/1,rfi=1/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "ea884f4e4dcc6dabea207ef0815b34dd1ded43b5f3d2c2dac2e8011b9c4bd669",
+      "events": "5179d4c1ad38ff766a025d5e6513684b066d9008662721ccb40f0cfa3316e624",
       "handId": "HD2735952312",
       "index": 0,
       "members": "0@1:vpip-,pfr-,rfi- 1@2:vpip+,pfr+,rfi+ 2@3:vpip-,pfr-,three_bet- 3@4:vpip-,pfr-,three_bet- 4@5:vpip-,pfr-,three_bet- 5@6:vpip-,pfr-,three_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "ca2c2288c33155636c0562b5556cdb2b0149c22e9d6950e8a0efbcdff1588e51",
+      "events": "b3a120c1decaad42d0fb8a08cfe17c182d05ccc43b508a409f03043b7d12d55a",
       "handId": "HD2735952291",
       "index": 1,
       "members": "0@6:vpip-,pfr-,rfi- 1@1:vpip-,pfr-,rfi- 2@2:vpip-,pfr-,rfi- 3@3:vpip-,pfr-,rfi- 4@4:vpip-,pfr-,rfi-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=1/1,pfr=1/1,rfi=1/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=1/1 5:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "0c3fcbb725073e8b29a32c9355a9d4d0d4f9d5991ea9b92ba0635d925ac43976",
+      "events": "944ac90eb7f728d98f4526ce7d910414cea566cf5434f5b9a86014eeb9660c3e",
       "handId": "HD2735952255",
       "index": 2,
       "members": "0@5:vpip-,pfr-,rfi- 1@6:vpip-,pfr-,rfi- 2@1:vpip-,pfr-,rfi- 3@2:vpip+,pfr+,rfi+ 4@3:vpip-,pfr-,three_bet- 5@4:vpip-,pfr-,three_bet-,bb_fold_vs_steal+"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1 5:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "0406cbe52326e40dcf3171cd4abfbea152e4e6d18948776c8adc74a4a85fa7c6",
+      "events": "3403e4e6fdd474274d5464762704fa777decb81b37503d7485d516479a5f28e3",
       "handId": "HD2735952201",
       "index": 3,
       "members": "0@4:vpip+,pfr+,rfi+ 1@5:vpip+,pfr-,three_bet- 2@6:vpip-,pfr-,three_bet- 3@1:vpip-,pfr-,three_bet- 4@2:vpip-,pfr-,three_bet- 5@3:vpip-,pfr-,three_bet- 6@4:cbet_flop+ 7@5:flop_fold_vs_bet+,flop_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,four_bet=0/1 2:vpip=0/1,pfr=0/1,four_bet=0/1 3:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=1/1,four_bet=0/1 4:vpip=1/1,pfr=1/1,three_bet=1/1 5:vpip=0/1,pfr=0/1,four_bet=0/1 6:vpip=0/1,pfr=0/1,four_bet=0/1",
-      "events": "4e6c4f6b32727988d86d220152fcc915fae704b5a251eb7b978f2ad1d500bbf5",
+      "events": "1238a93a1298670c3c247c2c534c689504ad39c59fc495ae6ea5f66fc86d7f64",
       "handId": "HD2735952151",
       "index": 4,
       "members": "0@3:vpip+,pfr+,rfi+ 1@4:vpip+,pfr+,three_bet+ 2@5:vpip-,pfr-,four_bet- 3@6:vpip-,pfr-,four_bet- 4@1:vpip-,pfr-,four_bet- 5@2:vpip-,pfr-,four_bet- 6@3:fold_to_three_bet+,four_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,four_bet=0/1 2:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=1/1,four_bet=0/1 3:vpip=1/1,pfr=1/1,three_bet=1/1 4:vpip=0/1,pfr=0/1,four_bet=0/1 5:vpip=0/1,pfr=0/1,four_bet=0/1 6:vpip=0/1,pfr=0/1,four_bet=0/1",
-      "events": "ab7fb87592ea10720c3a62beed029241ba4df9f699b7849cdf7a9870d8393c8a",
+      "events": "4a78c9fbf504acb6b962243ec9b526636a7f4bd6eca274e2cfb3e30707e06c83",
       "handId": "HD2735952132",
       "index": 5,
       "members": "0@2:vpip+,pfr+,rfi+ 1@3:vpip+,pfr+,three_bet+ 2@4:vpip-,pfr-,four_bet- 3@5:vpip-,pfr-,four_bet- 4@6:vpip-,pfr-,four_bet- 5@1:vpip-,pfr-,four_bet- 6@2:fold_to_three_bet+,four_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1 5:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=1/1 6:vpip=0/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=1/1",
-      "events": "5715c21fafce96ff1400ea9ac4a5cd6d6939eb5aefcd87a5e71b9e3722fc19fb",
+      "events": "4b2ac8db49661801da22b9b7f44f71588caa47e6851e2d007f001b470aa2ed79",
       "handId": "HD2735952078",
       "index": 6,
       "members": "0@1:vpip-,pfr-,rfi- 1@2:vpip-,pfr-,rfi- 2@3:vpip-,pfr-,rfi- 3@4:vpip+,pfr+,rfi+ 4@5:vpip+,pfr-,three_bet- 5@6:vpip-,pfr-,three_bet-,bb_fold_vs_steal+ 7@4:cbet_flop+ 8@5:flop_fold_vs_bet-,flop_raise_vs_bet+"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "75d87fed0ea9486ed3677e9607eb0efda0138c19f4be8a4b2cf9dca72b6388f5",
+      "events": "7ef3642f876a2b5008cfd442829eacc027fa8cc9ee7d2ab7d1130dbd4490ec59",
       "handId": "HD2735952058",
       "index": 7,
       "members": "0@6:vpip-,pfr-,rfi- 1@1:vpip-,pfr-,rfi- 2@2:vpip-,pfr-,rfi- 3@3:vpip-,pfr-,rfi- 4@4:vpip-,pfr-,rfi-"
     },
     {
       "counts": "1:vpip=1/1,pfr=1/1,rfi=1/1 2:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=1/1 5:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "138aa58a20629383b5bba7a5babe41676d248c726526bd64fc74203863bc12a7",
+      "events": "f89830e90f87c70b3bdd13a77383bcfc4d0b9c0e38b5ca9b79f1c20697da77c8",
       "handId": "HD2735952033",
       "index": 8,
       "members": "0@5:vpip-,pfr-,rfi- 1@6:vpip-,pfr-,rfi- 2@1:vpip+,pfr+,rfi+ 3@2:vpip-,pfr-,three_bet- 4@3:vpip-,pfr-,three_bet- 5@4:vpip-,pfr-,three_bet-,bb_fold_vs_steal+"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1 2:vpip=1/1,pfr=1/1,cbet_flop=1/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=1/1 6:vpip=0/1,pfr=0/1",
-      "events": "96a9f7f6b26fa74a9466cbedb3c51d9f820f2442a85620153ac4c21c002f74e3",
+      "events": "dad037a4bf3441c77f8c3e1d0e2d8da9f0c8cb929f20916ff4e1b328349c3b49",
       "handId": "HD2735951926",
       "index": 9,
       "members": "0@4:vpip-,pfr-,rfi- 1@5:vpip+,pfr-,rfi- 2@6:vpip-,pfr- 3@1:vpip-,pfr- 4@2:vpip+,pfr+ 5@3:vpip-,pfr-,three_bet- 6@5:three_bet- 7@2:cbet_flop+ 8@5:flop_fold_vs_bet-,flop_raise_vs_bet+"
     },
     {
       "counts": "1:vpip=1/1,pfr=1/1,three_bet=1/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=1/1,cbet_flop=0/1 2:vpip=0/1,pfr=0/1,four_bet=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "f225d64edc98acf30f6f524ddd9ae04e0a0f2bd836936c127f152aaa1212bb91",
+      "events": "d23e977ea05b093c759bbb0a8cb85811beab642c3b1db82b67d96a78c2e0596a",
       "handId": "HD2735951843",
       "index": 10,
       "members": "0@3:vpip-,pfr-,rfi- 1@4:vpip-,pfr-,rfi- 2@5:vpip+,pfr+,rfi+ 3@6:vpip-,pfr-,three_bet- 4@1:vpip+,pfr+,three_bet+ 5@2:vpip-,pfr-,four_bet- 6@5:fold_to_three_bet-,four_bet- 7@1:cbet_flop- 9@1:flop_fold_vs_bet-,flop_raise_vs_bet+"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1 6:vpip=1/1,pfr=1/1",
-      "events": "c84510cf66dfcdf1b6935c652626ea5391026c74e506aa5d6641f8f3661e44d8",
+      "events": "238122b51988256425c273848f89d3d0a9366b6486644cf3e775cb73d223cccc",
       "handId": "HD2735951805",
       "index": 11,
       "members": "0@3:vpip-,pfr-,rfi- 1@4:vpip-,pfr-,rfi- 2@5:vpip+,pfr-,rfi- 3@6:vpip+,pfr+ 4@1:vpip-,pfr-,three_bet- 5@5:three_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=1/1,pfr=1/1,rfi=1/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=1/1,pfr=0/1,three_bet=0/1 6:vpip=1/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1",
-      "events": "5776ba11957c50864dc87c95c21f49908527a4ad19e4fb3523985a077179e993",
+      "events": "0a2db136af9a65874ba95f8c61c027ae5ef23a0e51de312a898ecfbb3098c105",
       "handId": "HD2735951730",
       "index": 12,
       "members": "0@1:vpip-,pfr-,rfi- 1@3:vpip+,pfr+,rfi+ 2@4:vpip-,pfr-,three_bet- 3@5:vpip+,pfr-,three_bet- 4@6:vpip+,pfr-,three_bet-,bb_fold_vs_steal- 6@6:flop_fold_vs_bet+,flop_raise_vs_bet- 7@3:flop_fold_vs_bet+,flop_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,river_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=1/1,pfr=1/1,three_bet=1/1,bb_fold_vs_steal=0/1,cbet_flop=1/1,turn_fold_vs_bet=0/1,turn_barrel=0/1,river_bet=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "e48929ab8a15f57d943c7e2e8fb758d8880ca9ed96bbfc034ed911d8f23d35bb",
+      "events": "e8dc2bf186507c4cd9ea171b8092c47ef6a1d3426d55c304d443f5e7c88166ea",
       "handId": "HD2735951636",
       "index": 13,
       "members": "0@6:vpip-,pfr-,rfi- 1@1:vpip-,pfr-,rfi- 2@3:vpip+,pfr+,rfi+ 3@4:vpip-,pfr-,three_bet- 4@5:vpip+,pfr+,three_bet+,bb_fold_vs_steal- 5@3:fold_to_three_bet-,four_bet- 6@5:cbet_flop+ 7@3:flop_fold_vs_bet-,flop_raise_vs_bet- 8@5:turn_barrel- 10@5:turn_fold_vs_bet- 11@5:river_bet- 12@3:river_bet-"
     },
     {
       "counts": "1:vpip=1/1,pfr=1/1,fold_to_three_bet=0/1,four_bet=1/1 3:vpip=1/1,pfr=1/1,three_bet=1/1 4:vpip=0/1,pfr=0/1,four_bet=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1,four_bet=0/1 6:vpip=0/1,pfr=0/1",
-      "events": "5cc5975e6010a9900077a54c0ef4425f98449d5c4330ecd9fc136349fc11586f",
+      "events": "a0bcd8347912b5c218ccc55cc6ec1cd16431e167ceb34ed2c04b022e4284dcf5",
       "handId": "HD2735951493",
       "index": 14,
       "members": "0@5:vpip+,pfr-,rfi- 1@6:vpip-,pfr- 2@1:vpip+,pfr+ 3@3:vpip+,pfr+,three_bet+ 4@4:vpip-,pfr-,four_bet- 5@5:four_bet- 6@1:fold_to_three_bet-,four_bet+"
     },
     {
       "counts": "1:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=1/1 3:vpip=1/1,pfr=1/1,three_bet=1/1,bb_fold_vs_steal=0/1,cbet_flop=1/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "138561cf3dc515f9cc7c9833220bb2c6f75ff5e7f9333b3a5670e73e3bc0872b",
+      "events": "3cced938f611fe68750965eb1afa05fba6675f14f6c71525ad712c44c090a787",
       "handId": "HD2735951324",
       "index": 15,
       "members": "0@4:vpip-,pfr-,rfi- 1@5:vpip-,pfr-,rfi- 2@6:vpip-,pfr-,rfi- 3@1:vpip+,pfr+,rfi+ 4@3:vpip+,pfr+,three_bet+,bb_fold_vs_steal- 5@1:fold_to_three_bet-,four_bet- 7@3:cbet_flop+ 8@1:flop_fold_vs_bet-,flop_raise_vs_bet+"
     },
     {
       "counts": "3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "9f22db6d8c316fef553cba6d381d65d62b8c3a53d83f172e3ec276672acb761b",
+      "events": "a60d031544d22be783baddfba720b7a944d476ef8ecb41148e0c3be382c35b5e",
       "handId": "HD2735951305",
       "index": 16,
       "members": "0@3:vpip-,pfr-,rfi- 1@4:vpip-,pfr-,rfi- 2@5:vpip-,pfr-,rfi- 3@6:vpip-,pfr-,rfi-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=0/1,turn_fold_vs_bet=1/1,turn_fold_vs_probe=1/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=1/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=1/1",
-      "events": "9f07f1c00dc8ce1b97efc3ef2f9dd0c9fcf446276589fd712c9cf5598774484c",
+      "events": "3fae9f7733501dec8e22bcc24108861bf3b9c78fb5e5e7c656dafee2aa27ad3d",
       "handId": "HD2735951234",
       "index": 17,
       "members": "0@1:vpip-,pfr-,rfi- 1@3:vpip+,pfr+,rfi+ 2@4:vpip-,pfr-,three_bet- 3@5:vpip+,pfr-,three_bet- 4@6:vpip-,pfr-,three_bet-,bb_fold_vs_steal+ 6@3:cbet_flop- 8@3:turn_fold_vs_bet+,turn_fold_vs_probe+"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=1/1,pfr=1/1,rfi=1/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=1/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "005ffe64751a6f95c4c1fb2a06f8fc57eed52932b47d0ac5aa69e7cc4666b8a3",
+      "events": "a9edee24bc82a26cd14b4ccf504efc3038992b0a117e0e64a602d2e1c6ee262c",
       "handId": "HD2735951209",
       "index": 18,
       "members": "0@6:vpip-,pfr-,rfi- 1@1:vpip-,pfr-,rfi- 2@3:vpip+,pfr+,rfi+ 3@4:vpip-,pfr-,three_bet- 4@5:vpip-,pfr-,three_bet-,bb_fold_vs_steal+"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=1/1,pfr=1/1,rfi=1/1 4:vpip=0/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=1/1 5:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "25431fbb26efb3dd3d7191270b9328ac8f76e78cdbeb01d7670000eb51c9aae6",
+      "events": "52013929d9c60909313bd33628aec2ee40d80bed8940144c4d41d1d5b4788f99",
       "handId": "HD2735951188",
       "index": 19,
       "members": "0@5:vpip-,pfr-,rfi- 1@6:vpip-,pfr-,rfi- 2@1:vpip-,pfr-,rfi- 3@3:vpip+,pfr+,rfi+ 4@4:vpip-,pfr-,three_bet-,bb_fold_vs_steal+"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1,turn_barrel=1/1,river_bet=0/1 5:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=0/1,river_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "d602f7e9e53b3312e1d1b77ad760e5f6e773f20b27319eafdd6bcc5c4168f780",
+      "events": "839d44361089f8fb66a95a67ee145f84aeb6914cd7b92fc95d700dad5f341649",
       "handId": "HD2735951127",
       "index": 20,
       "members": "0@4:vpip+,pfr+,rfi+ 1@5:vpip+,pfr-,three_bet- 2@6:vpip-,pfr-,three_bet- 3@1:vpip-,pfr-,three_bet- 4@3:vpip-,pfr-,three_bet- 5@4:cbet_flop+ 6@5:flop_fold_vs_bet-,flop_raise_vs_bet- 7@4:turn_barrel+ 8@5:turn_fold_vs_bet- 9@4:river_bet- 10@5:river_bet-"
     },
     {
       "counts": "3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "c69d23ab71bb25345746e2731b024a58bce26169d47c24905916bcc8cbb58311",
+      "events": "7c15a1d42af641bbb8fdb29b27c14b432a8a54a9329c7c416120c28dbe7262ae",
       "handId": "HD2735951103",
       "index": 21,
       "members": "0@3:vpip-,pfr-,rfi- 1@4:vpip-,pfr-,rfi- 2@5:vpip-,pfr-,rfi- 3@6:vpip-,pfr-,rfi-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=1/1,pfr=1/1,rfi=1/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=1/1",
-      "events": "f3ab5d2bfc1700b75de89199a3363929afabb379df7532e1d5bcb909bcdecd87",
+      "events": "7191e95da06924be3805c6ea045bd6ac056fcd62113dbf44736e1b39eba1d9eb",
       "handId": "HD2735951081",
       "index": 22,
       "members": "0@1:vpip-,pfr-,rfi- 1@3:vpip-,pfr-,rfi- 2@4:vpip+,pfr+,rfi+ 3@5:vpip-,pfr-,three_bet- 4@6:vpip-,pfr-,three_bet-,bb_fold_vs_steal+"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=1/1,four_bet=0/1 4:vpip=1/1,pfr=1/1,three_bet=1/1 5:vpip=0/1,pfr=0/1,four_bet=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "1db8055077a339f27bfe2b7c01bd5cf38dc38485e23385530a6eadcd2126855e",
+      "events": "583071a13e9d7d6df6f5a353de36d5d51354c2d61ad260ec6ac8e808153feff0",
       "handId": "HD2735951039",
       "index": 23,
       "members": "0@6:vpip-,pfr-,rfi- 1@1:vpip-,pfr-,rfi- 2@3:vpip+,pfr+,rfi+ 3@4:vpip+,pfr+,three_bet+ 4@5:vpip-,pfr-,four_bet- 5@3:fold_to_three_bet+,four_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "8e36dc1d1e4a001a336a51230f018f2388ae657ac8a5878361ddaa0e1001f1ce",
+      "events": "0f39fb20bb45de41d6b232fd906b1439a7916da4c376d7044c1369ca3148d7af",
       "handId": "HD2735951018",
       "index": 24,
       "members": "0@5:vpip-,pfr-,rfi- 1@6:vpip-,pfr-,rfi- 2@1:vpip-,pfr-,rfi- 3@3:vpip-,pfr-,rfi-"
     },
     {
       "counts": "1:vpip=1/1,pfr=1/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1",
-      "events": "f5a7943df465560879b35074e8dad9cac38bd5df0835206ce2c0a04a1d985a11",
+      "events": "01fd5ade7067d3ec69917a6a468104f305e767ed0eb9f05049154968779c0cea",
       "handId": "HD2735950970",
       "index": 25,
       "members": "0@4:vpip-,pfr-,rfi- 1@5:vpip+,pfr-,rfi- 2@6:vpip-,pfr- 3@1:vpip+,pfr+ 4@3:vpip-,pfr-,three_bet- 5@5:three_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,four_bet=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1 6:vpip=1/1,pfr=1/1,three_bet=1/1,cbet_flop=1/1",
-      "events": "9c14cd34645017528e66b14c8cbe86c2e96d01e20267fa65f47258ce823809db",
+      "events": "eb1ebe6c96f079dc58f92e10ea7d3c20ecf600bc099e3fd7136de1b6fbbad12d",
       "handId": "HD2735950883",
       "index": 26,
       "members": "0@3:vpip-,pfr-,rfi- 1@4:vpip-,pfr-,rfi- 2@5:vpip+,pfr+,rfi+ 3@6:vpip+,pfr+,three_bet+ 4@1:vpip-,pfr-,four_bet- 5@5:fold_to_three_bet-,four_bet- 6@6:cbet_flop+ 7@5:flop_fold_vs_bet-,flop_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=1/1,pfr=1/1,rfi=1/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=1/1",
-      "events": "cedbcd70fa4b5185a74d93a955366319c24ee1e059ababe538234b2230bc34e7",
+      "events": "335d520df959f2700d8c2bfaf3d43362c49910476e9a5c868adfd7b235ddaf67",
       "handId": "HD2735950852",
       "index": 27,
       "members": "0@1:vpip-,pfr-,rfi- 1@3:vpip-,pfr-,rfi- 2@4:vpip+,pfr+,rfi+ 3@5:vpip-,pfr-,three_bet- 4@6:vpip-,pfr-,three_bet-,bb_fold_vs_steal+"
     },
     {
       "counts": "1:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=0/1,turn_fold_vs_bet=0/1,turn_fold_vs_probe=0/1,river_bet=0/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=1/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=0/1,river_bet=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "a0bb33d398e36bbe79c98fe053b6a84cc4bd6b67419383600eeda8cbaf8c2e77",
+      "events": "6f10108e430c92d3da53e9577aa7f91853695e233107fd55fb84fa0d0c5d19e3",
       "handId": "HD2735950756",
       "index": 28,
       "members": "0@6:vpip-,pfr-,rfi- 1@1:vpip+,pfr+,rfi+ 2@3:vpip-,pfr-,three_bet- 3@4:vpip-,pfr-,three_bet- 4@5:vpip+,pfr-,three_bet-,bb_fold_vs_steal- 6@1:cbet_flop- 8@1:turn_fold_vs_bet-,turn_fold_vs_probe- 9@5:river_bet- 10@1:river_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 5:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "dceb36fa3fa4b3e09176eb1e7a2b4b9615a4c0ebe7c5111c7206d6e02ddf4fec",
+      "events": "0834b7e4cfdcb7c9fb599fb99ad67cc7a611b9e66b7f7f18179568b09d232911",
       "handId": "HD2735950708",
       "index": 29,
       "members": "0@5:vpip+,pfr+,rfi+ 1@6:vpip-,pfr-,three_bet- 2@1:vpip-,pfr-,three_bet- 3@3:vpip-,pfr-,three_bet- 4@4:vpip+,pfr-,three_bet- 6@5:cbet_flop+ 7@4:flop_fold_vs_bet+,flop_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=1/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=1/1,rfi=1/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "4e438c5d8b36157ad84f3358e67c321f2a6f837fe129ace1b669d3ecddcab090",
+      "events": "f7f44a49c6d8d86f0abb5d648ce743f75fcb6715c0aefbab80d0289b0f880965",
       "handId": "HD2735950677",
       "index": 30,
       "members": "0@4:vpip-,pfr-,rfi- 1@5:vpip+,pfr+,rfi+ 2@6:vpip-,pfr-,three_bet- 3@1:vpip-,pfr-,three_bet- 4@3:vpip-,pfr-,three_bet-,bb_fold_vs_steal+"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1 6:vpip=1/1,pfr=1/1,cbet_flop=1/1,turn_barrel=0/1,river_bet=1/1",
-      "events": "148b33128a00bbf03fde8f6c0a9e0a66eae63b53ffb211dcae480c7c6cfcc09f",
+      "events": "32a98c1b477cddb6a60369694eef611c5220976c50a8b20b28482d033fffae52",
       "handId": "HD2735950572",
       "index": 31,
       "members": "0@3:vpip-,pfr-,rfi- 1@4:vpip-,pfr-,rfi- 2@5:vpip+,pfr-,rfi- 3@6:vpip+,pfr+ 4@1:vpip-,pfr-,three_bet- 5@5:three_bet- 6@6:cbet_flop+ 7@5:flop_fold_vs_bet-,flop_raise_vs_bet- 8@6:turn_barrel- 10@6:river_bet+ 11@5:river_fold_vs_bet+,river_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=1/1,pfr=1/1,rfi=1/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "dacd6d79a31b64500f3a919efc15ede7a76763cae2db3cdd30a040a55ccefde3",
+      "events": "62190d2f0cd8279d0f2645c8e41e00a0e3a8fcaa0a18192dc217380148c82bdc",
       "handId": "HD2735950548",
       "index": 32,
       "members": "0@1:vpip+,pfr+,rfi+ 1@3:vpip-,pfr-,three_bet- 2@4:vpip-,pfr-,three_bet- 3@5:vpip-,pfr-,three_bet- 4@6:vpip-,pfr-,three_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "edfc5b73805196821e0f930c92f079eafab317519a899d7f164ca2d18581b2ee",
+      "events": "11808a3434835875a29006429b4558334dcd260d249e04f2650364cff49827b8",
       "handId": "HD2735950515",
       "index": 33,
       "members": "0@6:vpip-,pfr-,rfi- 1@1:vpip-,pfr-,rfi- 2@3:vpip-,pfr-,rfi- 3@4:vpip-,pfr-,rfi-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1 6:vpip=1/1,pfr=1/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1",
-      "events": "0571d2f9cd513ba74cccdec111f68e99963e2573ab6ea3df4d8d225362fdfa80",
+      "events": "e3dd243f9e9a8287e62f92d602a2e6ceff8d49f34ed1233033dab05e4f072893",
       "handId": "HD2735950357",
       "index": 34,
       "members": "0@4:vpip-,pfr-,rfi- 1@5:vpip+,pfr-,rfi- 2@6:vpip+,pfr+ 3@1:vpip-,pfr-,three_bet- 4@2:vpip-,pfr-,three_bet- 5@3:vpip-,pfr-,three_bet- 6@5:three_bet- 8@6:flop_fold_vs_bet+,flop_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1 2:vpip=0/1,pfr=0/1,river_bet=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=0/1,river_bet=0/1 6:vpip=0/1,pfr=0/1",
-      "events": "fb78fddeb43ba98c399e3ce1f0ee430f42ead776c44f0b8f9a312d59710cee97",
+      "events": "3585770be2ef104b2ca43be58be6de24cd3fb7724a2d9873381f755c5cf968c7",
       "handId": "HD2735950288",
       "index": 35,
       "members": "0@3:vpip-,pfr-,rfi- 1@4:vpip-,pfr-,rfi- 2@5:vpip+,pfr-,rfi- 3@6:vpip-,pfr- 4@1:vpip-,pfr- 5@2:vpip-,pfr- 7@5:flop_fold_vs_bet-,flop_raise_vs_bet- 9@5:turn_fold_vs_bet- 10@2:river_bet- 11@5:river_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 2:vpip=1/1,pfr=0/1,rfi=0/1 3:vpip=0/1,pfr=0/1 4:vpip=0/1,pfr=0/1 5:vpip=0/1,pfr=0/1 6:vpip=0/1,pfr=0/1",
-      "events": "d38bc938d9ba2faead179ab4965d1094e4c7bd7ed5b876f37d2eb664fb99cf4f",
+      "events": "ada20a34136ac68cb861b953be46663324bb69fc33481dc68ab5a9b13bc13d74",
       "handId": "HD2735950245",
       "index": 36,
       "members": "0@2:vpip+,pfr-,rfi- 1@3:vpip-,pfr- 2@4:vpip-,pfr- 3@5:vpip-,pfr- 4@6:vpip-,pfr- 5@1:vpip-,pfr- 8@1:flop_fold_vs_bet+,flop_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=0/1,turn_fold_vs_bet=0/1,turn_fold_vs_probe=0/1 2:vpip=1/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=1/1,pfr=0/1,three_bet=0/1 6:vpip=1/1,pfr=0/1,three_bet=0/1,turn_fold_vs_bet=1/1",
-      "events": "e3f2144c21e344847a9f066e707579a85f64fa595d489feba6e8bae264bc3855",
+      "events": "33c51daba91cb91cfbb4c81534f892faf825abb5a9fe5a00d5c377e528bd2bfb",
       "handId": "HD2735950101",
       "index": 37,
       "members": "0@1:vpip+,pfr+,rfi+ 1@2:vpip+,pfr-,three_bet- 2@3:vpip-,pfr-,three_bet- 3@4:vpip-,pfr-,three_bet- 4@5:vpip+,pfr-,three_bet- 5@6:vpip+,pfr-,three_bet- 8@1:cbet_flop- 11@6:turn_fold_vs_bet+ 12@1:turn_fold_vs_bet-,turn_fold_vs_probe-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,river_bet=1/1 3:vpip=0/1,pfr=0/1 4:vpip=0/1,pfr=0/1 5:vpip=1/1,pfr=1/1,cbet_flop=1/1,turn_fold_vs_bet=0/1,turn_barrel=0/1,river_bet=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "eba3b54aa7e20d92b5272dfe2cf394d10a1be460ad490de880f6411f899baf1e",
+      "events": "d716efd30fa7abad460abbf52ef78a04f14911da237aea93154f4dcace954c59",
       "handId": "HD2735950010",
       "index": 38,
       "members": "0@6:vpip-,pfr-,rfi- 1@1:vpip-,pfr-,rfi- 2@2:vpip+,pfr-,rfi- 3@3:vpip-,pfr- 4@4:vpip-,pfr- 5@5:vpip+,pfr+ 6@2:three_bet- 7@5:cbet_flop+ 8@2:flop_fold_vs_bet-,flop_raise_vs_bet- 9@5:turn_barrel- 11@5:turn_fold_vs_bet- 12@5:river_bet- 13@2:river_bet+ 14@5:river_fold_vs_bet+,river_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 3:vpip=1/1,pfr=1/1,cbet_flop=1/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "b3231c4942902ed93653c1513fcb7b452877bf13cfc2686e2c9ec0c7713e4293",
+      "events": "3dc1da7c1555bd9502e619fce25a6f3da0016f380b403385a20c8b81a88e6451",
       "handId": "HD2735949935",
       "index": 39,
       "members": "0@6:vpip-,pfr-,rfi- 1@1:vpip-,pfr-,rfi- 2@2:vpip+,pfr-,rfi- 3@3:vpip+,pfr+ 4@4:vpip-,pfr-,three_bet- 5@2:three_bet- 6@3:cbet_flop+ 7@2:flop_fold_vs_bet+,flop_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=1/1,rfi=1/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "88b10cecfddfd8164c9038899c639e6999e3d931cd2f80dd3f4cff616c597fb0",
+      "events": "674b0f51b3810cd98fec7be12a4fef7c7d21de4805bca2ea308af67c4b7fb11f",
       "handId": "HD2735949916",
       "index": 40,
       "members": "0@4:vpip-,pfr-,rfi- 1@5:vpip+,pfr+,rfi+ 2@6:vpip-,pfr-,three_bet- 3@1:vpip-,pfr-,three_bet- 4@2:vpip-,pfr-,three_bet- 5@3:vpip-,pfr-,three_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=1/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=1/1,pfr=1/1,rfi=1/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 5:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=1/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "2015b5aa4f6b043dfe8248b36ae4b10a205a56d0560ce872f5772b50ed0dba69",
+      "events": "c05c1ec90b57194d441b097cf8a7fcecfaa0a55069c3d46829d90d43e531eb2c",
       "handId": "HD2735949840",
       "index": 41,
       "members": "0@3:vpip-,pfr-,rfi- 1@4:vpip+,pfr+,rfi+ 2@5:vpip+,pfr-,three_bet- 3@6:vpip-,pfr-,three_bet- 4@1:vpip-,pfr-,three_bet- 5@2:vpip+,pfr-,three_bet- 7@4:flop_fold_vs_bet+,flop_raise_vs_bet- 8@5:flop_fold_vs_bet-,flop_raise_vs_bet- 10@5:turn_fold_vs_bet+"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 3:vpip=0/1,pfr=0/1 4:vpip=1/1,pfr=1/1,cbet_flop=1/1 5:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "f0a089308acc3a7d4749536bab4fa36f7d609bd8ee5d016d325bab8c235c4fd5",
+      "events": "217665313cfa60703b96c1bc1669e39a1daf54f0ca1fad667c751d7740223374",
       "handId": "HD2735949754",
       "index": 42,
       "members": "0@2:vpip+,pfr-,rfi- 1@3:vpip-,pfr- 2@4:vpip+,pfr+ 3@5:vpip+,pfr-,three_bet- 4@6:vpip-,pfr-,three_bet- 5@1:vpip-,pfr-,three_bet- 6@2:three_bet- 8@4:cbet_flop+ 9@5:flop_fold_vs_bet+,flop_raise_vs_bet- 10@2:flop_fold_vs_bet+,flop_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=1/1,four_bet=0/1 4:vpip=1/1,pfr=1/1,three_bet=1/1 5:vpip=0/1,pfr=0/1,four_bet=0/1 6:vpip=0/1,pfr=0/1,four_bet=0/1",
-      "events": "f2fa03a5efb24a3d440c3d8011d955c5c6055500b8b4b842b36d4f6bec86bb21",
+      "events": "ed0b410278e6edc747461d1c9fc0b50eedadda7117a173e6ef4ede97e00d5de2",
       "handId": "HD2735949719",
       "index": 43,
       "members": "0@1:vpip-,pfr-,rfi- 1@2:vpip-,pfr-,rfi- 2@3:vpip+,pfr+,rfi+ 3@4:vpip+,pfr+,three_bet+ 4@5:vpip-,pfr-,four_bet- 5@6:vpip-,pfr-,four_bet- 6@3:fold_to_three_bet+,four_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,river_bet=1/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=1/1,pfr=1/1,three_bet=1/1,cbet_flop=1/1,turn_barrel=0/1,river_bet=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1 5:vpip=0/1,pfr=0/1,four_bet=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "1185ed9f842bde58079f9b85eb9ad33f365d7377d46e64e681b586c4e8f81f07",
+      "events": "55926b2f962515b28bce02c8487594c6d94933cf51dcd11eeeb7349adaa1ffe1",
       "handId": "HD2735949657",
       "index": 44,
       "members": "0@6:vpip-,pfr-,rfi- 1@1:vpip-,pfr-,rfi- 2@2:vpip+,pfr+,rfi+ 3@3:vpip-,pfr-,three_bet- 4@4:vpip+,pfr+,three_bet+ 5@5:vpip-,pfr-,four_bet- 6@2:fold_to_three_bet-,four_bet- 7@4:cbet_flop+ 8@2:flop_fold_vs_bet-,flop_raise_vs_bet- 9@4:turn_barrel- 11@4:river_bet- 12@2:river_bet+ 13@4:river_fold_vs_bet+,river_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1 2:vpip=0/1,pfr=0/1 3:vpip=1/1,pfr=1/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1",
-      "events": "a71364eb25ca6311556c9a76708f8bb7d3879194a1b4f966c86f982b4f27ad73",
+      "events": "272d2e3533a7cf029cc4a229c0e92ca917346a23d9abf623aa03a71648ccd6ae",
       "handId": "HD2735949626",
       "index": 45,
       "members": "0@5:vpip+,pfr-,rfi- 1@6:vpip-,pfr- 2@1:vpip-,pfr- 3@2:vpip-,pfr- 4@3:vpip+,pfr+ 5@4:vpip-,pfr-,three_bet- 6@5:three_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=0/1,river_bet=0/1,river_fold_vs_bet=0/1,river_raise_vs_bet=0/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1,turn_barrel=1/1,river_bet=1/1 5:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "e6ba5285b75f7a21d42512f87a88edcaef4f788578574c42b0b3b460407741f5",
+      "events": "5e1f68622315ab080c255b71b485fafe30bbcf82d4eeee487841eb2f728b2ef0",
       "handId": "HD2735949548",
       "index": 46,
       "members": "0@4:vpip+,pfr+,rfi+ 1@5:vpip+,pfr-,three_bet- 2@6:vpip-,pfr-,three_bet- 3@1:vpip-,pfr-,three_bet- 4@2:vpip+,pfr-,three_bet- 5@3:vpip-,pfr-,three_bet- 7@4:cbet_flop+ 8@5:flop_fold_vs_bet+,flop_raise_vs_bet- 9@2:flop_fold_vs_bet-,flop_raise_vs_bet- 11@4:turn_barrel+ 12@2:turn_fold_vs_bet- 13@2:river_bet- 14@4:river_bet+ 15@2:river_fold_vs_bet-,river_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=0/1,river_bet=1/1 3:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1,turn_barrel=1/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "591e2f820c19032ba6bd5f9fa3da0d6d2af8c3f04f206172ac1c7f94fbc78faf",
+      "events": "c7abb11fad39c1394a7d58c4e8153bbaa310726b7f4915659c52b2aa009ec574",
       "handId": "HD2735949393",
       "index": 47,
       "members": "0@3:vpip+,pfr+,rfi+ 1@4:vpip-,pfr-,three_bet- 2@5:vpip-,pfr-,three_bet- 3@6:vpip-,pfr-,three_bet- 4@1:vpip-,pfr-,three_bet- 5@2:vpip+,pfr-,three_bet- 7@3:cbet_flop+ 8@2:flop_fold_vs_bet-,flop_raise_vs_bet- 10@3:turn_barrel+ 11@2:turn_fold_vs_bet- 13@2:river_bet+ 14@3:river_fold_vs_bet+,river_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=1/1,pfr=1/1,rfi=1/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "e2ec4db4280c865fc44028bc7dca225194191bd5835e5149785bd1434ffd2dab",
+      "events": "de9720abec35effbc28aa51b79c94ee145542cccaa112852866bb73c3c087b5d",
       "handId": "HD2735949374",
       "index": 48,
       "members": "0@2:vpip+,pfr+,rfi+ 1@3:vpip-,pfr-,three_bet- 2@4:vpip-,pfr-,three_bet- 3@5:vpip-,pfr-,three_bet- 4@6:vpip-,pfr-,three_bet- 5@1:vpip-,pfr-,three_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1 3:vpip=1/1,pfr=1/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "c7484250c815a708d404f972da47f275ecba4535fc0dcdb2465941a690521e6c",
+      "events": "e6cf7ede2f5c14fc2bceec51c162be12ea33b4d3820dc07f9257e8a7541ea6a6",
       "handId": "HD2735949326",
       "index": 49,
       "members": "0@1:vpip-,pfr-,rfi- 1@2:vpip+,pfr-,rfi- 2@3:vpip+,pfr+ 3@4:vpip-,pfr-,three_bet- 4@5:vpip-,pfr-,three_bet- 5@6:vpip-,pfr-,three_bet- 6@2:three_bet- 8@3:flop_fold_vs_bet+,flop_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1 3:vpip=1/1,pfr=1/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
-      "events": "b4726ca7dff5c1f7c75c749ed57e6b7a4a6fab9b6a4c7e702d80ec1120cc34d2",
+      "events": "1c9134dc92ffd2f00f1152e1b079e98fae55709d3e2116880a36ac739aca9cd9",
       "handId": "HD2735949287",
       "index": 50,
       "members": "0@6:vpip-,pfr-,rfi- 1@1:vpip-,pfr-,rfi- 2@2:vpip+,pfr-,rfi- 3@3:vpip+,pfr+ 4@4:vpip-,pfr-,three_bet- 5@5:vpip-,pfr-,three_bet- 6@2:three_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1 2:vpip=0/1,pfr=0/1 3:vpip=0/1,pfr=0/1 4:vpip=0/1,pfr=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1",
-      "events": "70c2f58bd7669965e0deb673e4f5abc8c206bd6cb9b925bd32503408ce652829",
+      "events": "81d8e7f103626b81b1557455382bf571175188b4941141fb6e058fa92d805669",
       "handId": "HD2735949249",
       "index": 51,
       "members": "0@5:vpip+,pfr-,rfi- 1@6:vpip-,pfr- 2@1:vpip-,pfr- 3@2:vpip-,pfr- 4@3:vpip-,pfr- 5@4:vpip-,pfr- 8@4:flop_fold_vs_bet+,flop_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,river_bet=0/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1,river_bet=1/1 6:vpip=1/1,pfr=1/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,river_fold_vs_bet=0/1,river_raise_vs_bet=1/1",
-      "events": "8faf3e07a84318066e13988ee69bc22934d46976ba295efa509165843d5410fe",
+      "events": "e86579123866d0cc4317d73c75c3d43c198ea6ad90248fe7ee421c4c573ea605",
       "handId": "HD2735949126",
       "index": 52,
       "members": "0@4:vpip-,pfr-,rfi- 1@5:vpip+,pfr-,rfi- 2@6:vpip+,pfr+ 3@1:vpip-,pfr-,three_bet- 4@2:vpip+,pfr-,three_bet- 5@3:vpip-,pfr-,three_bet- 6@5:three_bet- 9@6:flop_fold_vs_bet-,flop_raise_vs_bet- 10@2:flop_fold_vs_bet-,flop_raise_vs_bet- 14@2:river_bet- 15@5:river_bet+ 16@6:river_fold_vs_bet-,river_raise_vs_bet+"
     },
     {
       "counts": "1:vpip=1/1,pfr=1/1,three_bet=1/1,cbet_flop=0/1,river_bet=1/1 2:vpip=1/1,pfr=0/1,four_bet=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=0/1,river_fold_vs_bet=0/1,river_raise_vs_bet=1/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "3b08e894540baba951ea6cdedc4e21a7ce096912b370a1ac4190e7fc96a39875",
+      "events": "d0f02e1727633c68e3b5e4b0dbed50729afb869ac7f074e21ce5440387bdd897",
       "handId": "HD2735948986",
       "index": 53,
       "members": "0@3:vpip-,pfr-,rfi- 1@4:vpip-,pfr-,rfi- 2@5:vpip+,pfr+,rfi+ 3@6:vpip-,pfr-,three_bet- 4@1:vpip+,pfr+,three_bet+ 5@2:vpip+,pfr-,four_bet- 6@5:fold_to_three_bet-,four_bet- 7@1:cbet_flop- 13@1:river_bet+ 14@2:river_fold_vs_bet+,river_raise_vs_bet- 15@5:river_fold_vs_bet-,river_raise_vs_bet+"
     },
     {
       "counts": "1:vpip=1/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=0/1,river_bet=1/1 2:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "e954cba5651c47fece7f87008e70c4906562832d2a89bc7d876bd8e5d59116fe",
+      "events": "f6b71f889abd28f823b2e64eabaf284b5ff9162bcbc363b04ab23556e57c4bcf",
       "handId": "HD2735948911",
       "index": 54,
       "members": "0@2:vpip-,pfr-,rfi- 1@3:vpip-,pfr-,rfi- 2@4:vpip+,pfr+,rfi+ 3@6:vpip-,pfr-,three_bet- 4@1:vpip+,pfr-,three_bet-,bb_fold_vs_steal- 6@4:cbet_flop- 9@1:river_bet+ 10@4:river_fold_vs_bet+,river_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1,turn_barrel=0/1,river_bet=1/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 6:vpip=1/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,river_bet=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1",
-      "events": "6a2936276552b1e52e40c0f77907ae944030160c21a7a7d159ecd481f0611ed0",
+      "events": "bbcf94d8a39aa55f42a1b71c937c2209caa24999e622b0a9a8cd035f15b8b77e",
       "handId": "HD2735948807",
       "index": 55,
       "members": "0@1:vpip-,pfr-,rfi- 1@2:vpip+,pfr+,rfi+ 2@3:vpip-,pfr-,three_bet- 3@4:vpip+,pfr-,three_bet- 4@6:vpip+,pfr-,three_bet-,bb_fold_vs_steal- 7@2:cbet_flop+ 8@4:flop_fold_vs_bet+,flop_raise_vs_bet- 9@6:flop_fold_vs_bet-,flop_raise_vs_bet- 11@2:turn_barrel- 12@6:river_bet- 13@2:river_bet+ 14@6:river_fold_vs_bet+,river_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=1/1,pfr=1/1,three_bet=1/1,cbet_flop=1/1,turn_barrel=1/1,river_bet=1/1 3:vpip=0/1,pfr=0/1,four_bet=0/1 4:vpip=0/1,pfr=0/1,four_bet=0/1 5:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=0/1,river_bet=0/1,river_fold_vs_bet=0/1,river_raise_vs_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "b165fbd23e0e1b05fb75dd24794a5761de76b51b5b47d5e7ea0d559597bc6ed7",
+      "events": "4ea91e4de525deb2ef22cb2d2948edb05daf058c9207472f857d96f08185cd20",
       "handId": "HD2735948747",
       "index": 56,
       "members": "0@5:vpip+,pfr+,rfi+ 1@6:vpip-,pfr-,three_bet- 2@1:vpip-,pfr-,three_bet- 3@2:vpip+,pfr+,three_bet+ 4@3:vpip-,pfr-,four_bet- 5@4:vpip-,pfr-,four_bet- 6@5:fold_to_three_bet-,four_bet- 8@2:cbet_flop+ 9@5:flop_fold_vs_bet-,flop_raise_vs_bet- 11@2:turn_barrel+ 12@5:turn_fold_vs_bet- 13@5:river_bet- 14@2:river_bet+ 15@5:river_fold_vs_bet-,river_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1 2:vpip=1/1,pfr=1/1,fold_to_three_bet=0/1,four_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 3:vpip=1/1,pfr=1/1,three_bet=1/1,cbet_flop=1/1 5:vpip=1/1,pfr=0/1,rfi=0/1,four_bet=0/1 6:vpip=0/1,pfr=0/1",
-      "events": "7a83d28e14ebf878aab2b9e9a87a5db3be833ff6db0bcf1677bf21b84bbf8c57",
+      "events": "8d2c49d9959933af6cc80f598a15d8d7338cce6e9d232cd55d123fe67321f36e",
       "handId": "HD2735948670",
       "index": 57,
       "members": "0@5:vpip+,pfr-,rfi- 1@6:vpip-,pfr- 2@1:vpip-,pfr- 3@2:vpip+,pfr+ 4@3:vpip+,pfr+,three_bet+ 5@5:four_bet- 6@2:fold_to_three_bet-,four_bet- 8@3:cbet_flop+ 9@2:flop_fold_vs_bet+,flop_raise_vs_bet-"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,four_bet=0/1 2:vpip=1/1,pfr=0/1,four_bet=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=1/1 6:vpip=1/1,pfr=1/1,three_bet=1/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1",
-      "events": "b120de497ad0e231c1c0272eccadc6925bdfd40a57db0d071871b66780bd53ef",
+      "events": "c3a5bbaac01606775dd64a56f4a8114664f832dca4f4f17be8d4f2a8681613ac",
       "handId": "HD2735948587",
       "index": 58,
       "members": "0@3:vpip-,pfr-,rfi- 1@5:vpip+,pfr+,rfi+ 2@6:vpip+,pfr+,three_bet+ 3@1:vpip-,pfr-,four_bet- 4@2:vpip+,pfr-,four_bet- 5@5:fold_to_three_bet-,four_bet- 7@5:flop_fold_vs_bet-,flop_raise_vs_bet- 8@6:flop_fold_vs_bet+,flop_raise_vs_bet- 10@5:turn_fold_vs_bet+"
     },
     {
       "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1,turn_barrel=1/1,river_bet=0/1,river_fold_vs_bet=0/1,river_raise_vs_bet=0/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=0/1,river_bet=1/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
-      "events": "b64ad77782a59bcd0120cc919b468a75d82f8f5bb5ec7e450071a5af9361f698",
+      "events": "43985e60f9b333bd3ed5533a0037e4b8752835a80048782353dcd808cddd9144",
       "handId": "HD2735948530",
       "index": 59,
       "members": "0@2:vpip+,pfr+,rfi+ 1@3:vpip-,pfr-,three_bet- 2@5:vpip+,pfr-,three_bet- 3@6:vpip-,pfr-,three_bet- 4@1:vpip-,pfr-,three_bet- 5@2:cbet_flop+ 6@5:flop_fold_vs_bet-,flop_raise_vs_bet- 7@2:turn_barrel+ 8@5:turn_fold_vs_bet- 10@2:river_bet- 11@5:river_bet+ 12@2:river_fold_vs_bet-,river_raise_vs_bet-"

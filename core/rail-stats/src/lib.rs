@@ -51,6 +51,7 @@ pub mod preflop;
 pub mod reliability;
 pub mod segment;
 pub mod showdown;
+pub mod stack_buckets;
 pub mod stored;
 
 pub use anonymization::{SiteAnonymization, detect_anonymization};

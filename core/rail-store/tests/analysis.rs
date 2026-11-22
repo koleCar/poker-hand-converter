@@ -1797,8 +1797,9 @@ fn migration_20_gives_postflop_leak_rows_their_table() {
     store.close();
     let before = leak_rows(&conn);
     assert_eq!(before.len(), hands.len() * 3);
-    // Versions 22, 24, 25, 26, 27 and 28's tables and version 23's and 27's columns go too (back to 19).
-    conn.execute_batch("DROP TABLE IF EXISTS pool_player_results; DROP TABLE IF EXISTS analysis_checker_rows; DROP INDEX IF EXISTS hand_analysis_checker_idx;
+    // Versions 22, 24, 25, 26, 27 and 28's tables and version 23's, 27's and 29's columns go too (back to 19).
+    conn.execute_batch("DROP TABLE IF EXISTS pool_player_results;
+         ALTER TABLE hand_list DROP COLUMN eff_stack_tenths; ALTER TABLE recompute_list DROP COLUMN eff_stack_tenths; DROP TABLE IF EXISTS analysis_checker_rows; DROP INDEX IF EXISTS hand_analysis_checker_idx;
          ALTER TABLE hand_analysis DROP COLUMN checker_version; ALTER TABLE hand_analysis DROP COLUMN checker_position;
          DROP TABLE IF EXISTS deleted_hands; DROP TABLE IF EXISTS node_lock_folders; DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings;
          ALTER TABLE hand_list DROP COLUMN hero_bluff; ALTER TABLE hand_list DROP COLUMN vs_bluff;
@@ -1834,7 +1835,7 @@ fn migration_20_gives_postflop_leak_rows_their_table() {
 
     // Again from 19: nothing more to set.
     // Versions 22, 24, 25, 26 and 27's tables and version 23's and 27's columns go too (back to 19).
-    conn.execute_batch("DROP TABLE IF EXISTS pool_player_results; DROP TABLE IF EXISTS analysis_checker_rows; DROP INDEX IF EXISTS hand_analysis_checker_idx;
+    conn.execute_batch("DROP TABLE IF EXISTS pool_player_results; ALTER TABLE hand_list DROP COLUMN eff_stack_tenths; ALTER TABLE recompute_list DROP COLUMN eff_stack_tenths; DROP TABLE IF EXISTS analysis_checker_rows; DROP INDEX IF EXISTS hand_analysis_checker_idx;
          ALTER TABLE hand_analysis DROP COLUMN checker_version; ALTER TABLE hand_analysis DROP COLUMN checker_position;
          DROP TABLE IF EXISTS deleted_hands; DROP TABLE IF EXISTS node_lock_folders; DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings;
          ALTER TABLE hand_list DROP COLUMN hero_bluff; ALTER TABLE hand_list DROP COLUMN vs_bluff;

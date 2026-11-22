@@ -98,13 +98,13 @@ const STATS_MIGRATION = "supabase/migrations/20261005090000_hand_stats.sql";
  */
 const webChecker: AnalyticsChecker = {
   sums: (query) => {
-    const { filters, partial } = checkerFiltersOf(query);
-    return checkerSource.checker(partial ? { ...filters, hands: libraryFilter(query) } : filters);
+    const { filters, hands } = checkerFiltersOf(query);
+    return checkerSource.checker(hands ? { ...filters, hands: libraryFilter(query) } : filters);
   },
   partial: () => false,
   examples: (query, example) => {
-    const { filters, partial } = checkerFiltersOf(query);
-    return checkerSource.examples(partial ? { ...filters, hands: libraryFilter(query) } : filters, example);
+    const { filters, hands } = checkerFiltersOf(query);
+    return checkerSource.examples(hands ? { ...filters, hands: libraryFilter(query) } : filters, example);
   },
 };
 

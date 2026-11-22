@@ -1709,6 +1709,7 @@ export type Database = {
           bounty: boolean
           buy_in_cents: number | null
           created_at: string
+          eff_stack_tenths: number | null
           facts_version: string
           flop_bet_pct: number | null
           flop_draws: number
@@ -1738,6 +1739,7 @@ export type Database = {
           bounty?: boolean
           buy_in_cents?: number | null
           created_at?: string
+          eff_stack_tenths?: number | null
           facts_version: string
           flop_bet_pct?: number | null
           flop_draws?: number
@@ -1767,6 +1769,7 @@ export type Database = {
           bounty?: boolean
           buy_in_cents?: number | null
           created_at?: string
+          eff_stack_tenths?: number | null
           facts_version?: string
           flop_bet_pct?: number | null
           flop_draws?: number
@@ -6219,6 +6222,10 @@ export type Database = {
       }
       purge_account_deletions: { Args: never; Returns: number }
       put_hud_layouts: { Args: { p_rows: Json }; Returns: Json }
+      rail_stack_bucket: {
+        Args: { p_scheme: string; p_tenths: number }
+        Returns: string
+      }
       read_poll: { Args: { p_post: string }; Returns: Json }
       read_published_hand: { Args: { p_public_id: string }; Returns: Json }
       read_share: { Args: { p_slug: string }; Returns: Json }

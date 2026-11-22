@@ -14,9 +14,7 @@ use rail_core::phf::PhfHand;
 use rail_core::phf::hand::primary_board;
 use rail_stats::{Segment, stored_rows};
 use rail_store::batch::decompress_phf;
-use rail_store::hand_list::{
-    self, HandCursor, HandFacets, HandFilter, HandRow, RESULTS, STACK_DEPTHS,
-};
+use rail_store::hand_list::{self, HandCursor, HandFacets, HandFilter, HandRow, RESULTS};
 use rail_store::import::ImportOptions;
 use rail_store::{Store, background, import_file};
 use rusqlite::Connection;
@@ -172,10 +170,8 @@ fn result_of(item: &Item) -> &'static str {
 
 fn stack_of(item: &Item) -> &'static str {
     let Some(stack) = item.stack else { return "" };
-    STACK_DEPTHS
-        .iter()
-        .find(|(_, from, below)| stack >= *from && below.is_none_or(|below| stack < below))
-        .map_or("", |(id, _, _)| id)
+    rail_stats::stack_buckets::bucket_of(rail_stats::stack_buckets::Scheme::Filter, stack)
+        .unwrap_or("")
 }
 
 /// The values of an item for the eleven chip groups, in `HandFacets` order.
@@ -1732,7 +1728,7 @@ fn the_builder_facts_are_the_phf_s_and_filter_as_a_scan_does() {
     );
     store.close();
     conn.execute_batch(
-        "DROP TABLE pool_player_results; DROP TABLE analysis_checker_rows; DROP INDEX hand_analysis_checker_idx;
+        "DROP TABLE pool_player_results; ALTER TABLE hand_list DROP COLUMN eff_stack_tenths; ALTER TABLE recompute_list DROP COLUMN eff_stack_tenths; DROP TABLE analysis_checker_rows; DROP INDEX hand_analysis_checker_idx;
          ALTER TABLE hand_analysis DROP COLUMN checker_version; ALTER TABLE hand_analysis DROP COLUMN checker_position;
          DROP TABLE deleted_hands; DROP TABLE node_lock_folders; DROP TABLE node_locks;
          ALTER TABLE hand_list DROP COLUMN hero_bluff; ALTER TABLE hand_list DROP COLUMN vs_bluff;

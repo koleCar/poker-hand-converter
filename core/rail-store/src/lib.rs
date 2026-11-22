@@ -56,6 +56,7 @@ pub mod batch;
 pub mod checker;
 pub mod custom;
 pub mod delete;
+pub mod eff_stack;
 pub mod error;
 pub mod facts;
 pub mod game_kind;

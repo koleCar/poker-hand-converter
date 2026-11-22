@@ -20,7 +20,8 @@
 //! row's table: 20; plain GG cash hands moved from `standard` to `ggpoker`:
 //! 21; who was caught bluffing on each street: 23; the user's nodelocks,
 //! local only: 24; their folders and tree: 25; the Analytics checker rows:
-//! 27; the Pool tab's opponent results: 28). A
+//! 27; the Pool tab's opponent results: 28; the hero's effective stack on
+//! the list: 29). A
 //! migration may also fill in Rust what its SQL cannot ([`after_sql`]: 14
 //! sums the seat rows' blobs, 20 and 23 read the hands' PHF, 21 rewrites it), in the same
 //! transaction.
@@ -149,6 +150,10 @@ pub const MIGRATIONS: &[Migration] = &[
     Migration {
         name: "0028_analytics_pool.sql",
         sql: include_str!("../migrations/0028_analytics_pool.sql"),
+    },
+    Migration {
+        name: "0029_list_effective_stack.sql",
+        sql: include_str!("../migrations/0029_list_effective_stack.sql"),
     },
 ];
 

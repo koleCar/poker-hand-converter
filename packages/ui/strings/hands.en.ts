@@ -75,6 +75,7 @@ export const handsUiEn = {
       potType: "Pot",
       result: "Result",
       stack: "Stack",
+      effStack: "Effective stack",
       allIn: "All-in",
       notes: "Notes",
       tags: "Tags",

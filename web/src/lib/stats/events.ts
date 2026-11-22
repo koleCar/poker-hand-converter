@@ -75,6 +75,12 @@ export interface SeatEvents {
   preflopAggressor: boolean;
   stackBb: number | null;
   effectiveBb: number | null;
+  /**
+   * The seat's starting stack against the largest stack still live at its
+   * first preflop decision, thousandths of the largest forced blind
+   * ({@link effectiveFirstActionBb}).
+   */
+  effectiveFirstActionBb: number | null;
   sawFlop: boolean;
   sawTurn: boolean;
   sawRiver: boolean;
@@ -192,6 +198,54 @@ function twoCards(hole: readonly string[] | undefined): [[string, string], [stri
   return a && b ? [a, b] : null;
 }
 
+/** The hand's largest forced blind: the big blind, or a bigger straddle (or big-blind post) in the stream. */
+function largestBlind(context: StatsContext): Amount {
+  let out = context.bigBlind;
+  for (const action of context.hand.actions) {
+    if (action.street === "preflop" && (action.type === "big-blind" || action.type === "straddle")) {
+      out = Math.max(out, action.amount, action.streetTotal);
+    }
+  }
+  return out;
+}
+
+/** `effective_first_action` on a built context, thousandths of `unit`. */
+function effectiveFirstAction(context: StatsContext, seat: number, unit: Amount): number | null {
+  const stack = (other: number) => context.players.get(other)?.startingStack ?? 0;
+  const own = stack(seat);
+  const preflop = context.byStreet.get("preflop") ?? [];
+  const first = preflop.find((decision) => decision.seat === seat)?.order ?? null;
+  let effective = own;
+  if (first !== null || !context.isWalk) {
+    // Seats that folded before it; with no decision of its own (a blind all
+    // in, a bomb pot) nobody had folded before its forced bet.
+    const folded = preflop
+      .filter((decision) => decision.type === "fold" && first !== null && decision.order < first)
+      .map((decision) => decision.seat);
+    let largest: number | null = null;
+    for (const other of context.dealtInSeats) {
+      if (other !== seat && !folded.includes(other)) {
+        largest = largest === null ? stack(other) : Math.max(largest, stack(other));
+      }
+    }
+    effective = largest === null ? own : Math.min(largest, own);
+  }
+  return thousandthsOf(BigInt(effective), BigInt(unit));
+}
+
+/**
+ * (docs/ANALYTICS.md Step 11) A seat's effective stack at its first preflop
+ * decision: its starting stack against the largest starting stack of the
+ * other dealt-in seats that had not folded before it, in thousandths of the
+ * hand's largest forced blind (the big blind, or the biggest straddle). A
+ * walk (the big blind never decided) is the seat's own stack. Null when the
+ * hand has no blind to measure by. `events.rs`' `effective_first_action_bb`.
+ */
+export function effectiveFirstActionBb(hand: PhfHand, seat: number): number | null {
+  const context = buildContext(hand);
+  return effectiveFirstAction(context, seat, largestBlind(context));
+}
+
 /** Every seat's decision events in one hand (`hand_events`). Positions are assigned on a copy when the hand has none. */
 export function handEvents(hand: PhfHand): HandEvents {
   const positioned =
@@ -207,6 +261,7 @@ function eventsOf(hand: PhfHand): HandEvents {
   const chain = cbetChain(context);
   const steal = stealAttempt(context);
   const bigBlind = context.bigBlind;
+  const blind = largestBlind(context);
 
   // The size facts of every decision, from one walk of the stream.
   const sized: (Sizes | null)[] = [];
@@ -364,6 +419,7 @@ function eventsOf(hand: PhfHand): HandEvents {
       preflopAggressor: context.preflopAggressor === seat,
       stackBb: thousandthsOf(BigInt(stack), BigInt(bigBlind)),
       effectiveBb: thousandthsOf(BigInt(effective), BigInt(bigBlind)),
+      effectiveFirstActionBb: effectiveFirstAction(context, seat, blind),
       sawFlop: live("flop"),
       sawTurn: live("turn"),
       sawRiver: live("river"),

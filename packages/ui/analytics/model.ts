@@ -42,6 +42,12 @@ export interface CheckerFilters {
   /** `hu`, `mw` (by the decision's scenario) or `bomb`. */
   potKind?: "hu" | "mw" | "bomb";
   /**
+   * The hero's effective stack at its first preflop action: ids of the
+   * stack buckets (docs/ANALYTICS.md Step 11). The desktop's store reads it
+   * (`hand_list.eff_stack_tenths`); the web reads it from `hands`.
+   */
+  effStacks?: string[];
+  /**
    * The web's only: the Hands list's filter (`library_where`'s shape), for
    * the groups the keys above cannot say (`analysis_hand_ids`).
    */
