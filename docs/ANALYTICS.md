@@ -824,6 +824,52 @@ Status: done in 58f9bc2d (2026-11-22)
   in the spot, the size and one of the chosen classes, and the goal panel
   updates after each answer.
 
+Status: done in e6156b15 (2026-11-22)
+
+- **As built:** `web/src/components/trainer/analytics.ts` (`analyticsLink`,
+  `analyticsTarget`, `drillGoal`), `FromAnalytics.tsx` (bar, goal panel),
+  `played.ts` + `PlayedPlayer.tsx` (Play it), `lib/training/focusDeal.ts`
+  (size buckets and hand classes in the flop, turn and river dealers);
+  settings `size`, `classes`, `from`; host `played(handId)` and
+  `analyticsHref(stat)`. Web reads the address in `WebTrainer`, the desktop
+  the route parameter in `app/src/screens/Trainer.tsx`. No migration, no RPC,
+  no Tauri command (`hand_phf` and `hand_analysis` already exist). Details in
+  `docs/TRAINER.md` §7. Tests: `tests/test/trainerAnalytics.test.ts` (links on
+  both routes, settings round trip, the deal filter on a synthetic flop tree
+  and on real river deals checked against the analysis' own facts, the goal
+  math, the bar and panel EN + HR, Play it).
+- **Deviations:**
+  - **The links carry the goal's figures** (`you`, `ref`, `cost`, `tone`):
+    `drillQuery`, `practiseQuery` and `playQuery` take the practised scope's
+    figures - the chosen size's row, else the spot's, a class's own for its
+    "Practise ▸" - so the Trainer reads no checker of its own.
+  - **A link opens its session straight away** (no settings sheet, as the
+    board shows); a session training the same spot is continued and takes
+    the newer figures (`sameTraining` ignores them).
+  - **The goal panel's "This drill"** shows the drill's rate with the
+    reference's rate on the same dealt hands under it: the hands are dealt
+    from the classes the player gets wrong, so the stat's overall target is
+    not the drill's. Judged like the checker with a 5-point floor from 5
+    answers. No "N / 12" hands goal (the session's own figures sit below).
+    It counts the answers of this visit (and the device's): the account
+    does not keep an answer's action and mix (no migration for it).
+  - **Play it grades against the stored options** (`gradeDrill`, as the
+    drills of your own mistakes): the reference is the analysis' own by
+    construction (chart node, flop library, turn or river solve) and nothing
+    is solved again. No range panel for it. The desktop analyses the hand
+    now when its stored row is older (`handAnalysisOf`, as the hand view).
+  - **Turn and river:** hero and villain seat pins only for an Analytics
+    session; out of position a bet to answer is the villain's after the
+    hero's check (new `facing: "check-bet"`), which the sheet's "out of
+    position, facing a bet" now deals too (it used to deal in position).
+  - **The Hands chip** reads "Hands you tend to fold" for fold stats and
+    "Hands from Analytics" for the others.
+  - Spots the dealers cannot hold (bomb and 4-bet pots, several opponents,
+    a line the flop library lacks) are dealt as near as they can, and the
+    bar says so.
+  - Fixed on the way: a spot re-dealt itself when the web host changed after
+    an answer was kept (the cards changed under the verdict).
+
 ### Step 10 — Pool tab
 
 - **Figures:**
