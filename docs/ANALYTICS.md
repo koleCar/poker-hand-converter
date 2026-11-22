@@ -261,7 +261,7 @@ apps, in light and dark, against the canvas boards.
   existing coded stats (VPIP, PFR, 3-bet, cbet) agree with their catalogue
   twins.
 
-Status: done in STEP1_SHA (2026-11-22)
+Status: done in 4a5c9ba7 (2026-11-22)
 
 - **As built:**
   - `config/stats/analytics.json` and `analytics.schema.json`: 22 stats in
