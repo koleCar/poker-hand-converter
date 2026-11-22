@@ -949,6 +949,69 @@ Status: done in a513e01b (2026-11-22)
 - **Done when:** the chip filters Analytics and Hands the same way on both
   apps.
 
+Status: done in 22ca26a3 (2026-11-23)
+
+- **As built:**
+  - **The field.** `SeatEvents.effective_first_action_bb` (Rust) /
+    `effectiveFirstActionBb` (TS, `web/src/lib/stats/events.ts`), and the
+    standalone `effective_first_action_bb(hand, seat)` /
+    `effectiveFirstActionBb`: the seat's starting stack against the largest
+    starting stack of the other dealt-in seats that had not folded before its
+    first preflop decision, in thousandths of the largest forced blind (the
+    big blind, or the biggest straddle / big-blind post). A walk is the
+    seat's own stack; a seat with no decision of its own (a blind all in, a
+    bomb pot) counts every other dealt-in seat. Held equal over the corpus
+    by the events' hash (`testdata/golden-analytics/`); pinned hands with the
+    values worked out by hand in
+    `core/rail-stats/tests/data/effective-stack/` (both languages read it).
+  - **The fact.** `effStack` (tenths, thousandths / 100 rounded down) in
+    `facts.rs` (`HandExtras.eff_stack_tenths`) and `builderFacts.ts`, held
+    equal by `testdata/golden-facts/` (regenerated); web `FACTS_VERSION` is
+    `facts/2`.
+  - **Desktop.** rail-store schema 29 (`0029_list_effective_stack.sql`):
+    `hand_list.eff_stack_tenths` (+ `recompute_list`), written with every
+    list row; the rows stored before are filled by the background pass
+    (`rail_store::eff_stack::backfill_step`, `Step::Stacked`, kv
+    `eff_stack.after`, idempotent). `HandFilter.eff_stacks` (the list, its
+    counts, `ReportFilter.hands`) and `CheckerFilters.eff_stacks` (checker
+    sums, hands and examples, through the hand's list row); the Tauri DTOs
+    take `effStacks`.
+  - **Web.** `20271122110000_stack_depth_filter.sql`:
+    `hand_facts.eff_stack_tenths`, `save_hand_facts` takes it,
+    `library_builder_where` reads `effStacks` (so `library_page`,
+    `library_facets`, `report_hand_ids` and `analysis_hand_ids` filter
+    alike), `rail_stack_bucket(tenths, scheme)` generated from the bucket
+    file, `library_stack` reads it. The facts bump re-derives every stored
+    hand through the existing rebuild (`/api/stats/rebuild`).
+  - **Buckets.** `config/stats/stack-buckets.json` with two lists: `filter`
+    (0-40 / 40-80 / 80-120 / 120+: the Stack and Effective stack chips) and
+    `breakdown` (0-20 ... 250+: the Breakdown tab's Stack split). Rust
+    `rail_stats::stack_buckets` replaces `STACK_DEPTHS` and `STACK_BANDS`;
+    TS `packages/ui/hands/stackBuckets.ts` gives `STACK_ORDER` and the
+    Breakdown's order; `report-vectors.mjs` reads the file;
+    `tests/test/stackBuckets.test.ts` holds the TS copy and the generated SQL
+    to it and checks every stack `case` still spelled out in a migration.
+  - **The chip.** Group `effStack` (list `effStacks`) in the common row
+    (`HAND_GROUPS`, so Hands, Analytics and every hand filter offer it) and
+    the builder's Stacks pane; "Effective stack" / "Efektivni stack", the
+    Stack chip's bucket words. `checkerFiltersOf` follows it (`hands: true`
+    sends the web the Hands filter).
+- **Deviations:**
+  - **Stored in the web's `hand_facts`, not `hand_stats`.** It is a builder
+    fact derived from the PHF, and `hand_facts` is the web's twin of the
+    desktop's `hand_list` fact columns. `hand_stats` rows are never
+    rewritten (`save_hand_stats` keeps a row already there), and SQL cannot
+    backfill from `hands.phf` because text-stored hands (20271114090000)
+    have no PHF; the facts version bump makes the existing rebuild route do
+    the backfill for every hand (verified locally: the test user's 5,451
+    hands re-derived when the web Hands page opened).
+  - **Two bucket lists in the one file.** The Breakdown's seven bands stay
+    as they were: the web stores them per hand (`hero_report_rows.stack`),
+    so changing their edges would rewrite every report row. Every definition
+    now reads the file (or is checked against it).
+  - Desktop facets do not count the Effective stack chips (like every
+    builder fact): the chip offers all four buckets.
+
 ### Step 12 — States, Free / Pro, guide, rollout
 
 - States from `AN-States`:
