@@ -40,6 +40,11 @@ pub const EVENTS_VERSION: &str = "events/1";
 /// be an id (64 bytes).
 pub const MAX_COUNTER_ID: usize = 60;
 
+/// Ids the user's statistics may not take: the Analytics catalogue's rates
+/// are installed in the same store as `an_<id>` (docs/ANALYTICS.md Step 10,
+/// [`crate::analytics::Catalogue::custom_defs`]).
+pub const RESERVED_PREFIX: &str = "an_";
+
 const STREETS: [&str; 4] = ["preflop", "flop", "turn", "river"];
 const ACTIONS: [&str; 5] = ["fold", "check", "call", "bet", "raise"];
 const FACING: [&str; 4] = ["none", "limp", "bet", "raise"];
@@ -620,6 +625,7 @@ impl CustomSet {
         let mut problems = Vec::new();
         let id = &draft.def.id;
         let taken = shipped_ids.contains(&id.as_str())
+            || id.starts_with(RESERVED_PREFIX)
             || variable_names().contains(&id.as_str())
             || self
                 .stats
@@ -983,8 +989,9 @@ mod tests {
         // A formula that does not parse.
         let problems = check(def("y", None, "pct(vpip,"), None);
         assert_eq!(spans(&problems), [(Part::Formula, Some(9), Some(0))]);
-        // Ids: a shipped one, a counter, another statistic, a counter of one.
-        for taken in ["vpip", "three_bet_opp", "fcb", "fcb_opp"] {
+        // Ids: a shipped one, a counter, another statistic, a counter of one,
+        // one in the Analytics catalogue's reserved range.
+        for taken in ["vpip", "three_bet_opp", "fcb", "fcb_opp", "an_river_fold"] {
             let problems = check(def(taken, None, "pct(pfr, vpip)"), None);
             assert_eq!(problems[0].part, Part::Id, "{taken}");
         }

@@ -106,10 +106,6 @@ export const analyticsUiEn = {
       pool: "Pool",
       breakdown: "Breakdown",
     } as Record<string, string>,
-    /** The tabs later steps fill: one quiet line each. */
-    later: {
-      pool: "How your opponents play against your targets: not built yet.",
-    } as Record<string, string>,
     figures: {
       label: "Results per 100 hands",
       /** After the hand count: "hands". */
@@ -147,6 +143,121 @@ export const analyticsUiEn = {
       practise: "Practise this ▸",
       allStats: "All stats →",
       pool: "How your pool plays →",
+    },
+    /** Pool (Step 10): how the regs and fish play against the player's own targets. */
+    pool: {
+      showLabel: "Show",
+      show: { all: "All stats", exploits: "Exploits only" } as Record<string, string>,
+      figures: {
+        label: "Your pool",
+        ratio: "Regs : fish",
+        /** "5.8 : 1". */
+        ratioValue: (ratio: string) => `${ratio} : 1`,
+        /** "412,000 reg hands · 71,500 fish hands". */
+        ratioSub: (reg: string, fish: string) => `${reg} reg hands · ${fish} fish hands`,
+        regRate: "Regs win rate",
+        /** "bb/100 · ±3.1". */
+        regRateSub: (se: string | null) => (se ? `bb/100 · ±${se}` : "bb/100"),
+        youFish: "You with a fish in the pot",
+        youRegs: "You, regs only",
+        /** "bb/100 · 52,400 hands". */
+        youSub: (hands: string, n: number) => `bb/100 · ${hands} ${n === 1 ? "hand" : "hands"}`,
+      },
+      head: {
+        stat: "Stat",
+        you: "You",
+        reg: "Regs",
+        fish: "Fish",
+        target: "Target",
+        means: "What it means for you",
+      },
+      /** The target column: the player's own, approximate ("≈49%"). */
+      approx: (target: string) => `≈${target}`,
+      /** A row's hover over a type's number: "212 times". */
+      times: (count: string, n: number) => `${count} ${n === 1 ? "time" : "times"}`,
+      close: "Close to the target",
+      notSure: "Not sure yet",
+      noTarget: "No target yet",
+      none: "No exploits clear at this sample.",
+      /** The browser counting the opponents (the web). */
+      counting: (left: string) => `Counting your opponents: ${left} hands to go.`,
+      /** The desktop's background pass is still counting. */
+      pending: (left: string) => `Your opponents are being counted: ${left} hands to go.`,
+      error: (reason: string) => `The pool did not load: ${reason}`,
+      empty: "No regs or fish at these filters yet.",
+      allStats: "All stats →",
+      note: "Opponents count every hand they played with you at these rooms. The target is yours, so for them it is approximate. Regs and fish are Rail's player types (fish: VPIP 40+ over 30 hands).",
+      /** Who a sentence is about. */
+      who: { reg: "Regs", fish: "Fish", both: "Regs and fish" } as Record<string, string>,
+      /** Per catalogue rate and direction: what the gap means for the player. */
+      exploit: {
+        vpip: {
+          high: (w: string) => `${w} play too many hands: value bet them wider and isolate them more.`,
+          low: (w: string) => `${w} play too few hands: steal their blinds more and give their raises credit.`,
+        },
+        pfr: {
+          high: (w: string) => `${w} raise too much preflop: 3-bet and call their raises wider.`,
+          low: (w: string) => `${w} raise too little preflop: their raises are strong, their limps and calls weak.`,
+        },
+        rfi: {
+          high: (w: string) => `${w} open too much: 3-bet them more.`,
+          low: (w: string) => `${w} open too little: fold more to their opens and steal more around them.`,
+        },
+        three_bet: {
+          high: (w: string) => `${w} 3-bet too much: 4-bet them lighter and call their 3-bets wider.`,
+          low: (w: string) => `${w} 3-bet too little: their 3-bets are strong; open more in front of them.`,
+        },
+        bb_fold_vs_steal: {
+          high: (w: string) => `${w} fold the big blind too much: steal from them more.`,
+          low: (w: string) => `${w} defend the big blind too much: steal with stronger hands and value bet after the flop.`,
+        },
+        fold_to_three_bet: {
+          high: (w: string) => `${w} fold to 3-bets too much: 3-bet them more as a bluff.`,
+          low: (w: string) => `${w} call 3-bets too wide: 3-bet them more for value, less as a bluff.`,
+        },
+        four_bet: {
+          high: (w: string) => `${w} 4-bet too much: call and 5-bet their 4-bets wider.`,
+          low: (w: string) => `${w} 4-bet too little: your 3-bets get through; respect their 4-bets.`,
+        },
+        flop_fold_vs_bet: {
+          high: (w: string) => `${w} fold the flop too much: bet the flop more.`,
+          low: (w: string) => `${w} call the flop too much: bet for value, bluff the flop less.`,
+        },
+        flop_raise_vs_bet: {
+          high: (w: string) => `${w} raise the flop too much: call their raises wider.`,
+          low: (w: string) => `${w} raise the flop too little: their raises are strong; fold more to them.`,
+        },
+        cbet_flop: {
+          high: (w: string) => `${w} cbet too much: float and raise their cbets more.`,
+          low: (w: string) => `${w} cbet too little: their cbets are strong; bet when they check.`,
+        },
+        turn_fold_vs_bet: {
+          high: (w: string) => `${w} fold the turn too much: barrel them more.`,
+          low: (w: string) => `${w} call the turn too much: bet the turn for value, barrel less as a bluff.`,
+        },
+        turn_fold_vs_probe: {
+          high: (w: string) => `${w} fold to turn probes too much: probe them more when the flop checks through.`,
+          low: (w: string) => `${w} call turn probes too much: probe for value, bluff less.`,
+        },
+        turn_barrel: {
+          high: (w: string) => `${w} barrel the turn too much: call their turn bets wider.`,
+          low: (w: string) => `${w} barrel the turn too little: their turn bets are strong; float the flop more.`,
+        },
+        river_bet: {
+          high: (w: string) => `${w} bet the river too much: call them down wider.`,
+          low: (w: string) => `${w} bet the river too little: their river bets are strong; fold more to them.`,
+        },
+        river_fold_vs_bet: {
+          high: (w: string) => `${w} fold the river too much: bluff them more.`,
+          low: (w: string) => `${w} call the river too much: value bet thinner, bluff less.`,
+        },
+        river_raise_vs_bet: {
+          high: (w: string) => `${w} raise the river too much: call their raises wider.`,
+          low: (w: string) => `${w} raise the river too little: their river raises are strong; fold to them more.`,
+        },
+      } as Record<string, { high: (who: string) => string; low: (who: string) => string }>,
+      /** A rate without its own sentence: "Regs: folds too much." */
+      fallback: (who: string, words: string) => `${who}: ${words.toLowerCase()}.`,
     },
     /** The drill-down (Step 8): one stat by spot, bet size and hand class, then its hands. */
     drill: {

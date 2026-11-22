@@ -17,7 +17,7 @@ use rail_core::phf::{PhfHand, Street};
 use rail_stats::analytics::{
     ActionClass, Catalogue, CatalogueError, SHIPPED_ANALYTICS, StatKind, catalogue, load_catalogue,
 };
-use rail_stats::custom::{Counts, CustomSet};
+use rail_stats::custom::{Counts, CustomSet, Part};
 use rail_stats::events::hand_events;
 use serde_json::Value;
 use support::{read_json, root};
@@ -112,14 +112,26 @@ fn every_rate_compiles_through_the_custom_set() {
     let (set, refused) = CustomSet::compile(&defs);
     assert!(refused.is_empty(), "refused: {refused:?}");
     assert_eq!(set.stats.len(), rates);
-    // As the store's editor would save them: no id collides with a shipped
-    // statistic or a coded counter, and each one alone validates.
+    // As the store installs them (docs/ANALYTICS.md Step 10): no id collides
+    // with a shipped statistic or a coded counter, and each one alone
+    // validates but for its id - the `an_` range is kept for them, so the
+    // editor refuses it to the user's own statistics.
     let shipped = shipped_ids();
     let shipped: Vec<&str> = shipped.iter().map(String::as_str).collect();
     let empty = CustomSet::default();
     for def in &defs {
-        if let Err(problems) = empty.validate(def, None, &shipped) {
-            panic!("{}: {problems:?}", def.def.id);
+        assert!(
+            !shipped.contains(&def.def.id.as_str()),
+            "{} is shipped",
+            def.def.id
+        );
+        match empty.validate(def, None, &shipped) {
+            Ok(_) => panic!("{}: the editor takes a reserved id", def.def.id),
+            Err(problems) => assert!(
+                problems.iter().all(|problem| problem.part == Part::Id),
+                "{}: {problems:?}",
+                def.def.id
+            ),
         }
         assert!(!set.card_split(&def.def.id), "{} reads cards", def.def.id);
     }

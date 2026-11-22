@@ -10,7 +10,9 @@
  *   (Step 7, `analytics/Overview.tsx`).
  * - **Streets** (Step 6, `analytics/Streets.tsx`): preflop to river in
  *   blocks, from the same checker result as All stats.
- * - **Pool** (Step 10): one quiet line until then.
+ * - **Pool** (Step 10, `analytics/Pool.tsx`): the regs and fish against the
+ *   player's own targets, from the surface's `pool` (`AnalyticsPool`) and two
+ *   reports over the "vs type" filter; Pro, behind `checkerLock`.
  * - **All stats** (Step 5, `analytics/AllStats.tsx`): the catalogue's stats
  *   against their targets, from the surface's checker (`AnalyticsChecker`).
  * - **A stat's drill-down** (Step 8, `analytics/Drill.tsx`) instead of the
@@ -46,8 +48,11 @@ import { AllStats, AllStatsControls } from "../analytics/AllStats";
 import an from "../analytics/Analytics.module.css";
 import { Drill, DrillNavContext, type DrillHandLinkProps, type DrillNav } from "../analytics/Drill";
 import { FiguresRow } from "../analytics/FiguresRow";
-import type { AnalyticsChecker, CheckerExampleQuery } from "../analytics/model";
+import type { AnalyticsChecker, AnalyticsPool, CheckerExampleQuery } from "../analytics/model";
 import { Overview } from "../analytics/Overview";
+import { Pool, PoolControls } from "../analytics/Pool";
+import type { PoolShow } from "../analytics/poolView";
+import { usePool } from "../analytics/usePool";
 import { Streets, StreetsKey } from "../analytics/Streets";
 import { useChecker } from "../analytics/useChecker";
 import {
@@ -140,6 +145,8 @@ export interface ReportsScreenProps {
    * never asked.
    */
   checkerLock?: ReactNode;
+  /** The Pool tab's data (Step 10); absent: the tab says nothing. */
+  pool?: AnalyticsPool;
   /**
    * The Trainer's link for an Overview finding's "Practise this ▸", from its
    * query (`practiseQuery`: `from=analytics&stat=…&spot=…&classes=…`, Step
@@ -183,6 +190,7 @@ export function ReportsScreen({
   situationsLock,
   checker,
   checkerLock,
+  pool,
   practiseHref,
   drill = null,
   drillNav,
@@ -215,6 +223,7 @@ export function ReportsScreen({
   const [unit, setUnit] = useState<"bb" | "money">("bb");
   const [order, setOrder] = useState<AllStatsOrder>("street");
   const [show, setShow] = useState<AllStatsShow>("all");
+  const [poolShow, setPoolShow] = useState<PoolShow>("all");
   const loadFacets = useCallback((draft: HandFilter) => source.facets(draft), [source]);
 
   const situationsLocked = situationsLock !== undefined && situationsLock !== null;
@@ -225,7 +234,7 @@ export function ReportsScreen({
   // Overview, Streets and All stats: the checker's sums, read while one of them is open (never on the Free plan).
   const checkerLocked = checkerLock !== undefined && checkerLock !== null;
   const drilling = drill !== null && drill !== "";
-  const checks = drilling || view === "overview" || view === "streets" || view === "stats";
+  const checks = drilling || view === "overview" || view === "streets" || view === "stats" || view === "pool";
   const checked = useChecker(checker, query, checks && !checkerLocked && facetsSeen !== null, reloadToken);
   const checkerLoading = checker !== undefined && !checked.loaded && checked.error === null;
   const coded = useMemo(
@@ -237,6 +246,8 @@ export function ReportsScreen({
     [checked.sums, coded],
   );
   const partial = useMemo(() => (checker ? checker.partial(query) : false), [checker, query]);
+  // Pool: the opponents' sums and the player's two reports, read while it is open (never on the Free plan).
+  const pooled = usePool(pool, source, query, !drilling && view === "pool" && !checkerLocked && facetsSeen !== null, reloadToken);
   const examples = useMemo(() => {
     const read = checker?.examples;
     return read ? (example: CheckerExampleQuery) => read.call(checker, query, example) : undefined;
@@ -247,7 +258,8 @@ export function ReportsScreen({
   const filtered = activeGroups(filter) > 0;
 
   // Another filter's report on its way: the previous one stays, dimmed.
-  const refetching = (state.loading && report !== null) || (checked.loading && checked.sums !== null);
+  const refetching =
+    (state.loading && report !== null) || (checked.loading && checked.sums !== null) || (pooled.loading && pooled.sums !== null);
   const figures = !drilling && hasFigures(view);
 
   let body;
@@ -336,9 +348,21 @@ export function ReportsScreen({
               situationsLock={situationsLocked ? situationsLock : undefined}
             />
           </>
-        ) : (
-          <p className={an.quiet}>{a.later[view]}</p>
-        )}
+        ) : view === "pool" && (pool !== undefined || checkerLocked) ? (
+          <Pool
+            catalogue={ANALYTICS}
+            result={result}
+            sums={pooled.sums}
+            withFish={pooled.withFish}
+            regOrFish={pooled.regOrFish}
+            show={poolShow}
+            lock={checkerLocked ? checkerLock : undefined}
+            loading={pooled.loading && !pooled.loaded}
+            error={pooled.error}
+            counting={pooled.counting}
+            onAllStats={() => onView("stats")}
+          />
+        ) : null}
       </>
     );
   }
@@ -382,6 +406,7 @@ export function ReportsScreen({
           <span className={an.spacer} />
           {view === "stats" && !checkerLocked ? <AllStatsControls order={order} onOrder={setOrder} show={show} onShow={setShow} /> : null}
           {view === "streets" && !checkerLocked ? <StreetsKey /> : null}
+          {view === "pool" && !checkerLocked && pool !== undefined ? <PoolControls show={poolShow} onShow={setPoolShow} /> : null}
         </div>
       )}
       <div className={`${styles.results} rail-dims`} aria-busy={refetching}>

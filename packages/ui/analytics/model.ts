@@ -135,3 +135,67 @@ export interface AnalyticsChecker {
    */
   examples?(query: HandFilter, example: CheckerExampleQuery): Promise<CheckerExample[]>;
 }
+
+/* --------------------------------------------------------------- Pool -- */
+
+/**
+ * The Pool tab's data (docs/ANALYTICS.md Step 10): the web reads it from
+ * `analytics_pool` (`web/src/lib/db/analyticsPool.ts`), the desktop from the
+ * async Tauri command of the same name (`rail_store::pool`). Opponents are
+ * typed by Rail's rule (the Hands filter's "vs type": 30+ hands; fish VPIP ≥
+ * 40; reg VPIP 15–30 and PFR ≥ 0.6·VPIP) over every hand of theirs; their
+ * results and rates count the hands they played with the hero.
+ */
+export type PoolType = "reg" | "fish";
+
+/** What the pool is read over: the kind or one format, and the rooms. */
+export interface PoolFilters {
+  gameFormat?: string;
+  gameKind?: string;
+  sites?: string[];
+}
+
+/** One player type's results. */
+export interface PoolTypeSums {
+  players: number;
+  /** Their seat rows in hands with the hero. */
+  hands: number;
+  /** Σ result and Σ result², big blinds. */
+  netBb: number;
+  netBbSq: number;
+}
+
+/** One catalogue rate's counts for one type. */
+export interface PoolStatSums {
+  stat: string;
+  type: PoolType;
+  made: number;
+  opp: number;
+}
+
+export interface PoolSums {
+  /** The catalogue version the rates were counted at (`analytics/1`). */
+  version: string;
+  /** Hands not counted for the pool yet (the backfill's work). */
+  pending: number;
+  reg: PoolTypeSums;
+  fish: PoolTypeSums;
+  stats: PoolStatSums[];
+}
+
+/** How far a browser backfill is (the web counts the pool in the browser). */
+export interface PoolProgress {
+  processed: number;
+  saved: number;
+}
+
+/** What the Analytics screen asks a surface for on the Pool tab. */
+export interface AnalyticsPool {
+  sums(query: HandFilter): Promise<PoolSums | null>;
+  /**
+   * The web: counts the hands the pool has not counted yet, in the browser,
+   * a page at a time, until done or `signal` aborts. Absent where the
+   * surface counts them itself (the desktop's background pass).
+   */
+  backfill?(signal: AbortSignal, onProgress: (progress: PoolProgress) => void): Promise<PoolProgress>;
+}

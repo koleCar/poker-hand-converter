@@ -1144,6 +1144,117 @@ a.handLink:focus-visible {
   text-align: end;
 }
 
+/* --------------------------------------------------------------- Pool
+   Step 10 (boards AN-Main "Pool", AN-Pool): four figures, then a row per
+   rate - you, regs, fish (toned against your target), the target, and what
+   it means. */
+.pool {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.poolFigs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.poolFig {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-inline-size: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+}
+
+.poolFig dt {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.poolFig dd {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.poolFig .poolSub {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+}
+
+.poolTable {
+  display: flex;
+  flex-direction: column;
+}
+
+.poolHead,
+.poolRow {
+  display: grid;
+  grid-template-columns: minmax(150px, 230px) 62px 62px 62px 70px minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-2);
+}
+
+.poolHead {
+  padding-block-start: 0;
+  border-block-end: 1px solid var(--border-default);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.poolHead .end {
+  text-align: end;
+}
+
+.poolRow {
+  border-block-end: 1px solid var(--border-subtle);
+  font-size: var(--font-size-sm);
+}
+
+/* The name cell is All stats' (its grid area belongs to that table). */
+.poolRow > .name {
+  grid-area: auto;
+}
+
+.poolNum,
+.poolTarget {
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.poolNum {
+  font-weight: var(--font-weight-semibold);
+}
+
+.poolTarget {
+  color: var(--text-secondary);
+}
+
+.poolMeans {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-inline-size: 0;
+}
+
+.poolTip {
+  color: var(--text-primary);
+}
+
 /* ------------------------------------------------------------- narrow
    A phone: a row is the name with the number and the cost, the track
    under it, then the gap and the times; the target is the band itself. */
@@ -1331,6 +1442,48 @@ a.handLink:focus-visible {
   .handRow > .link {
     inline-size: auto;
     padding-block-start: 6px;
+  }
+  /* Pool: the figures two by two; a row is the name, then You · Regs · Fish · Target with their heads, then the sentence. */
+  .poolFigs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .poolFig {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .poolFig dd {
+    font-size: var(--font-size-lg);
+  }
+
+  .poolHead {
+    display: none;
+  }
+
+  .poolRow {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .poolRow > .name,
+  .poolRow > .poolMeans {
+    grid-column: 1 / -1;
+  }
+
+  .poolNum,
+  .poolTarget {
+    text-align: start;
+  }
+
+  .poolNum::before,
+  .poolTarget::before {
+    content: attr(data-head);
+    display: block;
+    color: var(--text-tertiary);
+    font-size: var(--font-size-2xs, var(--font-size-xs));
+    font-weight: var(--font-weight-regular);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wide);
   }
 }
 

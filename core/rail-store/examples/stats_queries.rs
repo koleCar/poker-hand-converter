@@ -363,6 +363,7 @@ fn pass(store: &Store, seconds: u64) {
             | Step::Indexed(_)
             | Step::Counted(_)
             | Step::Checked(_)
+            | Step::Pooled(_)
             | Step::Reevaluated(..) => {}
             Step::Nothing => break,
         }

@@ -1,7 +1,9 @@
 //! The Analytics stat checker's reads (docs/ANALYTICS.md Step 2): the web's
 //! `analytics_checker` and `analytics_checker_examples` over the store's
 //! checker rows (`rail_store::checker`), in the same shapes
-//! (`packages/ui/analytics/model.ts`: `CheckerSums`, `CheckerExample`).
+//! (`packages/ui/analytics/model.ts`: `CheckerSums`, `CheckerExample`); and
+//! the Pool tab's (Step 10) `analytics_pool` over `rail_store::pool`
+//! (`PoolSums`).
 //!
 //! The rows are written by the store itself - with each hand's analysis
 //! (`analysis_save`) and by the background pass's backfill - so there is no
@@ -11,6 +13,7 @@
 //! analysis (`crate::entitlements`; open while enforcement is off).
 
 use rail_store::checker::{CheckerFilters, CheckerSide, ExampleQuery};
+use rail_store::{PoolFilters, PoolSums};
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
@@ -219,4 +222,48 @@ pub async fn analytics_checker_examples<R: tauri::Runtime>(
             board: e.board,
         })
         .collect())
+}
+
+/// The Pool tab's filters (`PoolFilters` of `@rail/ui/analytics/model`).
+#[derive(Debug, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PoolFiltersDto {
+    game_format: Option<String>,
+    game_kind: Option<String>,
+    sites: Option<Vec<String>>,
+}
+
+impl From<PoolFiltersDto> for PoolFilters {
+    fn from(dto: PoolFiltersDto) -> Self {
+        let keep = |v: Option<String>| v.filter(|v| !v.trim().is_empty());
+        Self {
+            game_format: keep(dto.game_format),
+            game_kind: keep(dto.game_kind),
+            sites: dto
+                .sites
+                .map(|sites| {
+                    sites
+                        .into_iter()
+                        .map(|site| site.trim().to_lowercase())
+                        .filter(|site| !site.is_empty())
+                        .collect::<Vec<_>>()
+                })
+                .filter(|sites| !sites.is_empty()),
+        }
+    }
+}
+
+/// The Pool tab's sums (`PoolSums`): the opponents by type, their results
+/// and their catalogue rates over the hands they played with the hero.
+#[tauri::command]
+pub async fn analytics_pool<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+    store: State<'_, StoreState>,
+    filters: Option<PoolFiltersDto>,
+) -> Result<PoolSums, String> {
+    allowed(&app)?;
+    open(&store)?
+        .reader()
+        .pool_sums(&filters.unwrap_or_default().into())
+        .map_err(text)
 }

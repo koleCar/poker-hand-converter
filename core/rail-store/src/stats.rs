@@ -1457,12 +1457,14 @@ pub fn begin_rebuild(conn: &Connection) -> Result<u64> {
 }
 
 /// On open: bring the statistics up to this build's definitions - the
-/// jobs of [`crate::recompute::ensure_current`], and the user's own
-/// statistics' events version.
+/// jobs of [`crate::recompute::ensure_current`], the user's own
+/// statistics' events version, and the Analytics catalogue's rates as
+/// custom statistics (docs/ANALYTICS.md Step 10).
 pub(crate) fn ensure_current(conn: &mut Connection) -> Result<()> {
     let tx = conn.transaction()?;
     crate::recompute::ensure_current(&tx)?;
     crate::custom::ensure_events_version(&tx)?;
+    crate::pool::install_analytics_stats(&tx)?;
     tx.commit()?;
     Ok(())
 }

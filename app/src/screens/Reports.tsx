@@ -16,7 +16,8 @@
  */
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { checkerFiltersOf, drillOfParam, drillParam } from "@rail/ui/analytics/view";
-import type { AnalyticsChecker } from "@rail/ui/analytics/model";
+import type { AnalyticsChecker, AnalyticsPool } from "@rail/ui/analytics/model";
+import { poolFiltersOf } from "@rail/ui/analytics/poolView";
 import {
   ReportsScreen,
   isAnalyticsView,
@@ -36,7 +37,7 @@ import { useT } from "../i18n";
 import { hiddenDuringPlay, screenOffered } from "../lib/duringPlay";
 import { useAppKind } from "../lib/gameKind";
 import { checkerSource } from "../lib/checkerSource";
-import { inApp } from "../lib/ipc";
+import { inApp, ipc } from "../lib/ipc";
 import { storeReportSource } from "../lib/reportSource";
 import { replaceParam, screenHref, useRouteParam } from "../lib/router";
 import { useEntitlements } from "../lib/useEntitlements";
@@ -61,6 +62,15 @@ const storeChecker: AnalyticsChecker = {
   sums: (query) => checkerSource.checker(checkerFiltersOf(query).filters),
   partial: (query) => checkerFiltersOf(query).partial,
   examples: (query, example) => checkerSource.examples(checkerFiltersOf(query).filters, example),
+};
+
+/**
+ * The Pool tab's sums from the store (`rail_store::pool`): the kind or one
+ * format and the rooms. The store counts the opponents in its background
+ * pass, so there is no backfill to run here.
+ */
+const storePool: AnalyticsPool = {
+  sums: (query) => ipc.analyticsPool(poolFiltersOf(query)),
 };
 
 /** A drill-down hand opens in the replayer's window; several can be chosen (`HandTable`). */
@@ -179,6 +189,7 @@ export function Reports() {
       hideHandChart={hiddenDuringPlay("handChart", tablesOpen)}
       situationsLock={situationsLock}
       checker={storeChecker}
+      pool={storePool}
       checkerLock={checkerLock}
       // Overview's "Practise this ▸": the Trainer with the finding's query (Step 9 reads it), not while it is hidden during play.
       practiseHref={screenOffered("trainer", tablesOpen) ? (query) => screenHref("trainer", query) : undefined}

@@ -3596,6 +3596,101 @@ export type Database = {
           },
         ]
       }
+      pool_counted_hands: {
+        Row: {
+          hand_id: string
+          membership_version: string
+          owner_id: string
+          saved_at: string
+        }
+        Insert: {
+          hand_id: string
+          membership_version: string
+          owner_id: string
+          saved_at?: string
+        }
+        Update: {
+          hand_id?: string
+          membership_version?: string
+          owner_id?: string
+          saved_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pool_counted_hands_hand_id_fkey"
+            columns: ["hand_id"]
+            isOneToOne: true
+            referencedRelation: "hands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pool_player_stats: {
+        Row: {
+          game_format: string
+          made: number
+          membership_version: string
+          opp: number
+          owner_id: string
+          player: string
+          site_id: string
+          stat: string
+        }
+        Insert: {
+          game_format: string
+          made?: number
+          membership_version: string
+          opp?: number
+          owner_id: string
+          player: string
+          site_id: string
+          stat: string
+        }
+        Update: {
+          game_format?: string
+          made?: number
+          membership_version?: string
+          opp?: number
+          owner_id?: string
+          player?: string
+          site_id?: string
+          stat?: string
+        }
+        Relationships: []
+      }
+      pool_players: {
+        Row: {
+          game_format: string
+          hands: number
+          membership_version: string
+          net_bb: number
+          net_bb_sq: number
+          owner_id: string
+          player: string
+          site_id: string
+        }
+        Insert: {
+          game_format: string
+          hands?: number
+          membership_version: string
+          net_bb?: number
+          net_bb_sq?: number
+          owner_id: string
+          player: string
+          site_id: string
+        }
+        Update: {
+          game_format?: string
+          hands?: number
+          membership_version?: string
+          net_bb?: number
+          net_bb_sq?: number
+          owner_id?: string
+          player?: string
+          site_id?: string
+        }
+        Relationships: []
+      }
       post_polls: {
         Row: {
           created_at: string
@@ -5244,6 +5339,24 @@ export type Database = {
       analytics_membership_version_of: {
         Args: { p_filters: Json }
         Returns: string
+      }
+      analytics_pool: { Args: { p_filters?: Json }; Returns: Json }
+      analytics_pool_pending: {
+        Args: { p_after?: string; p_limit?: number; p_version: string }
+        Returns: {
+          created_at: string
+          hand_key: string
+          id: string
+          parser_version: string
+          phf: Json
+          site: string
+          source_filename: string
+          standard_text: string
+        }[]
+      }
+      analytics_pool_save: {
+        Args: { p_hands: Json; p_version: string }
+        Returns: Json
       }
       analytics_pot_kind_of: { Args: { p_filters: Json }; Returns: string }
       analytics_rows_pending: {

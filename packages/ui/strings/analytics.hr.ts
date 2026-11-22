@@ -71,9 +71,6 @@ export const analyticsUiHr: AnalyticsStrings = {
       pool: "Pool",
       breakdown: "Raščlamba",
     } as Record<string, string>,
-    later: {
-      pool: "Kako protivnici igraju prema tvojim ciljevima: još nije izrađeno.",
-    } as Record<string, string>,
     figures: {
       label: "Rezultati na 100 ruku",
       hands: (count: number) => plural(count, "ruka", "ruke", "ruku"),
@@ -102,6 +99,110 @@ export const analyticsUiHr: AnalyticsStrings = {
       practise: "Vježbaj ovo ▸",
       allStats: "Sve statistike →",
       pool: "Kako igra tvoj pool →",
+    },
+    /** Pool (korak 10): kako regovi i fishevi igraju prema tvojim ciljevima. */
+    pool: {
+      showLabel: "Prikaži",
+      show: { all: "Sve statistike", exploits: "Samo exploiti" } as Record<string, string>,
+      figures: {
+        label: "Tvoj pool",
+        ratio: "Regovi : fishevi",
+        ratioValue: (ratio: string) => `${ratio} : 1`,
+        ratioSub: (reg: string, fish: string) => `${reg} ruku regova · ${fish} ruku fisheva`,
+        regRate: "Win rate regova",
+        regRateSub: (se: string | null) => (se ? `bb/100 · ±${se}` : "bb/100"),
+        youFish: "Ti s fishem u potu",
+        youRegs: "Ti, samo regovi",
+        youSub: (hands: string, n: number) => `bb/100 · ${hands} ${plural(n, "ruka", "ruke", "ruku")}`,
+      },
+      head: {
+        stat: "Statistika",
+        you: "Ti",
+        reg: "Regovi",
+        fish: "Fishevi",
+        target: "Cilj",
+        means: "Što to znači za tebe",
+      },
+      approx: (target: string) => `≈${target}`,
+      times: (count: string, n: number) => `${count} ${plural(n, "put", "puta", "puta")}`,
+      close: "Blizu cilja",
+      notSure: "Još nije sigurno",
+      noTarget: "Još nema cilja",
+      none: "Na ovom uzorku nema jasnih exploita.",
+      counting: (left: string) => `Brojim tvoje protivnike: još ${left} ruku.`,
+      pending: (left: string) => `Protivnici se broje: još ${left} ruku.`,
+      error: (reason: string) => `Pool se nije učitao: ${reason}`,
+      empty: "Na ovim filterima još nema regova ni fisheva.",
+      allStats: "Sve statistike →",
+      note: "Protivnici se broje u svakoj ruci koju su igrali s tobom u ovim sobama. Cilj je tvoj, pa je za njih približan. Regovi i fishevi su Railovi tipovi igrača (fish: VPIP 40+ kroz 30 ruku).",
+      who: { reg: "Regovi", fish: "Fishevi", both: "Regovi i fishevi" } as Record<string, string>,
+      exploit: {
+        vpip: {
+          high: (w: string) => `${w} igraju previše ruku: value betaj ih šire i češće ih izoliraj.`,
+          low: (w: string) => `${w} igraju premalo ruku: češće im kradi blindove i vjeruj njihovim raiseovima.`,
+        },
+        pfr: {
+          high: (w: string) => `${w} previše raiseaju preflop: 3-betaj i callaj njihove raiseove šire.`,
+          low: (w: string) => `${w} premalo raiseaju preflop: njihovi raiseovi su jaki, limpovi i callovi slabi.`,
+        },
+        rfi: {
+          high: (w: string) => `${w} previše otvaraju: češće ih 3-betaj.`,
+          low: (w: string) => `${w} premalo otvaraju: češće foldaj na njihova otvaranja i kradi više oko njih.`,
+        },
+        three_bet: {
+          high: (w: string) => `${w} previše 3-betaju: 4-betaj ih lakše i callaj njihove 3-betove šire.`,
+          low: (w: string) => `${w} premalo 3-betaju: njihovi 3-betovi su jaki; otvaraj više ispred njih.`,
+        },
+        bb_fold_vs_steal: {
+          high: (w: string) => `${w} previše foldaju big blind: češće im kradi.`,
+          low: (w: string) => `${w} previše brane big blind: kradi jačim rukama i value betaj nakon flopa.`,
+        },
+        fold_to_three_bet: {
+          high: (w: string) => `${w} previše foldaju na 3-bet: češće ih 3-betaj kao blef.`,
+          low: (w: string) => `${w} callaju 3-betove preširoko: 3-betaj ih više za value, manje kao blef.`,
+        },
+        four_bet: {
+          high: (w: string) => `${w} previše 4-betaju: callaj i 5-betaj njihove 4-betove šire.`,
+          low: (w: string) => `${w} premalo 4-betaju: tvoji 3-betovi prolaze; poštuj njihove 4-betove.`,
+        },
+        flop_fold_vs_bet: {
+          high: (w: string) => `${w} previše foldaju flop: češće betaj flop.`,
+          low: (w: string) => `${w} previše callaju flop: betaj za value, manje blefiraj flop.`,
+        },
+        flop_raise_vs_bet: {
+          high: (w: string) => `${w} previše raiseaju flop: callaj njihove raiseove šire.`,
+          low: (w: string) => `${w} premalo raiseaju flop: njihovi raiseovi su jaki; češće foldaj na njih.`,
+        },
+        cbet_flop: {
+          high: (w: string) => `${w} previše cbetaju: češće floataj i raiseaj njihove cbetove.`,
+          low: (w: string) => `${w} premalo cbetaju: njihovi cbetovi su jaki; betaj kad checkaju.`,
+        },
+        turn_fold_vs_bet: {
+          high: (w: string) => `${w} previše foldaju turn: češće ih barrelaj.`,
+          low: (w: string) => `${w} previše callaju turn: betaj turn za value, manje barrelaj kao blef.`,
+        },
+        turn_fold_vs_probe: {
+          high: (w: string) => `${w} previše foldaju na probe na turnu: češće ih probeaj kad se flop checka.`,
+          low: (w: string) => `${w} previše callaju probe na turnu: probeaj za value, manje blefiraj.`,
+        },
+        turn_barrel: {
+          high: (w: string) => `${w} previše barrelaju turn: callaj njihove betove na turnu šire.`,
+          low: (w: string) => `${w} premalo barrelaju turn: njihovi betovi na turnu su jaki; češće floataj flop.`,
+        },
+        river_bet: {
+          high: (w: string) => `${w} previše betaju river: callaj ih šire.`,
+          low: (w: string) => `${w} premalo betaju river: njihovi betovi na riveru su jaki; češće foldaj na njih.`,
+        },
+        river_fold_vs_bet: {
+          high: (w: string) => `${w} previše foldaju river: češće ih blefiraj.`,
+          low: (w: string) => `${w} previše callaju river: value betaj tanje, manje blefiraj.`,
+        },
+        river_raise_vs_bet: {
+          high: (w: string) => `${w} previše raiseaju river: callaj njihove raiseove šire.`,
+          low: (w: string) => `${w} premalo raiseaju river: njihovi raiseovi na riveru su jaki; češće foldaj na njih.`,
+        },
+      } as Record<string, { high: (who: string) => string; low: (who: string) => string }>,
+      fallback: (who: string, words: string) => `${who}: ${words.toLowerCase()}.`,
     },
     drill: {
       back: "← Analitika",

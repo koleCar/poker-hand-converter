@@ -62,6 +62,7 @@ import {
   type RebuildProgress,
   type StatsCoverage,
 } from "../../lib/db";
+import { webPool } from "../../lib/db/analyticsPool";
 import { checkerSource } from "../../lib/db/analyticsRows";
 import { libraryFilter } from "../../lib/db/handsSource";
 import { WEB_DEFINITIONS, webReportSource } from "../../lib/db/reportSource";
@@ -384,6 +385,7 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
         // show the Pro teaser instead of an error.
         situationsLock={fullLocked ? <ProLock feature="reports_full" compact /> : undefined}
         checker={webChecker}
+        pool={webPool}
         checkerLock={analysisLocked ? <ProLock feature="analysis" compact /> : undefined}
         practiseHref={paths.analysisTrain}
         drill={drill}

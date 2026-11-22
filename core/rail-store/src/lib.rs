@@ -66,6 +66,7 @@ pub mod leaks;
 pub mod migrate;
 pub mod node_locks;
 pub mod players;
+pub mod pool;
 pub mod pot_kinds;
 pub mod read;
 pub mod recompute;
@@ -106,6 +107,7 @@ pub use node_locks::{
     NodeLockItemKind, NodeLockPlace, NodeLockRow, NodeLockSpot, NodeLockStatus, NodeLockStreet,
 };
 pub use players::{GameKind, PlayerList, PlayerNotes, PlayerProfile, PlayerQuery, PlayerRow};
+pub use pool::{PoolFilters, PoolStatSums, PoolSums, PoolTypeSums};
 pub use read::{Reader, StaleRefusals, StoreStatus};
 pub use recompute::{EvRecomputeState, RebuildState, RowsJob};
 pub use report::{Breakdowns, Graph, GraphPoint, ReportFilter, Session, Units};

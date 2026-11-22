@@ -62,6 +62,7 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 25 | `0025_node_lock_tree.sql` | (docs/NODELOCK.md §7.5) the My nodelocks tree: `node_lock_folders` and `node_lock_folders_parent`; `node_locks.folder_id`, `parent_id`, `sort` and `node_locks_parent`, `node_locks_folder`. Existing rows: no folder, no parent, `sort` = -`updated_at` (newest first); **never synced** |
 | 26 | `0026_deleted_hands.sql` | (2026-11-19) `deleted_hands` and `deleted_hands_owed_idx`: the keys of the hands the user deleted (here, or on the web and pulled), and whether the account's copy is still owed its deletion; empty, nothing to rebuild |
 | 27 | `0027_analytics_checker_rows.sql` | (docs/ANALYTICS.md Step 2) `analysis_checker_rows` and `analysis_checker_rows_stat_idx`; `hand_analysis.checker_version`, `checker_position` and `hand_analysis_checker_idx`: the Analytics checker rows; empty, the background pass's backfill derives them from the stored PHF and decisions (nothing re-analysed) |
+| 28 | `0028_analytics_pool.sql` | (docs/ANALYTICS.md Step 10) `pool_player_results`: each opponent's hands, result and result squared (hands the hero played, bomb pots and money-less hands out) and the hero's own rows under the same key; empty, the background pass sums it (`pool::pool_step`, `kv` `pool.counted_to`). On open the Analytics catalogue's rates are installed as custom statistics `an_<id>` (hidden from the user's list), which the custom pass counts into `custom_player_rollups` |
 
 No migration is reserved for a later step today; each lands as the next
 free number.
@@ -1206,6 +1207,32 @@ the membership version the hand's rows were written at ('' never) and
 | `checker::backfill_step(reader, writer)` (a step of the background pass, `Step::Checked`) | 500 hands whose mark is not `MEMBERSHIP_VERSION`, derived outside the writer, written unless the hand was analysed again meanwhile (`analysed_at`); idempotent |
 | `Reader::checker_sums(version, filters)` | the web's `analytics_checker`: per (stat, spot, size, hand class) `opps`, `opps_taken`, `n`, `taken`, Σ `ref_share`, Σ EV loss too much / too little, distinct hands; the marked hands in scope; the hands still pending. Filters: ISO `from` / `to`, format or kind, seat, pot type, pot kind (`hu` / `mw` / `bomb`), membership version |
 | `Reader::checker_examples(version, filters, query)` | the web's `analytics_checker_examples`: one stat's analysed decisions (by spot, size, hand class; side `high` / `low` / `any`), costliest first, at most 100, with the cards, the board and the size faced |
+
+## The Pool tab (version 28, docs/ANALYTICS.md Step 10)
+
+How the hero's opponents play, the web's `pool_players` / `pool_player_stats`
+(`supabase/migrations/20271122100000_analytics_pool.sql`) on the desktop:
+
+- **Rates**: the Analytics catalogue's rates are custom statistics
+  `an_<id>` (`custom_stats`), installed on open (`pool::install_analytics_stats`,
+  from `rail_stats::analytics::catalogue().custom_defs()`: new ones added,
+  a changed predicate counted again, a removed rate deleted). The custom
+  pass counts them on every kept seat into `custom_player_rollups` (and
+  `_observed`), never into the hero's rows. `Reader::custom_stats` and
+  `custom_progress` leave them out, and a user's statistic may not take an
+  `an_` id.
+- **Results**: `pool_player_results` (per `player_rollups` key): `hands`,
+  `net_bb_milli`, `net_bb_sq_milli` (Σ result², thousandths of a bb², each hand's rounded) of the opponent's seat rows in
+  hands the hero played, bomb pots and hands whose money does not count
+  (an EV cashout) left out; `hero_hands`: the hero's own seat rows under
+  the key.
+
+| Call | What |
+| --- | --- |
+| `pool::pool_step(reader, writer)` (a step of the background pass, `Step::Pooled`) | 5000 hands past `kv` `pool.counted_to`, read outside the writer (seat rows decoded), summed and written unless the generation or the mark moved meanwhile |
+| `pool::uncount_pool(conn, ids)` (hand deletion) | the deleted hands' part taken out before their seat rows go |
+| `pool::reset_pool(conn)` (with `custom::reset_custom_counts`) | emptied, counted again |
+| `Reader::pool_sums(filters)` | the web's `analytics_pool`: the opponents typed by Rail's rule over `player_rollups` (scope '', every segment: fish VPIP ≥ 40, reg VPIP 15–30 and PFR ≥ 0.6·VPIP, 30+ hands), each type's players, hands, Σ result and Σ result², and per catalogue rate made / opportunities from their hands with the hero (`custom_player_rollups` − `_observed`); filters: format or kind, rooms; `pending` = hands either pass has not reached |
 
 ## Nodelocks (version 24, docs/NODELOCK.md §3; the tree: version 25, §7.5)
 

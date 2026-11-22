@@ -274,6 +274,25 @@ function costOf(ev: number, hands: number): number {
   return hands > 0 ? (ev * 100) / hands : 0;
 }
 
+/**
+ * The band's half-width in points around a target `t` (a fraction, clamped
+ * to 0..1) over a sample of `n`: max(floor, 1.96·√(t(1−t)/n)). The Pool tab
+ * (Step 10) judges the opponents' numbers with it too.
+ */
+export function bandHalf(t: number, n: number, floor: number): number {
+  const c = Math.min(1, Math.max(0, t));
+  return Math.max(floor, 1.96 * Math.sqrt((c * (1 - c)) / n) * 100);
+}
+
+/** The tone of a gap (points) against a band's half-width, over a sample of `n` (module docs). */
+export function toneOf(gap: number, half: number, n: number, sampleMin: number): CheckerTone {
+  const outside = Math.abs(gap) - half;
+  if (outside <= 0) return "ok";
+  if (n < sampleMin) return "few";
+  if (outside > 2 * half) return "far";
+  return "off";
+}
+
 function judge(raw: Raw, rules: Judge): Judged {
   const player = raw.den > 0 ? (raw.num * 100) / raw.den : null;
   const target = raw.den > 0 && raw.refDen > 0 ? (raw.refNum * 100) / raw.refDen : null;
@@ -286,17 +305,12 @@ function judge(raw: Raw, rules: Judge): Judged {
   let direction: CheckerDirection | null = null;
   let tone: CheckerTone = "none";
   if (player !== null && target !== null) {
-    const t = Math.min(1, Math.max(0, raw.refNum / raw.refDen));
-    half = Math.max(rules.floor, 1.96 * Math.sqrt((t * (1 - t)) / raw.den) * 100);
+    half = bandHalf(raw.refNum / raw.refDen, raw.den, rules.floor);
     bandLow = Math.max(0, target - half);
     bandHigh = Math.min(100, target + half);
     gap = player - target;
     direction = gap > 0 ? "high" : gap < 0 ? "low" : null;
-    const outside = Math.abs(gap) - half;
-    if (outside <= 0) tone = "ok";
-    else if (raw.den < rules.sampleMin) tone = "few";
-    else if (outside > 2 * half) tone = "far";
-    else tone = "off";
+    tone = toneOf(gap, half, raw.den, rules.sampleMin);
   }
   const cost = direction === "high" ? costHigh : direction === "low" ? costLow : 0;
   return {

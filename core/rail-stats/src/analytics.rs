@@ -58,7 +58,7 @@ pub const ANALYTICS_FILE_VERSION: u32 = 1;
 /// A rate's custom counter is `an_<id>` (and `an_<id>_opp`): catalogue ids
 /// such as `vpip` are also coded counter names, which a custom formula
 /// would read first.
-pub const COUNTER_PREFIX: &str = "an_";
+pub const COUNTER_PREFIX: &str = crate::custom::RESERVED_PREFIX;
 
 /// What the stored membership of a decision was computed under (Step 2
 /// stores it beside each analysed decision's stats): bumped whenever a
