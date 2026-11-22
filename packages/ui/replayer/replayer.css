@@ -1209,6 +1209,16 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* The hero's bet sits on the cloth in front of the cards (`seatLayout`), so
+   the odds take the spot beside them that the bet used to have. A compact felt
+   still puts the bet beside the cards, so its odds stay above. */
+.rp:not([data-shape="compact"]) .pseat__odds {
+  inset-block-end: auto;
+  inset-block-start: 20%;
+  left: calc(50% + var(--seat-card) + 1em);
+  translate: none;
+}
+
 .pseat__odds b {
   font-size: 1.12em;
   font-weight: 750;
@@ -1274,12 +1284,24 @@
 
 /* ------------------------------------------------------- chips on the felt */
 
-/* Where a stack sits is a designed number in the slot table. React sets
-   `left`, `top` and the `translate` that hangs the stack off the spot. */
+/* Where a stack sits is a designed number in the slot table. React sets the
+   spot (`--chip-x` / `--chip-y`) and the `translate` that hangs the stack off
+   it. */
 .rp__chips {
   position: absolute;
+  left: var(--chip-x);
+  top: var(--chip-y);
   inline-size: max-content;
   z-index: var(--z-chips);
+}
+
+/* A short wide felt has no room for the hero's bet between the board and the
+   hero's cards, so it goes beside them (the slot's `sx` / `sy`). */
+@container rpfelt (height < 24rem) {
+  .rp[data-shape="wide"] .rp__chips {
+    left: var(--chip-sx, var(--chip-x));
+    top: var(--chip-sy, var(--chip-y));
+  }
 }
 
 .rp__chips--bet {
