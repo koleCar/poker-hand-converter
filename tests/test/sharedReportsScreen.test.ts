@@ -33,6 +33,8 @@ import { ReportStats } from "@rail/ui/reports/ReportStats";
 import { ReportsScreen } from "@rail/ui/reports/ReportsScreen";
 import { StatTipCard } from "@rail/ui/stats/StatTip";
 import { hasBothKinds } from "@rail/ui/hands/gameKind";
+import { analyticsUiEn } from "@rail/ui/strings/analytics.en";
+import { analyticsUiHr } from "@rail/ui/strings/analytics.hr";
 import { handsUiEn } from "@rail/ui/strings/hands.en";
 import { handsUiHr } from "@rail/ui/strings/hands.hr";
 import { reportsUiEn } from "@rail/ui/strings/reports.en";
@@ -56,6 +58,7 @@ function strings(locale: "en" | "hr"): UiStrings {
     closeNamed: (what: string) => what,
     hands: locale === "en" ? handsUiEn : handsUiHr,
     reports: locale === "en" ? reportsUiEn : reportsUiHr,
+    analytics: locale === "en" ? analyticsUiEn : analyticsUiHr,
     replayer: locale === "en" ? replayerEn : replayerHr,
     statTile: (locale === "en" ? statsUiEn : statsUiHr).tile,
     statTable: { ...(locale === "en" ? statsUiEn : statsUiHr).table, sampleOnly: (locale === "en" ? statsUiEn : statsUiHr).sampleOnly },
@@ -642,6 +645,8 @@ describe("the screen's first render on each source", () => {
             definitions: DEFINITIONS,
             chosen: { ...EMPTY_FILTER, formats: ["cash"] },
             onChoose: () => undefined,
+            view: "breakdown",
+            onView: () => undefined,
             tab: "position",
             onTab: () => undefined,
             title: "Reports",

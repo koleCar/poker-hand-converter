@@ -1,0 +1,488 @@
+/* Analytics (docs/ANALYTICS.md Steps 4 and 5; board AN-Main): the tab row,
+   the figures row and All stats. Semantic tokens only. Tones: green in
+   range, amber off, red far off, grey "not sure yet" (the clean-UI rule for
+   statistics); the fold / call / raise bars use the chart actions' fills. */
+
+/* ------------------------------------------------------------- tab row */
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.tabs,
+.seg {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.spacer {
+  flex: 1 1 0;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* -------------------------------------------------------- figures row */
+
+.figures {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-5);
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.figure {
+  display: flex;
+  gap: var(--space-1);
+  align-items: baseline;
+}
+
+.figure dt {
+  margin: 0;
+}
+
+/* "184,320 hands": the number first. */
+.lead dd {
+  order: -1;
+}
+
+.figure dd {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.up {
+  color: var(--profit-fg);
+}
+
+.down {
+  color: var(--loss-fg);
+}
+
+.figure .rate {
+  color: var(--text-tertiary);
+  font-weight: var(--font-weight-regular);
+}
+
+/* The graph without a heading (clean UI): the figures say what it is. */
+.graph {
+  padding: var(--space-4);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+}
+
+.quiet {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+/* ---------------------------------------------------------- All stats */
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.list > .quiet {
+  padding-block-end: var(--space-3);
+}
+
+.head,
+.row {
+  display: grid;
+  grid-template-columns: minmax(150px, 230px) 62px minmax(80px, 1fr) 78px minmax(120px, 190px) 74px 74px;
+  grid-template-areas: "name you track target gap times cost";
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.head {
+  padding: 0 var(--space-2) var(--space-2);
+  border-block-end: 1px solid var(--border-default);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.head .end {
+  text-align: end;
+}
+
+.street {
+  padding: var(--space-4) var(--space-2) var(--space-1);
+  border-block-end: 1px solid var(--border-subtle);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.row {
+  inline-size: 100%;
+  padding: var(--space-2);
+  border: 0;
+  border-block-end: 1px solid var(--border-subtle);
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.row:hover {
+  background: var(--surface-hover);
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
+
+.row.open {
+  background: var(--surface-hover);
+}
+
+.row.still {
+  cursor: default;
+}
+
+.row.still:hover {
+  background: transparent;
+}
+
+.name {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-inline-size: 0;
+  grid-area: name;
+}
+
+.name b {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.name span {
+  overflow: hidden;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.you {
+  grid-area: you;
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.track {
+  position: relative;
+  grid-area: track;
+  block-size: 18px;
+  border-radius: 9px;
+  background: var(--surface-sunken, var(--surface-inset));
+}
+
+.band {
+  position: absolute;
+  inset-block: 0;
+  border-inline: 1px solid color-mix(in srgb, var(--success-fg) 55%, transparent);
+  background: color-mix(in srgb, var(--success-fg) 15%, transparent);
+}
+
+.dot {
+  position: absolute;
+  inset-block-start: 3px;
+  inline-size: 12px;
+  block-size: 12px;
+  margin-inline-start: -6px;
+  border: 2px solid var(--surface-base);
+  border-radius: 50%;
+  background: var(--text-secondary);
+}
+
+.target {
+  grid-area: target;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.gap {
+  overflow: hidden;
+  grid-area: gap;
+  font-size: var(--font-size-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.times {
+  display: flex;
+  flex-direction: column;
+  grid-area: times;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.times span {
+  font-size: var(--font-size-2xs, var(--font-size-xs));
+}
+
+.cost {
+  grid-area: cost;
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.cost.loss {
+  color: var(--loss-fg);
+}
+
+.cost.nil {
+  color: var(--text-tertiary);
+  font-weight: var(--font-weight-regular);
+}
+
+/* Tones: text and the dot. */
+.ok {
+  color: var(--success-fg);
+}
+
+.off {
+  color: var(--warning-fg);
+}
+
+.far {
+  color: var(--danger-fg);
+}
+
+.few,
+.none {
+  color: var(--text-tertiary);
+}
+
+.dot.ok {
+  background: var(--success-fg);
+}
+
+.dot.off {
+  background: var(--warning-fg);
+}
+
+.dot.far {
+  background: var(--danger-fg);
+}
+
+.dot.few,
+.dot.none {
+  background: var(--text-tertiary);
+}
+
+/* ------------------------------------------------ a row's spots, open */
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4) var(--space-3) var(--space-6);
+  border-block-end: 1px solid var(--border-subtle);
+  background: var(--surface-inset);
+}
+
+.spotHead,
+.spot {
+  display: grid;
+  grid-template-columns: minmax(140px, 240px) 64px minmax(0, 1fr) minmax(0, 1fr) minmax(110px, 150px) 64px;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.spotHead {
+  padding: 2px 0 var(--space-1);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.spotHead .end {
+  text-align: end;
+}
+
+.spot {
+  padding: 6px 0;
+  border-block-start: 1px solid var(--border-subtle);
+  font-size: var(--font-size-sm);
+}
+
+.spot .n {
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+/* The row's cells, placed in order here (not by the row's areas). */
+.spot .gap,
+.spot .cost {
+  grid-area: auto;
+}
+
+.spot .spotName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fcr {
+  display: flex;
+  overflow: hidden;
+  block-size: 16px;
+  border-radius: var(--radius-1);
+  background: var(--surface-sunken, var(--surface-raised-2));
+  font-size: var(--font-size-2xs, 10px);
+  font-variant-numeric: tabular-nums;
+  line-height: 16px;
+}
+
+.fcr.ref {
+  opacity: 0.6;
+}
+
+.fcr i {
+  display: block;
+  overflow: hidden;
+  min-inline-size: 0;
+  color: var(--text-primary);
+  font-style: normal;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.fold {
+  background: var(--chart-fold);
+}
+
+.call,
+.play {
+  background: var(--chart-call);
+}
+
+.raise,
+.bet {
+  background: var(--chart-raise);
+}
+
+.rest {
+  background: transparent;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  padding-block-start: var(--space-2);
+}
+
+.key {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.key i {
+  display: inline-block;
+  inline-size: 9px;
+  block-size: 9px;
+  margin-inline-end: var(--space-1);
+  border-radius: 2px;
+  vertical-align: -1px;
+}
+
+.how {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+/* ------------------------------------------------------------- narrow
+   A phone: a row is the name with the number and the cost, the track
+   under it, then the gap and the times; the target is the band itself. */
+@media (width <= 720px) {
+  /* The tabs are one row that scrolls sideways, as the breakdown's. */
+  .tabs {
+    flex-wrap: nowrap;
+    max-inline-size: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tabs > * {
+    flex: none;
+  }
+
+  .head {
+    display: none;
+  }
+
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "name you cost"
+      "track track track"
+      "gap gap times";
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .target {
+    display: none;
+  }
+
+  .spotHead {
+    display: none;
+  }
+
+  .spot {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .spot > * {
+    grid-column: 1 / -1;
+  }
+
+  .spot > .n,
+  .spot > .spotName {
+    grid-column: auto;
+  }
+
+  .detail {
+    padding-inline: var(--space-3);
+  }
+}

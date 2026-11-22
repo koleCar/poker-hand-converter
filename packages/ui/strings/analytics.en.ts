@@ -96,6 +96,116 @@ export const analyticsUiEn = {
     noTarget: "No target",
     source: { charts: "Charts", solver: "Solver" } as Record<string, string>,
   },
+  /** The screen (Steps 4 and 5): the tabs, the figures row, All stats. */
+  screen: {
+    tabsLabel: "Analytics",
+    tabs: {
+      overview: "Overview",
+      streets: "Streets",
+      stats: "All stats",
+      pool: "Pool",
+      breakdown: "Breakdown",
+    } as Record<string, string>,
+    /** The tabs later steps fill: one quiet line each. */
+    later: {
+      streets: "Preflop to river, block by block: not built yet.",
+      pool: "How your opponents play against your targets: not built yet.",
+    } as Record<string, string>,
+    figures: {
+      label: "Results per 100 hands",
+      /** After the hand count: "hands". */
+      hands: (count: number): string => (count === 1 ? "hand" : "hands"),
+      won: "Won",
+      allInEv: "All-in EV",
+      showdown: "Showdown",
+      nonShowdown: "Non-showdown",
+      /** A rate's unit: "bb/100", "$/100". */
+      per100: (unit: string) => `${unit}/100`,
+      bb: "bb",
+      unit: "Show in",
+    },
+    graph: "Winnings over hands",
+    stats: {
+      order: "Order",
+      byStreet: "By street",
+      byCost: "By cost",
+      show: "Show",
+      all: "All stats",
+      off: "Off target",
+      heads: {
+        stat: "Stat",
+        you: "You",
+        track: "Target range · dot = you",
+        target: "Target",
+        gap: "Gap",
+        times: "Times",
+      },
+      /** The target column: the band, "33–38". */
+      range: (low: string, high: string) => `${low}–${high}`,
+      /** Under the times when the checker's sample is under 90% of the opportunities. */
+      analysed: (share: string) => `${share} analysed`,
+      loading: "Checking your stats…",
+      error: (reason: string) => `All stats did not load: ${reason}`,
+      pending: "Targets fill in as hands are analysed.",
+      partial: "All stats follows the dates, the game, one position and one pot type; your other filters are left out here.",
+      empty: "No stats at these filters yet.",
+      noneOff: "Nothing clearly off target at these filters.",
+      noSpots: "No spots to show yet.",
+      spots: {
+        spot: "Spot",
+        you: "You · fold / call / raise",
+        target: "Target",
+      },
+      key: "Upper bar you · lower bar target",
+      bars: {
+        fold: "Fold",
+        call: "Call",
+        raise: "Raise",
+        bet: "Bet",
+        play: "Play",
+        check: "Check",
+        other: "Other",
+      },
+      /** A bar's label for assistive technology: "You: Fold 52%, Call 39%, Raise 9%". */
+      /** A spot's gap, its numbers always: "Fold 52% vs 31%". */
+      spotGap: (action: string, you: string, target: string) => `${action} ${you} vs ${target}`,
+      barLabel: (who: string, parts: string) => `${who}: ${parts}`,
+      you: "You",
+      target: "Target",
+      /** The first hover line: what each stat counts. */
+      counts: {
+        vpip: "VPIP: every preflop where you put money in on your own: call, bet or raise.",
+        pfr: "PFR: every preflop where you raised.",
+        rfi: "Open raise: every time it folded to you preflop and you raised first in.",
+        three_bet: "3-bet: every time you faced one open raise and raised again.",
+        bb_fold_vs_steal: "BB fold vs steal: every steal you faced in the big blind that you folded to.",
+        fold_to_three_bet: "Fold to 3-bet: every time your raise was 3-bet and you folded.",
+        four_bet: "4-bet: every time you faced a 3-bet and raised again.",
+        flop_fold_vs_bet: "Flop fold vs bet: every flop where you faced a bet and folded, whatever happened before.",
+        flop_raise_vs_bet: "Flop raise vs bet: every flop where you faced a bet and raised.",
+        flop_raise_weak: "Flop raise · weak share: of your flop raises, how many were middle pair or worse.",
+        cbet_flop: "Cbet: every flop where you raised preflop, it checked to you and you bet.",
+        turn_fold_vs_bet: "Turn fold vs bet: every turn where you faced a bet and folded.",
+        turn_fold_vs_probe: "Turn fold vs probe: you raised preflop, the flop checked through, and you folded to a turn bet.",
+        turn_barrel: "Barrel: every turn after your flop cbet where you bet again.",
+        river_bet: "River bet: every river where no one had bet and you bet.",
+        river_bet_weak: "River bet · weak share: of your river bets, how many were third pair or worse.",
+        river_fold_vs_bet: "River fold vs bet: every river where you faced a bet and folded.",
+        river_raise_vs_bet: "River raise vs bet: every river where you faced a bet and raised.",
+        river_raise_weak: "River raise · weak share: of your river raises, how many were middle pair or worse.",
+        wtsd: "Went to showdown: of the hands where you saw the flop, how many reached showdown.",
+        wsd: "Won at showdown: of the hands that reached showdown, how many you won.",
+        wwsf: "Won when saw flop: of the hands where you saw the flop, how many you won.",
+      } as Record<string, string>,
+      /** The second hover line: where the target comes from. */
+      targetFrom: {
+        charts: "Target: what the charts do with the hands you held in the same spots.",
+        solver: "Target: what Rail's solver does with the hands you held, in the same spots and bet sizes.",
+        share: "Target: the solver's own share with the hands you held.",
+        none: "No target: this one depends on your opponents' cards as much as on yours.",
+      } as Record<string, string>,
+    },
+  },
   /** Overview's findings: a headline per family and lean, then why. */
   findings: {
     ref: { charts: "the charts", solver: "the solver" } as Record<string, string>,

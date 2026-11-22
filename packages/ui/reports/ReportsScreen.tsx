@@ -1,18 +1,23 @@
 /**
- * Reports (guideline §6 "Izvještaji": winnings and all-in EV graphs, results
- * by position and situation), on both surfaces (R4.5c). One filter row - the
- * Hands screen's chips, with the groups a report sums by, and Reports' own
- * saved filters where the surface keeps them - over:
+ * Analytics (docs/ANALYTICS.md Step 4; the screen that was Reports,
+ * guideline §6 "Izvještaji"), on both surfaces (R4.5c). One filter row - the
+ * Hands screen's chips, with the groups a report sums by, and the screen's
+ * own saved filters where the surface keeps them - over a row of tabs:
  *
- * - the summary: hands, the result in the graph's unit (money or big
- *   blinds), bb/100 and the all-in EV bb/100;
- * - the win-rate graph (`stats/WinrateGraph`): total, showdown,
- *   non-showdown and all-in EV, cumulative over hands, in big blinds or in
- *   money;
- * - the statistics as matrices (`ReportStats.tsx`, as an opponent's
- *   profile shows them): by position, postflop by street, each with its
- *   reliability (R2.5), the user's own (R2.10, the desktop's) after them;
- * - the breakdowns (`Breakdown.tsx`).
+ * - **Overview**: the figures row and the win-rate graph
+ *   (`stats/WinrateGraph`: total, showdown, non-showdown and all-in EV,
+ *   cumulative over hands, in big blinds or in money). Step 7 adds the
+ *   findings under it.
+ * - **Streets** (Step 6) and **Pool** (Step 10): one quiet line until then.
+ * - **All stats** (Step 5, `analytics/AllStats.tsx`): the catalogue's stats
+ *   against their targets, from the surface's checker (`AnalyticsChecker`).
+ * - **Breakdown** (open question 1's default): what Reports showed - the
+ *   statistics as matrices (`ReportStats.tsx`) and the breakdowns
+ *   (`Breakdown.tsx`), then the surface's footer.
+ *
+ * The figures row (`analytics/FiguresRow.tsx`: hands, won, all-in EV,
+ * showdown, non-showdown, bb | $) is shared by the first three tabs; its unit
+ * is the graph's.
  *
  * Every number is the surface's `ReportSource`'s (the desktop's store, the
  * web's server summaries), in the R2.4 `Shown` shape; money is refused as
@@ -24,33 +29,48 @@
  * `kind`, and the screen has no toggle of its own.
  *
  * The desktop app's screen (R2.7b, `app/src/screens/Reports.tsx` before
- * R4.5c), lifted out of it: the filter, the tab and where they live (the
+ * R4.5c), lifted out of it: the filter, the tabs and where they live (the
  * app's route and memory, the web's page state) are the surface's, and so
- * are the notices, the empty text and the states' look; the web adds its
- * own panels in the two slots (`afterSummary`, `footer`).
+ * are the notices, the empty text, the states' look and the Pro locks; the
+ * web adds its own panels in the footer (`footer`).
  */
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+
+import { AllStats, AllStatsControls } from "../analytics/AllStats";
+import an from "../analytics/Analytics.module.css";
+import { FiguresRow } from "../analytics/FiguresRow";
+import type { AnalyticsChecker } from "../analytics/model";
+import { useChecker } from "../analytics/useChecker";
+import {
+  ANALYTICS_VIEWS,
+  codedForChecker,
+  codedOf,
+  hasFigures,
+  isAnalyticsView,
+  type AllStatsOrder,
+  type AllStatsShow,
+  type AnalyticsView,
+} from "../analytics/view";
 
 import { FilterBar } from "../hands/FilterBar";
 import { EMPTY_FILTER, activeGroups, toQuery, type FilterState } from "../hands/filter";
-import { bigBlindsIn, countIn, signedMoney, unitOf } from "../hands/format";
+import { signedMoney, unitOf } from "../hands/format";
 import { pinKind, type GameKind } from "../hands/gameKind";
 import { groupsHiddenFor, holdSurfaceKind } from "../hands/groups";
 import { KindToggle } from "../hands/KindToggle";
 import type { HandFacets, HandFilter } from "../hands/model";
 import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
-import { useStatTip } from "../stats/StatTip";
-import { StatValue } from "../stats/StatValue";
+import { ANALYTICS, checkStats } from "../model/checker";
 import { WinrateGraph, type WinrateGraphMoney } from "../stats/WinrateGraph";
 import { Breakdown, isTab, needsBreakdowns, type Tab } from "./Breakdown";
-import { shownOf } from "./definitions";
 import type { Definition, Report, ReportSource, Units } from "./model";
 import styles from "./Reports.module.css";
 import { ReportStats } from "./ReportStats";
 import { useReport } from "./useReport";
 
 export { isTab, type Tab };
+export { isAnalyticsView, type AnalyticsView };
 
 /** The money view's currency, when the sample has one. */
 function moneyOf(units: Units): WinrateGraphMoney | null {
@@ -69,6 +89,10 @@ export interface ReportsScreenProps {
   /** The reader's filter; `null` until they set one. */
   chosen: FilterState | null;
   onChoose: (filter: FilterState) => void;
+  /** The open tab of the screen (Overview, Streets, All stats, Pool, Breakdown). */
+  view: AnalyticsView;
+  onView: (view: AnalyticsView) => void;
+  /** The Breakdown tab's split (position, stake...). */
   tab: Tab;
   onTab: (tab: Tab) => void;
   /** The heading's words, and its level on the surface's page. */
@@ -98,8 +122,14 @@ export interface ReportsScreenProps {
    * this shows in their tabs instead, and they are never asked for.
    */
   situationsLock?: ReactNode;
-  /** Between the summary and the graph: the surface's own panel (the web's HUD tiles). */
-  afterSummary?: (report: Report) => ReactNode;
+  /** All stats' data: the checker's sums over the screen's filter. Absent: the player's numbers only. */
+  checker?: AnalyticsChecker;
+  /**
+   * (Pro) Targets, gaps and costs are held back: this one line shows above
+   * All stats instead, the player's own numbers stay, and the checker is
+   * never asked.
+   */
+  checkerLock?: ReactNode;
   /** After the breakdowns: the surface's own panels over the same filter (the web's sessions and opponents). */
   footer?: (query: HandFilter, report: Report | null) => ReactNode;
   /** A new value reads everything again (the web's rebuild finishing). */
@@ -111,6 +141,8 @@ export function ReportsScreen({
   definitions,
   chosen,
   onChoose,
+  view,
+  onView,
   tab,
   onTab,
   title,
@@ -122,12 +154,14 @@ export function ReportsScreen({
   renderState,
   hideHandChart = false,
   situationsLock,
-  afterSummary,
+  checker,
+  checkerLock,
   footer,
   reloadToken = 0,
 }: ReportsScreenProps) {
   const ui = useUiStrings();
   const r = ui.reports;
+  const a = ui.analytics.screen;
   const [facetsSeen, setFacetsSeen] = useState<HandFacets | null>(null);
   // Cash and tournaments never add up: a filter that does not pick one kind
   // shows the one with more hands, and the toggle says which (the Game
@@ -147,19 +181,35 @@ export function ReportsScreen({
     setFacetsSeen(facets);
   }
   const [unit, setUnit] = useState<"bb" | "money">("bb");
+  const [order, setOrder] = useState<AllStatsOrder>("street");
+  const [show, setShow] = useState<AllStatsShow>("all");
   const loadFacets = useCallback((draft: HandFilter) => source.facets(draft), [source]);
 
   const situationsLocked = situationsLock !== undefined && situationsLock !== null;
   useEffect(() => {
-    if (needsBreakdowns(tab) && !situationsLocked) wantBreakdowns();
-  }, [tab, wantBreakdowns, situationsLocked]);
+    if (view === "breakdown" && needsBreakdowns(tab) && !situationsLocked) wantBreakdowns();
+  }, [view, tab, wantBreakdowns, situationsLocked]);
+
+  // All stats: the checker's sums, read while its tab is open (never on the Free plan).
+  const checkerLocked = checkerLock !== undefined && checkerLock !== null;
+  const checked = useChecker(checker, query, view === "stats" && !checkerLocked && facetsSeen !== null, reloadToken);
+  const coded = useMemo(
+    () => (report ? codedOf(ANALYTICS, report.summary.stats, report.summary.ids) : {}),
+    [report],
+  );
+  const result = useMemo(
+    () => (checked.sums ? checkStats(ANALYTICS, checked.sums, codedForChecker(ANALYTICS, coded)) : null),
+    [checked.sums, coded],
+  );
+  const partial = useMemo(() => (checker ? checker.partial(query) : false), [checker, query]);
 
   const money = report ? moneyOf(report.units) : null;
   const shownUnit = unit === "money" && money ? "money" : "bb";
   const filtered = activeGroups(filter) > 0;
 
   // Another filter's report on its way: the previous one stays, dimmed.
-  const refetching = state.loading && report !== null;
+  const refetching = (state.loading && report !== null) || (checked.loading && checked.sums !== null);
+  const figures = hasFigures(view);
 
   let body;
   if (state.error !== null && report === null) {
@@ -170,14 +220,46 @@ export function ReportsScreen({
     body = renderState("empty", filtered ? r.noMatch : emptyText);
   } else {
     body = (
-      <ReportBody
-        report={report}
-        definitions={definitions}
-        unit={shownUnit}
-        money={money}
-        onUnit={setUnit}
-        afterSummary={afterSummary}
-      />
+      <>
+        {figures ? <FiguresRow report={report} unit={shownUnit} money={money} onUnit={setUnit} /> : null}
+        {view === "overview" ? (
+          <section className={an.graph} aria-label={a.graph}>
+            <WinrateGraph graph={report.graph} unit={shownUnit} money={money} />
+          </section>
+        ) : view === "stats" ? (
+          <AllStats
+            catalogue={ANALYTICS}
+            result={result}
+            coded={coded}
+            order={order}
+            show={show}
+            lock={checkerLocked ? checkerLock : undefined}
+            loading={checker !== undefined && !checked.loaded && checked.error === null}
+            error={checked.error}
+            partial={partial}
+          />
+        ) : view === "breakdown" ? (
+          <>
+            <section className={styles.card} aria-label={r.stats.heading}>
+              <ReportStats report={report} definitions={definitions} />
+              <p className={styles.muted}>{r.stats.note}</p>
+            </section>
+            <Breakdown
+              report={report}
+              breakdowns={state.breakdowns}
+              loading={state.breakdownsLoading}
+              definitions={definitions}
+              facets={facets}
+              tab={tab}
+              onTab={onTab}
+              hideHandChart={hideHandChart}
+              situationsLock={situationsLocked ? situationsLock : undefined}
+            />
+          </>
+        ) : (
+          <p className={an.quiet}>{a.later[view]}</p>
+        )}
+      </>
     );
   }
 
@@ -185,7 +267,7 @@ export function ReportsScreen({
     <div className={styles.screen} aria-busy={state.loading}>
       <header className={hideTitle ? `${styles.top} ${styles.row}` : styles.top}>
         <Title className={hideTitle ? styles.visuallyHidden : styles.title}>{title}</Title>
-        {report ? (
+        {report && !(figures && report.graph.hands > 0) ? (
           <span className={styles.count} aria-live="polite">
             {r.count(report.graph.hands)}
           </span>
@@ -209,145 +291,62 @@ export function ReportsScreen({
       {report && !report.units.mixedKind && report.units.mixedCurrency ? (
         <p className={styles.notice}>{r.units.mixedCurrency}</p>
       ) : null}
-      {report && report.graph.allInEv.pending > 0 ? (
+      {report && report.graph.allInEv.pending > 0 && view === "overview" ? (
         <p className={styles.notice} role="status">
           {r.evPending(report.graph.allInEv.pending)}
         </p>
       ) : null}
-      <div className={`${styles.results} rail-dims`} aria-busy={refetching}>
-      {body}
-      {report && definitions && (report.summary.hands > 0 || report.graph.hands > 0) ? (
-        <Breakdown
-          report={report}
-          breakdowns={state.breakdowns}
-          loading={state.breakdownsLoading}
-          definitions={definitions}
-          facets={facets}
-          tab={tab}
-          onTab={onTab}
-          hideHandChart={hideHandChart}
-          situationsLock={situationsLocked ? situationsLock : undefined}
-        />
-      ) : null}
+      <div className={an.bar}>
+        <ViewTabs view={view} onView={onView} />
+        <span className={an.spacer} />
+        {view === "stats" && !checkerLocked ? <AllStatsControls order={order} onOrder={setOrder} show={show} onShow={setShow} /> : null}
       </div>
-      {footer ? footer(query, report) : null}
+      <div className={`${styles.results} rail-dims`} aria-busy={refetching}>
+        {body}
+      </div>
+      {footer && view === "breakdown" ? footer(query, report) : null}
     </div>
   );
 }
 
-function ReportBody({
-  report,
-  definitions,
-  unit,
-  money,
-  onUnit,
-  afterSummary,
-}: {
-  report: Report;
-  definitions: readonly Definition[];
-  unit: "bb" | "money";
-  money: WinrateGraphMoney | null;
-  onUnit: (unit: "bb" | "money") => void;
-  afterSummary?: (report: Report) => ReactNode;
-}) {
-  const ui = useUiStrings();
-  const r = ui.reports;
-  const tip = useStatTip();
-  const { units } = report;
-  // The hands and the result are the graph's end - every hand whose money
-  // moved, bomb pots included - so the figures and the curve agree. The
-  // statistics (bb/100 with them) keep their own sample: bomb pots out.
-  const end = report.graph.buckets[report.graph.buckets.length - 1];
-  const summary = {
-    ...report.summary,
-    hands: Math.max(report.summary.hands, report.graph.hands),
-    net: report.summary.net !== null && end?.cumNet != null ? end.cumNet : report.summary.net,
-    netBbMilli: report.summary.netBbMilli !== null && end ? end.cumNetBbMilli : report.summary.netBbMilli,
+/** The screen's tabs (the ARIA tabs pattern: arrow keys move between them). */
+function ViewTabs({ view, onView }: { view: AnalyticsView; onView: (view: AnalyticsView) => void }) {
+  const a = useUiStrings().analytics.screen;
+  const row = useRef<HTMLDivElement>(null);
+  const onKey = (event: KeyboardEvent<HTMLDivElement>) => {
+    const index = ANALYTICS_VIEWS.indexOf(view);
+    const last = ANALYTICS_VIEWS.length - 1;
+    const next =
+      event.key === "ArrowRight"
+        ? (index + 1) % ANALYTICS_VIEWS.length
+        : event.key === "ArrowLeft"
+          ? (index + last) % ANALYTICS_VIEWS.length
+          : event.key === "Home"
+            ? 0
+            : event.key === "End"
+              ? last
+              : null;
+    const chosen = next === null ? undefined : ANALYTICS_VIEWS[next];
+    if (next === null || !chosen) return;
+    event.preventDefault();
+    onView(chosen);
+    row.current?.querySelectorAll<HTMLButtonElement>("[role=tab]")[next]?.focus();
   };
-  const moneyUnit =
-    units.currency !== null && units.minorUnits !== null
-      ? unitOf({ currency: units.currency, currencySymbol: units.symbol ?? "", minorUnits: units.minorUnits })
-      : null;
-  const tone = (value: number | null) =>
-    value === null || value === 0 ? "" : value > 0 ? styles.up : styles.down;
-  const bb100 = shownOf(definitions, summary.stats, "bb_per_100", summary.ids);
-  const ev100 = shownOf(definitions, summary.stats, "allin_ev_bb_per_100", summary.ids);
-
   return (
-    <>
-      <section className={styles.summary} aria-label={r.summary.label}>
-        <dl className={`${styles.tiles} rail-stagger`}>
-          <div className={styles.tile}>
-            <dt>{r.summary.hands}</dt>
-            <dd>{countIn(ui.intlLocale, summary.hands)}</dd>
-          </div>
-          <div className={styles.tile}>
-            <dt>{r.summary.result}</dt>
-            {/* One result, in the graph's unit: money or big blinds. */}
-            {unit === "money" ? (
-              <dd className={tone(summary.net)}>
-                {summary.net !== null && moneyUnit ? signedMoney(moneyUnit, summary.net) : "—"}
-              </dd>
-            ) : (
-              <dd className={tone(summary.netBbMilli)}>
-                {summary.netBbMilli !== null ? `${bigBlindsIn(ui.intlLocale, summary.netBbMilli)} bb` : "—"}
-              </dd>
-            )}
-          </div>
-          {bb100 ? (
-            <div className={styles.tile}>
-              <dt {...tip.on({ definition: bb100.definition })}>{r.summary.bb100}</dt>
-              <dd className={tone(bb100.shown.value)}>
-                <StatValue shown={bb100.shown} unit={bb100.definition.format.unit} definition={bb100.definition} />
-              </dd>
-            </div>
-          ) : null}
-          {ev100 ? (
-            <div className={styles.tile}>
-              <dt {...tip.on({ definition: ev100.definition })}>{r.summary.evBb100}</dt>
-              <dd className={tone(ev100.shown.value)}>
-                <StatValue shown={ev100.shown} unit={ev100.definition.format.unit} definition={ev100.definition} />
-              </dd>
-            </div>
-          ) : null}
-        </dl>
-        {tip.layer}
-      </section>
-
-      {afterSummary ? afterSummary(report) : null}
-
-      <section className={styles.card} aria-labelledby="reports-graph">
-        <div className={styles.cardHead}>
-          <h2 id="reports-graph" className={styles.cardTitle}>
-            {r.graph.heading}
-          </h2>
-          <div className={styles.toggle} role="group" aria-label={r.graph.unit}>
-            <button
-              type="button"
-              className={`chip-btn${unit === "bb" ? " is-active" : ""}`}
-              aria-pressed={unit === "bb"}
-              onClick={() => onUnit("bb")}
-            >
-              {r.graph.bigBlinds}
-            </button>
-            <button
-              type="button"
-              className={`chip-btn${unit === "money" ? " is-active" : ""}`}
-              aria-pressed={unit === "money"}
-              disabled={money === null}
-              onClick={() => onUnit("money")}
-            >
-              {units.minorUnits !== null && units.minorUnits <= 1 ? r.graph.chips : r.graph.money}
-            </button>
-          </div>
-        </div>
-        <WinrateGraph graph={report.graph} unit={unit} money={money} />
-      </section>
-
-      <section className={styles.card} aria-label={r.stats.heading}>
-        <ReportStats report={report} definitions={definitions} />
-        <p className={styles.muted}>{r.stats.note}</p>
-      </section>
-    </>
+    <div className={an.tabs} role="tablist" aria-label={a.tabsLabel} ref={row} onKeyDown={onKey}>
+      {ANALYTICS_VIEWS.map((entry) => (
+        <button
+          key={entry}
+          type="button"
+          role="tab"
+          aria-selected={entry === view}
+          tabIndex={entry === view ? 0 : -1}
+          className={`chip-btn${entry === view ? " is-active" : ""}`}
+          onClick={() => onView(entry)}
+        >
+          {a.tabs[entry]}
+        </button>
+      ))}
+    </div>
   );
 }

@@ -22,6 +22,8 @@
  * - `hands`: distinct hands in the group.
  */
 
+import type { HandFilter } from "../hands/model";
+
 /** The filters the checker reads: the analysis readers' (`analysis_filter_of`) plus a pot kind. */
 export interface CheckerFilters {
   analysisVersion?: string;
@@ -39,6 +41,11 @@ export interface CheckerFilters {
   potType?: string;
   /** `hu`, `mw` (by the decision's scenario) or `bomb`. */
   potKind?: "hu" | "mw" | "bomb";
+  /**
+   * The web's only: the Hands list's filter (`library_where`'s shape), for
+   * the groups the keys above cannot say (`analysis_hand_ids`).
+   */
+  hands?: Record<string, unknown>;
 }
 
 export interface CheckerGroup {
@@ -109,4 +116,16 @@ export interface CheckerExampleQuery {
 export interface CheckerSource {
   checker(filters: CheckerFilters): Promise<CheckerSums | null>;
   examples(filters: CheckerFilters, query: CheckerExampleQuery): Promise<CheckerExample[]>;
+}
+
+/**
+ * What the Analytics screen asks a surface for (Step 4): the checker's sums
+ * over the screen's filter. Each surface maps the filter onto its own
+ * `CheckerFilters` (`checkerFiltersOf` in `view.ts`, the web adding the
+ * Hands list's filter) and says when it had to leave groups out.
+ */
+export interface AnalyticsChecker {
+  sums(query: HandFilter): Promise<CheckerSums | null>;
+  /** The filter sets groups the checker does not follow (they are left out). */
+  partial(query: HandFilter): boolean;
 }

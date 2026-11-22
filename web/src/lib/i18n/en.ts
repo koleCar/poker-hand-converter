@@ -104,7 +104,7 @@ export const en = {
         "Browse, filter and replay every poker hand you have saved, and share one with a single link.",
     },
     stats: {
-      title: "Statistics | Rail",
+      title: "Analytics | Rail",
       description:
         "VPIP, PFR, 3-bet, continuation bets and a showdown / non-showdown win-rate graph, over every hand you have saved.",
     },
@@ -202,7 +202,7 @@ export const en = {
     forum: "Forum",
     convert: "Upload hand",
     library: "Hand history",
-    stats: "Statistics",
+    stats: "Analytics",
     players: "Players",
     analysis: "Analysis",
     learn: "Learn",
@@ -212,7 +212,7 @@ export const en = {
       forum: "Forum",
       convert: "Upload",
       library: "Hands",
-      stats: "Stats",
+      stats: "Analytics",
       analysis: "Analysis",
       solver: "Solver",
       download: "App",

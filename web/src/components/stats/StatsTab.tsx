@@ -1,5 +1,6 @@
 /**
- * The statistics screen (`/stats`).
+ * The Analytics screen (`/stats`; docs/ANALYTICS.md Step 4, the statistics
+ * screen until then).
  *
  * Since R4.5c the report itself is the shared Reports screen
  * (`@rail/ui/reports/ReportsScreen`, the desktop app's since R2.7b) over the
@@ -33,7 +34,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FilterState } from "@rail/ui/hands/filter";
 import type { HandFilter } from "@rail/ui/hands/model";
-import { ReportsScreen, type Tab } from "@rail/ui/reports/ReportsScreen";
+import type { AnalyticsChecker } from "@rail/ui/analytics/model";
+import { checkerFiltersOf } from "@rail/ui/analytics/view";
+import { ReportsScreen, type AnalyticsView, type Tab } from "@rail/ui/reports/ReportsScreen";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import reportStyles from "@rail/ui/reports/Reports.module.css";
 import {
@@ -45,6 +48,8 @@ import {
   type RebuildProgress,
   type StatsCoverage,
 } from "../../lib/db";
+import { checkerSource } from "../../lib/db/analyticsRows";
+import { libraryFilter } from "../../lib/db/handsSource";
 import { WEB_DEFINITIONS, webReportSource } from "../../lib/db/reportSource";
 import { useAuth } from "../../lib/auth";
 import { useEntitlements } from "../../lib/entitlements/context";
@@ -70,6 +75,19 @@ type Status = "ready" | "not-installed" | "error";
 const STATS_TABLE = "hand_stats";
 const STATS_MIGRATION = "supabase/migrations/20261005090000_hand_stats.sql";
 
+/**
+ * All stats' sums (`analytics_checker`): the keys the checker reads, and the
+ * Hands list's filter for every other group it sets - so All stats covers
+ * the hands the list shows.
+ */
+const webChecker: AnalyticsChecker = {
+  sums: (query) => {
+    const { filters, partial } = checkerFiltersOf(query);
+    return checkerSource.checker(partial ? { ...filters, hands: libraryFilter(query) } : filters);
+  },
+  partial: () => false,
+};
+
 
 export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   const dict = useDict();
@@ -87,6 +105,7 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   /** Bumped when the numbers change under the screen (a rebuild, an arrival, an upload): it reads again. */
   const [generation, setGeneration] = useState(0);
   const [chosen, setChosen] = useState<FilterState | null>(null);
+  const [view, setView] = useState<AnalyticsView>("overview");
   const [tab, setTab] = useState<Tab>("position");
 
   const base = useMemo(() => webReportSource(dict.converter.library.standardFormat), [dict]);
@@ -95,6 +114,8 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   // while enforcement is on and the plan lacks them; the server refuses
   // them on its own (PT402) either way.
   const fullLocked = locked("reports_full");
+  // All stats' targets, gaps and costs come from the analysis (Pro); the player's own numbers stay.
+  const analysisLocked = locked("analysis");
   // A database without the summaries' readers (PGRST202) says "not set up", not a stack trace.
   const source = useMemo(
     () => ({
@@ -288,6 +309,8 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
         definitions={WEB_DEFINITIONS}
         chosen={chosen}
         onChoose={setChosen}
+        view={view}
+        onView={setView}
         tab={tab}
         onTab={setTab}
         title={en.heading}
@@ -312,6 +335,8 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
         // (R6.4) The situation tabs and the footer (sessions, opponents)
         // show the Pro teaser instead of an error.
         situationsLock={fullLocked ? <ProLock feature="reports_full" compact /> : undefined}
+        checker={webChecker}
+        checkerLock={analysisLocked ? <ProLock feature="analysis" compact /> : undefined}
         footer={(query) => {
           if (fullLocked) {
             return <ProLock feature="reports_full" compact />;
