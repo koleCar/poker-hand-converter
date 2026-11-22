@@ -375,6 +375,101 @@ Status: done in 4a5c9ba7 (2026-11-22)
 - **Done when:** a fixture library gives identical sums on desktop and web
   (pgTAP + Rust tests), and the backfill is idempotent.
 
+Status: done in 31e3ec19 (+ fixes 943b06f8, dbe2a586) (2026-11-22)
+
+- **As built:**
+  - **One row per (analysed decision, catalogue rate it belongs to)**, the
+    same in both apps:
+    - `stat`, `taken` (the hero's membership entry for the decision's
+      `ord`);
+    - `ref_share`: Σ `freq` of the options in the *stat's* class, and
+      `best_in`: the reference's best option (highest EV, then frequency,
+      then first listed: `analysis_best_action`) is in it. Both null when
+      the decision was not analysed (no options);
+    - `ev_loss_bb` (0 without one, 3 decimals), `size` (a catalogue size
+      bucket, '' preflop or no bet), `hand_class` ('' preflop), `spot`,
+      `multiway` (`-mw-` scenario, for `potKind`), `action_index`, the
+      hand's groups for the filters, and `membership_version`.
+  - **Derivation**, one function per language held equal by a fixture:
+    `web/src/lib/stats/analyticsRows.ts` (`analyticsRows(hand, decisions)`)
+    and `core/rail-stats/src/analytics_rows.rs` (`analytics_rows`). Shares
+    rounded to 6 decimals, EV to 3, half away from zero in both.
+  - **Size buckets** live in the catalogue (`sizeBuckets` in
+    `config/stats/analytics.json`, schema, Rust `Catalogue::size_bucket`,
+    TS `ANALYTICS.sizeBucket`): `20-40`, `40-60`, `60-85`, `85-125`, `125+`,
+    each from its `min` in thousandths of the pot (`facts.facingPot` × 1000,
+    rounded). A bet under 20% counts with `20-40`. Preflop decisions have no
+    bucket.
+  - **Spot** = `pot|role|hero|opponent`:
+    - preflop: no pot, the role is `facts.preflopScenario`, the opponent the
+      last raiser ('' unopened or limped);
+    - after the flop: the pot from the preflop raises (`limped`,
+      `single-raised`, `3bet`, `4bet+`, `bomb`), the role `facts.role`, the
+      opponent the street's last bettor or raiser, else the one opponent
+      left, `multi` with two or more;
+    - positions are the PHF's. Named by `packages/ui/analytics/spot.ts`
+      (`spotName(key, strings.analytics.spot)`: "BB vs SB · 3-bet pot · as
+      the caller"), words in `packages/ui/strings/analytics.{en,hr}.ts`
+      (new `UiStrings.analytics`, wired in both apps).
+  - **Web** (`20271122090000_analytics_checker_rows.sql`):
+    - tables `analysis_checker_rows` (PK hand, version, ord, stat; FK to
+      `decision_analysis`, cascade) and `analysis_checker_hands` (one per
+      hand written at a membership version, rows or not: the backfill's
+      marker);
+    - writer `analytics_rows_save(p_hands)` (definer, 200 hands a call,
+      keyed by hand + ord; groups, action index and EV loss copied from the
+      leak row; idempotent), called by `runAnalysis` after each
+      `save_hand_analysis` slice (`lib/db/analyticsRows.ts`);
+    - backfill page `analytics_rows_pending(analysis_version,
+      membership_version, after, limit)`: hands analysed without a marker
+      at the membership version, with the stored hand and its decisions;
+      `backfillAnalyticsRows()` walks it in the browser at the end of every
+      complete `runAnalysis`;
+    - reads `analytics_checker(p_filters)` and
+      `analytics_checker_examples(p_filters, p_stat, p_spot, p_size,
+      p_hand_class, p_side, p_limit)`. Filters: `analysis_filter_of`'s
+      (version, dates, room, format / kind, stake, seat, pot type, the Hands
+      list's `hands`) + `potKind` + `membershipVersion`.
+    - All four are Pro (`require_entitlement('analysis')`, in
+      `entitlement_gates`).
+  - **Desktop** (rail-store version 27, `rail_store::checker`): the same
+    rows in `analysis_checker_rows`, the marker as
+    `hand_analysis.checker_version` / `checker_position`; written in
+    `save_analysis`' transaction from the stored PHF and decisions; the
+    backfill is a step of the background pass (`Step::Checked`); reads
+    `Reader::checker_sums` / `checker_examples` behind the async commands
+    `analytics_checker` / `analytics_checker_examples` (refused with
+    `plan` when the plan has no analysis). `CheckerSource` in both apps
+    (`web/src/lib/db/analyticsRows.ts`, `app/src/lib/checkerSource.ts`),
+    shapes in `packages/ui/analytics/model.ts`.
+  - **Tests:** the fixture `core/rail-stats/tests/data/analytics/rows/`
+    (every hero decision of 22 pinned hands with a made-up stored analysis,
+    57 groups): TS and Rust derive the same `rows.json`
+    (`tests/test/analyticsRows.test.ts`, `core/rail-stats/tests/analytics_rows.rs`);
+    pgTAP `analytics_checker` (which embeds the fixture) and
+    `core/rail-store/tests/checker.rs` both return exactly `sums.json`;
+    both backfills are idempotent.
+- **Deviations:**
+  - **A new narrow table, not columns on `analysis_leak_rows`.** A decision
+    belongs to several rates and "taken" and the share are per rate, and
+    the membership cannot be computed in SQL (Step 1), so the rows cannot be
+    kept by the leak rows' triggers; their own version lets a catalogue
+    change re-derive them without touching the analysis.
+  - **No `ref_fold` / `ref_call` / `ref_raise` / `best_class` /
+    `opp_position` / `facing_pot` columns:** each row carries its stat's
+    class share and `best_in`, the opponent is in the spot, and the size is
+    the bucket (the examples read `facts.facingPot`).
+  - **Backfill from the browser / Rust, not from `decision_analysis` in
+    SQL** (the membership needs the PHF): no re-analysis either way.
+  - **`MEMBERSHIP_VERSION` also covers the rows:** both suites pin
+    `rowsFingerprint()` (hand classes and size buckets) with it; it stays
+    `analytics/1` (nothing was stored under it before).
+  - **The writer and the backfill page are Pro too**, like
+    `save_hand_analysis` and `hands_needing_analysis`.
+  - **Desktop filters** are the store's (dates as ISO times, format / kind,
+    seat, pot type, pot kind); it has no room or stake filter, like its leak
+    readers.
+
 ### Step 3 — The checker module
 
 - A pure module with a Rust and a TS twin (like `display.rs` /
