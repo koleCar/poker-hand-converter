@@ -35,16 +35,20 @@ import {
 } from "./view";
 
 /** A rate in the reader's locale: one decimal under 10, whole above. */
-function rateIn(value: number, words: AnalyticsStrings, locale: string): string {
+export function rateIn(value: number, words: AnalyticsStrings, locale: string): string {
   return words.checker.percent(fixedIn(locale, value < 10 ? 1 : 0)(value));
 }
 
 /** A cost as a loss: "−1.3", or "—" under 0.05 bb/100. */
-function costIn(cost: number, locale: string): string | null {
+export function costIn(cost: number, locale: string): string | null {
   return cost >= 0.05 ? `−${fixedIn(locale, 1)(cost)}` : null;
 }
 
-const TONE: Record<string, string | undefined> = {
+/** The spots an open block or finding shows before "All N spots" (the costliest first). */
+export const SPOTS_SHOWN = 6;
+
+/** A tone's class: green in range, amber off, red far off, grey not sure. */
+export const TONE: Record<string, string | undefined> = {
   ok: styles.ok,
   off: styles.off,
   far: styles.far,
@@ -52,7 +56,7 @@ const TONE: Record<string, string | undefined> = {
 };
 
 /** The two hover lines: what the stat counts, where its target comes from. */
-function hoverOf(stat: CatalogueStat, words: AnalyticsStrings): string {
+export function hoverOf(stat: CatalogueStat, words: AnalyticsStrings): string {
   const s = words.screen.stats;
   const from =
     stat.kind === "share" ? "share" : stat.kind === "coded" || stat.street === "showdown" ? "none" : stat.street === "preflop" ? "charts" : "solver";
@@ -159,7 +163,7 @@ export function AllStats({ catalogue, result, coded, order, show, lock, loading 
                   locked={locked}
                   onToggle={() => setOpen(open === item.stat.id ? null : item.stat.id)}
                 />
-                {!locked && open === item.stat.id ? <StatDetail catalogue={catalogue} result={result} row={item} /> : null}
+                {!locked && open === item.stat.id ? <StatSpots catalogue={catalogue} result={result} stat={item.stat} /> : null}
               </Fragment>
             ),
           )}
@@ -249,25 +253,48 @@ function actionOf(stat: CatalogueStat): BarPart["action"] | null {
   return stat.class;
 }
 
-function StatDetail({ catalogue, result, row }: { catalogue: Catalogue; result: CheckerResult | null; row: AllStatsRow }) {
+/**
+ * A stat's spots, open (All stats' row, a Streets block, an Overview
+ * finding): each spot's fold / call / raise for the player over the target's,
+ * the gap and the cost, then the bars' key. A share or a coded stat says what
+ * it counts instead.
+ */
+export function StatSpots({
+  catalogue,
+  result,
+  stat,
+  className,
+  limit,
+}: {
+  catalogue: Catalogue;
+  result: CheckerResult | null;
+  stat: CatalogueStat;
+  /** The surroundings' look (the default: under an All stats row). */
+  className?: string;
+  /** Show the first (costliest) spots only, with a toggle for the rest. */
+  limit?: number;
+}) {
   const ui = useUiStrings();
   const words = ui.analytics;
   const s = words.screen.stats;
-  const { stat } = row;
   const lines = useMemo(() => spotLines(catalogue, result, stat.id), [catalogue, result, stat.id]);
+  const [all, setAll] = useState(false);
+  const box = className ?? styles.detail;
   if (stat.kind !== "rate") {
     return (
-      <div className={styles.detail}>
+      <div className={box}>
         <p className={styles.how}>{hoverOf(stat, words).split("\n").join(" ")}</p>
       </div>
     );
   }
-  const source = row.checked?.source ? (words.checker.source[row.checked.source] ?? s.target) : s.target;
+  const checked = result?.stats.find((entry) => entry.id === stat.id);
+  const source = checked?.source ? (words.checker.source[checked.source] ?? s.target) : s.target;
   const hasCall = lines.some((line) => line.you?.some((part) => part.action === "call" || part.action === "play"));
+  const hasRaise = lines.some((line) => line.you?.some((part) => part.action === "raise"));
   const hasRest = lines.some((line) => line.you?.some((part) => part.action === "rest"));
   const bet = stat.class === "bet";
   return (
-    <div className={styles.detail}>
+    <div className={box}>
       {lines.length === 0 ? (
         <p className={styles.how}>{s.noSpots}</p>
       ) : (
@@ -280,12 +307,17 @@ function StatDetail({ catalogue, result, row }: { catalogue: Catalogue; result: 
             <span>{s.heads.gap}</span>
             <span className={styles.end}>{words.screen.figures.per100(words.screen.figures.bb)}</span>
           </div>
-          {lines.map((line) => (
+          {(limit === undefined || all ? lines : lines.slice(0, limit)).map((line) => (
             <SpotRow key={line.row.key} stat={stat} row={line.row} you={line.you} target={line.target} bet={bet} />
           ))}
         </>
       )}
       <div className={styles.links}>
+        {limit !== undefined && lines.length > limit ? (
+          <button type="button" className={styles.link} aria-expanded={all} onClick={() => setAll(!all)}>
+            {all ? s.fewerSpots : s.allSpots(countIn(ui.intlLocale, lines.length))}
+          </button>
+        ) : null}
         <span className={styles.key}>
           {bet ? (
             <span>
@@ -304,10 +336,12 @@ function StatDetail({ catalogue, result, row }: { catalogue: Catalogue; result: 
                   {s.bars.call}
                 </span>
               ) : null}
-              <span>
-                <i className={styles.raise} />
-                {s.bars.raise}
-              </span>
+              {hasRaise ? (
+                <span>
+                  <i className={styles.raise} />
+                  {s.bars.raise}
+                </span>
+              ) : null}
             </>
           )}
           {hasRest || bet ? <span>{bet ? s.bars.check : s.bars.other}</span> : null}
@@ -338,8 +372,6 @@ function SpotRow({
   const name = spotName(row.key, words.spot);
   const action = actionOf(stat);
   const named = action === null || action === "rest" ? null : s.bars[action];
-  const label = (part: BarPart) =>
-    part.action === "rest" ? (bet ? s.bars.check : s.bars.other) : s.bars[part.action as Exclude<BarAction, "rest">];
   const gap =
     row.player !== null && row.target !== null && named
       ? s.spotGap(named, rateIn(row.player, words, locale), rateIn(row.target, words, locale))
@@ -347,33 +379,56 @@ function SpotRow({
         ? rateIn(row.player, words, locale)
         : words.checker.noTarget;
   const cost = isOff(row.tone) || row.tone === "few" ? costIn(row.cost, locale) : null;
-  const bar = (parts: BarPart[] | null, who: string, ref: boolean) =>
-    parts ? (
-      <span
-        className={`${styles.fcr}${ref ? ` ${styles.ref}` : ""}`}
-        role="img"
-        aria-label={s.barLabel(who, parts.map((part) => `${label(part)} ${rateIn(part.value, words, locale)}`).join(", "))}
-      >
-        {parts.map((part, index) => (
-          <i key={index} className={styles[part.action]} style={{ inlineSize: `${part.value}%` }}>
-            {part.value >= 9 && part.action !== "rest" ? fixedIn(locale, 0)(part.value) : ""}
-          </i>
-        ))}
-      </span>
-    ) : (
-      <span className={styles.fcr} />
-    );
   return (
     <div className={styles.spot}>
       <span className={styles.spotName} title={name}>
         {name}
       </span>
       <span className={styles.n}>{countIn(locale, row.n)}</span>
-      {bar(you, s.you, false)}
-      {bar(target, s.target, true)}
+      <ActionBar parts={you} who={s.you} bet={bet} />
+      <ActionBar parts={target} who={s.target} bet={bet} reference />
       <span className={`${styles.gap} ${TONE[row.tone] ?? ""}`}>{gap}</span>
       <span className={`${styles.cost} ${cost ? styles.loss : styles.nil}`}>{cost ?? "—"}</span>
     </div>
   );
 }
 
+/**
+ * A fold / call / raise bar (or one action and the rest): each part as wide
+ * as its share, its number inside from 9% up; the target's is fainter
+ * (`reference`). Empty without parts.
+ */
+export function ActionBar({
+  parts,
+  who,
+  bet = false,
+  reference = false,
+}: {
+  parts: BarPart[] | null;
+  /** Whose bar, for assistive technology: "You", "Solver". */
+  who: string;
+  /** The rest of a bet's bar is a check. */
+  bet?: boolean;
+  reference?: boolean;
+}) {
+  const ui = useUiStrings();
+  const words = ui.analytics;
+  const s = words.screen.stats;
+  const locale = ui.intlLocale;
+  if (!parts) return <span className={styles.fcr} />;
+  const label = (part: BarPart) =>
+    part.action === "rest" ? (bet ? s.bars.check : s.bars.other) : s.bars[part.action as Exclude<BarAction, "rest">];
+  return (
+    <span
+      className={`${styles.fcr}${reference ? ` ${styles.ref}` : ""}`}
+      role="img"
+      aria-label={s.barLabel(who, parts.map((part) => `${label(part)} ${rateIn(part.value, words, locale)}`).join(", "))}
+    >
+      {parts.map((part, index) => (
+        <i key={index} className={styles[part.action]} style={{ inlineSize: `${part.value}%` }}>
+          {part.value >= 9 && part.action !== "rest" ? fixedIn(locale, 0)(part.value) : ""}
+        </i>
+      ))}
+    </span>
+  );
+}

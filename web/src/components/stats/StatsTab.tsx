@@ -54,6 +54,7 @@ import { WEB_DEFINITIONS, webReportSource } from "../../lib/db/reportSource";
 import { useAuth } from "../../lib/auth";
 import { useEntitlements } from "../../lib/entitlements/context";
 import { useDict } from "../../lib/i18n/client";
+import { paths } from "../../lib/routes";
 import { ProLock } from "../plan/ProLock";
 import type { ArrivalBatch } from "../../lib/live/arrivals";
 import { OpponentsPanel } from "./OpponentsPanel";
@@ -337,6 +338,7 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
         situationsLock={fullLocked ? <ProLock feature="reports_full" compact /> : undefined}
         checker={webChecker}
         checkerLock={analysisLocked ? <ProLock feature="analysis" compact /> : undefined}
+        practiseHref={paths.analysisTrain}
         footer={(query) => {
           if (fullLocked) {
             return <ProLock feature="reports_full" compact />;

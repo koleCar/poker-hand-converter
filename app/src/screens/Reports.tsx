@@ -28,12 +28,12 @@ import { ProLockView } from "../components/ProLock";
 import { RecomputeNotice, useRecompute } from "../components/RecomputeNotice";
 import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
-import { hiddenDuringPlay } from "../lib/duringPlay";
+import { hiddenDuringPlay, screenOffered } from "../lib/duringPlay";
 import { useAppKind } from "../lib/gameKind";
 import { checkerSource } from "../lib/checkerSource";
 import { inApp } from "../lib/ipc";
 import { storeReportSource } from "../lib/reportSource";
-import { replaceParam, useRouteParam } from "../lib/router";
+import { replaceParam, screenHref, useRouteParam } from "../lib/router";
 import { useEntitlements } from "../lib/useEntitlements";
 import { useStatDefinitions } from "../lib/useStatDefinitions";
 import { useTablesOpen } from "../lib/useTablesOpen";
@@ -151,6 +151,8 @@ export function Reports() {
       situationsLock={situationsLock}
       checker={storeChecker}
       checkerLock={checkerLock}
+      // Overview's "Practise this ▸": the Trainer with the finding's query (Step 9 reads it), not while it is hidden during play.
+      practiseHref={screenOffered("trainer", tablesOpen) ? (query) => screenHref("trainer", query) : undefined}
     />
   );
 }

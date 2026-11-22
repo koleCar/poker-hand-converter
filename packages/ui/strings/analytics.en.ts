@@ -108,7 +108,6 @@ export const analyticsUiEn = {
     } as Record<string, string>,
     /** The tabs later steps fill: one quiet line each. */
     later: {
-      streets: "Preflop to river, block by block: not built yet.",
       pool: "How your opponents play against your targets: not built yet.",
     } as Record<string, string>,
     figures: {
@@ -123,6 +122,31 @@ export const analyticsUiEn = {
       per100: (unit: string) => `${unit}/100`,
       bb: "bb",
       unit: "Show in",
+    },
+    /** Streets (Step 6): the columns' blocks and the one that is open. */
+    streets: {
+      /** The block's sample, for its hover: "Times". */
+      times: "Times",
+      you: "You",
+      /** The key in the tab row. */
+      raiseBet: "Raise / bet",
+      /** An open block's stat against its target: "target 36–42%". */
+      target: (range: string) => `target ${range}%`,
+      /** A column's name for assistive technology: "Flop: blocks". */
+      blocks: (street: string) => `${street}: blocks`,
+    },
+    /** Overview (Step 7): the findings under the graph, the stats in range, the ways on. */
+    overview: {
+      findings: "Findings",
+      clear: "Nothing clearly off at this sample.",
+      unanalysed: "Targets show once your hands are analysed.",
+      error: (reason: string) => `The findings did not load: ${reason}`,
+      inRange: "In range",
+      /** A finding's stat against its target: "target 36–42%". */
+      target: (range: string) => `target ${range}%`,
+      practise: "Practise this ▸",
+      allStats: "All stats →",
+      pool: "How your pool plays →",
     },
     graph: "Winnings over hands",
     stats: {
@@ -151,6 +175,9 @@ export const analyticsUiEn = {
       empty: "No stats at these filters yet.",
       noneOff: "Nothing clearly off target at these filters.",
       noSpots: "No spots to show yet.",
+      /** Under the first spots (Overview, Streets): the rest. */
+      allSpots: (count: string) => `All ${count} spots`,
+      fewerSpots: "Fewer spots",
       spots: {
         spot: "Spot",
         you: "You · fold / call / raise",

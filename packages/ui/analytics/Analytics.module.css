@@ -432,6 +432,378 @@
   font-size: var(--font-size-sm);
 }
 
+/* ------------------------------------------------------------ Streets
+   Four columns of blocks; a block's bars are the player over the target. */
+
+.keyNote {
+  color: var(--text-tertiary);
+}
+
+.streetsTab,
+.overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-inline-size: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-inset);
+}
+
+.columnHead {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.columnCost {
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  inline-size: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.block:hover {
+  background: var(--surface-hover);
+}
+
+.block:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+/* Open: the accent edge on a faint accent ground (readable in both themes). */
+.block.open {
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+  box-shadow: inset 0 0 0 1px var(--accent-border);
+}
+
+.block.still {
+  cursor: default;
+}
+
+.block.still:hover {
+  background: var(--surface-raised);
+}
+
+.blockLabel {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.blockLabel b {
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: var(--space-2);
+  align-items: center;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.verdict {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
+}
+
+.blockCost {
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.columnCost.loss,
+.blockCost.loss,
+.findingCost.loss {
+  color: var(--loss-fg);
+}
+
+.openBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* One of the two is shown: under the columns, or (phone) under the open block's own column. */
+.openNarrow {
+  display: none;
+}
+
+.openStats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.openStat {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  text-align: start;
+}
+
+button.openStat {
+  cursor: pointer;
+}
+
+button.openStat:hover {
+  background: var(--surface-hover);
+}
+
+.openStat.on {
+  border-color: var(--border-default);
+  background: var(--surface-raised);
+}
+
+.openStat b {
+  font-weight: var(--font-weight-semibold);
+}
+
+.openYou {
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.openTarget {
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.openSpots,
+.findingSpots {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-inset);
+}
+
+/* ----------------------------------------------------------- Overview
+   The findings as cards under the graph, the stats in range as pills. */
+
+.findings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.finding {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.findingHead {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 110px;
+  gap: var(--space-3);
+  align-items: start;
+  inline-size: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.findingHead:hover {
+  background: var(--surface-hover);
+}
+
+.findingHead:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.findingHead.open {
+  border-color: var(--border-strong);
+}
+
+.findingNumber {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.1;
+}
+
+.findingBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-inline-size: 0;
+}
+
+.headline {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.35;
+}
+
+.evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.evidence b {
+  font-variant-numeric: tabular-nums;
+}
+
+.dim {
+  color: var(--text-tertiary);
+}
+
+.findingCost {
+  display: flex;
+  flex-direction: column;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.findingCost span {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs, var(--font-size-xs));
+  font-weight: var(--font-weight-regular);
+}
+
+.findingDetail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-inline-start: 48px;
+  padding-inline-start: var(--space-4);
+  border-inline-start: 2px solid var(--border-default);
+}
+
+.why {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.why p {
+  flex: 1 1 0;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.why a {
+  flex: none;
+}
+
+.inRange {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sub {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.pill {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+  padding: 5px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.pill b {
+  color: var(--success-fg);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-link);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
 /* ------------------------------------------------------------- narrow
    A phone: a row is the name with the number and the cost, the track
    under it, then the gap and the times; the target is the band itself. */
@@ -484,5 +856,42 @@
 
   .detail {
     padding-inline: var(--space-3);
+  }
+
+  /* Streets: the columns one under another; Overview: the number and the cost beside the headline. */
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .openNarrow {
+    display: flex;
+  }
+
+  .openWide {
+    display: none;
+  }
+
+  .findingHead {
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+    padding: var(--space-3);
+  }
+
+  .findingDetail {
+    margin-inline-start: var(--space-2);
+  }
+
+  .why {
+    flex-direction: column;
+  }
+
+  .openSpots,
+  .findingSpots {
+    padding-inline: var(--space-3);
+  }
+}
+
+@media (720px < width <= 1100px) {
+  .columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

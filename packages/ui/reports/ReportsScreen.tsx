@@ -6,9 +6,11 @@
  *
  * - **Overview**: the figures row and the win-rate graph
  *   (`stats/WinrateGraph`: total, showdown, non-showdown and all-in EV,
- *   cumulative over hands, in big blinds or in money). Step 7 adds the
- *   findings under it.
- * - **Streets** (Step 6) and **Pool** (Step 10): one quiet line until then.
+ *   cumulative over hands, in big blinds or in money), then the findings
+ *   (Step 7, `analytics/Overview.tsx`).
+ * - **Streets** (Step 6, `analytics/Streets.tsx`): preflop to river in
+ *   blocks, from the same checker result as All stats.
+ * - **Pool** (Step 10): one quiet line until then.
  * - **All stats** (Step 5, `analytics/AllStats.tsx`): the catalogue's stats
  *   against their targets, from the surface's checker (`AnalyticsChecker`).
  * - **Breakdown** (open question 1's default): what Reports showed - the
@@ -40,6 +42,8 @@ import { AllStats, AllStatsControls } from "../analytics/AllStats";
 import an from "../analytics/Analytics.module.css";
 import { FiguresRow } from "../analytics/FiguresRow";
 import type { AnalyticsChecker } from "../analytics/model";
+import { Overview } from "../analytics/Overview";
+import { Streets, StreetsKey } from "../analytics/Streets";
 import { useChecker } from "../analytics/useChecker";
 import {
   ANALYTICS_VIEWS,
@@ -130,6 +134,12 @@ export interface ReportsScreenProps {
    * never asked.
    */
   checkerLock?: ReactNode;
+  /**
+   * The Trainer's link for an Overview finding's "Practise this ▸", from its
+   * query (`practiseQuery`: `from=analytics&stat=…&spot=…&classes=…`, Step
+   * 9's). Absent: no link.
+   */
+  practiseHref?: (query: string) => string;
   /** After the breakdowns: the surface's own panels over the same filter (the web's sessions and opponents). */
   footer?: (query: HandFilter, report: Report | null) => ReactNode;
   /** A new value reads everything again (the web's rebuild finishing). */
@@ -156,6 +166,7 @@ export function ReportsScreen({
   situationsLock,
   checker,
   checkerLock,
+  practiseHref,
   footer,
   reloadToken = 0,
 }: ReportsScreenProps) {
@@ -190,9 +201,11 @@ export function ReportsScreen({
     if (view === "breakdown" && needsBreakdowns(tab) && !situationsLocked) wantBreakdowns();
   }, [view, tab, wantBreakdowns, situationsLocked]);
 
-  // All stats: the checker's sums, read while its tab is open (never on the Free plan).
+  // Overview, Streets and All stats: the checker's sums, read while one of them is open (never on the Free plan).
   const checkerLocked = checkerLock !== undefined && checkerLock !== null;
-  const checked = useChecker(checker, query, view === "stats" && !checkerLocked && facetsSeen !== null, reloadToken);
+  const checks = view === "overview" || view === "streets" || view === "stats";
+  const checked = useChecker(checker, query, checks && !checkerLocked && facetsSeen !== null, reloadToken);
+  const checkerLoading = checker !== undefined && !checked.loaded && checked.error === null;
   const coded = useMemo(
     () => (report ? codedOf(ANALYTICS, report.summary.stats, report.summary.ids) : {}),
     [report],
@@ -223,9 +236,33 @@ export function ReportsScreen({
       <>
         {figures ? <FiguresRow report={report} unit={shownUnit} money={money} onUnit={setUnit} /> : null}
         {view === "overview" ? (
-          <section className={an.graph} aria-label={a.graph}>
-            <WinrateGraph graph={report.graph} unit={shownUnit} money={money} />
-          </section>
+          <>
+            <section className={an.graph} aria-label={a.graph}>
+              <WinrateGraph graph={report.graph} unit={shownUnit} money={money} />
+            </section>
+            {checker !== undefined || checkerLocked ? (
+              <Overview
+                catalogue={ANALYTICS}
+                result={result}
+                lock={checkerLocked ? checkerLock : undefined}
+                loading={checkerLoading}
+                error={checked.error}
+                partial={partial}
+                onView={onView}
+                practiseHref={practiseHref}
+              />
+            ) : null}
+          </>
+        ) : view === "streets" ? (
+          <Streets
+            catalogue={ANALYTICS}
+            result={result}
+            coded={coded}
+            lock={checkerLocked ? checkerLock : undefined}
+            loading={checkerLoading}
+            error={checked.error}
+            partial={partial}
+          />
         ) : view === "stats" ? (
           <AllStats
             catalogue={ANALYTICS}
@@ -234,7 +271,7 @@ export function ReportsScreen({
             order={order}
             show={show}
             lock={checkerLocked ? checkerLock : undefined}
-            loading={checker !== undefined && !checked.loaded && checked.error === null}
+            loading={checkerLoading}
             error={checked.error}
             partial={partial}
           />
@@ -300,6 +337,7 @@ export function ReportsScreen({
         <ViewTabs view={view} onView={onView} />
         <span className={an.spacer} />
         {view === "stats" && !checkerLocked ? <AllStatsControls order={order} onOrder={setOrder} show={show} onShow={setShow} /> : null}
+        {view === "streets" && !checkerLocked ? <StreetsKey /> : null}
       </div>
       <div className={`${styles.results} rail-dims`} aria-busy={refetching}>
         {body}

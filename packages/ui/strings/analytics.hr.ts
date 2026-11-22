@@ -72,7 +72,6 @@ export const analyticsUiHr: AnalyticsStrings = {
       breakdown: "Raščlamba",
     } as Record<string, string>,
     later: {
-      streets: "Od preflopa do rivera, blok po blok: još nije izrađeno.",
       pool: "Kako protivnici igraju prema tvojim ciljevima: još nije izrađeno.",
     } as Record<string, string>,
     figures: {
@@ -85,6 +84,24 @@ export const analyticsUiHr: AnalyticsStrings = {
       per100: (unit: string) => `${unit}/100`,
       bb: "bb",
       unit: "Prikaži u",
+    },
+    streets: {
+      times: "Puta",
+      you: "Ti",
+      raiseBet: "Raise / bet",
+      target: (range: string) => `cilj ${range} %`,
+      blocks: (street: string) => `${street}: blokovi`,
+    },
+    overview: {
+      findings: "Nalazi",
+      clear: "Na ovom uzorku ništa nije jasno izvan cilja.",
+      unanalysed: "Ciljevi se pojavljuju kad se tvoje ruke analiziraju.",
+      error: (reason: string) => `Nalazi se nisu učitali: ${reason}`,
+      inRange: "U rasponu",
+      target: (range: string) => `cilj ${range} %`,
+      practise: "Vježbaj ovo ▸",
+      allStats: "Sve statistike →",
+      pool: "Kako igra tvoj pool →",
     },
     graph: "Zarada kroz ruke",
     stats: {
@@ -111,6 +128,8 @@ export const analyticsUiHr: AnalyticsStrings = {
       empty: "Još nema statistika uz ove filtere.",
       noneOff: "Uz ove filtere ništa nije jasno izvan cilja.",
       noSpots: "Još nema situacija za prikaz.",
+      allSpots: (count: string) => `Sve situacije (${count})`,
+      fewerSpots: "Manje situacija",
       spots: {
         spot: "Situacija",
         you: "Ti · fold / call / raise",

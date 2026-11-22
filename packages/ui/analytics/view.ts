@@ -31,10 +31,12 @@ import type {
   Catalogue,
   CatalogueStat,
   CheckedStat,
+  CheckerFinding,
   CheckerResult,
   CheckerRow,
   CheckerTone,
   CodedIn,
+  StatGroupDef,
 } from "../model/checker";
 import type { Graph } from "../reports/model";
 import type { CheckerFilters } from "./model";
@@ -396,4 +398,229 @@ export function spotLines(catalogue: Catalogue, result: CheckerResult | null, st
     }
     return { row, you: barOf(you), target: barOf(target) };
   });
+}
+
+/* ---------------------------------------------------------- Streets -- */
+
+/** The Streets tab's columns, in this order (showdown has no block). */
+export const STREET_COLUMNS = ["preflop", "flop", "turn", "river"] as const;
+
+/**
+ * A block's bars: `fcr` when they split the decisions into fold / call /
+ * raise (or fold / play), `single` when one action stands alone (a bet, an
+ * open raise), the rest of the bar empty.
+ */
+export type BlockBarKind = "fcr" | "single";
+
+/** What a block or a stat says about itself: the stat, its figures, its tone. */
+export interface BlockVerdict {
+  /** The stat the words are about (the costliest off target, else the block's first judged one). */
+  stat: CatalogueStat;
+  figures: CheckedStat;
+  tone: CheckerTone;
+}
+
+export interface StreetBlock {
+  /** The catalogue group (`groups`). */
+  group: StatGroupDef;
+  /** The group's stats, catalogue order (rates, then the weak shares where the catalogue lists them). */
+  stats: CatalogueStat[];
+  /** The stats the bars are made of: the group's rates over the first rate's decisions. */
+  barStats: CatalogueStat[];
+  kind: BlockBarKind;
+  /** The player's bar, from the bar stats with a number; null with none. */
+  you: BarPart[] | null;
+  /** The target's; null without one (the Free plan, nothing analysed, no reference). */
+  target: BarPart[] | null;
+  /** The bars' sample: analysed decisions, else the rollups' opportunities. */
+  n: number;
+  /** The player's bar is the rollups' (no target to set it against). */
+  fromRollups: boolean;
+  /** Where the target comes from; null without one. */
+  source: "charts" | "solver" | null;
+  /** The block's words; null when nothing in it was judged. */
+  verdict: BlockVerdict | null;
+  tone: CheckerTone;
+  /** bb/100 the block's gap costs (its costliest off-target stat's; the others judge the same decisions). */
+  cost: number;
+  /** Rates that count every decision of the street (`any`): they overlap the street's other blocks. */
+  overlaps: boolean;
+}
+
+export interface StreetColumn {
+  street: (typeof STREET_COLUMNS)[number];
+  blocks: StreetBlock[];
+  /**
+   * bb/100 the street's gaps cost: the blocks' summed, except that a block
+   * over every decision of the street (preflop's VPIP / PFR) overlaps the
+   * others and stands alone (the larger of it and the others' sum).
+   */
+  cost: number;
+}
+
+const TONE_RANK: Record<CheckerTone, number> = { far: 4, off: 3, few: 2, ok: 1, none: 0 };
+
+/** The judgement of a set of stats: the costliest off target, else small sample, else in range. */
+function verdictOf(stats: readonly CatalogueStat[], byId: ReadonlyMap<string, CheckedStat>): BlockVerdict | null {
+  let best: BlockVerdict | null = null;
+  for (const stat of stats) {
+    const figures = byId.get(stat.id);
+    if (!figures || figures.player === null) continue;
+    const candidate: BlockVerdict = { stat, figures, tone: figures.tone };
+    if (best === null) {
+      best = candidate;
+      continue;
+    }
+    const off = isOff(candidate.tone);
+    if (off && isOff(best.tone)) {
+      if (candidate.figures.cost > best.figures.cost) best = candidate;
+    } else if (TONE_RANK[candidate.tone] > TONE_RANK[best.tone] && (off || !isOff(best.tone))) {
+      best = candidate;
+    }
+  }
+  return best;
+}
+
+/** The parts of a bar, the action first when it stands alone. */
+function blockBar(values: ReadonlyMap<string, number | null>): BarPart[] | null {
+  const parts = barOf(values);
+  if (!parts) return null;
+  const actions = parts.filter((part) => part.action !== "rest");
+  return actions.length === 1 ? [...actions, ...parts.filter((part) => part.action === "rest")] : parts;
+}
+
+/** How many actions a bar names (its rest aside). */
+const named = (parts: readonly BarPart[] | null): number => (parts ?? []).filter((part) => part.action !== "rest").length;
+
+/** Whether a rate counts every decision of its street (`any ...`) rather than the first. */
+function countsEvery(stat: CatalogueStat): boolean {
+  return stat.kind === "rate" && /^\s*any\b/.test(stat.count);
+}
+
+/**
+ * The Streets tab (board AN-Main, "Streets"): four columns, preflop to
+ * river, of the catalogue's groups. Each block carries the player's bar over
+ * the target's (fold / call / raise from the group's rates over the same
+ * decisions, or one action alone), its words and its cost. `result`: the
+ * checker's (null on the Free plan: the coded twins' numbers make the
+ * player's bar where every part has one, and nothing is judged).
+ */
+export function streetColumns(
+  catalogue: Catalogue,
+  result: CheckerResult | null,
+  coded: Readonly<Record<string, CodedIn>>,
+): StreetColumn[] {
+  const byId = new Map((result?.stats ?? []).map((stat) => [stat.id, stat]));
+  return STREET_COLUMNS.map((street) => {
+    const blocks = catalogue.file.groups
+      .filter((group) => group.street === street)
+      .flatMap((group): StreetBlock[] => {
+        const stats = catalogue.stats.filter((stat) => stat.group === group.id);
+        const first = stats.find((stat) => stat.kind === "rate");
+        if (!first) return [];
+        const siblings = new Set(siblingsOf(catalogue, first).map((stat) => stat.id));
+        const barStats = stats.filter((stat) => siblings.has(stat.id));
+        const judged = barStats.some((stat) => (byId.get(stat.id)?.n ?? 0) > 0);
+        const you = new Map<string, number | null>();
+        const target = new Map<string, number | null>();
+        let n = 0;
+        // The bars are made of the stats with a player's number (a stat without one leaves its part out).
+        for (const stat of barStats) {
+          if (stat.kind !== "rate") continue;
+          const figures = byId.get(stat.id);
+          const twin = coded[stat.id];
+          if (judged) {
+            if (!figures || figures.player === null) continue;
+            you.set(stat.class, figures.player);
+            target.set(stat.class, figures.target);
+            n = Math.max(n, figures.n);
+          } else if (twin && twin.opp > 0) {
+            you.set(stat.class, (twin.made * 100) / twin.opp);
+            n = Math.max(n, twin.opp);
+          }
+        }
+        const youBar = blockBar(you);
+        const targetBar = judged && target.size > 0 ? blockBar(target) : null;
+        const verdict = verdictOf(stats, byId);
+        const leadFigures = byId.get(first.id);
+        return [
+          {
+            group,
+            stats,
+            barStats,
+            kind: named(youBar ?? targetBar) > 1 ? "fcr" : "single",
+            you: youBar,
+            target: targetBar,
+            n,
+            fromRollups: !judged && youBar !== null,
+            source: judged ? (leadFigures?.source ?? null) : null,
+            verdict,
+            tone: verdict?.tone ?? "none",
+            cost: verdict && isOff(verdict.tone) ? verdict.figures.cost : 0,
+            overlaps: barStats.some(countsEvery),
+          },
+        ];
+      });
+    const every = blocks.filter((block) => block.overlaps).reduce((most, block) => Math.max(most, block.cost), 0);
+    const rest = blocks.filter((block) => !block.overlaps).reduce((sum, block) => sum + block.cost, 0);
+    return { street, blocks, cost: Math.max(every, rest) };
+  });
+}
+
+/** The block to open first: the costliest off target, else none. */
+export function firstOpenBlock(columns: readonly StreetColumn[]): string | null {
+  let best: StreetBlock | null = null;
+  for (const column of columns) {
+    for (const block of column.blocks) {
+      if (isOff(block.tone) && (best === null || block.cost > best.cost)) best = block;
+    }
+  }
+  return best?.group.id ?? null;
+}
+
+/**
+ * An open block's stats, each with its words: the ones with a player's
+ * number, catalogue order; the first one to show the spots of is the
+ * block's verdict.
+ */
+export function blockStats(block: StreetBlock, result: CheckerResult | null): { stat: CatalogueStat; figures: CheckedStat | null }[] {
+  const byId = new Map((result?.stats ?? []).map((stat) => [stat.id, stat]));
+  return block.stats
+    .map((stat) => ({ stat, figures: byId.get(stat.id) ?? null }))
+    .filter((entry) => entry.figures !== null && entry.figures.player !== null);
+}
+
+/* --------------------------------------------------------- Overview -- */
+
+export interface OverviewModel {
+  /**
+   * `findings`: cards; `clear`: nothing clearly off at this sample;
+   * `unanalysed`: no analysed decision behind any stat (nothing to judge).
+   */
+  state: "findings" | "clear" | "unanalysed";
+  /** The costliest findings, at most `max`. */
+  findings: CheckerFinding[];
+  /** The stats in range, catalogue order: the pills. */
+  inRange: CheckedStat[];
+}
+
+/** Overview under the graph: the three costliest findings, then the stats in range. */
+export function overviewOf(result: CheckerResult, max = 3): OverviewModel {
+  const findings = result.findings.slice(0, max);
+  const inRange = result.stats.filter((stat) => stat.tone === "ok" && stat.player !== null);
+  const judged = result.stats.some((stat) => stat.n > 0 && stat.tone !== "none");
+  return { state: findings.length > 0 ? "findings" : judged ? "clear" : "unanalysed", findings, inRange };
+}
+
+/**
+ * The Trainer's query for a finding's "Practise this ▸" (docs/ANALYTICS.md
+ * Step 9: `from=analytics&stat=…&spot=…&size=…&classes=…`): the lead stat,
+ * its costliest spot and the hand class the why-sentence names. Step 9 reads
+ * it; until then the Trainer opens as it is.
+ */
+export function practiseQuery(finding: CheckerFinding): string {
+  const query = new URLSearchParams({ from: "analytics", stat: finding.lead });
+  if (finding.why.spot) query.set("spot", finding.why.spot);
+  if (finding.why.handClass) query.set("classes", finding.why.handClass);
+  return query.toString();
 }
