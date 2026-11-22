@@ -220,9 +220,7 @@ fn keeps_the_copy_already_stored_under_ggpoker_and_moves_the_note_to_it() {
         let conn = Connection::open(&path).expect("open");
         // Already back at 20 (`as_an_older_build_stored_it`): versions 22
         // and 23 are rewound there.
-        conn.execute_batch("DROP TABLE IF EXISTS analysis_checker_rows; DROP INDEX IF EXISTS hand_analysis_checker_idx;
-         ALTER TABLE hand_analysis DROP COLUMN checker_version; ALTER TABLE hand_analysis DROP COLUMN checker_position;
-         DROP TABLE IF EXISTS node_lock_folders; DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings")
+        conn.execute_batch("DROP TABLE IF EXISTS node_lock_folders; DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings")
             .expect("rewind version 22");
         conn.pragma_update(None, "user_version", 21)
             .expect("version 21");
