@@ -1,0 +1,5 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/tour__NLHE-NA-0-0 HH00000000 T1-G0-201601.unknown.player.acts.txt"
+}

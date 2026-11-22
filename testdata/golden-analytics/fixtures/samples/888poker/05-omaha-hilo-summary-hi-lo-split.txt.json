@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "5:vpip=0/1,pfr=0/1,river_bet=0/1 6:vpip=1/1,pfr=0/1,rfi=0/1,river_bet=0/1",
+      "events": "8d8762cf78fcbab280967f215fe6c219d1bb44199706847e18c73932440540ec",
+      "handId": "888-441695827",
+      "index": 0,
+      "members": "0@6:vpip+,pfr-,rfi- 1@5:vpip-,pfr- 6@5:river_bet- 7@6:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/888poker/05-omaha-hilo-summary-hi-lo-split.txt"
+}

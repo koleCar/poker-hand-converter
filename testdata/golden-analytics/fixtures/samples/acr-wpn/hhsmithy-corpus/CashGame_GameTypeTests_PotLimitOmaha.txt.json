@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "5f38c541a18006133388c9c35b66f7ee91f3c175f894d3382bf67ce040b87140",
+      "handId": "262003062",
+      "index": 0,
+      "members": "0@1:vpip-,pfr-,rfi-"
+    }
+  ],
+  "input": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_GameTypeTests_PotLimitOmaha.txt"
+}

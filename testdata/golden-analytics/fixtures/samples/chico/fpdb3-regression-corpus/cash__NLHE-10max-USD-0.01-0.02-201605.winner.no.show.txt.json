@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "0:vpip=1/1,pfr=1/1,cbet_flop=0/1,river_bet=1/1 1:vpip=1/1,pfr=0/1,three_bet=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1 4:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1 5:vpip=1/1,pfr=0/1,three_bet=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1 6:vpip=0/1,pfr=0/1 7:vpip=0/1,pfr=0/1 8:vpip=0/1,pfr=0/1 9:vpip=1/1,pfr=0/1,three_bet=0/1",
+      "events": "f25b663b4b5e902b41dbcd206e4bd4196dda42a9d9b8b317eaa88379b31fa6eb",
+      "handId": "CHC-1605375848",
+      "index": 0,
+      "members": "0@4:vpip+,pfr-,rfi- 1@5:vpip+,pfr- 2@6:vpip-,pfr- 3@7:vpip-,pfr- 4@8:vpip-,pfr- 5@9:vpip+,pfr- 6@0:vpip+,pfr+ 7@1:vpip+,pfr-,three_bet- 8@4:three_bet- 9@5:three_bet- 10@9:three_bet- 11@0:cbet_flop- 17@0:river_bet+ 18@1:river_fold_vs_bet+,river_raise_vs_bet- 19@5:river_fold_vs_bet+,river_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-USD-0.01-0.02-201605.winner.no.show.txt"
+}

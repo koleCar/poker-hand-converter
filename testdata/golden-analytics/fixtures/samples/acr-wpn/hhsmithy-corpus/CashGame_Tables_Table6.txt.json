@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,river_bet=0/1 3:vpip=0/1,pfr=0/1,river_bet=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1,river_bet=0/1 6:vpip=1/1,pfr=0/1,river_bet=0/1",
+      "events": "ace8f58c6c81fcb3f6bfa38c1c94f09d514ac969fff2f51594a1eedba00595f0",
+      "handId": "329934237",
+      "index": 0,
+      "members": "0@5:vpip+,pfr-,rfi- 1@6:vpip+,pfr- 2@1:vpip+,pfr- 3@3:vpip-,pfr- 12@1:river_bet- 13@3:river_bet- 14@5:river_bet- 15@6:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_Tables_Table6.txt"
+}

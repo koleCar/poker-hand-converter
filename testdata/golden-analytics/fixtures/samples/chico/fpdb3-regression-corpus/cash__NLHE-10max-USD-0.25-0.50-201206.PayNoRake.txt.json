@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "3:vpip=1/1,pfr=0/1,rfi=0/1,river_bet=0/1 7:vpip=0/1,pfr=0/1,river_bet=0/1",
+      "events": "939ed22ea7f649a994fadc41d3e33bd5c448b9c64083840715d71a5374713eba",
+      "handId": "CHC-1027919331",
+      "index": 0,
+      "members": "0@3:vpip+,pfr-,rfi- 1@7:vpip-,pfr- 6@7:river_bet- 7@3:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-USD-0.25-0.50-201206.PayNoRake.txt"
+}

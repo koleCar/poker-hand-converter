@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=1/1,pfr=1/1,three_bet=1/1 6:vpip=0/1,pfr=0/1,four_bet=0/1 7:vpip=0/1,pfr=0/1,four_bet=0/1 8:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=1/1 9:vpip=0/1,pfr=0/1,three_bet=0/1",
+      "events": "e150d14e139d60e010d3400da5bf6e9af466dbeb00803f891454e9a333350813",
+      "handId": "MG-5541791811",
+      "index": 0,
+      "members": "0@8:vpip+,pfr+,rfi+ 1@9:vpip-,pfr-,three_bet- 2@1:vpip-,pfr-,three_bet- 3@3:vpip-,pfr-,three_bet- 4@4:vpip-,pfr-,three_bet- 5@5:vpip+,pfr+,three_bet+ 6@6:vpip-,pfr-,four_bet- 7@7:vpip-,pfr-,four_bet- 8@8:fold_to_three_bet-,four_bet+"
+    }
+  ],
+  "input": "fixtures/samples/microgaming/07-disconnected-badbeat-jackpot.txt"
+}

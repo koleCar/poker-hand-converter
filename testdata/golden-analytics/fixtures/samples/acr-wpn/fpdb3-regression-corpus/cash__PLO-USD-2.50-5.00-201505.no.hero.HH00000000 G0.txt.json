@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,rfi=0/1,turn_fold_vs_bet=1/1 2:vpip=0/1,pfr=0/1",
+      "events": "a7a6c1aa5955103e5d2638c34d68b1e2f095c67cb8647f7a6917e92cc764f6f4",
+      "handId": "10005881",
+      "index": 0,
+      "members": "0@1:vpip+,pfr-,rfi- 1@2:vpip-,pfr- 6@1:turn_fold_vs_bet+"
+    }
+  ],
+  "input": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__PLO-USD-2.50-5.00-201505.no.hero.HH00000000 G0.txt"
+}

@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "2:vpip=1/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1",
+      "events": "32476a7c74cf338552b6eef57330cad1970122896b43b16bc5cd488dd3c14ec9",
+      "handId": "OG-R5-362053496-2",
+      "index": 0,
+      "members": "0@2:vpip+,pfr-,rfi- 1@5:vpip-,pfr- 4@5:flop_fold_vs_bet+,flop_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ongame/09-heads-up.txt"
+}

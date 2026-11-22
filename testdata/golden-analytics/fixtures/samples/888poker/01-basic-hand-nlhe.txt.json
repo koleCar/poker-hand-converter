@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "4:vpip=0/1,pfr=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 9:vpip=1/1,pfr=0/1,rfi=0/1",
+      "events": "5b534b27903638ea377a2b7bce217240c8b3a08eef0c424bc5f4fb5c1a23664d",
+      "handId": "888-349736402",
+      "index": 0,
+      "members": "0@9:vpip+,pfr-,rfi- 1@4:vpip-,pfr- 4@4:flop_fold_vs_bet+,flop_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/888poker/01-basic-hand-nlhe.txt"
+}

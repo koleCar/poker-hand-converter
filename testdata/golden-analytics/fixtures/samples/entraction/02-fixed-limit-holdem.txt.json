@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,river_bet=0/1 2:vpip=1/1,pfr=1/1,cbet_flop=1/1,turn_barrel=0/1,river_bet=0/1",
+      "events": "ab9d652f6e53052ae3201a0975c4b268d8126c7149c5dae3dadc08c2842864ca",
+      "handId": "ENT-2646494612",
+      "index": 0,
+      "members": "0@1:vpip+,pfr-,rfi- 1@2:vpip+,pfr+ 2@1:three_bet- 3@2:cbet_flop+ 4@1:flop_fold_vs_bet-,flop_raise_vs_bet- 5@2:turn_barrel- 7@2:river_bet- 8@1:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/entraction/02-fixed-limit-holdem.txt"
+}

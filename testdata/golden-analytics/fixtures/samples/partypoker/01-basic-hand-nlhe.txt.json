@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "3:vpip=0/1,pfr=0/1,river_bet=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1,river_bet=0/1",
+      "events": "ccb405e5381dee4b007a87d870c126defddaecf13b9bb9a12694d6c2a46d0b5a",
+      "handId": "PTY-13550420797",
+      "index": 0,
+      "members": "0@4:vpip-,pfr-,rfi- 1@5:vpip+,pfr-,rfi- 2@3:vpip-,pfr- 7@5:river_bet- 8@3:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/partypoker/01-basic-hand-nlhe.txt"
+}

@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 2:vpip=0/1,pfr=0/1 3:vpip=1/1,pfr=1/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=1/1 4:vpip=1/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1 7:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1 8:vpip=0/1,pfr=0/1",
+      "events": "d39e52d72afb13d5ceecddbb0860e95f1abdbf914944c81b3ec982f87836de31",
+      "handId": "75726253875",
+      "index": 0,
+      "members": "0@7:vpip+,pfr-,rfi- 1@8:vpip-,pfr- 2@1:vpip+,pfr- 3@2:vpip-,pfr- 4@3:vpip+,pfr+ 5@4:vpip+,pfr-,three_bet- 6@6:vpip-,pfr-,three_bet- 7@7:three_bet- 8@1:three_bet- 11@1:flop_fold_vs_bet+,flop_raise_vs_bet- 12@3:flop_fold_vs_bet-,flop_raise_vs_bet+"
+    }
+  ],
+  "input": "fixtures/samples/pokerstars/37-tour-stt-playmoney-nocurrency-allin-blind-finishplace.txt"
+}

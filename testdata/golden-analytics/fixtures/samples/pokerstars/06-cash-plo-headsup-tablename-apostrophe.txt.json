@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "3419a0866dd5fdeeb3e4037e2ff82799bc8810f320d81466679475f68a9c3989",
+      "handId": "62279382715",
+      "index": 0,
+      "members": "0@1:vpip-,pfr-,rfi-"
+    }
+  ],
+  "input": "fixtures/samples/pokerstars/06-cash-plo-headsup-tablename-apostrophe.txt"
+}

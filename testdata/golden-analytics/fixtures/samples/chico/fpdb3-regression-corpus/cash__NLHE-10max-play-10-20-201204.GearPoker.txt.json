@@ -1,0 +1,20 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "0:vpip=0/1,pfr=0/1 1:vpip=0/1,pfr=0/1 2:vpip=0/1,pfr=0/1 3:vpip=0/1,pfr=0/1 4:vpip=0/1,pfr=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=1/1 6:vpip=0/1,pfr=0/1,rfi=0/1 7:vpip=0/1,pfr=0/1 8:vpip=0/1,pfr=0/1 9:vpip=0/1,pfr=0/1",
+      "events": "07f50edbfe6aabe3218ae22fd736b7ea585589c48470a80f6ddb200cc10f4003",
+      "handId": "CHC-1014850512",
+      "index": 0,
+      "members": "0@6:vpip-,pfr-,rfi- 1@5:vpip+,pfr-,rfi- 2@4:vpip-,pfr- 3@3:vpip-,pfr- 4@2:vpip-,pfr- 5@1:vpip-,pfr- 6@0:vpip-,pfr- 7@9:vpip-,pfr- 8@8:vpip-,pfr- 9@7:vpip-,pfr- 11@5:flop_fold_vs_bet-,flop_raise_vs_bet- 13@5:turn_fold_vs_bet+"
+    },
+    {
+      "counts": "0:vpip=1/1,pfr=1/1,rfi=1/1 1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=0/1,three_bet=0/1 7:vpip=0/1,pfr=0/1,three_bet=0/1 8:vpip=0/1,pfr=0/1,three_bet=0/1 9:vpip=0/1,pfr=0/1,three_bet=0/1",
+      "events": "f13d04c043afe05c0bd7584645ff60b41991820c869cb4c81f7bcb269ba98ca9",
+      "handId": "CHC-1014850775",
+      "index": 1,
+      "members": "0@4:vpip-,pfr-,rfi- 1@3:vpip-,pfr-,rfi- 2@2:vpip-,pfr-,rfi- 3@1:vpip-,pfr-,rfi- 4@0:vpip+,pfr+,rfi+ 5@9:vpip-,pfr-,three_bet- 6@8:vpip-,pfr-,three_bet- 7@7:vpip-,pfr-,three_bet- 8@5:vpip+,pfr-,three_bet-"
+    }
+  ],
+  "input": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-play-10-20-201204.GearPoker.txt"
+}

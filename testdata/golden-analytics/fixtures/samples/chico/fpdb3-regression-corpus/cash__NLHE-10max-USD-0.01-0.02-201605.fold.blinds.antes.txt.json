@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 8:vpip=0/1,pfr=0/1,rfi=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 9:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "64d506cd475dba193b8d656c6fb519b2be14d811bb7b2a733d7a2fafdd46e30e",
+      "handId": "CHC-1605730318",
+      "index": 0,
+      "members": "0@2:vpip-,pfr-,rfi- 1@4:vpip-,pfr-,rfi- 2@5:vpip-,pfr-,rfi- 3@8:vpip-,pfr-,rfi- 4@9:vpip-,pfr-,rfi- 5@1:vpip-,pfr-,rfi- 7@5:flop_fold_vs_bet+,flop_raise_vs_bet- 8@8:flop_fold_vs_bet+,flop_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-USD-0.01-0.02-201605.fold.blinds.antes.txt"
+}

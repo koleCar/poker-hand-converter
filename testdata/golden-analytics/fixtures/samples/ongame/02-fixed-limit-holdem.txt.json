@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "8:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "9a9bbe55225eb5a76f3305272e13313ade705e01b2378b7559d5e1823095b7a7",
+      "handId": "OG-R5-361709806-1",
+      "index": 0,
+      "members": "0@8:vpip-,pfr-,rfi-"
+    }
+  ],
+  "input": "fixtures/samples/ongame/02-fixed-limit-holdem.txt"
+}

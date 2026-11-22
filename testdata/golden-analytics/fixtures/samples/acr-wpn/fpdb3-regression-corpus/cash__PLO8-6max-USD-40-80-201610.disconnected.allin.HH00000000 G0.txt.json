@@ -1,0 +1,5 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__PLO8-6max-USD-40-80-201610.disconnected.allin.HH00000000 G0.txt"
+}

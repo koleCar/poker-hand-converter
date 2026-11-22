@@ -1,0 +1,76 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,rfi=0/1,river_bet=1/1 2:vpip=0/1,pfr=0/1,turn_fold_vs_bet=0/1,river_bet=0/1,river_fold_vs_bet=0/1,river_raise_vs_bet=0/1",
+      "events": "6c0d767fa87b6d3d8c04668848214b9fe5452910f0e9a43c5cb6d297f77bff12",
+      "handId": "695373365",
+      "index": 0,
+      "members": "0@1:vpip+,pfr-,rfi- 1@2:vpip-,pfr- 6@2:turn_fold_vs_bet- 7@2:river_bet- 8@1:river_bet+ 9@2:river_fold_vs_bet-,river_raise_vs_bet-"
+    },
+    {
+      "counts": "2:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "085404d49db7af373e3e40a1de3c791a72025d7b0b6da3e3b416eae7b9a84a57",
+      "handId": "695373745",
+      "index": 1,
+      "members": "0@2:vpip-,pfr-,rfi-"
+    },
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "f10344dc1dfc08f11653b0d85c179613538d38729924079fa1a397bb3a9efc88",
+      "handId": "695373799",
+      "index": 2,
+      "members": "0@1:vpip-,pfr-,rfi-"
+    },
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=1/1,pfr=1/1,rfi=1/1",
+      "events": "b2a70f5f8f924ae33db7316ff26f22115fa041ed2844a8b4fc12e3847fdc359d",
+      "handId": "695373851",
+      "index": 3,
+      "members": "0@2:vpip+,pfr+,rfi+ 1@1:vpip-,pfr-,three_bet-"
+    },
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "fcf03a4215ae85e14930970b0043c4e61d9f45f12f02a360b5f9629ab4334cfb",
+      "handId": "695374033",
+      "index": 4,
+      "members": "0@1:vpip-,pfr-,rfi-"
+    },
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,river_bet=1/1 2:vpip=1/1,pfr=0/1,rfi=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1",
+      "events": "ea34fd3541e534b51206a9122d6dd10e907b9a836420ae83f8686ad09580ff56",
+      "handId": "695374137",
+      "index": 5,
+      "members": "0@2:vpip+,pfr-,rfi- 1@1:vpip-,pfr- 6@1:river_bet+ 7@2:river_fold_vs_bet+,river_raise_vs_bet-"
+    },
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1 2:vpip=1/1,pfr=1/1",
+      "events": "8c351fdf6a65600b2f4038415cdc7ecb23e8401e1474e774b328fc0d01dab0b7",
+      "handId": "695374643",
+      "index": 6,
+      "members": "0@1:vpip+,pfr-,rfi- 1@2:vpip+,pfr+ 2@1:three_bet-"
+    },
+    {
+      "counts": "1:vpip=1/1,pfr=1/1 2:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1",
+      "events": "f4795f44ba7018d5ccd5e7e2acba401f3c2acbcc95abdb6ee109906ebc7e6a03",
+      "handId": "695374741",
+      "index": 7,
+      "members": "0@2:vpip+,pfr-,rfi- 1@1:vpip+,pfr+ 2@2:three_bet-"
+    },
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "82a833cb524278df53d65430ee8a191bd3dc98c31e89b8792b0ab15bc9ceb81d",
+      "handId": "695375120",
+      "index": 8,
+      "members": "0@1:vpip-,pfr-,rfi-"
+    },
+    {
+      "counts": "1:vpip=1/1,pfr=1/1 2:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1",
+      "events": "893134de7ac43c169f7716b0f275e060bb69c3a233639bc980646d41cf853e3c",
+      "handId": "695375235",
+      "index": 9,
+      "members": "0@2:vpip+,pfr-,rfi- 1@1:vpip+,pfr+ 2@2:three_bet-"
+    }
+  ],
+  "input": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/tour__NLHE-2max-USD-2.40 HH00000000 T5732551-G0-201608.Hyper.txt"
+}

@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=0/1,river_bet=1/1 2:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1,turn_barrel=1/1,river_fold_vs_bet=0/1,river_raise_vs_bet=0/1",
+      "events": "d2fc813c3c44694d8eabd0457339426c0b89a4eb4a2435dce1c36cf072ca9e5f",
+      "handId": "33730111975",
+      "index": 0,
+      "members": "0@2:vpip+,pfr+,rfi+ 1@1:vpip+,pfr-,three_bet- 3@2:cbet_flop+ 4@1:flop_fold_vs_bet-,flop_raise_vs_bet- 6@2:turn_barrel+ 7@1:turn_fold_vs_bet- 9@1:river_bet+ 10@2:river_fold_vs_bet-,river_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/full-tilt/12-cash-nlhe-allin-showdown.txt"
+}

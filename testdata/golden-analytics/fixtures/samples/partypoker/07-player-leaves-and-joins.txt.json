@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 2:vpip=0/1,pfr=0/1,river_bet=1/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1 6:vpip=0/1,pfr=0/1",
+      "events": "563753028f866c039aca5e5df43e5fc7490600cd6bd3b86e1218538767e7637e",
+      "handId": "PTY-1420500000",
+      "index": 0,
+      "members": "0@4:vpip-,pfr-,rfi- 1@5:vpip+,pfr-,rfi- 2@6:vpip-,pfr- 3@1:vpip+,pfr- 4@2:vpip-,pfr- 7@5:flop_fold_vs_bet-,flop_raise_vs_bet- 8@1:flop_fold_vs_bet+,flop_raise_vs_bet- 10@5:turn_fold_vs_bet- 11@2:river_bet+ 12@5:river_fold_vs_bet+,river_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/partypoker/07-player-leaves-and-joins.txt"
+}

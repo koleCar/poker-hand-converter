@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=1/1,pfr=1/1,three_bet=1/1,cbet_flop=1/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1 3:vpip=0/1,pfr=0/1,four_bet=0/1 4:vpip=0/1,pfr=0/1,four_bet=0/1 5:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=1/1,river_bet=1/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
+      "events": "856fbfae672f72865503265cc6969515a1e4092dba67957fc7fcd8ea43a811f2",
+      "handId": "OM1171200",
+      "index": 0,
+      "members": "0@5:vpip+,pfr+,rfi+ 1@6:vpip-,pfr-,three_bet- 2@1:vpip-,pfr-,three_bet- 3@2:vpip+,pfr+,three_bet+ 4@3:vpip-,pfr-,four_bet- 5@4:vpip-,pfr-,four_bet- 6@5:fold_to_three_bet-,four_bet- 8@2:cbet_flop+ 9@5:flop_fold_vs_bet-,flop_raise_vs_bet+ 13@5:river_bet+ 14@2:river_fold_vs_bet+,river_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ggpoker/25-fpdb3-cash-plo5-6max-usd-25-50-20210411.txt"
+}

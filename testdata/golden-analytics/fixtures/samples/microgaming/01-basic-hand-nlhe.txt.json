@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=1/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "cc06bdecd5ab8ccacb84394b2de258cce86a0d0cea522d2c84e3de7173e66326",
+      "handId": "MG-5049092037",
+      "index": 0,
+      "members": "0@6:vpip-,pfr-,rfi- 1@1:vpip-,pfr-,rfi- 2@3:vpip+,pfr-,rfi- 3@5:vpip+,pfr-"
+    }
+  ],
+  "input": "fixtures/samples/microgaming/01-basic-hand-nlhe.txt"
+}

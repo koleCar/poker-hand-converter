@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=1/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1,cbet_flop=0/1 9:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1",
+      "events": "ba20f9256741933810991c66534dabc6d28330344ef911f1e841a93007798e54",
+      "handId": "109680643860",
+      "index": 0,
+      "members": "0@9:vpip+,pfr-,rfi- 1@1:vpip+,pfr+ 2@9:three_bet- 3@1:cbet_flop- 5@1:flop_fold_vs_bet+,flop_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/pokerstars/24-cash-pot-limit-holdem.txt"
+}

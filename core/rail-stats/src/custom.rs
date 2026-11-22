@@ -113,6 +113,8 @@ fields! {
     Barrels => "barrels": Number,
     Initiative => "initiative": Bool,
     AheadOfAggressor => "ahead_of_aggressor": Bool,
+    // (Analytics, 2026-11-22) The street before was checked through.
+    CheckedThrough => "checked_through": Bool,
     InPosition => "in_position": Bool,
     Players => "players": Number,
     Multiway => "multiway": Bool,
@@ -226,6 +228,7 @@ fn value(field: Field, hand: &HandEvents, seat: &SeatEvents, event: &DecisionEve
         F::Barrels => num(event.barrels),
         F::Initiative => Val::Bool(event.initiative),
         F::AheadOfAggressor => Val::Bool(event.ahead_of_aggressor),
+        F::CheckedThrough => Val::Bool(event.checked_through),
         F::InPosition => event.in_position.map_or(Val::None, Val::Bool),
         F::Players => num(event.players),
         F::Multiway => Val::Bool(event.players >= 3),
@@ -345,6 +348,42 @@ impl CustomCounter {
             }
         }
         counts
+    }
+
+    /// The parsed predicate.
+    pub fn predicate(&self) -> &Predicate {
+        &self.0
+    }
+
+    /// The events [`Self::count`] counts as opportunities, each with whether
+    /// it passes the action: in `first` and `any` mode the first event that
+    /// passes the opportunity (one per hand), in `each` mode every one. For
+    /// `any`, `made` may come from a later event; the second element is
+    /// this event's own.
+    pub fn members<'e>(
+        &self,
+        hand: &HandEvents,
+        seat: &'e SeatEvents,
+    ) -> Vec<(&'e DecisionEvent, bool)> {
+        let Predicate {
+            mode,
+            opportunity,
+            action,
+        } = &self.0;
+        let mut out = Vec::new();
+        for event in &seat.events {
+            if !holds(opportunity, hand, seat, event) {
+                continue;
+            }
+            let made = action
+                .as_ref()
+                .is_none_or(|action| holds(action, hand, seat, event));
+            out.push((event, made));
+            if *mode != Mode::Each {
+                break;
+            }
+        }
+        out
     }
 
     /// Every seat's counts, in the hand's seat order.

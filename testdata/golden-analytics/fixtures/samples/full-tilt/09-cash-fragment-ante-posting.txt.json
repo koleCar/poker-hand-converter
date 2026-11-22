@@ -1,0 +1,5 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/full-tilt/09-cash-fragment-ante-posting.txt"
+}

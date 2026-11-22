@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "a09cb500642b1ae24772996edd2ecae459fd44c067b1bbaf4fabe69e85cad3c9",
+      "handId": "261402571",
+      "index": 0,
+      "members": "0@1:vpip-,pfr-,rfi- 1@4:vpip-,pfr-,rfi-"
+    }
+  ],
+  "input": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_ValidHandTests_ValidHand.txt"
+}

@@ -1,0 +1,27 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "94:vpip=1/1,pfr=1/1,rfi=1/1 177:vpip=0/1,pfr=0/1,three_bet=0/1 360:vpip=0/1,pfr=0/1,three_bet=0/1 534:vpip=0/1,pfr=0/1,three_bet=0/1 743:vpip=0/1,pfr=0/1,three_bet=0/1 891:vpip=0/1,pfr=0/1,rfi=0/1 1227:vpip=0/1,pfr=0/1,rfi=0/1 1243:vpip=0/1,pfr=0/1,rfi=0/1 1468:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "0a5b621126f13dcb34f90d553bab2cff2963ec6977a75055c4cae56c53f5f3bd",
+      "handId": "4328077653",
+      "index": 0,
+      "members": "0@891:vpip-,pfr-,rfi- 1@1227:vpip-,pfr-,rfi- 2@1468:vpip-,pfr-,rfi- 3@1243:vpip-,pfr-,rfi- 4@94:vpip+,pfr+,rfi+ 5@177:vpip-,pfr-,three_bet- 6@743:vpip-,pfr-,three_bet- 7@534:vpip-,pfr-,three_bet- 8@360:vpip-,pfr-,three_bet-"
+    },
+    {
+      "counts": "94:vpip=0/1,pfr=0/1,rfi=0/1 177:vpip=0/1,pfr=0/1,rfi=0/1 360:vpip=1/1,pfr=1/1,rfi=1/1 534:vpip=0/1,pfr=0/1,rfi=0/1 743:vpip=0/1,pfr=0/1,rfi=0/1 891:vpip=1/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=0/1 1227:vpip=0/1,pfr=0/1,rfi=0/1 1243:vpip=0/1,pfr=0/1,rfi=0/1 1468:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "71a2657248a218a51e435e677767e9904861ade22b1c59ed6ad8b6fbaa6a09d5",
+      "handId": "4328078333",
+      "index": 1,
+      "members": "0@1227:vpip-,pfr-,rfi- 1@1468:vpip-,pfr-,rfi- 2@1243:vpip-,pfr-,rfi- 3@94:vpip-,pfr-,rfi- 4@177:vpip-,pfr-,rfi- 5@743:vpip-,pfr-,rfi- 6@534:vpip-,pfr-,rfi- 7@360:vpip+,pfr+,rfi+ 8@891:vpip+,pfr-,three_bet-,bb_fold_vs_steal-"
+    },
+    {
+      "counts": "94:vpip=0/1,pfr=0/1,three_bet=0/1 177:vpip=0/1,pfr=0/1,three_bet=0/1 360:vpip=0/1,pfr=0/1,three_bet=0/1 534:vpip=0/1,pfr=0/1,three_bet=0/1 743:vpip=1/1,pfr=0/1,three_bet=0/1,turn_fold_vs_bet=1/1 891:vpip=1/1,pfr=0/1,three_bet=0/1,river_bet=1/1 1227:vpip=0/1,pfr=0/1,three_bet=0/1 1243:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=0/1,turn_fold_vs_bet=0/1,turn_fold_vs_probe=0/1,river_fold_vs_bet=0/1,river_raise_vs_bet=1/1 1468:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "6533267cf548adaba4c6bdf9d289c6a2781ece9ac253cab81df997f301802347",
+      "handId": "4328078947",
+      "index": 2,
+      "members": "0@1468:vpip-,pfr-,rfi- 1@1243:vpip+,pfr+,rfi+ 2@94:vpip-,pfr-,three_bet- 3@177:vpip-,pfr-,three_bet- 4@743:vpip+,pfr-,three_bet- 5@534:vpip-,pfr-,three_bet- 6@360:vpip-,pfr-,three_bet- 7@891:vpip+,pfr-,three_bet- 8@1227:vpip-,pfr-,three_bet- 10@1243:cbet_flop- 13@1243:turn_fold_vs_bet-,turn_fold_vs_probe- 14@743:turn_fold_vs_bet+ 15@891:river_bet+ 16@1243:river_fold_vs_bet-,river_raise_vs_bet+"
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - Monthly Milly - $1.000.000 Guaranteed - TT$500-$35 - 202106.txt"
+}

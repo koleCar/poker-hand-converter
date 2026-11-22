@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "0:vpip=1/1,pfr=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 2:vpip=0/1,pfr=0/1 3:vpip=0/1,pfr=0/1 4:vpip=0/1,pfr=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=0/1,river_bet=0/1 7:vpip=0/1,pfr=0/1,rfi=0/1 8:vpip=0/1,pfr=0/1,rfi=0/1 9:vpip=0/1,pfr=0/1,river_bet=0/1",
+      "events": "1e35513c44cc5fd1d3d04367bd85efe2e52825b9c63073ba013ffe4e1c8484d5",
+      "handId": "CHC-1012408051",
+      "index": 0,
+      "members": "0@8:vpip-,pfr-,rfi- 1@7:vpip-,pfr-,rfi- 2@5:vpip+,pfr-,rfi- 3@4:vpip-,pfr- 4@3:vpip-,pfr- 5@2:vpip-,pfr- 6@0:vpip+,pfr- 7@9:vpip-,pfr- 10@5:flop_fold_vs_bet-,flop_raise_vs_bet- 11@0:flop_fold_vs_bet+,flop_raise_vs_bet- 13@5:turn_fold_vs_bet- 14@9:river_bet- 15@5:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-USD-1.00-2.00-201204.ActionPoker.txt"
+}

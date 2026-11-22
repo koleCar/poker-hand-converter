@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=1/1,four_bet=0/1 7:vpip=0/1,pfr=0/1,three_bet=0/1 8:vpip=1/1,pfr=1/1,three_bet=0/1,four_bet=1/1,cbet_flop=1/1 9:vpip=1/1,pfr=1/1,three_bet=1/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=1/1 10:vpip=0/1,pfr=0/1,four_bet=0/1",
+      "events": "2bca3cfb569d4cdcf7c8afd7533bd882fb00880dbc40737b002d83a2e2c38b43",
+      "handId": "OG-R5-361850810-476",
+      "index": 0,
+      "members": "0@1:vpip-,pfr-,rfi- 1@2:vpip+,pfr+,rfi+ 2@7:vpip-,pfr-,three_bet- 3@8:vpip+,pfr-,three_bet- 4@9:vpip+,pfr+,three_bet+ 5@10:vpip-,pfr-,four_bet- 6@2:fold_to_three_bet+,four_bet- 7@8:four_bet+ 10@8:cbet_flop+ 11@9:flop_fold_vs_bet-,flop_raise_vs_bet+"
+    }
+  ],
+  "input": "fixtures/samples/ongame/06-allin-showdown.txt"
+}

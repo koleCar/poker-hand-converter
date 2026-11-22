@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1 2:vpip=0/1,pfr=0/1 3:vpip=0/1,pfr=0/1 6:vpip=0/1,pfr=0/1 8:vpip=0/1,pfr=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 10:vpip=1/1,pfr=0/1,rfi=0/1",
+      "events": "273aff76f03fcc56bb3ef82be75a74fece0cfdc28e7d15ace6450994bf2fe184",
+      "handId": "PTY-13549974403",
+      "index": 0,
+      "members": "0@10:vpip+,pfr-,rfi- 1@1:vpip-,pfr- 2@2:vpip-,pfr- 3@3:vpip-,pfr- 4@6:vpip-,pfr- 5@8:vpip-,pfr- 8@8:flop_fold_vs_bet+,flop_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/partypoker/09-fixed-limit-holdem.txt"
+}

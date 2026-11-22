@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=1/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=1/1,pfr=1/1,rfi=1/1",
+      "events": "5ef8c22e73f6e903ca8a9b7280e5c1adcc6cf49bafa0010964dd143a66c839e3",
+      "handId": "AF443780601",
+      "index": 0,
+      "members": "0@3:vpip-,pfr-,rfi- 1@4:vpip+,pfr+,rfi+ 2@1:vpip-,pfr-,three_bet- 3@2:vpip+,pfr-,three_bet-,bb_fold_vs_steal-"
+    }
+  ],
+  "input": "fixtures/samples/ggpoker/33-fpdb3-cash-aof-omaha.txt"
+}

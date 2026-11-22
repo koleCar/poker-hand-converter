@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "3:vpip=1/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 8:vpip=0/1,pfr=0/1,rfi=0/1 10:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1",
+      "events": "39df05cd325673de8168887f9f15d8bd4f768eceb6004d7dd5aa09414aa038ef",
+      "handId": "IPN-5383652813",
+      "index": 0,
+      "members": "0@8:vpip-,pfr-,rfi- 1@10:vpip+,pfr+,rfi+ 2@3:vpip+,pfr-,three_bet-,bb_fold_vs_steal- 3@10:cbet_flop+ 4@3:flop_fold_vs_bet+,flop_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ipoker/14-pot-limit-omaha.xml"
+}

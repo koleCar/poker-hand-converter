@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "3:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1 8:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1",
+      "events": "20564743379d2f7bd35e997422fd8dbe23261fda05924f066914a80f2c682f2d",
+      "handId": "IPN-3305969126",
+      "index": 0,
+      "members": "0@3:vpip+,pfr+,rfi+ 1@8:vpip+,pfr-,three_bet- 3@3:cbet_flop+ 4@8:flop_fold_vs_bet+,flop_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ipoker/04-unformatted-single-line-whitespace-variant.xml"
+}

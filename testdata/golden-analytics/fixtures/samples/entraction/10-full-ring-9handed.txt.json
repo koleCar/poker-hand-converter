@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "5:vpip=1/1,pfr=1/1,rfi=1/1 8:vpip=0/1,pfr=0/1,three_bet=0/1",
+      "events": "1aa1c5d482e3900e7203352a90fb9404b3864143619ecf37311814fbb3e0e09a",
+      "handId": "ENT-2646782758",
+      "index": 0,
+      "members": "0@5:vpip+,pfr+,rfi+ 1@8:vpip-,pfr-,three_bet-"
+    }
+  ],
+  "input": "fixtures/samples/entraction/10-full-ring-9handed.txt"
+}

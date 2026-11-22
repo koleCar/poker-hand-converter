@@ -34,6 +34,7 @@
 //! `starting_stack_bb_tenths`, the fee split) go through
 //! [`rail_core::js::JsNumber`], so they round as the browser rounds.
 
+pub mod analytics;
 pub mod anonymization;
 pub mod context;
 pub mod counters;

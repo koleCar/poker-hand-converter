@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1,river_bet=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1 7:vpip=0/1,pfr=0/1,rfi=0/1 9:vpip=0/1,pfr=0/1,rfi=0/1,river_bet=0/1",
+      "events": "a4f758efbca97c830fde1ea16f7c9550a5f9f82754ad0bb09e4872b15a7d636d",
+      "handId": "888-359567819",
+      "index": 0,
+      "members": "0@1:vpip-,pfr-,rfi- 1@2:vpip-,pfr-,rfi- 2@4:vpip-,pfr-,rfi- 3@6:vpip-,pfr-,rfi- 4@7:vpip-,pfr-,rfi- 5@9:vpip-,pfr-,rfi- 10@9:river_bet- 11@2:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/888poker/04-dead-blind-notation.txt"
+}

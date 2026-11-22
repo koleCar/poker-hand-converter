@@ -39,6 +39,9 @@ pub enum Facing {
 /// One decision of one seat.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DecisionEvent {
+    /// The decision's index in the hand (`Decision::order`, the web's
+    /// `Decision.order`): what a stored analysis row's `ord` is.
+    pub order: usize,
     pub street: Street,
     /// `Fold`, `Check`, `Call`, `Bet` or `Raise`.
     pub action: ActionType,
@@ -75,6 +78,10 @@ pub struct DecisionEvent {
     /// The previous street's aggressor is another seat, still in the hand
     /// on this street, that has not acted on it yet. Preflop: false.
     pub ahead_of_aggressor: bool,
+    /// The street before this one (the flop for the turn, the turn for the
+    /// river) was dealt and nobody bet on it. False on the preflop and the
+    /// flop.
+    pub checked_through: bool,
     /// Postflop: the seat is the last to make its first decision on this
     /// street. `None` preflop.
     pub in_position: Option<bool>,
@@ -423,7 +430,19 @@ fn events_of(hand: &PhfHand) -> HandEvents {
                 == Some(seat)
         });
         let facts = sized.get(decision.order).and_then(Option::as_ref);
+        let checked_through = match street {
+            Street::Turn => {
+                context.dealt.contains(&Street::Flop)
+                    && context.aggressor_on(Street::Flop).is_none()
+            }
+            Street::River => {
+                context.dealt.contains(&Street::Turn)
+                    && context.aggressor_on(Street::Turn).is_none()
+            }
+            _ => false,
+        };
         DecisionEvent {
+            order: decision.order,
             street,
             action: decision.kind,
             all_in: hand
@@ -453,6 +472,7 @@ fn events_of(hand: &PhfHand) -> HandEvents {
             },
             initiative: previous == Some(seat),
             ahead_of_aggressor,
+            checked_through,
             in_position,
             players: players_on(street),
             pot_bb: facts.and_then(|f| f.pot_bb),

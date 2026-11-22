@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "3:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "eaec9546d946abba18d63f7754ec15d0af784702d3309bb81f501d45c4a211c3",
+      "handId": "PTY-9876542165",
+      "index": 0,
+      "members": "0@3:vpip-,pfr-,rfi-"
+    }
+  ],
+  "input": "fixtures/samples/partypoker/13-hero-name-dealt-cards.txt"
+}

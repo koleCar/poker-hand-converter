@@ -1,0 +1,55 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "2:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 7:vpip=1/1,pfr=1/1,rfi=1/1 8:vpip=0/1,pfr=0/1,three_bet=0/1",
+      "events": "cf63353cf1b75c24a84c7185219a3994bac99962b34f495108de869bd0f49351",
+      "handId": "HD75426051",
+      "index": 0,
+      "members": "0@7:vpip+,pfr+,rfi+ 1@8:vpip-,pfr-,three_bet- 2@2:vpip-,pfr-,three_bet- 3@4:vpip-,pfr-,three_bet- 4@5:vpip-,pfr-,three_bet-"
+    },
+    {
+      "counts": "2:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=1/1,pfr=0/1,three_bet=0/1,four_bet=0/1,river_bet=0/1 5:vpip=1/1,pfr=1/1,three_bet=1/1,cbet_flop=0/1,turn_fold_vs_bet=0/1,turn_fold_vs_probe=0/1,river_bet=0/1 7:vpip=0/1,pfr=0/1,four_bet=0/1 8:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=1/1,four_bet=0/1",
+      "events": "d1d0fc5da0f5aa32bdb84bc7498af9eca816faa042199f29a9d8e6482fe2560f",
+      "handId": "HD75426056",
+      "index": 1,
+      "members": "0@8:vpip+,pfr+,rfi+ 1@2:vpip-,pfr-,three_bet- 2@4:vpip+,pfr-,three_bet- 3@5:vpip+,pfr+,three_bet+ 4@7:vpip-,pfr-,four_bet- 5@8:fold_to_three_bet+,four_bet- 6@4:four_bet- 7@5:cbet_flop- 11@5:turn_fold_vs_bet-,turn_fold_vs_probe- 12@5:river_bet- 13@4:river_bet-"
+    },
+    {
+      "counts": "2:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1 4:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 7:vpip=0/1,pfr=0/1,three_bet=0/1 8:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1",
+      "events": "7e19855ba494a3e4abfeb14945181c26445d8b5a2d1439aa6f679ac7463c9c2d",
+      "handId": "HD75426076",
+      "index": 2,
+      "members": "0@2:vpip+,pfr+,rfi+ 1@4:vpip+,pfr-,three_bet- 2@5:vpip-,pfr-,three_bet- 3@7:vpip-,pfr-,three_bet- 4@8:vpip+,pfr-,three_bet- 6@2:cbet_flop+ 7@4:flop_fold_vs_bet+,flop_raise_vs_bet- 8@8:flop_fold_vs_bet+,flop_raise_vs_bet-"
+    },
+    {
+      "counts": "2:vpip=1/1,pfr=0/1,three_bet=0/1,river_bet=1/1 4:vpip=1/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=0/1,turn_fold_vs_bet=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1 7:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=0/1,turn_fold_vs_bet=1/1,turn_fold_vs_probe=1/1 8:vpip=0/1,pfr=0/1,three_bet=0/1",
+      "events": "bba3b3719840a086714d30bd3ae0a5710badfd5dee07b8a524bccee095073bd9",
+      "handId": "HD75426106",
+      "index": 3,
+      "members": "0@5:vpip-,pfr-,rfi- 1@7:vpip+,pfr+,rfi+ 2@8:vpip-,pfr-,three_bet- 3@2:vpip+,pfr-,three_bet- 4@4:vpip+,pfr-,three_bet-,bb_fold_vs_steal- 7@7:cbet_flop- 9@4:turn_fold_vs_bet- 10@7:turn_fold_vs_bet+,turn_fold_vs_probe+ 11@2:river_bet+ 12@4:river_fold_vs_bet+,river_raise_vs_bet-"
+    },
+    {
+      "counts": "",
+      "events": "491d71ffd678667a56c3b9e1ab394f68747aaa655970d472ac64fac791b843db",
+      "handId": "HD75426140",
+      "index": 4,
+      "members": ""
+    },
+    {
+      "counts": "4:vpip=0/1,pfr=0/1,rfi=0/1 8:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "2aae7d32a43a1c2710966b2d687f5a0dceff95e6f157963573a74d5c7e9c2968",
+      "handId": "HD75426173",
+      "index": 5,
+      "members": "0@8:vpip-,pfr-,rfi- 1@4:vpip-,pfr-,rfi-"
+    },
+    {
+      "counts": "5:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "f084e2cfb232c5c42467b11524de43cf29c0b791af618e8f186d78f38e418382",
+      "handId": "HD75426180",
+      "index": 6,
+      "members": "0@5:vpip-,pfr-,rfi-"
+    }
+  ],
+  "input": "weplay-hh/kole1992/HH20260211 Niš Bomb Pot (3BB-5BB) #2 (#11620802) - $0.50-$1 - Money 3 No Limit Hold_em.txt"
+}

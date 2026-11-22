@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=1/1,pfr=1/1,rfi=1/1",
+      "events": "ac53622aaf418d5a9a5decf090cf43100898745fd843a76fe1a2f23f24eee807",
+      "handId": "ENT-2647361051",
+      "index": 0,
+      "members": "0@2:vpip+,pfr+,rfi+ 1@1:vpip-,pfr-,three_bet-"
+    }
+  ],
+  "input": "fixtures/samples/entraction/09-heads-up.txt"
+}

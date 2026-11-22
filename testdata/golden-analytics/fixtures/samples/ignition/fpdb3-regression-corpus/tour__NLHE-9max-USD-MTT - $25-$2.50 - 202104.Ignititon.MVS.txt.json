@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "17:vpip=0/1,pfr=0/1,rfi=0/1 39:vpip=1/1,pfr=1/1,three_bet=1/1 51:vpip=0/1,pfr=0/1,rfi=0/1 61:vpip=0/1,pfr=0/1,rfi=0/1 63:vpip=0/1,pfr=0/1,three_bet=0/1 64:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=1/1 65:vpip=0/1,pfr=0/1,rfi=0/1 66:vpip=0/1,pfr=0/1,rfi=0/1 146:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "a7e7fb22a7637ac78618db0e8db8597296985708ff33490d1c1d2e713571ef48",
+      "handId": "4300979169",
+      "index": 0,
+      "members": "0@61:vpip-,pfr-,rfi- 1@51:vpip-,pfr-,rfi- 2@65:vpip-,pfr-,rfi- 3@146:vpip-,pfr-,rfi- 4@17:vpip-,pfr-,rfi- 5@66:vpip-,pfr-,rfi- 6@64:vpip+,pfr+,rfi+ 7@63:vpip-,pfr-,three_bet- 8@39:vpip+,pfr+,three_bet+ 9@64:fold_to_three_bet-,four_bet+"
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - $25-$2.50 - 202104.Ignititon.MVS.txt"
+}

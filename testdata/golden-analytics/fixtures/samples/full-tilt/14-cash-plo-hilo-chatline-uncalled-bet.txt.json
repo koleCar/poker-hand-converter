@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "5:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "08ab79c85d81a8e0592d2ba9e76799352fe5d3b8e87bfbce67fe399cce7205f2",
+      "handId": "33730956598",
+      "index": 0,
+      "members": "0@5:vpip-,pfr-,rfi-"
+    }
+  ],
+  "input": "fixtures/samples/full-tilt/14-cash-plo-hilo-chatline-uncalled-bet.txt"
+}

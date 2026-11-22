@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,three_bet=0/1,four_bet=0/1 2:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=1/1,pfr=0/1,three_bet=0/1,four_bet=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=1/1,pfr=1/1,three_bet=1/1 7:vpip=0/1,pfr=0/1,four_bet=0/1 8:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=1/1,four_bet=0/1 9:vpip=0/1,pfr=0/1,three_bet=0/1",
+      "events": "eea70d587210ba5a9cd717bebcfffdcd1859f327800dbaa20a425e36aafd2ab6",
+      "handId": "HD75876391",
+      "index": 0,
+      "members": "0@8:vpip+,pfr+,rfi+ 1@9:vpip-,pfr-,three_bet- 2@1:vpip+,pfr-,three_bet- 3@2:vpip-,pfr-,three_bet- 4@3:vpip-,pfr-,three_bet- 5@4:vpip+,pfr-,three_bet- 6@5:vpip-,pfr-,three_bet- 7@6:vpip+,pfr+,three_bet+ 8@7:vpip-,pfr-,four_bet- 9@8:fold_to_three_bet+,four_bet- 10@1:four_bet- 11@4:four_bet-"
+    }
+  ],
+  "input": "tests/test/fixtures/gg/tournament-sample.gg.txt"
+}

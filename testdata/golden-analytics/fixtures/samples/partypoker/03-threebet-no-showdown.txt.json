@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "2:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=1/1 5:vpip=1/1,pfr=1/1,three_bet=1/1,cbet_flop=1/1",
+      "events": "8633c03e670b26d45e8a0dfc59009134ca1701149801b1a386ba5fb5eb15d054",
+      "handId": "PTY-13550695573",
+      "index": 0,
+      "members": "0@2:vpip+,pfr+,rfi+ 1@5:vpip+,pfr+,three_bet+ 2@2:fold_to_three_bet-,four_bet- 3@5:cbet_flop+ 4@2:flop_fold_vs_bet-,flop_raise_vs_bet+"
+    }
+  ],
+  "input": "fixtures/samples/partypoker/03-threebet-no-showdown.txt"
+}

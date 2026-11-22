@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1 5:vpip=1/1,pfr=1/1",
+      "events": "518a97995d0e3b14c798ea55b336795a45c94ce75874953796c0a85e13767f0c",
+      "handId": "1171217378123557259",
+      "index": 0,
+      "members": "0@1:vpip+,pfr-,rfi- 1@4:vpip-,pfr- 2@5:vpip+,pfr+ 3@1:three_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ggpoker/12-fpdb3-cash-nl-shortdeck-5max-usd-100-202104-internal.txt"
+}

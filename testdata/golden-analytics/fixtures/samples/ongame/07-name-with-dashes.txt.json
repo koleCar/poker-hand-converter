@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=1/1 2:vpip=0/1,pfr=0/1,rfi=0/1 7:vpip=0/1,pfr=0/1,rfi=0/1 8:vpip=0/1,pfr=0/1,rfi=0/1 9:vpip=1/1,pfr=1/1,rfi=1/1 10:vpip=0/1,pfr=0/1,three_bet=0/1",
+      "events": "0ffb49a933f8e760724ada829be7bdad5f28579ed9b7b829a2e482f40af9ce33",
+      "handId": "OG-R5-361850810-471",
+      "index": 0,
+      "members": "0@2:vpip-,pfr-,rfi- 1@7:vpip-,pfr-,rfi- 2@8:vpip-,pfr-,rfi- 3@9:vpip+,pfr+,rfi+ 4@10:vpip-,pfr-,three_bet- 5@1:vpip-,pfr-,three_bet-,bb_fold_vs_steal+"
+    }
+  ],
+  "input": "fixtures/samples/ongame/07-name-with-dashes.txt"
+}

@@ -261,6 +261,87 @@ apps, in light and dark, against the canvas boards.
   existing coded stats (VPIP, PFR, 3-bet, cbet) agree with their catalogue
   twins.
 
+Status: done in STEP1_SHA (2026-11-22)
+
+- **As built:**
+  - `config/stats/analytics.json` and `analytics.schema.json`: 22 stats in
+    three kinds.
+    - **rate** (16): `count` is a predicate; its action must be exactly the
+      class's actions (`actionClasses`), and its opportunity starts with
+      `street = <its street>`.
+    - **share** (3, the weak shares): `of` a rate, `weak` a list of hand
+      classes. No predicate: Step 2 derives them from the parent's taken
+      decisions and each decision's hand class. Hero only.
+    - **coded** (3: WTSD, W$SD, WWSF): the player's number is the
+      `standard.json` statistic. No target, so they show "no target".
+  - Also in the file: `handClasses` (9, strongest first, first match wins:
+    `facts.made.class` + `facts.draws`), `groups` (the Streets blocks,
+    EN/HR), `families`, and per stat the words, `sample.min` and
+    `band.floor`.
+  - Rust `rail_stats::analytics` (`catalogue()`, `load_catalogue`):
+    - validation;
+    - `counts(hand, seat)` for any seat;
+    - `membership(hand)`: per decision `order`, its rates and whether it took
+      the class. In `first` and `any` mode the member is the first
+      opportunity event;
+    - `hand_class`, `in_class`;
+    - `custom_defs()`: the rates as custom statistics `an_<id>`, which
+      compile in `CustomSet` and validate as a user's would;
+    - `MEMBERSHIP_VERSION` (`analytics/1`), pinned to the rates by a test.
+  - Web: `web/src/lib/stats/events.ts`, `predicate.ts` and `analytics.ts`
+    (`ANALYTICS`, `decisionMembership(hand)`,
+    `ANALYTICS_MEMBERSHIP_VERSION`), plus a byte copy of the JSON. These are
+    ports of `events.rs`, the grammar and the evaluator.
+  - Tests:
+    - `core/rail-stats/tests/analytics.rs` and `tests/test/analytics.test.ts`
+      read the same per-stat goldens (`core/rail-stats/tests/data/analytics/`:
+      six new pinned hands plus three of `fixtures/stats`). Every rate is
+      pinned both taken and not.
+    - Schema and loader refusals.
+    - `analytics_corpus.rs` checks the twins against the coded counters on
+      all 51 981 corpus rows, exactly: VPIP, PFR, open raise, 3-bet, fold to
+      3-bet, 4-bet, cbet and turn barrel (`cbet_turn`).
+    - It also checks membership against counts, and compares Rust with the
+      TS port on every corpus hand via `testdata/golden-analytics/`: every
+      event field as a hash, plus counts and membership.
+    - CI's `golden-fresh` now checks that directory.
+- **Deviations:**
+  - **New event field `checked_through`.** It means the street before was
+    checked through. The plan's probe test (`barrels = 0 and not
+    initiative`) also caught a turn bet after the raiser called a flop
+    donk or check-raise.
+    - Fold vs probe is now `preflop_aggressor and checked_through and
+      facing = bet` on the turn.
+    - Adding a field changes no other field's meaning, so `EVENTS_VERSION`
+      stays `events/1`.
+  - **Events carry `order`.** It is the decision's `Decision.order`, the
+    analysis row's `ord`.
+  - **4-bet uses the coded definition.** That is any 4-bet opportunity, cold
+    ones included, the HUD's 4-bet and an exact twin.
+  - **Bomb pots are out of every postflop rate,** as they are out of the
+    coded counters and the HUD sums.
+  - **Hand classes.**
+    - "Middle / bottom pair" is two classes: `middle_pair` (second pair, or
+      a pocket pair between the board cards) and `weak_pair` (third pair or
+      worse).
+    - `ace_high_backdoor` needs a backdoor draw. Plain ace high is `nothing`.
+- **For Step 2: membership on the web is computed in TypeScript, not in
+  SQL.**
+  - Why: a decision's membership needs the hand's whole action stream (raise
+    levels, the steal, the cbet chain, a checked-through flop), and
+    `decision_analysis` and `facts` do not hold it.
+  - Both apps run the same analysis library (the desktop through
+    `@rail/web-lib`). So where the rows are written,
+    `decisionMembership(hand)` gives each `ord` its stat ids and `taken`.
+  - Store the ids with `MEMBERSHIP_VERSION` on the decision rows. Step 2's
+    SQL groups by the stored ids.
+  - Backfill, with no re-analysis:
+    - desktop: in Rust from the stored PHF
+      (`catalogue().membership(&hand_events(&phf))`);
+    - web: in the browser from `hands.phf`, a page at a time, written by an
+      RPC keyed by (hand, ord).
+  - Rows whose version is not the current one are the work list.
+
 ### Step 2 — Checker rows from graded decisions
 
 - **Per analysed decision, derive:**

@@ -1,0 +1,5 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_PlayerTests_UncalledBet.txt"
+}

@@ -317,6 +317,20 @@ facts_corpus.rs` derives the desktop's facts (`facts::derive`) from
 filters (`hand_facts`) mean the app's (`hand_list`). 6.8 MB, written out in
 full: a change shows as the hands and fields that moved.
 
+## The Analytics catalogue (2026-11-22)
+
+`testdata/golden-analytics/<input path>.json` (committed, written by the same
+`npm run golden:emit` run, `tests/scripts/golden/analytics.ts`): per hand what
+the web's port of the decision events (`web/src/lib/stats/events.ts`) and the
+Analytics catalogue (`web/src/lib/stats/analytics.ts`,
+`config/stats/analytics.json`) conclude - `events`, the sha-256 of the canonical
+JSON of every seat's events (every field of every decision); `counts`, each
+seat's rates that are not 0/0 (`seat:id=made/opp,...`); `members`, every
+decision that belongs to a rate (`order@seat:id+,id-,...`, `+` taken).
+`core/rail-stats/tests/analytics_corpus.rs` builds the same from the Rust events
+and catalogue over `testdata/golden-full/` and compares. 5.3 MB. CI's
+`golden-fresh` checks it is what the TypeScript writes today.
+
 ## Notes for the Rust port
 
 - **R0.4, `T | null` vs `T?`.** PHF distinguishes a field that is always

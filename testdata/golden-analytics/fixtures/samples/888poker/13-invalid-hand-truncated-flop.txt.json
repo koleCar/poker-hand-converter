@@ -1,0 +1,5 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/888poker/13-invalid-hand-truncated-flop.txt"
+}

@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/koleCar/poker-hand-converter/config/stats/analytics.schema.json",
+  "title": "Rail Analytics stat catalogue",
+  "description": "The statistics the Analytics screen checks against a target (docs/ANALYTICS.md Step 1). A rate stat is a counter in the decision-event language of docs/STATS-SPEC.md section 14: the same text counts the hero and every opponent (rail_stats::custom::CustomSet) and names the decisions whose analysed reference gives the target. A share stat is the share of another stat's actions made with weak hand classes (hero only: it needs the cards). A coded stat is a shipped statistic of standard.json, shown with no target. Read by the app (core/rail-stats/src/analytics.rs) and the web (web/src/lib/stats/analytics.ts, a copy of this file). What a schema cannot check - the predicate grammar, that a rate's action is exactly its class, unique ids, references between entries - core/rail-stats checks at load and in CI.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "actionClasses", "handClasses", "groups", "families", "stats"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": {
+      "description": "Version of this file's shape. A file of another version is refused.",
+      "const": 1
+    },
+    "actionClasses": {
+      "description": "Which of a decision's five actions each class takes: a decision's chosen action is in the class, and the target sums the reference frequencies of the options in it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fold", "call", "raise", "bet", "vpip", "pfr"],
+      "properties": {
+        "fold": { "$ref": "#/$defs/actions" },
+        "call": { "$ref": "#/$defs/actions" },
+        "raise": { "$ref": "#/$defs/actions" },
+        "bet": { "$ref": "#/$defs/actions" },
+        "vpip": { "$ref": "#/$defs/actions" },
+        "pfr": { "$ref": "#/$defs/actions" }
+      }
+    },
+    "handClasses": {
+      "description": "The hand classes of a postflop decision, strongest first, from the analysis facts (facts.made.class and facts.draws). The first class whose conditions hold is the hand's; the last has none and takes the rest.",
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "#/$defs/handClass" }
+    },
+    "groups": {
+      "description": "The blocks of the Streets tab and the headings of All stats, in display order.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/group" }
+    },
+    "families": {
+      "description": "Which stats a finding merges (Overview): ids only, their headlines live in packages/ui/strings/analytics.*.ts.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "stats": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/stat" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "maxLength": 57
+    },
+    "text": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["en", "hr"],
+      "properties": {
+        "en": { "type": "string", "minLength": 1 },
+        "hr": { "type": "string", "minLength": 1 }
+      }
+    },
+    "action": { "enum": ["fold", "check", "call", "bet", "raise"] },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/action" }
+    },
+    "street": { "enum": ["preflop", "flop", "turn", "river", "showdown"] },
+    "handClass": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "label": { "$ref": "#/$defs/text" },
+        "made": {
+          "description": "The hand's made class is one of these (web/src/lib/analysis/types.ts MadeHandClass).",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "straight-flush", "quads", "full-house", "flush", "straight", "set", "trips",
+              "two-pair", "overpair", "top-pair", "pocket-pair-below-top", "second-pair",
+              "weak-pair", "underpair", "ace-high", "high-card", "board"
+            ]
+          }
+        },
+        "draws": {
+          "description": "The hand has at least one of these draws (DrawClass).",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "flush-draw", "nut-flush-draw", "oesd", "gutshot",
+              "backdoor-flush", "backdoor-straight", "overcards"
+            ]
+          }
+        }
+      }
+    },
+    "group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "street", "label"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "street": { "$ref": "#/$defs/street" },
+        "label": { "$ref": "#/$defs/text" }
+      }
+    },
+    "words": {
+      "description": "The gap in words: high when the player's number is above the target band, low when below. Never a colour (packages/ui/README.md rule 7).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["high", "low"],
+      "properties": {
+        "high": { "$ref": "#/$defs/text" },
+        "low": { "$ref": "#/$defs/text" }
+      }
+    },
+    "common": {
+      "type": "object",
+      "required": ["id", "kind", "street", "group", "family", "label", "words", "sample", "band"],
+      "properties": {
+        "id": {
+          "description": "Stable identifier: routes (/stats/<id>), stored rows and the Trainer link refer to it. At most 57 bytes: its custom counter is an_<id>.",
+          "$ref": "#/$defs/id"
+        },
+        "kind": { "enum": ["rate", "share", "coded"] },
+        "street": { "$ref": "#/$defs/street" },
+        "group": { "description": "A groups id of the same street.", "$ref": "#/$defs/id" },
+        "family": { "description": "A families id.", "$ref": "#/$defs/id" },
+        "label": { "$ref": "#/$defs/text" },
+        "sub": { "description": "The sub-label (\"any line\").", "$ref": "#/$defs/text" },
+        "words": { "$ref": "#/$defs/words" },
+        "sample": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["min"],
+          "properties": {
+            "min": {
+              "description": "Opportunities (for a share: the parent's actions) below which the stat is grey, \"Not sure yet\", whatever its gap.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
+            }
+          }
+        },
+        "band": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["floor"],
+          "properties": {
+            "floor": {
+              "description": "The band's smallest half-width in percentage points: target +- max(floor, 1.96 * sqrt(t(1-t)/n)).",
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 50
+            }
+          }
+        }
+      }
+    },
+    "stat": {
+      "allOf": [{ "$ref": "#/$defs/common" }],
+      "unevaluatedProperties": false,
+      "oneOf": [
+        {
+          "description": "A rate: made / opportunities of its predicate.",
+          "type": "object",
+          "required": ["count", "class"],
+          "properties": {
+            "kind": { "const": "rate" },
+            "street": { "enum": ["preflop", "flop", "turn", "river"] },
+            "count": {
+              "description": "A counter in the decision-event language (docs/STATS-SPEC.md 14.2): mode, opportunity => action. The action must be exactly a test of `action` against the class's actions.",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            },
+            "class": { "enum": ["fold", "call", "raise", "bet", "vpip", "pfr"] },
+            "coded": {
+              "description": "A shipped statistic (standard.json) the count must equal on every corpus row: its formula is pct(made, opportunities).",
+              "$ref": "#/$defs/id"
+            },
+            "within": {
+              "description": "A rate of the same street and class whose opportunities include every one of this stat's: a finding does not add its cost twice.",
+              "$ref": "#/$defs/id"
+            }
+          }
+        },
+        {
+          "description": "A share: of the actions of the rate `of`, the share made with a hand class in `weak` (hero only).",
+          "type": "object",
+          "required": ["of", "weak"],
+          "properties": {
+            "kind": { "const": "share" },
+            "street": { "enum": ["flop", "turn", "river"] },
+            "of": { "$ref": "#/$defs/id" },
+            "weak": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/id" }
+            }
+          }
+        },
+        {
+          "description": "A shipped statistic of standard.json, with no target.",
+          "type": "object",
+          "required": ["coded"],
+          "properties": {
+            "kind": { "const": "coded" },
+            "coded": { "$ref": "#/$defs/id" }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 5:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1",
+      "events": "7bf47b86677399380d75fec82619bc2aa08d68eb3a599fce94d69ad51d959231",
+      "handId": "109663597247",
+      "index": 0,
+      "members": "0@5:vpip+,pfr+,rfi+ 1@1:vpip+,pfr-,three_bet- 3@5:cbet_flop+ 4@1:flop_fold_vs_bet+,flop_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/pokerstars/25-cash-pot-limit-omaha.txt"
+}

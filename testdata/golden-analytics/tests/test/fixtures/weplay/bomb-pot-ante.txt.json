@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "",
+      "events": "90be5b984d7bb102ef9aec7cb3e4afd9b796d6984ad3000756cc62cbd60ace94",
+      "handId": "HD90000004",
+      "index": 0,
+      "members": ""
+    }
+  ],
+  "input": "tests/test/fixtures/weplay/bomb-pot-ante.txt"
+}

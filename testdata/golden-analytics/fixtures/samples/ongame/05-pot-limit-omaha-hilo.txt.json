@@ -1,0 +1,5 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/ongame/05-pot-limit-omaha-hilo.txt"
+}

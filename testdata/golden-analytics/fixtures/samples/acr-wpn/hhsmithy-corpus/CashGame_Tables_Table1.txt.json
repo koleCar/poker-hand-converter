@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "0b0a53ca0d239d570edc3b4d596dca8ac97dc2049fdf36820c8c0607d093d8b9",
+      "handId": "261409536",
+      "index": 0,
+      "members": "0@1:vpip-,pfr-,rfi-"
+    }
+  ],
+  "input": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_Tables_Table1.txt"
+}
