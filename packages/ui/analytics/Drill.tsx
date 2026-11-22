@@ -36,6 +36,7 @@ import {
   isDrillable,
   isOff,
   playQuery,
+  type PractiseFigures,
   type BarAction,
   type DrillCell,
   type DrillClass,
@@ -214,6 +215,8 @@ export function Drill({
     .slice(0, 3)
     .map((entry) => entry.row.key);
   const action = stat.kind === "rate" ? stat.class : "";
+  // The Trainer's goal reads the scope practised: the chosen size's row, else the spot's (the stat's overall without one).
+  const scopeFigures = (size !== null ? sizes.find((entry) => entry.row.key === size)?.row : undefined) ?? spots.find((row) => row.key === spot) ?? checked;
 
   return (
     <section className={styles.drill} aria-label={name}>
@@ -234,7 +237,7 @@ export function Drill({
         {cost ? <span className={styles.drillCost}>{`${cost} ${words.screen.figures.per100(words.screen.figures.bb)}`}</span> : null}
         <span className={styles.spacer} />
         {practiseHref && spot !== null && scope !== null ? (
-          <a className="btn btn--primary btn--sm" href={practiseHref(drillQuery(stat.id, spot, size, keep))}>
+          <a className="btn btn--primary btn--sm" href={practiseHref(drillQuery(stat.id, spot, size, keep, scopeFigures))}>
             {d.practise(scope)}
           </a>
         ) : null}
@@ -299,7 +302,11 @@ export function Drill({
                 action={action}
                 scope={scope}
                 catalogue={catalogue}
-                practise={practiseHref ? (cls) => practiseHref(drillQuery(stat.id, spot, size, [cls])) : undefined}
+                practise={
+                  practiseHref
+                    ? (cls) => practiseHref(drillQuery(stat.id, spot, size, [cls], classes.find((entry) => entry.row.key === cls)?.row ?? scopeFigures))
+                    : undefined
+                }
               />
             ) : null}
             {examples ? (
@@ -315,6 +322,7 @@ export function Drill({
                 renderHandLink={renderHandLink}
                 wrapHands={wrapHands}
                 practiseHref={practiseHref}
+                figures={scopeFigures}
               />
             ) : null}
           </div>
@@ -488,6 +496,7 @@ function HandList({
   renderHandLink,
   wrapHands,
   practiseHref,
+  figures = null,
 }: {
   stat: CatalogueStat;
   spot: string;
@@ -499,6 +508,8 @@ function HandList({
   renderHandLink?: ((props: DrillHandLinkProps) => ReactNode) | undefined;
   wrapHands?: ((children: ReactNode, resetKey: string) => ReactNode) | undefined;
   practiseHref?: ((query: string) => string) | undefined;
+  /** The scope's figures, for the Trainer's goal panel ("Play it ▸"). */
+  figures?: PractiseFigures | null;
 }) {
   const ui = useUiStrings();
   const words = ui.analytics;
@@ -536,7 +547,7 @@ function HandList({
     body = <p className={styles.quiet}>{d.noHands}</p>;
   } else {
     const list = (
-      <DrillHandRows stat={stat} rows={rows} catalogue={catalogue} renderHandLink={renderHandLink} practiseHref={practiseHref} />
+      <DrillHandRows stat={stat} rows={rows} catalogue={catalogue} renderHandLink={renderHandLink} practiseHref={practiseHref} figures={figures} />
     );
     body = wrapHands ? wrapHands(list, `${stat.id}|${spot}|${size ?? ""}`) : list;
   }
@@ -560,12 +571,15 @@ export function DrillHandRows({
   catalogue,
   renderHandLink,
   practiseHref,
+  figures = null,
 }: {
   stat: CatalogueStat;
   rows: readonly CheckerExample[];
   catalogue: Catalogue;
   renderHandLink?: ((props: DrillHandLinkProps) => ReactNode) | undefined;
   practiseHref?: ((query: string) => string) | undefined;
+  /** The scope's figures, for the Trainer's goal panel. */
+  figures?: PractiseFigures | null;
 }) {
   const ui = useUiStrings();
   const words = ui.analytics;
@@ -601,7 +615,7 @@ export function DrillHandRows({
               <span className={linkClass}>{cells}</span>
             )}
             {practiseHref ? (
-              <a className={styles.link} href={practiseHref(playQuery(stat.id, row))}>
+              <a className={styles.link} href={practiseHref(playQuery(stat.id, row, figures))}>
                 {d.playIt}
               </a>
             ) : null}

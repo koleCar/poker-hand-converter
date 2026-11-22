@@ -619,15 +619,38 @@ export function overviewOf(result: CheckerResult, max = 3): OverviewModel {
 }
 
 /**
+ * The figures a Trainer link carries for its goal panel (Step 9): the
+ * player's rate where the drill deals, the target, the cost (bb/100) and the
+ * tone Analytics shows the player's number in.
+ */
+export interface PractiseFigures {
+  player: number | null;
+  target: number | null;
+  cost?: number | null;
+  tone?: CheckerTone | null;
+}
+
+/** The figures into a Trainer query: `you`, `ref` (percent, one decimal), `cost` (bb/100, two), `tone`. */
+function setFigures(query: URLSearchParams, figures: PractiseFigures | null | undefined): void {
+  if (!figures) return;
+  const round = (value: number, digits: number) => String(Math.round(value * 10 ** digits) / 10 ** digits);
+  if (figures.player !== null) query.set("you", round(figures.player, 1));
+  if (figures.target !== null) query.set("ref", round(figures.target, 1));
+  if (typeof figures.cost === "number" && figures.cost > 0) query.set("cost", round(figures.cost, 2));
+  if (figures.tone && figures.tone !== "none") query.set("tone", figures.tone);
+}
+
+/**
  * The Trainer's query for a finding's "Practise this ▸" (docs/ANALYTICS.md
  * Step 9: `from=analytics&stat=…&spot=…&size=…&classes=…`): the lead stat,
- * its costliest spot and the hand class the why-sentence names. Step 9 reads
- * it; until then the Trainer opens as it is.
+ * its costliest spot and the hand class the why-sentence names, with the
+ * spot's figures and the finding's cost for the goal panel.
  */
 export function practiseQuery(finding: CheckerFinding): string {
   const query = new URLSearchParams({ from: "analytics", stat: finding.lead });
   if (finding.why.spot) query.set("spot", finding.why.spot);
   if (finding.why.handClass) query.set("classes", finding.why.handClass);
+  setFigures(query, { player: finding.why.spotPlayer, target: finding.why.spotTarget, cost: finding.cost, tone: finding.tone });
   return query.toString();
 }
 
@@ -810,11 +833,18 @@ function cellsOf(
  * passes the classes off target the stat's way, a class's "Practise ▸" that
  * class alone.
  */
-export function drillQuery(statId: string, spot: string | null, size: string | null, classes: readonly string[]): string {
+export function drillQuery(
+  statId: string,
+  spot: string | null,
+  size: string | null,
+  classes: readonly string[],
+  figures: PractiseFigures | null = null,
+): string {
   const query = new URLSearchParams({ from: "analytics", stat: statId });
   if (spot) query.set("spot", spot);
   if (size) query.set("size", size);
   if (classes.length > 0) query.set("classes", classes.join(","));
+  setFigures(query, figures);
   return query.toString();
 }
 
@@ -826,8 +856,9 @@ export function drillQuery(statId: string, spot: string | null, size: string | n
 export function playQuery(
   statId: string,
   example: { handId: string; ord: number; actionIndex: number; spot: string; size: string; handClass: string },
+  figures: PractiseFigures | null = null,
 ): string {
-  const query = new URLSearchParams(drillQuery(statId, example.spot || null, example.size || null, example.handClass ? [example.handClass] : []));
+  const query = new URLSearchParams(drillQuery(statId, example.spot || null, example.size || null, example.handClass ? [example.handClass] : [], figures));
   query.set("hand", example.handId);
   query.set("ord", String(example.ord));
   query.set("action", String(example.actionIndex));

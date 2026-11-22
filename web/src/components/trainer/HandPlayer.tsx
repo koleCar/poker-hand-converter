@@ -25,7 +25,7 @@ import { DecisionPanel } from "./DecisionPanel";
 import { bestIndex, useOptionText, Verdict } from "./Feedback";
 import { useTrainerHost } from "./host";
 import type { TrainerSettings } from "./settings";
-import { cardsText, handDecisionKey, type SessionAnswer } from "./sessions";
+import { answerMix, cardsText, handDecisionKey, type SessionAnswer } from "./sessions";
 import { ActionStrip, StatusRow } from "./SpotFelt";
 import { TableBox, TrainerTable, type HeroMove } from "./TrainerTable";
 import styles from "./trainer.module.css";
@@ -177,6 +177,7 @@ function OneHand({ request, settings, onScored, onAnswer, onHandDone, newHand }:
             evLoss: d.evLoss ?? 0,
             score: d.score ?? 0,
             ref: null,
+            ...answerMix(d),
           });
           if (settings.pause === "mistakes" && STREAK_GRADES.includes(d.grade)) setHolding(true);
         })

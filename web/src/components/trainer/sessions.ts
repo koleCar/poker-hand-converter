@@ -13,8 +13,9 @@
  * lives for the visit).
  */
 
-import { GRADES, type Grade } from "../../lib/analysis/types";
+import { GRADES, type DecisionAnalysis, type Grade } from "../../lib/analysis/types";
 import type { TrainerSpot } from "../../lib/training";
+import { ANALYTICS } from "../../lib/stats/analytics";
 import type { TrainerDict } from "./host";
 import { DEFAULT_SETTINGS, parseSettings, settingsFields, type Repeat, type SpotRequest, type TrainerSettings } from "./settings";
 
@@ -44,6 +45,23 @@ export interface SessionAnswer {
   score: number;
   /** Null for a whole hand's decision (not dealt again). */
   ref: SpotRef | null;
+  /**
+   * The answer's action (`fold`, `check`, `call`, `bet`, `raise`) and the
+   * reference's frequency of each action for the hand: what the goal from
+   * Analytics counts (`analytics.ts`, `drillGoal`). Kept on the device and
+   * in the visit; the account keeps neither, so an answer read back from it
+   * has none.
+   */
+  action?: string;
+  mix?: Record<string, number>;
+}
+
+/** An answer's action and the reference's mix for the hand, from its graded decision. */
+export function answerMix(decision: Pick<DecisionAnalysis, "action" | "chosen" | "options">): { action: string; mix: Record<string, number> } {
+  const mix: Record<string, number> = {};
+  for (const option of decision.options) mix[option.action] = Math.round(((mix[option.action] ?? 0) + option.freq) * 10_000) / 10_000;
+  const chosen = decision.chosen !== null ? decision.options[decision.chosen] : undefined;
+  return { action: chosen?.action ?? decision.action, mix };
 }
 
 export interface TrainerSession {
@@ -100,7 +118,9 @@ export function sessionSettings(session: Pick<TrainerSession, "fields">): Traine
  */
 export function sameTraining(a: TrainerSettings, b: TrainerSettings): boolean {
   const strip = (s: TrainerSettings) => {
-    const fields = settingsFields({ ...s, strategy: DEFAULT_SETTINGS.strategy, facts: DEFAULT_SETTINGS.facts, range: DEFAULT_SETTINGS.range });
+    // Analytics' figures (your rate, the target, the cost) change with every new hand; the stat and the spot do not.
+    const from = s.from ? { stat: s.from.stat, spot: s.from.spot, you: null, ref: null, cost: null } : null;
+    const fields = settingsFields({ ...s, from, strategy: DEFAULT_SETTINGS.strategy, facts: DEFAULT_SETTINGS.facts, range: DEFAULT_SETTINGS.range });
     return JSON.stringify(Object.keys(fields).sort().map((k) => [k, fields[k]]));
   };
   return strip(a) === strip(b);
@@ -217,7 +237,16 @@ export function earlierOn(answers: readonly SessionAnswer[], key: string): Sessi
 /** A session's name from its settings: "BB vs BTN open", "Flop · BTN vs BB · facing a bet". */
 export function defaultName(s: TrainerSettings, t: TrainerDict): string {
   const n = t.sessions.names;
+  const lang = t.lang === "hr" ? "hr" : "en";
   let name: string;
+  const stat = s.from ? ANALYTICS.get(s.from.stat) : undefined;
+  if (stat && s.mode !== "focus") {
+    // From Analytics: "Flop · BB vs SB · Fold vs bet · 20–40%".
+    const bucket = s.size ? ANALYTICS.file.sizeBuckets.find((b) => b.id === s.size) : undefined;
+    const seats = s.seat ? (s.vs ? t.play.vs(s.seat, s.vs) : s.seat) : null;
+    name = [t.modes[s.mode], seats, stat.label[lang], bucket?.label[lang]].filter(Boolean).join(" · ");
+    return name.slice(0, 60);
+  }
   if (s.mode === "focus") name = t.modes.focus;
   else if (s.mode === "preflop") {
     const seat = s.seat ?? n.anySeat;
@@ -234,6 +263,9 @@ export function defaultName(s: TrainerSettings, t: TrainerDict): string {
     if (s.pot !== "any") parts.push((t.pots[s.pot] ?? s.pot).toLowerCase());
     if (s.side !== "any") parts.push((t.sides[s.side] ?? s.side).toLowerCase());
     if (s.facing !== "any") parts.push(`${t.facing.toLowerCase()} ${(t.facings[s.facing] ?? s.facing).toLowerCase()}`);
+    // A bet size chosen in the sheet (the catalogue's label, `20–40%`).
+    const bucket = s.size ? ANALYTICS.file.sizeBuckets.find((b) => b.id === s.size) : undefined;
+    if (bucket) parts.push(bucket.label[lang]);
     name = parts.join(" · ");
   }
   if (s.play === "hand") name += ` · ${t.play.hand.toLowerCase()}`;

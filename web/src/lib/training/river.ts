@@ -27,7 +27,7 @@
 
 import type { ChartPosition, ChartSet } from "../charts";
 import { flopPlayersOf, followLine, solveRiverSpot, walkLine, walkRanges, type RiverAct, type RiverSolve } from "../analysis";
-import { cardCode } from "../equity/evaluator";
+import { cardCode, cardIndex } from "../equity/evaluator";
 import type { PhfHand } from "../phf/types";
 import { comboHi, comboLo, NUM_COMBOS, rangesAt, type ActionKind } from "../solver";
 import { buildContext } from "../stats/context";
@@ -40,6 +40,7 @@ import {
   type HandScript,
   type ScriptAct,
 } from "./handText";
+import { betBucket, keepClasses, type DealFocus } from "./focusDeal";
 import { HEADS_UP_SEATS, lineActs, PREFLOP_SEATS, trainerSet, type DealBias } from "./preflop";
 import { pickOne, pickWeighted, seeded, type Rng } from "./rng";
 
@@ -138,7 +139,7 @@ const BORDERLINE_FLOOR = 0.1;
 export const RIVER_ROLES = ["pfr", "caller"] as const;
 export type RiverRole = (typeof RIVER_ROLES)[number];
 
-export interface RiverSpotOptions {
+export interface RiverSpotOptions extends DealFocus {
   /**
    * Chart set id: the default (6-max) set when absent, or a heads-up set
    * (`RIVER_LINES_HU`): the set the preflop is dealt from. The ranges are
@@ -154,30 +155,52 @@ export interface RiverSpotOptions {
    * In position only (the villain acts first there): deal only spots where
    * the villain checked (`check`) or bet (`bet`). Asking for either makes the
    * hero the in-position player. Additive (Learn, L1); absent means any.
+   * `check-bet`: out of position, the hero checked and the villain bet
+   * (Analytics, Step 9).
    */
-  facing?: "check" | "bet" | "any";
+  facing?: "check" | "bet" | "check-bet" | "any";
+  /** Only lines where the hero sits in this seat (Analytics' spot); any when absent. */
+  hero?: ChartPosition | null;
+  /** Only lines against this villain; any when absent. */
+  villain?: ChartPosition | null;
 }
 
 /** The seat a spot filter pins: a `facing` filter is an in-position spot by definition. */
 export function filterSeat(options: Pick<RiverSpotOptions, "seat" | "facing">): RiverSeat | "any" {
+  if (options.facing === "check-bet") return "oop";
   if (options.facing === "check" || options.facing === "bet") return "ip";
   return options.seat ?? "any";
 }
 
-/** The villain's first actions a `facing` filter allows, as weights over the root's actions. */
+/**
+ * The villain's first actions a `facing` filter allows, as weights over the
+ * root's actions. With a `size` bucket, a bet faced (`bet`, `check-bet`) is
+ * one of that bucket.
+ */
 export function facingWeights(
-  actions: ReadonlyArray<{ kind: ActionKind }>,
+  actions: ReadonlyArray<{ kind: ActionKind; sizePot?: number }>,
   frequency: ArrayLike<number>,
   facing: RiverSpotOptions["facing"],
   minFreq: number,
+  size: string | null = null,
 ): number[] {
+  const betting = facing === "bet" || facing === "check-bet";
   return actions.map((action, i) => {
     const f = frequency[i];
     if (!(f >= minFreq)) return 0;
     if (facing === "check" && action.kind !== "check") return 0;
-    if (facing === "bet" && action.kind === "check") return 0;
+    if (betting && action.kind === "check") return 0;
+    if (betting && size && betBucket(action.sizePot ?? 0) !== size) return 0;
     return f;
   });
+}
+
+/** The seatings a filter's hero and villain seats allow (none asked: all). */
+export function pinnedSeatings<S extends { hero: ChartPosition; villain: ChartPosition }>(
+  seatings: readonly S[],
+  options: Pick<RiverSpotOptions, "hero" | "villain">,
+): S[] {
+  return seatings.filter((s) => (!options.hero || s.hero === options.hero) && (!options.villain || s.villain === options.villain));
 }
 
 export interface RiverMenuItem {
@@ -394,9 +417,9 @@ export function riverSetup(charts: ChartSet, options: RiverSpotOptions, rng: Rng
   let line: RiverLine;
   let seat: RiverSeat;
   const wantSeat = filterSeat(options);
-  if (options.role && options.role !== "any") {
-    // A role pins who the hero is on each line: draw among the seatings that fit.
-    const seatings = riverSeatings({ seat: wantSeat, role: options.role }, lines);
+  if ((options.role && options.role !== "any") || options.hero || options.villain) {
+    // A role (or a seat) pins who the hero is on each line: draw among the seatings that fit.
+    const seatings = pinnedSeatings(riverSeatings({ seat: wantSeat, role: options.role }, lines), options);
     if (seatings.length === 0) return null;
     const picked = pickOne(seatings, rng);
     line = picked.line;
@@ -479,9 +502,26 @@ function attempt(charts: ChartSet, options: RiverSpotOptions, rng: Rng, seed: nu
   const acts: RiverAct[] = [];
   let facing: RiverTrainerSpot["facing"] = null;
   const riverActs: ScriptAct[] = [];
-  if (!heroFirst) {
+  if (heroFirst && options.facing === "check-bet") {
+    // Out of position facing a bet: the hero checks, the villain bets as the solve plays its range.
     const root = solve.result.nodes[0];
-    const pick = pickWeighted(facingWeights(root.actions, root.frequency, options.facing, MIN_VILLAIN_FREQ), rng);
+    const check = root.actions.findIndex((action) => action.kind === "check");
+    const after = check >= 0 ? solve.result.nodes[root.children[check]] : undefined;
+    if (!after || after.kind !== "action") return null;
+    const pick = pickWeighted(facingWeights(after.actions, after.frequency, "check-bet", MIN_VILLAIN_FREQ, options.size ?? null), rng);
+    if (pick < 0) return null;
+    const action = after.actions[pick];
+    const to = round2(action.to);
+    const heroSeat = seatOf(hero, line.seats);
+    riverActs.push({ position: hero, type: "check" }, { position: villain, type: "bet", to });
+    acts.push(
+      { index: 0, seat: heroSeat, type: "check", to: 0, allIn: false, pot: potBb, toCall: 0, sizePot: null },
+      { index: 1, seat: villainSeat, type: "bet", to, allIn: action.kind === "allin", pot: potBb, toCall: 0, sizePot: potBb > 0 ? to / potBb : null },
+    );
+    facing = { kind: action.kind, to, sizePot: Math.round(action.sizePot * 1000) / 1000 };
+  } else if (!heroFirst) {
+    const root = solve.result.nodes[0];
+    const pick = pickWeighted(facingWeights(root.actions, root.frequency, options.facing, MIN_VILLAIN_FREQ, options.size ?? null), rng);
     if (pick < 0) return null;
     const action = root.actions[pick];
     const to = round2(action.to);
@@ -506,8 +546,8 @@ function attempt(charts: ChartSet, options: RiverSpotOptions, rng: Rng, seed: nu
   const found = followLine(solve, acts);
   if (!found.ok) return null;
 
-  // The hero's combo, from the hero's range at the node.
-  const weights = riverDealingWeights(solve, found.node, options.bias ?? "range");
+  // The hero's combo, from the hero's range at the node (of the classes asked for).
+  const weights = keepClasses(riverDealingWeights(solve, found.node, options.bias ?? "range"), solve.result.hands[solve.hero], board.map(cardIndex), options);
   const i = pickWeighted(weights, rng);
   if (i < 0) return null;
   const combo = solve.result.hands[solve.hero][i];

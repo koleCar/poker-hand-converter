@@ -40,6 +40,7 @@ import {
   type SolveResult,
 } from "../solver";
 import { handUpTo, lastHeroDecision, scriptHand, seatOf, type HandScript, type ScriptAct } from "./handText";
+import { facingBucket, keepClasses, type DealFocus } from "./focusDeal";
 import { lineActs, trainerSet, type DealBias } from "./preflop";
 import {
   MAX_ATTEMPTS,
@@ -70,7 +71,7 @@ export type FlopFacing = "check" | "bet" | "raise" | "any";
 /** The facings a filter can pin (the trainer's setting; `any` besides). */
 export const FLOP_FACINGS = ["check", "bet", "raise"] as const;
 
-export interface FlopSpotOptions {
+export interface FlopSpotOptions extends DealFocus {
   /**
    * Chart set id: the default (6-max 100bb) set when absent, or another set
    * the library holds - the heads-up 100bb and 150bb sets (`FLOP_LINES_HU`).
@@ -248,18 +249,29 @@ const isBet = (a: ActionInfo) => a.kind === "bet" || a.kind === "raise" || a.kin
 
 /**
  * An edge at `node`, drawn by how often the actor's range takes it, among
- * the edges `allow` accepts and the range takes at least 1% of the time.
+ * the edges `allow` accepts (given the action and the node it leads to) and
+ * the range takes at least 1% of the time.
  */
-function drawEdge(result: SolveResult, node: number, allow: (a: ActionInfo) => boolean, rng: Rng): number {
+function drawEdge(result: SolveResult, node: number, allow: (a: ActionInfo, child: number) => boolean, rng: Rng): number {
   const at = result.nodes[node];
-  const weights = at.actions.map((action, i) => (allow(action) && at.frequency[i] >= MIN_VILLAIN_FREQ && at.children[i] >= 0 ? at.frequency[i] : 0));
+  const weights = at.actions.map((action, i) =>
+    at.children[i] >= 0 && allow(action, at.children[i]) && at.frequency[i] >= MIN_VILLAIN_FREQ ? at.frequency[i] : 0,
+  );
   return pickWeighted(weights, rng);
+}
+
+/** The size bucket of the bet faced at a node (Analytics' `facts.facingPot`); null at a node facing none. */
+export function nodeBucket(result: SolveResult, node: number): string | null {
+  const at = result.nodes[node];
+  if (!at || at.kind !== "action") return null;
+  return facingBucket(at.pot, at.toCall);
 }
 
 /**
  * The hero's decision node for a `facing` filter, and the edges taken on
  * the way, drawn from the solve's own frequencies (player 0 acts first).
- * Null when the drawn line does not reach such a node.
+ * With a `size` bucket, the bet the hero faces (`bet`, `raise`) is one of
+ * that bucket. Null when the drawn line does not reach such a node.
  */
 export function heroNode(
   result: SolveResult,
@@ -267,10 +279,13 @@ export function heroNode(
   facing: FlopFacing | undefined,
   rng: Rng,
   street: "flop" | "turn" | "river" = "flop",
+  size: string | null = null,
 ): { node: number; steps: TreeStep[] } | null {
   const steps: TreeStep[] = [];
   let node = 0;
-  const take = (allow: (a: ActionInfo) => boolean): boolean => {
+  // The bet the hero answers: of the bucket asked for, read at the node it leads to.
+  const faced = (a: ActionInfo, child: number) => isBet(a) && (size === null || nodeBucket(result, child) === size);
+  const take = (allow: (a: ActionInfo, child: number) => boolean): boolean => {
     const at = result.nodes[node];
     if (at.kind !== "action") return false;
     const edge = drawEdge(result, node, allow, rng);
@@ -284,11 +299,11 @@ export function heroNode(
     if (hero !== 1 || !take((a) => a.kind === "check")) return null;
   } else if (want === "bet") {
     if (hero === 1) {
-      if (!take(isBet)) return null;
-    } else if (!take((a) => a.kind === "check") || !take(isBet)) return null;
+      if (!take(faced)) return null;
+    } else if (!take((a) => a.kind === "check") || !take(faced)) return null;
   } else if (want === "raise") {
     if (hero === 1 && !take((a) => a.kind === "check")) return null;
-    if (!take(isBet) || !take(isBet)) return null;
+    if (!take(isBet) || !take(faced)) return null;
   } else if (hero === 1 && !take(() => true)) {
     return null;
   }
@@ -327,7 +342,7 @@ function attempt(charts: ChartSet, plan: FlopPlan, chunk: FlopChunk, options: Fl
   const result = chunk.result;
   const [oop, ip] = flopPlayers(plan.line.line, plan.line.seats);
   const heroIdx: 0 | 1 = plan.seat === "oop" ? 0 : 1;
-  const walked = heroNode(result, heroIdx, options.facing, rng);
+  const walked = heroNode(result, heroIdx, options.facing, rng, "flop", options.size ?? null);
   if (!walked) return null;
 
   // The chunk's suits relabelled: the same canonical flop, so the hand reads this chunk exactly.
@@ -340,7 +355,13 @@ function attempt(charts: ChartSet, plan: FlopPlan, chunk: FlopChunk, options: Fl
   const stackBb = charts.game.stackBb;
   const script0: HandScript = { id: `TF${seed.toString(36)}`, hero: plan.hero, heroCards: null, ...scriptSeats(plan.line), stackBb, preflop, board, flop };
 
-  const weights = riverDealingWeights({ result, hero: heroIdx }, walked.node, options.bias ?? "range");
+  // Hand classes read on the chunk's own suits: relabelling both the board and the combo keeps a class.
+  const weights = keepClasses(
+    riverDealingWeights({ result, hero: heroIdx }, walked.node, options.bias ?? "range"),
+    result.hands[heroIdx],
+    flopCards(chunk.header.flop).map(cardIndex),
+    options,
+  );
   const i = pickWeighted(weights, rng);
   if (i < 0) return null;
   const combo = result.hands[heroIdx][i];

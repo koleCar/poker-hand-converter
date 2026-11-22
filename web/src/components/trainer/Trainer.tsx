@@ -28,15 +28,25 @@ import { readDrills, saveDrills } from "./drills";
 import { useTrainerHost } from "./host";
 import { lockedSummary, scoreBand, SessionTrainer } from "./SessionTrainer";
 import { SessionReview } from "./SessionReview";
-import { emptyCounts, newSessionId, sessionSettings, whenText, type SessionAnswer, type TrainerSession } from "./sessions";
+import { defaultName, emptyCounts, newSessionId, sameTraining, sessionSettings, whenText, type SessionAnswer, type TrainerSession } from "./sessions";
 import { SettingsSheet } from "./SettingsSheet";
-import { settingsFields, type TrainerSettings } from "./settings";
+import { settingsFields, targetSettings, type TrainerSettings } from "./settings";
+import type { AnalyticsLink, PlayedRef } from "./analytics";
 import styles from "./trainer.module.css";
 
 type View = { kind: "list" } | { kind: "train"; id: string } | { kind: "review"; id: string };
 type Sort = "recent" | "hands" | "score";
 
-export function Trainer({ initial, suggest = false }: { initial: TrainerSettings; suggest?: boolean }) {
+/**
+ * The settings an Analytics link trains (docs/ANALYTICS.md Step 9): its
+ * target on the player's own behaviour settings, one spot at a time.
+ */
+export function analyticsSettings(link: AnalyticsLink, base: TrainerSettings): TrainerSettings {
+  const shaped = targetSettings(link.target, base);
+  return { ...shaped.settings, mode: shaped.mode, play: "spot" };
+}
+
+export function Trainer({ initial, suggest = false, analytics = null }: { initial: TrainerSettings; suggest?: boolean; analytics?: AnalyticsLink | null }) {
   const host = useTrainerHost();
   const { t } = host;
   const store = host.sessions;
@@ -46,16 +56,26 @@ export function Trainer({ initial, suggest = false }: { initial: TrainerSettings
   const [sheet, setSheet] = useState<{ initial: TrainerSettings; from: TrainerSession | null } | null>(null);
   const [answers, setAnswers] = useState<Record<string, SessionAnswer[]>>({});
   const [again, setAgain] = useState<{ answer: SessionAnswer; stamp: number } | null>(null);
+  // "Play it ▸" from Analytics: the played decision the session deals first, once.
+  const [played, setPlayed] = useState<{ session: string; ref: PlayedRef } | null>(null);
   const opened = useRef(false);
   const asked = useRef(new Set<string>());
 
   const failed = useCallback((e: unknown) => setError(e instanceof Error ? e.message : String(e)), []);
 
+  // Sessions started in this visit: a list read before their save landed must not drop them.
+  const made = useRef(new Set<string>());
   const reload = useCallback(
     () =>
       store
         .list()
-        .then((list) => setSessions(list))
+        .then((list) =>
+          setSessions((current) => {
+            const listed = new Set(list.map((s) => s.id));
+            const kept = (current ?? []).filter((s) => made.current.has(s.id) && !listed.has(s.id));
+            return [...kept, ...list];
+          }),
+        )
         .catch((e: unknown) => {
           failed(e);
           setSessions((current) => current ?? []);
@@ -113,6 +133,7 @@ export function Trainer({ initial, suggest = false }: { initial: TrainerSettings
         evLoss: 0,
         counts: emptyCounts(),
       };
+      made.current.add(session.id);
       save(session);
       asked.current.add(session.id);
       setAnswers((current) => ({ ...current, [session.id]: [] }));
@@ -120,6 +141,7 @@ export function Trainer({ initial, suggest = false }: { initial: TrainerSettings
       setAgain(null);
       setView({ kind: "train", id: session.id });
       host.onSession?.(session.id);
+      return session.id;
     },
     [save, host],
   );
@@ -138,12 +160,30 @@ export function Trainer({ initial, suggest = false }: { initial: TrainerSettings
       }
       saveDrills([]);
     }
+    // An Analytics link: its session (one that trains the same spot, or a new one), straight to training.
+    if (analytics) {
+      const settings = analyticsSettings(analytics, initial);
+      const twin = sessions.find((s) => !s.archived && sameTraining(sessionSettings(s), settings));
+      let id: string;
+      if (twin) {
+        // Analytics' figures move with new hands: the session keeps the latest.
+        save({ ...twin, fields: settingsFields(settings) });
+        setView({ kind: "train", id: twin.id });
+        loadAnswers(twin.id);
+        host.onSession?.(twin.id);
+        id = twin.id;
+      } else {
+        id = start(defaultName(settings, t), settings);
+      }
+      if (analytics.play) setPlayed({ session: id, ref: analytics.play });
+      return;
+    }
     const wanted = host.initialSession ? sessions.find((s) => s.id === host.initialSession) : undefined;
     if (wanted) {
       setView({ kind: "train", id: wanted.id });
       loadAnswers(wanted.id);
     } else if (suggest || (sessions.length === 0 && drills.length === 0)) setSheet({ initial, from: null });
-  }, [sessions, host.initialSession, suggest, initial, save, loadAnswers]);
+  }, [sessions, host, suggest, initial, save, loadAnswers, analytics, start, t]);
 
   const openId = view.kind !== "list" ? view.id : null;
   const onAnswer = useCallback(
@@ -195,6 +235,9 @@ export function Trainer({ initial, suggest = false }: { initial: TrainerSettings
         onReview={() => show({ kind: "review", id: current.id })}
         onChangeSettings={() => setSheet({ initial: sessionSettings(current), from: current })}
         onRename={(name) => save({ ...current, name })}
+        play={played?.session === current.id ? played.ref : null}
+        onPlayed={() => setPlayed(null)}
+        approximate={analytics !== null && analytics.approximate && sessionSettings(current).from?.stat === analytics.target.from?.stat}
       />
     );
   } else if (current && view.kind === "review") {

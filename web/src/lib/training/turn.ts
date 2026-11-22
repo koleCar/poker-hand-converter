@@ -29,11 +29,12 @@
 
 import type { ChartPosition, ChartSet } from "../charts";
 import { followTurnLine, solveTurnSpot, streetActs, walkRanges, type TurnSolve } from "../analysis";
-import { cardCode } from "../equity/evaluator";
+import { cardCode, cardIndex } from "../equity/evaluator";
 import type { PhfHand } from "../phf/types";
 import { comboHi, comboLo, NUM_COMBOS } from "../solver";
 import { buildContext } from "../stats/context";
 import { handUpTo, lastHeroDecision, scriptHand, scriptMoney, seatOf, type HandScript, type ScriptAct } from "./handText";
+import { keepClasses, type DealFocus } from "./focusDeal";
 import { lineActs, trainerSet, type DealBias } from "./preflop";
 import {
   MAX_ATTEMPTS,
@@ -45,6 +46,7 @@ import {
   flopPlayers,
   menuOf,
   patternActs,
+  pinnedSeatings,
   raiserOf,
   riverDealingWeights,
   riverLines,
@@ -61,15 +63,22 @@ import {
 } from "./river";
 import { pickOne, pickWeighted, seeded, type Rng } from "./rng";
 
-export interface TurnSpotOptions {
+export interface TurnSpotOptions extends DealFocus {
   /** Chart set id: the default (6-max) set when absent, or a heads-up set (the river trainer's lines, `RiverSpotOptions.set`). */
   set?: string | null;
   pot?: RiverPot | "any";
   seat?: RiverSeat | "any";
   role?: RiverRole | "any";
   bias?: DealBias;
-  /** In position: only spots where the villain checked or bet first. Asking makes the hero the in-position player. */
-  facing?: "check" | "bet" | "any";
+  /**
+   * In position: only spots where the villain checked or bet first. Asking makes the hero the in-position player.
+   * `check-bet`: out of position, the hero checked and the villain bet (Analytics, Step 9).
+   */
+  facing?: "check" | "bet" | "check-bet" | "any";
+  /** Only lines where the hero sits in this seat (Analytics' spot); any when absent. */
+  hero?: ChartPosition | null;
+  /** Only lines against this villain; any when absent. */
+  villain?: ChartPosition | null;
   /** Only turns after the flop checked through (`checked`) or after a flop bet was called (`bet`) (Learn L3). */
   flop?: FlopLineFilter;
 }
@@ -133,8 +142,8 @@ export function turnSetup(charts: ChartSet, options: TurnSpotOptions, rng: Rng, 
   const wantSeat = filterSeat(options);
   let line: RiverLine;
   let seat: RiverSeat;
-  if (options.role && options.role !== "any") {
-    const seatings = riverSeatings({ seat: wantSeat, role: options.role }, lines);
+  if ((options.role && options.role !== "any") || options.hero || options.villain) {
+    const seatings = pinnedSeatings(riverSeatings({ seat: wantSeat, role: options.role }, lines), options);
     if (seatings.length === 0) return null;
     const picked = pickOne(seatings, rng);
     line = picked.line;
@@ -217,9 +226,21 @@ function attempt(charts: ChartSet, options: TurnSpotOptions, rng: Rng, seed: num
 
   let facing: TurnTrainerSpot["facing"] = null;
   const turnActs: ScriptAct[] = [];
-  if (!heroFirst) {
+  if (heroFirst && options.facing === "check-bet") {
+    // Out of position facing a bet: the hero checks, the villain bets as the solve plays its range.
     const root = solve.result.nodes[0];
-    const pick = pickWeighted(facingWeights(root.actions, root.frequency, options.facing, MIN_VILLAIN_FREQ), rng);
+    const check = root.actions.findIndex((action) => action.kind === "check");
+    const after = check >= 0 ? solve.result.nodes[root.children[check]] : undefined;
+    if (!after || after.kind !== "action") return null;
+    const pick = pickWeighted(facingWeights(after.actions, after.frequency, "check-bet", MIN_VILLAIN_FREQ, options.size ?? null), rng);
+    if (pick < 0) return null;
+    const action = after.actions[pick];
+    const to = round2(action.to);
+    turnActs.push({ position: hero, type: "check" }, { position: villain, type: "bet", to });
+    facing = { kind: action.kind, to, sizePot: Math.round(action.sizePot * 1000) / 1000 };
+  } else if (!heroFirst) {
+    const root = solve.result.nodes[0];
+    const pick = pickWeighted(facingWeights(root.actions, root.frequency, options.facing, MIN_VILLAIN_FREQ, options.size ?? null), rng);
     if (pick < 0) return null;
     const action = root.actions[pick];
     const to = round2(action.to);
@@ -235,7 +256,7 @@ function attempt(charts: ChartSet, options: TurnSpotOptions, rng: Rng, seed: num
   const found = followTurnLine(solve, streetActs(hand0, "turn"));
   if (!found.ok) return null;
 
-  const weights = riverDealingWeights(solve, found.node, options.bias ?? "range");
+  const weights = keepClasses(riverDealingWeights(solve, found.node, options.bias ?? "range"), solve.result.hands[solve.hero], board.map(cardIndex), options);
   const i = pickWeighted(weights, rng);
   if (i < 0) return null;
   const combo = solve.result.hands[solve.hero][i];
