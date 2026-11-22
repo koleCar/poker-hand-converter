@@ -886,6 +886,53 @@ Status: done in e6156b15 (2026-11-22)
 - **Done when:** a fixture pool of over-folding regs gives "bluff them more"
   on river fold, and a small pool shows no sentence.
 
+Status: done in a513e01b (2026-11-22)
+
+- **As built:** `packages/ui/analytics/Pool.tsx` (`Pool`, `PoolControls`,
+  `exploitText`), `poolView.ts` (`poolRows`, `poolCell`, `exploitsOf`,
+  `poolFigures`, `rateOf`, `youRates`, `youQueries`, `poolFiltersOf`),
+  `usePool.ts`; `AnalyticsPool` / `PoolSums` in `analytics/model.ts`;
+  `ReportsScreen` prop `pool`; words `screen.pool` (EN + HR, a sentence per
+  rate and direction). Desktop: store migration 28 and `rail_store::pool`
+  (`install_analytics_stats`, `pool_step` = `Step::Pooled`,
+  `Reader::pool_sums`), async command `analytics_pool`. Web: migration
+  `20271122100000_analytics_pool.sql` (`pool_counted_hands`, `pool_players`,
+  `pool_player_stats`; `analytics_pool_save`, `analytics_pool_pending`,
+  `analytics_pool`, all Pro), `lib/db/poolCounts.ts`,
+  `lib/db/analyticsPool.ts`.
+- **Deviations:**
+  - **Results need their squares.** The rollups have no Σ result², so the
+    regs' ± SE could not come from them: the desktop sums each opponent's
+    hands, result and result² (thousandths of a bb², integer) in its own
+    background step (`pool_player_results`); the web stores the same per
+    opponent. Hands with the hero only, bomb pots out, an EV cashout's result
+    out (its rates in).
+  - **The rates on the desktop** are the catalogue's rates installed as
+    custom statistics `an_<id>` on open, counted by the custom pass into
+    `custom_player_rollups` only (no hero rows: the player's numbers are the
+    checker's). They are hidden from the user's list and the `an_` ids are
+    refused in the editor. The pool reads rollups − `_observed` (hands the
+    hero played).
+  - **The web counts in the browser while the Pool tab is open** (pending
+    hands, a page at a time, "Counting your opponents: N hands to go"), not
+    at upload: one path, idempotent, resumable. A deleted hand empties the
+    owner's pool; it is counted again on the next visit.
+  - **Types** come from `player_stats` on the web (the "vs type" filter's
+    source, so opponent statistics must be on) and `player_rollups` on the
+    desktop, both over every hand of the room.
+  - **Filters:** the opponents' numbers follow the kind / format and the
+    rooms only (the rollups have no days or seats); the tab's note says so.
+    The player's two win rates follow the whole filter.
+  - **"With regs only"** = the reports with a reg or a fish in the pot less
+    those with a fish (the filter has no "and no fish").
+  - **You** is the checker's number (analysed decisions), as on All stats;
+    the target column shows the player's own target as "≈". A sentence also
+    needs that target to rest on at least the stat's `sample.min` analysed
+    decisions (a 0% target from three decisions would call everyone "too
+    much"); until then the row is grey, "Not sure yet".
+  - Composition stats (shown hands) and the coded stats (WTSD, W$SD, WWSF)
+    are not in the Pool table.
+
 ### Step 11 — Stack depth as a filter (kept from the first plan, smaller)
 
 - `effective_first_action_bb` in `core/rail-stats/src/events.rs`:
