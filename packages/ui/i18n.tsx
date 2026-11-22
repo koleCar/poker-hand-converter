@@ -29,6 +29,7 @@ import type { chartsUiEn } from "./strings/charts.en";
 import type { reviewUiEn } from "./strings/review.en";
 import type { feedbackUiEn } from "./strings/feedback.en";
 import type { potKindsUiEn } from "./strings/potKinds.en";
+import type { analyticsUiEn } from "./strings/analytics.en";
 
 /** The replayer's strings: `strings/replayer.en.ts` is the English. */
 export interface ReplayerStrings {
@@ -340,6 +341,9 @@ export type ReviewStrings = typeof reviewUiEn;
 /** analysis/45: the Multiway and Bomb pots tabs. */
 export type PotKindsStrings = typeof potKindsUiEn;
 
+/** The Analytics screen's (docs/ANALYTICS.md): `strings/analytics.{en,hr}.ts`. */
+export type AnalyticsStrings = typeof analyticsUiEn;
+
 /** The feedback dialog's strings: `strings/feedback.en.ts` is the English. */
 export type FeedbackStrings = typeof feedbackUiEn;
 
@@ -366,6 +370,7 @@ export interface UiStrings {
   charts: ChartsStrings;
   feedback: FeedbackStrings;
   potKinds: PotKindsStrings;
+  analytics: AnalyticsStrings;
 }
 
 const UiStringsContext = createContext<UiStrings | null>(null);

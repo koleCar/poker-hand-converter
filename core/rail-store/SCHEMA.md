@@ -61,6 +61,7 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 24 | `0024_node_locks.sql` | (docs/NODELOCK.md §3) `node_locks` and its indexes `node_locks_updated`, `node_locks_spot`: the user's nodelocks, solved on this computer, **never synced**; empty, nothing to rebuild |
 | 25 | `0025_node_lock_tree.sql` | (docs/NODELOCK.md §7.5) the My nodelocks tree: `node_lock_folders` and `node_lock_folders_parent`; `node_locks.folder_id`, `parent_id`, `sort` and `node_locks_parent`, `node_locks_folder`. Existing rows: no folder, no parent, `sort` = -`updated_at` (newest first); **never synced** |
 | 26 | `0026_deleted_hands.sql` | (2026-11-19) `deleted_hands` and `deleted_hands_owed_idx`: the keys of the hands the user deleted (here, or on the web and pulled), and whether the account's copy is still owed its deletion; empty, nothing to rebuild |
+| 27 | `0027_analytics_checker_rows.sql` | (docs/ANALYTICS.md Step 2) `analysis_checker_rows` and `analysis_checker_rows_stat_idx`; `hand_analysis.checker_version`, `checker_position` and `hand_analysis_checker_idx`: the Analytics checker rows; empty, the background pass's backfill derives them from the stored PHF and decisions (nothing re-analysed) |
 
 No migration is reserved for a later step today; each lands as the next
 free number.
@@ -1167,6 +1168,45 @@ runner grades them again with the new settings.
 | `Reader::top_leaks(version, filters, period)` (`rail_store::leaks`) | the top three's sums over `analysis_leak_rows` (the web's `analysis_top_leaks`): per spot key and chart set the decisions, those worse than Perfect, the mistakes, the EV lost and the score's sum and sum of squares - a postflop spot also per pot (`pot`: `3bp`, `4bp`, the web's `analysis_leaks`) - for the period (`30d` or `all`), the last 30 days of play and the 30 before (UTC days back from the last graded hand); filters: format, the hero's seat, pot type |
 | `Reader::leak_examples(version, filters, days, keys, scope, limit)` | the decisions behind one leak (`analysis_leak_examples`): worse than Perfect at any of its spot keys (at most 200), on its table and pot (`LeakScope`: `hu` / `9max` / `other`, `3bp` / `4bp` / `other`; none: every one), costliest first, at most 30, with the hand's stakes and cards |
 
+## The Analytics checker rows (version 27, docs/ANALYTICS.md Step 2)
+
+The twin of the web's `analysis_checker_rows`
+(`supabase/migrations/20271122090000_analytics_checker_rows.sql`): what the
+stat checker sums, one row per (analysed hero decision, catalogue rate it
+belongs to). Derived in Rust (`rail_stats::analytics_rows`, the twin of the
+web's `analyticsRows.ts`) from the hand's PHF and its stored decisions;
+`rail_store::checker`.
+
+### `analysis_checker_rows`
+
+| Column | Type | |
+| --- | --- | --- |
+| `hand_key` | TEXT | → `hand_analysis` (cascade) |
+| `ord` | INTEGER | the decision's `ord` |
+| `stat` | TEXT | the catalogue rate (`config/stats/analytics.json`) |
+| `analysis_version`, `membership_version` | TEXT | the hand's analysis; `MEMBERSHIP_VERSION` the row was derived under |
+| `action_index` | INTEGER | the decision's |
+| `played_at`, `game_format`, `hero_position`, `pot_type` | TEXT | the hand's, for the filters (`played_at` '' without one) |
+| `taken` | INTEGER | the decision took the rate's action class |
+| `ref_share` | REAL | Σ of the reference's frequencies of the options in the class; NULL: not analysed |
+| `best_in` | INTEGER | the reference's best option (highest EV, then frequency, then first) is in the class; NULL with `ref_share` |
+| `ev_loss_bb` | REAL | 0 without one, to 3 decimals |
+| `size` | TEXT | the bet faced after the flop, a catalogue size bucket (`20-40` ... `125+`); '' preflop or with no bet |
+| `hand_class` | TEXT | a catalogue hand class; '' preflop |
+| `spot` | TEXT | `pot|role|hero|opponent` (named by `packages/ui/analytics/spot.ts`) |
+| `multiway` | INTEGER | the decision's scenario is multiway (`-mw-`): the `mw` / `hu` pot kinds |
+
+Primary key (`hand_key`, `ord`, `stat`). `hand_analysis.checker_version` is
+the membership version the hand's rows were written at ('' never) and
+`checker_position` the hero's seat (the hand count under a seat filter).
+
+| Call | What |
+| --- | --- |
+| (`save_analysis`) | each saved hand's rows, in the save's transaction, from the decisions just stored and the hand's PHF; the hand marked |
+| `checker::backfill_step(reader, writer)` (a step of the background pass, `Step::Checked`) | 500 hands whose mark is not `MEMBERSHIP_VERSION`, derived outside the writer, written unless the hand was analysed again meanwhile (`analysed_at`); idempotent |
+| `Reader::checker_sums(version, filters)` | the web's `analytics_checker`: per (stat, spot, size, hand class) `opps`, `opps_taken`, `n`, `taken`, Σ `ref_share`, Σ EV loss too much / too little, distinct hands; the marked hands in scope; the hands still pending. Filters: ISO `from` / `to`, format or kind, seat, pot type, pot kind (`hu` / `mw` / `bomb`), membership version |
+| `Reader::checker_examples(version, filters, query)` | the web's `analytics_checker_examples`: one stat's analysed decisions (by spot, size, hand class; side `high` / `low` / `any`), costliest first, at most 100, with the cards, the board and the size faced |
+
 ## Nodelocks (version 24, docs/NODELOCK.md §3; the tree: version 25, §7.5)
 
 The user's nodelocks: a lock on a Solver-library spot, solved on this
@@ -1268,7 +1308,7 @@ the app sends 500 a call) - exact, nothing waits for a rebuild:
 
 | Table | How |
 | --- | --- |
-| `hands`, `hand_stats`, `seat_stats`, `ev_rows`, `ev_pending`, `outbox`, `sync_rejected`, `hand_analysis`, `decision_analysis`, `analysis_leak_rows`, `chart_decisions` | deleted (`hands` by key, the rest by cascade) |
+| `hands`, `hand_stats`, `seat_stats`, `ev_rows`, `ev_pending`, `outbox`, `sync_rejected`, `hand_analysis`, `decision_analysis`, `analysis_leak_rows`, `chart_decisions`, `analysis_checker_rows` | deleted (`hands` by key, the rest by cascade) |
 | `hand_list`, `player_hands` | deleted by their triggers on `hand_stats` / `seat_stats` |
 | `hand_notes`, `hand_tags` | deleted by key (no foreign key) |
 | `player_rollups`, `player_rollups_observed`, `hero_rollups`, `player_summary`, `player_hidden` | the hand's stored seat rows (current generation) summed by `stats::Pending::count`, as an import adds them, and taken off (`Pending::negate` + `flush`); a row left with no hands goes. A newest (`last_played_at`) or earliest (`first_played_at`) date the hand held is looked up again among the rows left: a name's hands through `player_hands` (and the hands past `players.indexed` directly), a session scope's within its UTC day (`hand_stats_played_idx`), the hero's (or a nameless seat's) through `hand_list` newest first in the segment. Edge left as is: a name that is both the hero and an opponent within one segment, whose date only an opponent's hand held, is looked up among the opponent's hands |

@@ -90,6 +90,142 @@ export type Database = {
         }
         Relationships: []
       }
+      analysis_checker_hands: {
+        Row: {
+          analysis_version: string
+          big_blind: number | null
+          currency: string
+          game_format: string
+          hand_id: string
+          hero_position: string
+          membership_version: string
+          owner_id: string
+          played_at: string | null
+          pot_type: string
+          saved_at: string
+          site: string
+        }
+        Insert: {
+          analysis_version: string
+          big_blind?: number | null
+          currency: string
+          game_format: string
+          hand_id: string
+          hero_position: string
+          membership_version: string
+          owner_id: string
+          played_at?: string | null
+          pot_type: string
+          saved_at?: string
+          site: string
+        }
+        Update: {
+          analysis_version?: string
+          big_blind?: number | null
+          currency?: string
+          game_format?: string
+          hand_id?: string
+          hero_position?: string
+          membership_version?: string
+          owner_id?: string
+          played_at?: string | null
+          pot_type?: string
+          saved_at?: string
+          site?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_checker_hands_hand_id_analysis_version_fkey"
+            columns: ["hand_id", "analysis_version"]
+            isOneToOne: true
+            referencedRelation: "hand_analysis"
+            referencedColumns: ["hand_id", "analysis_version"]
+          },
+        ]
+      }
+      analysis_checker_rows: {
+        Row: {
+          action_index: number
+          analysis_version: string
+          best_in: boolean | null
+          big_blind: number | null
+          currency: string
+          ev_loss_bb: number
+          game_format: string
+          hand_class: string
+          hand_id: string
+          hero_position: string
+          membership_version: string
+          multiway: boolean
+          ord: number
+          owner_id: string
+          played_at: string | null
+          pot_type: string
+          ref_share: number | null
+          site: string
+          size: string
+          spot: string
+          stat: string
+          taken: boolean
+        }
+        Insert: {
+          action_index: number
+          analysis_version: string
+          best_in?: boolean | null
+          big_blind?: number | null
+          currency: string
+          ev_loss_bb: number
+          game_format: string
+          hand_class: string
+          hand_id: string
+          hero_position: string
+          membership_version: string
+          multiway: boolean
+          ord: number
+          owner_id: string
+          played_at?: string | null
+          pot_type: string
+          ref_share?: number | null
+          site: string
+          size: string
+          spot: string
+          stat: string
+          taken: boolean
+        }
+        Update: {
+          action_index?: number
+          analysis_version?: string
+          best_in?: boolean | null
+          big_blind?: number | null
+          currency?: string
+          ev_loss_bb?: number
+          game_format?: string
+          hand_class?: string
+          hand_id?: string
+          hero_position?: string
+          membership_version?: string
+          multiway?: boolean
+          ord?: number
+          owner_id?: string
+          played_at?: string | null
+          pot_type?: string
+          ref_share?: number | null
+          site?: string
+          size?: string
+          spot?: string
+          stat?: string
+          taken?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_checker_rows_hand_id_analysis_version_ord_fkey"
+            columns: ["hand_id", "analysis_version", "ord"]
+            isOneToOne: false
+            referencedRelation: "decision_analysis"
+            referencedColumns: ["hand_id", "analysis_version", "ord"]
+          },
+        ]
+      }
       analysis_graded_sites: {
         Row: {
           analysis_version: string
@@ -5092,6 +5228,44 @@ export type Database = {
       }
       analysis_trimmed_phf: { Args: { p_phf: Json }; Returns: Json }
       analysis_version_of: { Args: { p_filters: Json }; Returns: string }
+      analytics_checker: { Args: { p_filters?: Json }; Returns: Json }
+      analytics_checker_examples: {
+        Args: {
+          p_filters: Json
+          p_hand_class?: string
+          p_limit?: number
+          p_side?: string
+          p_size?: string
+          p_spot?: string
+          p_stat: string
+        }
+        Returns: Json
+      }
+      analytics_membership_version_of: {
+        Args: { p_filters: Json }
+        Returns: string
+      }
+      analytics_pot_kind_of: { Args: { p_filters: Json }; Returns: string }
+      analytics_rows_pending: {
+        Args: {
+          p_after?: string
+          p_analysis_version: string
+          p_limit?: number
+          p_membership_version: string
+        }
+        Returns: {
+          created_at: string
+          decisions: Json
+          hand_key: string
+          id: string
+          parser_version: string
+          phf: Json
+          site: string
+          source_filename: string
+          standard_text: string
+        }[]
+      }
+      analytics_rows_save: { Args: { p_hands: Json }; Returns: Json }
       begin_account_deletion: { Args: { p_confirm: string }; Returns: Json }
       billing_account: {
         Args: { p_owner: string }

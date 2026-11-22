@@ -53,6 +53,7 @@ use rusqlite::{Connection, OpenFlags, params};
 pub mod analysis;
 pub mod background;
 pub mod batch;
+pub mod checker;
 pub mod custom;
 pub mod delete;
 pub mod error;

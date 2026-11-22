@@ -7,6 +7,8 @@
 //!    as a page of that name-ordered table touched per opponent per import
 //!    transaction cost it 4-5 % of its rate;
 //! 2. counts the user's own statistics (R2.10, [`crate::custom`]);
+//!    then derives the Analytics checker rows the analysis' saves did not
+//!    (docs/ANALYTICS.md Step 2, [`crate::checker::backfill_step`]);
 //! 3. runs a **recompute's rows job** (R2.11, [`crate::recompute`]: a
 //!    `STATS_VERSION` or `SEGMENT_VERSION` bump, a store from before R2.3, or
 //!    "rebuild statistics", [`StatsWorker::rebuild_stats`]) - a page of hands
@@ -167,6 +169,9 @@ pub enum Step {
     Indexed(usize),
     /// Hands counted for the user's own statistics (0: a page went stale).
     Counted(usize),
+    /// Hands whose Analytics checker rows were derived again (docs/ANALYTICS.md
+    /// Step 2, [`crate::checker::backfill_step`]).
+    Checked(usize),
     /// EV rows computed, and the time the computation took.
     Computed(usize, Duration),
     /// A page of a recompute's EV job: hands evaluated (0: its end), and
@@ -232,6 +237,9 @@ pub fn step(reader: &Reader, writer: &WriterHandle, heavy: bool) -> Result<Step>
     if let Some(n) = crate::custom::custom_step(reader, writer)? {
         return Ok(Step::Counted(n));
     }
+    if let Some(n) = crate::checker::backfill_step(reader, writer)? {
+        return Ok(Step::Checked(n));
+    }
     if !heavy {
         return Ok(Step::Nothing);
     }
@@ -254,6 +262,8 @@ pub struct Drained {
     pub indexed: usize,
     /// Hands counted for the user's own statistics.
     pub counted: usize,
+    /// Hands whose Analytics checker rows were derived again.
+    pub checked: usize,
     pub ev_rows: usize,
     pub ev_time: Duration,
     /// Hands a recompute's EV job evaluated.
@@ -268,6 +278,7 @@ pub fn drain(reader: &Reader, writer: &WriterHandle) -> Result<Drained> {
             Step::Rebuilt(n) => drained.rebuilt += n,
             Step::Indexed(n) => drained.indexed += n,
             Step::Counted(n) => drained.counted += n,
+            Step::Checked(n) => drained.checked += n,
             Step::Computed(n, took) => {
                 drained.ev_rows += n;
                 drained.ev_time += took;
@@ -472,7 +483,7 @@ fn run(shared: &Shared, reader: &Reader, writer: &WriterHandle) {
                 shared.status().last_error = None;
                 refresh(shared, reader, Activity::Indexing);
             }
-            Ok(Step::Counted(_)) => {
+            Ok(Step::Counted(_) | Step::Checked(_)) => {
                 shared.status().last_error = None;
                 refresh(shared, reader, Activity::Counting);
             }

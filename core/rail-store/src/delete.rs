@@ -601,6 +601,7 @@ pub(crate) fn delete_all(conn: &Connection, at_ms: i64) -> Result<u64> {
         "ev_pending",
         "outbox",
         "sync_rejected",
+        "analysis_checker_rows",
         "decision_analysis",
         "analysis_leak_rows",
         "chart_decisions",

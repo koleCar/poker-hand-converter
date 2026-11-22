@@ -39,7 +39,9 @@ import type { PhfHand } from "../phf/types";
 /**
  * What a stored decision's membership was computed under (Step 2): the
  * Rust `MEMBERSHIP_VERSION`, bumped whenever a rate's id, class or count
- * changes. Both test suites pin `membershipFingerprint()` to it.
+ * changes. Both test suites pin `membershipFingerprint()` to it, and
+ * `rowsFingerprint()` (the hand classes and size buckets a checker row
+ * reads): a change there, or to `analyticsRows.ts`, bumps it too.
  */
 export const ANALYTICS_MEMBERSHIP_VERSION = "analytics/1";
 
@@ -57,6 +59,13 @@ export interface HandClassDef {
   label: AnalyticsText;
   made?: string[];
   draws?: string[];
+}
+
+/** A bet-size bucket: `min` in thousandths of the pot (400 = 40%). */
+export interface SizeBucketDef {
+  id: string;
+  min: number;
+  label: AnalyticsText;
 }
 
 export interface StatGroupDef {
@@ -102,6 +111,7 @@ export interface CatalogueFile {
   version: 1;
   actionClasses: Record<ActionClass, DecisionAction[]>;
   handClasses: HandClassDef[];
+  sizeBuckets: SizeBucketDef[];
   groups: StatGroupDef[];
   families: string[];
   stats: CatalogueStat[];
@@ -127,6 +137,12 @@ export interface Catalogue {
   inClass(cls: ActionClass, action: string): boolean;
   /** The hand class of a postflop decision (`facts.made.class`, `facts.draws`); null without a made hand. */
   handClass(made: string | null | undefined, draws: readonly string[]): HandClassDef | null;
+  /**
+   * The size bucket of a bet of `facingPot` (a fraction of the pot before
+   * it, `facts.facingPot`): the last whose `min` the size, in thousandths
+   * rounded half away from zero, reaches. Null for no bet.
+   */
+  sizeBucket(facingPot: number | null | undefined): SizeBucketDef | null;
   /** One seat's counts of every stat, index-aligned with `stats` (0/0 for share and coded). */
   counts(hand: HandEvents, seat: SeatEvents): Counts[];
   /** Every decision of the hand that belongs to a rate, in decision order. */
@@ -168,6 +184,14 @@ export function compileCatalogue(source: CatalogueFile): Catalogue {
         ) ?? null
       );
     },
+    sizeBucket: (facingPot) => {
+      if (typeof facingPot !== "number" || !Number.isFinite(facingPot) || facingPot <= 0) return null;
+      const thousandths = Math.round(facingPot * 1000);
+      for (let i = source.sizeBuckets.length - 1; i >= 0; i -= 1) {
+        if (thousandths >= source.sizeBuckets[i].min) return source.sizeBuckets[i];
+      }
+      return null;
+    },
     counts: (hand, seat) =>
       predicates.map((predicate) => (predicate ? countSeat(predicate, hand, seat) : { made: 0, opp: 0 })),
     membership: (hand) => {
@@ -196,6 +220,19 @@ export function membershipFingerprint(catalogue: Catalogue = ANALYTICS): string 
     .filter((stat): stat is RateStat => stat.kind === "rate")
     .map((stat) => `${stat.id}|${stat.class}|${stat.count}\n`)
     .join("");
+}
+
+/**
+ * What a stored checker row reads besides the rates (Step 2): the hand
+ * classes (`class|id|made|draws`) and the size buckets (`size|id|min`), one
+ * line each - the Rust `Catalogue::rows_fingerprint`, pinned with the
+ * membership version by both test suites.
+ */
+export function rowsFingerprint(catalogue: Catalogue = ANALYTICS): string {
+  const list = (items: string[] | undefined) => (items === undefined ? "*" : items.join(","));
+  const classes = catalogue.file.handClasses.map((cls) => `class|${cls.id}|${list(cls.made)}|${list(cls.draws)}\n`);
+  const sizes = catalogue.file.sizeBuckets.map((bucket) => `size|${bucket.id}|${bucket.min}\n`);
+  return [...classes, ...sizes].join("");
 }
 
 /** The shipped catalogue. */

@@ -5,7 +5,7 @@
   "description": "The statistics the Analytics screen checks against a target (docs/ANALYTICS.md Step 1). A rate stat is a counter in the decision-event language of docs/STATS-SPEC.md section 14: the same text counts the hero and every opponent (rail_stats::custom::CustomSet) and names the decisions whose analysed reference gives the target. A share stat is the share of another stat's actions made with weak hand classes (hero only: it needs the cards). A coded stat is a shipped statistic of standard.json, shown with no target. Read by the app (core/rail-stats/src/analytics.rs) and the web (web/src/lib/stats/analytics.ts, a copy of this file). What a schema cannot check - the predicate grammar, that a rate's action is exactly its class, unique ids, references between entries - core/rail-stats checks at load and in CI.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "actionClasses", "handClasses", "groups", "families", "stats"],
+  "required": ["version", "actionClasses", "handClasses", "sizeBuckets", "groups", "families", "stats"],
   "properties": {
     "$schema": { "type": "string" },
     "version": {
@@ -31,6 +31,12 @@
       "type": "array",
       "minItems": 2,
       "items": { "$ref": "#/$defs/handClass" }
+    },
+    "sizeBuckets": {
+      "description": "The bet-size buckets of a decision that faces a bet after the flop (docs/ANALYTICS.md section 3), smallest first. A bet of facts.facingPot (a fraction of the pot before it) falls in the last bucket whose min it reaches, min in thousandths of the pot and the size rounded to them. The first starts at 0, so a bet under 20% of the pot counts with 20-40%. Stored with each checker row (Step 2).",
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "#/$defs/sizeBucket" }
     },
     "groups": {
       "description": "The blocks of the Streets tab and the headings of All stats, in display order.",
@@ -74,6 +80,16 @@
       "items": { "$ref": "#/$defs/action" }
     },
     "street": { "enum": ["preflop", "flop", "turn", "river", "showdown"] },
+    "sizeBucket": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "min", "label"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[0-9]+(-[0-9]+|\\+)$" },
+        "min": { "description": "Where the bucket starts, in thousandths of the pot (400 = 40%).", "type": "integer", "minimum": 0 },
+        "label": { "$ref": "#/$defs/text" }
+      }
+    },
     "handClass": {
       "type": "object",
       "additionalProperties": false,

@@ -84,6 +84,7 @@ use tauri_plugin_log::{RotationStrategy, Target, TargetKind};
 
 pub mod account;
 pub mod analysis;
+pub mod analytics;
 pub mod commands;
 pub mod custom_stats;
 pub mod delete;
@@ -558,6 +559,8 @@ pub fn run() {
         review::chart_examples,
         review::top_leaks,
         review::leak_examples,
+        analytics::analytics_checker,
+        analytics::analytics_checker_examples,
         review::multiway_summary,
         review::pot_kind_decisions,
         review::bomb_pot_phfs,
@@ -746,6 +749,8 @@ pub fn run() {
         review::chart_examples,
         review::top_leaks,
         review::leak_examples,
+        analytics::analytics_checker,
+        analytics::analytics_checker_examples,
         review::multiway_summary,
         review::pot_kind_decisions,
         review::bomb_pot_phfs,

@@ -65,7 +65,11 @@ pub const COUNTER_PREFIX: &str = "an_";
 /// rate's id, class or count changes, or a rate is added or removed, so the
 /// stored rows are computed again. `tests/analytics.rs` pins
 /// [`Catalogue::membership_fingerprint`] to this version; the web's
-/// `ANALYTICS_MEMBERSHIP_VERSION` is the same string.
+/// `ANALYTICS_MEMBERSHIP_VERSION` is the same string. It also stands for
+/// what a stored checker row reads besides the rates
+/// ([`Catalogue::rows_fingerprint`], pinned by `tests/analytics_rows.rs`)
+/// and for the row derivation itself ([`crate::analytics_rows`]): a change
+/// to either bumps it too.
 pub const MEMBERSHIP_VERSION: &str = "analytics/1";
 
 /// The longest catalogue id: `an_<id>` must fit a custom counter id.
@@ -208,6 +212,18 @@ impl HandClass {
     }
 }
 
+/// A bet-size bucket (docs/ANALYTICS.md §3): a postflop decision that
+/// faces a bet of `facts.facingPot` falls in the last bucket whose `min`
+/// (thousandths of the pot) the size reaches ([`Catalogue::size_bucket`]).
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SizeBucket {
+    pub id: String,
+    /// Thousandths of the pot (400 = 40%).
+    pub min: u32,
+    pub label: Text,
+}
+
 /// A block of the Streets tab, a heading of All stats.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -299,6 +315,7 @@ impl CatalogueStat {
 pub struct Catalogue {
     pub action_classes: BTreeMap<ActionClass, Vec<Action>>,
     pub hand_classes: Vec<HandClass>,
+    pub size_buckets: Vec<SizeBucket>,
     pub groups: Vec<StatGroupDef>,
     pub families: Vec<String>,
     pub stats: Vec<CatalogueStat>,
@@ -356,6 +373,7 @@ struct FileIn {
     version: u32,
     action_classes: BTreeMap<ActionClass, Vec<Action>>,
     hand_classes: Vec<HandClass>,
+    size_buckets: Vec<SizeBucket>,
     groups: Vec<StatGroupDef>,
     families: Vec<String>,
     stats: Vec<StatIn>,
@@ -559,6 +577,28 @@ pub fn load_catalogue(text: &str) -> Result<Catalogue, CatalogueError> {
     }
     if file.hand_classes.len() < 2 {
         problem("handClasses", "at least two".to_owned());
+    }
+
+    // Size buckets: unique ids, the first at 0, rising.
+    let mut bucket_ids = BTreeSet::new();
+    for (index, bucket) in file.size_buckets.iter().enumerate() {
+        let id = bucket.id.as_str();
+        if id.is_empty() || id.contains('|') || !bucket_ids.insert(id) {
+            problem(id, "a size bucket needs a unique id".to_owned());
+        }
+        let rising = match index {
+            0 => bucket.min == 0,
+            _ => file.size_buckets[index - 1].min < bucket.min,
+        };
+        if !rising {
+            problem(id, "size buckets start at 0 and rise strictly".to_owned());
+        }
+        if bucket.label.en.is_empty() || bucket.label.hr.is_empty() {
+            problem(id, "a label in every language".to_owned());
+        }
+    }
+    if file.size_buckets.len() < 2 {
+        problem("sizeBuckets", "at least two".to_owned());
     }
 
     // Groups and families.
@@ -811,6 +851,7 @@ pub fn load_catalogue(text: &str) -> Result<Catalogue, CatalogueError> {
     Ok(Catalogue {
         action_classes: file.action_classes,
         hand_classes: file.hand_classes,
+        size_buckets: file.size_buckets,
         groups: file.groups,
         families: file.families,
         stats,
@@ -856,6 +897,20 @@ impl Catalogue {
         self.hand_classes
             .iter()
             .find(|class| class.matches(made, draws))
+    }
+
+    /// The size bucket of a bet of `facing_pot` (a fraction of the pot
+    /// before it, `facts.facingPot`): the last whose `min` the size, in
+    /// thousandths rounded half away from zero, reaches. `None` for no bet
+    /// (absent, zero or negative).
+    #[allow(clippy::float_arithmetic)] // the analysis' sizes are fractions of the pot
+    pub fn size_bucket(&self, facing_pot: Option<f64>) -> Option<&SizeBucket> {
+        let pot = facing_pot.filter(|pot| pot.is_finite() && *pot > 0.0)?;
+        let thousandths = (pot * 1000.0).round();
+        self.size_buckets
+            .iter()
+            .rev()
+            .find(|bucket| thousandths >= f64::from(bucket.min))
     }
 
     /// One seat's `(made, opportunities)` of every stat, index-aligned with
@@ -907,6 +962,31 @@ impl Catalogue {
                 _ => None,
             })
             .collect()
+    }
+
+    /// What a stored checker row reads besides the rates (Step 2): the
+    /// hand classes (`id|made|draws`) and the size buckets (`id|min`), one
+    /// line each. Pinned with [`MEMBERSHIP_VERSION`] by a test, so a change
+    /// here bumps the version and the stored rows are derived again.
+    pub fn rows_fingerprint(&self) -> String {
+        let classes = self.hand_classes.iter().map(|class| {
+            let list = |items: &Option<Vec<String>>| {
+                items
+                    .as_ref()
+                    .map_or_else(|| "*".to_owned(), |l| l.join(","))
+            };
+            format!(
+                "class|{}|{}|{}\n",
+                class.id,
+                list(&class.made),
+                list(&class.draws)
+            )
+        });
+        let buckets = self
+            .size_buckets
+            .iter()
+            .map(|bucket| format!("size|{}|{}\n", bucket.id, bucket.min));
+        classes.chain(buckets).collect()
     }
 
     /// Every rate as a user's custom statistic (`an_<id>`, its rate as the

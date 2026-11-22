@@ -1732,7 +1732,9 @@ fn the_builder_facts_are_the_phf_s_and_filter_as_a_scan_does() {
     );
     store.close();
     conn.execute_batch(
-        "DROP TABLE deleted_hands; DROP TABLE node_lock_folders; DROP TABLE node_locks;
+        "DROP TABLE analysis_checker_rows; DROP INDEX hand_analysis_checker_idx;
+         ALTER TABLE hand_analysis DROP COLUMN checker_version; ALTER TABLE hand_analysis DROP COLUMN checker_position;
+         DROP TABLE deleted_hands; DROP TABLE node_lock_folders; DROP TABLE node_locks;
          ALTER TABLE hand_list DROP COLUMN hero_bluff; ALTER TABLE hand_list DROP COLUMN vs_bluff;
          ALTER TABLE recompute_list DROP COLUMN hero_bluff; ALTER TABLE recompute_list DROP COLUMN vs_bluff;",
     )
