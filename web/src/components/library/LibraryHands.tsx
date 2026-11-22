@@ -39,6 +39,7 @@ import { DataSourceProvider, useHand } from "@rail/ui/data";
 import { ContextMenu, type MenuPoint } from "@rail/ui/hands/ContextMenu";
 import { EMPTY_FILTER, type FilterState } from "@rail/ui/hands/filter";
 import { HandsScreen } from "@rail/ui/hands/HandsScreen";
+import { useUiStrings } from "@rail/ui/i18n";
 import type { HandRow } from "@rail/ui/hands/model";
 import { Icon } from "@rail/ui/icon/Icon";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
@@ -46,7 +47,6 @@ import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
 import { useAuth } from "../../lib/auth";
 import {
   deleteHands,
-  fetchFactsMissing,
   isDatabaseConfigured,
   latestDesktopSync,
   rebuildStats,
@@ -54,6 +54,7 @@ import {
   type DesktopSync,
 } from "../../lib/db";
 import { webDataSource } from "../../lib/db/dataSource";
+import { catchUpFacts } from "../../lib/db/factsCatchUp";
 import { notifyHandsChanged, webHandsSource } from "../../lib/db/handsSource";
 import { useDict, useLocale } from "../../lib/i18n/client";
 import { INTL_LOCALE } from "../../lib/i18n/dictionaries";
@@ -134,6 +135,7 @@ interface LibraryHandsProps {
 
 export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: LibraryHandsProps) {
   const en = useDict();
+  const ui = useUiStrings();
   const t = en.converter.library;
   const auth = useAuth();
   const locale = INTL_LOCALE[useLocale()];
@@ -161,17 +163,28 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
 
   const userId = auth.isSignedIn ? (auth.user?.id ?? null) : null;
 
-  // The filter builder's facts (20271116130000): hands stored before them, or
-  // synced from the desktop, get theirs in the background, once a sign-in,
-  // and the list counts again - the builder's filters then read every hand.
-  const factsCaughtUp = useRef<string | null>(null);
+  // The filter builder's facts (20271116130000): hands stored before them,
+  // synced from the desktop, or stored before a facts version bump get theirs
+  // in the background, once a page load (the shell's catch-up, shared), and
+  // the list counts again. Meanwhile a fact the new version adds (the
+  // Effective stack) is still filling in, and the list says so under its chip.
+  const [factsFilling, setFactsFilling] = useState<{ user: string; missing: number } | null>(null);
   useEffect(() => {
-    if (!userId || !isDatabaseConfigured || factsCaughtUp.current === userId) return;
-    factsCaughtUp.current = userId;
-    void fetchFactsMissing()
-      .then((missing) => (missing > 0 ? rebuildStats().then(() => notifyHandsChanged()) : undefined))
-      .catch(() => undefined);
+    if (!userId || !isDatabaseConfigured) return;
+    let live = true;
+    void catchUpFacts(userId).then(({ missing, done }) => {
+      if (!live || missing === 0) return;
+      setFactsFilling({ user: userId, missing });
+      void done.then(() => {
+        if (live) setFactsFilling(null);
+        notifyHandsChanged();
+      });
+    });
+    return () => {
+      live = false;
+    };
   }, [userId]);
+  const filling = factsFilling !== null && factsFilling.user === userId && filter.effStacks.length > 0 ? factsFilling.missing : 0;
 
   const selected = selection !== null && selection.user === userId ? selection.key : null;
   const select = useCallback((key: string) => setSelection({ user: userId, key }), [userId]);
@@ -310,6 +323,7 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
           title={t.heading}
           titleTag="h2"
           status={status}
+          notice={filling > 0 ? <p className="notice notice--info rail-fade" role="status">{ui.hands.effStackFilling(filling)}</p> : null}
           emptyText={t.empty}
           reloadToken={refreshToken}
           panelRef={panelRef}

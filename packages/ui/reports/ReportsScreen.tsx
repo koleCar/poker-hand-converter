@@ -61,6 +61,7 @@ import {
   codedOf,
   hasFigures,
   isAnalyticsView,
+  withUncovered,
   type AllStatsOrder,
   type AllStatsShow,
   type AnalyticsView,
@@ -128,8 +129,14 @@ export interface ReportsScreenProps {
   notice?: ReactNode;
   /** No hands at all, in the surface's words. */
   emptyText: string;
-  /** The loading, empty and error states, in the surface's own look. */
-  renderState: (kind: "loading" | "empty" | "error", text: string) => ReactNode;
+  /** No hands at all: the one way on (the web's upload, the desktop's import). */
+  emptyLink?: ReactNode;
+  /**
+   * The loading, empty and error states, in the surface's own look; `action`
+   * is the empty state's one link (Step 12: "Clear filters" when the filter
+   * matches nothing, else `emptyLink`).
+   */
+  renderState: (kind: "loading" | "empty" | "error", text: string, action?: ReactNode) => ReactNode;
   /** Hide the starting hands (the desktop while a poker table is open). */
   hideHandChart?: boolean;
   /**
@@ -141,12 +148,18 @@ export interface ReportsScreenProps {
   checker?: AnalyticsChecker;
   /**
    * (Pro) Targets, gaps and costs are held back: this one line shows above
-   * All stats instead, the player's own numbers stay, and the checker is
-   * never asked.
+   * the tab instead, the player's own numbers stay, and the checker is never
+   * asked. A function is given the tab's line (`analytics.screen.lock`:
+   * Overview, Streets, All stats, Pool, the drill-down).
    */
-  checkerLock?: ReactNode;
+  checkerLock?: ReactNode | ((line: string) => ReactNode);
   /** The Pool tab's data (Step 10); absent: the tab says nothing. */
   pool?: AnalyticsPool;
+  /**
+   * The web with the opponents' statistics off: the link to the setting,
+   * shown on the Pool tab when nobody can be typed (Step 12).
+   */
+  poolOff?: ReactNode;
   /**
    * The Trainer's link for an Overview finding's "Practise this ▸", from its
    * query (`practiseQuery`: `from=analytics&stat=…&spot=…&classes=…`, Step
@@ -185,12 +198,14 @@ export function ReportsScreen({
   kind,
   notice,
   emptyText,
+  emptyLink,
   renderState,
   hideHandChart = false,
   situationsLock,
   checker,
   checkerLock,
   pool,
+  poolOff,
   practiseHref,
   drill = null,
   drillNav,
@@ -233,6 +248,8 @@ export function ReportsScreen({
 
   // Overview, Streets and All stats: the checker's sums, read while one of them is open (never on the Free plan).
   const checkerLocked = checkerLock !== undefined && checkerLock !== null;
+  const lockOf = (place: string): ReactNode =>
+    !checkerLocked ? undefined : typeof checkerLock === "function" ? checkerLock(a.lock[place] ?? "") : checkerLock;
   const drilling = drill !== null && drill !== "";
   const checks = drilling || view === "overview" || view === "streets" || view === "stats" || view === "pool";
   const checked = useChecker(checker, query, checks && !checkerLocked && facetsSeen !== null, reloadToken);
@@ -241,8 +258,9 @@ export function ReportsScreen({
     () => (report ? codedOf(ANALYTICS, report.summary.stats, report.summary.ids) : {}),
     [report],
   );
+  // "No target yet" rows carry the player's number from every decision (Step 12).
   const result = useMemo(
-    () => (checked.sums ? checkStats(ANALYTICS, checked.sums, codedForChecker(ANALYTICS, coded)) : null),
+    () => (checked.sums ? withUncovered(checkStats(ANALYTICS, checked.sums, codedForChecker(ANALYTICS, coded))) : null),
     [checked.sums, coded],
   );
   const partial = useMemo(() => (checker ? checker.partial(query) : false), [checker, query]);
@@ -255,7 +273,8 @@ export function ReportsScreen({
 
   const money = report ? moneyOf(report.units) : null;
   const shownUnit = unit === "money" && money ? "money" : "bb";
-  const filtered = activeGroups(filter) > 0;
+  // The reader's own choices (not the kind the screen pins on its own): what "Clear filters" would clear.
+  const filtered = activeGroups(chosen ?? EMPTY_FILTER) > 0;
 
   // Another filter's report on its way: the previous one stays, dimmed.
   const refetching =
@@ -268,7 +287,18 @@ export function ReportsScreen({
   } else if (report === null || definitions === null) {
     body = renderState("loading", r.loading);
   } else if (report.summary.hands === 0 && report.graph.hands === 0) {
-    body = renderState("empty", filtered ? r.noMatch : emptyText);
+    // One line and one way on: clear the filter that matches nothing, else the surface's (an upload, an import).
+    body = renderState(
+      "empty",
+      filtered ? r.noMatch : emptyText,
+      filtered ? (
+        <button type="button" className={an.link} onClick={() => onChoose(EMPTY_FILTER)}>
+          {a.clearFilters}
+        </button>
+      ) : (
+        emptyLink
+      ),
+    );
   } else {
     body = (
       <>
@@ -280,10 +310,11 @@ export function ReportsScreen({
             statId={drill}
             sums={checked.sums}
             result={result}
-            lock={checkerLocked ? checkerLock : undefined}
+            lock={lockOf("drill")}
             loading={checkerLoading}
             error={checked.error}
             partial={partial}
+            filling={checked.filling}
             examples={examples}
             examplesKey={`${JSON.stringify(query)}#${String(reloadToken)}`}
             renderHandLink={renderHandLink}
@@ -299,10 +330,11 @@ export function ReportsScreen({
               <Overview
                 catalogue={ANALYTICS}
                 result={result}
-                lock={checkerLocked ? checkerLock : undefined}
+                lock={lockOf("overview")}
                 loading={checkerLoading}
                 error={checked.error}
                 partial={partial}
+                filling={checked.filling}
                 onView={onView}
                 practiseHref={practiseHref}
               />
@@ -313,10 +345,11 @@ export function ReportsScreen({
             catalogue={ANALYTICS}
             result={result}
             coded={coded}
-            lock={checkerLocked ? checkerLock : undefined}
+            lock={lockOf("streets")}
             loading={checkerLoading}
             error={checked.error}
             partial={partial}
+            filling={checked.filling}
           />
         ) : view === "stats" ? (
           <AllStats
@@ -325,10 +358,11 @@ export function ReportsScreen({
             coded={coded}
             order={order}
             show={show}
-            lock={checkerLocked ? checkerLock : undefined}
+            lock={lockOf("stats")}
             loading={checkerLoading}
             error={checked.error}
             partial={partial}
+            filling={checked.filling}
           />
         ) : view === "breakdown" ? (
           <>
@@ -356,11 +390,12 @@ export function ReportsScreen({
             withFish={pooled.withFish}
             regOrFish={pooled.regOrFish}
             show={poolShow}
-            lock={checkerLocked ? checkerLock : undefined}
+            lock={lockOf("pool")}
             loading={pooled.loading && !pooled.loaded}
             error={pooled.error}
             counting={pooled.counting}
             onAllStats={() => onView("stats")}
+            off={poolOff}
           />
         ) : null}
       </>

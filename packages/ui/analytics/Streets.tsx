@@ -21,6 +21,7 @@ import { fixedIn } from "../stats/format";
 import { ActionBar, SPOTS_SHOWN, StatSpots, TONE, costIn, hoverOf, rateIn } from "./AllStats";
 import styles from "./Analytics.module.css";
 import { gapText, statName } from "./findings";
+import { PendingLine, pendingOf } from "./States";
 import { blockStats, firstOpenBlock, streetColumns, type StreetBlock } from "./view";
 
 export interface StreetsProps {
@@ -35,6 +36,8 @@ export interface StreetsProps {
   error?: string | null;
   /** The filter sets groups the checker does not follow. */
   partial?: boolean;
+  /** The surface filling the checker's rows: hands left (Step 12). */
+  filling?: number | null;
 }
 
 /** The key in the tab row: the bars' colours, upper bar you, lower bar the target. */
@@ -59,7 +62,7 @@ export function StreetsKey() {
   );
 }
 
-export function Streets({ catalogue, result, coded, lock, loading = false, error = null, partial = false }: StreetsProps) {
+export function Streets({ catalogue, result, coded, lock, loading = false, error = null, partial = false, filling = null }: StreetsProps) {
   const ui = useUiStrings();
   const words = ui.analytics;
   const s = words.screen;
@@ -94,7 +97,7 @@ export function Streets({ catalogue, result, coded, lock, loading = false, error
   return (
     <section className={styles.streetsTab} aria-label={s.tabs.streets}>
       {locked ? lock : null}
-      {!locked && result && result.pending > 0 ? <p className={styles.quiet} role="status">{s.stats.pending}</p> : null}
+      {locked ? null : <PendingLine left={pendingOf(result, filling)} />}
       {!locked && partial ? <p className={styles.quiet}>{s.stats.partial}</p> : null}
       <div className={styles.columns}>
         {columns.map((column) => {

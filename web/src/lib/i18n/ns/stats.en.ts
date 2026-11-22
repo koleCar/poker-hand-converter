@@ -66,6 +66,8 @@ export const statsEn = {
     },
     loading: "Reading your hands…",
     emptyHeading: "No hands with statistics yet",
+    /** Analytics' empty state: its one way on (docs/ANALYTICS.md Step 12). */
+    emptyLink: "Upload a hand history →",
     emptyBody:
       "Statistics are derived from the hands in your library, on the server, as they are saved. Upload a hand history and this screen fills in.",
     winRateNote:

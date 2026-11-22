@@ -57,7 +57,7 @@
 -- 1. Tables
 -- ---------------------------------------------------------------------------
 
-create table public.analysis_checker_hands (
+create table if not exists public.analysis_checker_hands (
   hand_id            uuid        not null,
   analysis_version   text        not null,
   owner_id           uuid        not null references auth.users (id) on delete cascade,
@@ -80,10 +80,10 @@ comment on table public.analysis_checker_hands is
   'Analytics Step 2: a hand whose checker rows were written at membership_version (with or without rows). '
   'Written by analytics_rows_save; a hand analysed without a row here at the current version is the backfill''s work.';
 
-create index analysis_checker_hands_owner_idx
+create index if not exists analysis_checker_hands_owner_idx
   on public.analysis_checker_hands (owner_id, analysis_version, membership_version);
 
-create table public.analysis_checker_rows (
+create table if not exists public.analysis_checker_rows (
   hand_id            uuid           not null,
   analysis_version   text           not null,
   ord                smallint       not null,
@@ -128,7 +128,7 @@ comment on table public.analysis_checker_rows is
   'Derived in the browser (analyticsRows.ts), written by analytics_rows_save; summed by analytics_checker.';
 
 -- Every reader scans one account's version; the examples read by EV loss.
-create index analysis_checker_rows_read_idx
+create index if not exists analysis_checker_rows_read_idx
   on public.analysis_checker_rows (owner_id, analysis_version, stat, ev_loss_bb desc);
 
 do $$
@@ -139,6 +139,7 @@ begin
     execute format('alter table public.%I enable row level security', t);
     execute format('revoke all on public.%I from public, anon, authenticated', t);
     execute format('grant select on public.%I to authenticated', t);
+    execute format('drop policy if exists %I on public.%I', t || '_owner_select', t);
     execute format('create policy %I on public.%I for select to authenticated using (owner_id = (select auth.uid()))',
                    t || '_owner_select', t);
   end loop;

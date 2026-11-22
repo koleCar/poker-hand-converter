@@ -15,6 +15,9 @@ export const handsUiEn = {
   storeError: (reason: string) => `The hand list did not load: ${reason}`,
   loading: "Loading hands…",
   noMatch: "No hand matches these filters.",
+  /** The Effective stack chip on hands whose facts are still being derived again (a facts version bump). */
+  effStackFilling: (count: number) =>
+    `The Effective stack fills in as your hands are updated: ${hands(count)} to go.`,
   count: (shown: number) => hands(shown),
   countOf: (matching: number, total: number) => `${num(matching)} of ${hands(total)}`,
   loadingMore: "Loading more…",

@@ -86,6 +86,12 @@ export interface PoolProps {
   counting?: number | null;
   /** All stats (the empty state's way on). */
   onAllStats?: () => void;
+  /**
+   * The web with the opponents' statistics switched off (nobody can be
+   * typed): the link to the setting, shown with one line in place of the
+   * empty state (Step 12).
+   */
+  off?: ReactNode;
 }
 
 export function Pool({
@@ -100,6 +106,7 @@ export function Pool({
   error = null,
   counting = null,
   onAllStats,
+  off,
 }: PoolProps) {
   const ui = useUiStrings();
   const words = ui.analytics;
@@ -128,17 +135,27 @@ export function Pool({
       </p>
     ) : null;
   if (poolEmpty(sums)) {
+    // Still counting: the count's line alone (the pool is not empty, it is not counted yet).
     return (
       <section className={styles.pool} aria-label={words.screen.tabs.pool}>
-        {status}
-        <p className={styles.quiet}>
-          {p.empty}{" "}
-          {onAllStats ? (
-            <button type="button" className={styles.link} onClick={onAllStats}>
-              {p.allStats}
-            </button>
-          ) : null}
-        </p>
+        {status ?? (
+          <p className={styles.quiet}>
+            {off !== undefined && off !== null ? (
+              <>
+                {p.off} {off}
+              </>
+            ) : (
+              <>
+                {p.empty}{" "}
+                {onAllStats ? (
+                  <button type="button" className={styles.link} onClick={onAllStats}>
+                    {p.allStats}
+                  </button>
+                ) : null}
+              </>
+            )}
+          </p>
+        )}
       </section>
     );
   }

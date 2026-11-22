@@ -54,7 +54,7 @@
 -- 1. Tables
 -- ---------------------------------------------------------------------------
 
-create table public.pool_counted_hands (
+create table if not exists public.pool_counted_hands (
   hand_id            uuid        primary key references public.hands (id) on delete cascade,
   owner_id           uuid        not null references auth.users (id) on delete cascade,
   membership_version text        not null check (membership_version ~ '^analytics/[0-9]+$'),
@@ -65,9 +65,9 @@ comment on table public.pool_counted_hands is
   'Analytics Step 10: a hand whose opponents the browser counted into pool_players / pool_player_stats at '
   'membership_version. Written by analytics_pool_save; a hand without a row at the current version is pending.';
 
-create index pool_counted_hands_owner_idx on public.pool_counted_hands (owner_id, membership_version);
+create index if not exists pool_counted_hands_owner_idx on public.pool_counted_hands (owner_id, membership_version);
 
-create table public.pool_players (
+create table if not exists public.pool_players (
   owner_id           uuid             not null references auth.users (id) on delete cascade,
   membership_version text             not null check (membership_version ~ '^analytics/[0-9]+$'),
   site_id            text             not null,
@@ -83,7 +83,7 @@ comment on table public.pool_players is
   'Analytics Step 10: each named opponent''s seats in the caller''s hands (bomb pots out; an EV cashout''s result '
   'not counted), per room and format: hands, sum of results and of their squares (big blinds).';
 
-create table public.pool_player_stats (
+create table if not exists public.pool_player_stats (
   owner_id           uuid   not null references auth.users (id) on delete cascade,
   membership_version text   not null check (membership_version ~ '^analytics/[0-9]+$'),
   site_id            text   not null,
@@ -108,6 +108,7 @@ begin
     execute format('alter table public.%I enable row level security', t);
     execute format('revoke all on public.%I from public, anon, authenticated', t);
     execute format('grant select on public.%I to authenticated', t);
+    execute format('drop policy if exists %I on public.%I', t || '_owner_select', t);
     execute format('create policy %I on public.%I for select to authenticated using (owner_id = (select auth.uid()))',
                    t || '_owner_select', t);
   end loop;
@@ -142,6 +143,7 @@ comment on function public.pool_counted_hands_reset() is
 
 revoke all on function public.pool_counted_hands_reset() from public, anon, authenticated;
 
+drop trigger if exists pool_counted_hands_reset on public.pool_counted_hands;
 create trigger pool_counted_hands_reset
   after delete on public.pool_counted_hands
   referencing old table as gone

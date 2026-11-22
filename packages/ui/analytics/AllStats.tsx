@@ -24,9 +24,11 @@ import { gapText, statName } from "./findings";
 import { spotName } from "./spot";
 import styles from "./Analytics.module.css";
 import { DrillWayIn } from "./Drill";
+import { PendingLine, pendingOf } from "./States";
 import {
   allStatsItems,
   isOff,
+  isUncovered,
   spotLines,
   type AllStatsOrder,
   type AllStatsRow,
@@ -113,9 +115,22 @@ export interface AllStatsProps {
   error?: string | null;
   /** The filter sets groups the checker does not follow. */
   partial?: boolean;
+  /** The surface filling the checker's rows: hands left (Step 12). */
+  filling?: number | null;
 }
 
-export function AllStats({ catalogue, result, coded, order, show, lock, loading = false, error = null, partial = false }: AllStatsProps) {
+export function AllStats({
+  catalogue,
+  result,
+  coded,
+  order,
+  show,
+  lock,
+  loading = false,
+  error = null,
+  partial = false,
+  filling = null,
+}: AllStatsProps) {
   const ui = useUiStrings();
   const words = ui.analytics;
   const s = words.screen.stats;
@@ -129,16 +144,17 @@ export function AllStats({ catalogue, result, coded, order, show, lock, loading 
   }
   const rows = items.filter((item): item is AllStatsRow => item.kind === "stat");
   const nothing = rows.every((row) => row.player === null);
+  const left = locked ? 0 : pendingOf(result, filling);
 
   return (
     <section className={styles.list} aria-label={words.screen.tabs.stats}>
       {locked ? lock : null}
-      {!locked && result && result.pending > 0 ? <p className={styles.quiet} role="status">{s.pending}</p> : null}
+      <PendingLine left={left} />
       {!locked && partial ? <p className={styles.quiet}>{s.partial}</p> : null}
       {show === "off" && rows.length === 0 ? (
-        <p className={styles.quiet}>{s.noneOff}</p>
+        left > 0 ? null : <p className={styles.quiet}>{s.noneOff}</p>
       ) : nothing && show === "all" ? (
-        <p className={styles.quiet}>{s.empty}</p>
+        left > 0 ? null : <p className={styles.quiet}>{s.empty}</p>
       ) : (
         <>
           <div className={styles.head} aria-hidden="true">
@@ -196,7 +212,8 @@ function StatRow({
   const judged = !locked && checked !== null && !row.fromRollups;
   const name = order === "cost" ? statName(stat, words) : stat.label[words.lang];
   const cost = judged ? costIn(row.cost, locale) : null;
-  const coverage = judged && checked.coverage !== null && checked.coverage < 0.9 ? checked.coverage : null;
+  // Not for "No target yet" (nothing analysed: the row says so already).
+  const coverage = judged && checked.n > 0 && checked.coverage !== null && checked.coverage < 0.9 ? checked.coverage : null;
   const className = [styles.row, open ? styles.open : "", locked ? styles.still : ""].filter(Boolean).join(" ");
   const cells = (
     <>
@@ -218,7 +235,7 @@ function StatRow({
       <span className={styles.target}>
         {judged && checked.bandLow !== null && checked.bandHigh !== null
           ? s.range(fixedIn(locale, 0)(checked.bandLow), fixedIn(locale, 0)(checked.bandHigh))
-          : judged || locked
+          : locked
             ? ""
             : "—"}
       </span>
@@ -374,19 +391,22 @@ function SpotRow({
   const name = spotName(row.key, words.spot);
   const action = actionOf(stat);
   const named = action === null || action === "rest" ? null : s.bars[action];
+  const uncovered = isUncovered(row);
   const gap =
     row.player !== null && row.target !== null && named
       ? s.spotGap(named, rateIn(row.player, words, locale), rateIn(row.target, words, locale))
-      : row.player !== null
-        ? rateIn(row.player, words, locale)
-        : words.checker.noTarget;
+      : uncovered
+        ? words.checker.noTargetYet
+        : row.player !== null
+          ? rateIn(row.player, words, locale)
+          : words.checker.noTarget;
   const cost = isOff(row.tone) || row.tone === "few" ? costIn(row.cost, locale) : null;
   return (
     <div className={styles.spot}>
       <span className={styles.spotName} title={name}>
         {name}
       </span>
-      <span className={styles.n}>{countIn(locale, row.n)}</span>
+      <span className={styles.n}>{countIn(locale, uncovered ? row.opps : row.n)}</span>
       <ActionBar parts={you} who={s.you} bet={bet} />
       <ActionBar parts={target} who={s.target} bet={bet} reference />
       <span className={`${styles.gap} ${TONE[row.tone] ?? ""}`}>{gap}</span>

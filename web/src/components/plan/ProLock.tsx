@@ -35,6 +35,21 @@ export function SeeProLink({ label, small = true }: { label?: string; small?: bo
   );
 }
 
+/**
+ * The lock as one line inside a screen that keeps its free part (Analytics:
+ * the player's own numbers stay, docs/ANALYTICS.md Step 12): the Pro badge,
+ * what is held back, "See Pro".
+ */
+export function ProLockLine({ line }: { line: string }) {
+  return (
+    <p className={styles.lockInline} role="note">
+      <ProBadge />
+      <span className={styles.lockInlineText}>{line}</span>
+      <SeeProLink />
+    </p>
+  );
+}
+
 export function ProLock({ feature, compact = false }: { feature: Feature; compact?: boolean }) {
   const t = useDict().pricing.lock;
   const line = t.line[feature];

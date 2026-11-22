@@ -145,19 +145,24 @@ export function Reports() {
         compact
       />
     ) : undefined;
-  // Targets, gaps and costs come from the analysis (Pro); the player's own numbers stay.
+  // Targets, gaps and costs come from the analysis (Pro); the player's own numbers stay,
+  // with one line above them (docs/ANALYTICS.md Step 12): the tab's line, the way to Pro.
+  const planStatus = plan.status;
   const checkerLock =
-    plan.status !== null && plan.locked("analysis") ? (
-      <ProLockView
-        feature="analysis"
-        status={plan.status}
-        onSignIn={plan.signIn}
-        onUpgrade={plan.upgrade}
-        onCheck={plan.checkNow}
-        checking={plan.checking}
-        compact
-      />
-    ) : undefined;
+    planStatus !== null && plan.locked("analysis")
+      ? (line: string) => (
+          <ProLockView
+            feature="analysis"
+            status={planStatus}
+            onSignIn={plan.signIn}
+            onUpgrade={plan.upgrade}
+            onCheck={plan.checkNow}
+            checking={plan.checking}
+            line={line}
+            inline
+          />
+        )
+      : undefined;
 
   if (!inApp) {
     return (
@@ -185,7 +190,17 @@ export function Reports() {
       hideTitle
       notice={<RecomputeNotice status={rebuild} filling={r.rebuilding} className={styles.notice} />}
       emptyText={r.empty}
-      renderState={(kind, text) => <StateMessage kind={kind}>{text}</StateMessage>}
+      emptyLink={<a href={screenHref("import")}>{r.emptyLink}</a>}
+      renderState={(kind, text, action) =>
+        kind === "loading" ? (
+          <StateMessage kind={kind}>{text}</StateMessage>
+        ) : (
+          <StateMessage kind={kind}>
+            {text}
+            {action ? <> {action}</> : null}
+          </StateMessage>
+        )
+      }
       hideHandChart={hiddenDuringPlay("handChart", tablesOpen)}
       situationsLock={situationsLock}
       checker={storeChecker}

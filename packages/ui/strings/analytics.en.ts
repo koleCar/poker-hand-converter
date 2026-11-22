@@ -94,11 +94,23 @@ export const analyticsUiEn = {
     inRange: "In range",
     notSure: "Not sure yet",
     noTarget: "No target",
+    /** Seen, but no reference analysed it (spots the solver does not cover yet: 4-bet pots on the turn, multiway). */
+    noTargetYet: "No target yet",
     source: { charts: "Charts", solver: "Solver" } as Record<string, string>,
   },
   /** The screen (Steps 4 and 5): the tabs, the figures row, All stats. */
   screen: {
     tabsLabel: "Analytics",
+    /** The Free plan's one line, per tab (the player's own numbers stay). */
+    lock: {
+      overview: "Findings, targets and costs are part of Rail Pro.",
+      streets: "Targets and costs are part of Rail Pro.",
+      stats: "Targets and costs are part of Rail Pro.",
+      pool: "How your pool plays is part of Rail Pro.",
+      drill: "The breakdown by spot, bet size and hand is part of Rail Pro.",
+    } as Record<string, string>,
+    /** No hands at the filters: the way out. */
+    clearFilters: "Clear filters",
     tabs: {
       overview: "Overview",
       streets: "Streets",
@@ -185,6 +197,9 @@ export const analyticsUiEn = {
       pending: (left: string) => `Your opponents are being counted: ${left} hands to go.`,
       error: (reason: string) => `The pool did not load: ${reason}`,
       empty: "No regs or fish at these filters yet.",
+      /** The web: the opponents' statistics are switched off, so nobody is typed. */
+      off: "Your opponents' statistics are off, so no one is a reg or a fish yet.",
+      offLink: "Turn them on in Players →",
       allStats: "All stats →",
       note: "Opponents count every hand they played with you at these rooms. The target is yours, so for them it is approximate. Regs and fish are Rail's player types (fish: VPIP 40+ over 30 hands).",
       /** Who a sentence is about. */
@@ -331,6 +346,8 @@ export const analyticsUiEn = {
       handsError: (reason: string) => `The hands did not load: ${reason}`,
       noHands: "No hands to show here yet.",
       noDrill: "This stat has no breakdown by spot and hand.",
+      /** Every decision seen, none analysed against a reference. */
+      noTarget: "No target here yet: the solver does not cover these spots, so only your numbers show.",
     },
     graph: "Winnings over hands",
     stats: {
@@ -355,6 +372,8 @@ export const analyticsUiEn = {
       loading: "Checking your stats…",
       error: (reason: string) => `All stats did not load: ${reason}`,
       pending: "Targets fill in as hands are analysed.",
+      /** The same, with the hands left: "Targets fill in as hands are analysed: 1,204 hands to go." */
+      pendingLeft: (left: string, n: number) => `Targets fill in as hands are analysed: ${left} ${n === 1 ? "hand" : "hands"} to go.`,
       partial: "All stats follows the dates, the game, one position and one pot type; your other filters are left out here.",
       empty: "No stats at these filters yet.",
       noneOff: "Nothing clearly off target at these filters.",

@@ -38,10 +38,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { FilterState } from "@rail/ui/hands/filter";
 import type { HandFilter } from "@rail/ui/hands/model";
 import type { AnalyticsChecker } from "@rail/ui/analytics/model";
+import { useUiStrings } from "@rail/ui/i18n";
 import { checkerFiltersOf, drillOfPath } from "@rail/ui/analytics/view";
 import {
   ReportsScreen,
@@ -61,16 +62,17 @@ import {
   rebuildStats,
   type RebuildProgress,
   type StatsCoverage,
+  villainRowsEnabled,
 } from "../../lib/db";
 import { webPool } from "../../lib/db/analyticsPool";
-import { checkerSource } from "../../lib/db/analyticsRows";
+import { backfillAnalyticsRows, checkerSource } from "../../lib/db/analyticsRows";
 import { libraryFilter } from "../../lib/db/handsSource";
 import { WEB_DEFINITIONS, webReportSource } from "../../lib/db/reportSource";
 import { useAuth } from "../../lib/auth";
 import { useEntitlements } from "../../lib/entitlements/context";
 import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
-import { ProLock } from "../plan/ProLock";
+import { ProLock, ProLockLine } from "../plan/ProLock";
 import type { ArrivalBatch } from "../../lib/live/arrivals";
 import { OpponentsPanel } from "./OpponentsPanel";
 import { opponentsScope } from "./opponentsScope";
@@ -106,7 +108,17 @@ const webChecker: AnalyticsChecker = {
     const { filters, hands } = checkerFiltersOf(query);
     return checkerSource.examples(hands ? { ...filters, hands: libraryFilter(query) } : filters, example);
   },
+  // Hands analysed before the checker existed (or at another catalogue
+  // version) get their rows here, while a tab that reads them is open
+  // (docs/ANALYTICS.md Step 12), not only at the end of the next analysis run.
+  backfill: (signal, onProgress) => backfillAnalyticsRows(signal, onProgress),
 };
+
+/** The Analytics lock as one line (the tab's words): the player's own numbers stay. */
+const lockLine = (line: string) => <ProLockLine line={line} />;
+
+/** The opponents' statistics setting lives in this browser's storage; nothing to subscribe to. */
+const subscribeNever = () => () => undefined;
 
 /**
  * The drill-down's way in and out (docs/ANALYTICS.md Step 8): `/stats/<id>`
@@ -125,8 +137,11 @@ const webDrillNav: DrillNav = {
 
 export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   const dict = useDict();
+  const ui = useUiStrings();
   const t = dict.stats;
   const en = t.tab;
+  // Pool's types come from the opponents' statistics; off, it links to the setting (Players).
+  const opponentsOn = useSyncExternalStore(subscribeNever, villainRowsEnabled, () => true);
   const auth = useAuth();
   const { locked, status: planStatus } = useEntitlements();
   const planPending = planStatus === "loading";
@@ -366,9 +381,10 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
         titleTag="h2"
         hideTitle
         notice={<CoverageBar coverage={coverage} rebuild={rebuild} onRebuild={() => void runRebuild()} />}
-        emptyText={rebuild.status === "running" ? en.loading : `${en.emptyHeading}. ${en.emptyBody}`}
+        emptyText={rebuild.status === "running" ? en.loading : `${en.emptyHeading}.`}
+        emptyLink={<Link href={paths.convert()}>{en.emptyLink}</Link>}
         reloadToken={generation}
-        renderState={(kind, text) =>
+        renderState={(kind, text, action) =>
           // Nothing to show while a catch-up rebuild runs is still loading.
           kind === "loading" || (kind === "empty" && rebuild.status === "running") ? (
             <RailLoader label={text} showLabel centered />
@@ -377,7 +393,14 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
               className={kind === "error" ? "notice notice--error rail-fade" : "card stats-empty rail-fade"}
               role={kind === "error" ? "alert" : "status"}
             >
-              {kind === "error" ? text : <p className="muted">{text}</p>}
+              {kind === "error" ? (
+                text
+              ) : (
+                <p className="muted">
+                  {text}
+                  {action ? <> {action}</> : null}
+                </p>
+              )}
             </div>
           )
         }
@@ -386,7 +409,8 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
         situationsLock={fullLocked ? <ProLock feature="reports_full" compact /> : undefined}
         checker={webChecker}
         pool={webPool}
-        checkerLock={analysisLocked ? <ProLock feature="analysis" compact /> : undefined}
+        poolOff={opponentsOn ? undefined : <Link href={paths.players()}>{ui.analytics.screen.pool.offLink}</Link>}
+        checkerLock={analysisLocked ? lockLine : undefined}
         practiseHref={paths.analysisTrain}
         drill={drill}
         drillNav={webDrillNav}

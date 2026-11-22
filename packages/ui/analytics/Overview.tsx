@@ -19,6 +19,7 @@ import { fixedIn } from "../stats/format";
 import { SPOTS_SHOWN, StatSpots, TONE, costIn, hoverOf, rateIn } from "./AllStats";
 import styles from "./Analytics.module.css";
 import { findingHeadline, findingWhy, statName } from "./findings";
+import { PendingLine, pendingOf } from "./States";
 import { overviewOf, practiseQuery, type AnalyticsView } from "./view";
 
 export interface OverviewProps {
@@ -35,9 +36,21 @@ export interface OverviewProps {
   onView: (view: AnalyticsView) => void;
   /** The Trainer's link for a finding's query (`practiseQuery`); absent: "Practise this" is not offered. */
   practiseHref?: (query: string) => string;
+  /** The surface filling the checker's rows: hands left (Step 12). */
+  filling?: number | null;
 }
 
-export function Overview({ catalogue, result, lock, loading = false, error = null, partial = false, onView, practiseHref }: OverviewProps) {
+export function Overview({
+  catalogue,
+  result,
+  lock,
+  loading = false,
+  error = null,
+  partial = false,
+  onView,
+  practiseHref,
+  filling = null,
+}: OverviewProps) {
   const ui = useUiStrings();
   const words = ui.analytics;
   const s = words.screen;
@@ -71,9 +84,10 @@ export function Overview({ catalogue, result, lock, loading = false, error = nul
     return null;
   }
   const model = overviewOf(result);
+  const left = pendingOf(result, filling);
   return (
     <section className={styles.overview} aria-label={o.findings}>
-      {result.pending > 0 ? <p className={styles.quiet} role="status">{s.stats.pending}</p> : null}
+      <PendingLine left={left} />
       {partial ? <p className={styles.quiet}>{s.stats.partial}</p> : null}
       {model.state === "findings" ? (
         <div className={styles.findings}>
@@ -90,7 +104,7 @@ export function Overview({ catalogue, result, lock, loading = false, error = nul
             />
           ))}
         </div>
-      ) : (
+      ) : model.state === "unanalysed" && left > 0 ? null : (
         <p className={styles.quiet}>{model.state === "clear" ? o.clear : o.unanalysed}</p>
       )}
       {model.inRange.length > 0 ? (

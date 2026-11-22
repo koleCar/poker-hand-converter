@@ -1185,7 +1185,8 @@ export const hr: Dict = {
     // shared screen's words (R4.5c, `@rail/ui/strings/reports.hr.ts`).
     ...reportsUiHr,
     unavailable: "Analitika je dostupna samo unutar aplikacije Rail.",
-    empty: "Još nema ruku. Analitika se puni kako Rail uvozi tvoje povijesti ruku.",
+    empty: "Još nema ruku.",
+    emptyLink: "Uvezi povijesti ruku →",
     rebuilding: (done, total) =>
       `Ažuriram statistiku nakon nadogradnje: ${n(done)} od ${odRuku(total)}. Brojke rastu kako napreduje.`,
     graph: {

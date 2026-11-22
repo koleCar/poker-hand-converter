@@ -1229,7 +1229,9 @@ export const en = {
     // shared screen's words (R4.5c, `@rail/ui/strings/reports.en.ts`).
     ...reportsUiEn,
     unavailable: "Analytics is only available inside the Rail app.",
-    empty: "No hands yet. Analytics fills in as Rail imports your hand histories.",
+    empty: "No hands yet.",
+    /** The empty state's one way on (docs/ANALYTICS.md Step 12). */
+    emptyLink: "Import hand histories →",
     rebuilding: (done: number, total: number) =>
       `Updating the statistics after an upgrade: ${n(done)} of ${hands(total)}. The numbers grow as it goes.`,
     graph: {

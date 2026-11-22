@@ -53,11 +53,12 @@ export function directionWords(stat: CatalogueStat, direction: CheckerDirection,
 
 /**
  * A judged stat or row in words: "Folds too much · +11 pts" off target,
- * "In range", "Not sure yet" (a small sample), "No target".
+ * "In range", "Not sure yet" (a small sample), "No target" (a coded stat),
+ * "No target yet" (decisions seen, none analysed against a reference).
  */
 export function gapText(
   stat: CatalogueStat,
-  figures: Pick<CheckerFigures, "tone" | "gap" | "direction">,
+  figures: Pick<CheckerFigures, "tone" | "gap" | "direction"> & Partial<Pick<CheckerFigures, "n" | "opps">>,
   words: AnalyticsStrings,
   locale: string,
 ): string {
@@ -67,7 +68,7 @@ export function gapText(
     case "few":
       return words.checker.notSure;
     case "none":
-      return words.checker.noTarget;
+      return figures.n === 0 && (figures.opps ?? 0) > 0 && stat.kind !== "coded" ? words.checker.noTargetYet : words.checker.noTarget;
     default:
       if (figures.gap === null || figures.direction === null) return words.checker.noTarget;
       return words.checker.gap(

@@ -27,6 +27,7 @@ import { fixedIn } from "../stats/format";
 import { costIn, rateIn, TONE } from "./AllStats";
 import styles from "./Analytics.module.css";
 import { breakdownName, statName } from "./findings";
+import { PendingLine, pendingOf } from "./States";
 import type { CheckerExample, CheckerExampleQuery } from "./model";
 import { parseSpot, spotName, spotSeats } from "./spot";
 import {
@@ -110,6 +111,8 @@ export interface DrillProps {
   loading?: boolean;
   error?: string | null;
   partial?: boolean;
+  /** The surface filling the checker's rows: hands left (Step 12). */
+  filling?: number | null;
   /** The decisions behind the open spot (and size); absent: no hands. */
   examples?: ((query: CheckerExampleQuery) => Promise<CheckerExample[]>) | undefined;
   /** A new value reads the hands again (another filter, a reload). */
@@ -138,6 +141,7 @@ export function Drill({
   loading = false,
   error = null,
   partial = false,
+  filling = null,
   examples,
   examplesKey = "",
   renderHandLink,
@@ -205,6 +209,7 @@ export function Drill({
   }
 
   const { checked, spots, spot, sizes, size, classes } = model;
+  const left = pendingOf(result, filling);
   const tone = checked ? (TONE[checked.tone] ?? "") : "";
   const cost = checked && isOff(checked.tone) ? costIn(checked.cost, locale) : null;
   const scope = spot === null ? null : sizeScope(spot, size, catalogue, words);
@@ -242,14 +247,14 @@ export function Drill({
           </a>
         ) : null}
       </div>
-      {result.pending > 0 ? (
-        <p className={styles.quiet} role="status">
-          {s.pending}
-        </p>
-      ) : null}
+      <PendingLine left={left} />
       {partial ? <p className={styles.quiet}>{s.partial}</p> : null}
       {spots.length === 0 || spot === null ? (
-        <p className={styles.quiet}>{checked && checked.n === 0 ? words.screen.overview.unanalysed : s.noSpots}</p>
+        left > 0 ? null : (
+          <p className={styles.quiet}>
+            {checked && checked.n === 0 ? (checked.opps > 0 ? d.noTarget : words.screen.overview.unanalysed) : s.noSpots}
+          </p>
+        )
       ) : (
         <div className={styles.split}>
           <div className={styles.spotList} role="group" aria-label={d.spots}>

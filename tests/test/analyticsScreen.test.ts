@@ -361,7 +361,7 @@ describe("All stats rendered", () => {
       const partial = render(locale, createElement(AllStats, { ...base, result: result("perfect"), partial: true }));
       expect(text(partial)).toContain(words.screen.stats.partial);
       const pending = { ...result("perfect"), pending: 3 };
-      expect(text(render(locale, createElement(AllStats, { ...base, result: pending })))).toContain(words.screen.stats.pending);
+      expect(text(render(locale, createElement(AllStats, { ...base, result: pending })))).toContain(words.screen.stats.pendingLeft("3", 3));
     });
   }
 });

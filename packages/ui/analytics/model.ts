@@ -140,6 +140,22 @@ export interface AnalyticsChecker {
    * drill-down shows no hands.
    */
   examples?(query: HandFilter, example: CheckerExampleQuery): Promise<CheckerExample[]>;
+  /**
+   * The web (docs/ANALYTICS.md Step 12): derives the rows of the hands
+   * analysed without them (`pending` - analysed before the checker existed,
+   * or at another catalogue version), in the browser, a page at a time,
+   * until done or `signal` aborts; the screen reads the sums again after.
+   * Absent where the surface fills them itself (the desktop's background pass).
+   */
+  backfill?(signal: AbortSignal, onProgress: (progress: CheckerProgress) => void): Promise<CheckerProgress>;
+}
+
+/** How far a browser backfill of the checker rows is. */
+export interface CheckerProgress {
+  /** Hands read from the work list. */
+  processed: number;
+  /** Hands whose rows were saved. */
+  saved: number;
 }
 
 /* --------------------------------------------------------------- Pool -- */

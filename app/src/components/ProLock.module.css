@@ -150,3 +150,22 @@
   outline: 2px solid var(--border-focus);
   outline-offset: 2px;
 }
+
+/* One line inside a screen that keeps its free part (Analytics, docs/ANALYTICS.md Step 12). */
+.inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+}
+
+.inlineLine {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}

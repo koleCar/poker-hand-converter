@@ -58,6 +58,7 @@ export const statsHr: Dict["stats"] = {
     },
     loading: "Čitam tvoje ruke…",
     emptyHeading: "Još nema ruku sa statistikom",
+    emptyLink: "Učitaj hand history →",
     emptyBody:
       "Statistika se računa iz ruku u tvojoj biblioteci, na serveru, čim se spreme. Učitaj hand history i ovaj ekran će se popuniti.",
     winRateNote:

@@ -28,6 +28,11 @@
  *   and hand classes, from the checker over that spot's (and size's)
  *   groups; its routes (`#/reports/stat/<id>`, `/stats/<id>`) and the
  *   Trainer's queries (`drillQuery`, `playQuery`).
+ * - **No target yet** (Step 12, `withUncovered`): a rate, spot, size or
+ *   class whose decisions were all seen but none analysed against a
+ *   reference (spots the solver does not cover: 4-bet pots on the turn,
+ *   multiway) shows the player's number from every decision, no colour,
+ *   "No target yet", no cost.
  */
 
 import type { HandFilter } from "../hands/model";
@@ -36,6 +41,7 @@ import type {
   Catalogue,
   CatalogueStat,
   CheckedStat,
+  CheckerFigures,
   CheckerFinding,
   CheckerResult,
   CheckerRow,
@@ -46,6 +52,43 @@ import type {
 import type { Graph } from "../reports/model";
 import { checkStats, type CheckerSumsIn } from "../model/checker";
 import type { CheckerFilters } from "./model";
+
+/* --------------------------------------------------- no target yet -- */
+
+/**
+ * Seen but never analysed against a reference (the solver does not cover the
+ * spot yet: 4-bet pots on the turn, multiway): no target, the player's number
+ * from every decision.
+ */
+export function isUncovered(figures: Pick<CheckerFigures, "n" | "opps">): boolean {
+  return figures.n === 0 && figures.opps > 0;
+}
+
+function uncovered<T extends CheckerFigures>(figures: T): T {
+  return isUncovered(figures) && figures.player === null ? { ...figures, player: (figures.oppsTaken * 100) / figures.opps } : figures;
+}
+
+/**
+ * The checker's result with the player's number on every rate (and its spot,
+ * size and class rows) that has decisions but none analysed: from all of them
+ * (`oppsTaken / opps`), no target, tone `none`. Shares and coded stats are as
+ * they were. The checker itself (and its Rust twin) leaves those numbers null.
+ */
+export function withUncovered(result: CheckerResult): CheckerResult {
+  return {
+    ...result,
+    stats: result.stats.map((stat) =>
+      stat.kind !== "rate"
+        ? stat
+        : {
+            ...uncovered(stat),
+            spots: stat.spots.map(uncovered),
+            sizes: stat.sizes.map(uncovered),
+            classes: stat.classes.map(uncovered),
+          },
+    ),
+  };
+}
 
 /* ------------------------------------------------------------ views -- */
 
@@ -229,7 +272,7 @@ export interface AllStatsRow {
   fromRollups: boolean;
   tone: CheckerTone;
   track: Track | null;
-  /** Analysed decisions (the checker's sample), else the rollups' opportunities. */
+  /** Analysed decisions (the checker's sample), else every decision (no target yet), else the rollups' opportunities. */
   n: number;
   /** bb/100 the gap costs, ≥ 0. */
   cost: number;
@@ -287,7 +330,7 @@ export function allStatsItems(
       fromRollups,
       tone,
       track: checked && !fromRollups ? trackOf(checked.bandLow, checked.bandHigh, player) : null,
-      n: fromRollups && twin ? twin.opp : (checked?.n ?? 0),
+      n: fromRollups && twin ? twin.opp : checked && isUncovered(checked) ? checked.opps : (checked?.n ?? 0),
       cost: checked && !fromRollups && isOff(checked.tone) ? checked.cost : 0,
     };
   });
