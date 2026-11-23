@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,river_bet=0/1 2:vpip=1/1,pfr=0/1,rfi=0/1,river_bet=0/1",
+      "events": "a60d209b2e0acb173b8be16fbc423667df8fdacd8ae2f356acb76f6584f3539a",
+      "handId": "3050116136",
+      "index": 0,
+      "members": "0@2:vpip+,pfr-,rfi- 1@1:vpip-,pfr- 6@1:river_bet- 7@2:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__PLO8-USD-MTT - $1-0.10 - 201409.LOW.vs.LO.txt"
+}

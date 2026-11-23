@@ -34,6 +34,8 @@ import {
   type TurnSpotOptions,
 } from "../../lib/training";
 import type { FocusTarget } from "./focus";
+import type { AnalyticsFrom } from "./analytics";
+import { ANALYTICS } from "../../lib/stats/analytics";
 import { PLAY_FAMILIES, type PlayOptions } from "../../lib/training/play";
 
 /** `focus`: spots from the player's own leaks; the others deal one street. */
@@ -111,6 +113,12 @@ export interface TrainerSettings {
   tables: Tables;
   /** Spots of the session's own dealt again. */
   repeat: Repeat;
+  /** Postflop: only bets of this size bucket faced (Analytics' `size`, `20-40`…); null for any. */
+  size: string | null;
+  /** Postflop: only hero hands of these hand classes (Analytics' "Hands you tend to fold"); empty for any. */
+  classes: string[];
+  /** The Analytics stat and spot the session practises (the bar and the goal); null for any other session. */
+  from: AnalyticsFrom | null;
 }
 
 export const DEFAULT_SETTINGS: TrainerSettings = {
@@ -135,6 +143,9 @@ export const DEFAULT_SETTINGS: TrainerSettings = {
   input: "action",
   tables: "1",
   repeat: "some",
+  size: null,
+  classes: [],
+  from: null,
 };
 
 /** The sets each street deals from (the river and turn trainers: the 6-max default and heads-up). */
@@ -218,6 +229,8 @@ export function spotOptions(mode: StreetMode, s: TrainerSettings): SpotRequest {
     const family = s.family === "random" || familiesAt(s.set).includes(s.family) ? s.family : "random";
     return { kind: "preflop", options: { set: s.set, family, seat, vs, bias: s.deal } };
   }
+  // Analytics' narrowing (Step 9): the bet faced of one size bucket, the hero's hand of the classes chosen.
+  const focus = { ...(s.size ? { size: s.size } : {}), ...(s.classes.length > 0 ? { classes: [...s.classes] } : {}) };
   if (mode === "flop") {
     const hero = s.seat && flopSeatsAt(s.set).includes(s.seat) ? s.seat : null;
     const line = s.line && flopLinesAt(s.set).some((l) => l.id === s.line) ? s.line : null;
@@ -232,14 +245,19 @@ export function spotOptions(mode: StreetMode, s: TrainerSettings): SpotRequest {
         ...(hero ? { hero } : {}),
         ...(line ? { line } : {}),
         bias: s.deal,
+        ...focus,
       },
     };
   }
   // The turn and river solvers deal heads-up lines of the default 6-max set or a heads-up set.
   const set = setFor(mode, s.set);
-  const facing = s.facing === "check" || s.facing === "bet" ? s.facing : "any";
-  if (mode === "turn") return { kind: "turn", options: { set, pot: s.pot, seat: s.side, role: s.role, bias: s.deal, facing } };
-  return { kind: "river", options: { set, pot: s.pot, seat: s.side, role: s.role, bias: s.deal, facing } };
+  // Out of position a bet to answer is the villain's after the hero's check.
+  const facing = s.facing === "bet" && s.side === "oop" ? "check-bet" : s.facing === "check" || s.facing === "bet" ? s.facing : "any";
+  // The seats only from Analytics: the street modes' sheet has no seat row for the turn and river.
+  const seats = s.from ? { ...(s.seat ? { hero: s.seat } : {}), ...(s.vs ? { villain: s.vs } : {}) } : {};
+  const options = { set, pot: s.pot, seat: s.side, role: s.role, bias: s.deal, facing, ...seats, ...focus } as const;
+  if (mode === "turn") return { kind: "turn", options };
+  return { kind: "river", options };
 }
 
 /**
@@ -249,16 +267,24 @@ export function spotOptions(mode: StreetMode, s: TrainerSettings): SpotRequest {
  * deal bias) stays the player's.
  */
 export function targetSettings(target: FocusTarget, base: TrainerSettings): { mode: StreetMode; settings: TrainerSettings } {
+  // Analytics' narrowing and origin (Step 9); a study plan's or a leak's target carries none, so none is kept.
+  const narrowed: Pick<TrainerSettings, "size" | "classes" | "from"> = {
+    size: target.sizes?.[0] ?? null,
+    classes: [...(target.classes ?? [])],
+    from: target.from ?? null,
+  };
+  // The turn and river: Analytics' seats and what is faced; a leak's turn or river spot leaves them open.
+  const later = target.from ? { seat: target.seat ?? null, vs: target.vs ?? null, facing: target.faced ?? "any" } : { facing: "any" as const };
   if (target.mode === "turn") {
     return {
       mode: "turn",
-      settings: { ...base, set: target.set ?? DEFAULT_CHART_SET, pot: target.pot, side: target.side, role: target.role, facing: "any" },
+      settings: { ...base, ...narrowed, ...later, set: target.set ?? DEFAULT_CHART_SET, pot: target.pot, side: target.side, role: target.role },
     };
   }
   if (target.mode === "preflop") {
     return {
       mode: "preflop",
-      settings: { ...base, set: target.set ?? base.set, family: target.family, seat: target.seat, vs: target.vs },
+      settings: { ...base, ...narrowed, set: target.set ?? base.set, family: target.family, seat: target.seat, vs: target.vs },
     };
   }
   if (target.mode === "flop") {
@@ -266,6 +292,7 @@ export function targetSettings(target: FocusTarget, base: TrainerSettings): { mo
       mode: "flop",
       settings: {
         ...base,
+        ...narrowed,
         set: target.set,
         pot: target.pot,
         side: target.side,
@@ -278,7 +305,7 @@ export function targetSettings(target: FocusTarget, base: TrainerSettings): { mo
   }
   return {
     mode: "river",
-    settings: { ...base, set: target.set ?? DEFAULT_CHART_SET, pot: target.pot, side: target.side, role: target.role, facing: "any" },
+    settings: { ...base, ...narrowed, ...later, set: target.set ?? DEFAULT_CHART_SET, pot: target.pot, side: target.side, role: target.role },
   };
 }
 
@@ -288,6 +315,42 @@ const oneOf = <T extends string>(value: unknown, allowed: readonly T[], fallback
   typeof value === "string" && (allowed as readonly string[]).includes(value) ? (value as T) : fallback;
 const seatOf = (value: unknown) =>
   typeof value === "string" && (ALL_PREFLOP_SEATS as readonly string[]).includes(value) ? (value as ChartPosition) : null;
+
+const SIZES = ANALYTICS.file.sizeBuckets.map((bucket) => bucket.id);
+const CLASSES = ANALYTICS.file.handClasses.map((cls) => cls.id);
+
+/** Hand classes from a list or a comma-joined field: the catalogue's, each once, in the catalogue's order. */
+function classesOf(value: unknown): string[] {
+  const list = Array.isArray(value) ? value : typeof value === "string" ? value.split(",") : [];
+  const wanted = new Set(list.filter((item): item is string => typeof item === "string").map((item) => item.trim()));
+  return CLASSES.filter((cls) => wanted.has(cls));
+}
+
+const finite = (value: unknown): number | null => (typeof value === "number" && Number.isFinite(value) ? value : null);
+
+/** Where a session came from in Analytics: a stored JSON field or a record; null when it is neither. */
+function fromOf(value: unknown): AnalyticsFrom | null {
+  let raw: unknown = value;
+  if (typeof value === "string") {
+    try {
+      raw = JSON.parse(value);
+    } catch {
+      return null;
+    }
+  }
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  if (typeof r.stat !== "string" || !ANALYTICS.get(r.stat)) return null;
+  const tone = r.tone === "ok" || r.tone === "off" || r.tone === "far" || r.tone === "few" ? r.tone : null;
+  return {
+    stat: r.stat,
+    spot: typeof r.spot === "string" ? r.spot.slice(0, 120) : "",
+    you: finite(r.you),
+    ref: finite(r.ref),
+    cost: finite(r.cost),
+    ...(tone ? { tone } : {}),
+  };
+}
 
 /**
  * Settings from loose fields (an address, a stored record): every field
@@ -322,6 +385,9 @@ export function parseSettings(raw: Record<string, unknown> | null | undefined): 
     input: oneOf(r.input, INPUTS, d.input),
     tables: oneOf(r.tables, TABLES, d.tables),
     repeat: oneOf(r.repeat, REPEATS, d.repeat),
+    size: typeof r.size === "string" && SIZES.includes(r.size) ? r.size : null,
+    classes: classesOf(r.classes),
+    from: fromOf(r.from),
   };
 }
 
@@ -331,9 +397,12 @@ export function settingsFields(s: TrainerSettings): Record<string, string> {
   const d = DEFAULT_SETTINGS;
   for (const key of Object.keys(d) as (keyof TrainerSettings)[]) {
     const value = s[key];
-    if (value === d[key]) continue;
+    if (value === d[key] || value === null) continue;
     if (typeof value === "boolean") out[key] = value ? "1" : "0";
-    else if (value !== null) out[key] = value;
+    else if (Array.isArray(value)) {
+      if (value.length > 0) out[key] = value.join(",");
+    } else if (typeof value === "object") out[key] = JSON.stringify(value);
+    else out[key] = value;
   }
   return out;
 }

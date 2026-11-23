@@ -42,6 +42,7 @@ import { toStandardText, toStandardTextFile } from "../../../web/src/lib/phf/ser
 import type { PhfHand } from "../../../web/src/lib/phf/types.js";
 import { validateHand } from "../../../web/src/lib/phf/validate.js";
 import { canonicalJson, compareUtf8 } from "./canonical.js";
+import { analyticsGoldenFor } from "./analytics.js";
 import { evGoldenFor } from "./ev.js";
 import { factsGoldenFor } from "./facts.js";
 import { statsGoldenFor, type GoldenHandInput } from "./stats.js";
@@ -61,6 +62,8 @@ export const EV_GOLDEN_DIR = join(ROOT, "testdata/golden-ev");
 export const EV_GOLDEN_FULL_DIR = join(ROOT, "testdata/golden-ev-full");
 /** Committed: the filter builder's facts per hand (2026-11-16, `facts.ts`). */
 export const FACTS_GOLDEN_DIR = join(ROOT, "testdata/golden-facts");
+/** Committed: the Analytics catalogue's counts and membership per hand (docs/ANALYTICS.md Step 1, `analytics.ts`). */
+export const ANALYTICS_GOLDEN_DIR = join(ROOT, "testdata/golden-analytics");
 
 /** Bumped whenever the shape of a golden file changes. */
 export const GOLDEN_FORMAT = "rail-golden/1";
@@ -322,6 +325,7 @@ export interface EmitReport {
   evSummaryBytes: number;
   evFullBytes: number;
   factsBytes: number;
+  analyticsBytes: number;
 }
 
 /** Regenerates both trees, and removes goldens whose input is gone. */
@@ -347,6 +351,7 @@ export async function emitAll(): Promise<EmitReport> {
     evSummaryBytes: 0,
     evFullBytes: 0,
     factsBytes: 0,
+    analyticsBytes: 0,
   };
 
   for (const dir of [
@@ -357,6 +362,7 @@ export async function emitAll(): Promise<EmitReport> {
     EV_GOLDEN_DIR,
     EV_GOLDEN_FULL_DIR,
     FACTS_GOLDEN_DIR,
+    ANALYTICS_GOLDEN_DIR,
   ]) {
     const wanted = new Set(inputs.map((input) => join(dir, `${input}.json`)));
     for (const stale of existingJson(dir)) {
@@ -378,6 +384,7 @@ export async function emitAll(): Promise<EmitReport> {
     const evSummary = canonical(input, ev.summary);
     const evFull = canonical(input, ev.full);
     const facts = canonical(input, factsGoldenFor(input, golden.statsInput));
+    const analytics = canonical(input, analyticsGoldenFor(input, golden.statsInput));
     for (const [dir, text] of [
       [GOLDEN_DIR, summary],
       [GOLDEN_FULL_DIR, full],
@@ -386,6 +393,7 @@ export async function emitAll(): Promise<EmitReport> {
       [EV_GOLDEN_DIR, evSummary],
       [EV_GOLDEN_FULL_DIR, evFull],
       [FACTS_GOLDEN_DIR, facts],
+      [ANALYTICS_GOLDEN_DIR, analytics],
     ] as const) {
       const out = join(dir, `${input}.json`);
       mkdirSync(dirname(out), { recursive: true });
@@ -409,6 +417,7 @@ export async function emitAll(): Promise<EmitReport> {
     report.evSummaryBytes += Buffer.byteLength(evSummary);
     report.evFullBytes += Buffer.byteLength(evFull);
     report.factsBytes += Buffer.byteLength(facts);
+    report.analyticsBytes += Buffer.byteLength(analytics);
   }
   return report;
 }

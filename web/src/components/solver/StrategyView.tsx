@@ -15,8 +15,9 @@
  * picked) hand - its name, what it makes on the board, its EV - as combo
  * cards (`@rail/ui` ComboZoom, GTO Wizard's look): each filled with its mix as
  * bands (as tall as its reach), every action's frequency and EV; a combo the
- * board takes out stays as a hatched card, so the blockers show. Hovering a
- * cell also zooms it over the grid: the class box and its combos under it.
+ * board takes out stays as a hatched card, so the blockers show. The panel
+ * is where a hovered hand shows: only while it is on `Filters` does hovering
+ * a cell zoom it over the grid instead (the class box and its combos under it).
  * The hero's hand, when the view comes from one of their decisions, is marked
  * in the grid and on its card.
  *
@@ -91,7 +92,7 @@ export interface StrategyHero {
 }
 
 /** Below this an action rounds to nothing (it reads `<0.1%`): left out of a cell's spoken mix. */
-const SHOWN_FREQ = 0.0005;
+export const SHOWN_FREQ = 0.0005;
 /** An action row being hovered leaves the others this faint in the grid. */
 const DIMMED = 0.12;
 const RANKS = "AKQJT98765432";
@@ -309,6 +310,8 @@ function Grid({
   const isHeroTile = (cards: string) => shown === heroIndex && !!hero && sameCombo(hero.cards, cards);
   const visible = model.actions.map((action) => (action.hidden ? 0 : action.share));
   const category = shown !== null && detail?.state !== "absent" ? (model.category?.(shown) ?? null) : null;
+  /** Compare with GTO: what the shown class gains over GTO, bb. */
+  const classGain = compare && shown !== null ? (compare.classes[shown] ?? null) : null;
 
   let left: ReactNode;
   if (mainView) left = fade ? <div className="rail-fade">{mainView}</div> : mainView;
@@ -389,7 +392,8 @@ function Grid({
     <>
       <div ref={wrapRef} className={`${styles.gridWrap} ${styles.gridZoomWrap}`}>
         {left}
-        {anchor && !mainView && !empty && anchor.cell === hovered ? <Zoom model={model} anchor={anchor} actions={zoomActions} order={order} words={words} hero={hero && heroIndex === anchor.cell ? hero.cards : null} /> : null}
+        {/* The panel's Hand block already shows the hovered hand: the zoom only while the panel is on the filters. */}
+        {showFilters && anchor && !mainView && !empty && anchor.cell === hovered ? <Zoom model={model} anchor={anchor} actions={zoomActions} order={order} words={words} hero={hero && heroIndex === anchor.cell ? hero.cards : null} /> : null}
       </div>
 
       <aside className={styles.panel}>
@@ -397,8 +401,11 @@ function Grid({
         <MixBar mix={visible} colours={colours} />
 
         <div className={styles.acts} role="group" aria-label={t.panel.actions}>
-          {model.actions.map((action, a) =>
-            action.hidden ? null : (
+          {model.actions.map((action, a) => {
+            const gto = compare ? (compare.shares[a] ?? null) : null;
+            // Compare keeps an action GTO plays that the lock took to nothing: it shows at 0 %.
+            if (action.hidden && !(gto !== null && gto >= SHOWN_FREQ)) return null;
+            return (
               <button
                 key={action.key}
                 type="button"
@@ -414,9 +421,9 @@ function Grid({
                 <span className={styles.actLabel}>
                   {action.label}
                   {actionMark ? actionMark(action.key) : null}
-                  {compare ? (
-                    <span className={styles.actGto} title={compare.shareDelta(action.share - (compare.shares[a] ?? 0))}>
-                      {compare.label} {t.shareOnly(compare.shares[a] ?? 0)}
+                  {compare && gto !== null ? (
+                    <span className={styles.actGto} title={compare.shareDelta(action.share - gto)}>
+                      {compare.label} {t.shareOnly(gto)}
                     </span>
                   ) : null}
                 </span>
@@ -424,8 +431,22 @@ function Grid({
                 <span className={styles.actShare}>{t.shareOnly(action.share)}</span>
                 {action.ev === null ? <span /> : <SignedBb className={styles.actEv} value={action.ev} text={t.signed(action.ev)} />}
               </button>
-            ),
-          )}
+            );
+          })}
+          {compare?.missing.map((gone) => (
+            <div key={gone.key} className={`${styles.act} ${styles.actGone}`} title={t.notOffered(compare.label)}>
+              <span className={`${styles.actDot} ${gone.colour}`} aria-hidden="true" />
+              <span className={styles.actLabel}>
+                {gone.label}
+                <span className={styles.actGto}>
+                  {compare.label} {t.shareOnly(gone.share)}
+                </span>
+              </span>
+              <span className={styles.actCombos} />
+              <span className={styles.actShare}>{t.shareOnly(0)}</span>
+              <span />
+            </div>
+          ))}
         </div>
 
         {filters ? (
@@ -460,10 +481,8 @@ function Grid({
                   {detail.state === "absent" ? null : (
                     <>
                       <SignedBb className={styles.handValue} value={detail.value} text={t.signedBb(detail.value)} />
-                      {compare ? (
-                        <span className={styles.handDelta}>
-                          {t.vsBase(t.signedBb(detail.value - compare.classes[shown].value), compare.label)}
-                        </span>
+                      {compare && classGain !== null ? (
+                        <SignedBb className={styles.handDelta} value={classGain} text={t.vsBase(t.signedBb(classGain), compare.label)} />
                       ) : null}
                     </>
                   )}
@@ -473,7 +492,7 @@ function Grid({
                 ) : (
                   <ComboCards
                     label={t.combosLabel}
-                    combos={tiles.map((x) => panelCombo(x, model, isHeroTile(x.cards), t))}
+                    combos={tiles.map((x) => panelCombo(x, model, isHeroTile(x.cards), t, compare))}
                     actions={zoomActions}
                     order={order}
                     words={words}
@@ -492,7 +511,7 @@ function Grid({
 }
 
 /** A tile of the panel as a combo card: its mix, EV and reach, or why it is not here. */
-function panelCombo(tile: Tile, model: StrategyModel, hero: boolean, t: ReturnType<typeof useSolverDict>): ZoomCombo {
+function panelCombo(tile: Tile, model: StrategyModel, hero: boolean, t: ReturnType<typeof useSolverDict>, compare: StrategyCompare | null = null): ZoomCombo {
   const combo = tile.combo;
   if (!combo) {
     const board = model.board ?? null;
@@ -500,18 +519,22 @@ function panelCombo(tile: Tile, model: StrategyModel, hero: boolean, t: ReturnTy
     return { cards: tile.cards, freq: [], off: blocked ? t.blocked : t.comboOff, label: `${tile.cards}: ${blocked ? t.blocked : t.comboOff}` };
   }
   const parts = combo.freq.map((f, a) => (f >= SHOWN_FREQ ? t.part(model.actions[a].label, f) : null)).filter((p): p is string => p !== null);
+  // Compare with GTO: what the combo gains over GTO here, as its rows' EVs read (no unit).
+  const gain = compare ? compare.combo(tile.cards) : null;
+  const delta = compare && gain !== null ? { value: gain, text: t.vsBase(t.signed(gain), compare.label) } : null;
   return {
     cards: tile.cards,
     freq: combo.freq,
     ev: combo.ev,
     reach: combo.weight,
     you: hero,
-    label: t.tileLabel(tile.cards, parts, t.value(combo.value)),
+    delta,
+    label: t.tileLabel(tile.cards, parts, t.value(combo.value)) + (delta ? `, ${delta.text}` : ""),
   };
 }
 
 /**
- * The hover: the class zoomed over its cell, its combos that reach the
+ * The hover while the panel shows the filters: the class zoomed over its cell, its combos that reach the
  * decision under it (flop decisions: preflop every combo plays the class's
  * mix, so the class box shows alone).
  */

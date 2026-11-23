@@ -65,15 +65,16 @@ this README is the working summary.
 | `overlay/`, `icon/`, `dialog/` | The `<dialog>` overlay the replayer's sheets use; the stroke icon set; the desktop app's modal dialog. |
 | `stats/` | `StatTile`, `StatTable`, `StatValue` (a value dimmed by its reliability, sample and interval in the tooltip), `WinrateGraph` (total, showdown, non-showdown, all-in EV; big blinds or money) and its axis maths. |
 | `hands/` | The Hands screen: `HandsScreen`, the virtualised `HandList`; the filter row shared with Reports - `FilterBar` (chips of the set groups, quick filters), `AddFilter` (the searchable "+ Add filter" menu), `FilterBuilder` ("All filters": panes, search, the active filters), `GroupEditor` (a group's editor, the seat table, the range grid), `groups.ts` (the groups as data: which a source has, summaries, panes, quick filters), `Popover`, `SavedFilters`; `filter.ts` (filter state, presets, saved form), `useHandList`, `model.ts` (`HandsSource`). |
-| `reports/` | The Reports screen: `ReportsScreen`, `Breakdown` (also used by the app's player profile and HUD popup), `HandMatrix` (13 × 13 grid), `useReport`, `model.ts` (`ReportSource`). |
+| `reports/` | The Analytics screen (Reports until docs/ANALYTICS.md Step 4): `ReportsScreen` (the filter row, the tabs Overview · Streets · All stats · Pool · Breakdown), `Breakdown` (also used by the app's player profile and HUD popup), `HandMatrix` (13 × 13 grid), `useReport`, `model.ts` (`ReportSource`). |
 | `players/` | The Players screen: `PlayersScreen`, `PlayerTable`, `PlayerProfile`, `PlayerWords` (colour, labels, note), `model.ts` (`PlayersSource`). |
 | `review/` | The session review: `SessionReviewScreen`, `select.ts` (each list ranked, a hand shown once), `model.ts` (`SessionReviewSource`, `DeviationSource`). |
 | `charts/` | The user's own preflop charts: `ChartsScreen`, `ChartEditor`, `ChartGrid`, `ChartCompare`; pure modules for the stored shape (`model.ts`), situation keys (`nodeKey.ts`), range text in and out (`ranges.ts`), Rail JSON (`exchange.ts`), the comparison (`compare.ts`); `source.ts` (`PreflopChartsSource`) and `sessionSource.ts` (`SessionChartsSource`, "off your own charts" in the review). |
+| `analytics/` | The Analytics screen's parts (docs/ANALYTICS.md): `model.ts` (`CheckerSource`, `AnalyticsChecker`, the grouped sums), `spot.ts` (`spotName`), `findings.ts` (a stat's gap, a breakdown row's name, a finding's headline and why-sentence in words), `view.ts` (the tabs, the figures, the All stats rows, the spot bars, the checker's filter, the drill-down's model and routes), `FiguresRow`, `AllStats`, `Streets`, `Overview`, `Drill` (one stat by spot, bet size, hand class and hand), `useChecker`. The judging itself is `model/checker.ts`. |
 | `palette/` | `CommandPalette` (the shell: field, grouped list, keys, hints) and `fuzzy.ts` (`fuzzyMatch`, `rankItems`). What it finds is the surface's. |
 | `data.tsx` | `DataSource` (`hand(id)`), `DataSourceProvider`, `useHand`. |
 | `i18n.tsx` | `UiStrings` (every word the components show), `UiStringsProvider`, `useUiStrings`. |
 | `strings/` | Data, not components: the English and Croatian dictionaries for the replayer, stats, hands, reports, players, review and charts, and the Croatian `plural`. Both surfaces spread these into their own dictionaries, so the text is identical. |
-| `model/` | The one door out: re-exports of the web's framework-free library (`phf.ts`, `replay.ts`, `cards.ts`, `stats.ts` types, `replayStrings.ts`). |
+| `model/` | The one door out: re-exports of the web's framework-free library (`phf.ts`, `replay.ts`, `cards.ts`, `stats.ts` types, `replayStrings.ts`, `checker.ts`: the Analytics checker and its catalogue). |
 | `screens/` | Two Playwright scripts, not part of the package: `screens.mjs` (before/after screenshot and cascade comparison of the web, R2.6) and `responsive.mjs` (the phone check at 375 × 812 against a local stack). |
 
 ---
@@ -88,6 +89,7 @@ nothing a source can answer and never knows where the data lives.
 | `DataSource` (`data.tsx`) | anything that loads a hand by id | `web/src/lib/db/dataSource.ts` | `app/src/lib/dataSource.ts` |
 | `HandsSource` (`hands/model.ts`) | `HandsScreen` | `web/src/lib/db/handsSource.ts` | `app/src/lib/handsSource.ts` |
 | `ReportSource` (`reports/model.ts`) | `ReportsScreen` | `web/src/lib/db/reportSource.ts` | `app/src/lib/reportSource.ts` |
+| `AnalyticsChecker` (`analytics/model.ts`) | `ReportsScreen`'s Overview, Streets, All stats and drill-down (sums and example hands) | `webChecker` in `web/src/components/stats/StatsTab.tsx` (over `lib/db/analyticsRows.ts`) | `storeChecker` in `app/src/screens/Reports.tsx` (over `lib/checkerSource.ts`) |
 | `PlayersSource` (`players/model.ts`) | `PlayersScreen` | `web/src/lib/db/playersSource.ts` | `app/src/lib/playersSource.ts` |
 | `SessionReviewSource` (`review/model.ts`) | `SessionReviewScreen` | `web/src/lib/db/sessionReview.ts` | `app/src/lib/reviewSource.ts` |
 | `PreflopChartsSource` (`charts/source.ts`) | `ChartsScreen` | `web/src/lib/db/preflopCharts.ts` | `app/src/lib/chartsSource.ts` |

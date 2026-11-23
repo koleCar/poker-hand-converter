@@ -4,6 +4,7 @@
  * the worker pool here, or the native one (`core/rail-solver`) later.
  */
 import type { LockSet } from "./door";
+import type { SolveSpeed } from "./speed";
 
 export type { LockBase, LockEarlier, LockSet, NodeLockSpec, RangeLock } from "./door";
 
@@ -31,6 +32,8 @@ export interface NodelockRequest {
   baseline: Uint8Array;
   /** Default: the library profile's cap (flop), the live turn's (turn and river). */
   maxIterations?: number;
+  /** How hard the solve works the computer (`speed.ts`): its threads and, natively, a flop's storage. Default: every thread the engine has. */
+  speed?: SolveSpeed;
 }
 
 export interface NodelockStats {

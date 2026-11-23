@@ -18,6 +18,7 @@
           0,
           0
         ],
+        "effStack": 200,
         "heroIp": false,
         "kicker": [
           null,
@@ -55,6 +56,7 @@
           32,
           0
         ],
+        "effStack": 190,
         "heroIp": false,
         "kicker": [
           null,
@@ -92,6 +94,7 @@
           0,
           0
         ],
+        "effStack": 173,
         "heroIp": true,
         "kicker": [
           null,
@@ -129,6 +132,7 @@
           32,
           0
         ],
+        "effStack": 163,
         "heroIp": false,
         "kicker": [
           null,
@@ -166,6 +170,7 @@
           32,
           0
         ],
+        "effStack": 231,
         "heroIp": false,
         "kicker": [
           3,
@@ -203,6 +208,7 @@
           40,
           8
         ],
+        "effStack": 259,
         "heroIp": null,
         "kicker": [
           null,
@@ -240,6 +246,7 @@
           0,
           0
         ],
+        "effStack": 254,
         "heroIp": true,
         "kicker": [
           null,
@@ -277,6 +284,7 @@
           32,
           0
         ],
+        "effStack": 244,
         "heroIp": null,
         "kicker": [
           null,
@@ -314,6 +322,7 @@
           0,
           0
         ],
+        "effStack": 244,
         "heroIp": null,
         "kicker": [
           null,
@@ -351,6 +360,7 @@
           0,
           8
         ],
+        "effStack": 244,
         "heroIp": null,
         "kicker": [
           null,
@@ -388,6 +398,7 @@
           0,
           0
         ],
+        "effStack": 244,
         "heroIp": false,
         "kicker": [
           null,
@@ -425,6 +436,7 @@
           0,
           0
         ],
+        "effStack": 117,
         "heroIp": false,
         "kicker": [
           3,

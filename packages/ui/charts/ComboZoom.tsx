@@ -47,6 +47,8 @@ export interface ZoomCombo {
   you?: boolean;
   /** The combo is not in play here: the reason, on a hatched card. */
   off?: string | null;
+  /** A change of its EV against a baseline (the nodelock's Compare with GTO), bb: a signed pill under the rows. */
+  delta?: { value: number; text: string } | null;
   /** After the cards (the nodelock editor's lock). */
   mark?: ReactNode;
   /** Ringed as picked. */
@@ -91,6 +93,12 @@ const NONE = 0.0005;
 export function freqText(value: number, locale?: string): string {
   const x = Math.round(value * 1000) / 10;
   return x.toLocaleString(locale, { maximumFractionDigits: x % 1 === 0 ? 0 : 1 });
+}
+
+/** Green above zero, red below, at the 0.01 shown. */
+function toneOf(value: number): string {
+  const x = Math.round(value * 100);
+  return x > 0 ? styles.evPos : x < 0 ? styles.evNeg : "";
 }
 
 function signedText(value: number, locale?: string): string {
@@ -149,7 +157,7 @@ function Rows({
             {action.size ? <small>{action.size}</small> : null}
             <span className={styles.value}>{freqText(freq[a] ?? 0, locale)}</span>
             {ev ? (
-              <span className={`${styles.ev} ${Math.round((ev[a] ?? 0) * 100) > 0 ? styles.evPos : Math.round((ev[a] ?? 0) * 100) < 0 ? styles.evNeg : ""}`}>
+              <span className={`${styles.ev} ${toneOf(ev[a] ?? 0)}`}>
                 {none ? "" : signedText(ev[a] ?? 0, locale)}
               </span>
             ) : null}
@@ -212,6 +220,9 @@ export function ComboCard({ combo, actions, order, words, locale, withEv = false
         <span className={styles.offText}>{combo.off}</span>
       ) : (
         <Rows freq={combo.freq} ev={withEv ? combo.ev : null} actions={actions} order={order} locale={locale} />
+      )}
+      {combo.off || !combo.delta ? null : (
+        <span className={`${styles.delta} ${toneOf(combo.delta.value)}`}>{combo.delta.text}</span>
       )}
     </>
   );

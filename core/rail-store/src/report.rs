@@ -62,19 +62,6 @@ pub const SESSION_GAP_MINUTES: i64 = 30;
 /// The most graph points one call returns.
 pub const GRAPH_POINTS_MAX: u32 = 4000;
 
-/// The stack depth bands of the breakdown (the web's `stats_breakdown`
-/// `stack_bb`): id, lowest stack in tenths of a big blind (inclusive),
-/// highest (exclusive; `None`: no limit).
-pub const STACK_BANDS: [(&str, i64, Option<i64>); 7] = [
-    ("0-20", 0, Some(200)),
-    ("20-40", 200, Some(400)),
-    ("40-70", 400, Some(700)),
-    ("70-100", 700, Some(1000)),
-    ("100-150", 1000, Some(1500)),
-    ("150-250", 1500, Some(2500)),
-    ("250+", 2500, None),
-];
-
 /// Which of the hero's hands a report covers: every group is "any" when
 /// empty. The segment's dimensions, the hero's position and a date range -
 /// what [`Reader::hero_totals`] can sum from the rollups - and, when the
@@ -347,7 +334,8 @@ pub struct Breakdowns {
     /// `walk`, `limped`, `single-raised`, `3bet`, `4bet+` (bomb pots are
     /// out of the statistics).
     pub pot_type: Vec<BreakdownRow>,
-    /// [`STACK_BANDS`]: the hero's starting stack.
+    /// The `breakdown` stack buckets (`config/stats/stack-buckets.json`):
+    /// the hero's starting stack.
     pub stack: Vec<BreakdownRow>,
     /// `AKs`, `QQ`, `T9o`; Omaha classes as the engine writes them.
     pub hand_class: Vec<BreakdownRow>,
@@ -357,12 +345,13 @@ pub struct Breakdowns {
     pub street: Vec<BreakdownRow>,
 }
 
-/// The stack band of a stack in tenths of a big blind.
+/// The stack band of a stack in tenths of a big blind (the `breakdown`
+/// buckets of `config/stats/stack-buckets.json`, the web's
+/// `hero_report_rows.stack`); a negative stack counts with the first.
 pub fn stack_band(tenths: i64) -> &'static str {
-    STACK_BANDS
-        .iter()
-        .find(|(_, from, below)| tenths >= *from && below.is_none_or(|below| tenths < below))
-        .map_or(STACK_BANDS[0].0, |(id, _, _)| id)
+    use rail_stats::stack_buckets::{Scheme, bucket_of, buckets};
+    bucket_of(Scheme::Breakdown, tenths)
+        .unwrap_or_else(|| buckets(Scheme::Breakdown)[0].id.as_str())
 }
 
 /* -------------------------------------------------------------- caching - */
@@ -1140,7 +1129,7 @@ impl Reader {
 
 #[cfg(test)]
 mod tests {
-    use super::{STACK_BANDS, UnitTally, stack_band};
+    use super::{UnitTally, stack_band};
 
     #[test]
     fn stack_bands_are_the_webs() {
@@ -1152,7 +1141,10 @@ mod tests {
         assert_eq!(stack_band(2499), "150-250");
         assert_eq!(stack_band(2500), "250+");
         assert_eq!(stack_band(-5), "0-20");
-        assert_eq!(STACK_BANDS.len(), 7);
+        assert_eq!(
+            rail_stats::stack_buckets::buckets(rail_stats::stack_buckets::Scheme::Breakdown).len(),
+            7
+        );
     }
 
     #[test]

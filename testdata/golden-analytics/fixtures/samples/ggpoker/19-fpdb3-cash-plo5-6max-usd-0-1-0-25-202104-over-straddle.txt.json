@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "ba7098743be79501984a4f1270a1b79c7828de28a6130c129d42f61f5acb4396",
+      "handId": "OM1410171",
+      "index": 0,
+      "members": "0@4:vpip-,pfr-,rfi- 1@1:vpip-,pfr-,rfi-"
+    }
+  ],
+  "input": "fixtures/samples/ggpoker/19-fpdb3-cash-plo5-6max-usd-0-1-0-25-202104-over-straddle.txt"
+}

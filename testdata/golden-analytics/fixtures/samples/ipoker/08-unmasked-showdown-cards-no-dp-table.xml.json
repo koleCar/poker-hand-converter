@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=1/1,four_bet=1/1 8:vpip=1/1,pfr=1/1,rfi=1/1 10:vpip=1/1,pfr=1/1,three_bet=1/1",
+      "events": "6df5d55082e35a69352b8dc33c5e11653f49112ca4bbebd202d6f5035c7dd279",
+      "handId": "IPN-3311227441",
+      "index": 0,
+      "members": "0@8:vpip+,pfr+,rfi+ 1@10:vpip+,pfr+,three_bet+ 2@1:vpip+,pfr+,four_bet+"
+    }
+  ],
+  "input": "fixtures/samples/ipoker/08-unmasked-showdown-cards-no-dp-table.xml"
+}

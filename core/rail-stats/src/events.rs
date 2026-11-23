@@ -39,6 +39,9 @@ pub enum Facing {
 /// One decision of one seat.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DecisionEvent {
+    /// The decision's index in the hand (`Decision::order`, the web's
+    /// `Decision.order`): what a stored analysis row's `ord` is.
+    pub order: usize,
     pub street: Street,
     /// `Fold`, `Check`, `Call`, `Bet` or `Raise`.
     pub action: ActionType,
@@ -75,6 +78,10 @@ pub struct DecisionEvent {
     /// The previous street's aggressor is another seat, still in the hand
     /// on this street, that has not acted on it yet. Preflop: false.
     pub ahead_of_aggressor: bool,
+    /// The street before this one (the flop for the turn, the turn for the
+    /// river) was dealt and nobody bet on it. False on the preflop and the
+    /// flop.
+    pub checked_through: bool,
     /// Postflop: the seat is the last to make its first decision on this
     /// street. `None` preflop.
     pub in_position: Option<bool>,
@@ -112,6 +119,10 @@ pub struct SeatEvents {
     /// The smaller of the seat's starting stack and the largest other
     /// dealt-in seat's, thousandths of a big blind.
     pub effective_bb: Option<i64>,
+    /// The seat's starting stack against the largest stack still live at
+    /// its first preflop decision, thousandths of the hand's largest forced
+    /// blind (docs/ANALYTICS.md Step 11, [`effective_first_action_bb`]).
+    pub effective_first_action_bb: Option<i64>,
     /// Still in the hand when the street was dealt (`flop_seen`, ...).
     pub saw_flop: bool,
     pub saw_turn: bool,
@@ -262,6 +273,74 @@ fn barrels_before(chain: &std::collections::BTreeMap<Street, CbetLink>, street: 
     barrels
 }
 
+/// The hand's largest forced blind: the big blind, or a bigger straddle
+/// (or big-blind post) in the stream.
+fn largest_blind(context: &StatsContext<'_>) -> Amount {
+    context
+        .hand
+        .actions
+        .iter()
+        .filter(|action| {
+            action.street == Street::Preflop
+                && matches!(action.kind, ActionType::BigBlind | ActionType::Straddle)
+        })
+        .map(|action| action.amount.max(action.street_total))
+        .fold(context.big_blind, Amount::max)
+}
+
+/// [`effective_first_action_bb`] on a built context, in thousandths of
+/// `unit`.
+fn effective_first_action(context: &StatsContext<'_>, seat: u32, unit: Amount) -> Option<i64> {
+    let stack = |seat: u32| {
+        context
+            .players
+            .get(&seat)
+            .map_or(0, |player| player.starting_stack)
+    };
+    let own = stack(seat);
+    let first = context
+        .street(Street::Preflop)
+        .find(|decision| decision.seat == seat)
+        .map(|decision| decision.order);
+    let effective = if first.is_none() && context.is_walk {
+        own
+    } else {
+        // Seats that folded before it; with no decision of its own (a blind
+        // all in, a bomb pot) nobody had folded before its forced bet.
+        let folded: Vec<u32> = context
+            .street(Street::Preflop)
+            .filter(|decision| {
+                decision.kind == ActionType::Fold
+                    && first.is_some_and(|first| decision.order < first)
+            })
+            .map(|decision| decision.seat)
+            .collect();
+        context
+            .dealt_in_seats
+            .iter()
+            .filter(|other| **other != seat && !folded.contains(other))
+            .map(|other| stack(*other))
+            .max()
+            .map_or(own, |largest| largest.min(own))
+    };
+    thousandths_of(i128::from(effective), i128::from(unit))
+}
+
+/// (docs/ANALYTICS.md Step 11) A seat's effective stack at its first
+/// preflop decision: its starting stack against the largest starting stack
+/// of the other dealt-in seats that had not folded before it, in
+/// thousandths of the hand's largest forced blind (the big blind, or the
+/// biggest straddle). A walk (the big blind never decided) is the seat's
+/// own stack. `None` when the hand has no blind to measure by.
+///
+/// The Effective stack filter reads the hero's, in tenths
+/// (`rail_store::facts::HandExtras::eff_stack_tenths`).
+pub fn effective_first_action_bb(hand: &PhfHand, seat: u32) -> Option<i64> {
+    let context = build_context(hand);
+    let unit = largest_blind(&context);
+    effective_first_action(&context, seat, unit)
+}
+
 /// Every seat's decision events in one hand (positions assigned first when
 /// the hand has none, as [`crate::hand_facts`] does).
 pub fn hand_events(hand: &PhfHand) -> HandEvents {
@@ -275,6 +354,7 @@ fn events_of(hand: &PhfHand) -> HandEvents {
     let chain = cbet_chain(&context);
     let steal = steal_attempt(&context).map(|decision| (decision.seat, decision.order));
     let bb = context.big_blind;
+    let blind = largest_blind(&context);
 
     // The size facts of every decision, from one walk of the stream.
     let mut sized: Vec<Option<Sizes>> = Vec::with_capacity(context.decisions.len());
@@ -423,7 +503,19 @@ fn events_of(hand: &PhfHand) -> HandEvents {
                 == Some(seat)
         });
         let facts = sized.get(decision.order).and_then(Option::as_ref);
+        let checked_through = match street {
+            Street::Turn => {
+                context.dealt.contains(&Street::Flop)
+                    && context.aggressor_on(Street::Flop).is_none()
+            }
+            Street::River => {
+                context.dealt.contains(&Street::Turn)
+                    && context.aggressor_on(Street::Turn).is_none()
+            }
+            _ => false,
+        };
         DecisionEvent {
+            order: decision.order,
             street,
             action: decision.kind,
             all_in: hand
@@ -453,6 +545,7 @@ fn events_of(hand: &PhfHand) -> HandEvents {
             },
             initiative: previous == Some(seat),
             ahead_of_aggressor,
+            checked_through,
             in_position,
             players: players_on(street),
             pot_bb: facts.and_then(|f| f.pot_bb),
@@ -490,6 +583,7 @@ fn events_of(hand: &PhfHand) -> HandEvents {
                 preflop_aggressor: context.preflop_aggressor == Some(seat),
                 stack_bb: thousandths_of(i128::from(stack), i128::from(bb)),
                 effective_bb: thousandths_of(i128::from(effective), i128::from(bb)),
+                effective_first_action_bb: effective_first_action(&context, seat, blind),
                 saw_flop: context.live_on_street(seat, Street::Flop),
                 saw_turn: context.live_on_street(seat, Street::Turn),
                 saw_river: context.live_on_street(seat, Street::River),

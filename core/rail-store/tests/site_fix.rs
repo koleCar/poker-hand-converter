@@ -131,7 +131,9 @@ fn as_an_older_build_stored_it(path: &Path) {
     assert!(keys(&conn, "ggpoker").is_empty());
     // Versions 22 (T3's `hud_settings`), 23 (caught bluffing) and 24 (nodelocks)
     // come after: rewind them too.
-    conn.execute_batch("DROP TABLE IF EXISTS node_lock_folders; DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings;
+    conn.execute_batch("DROP TABLE IF EXISTS pool_player_results; ALTER TABLE hand_list DROP COLUMN eff_stack_tenths; ALTER TABLE recompute_list DROP COLUMN eff_stack_tenths; DROP TABLE IF EXISTS analysis_checker_rows; DROP INDEX IF EXISTS hand_analysis_checker_idx;
+         ALTER TABLE hand_analysis DROP COLUMN checker_version; ALTER TABLE hand_analysis DROP COLUMN checker_position;
+         DROP TABLE IF EXISTS node_lock_folders; DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings;
          ALTER TABLE hand_list DROP COLUMN hero_bluff; ALTER TABLE hand_list DROP COLUMN vs_bluff;
          ALTER TABLE recompute_list DROP COLUMN hero_bluff; ALTER TABLE recompute_list DROP COLUMN vs_bluff;")
         .expect("rewind version 22");
@@ -236,7 +238,9 @@ fn keeps_the_copy_already_stored_under_ggpoker_and_moves_the_note_to_it() {
         .expect("count");
     // Versions 22 (T3's `hud_settings`), 23 (caught bluffing) and 24 (nodelocks)
     // come after: rewind them too.
-    conn.execute_batch("DROP TABLE IF EXISTS node_lock_folders; DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings;
+    conn.execute_batch("DROP TABLE IF EXISTS pool_player_results; ALTER TABLE hand_list DROP COLUMN eff_stack_tenths; ALTER TABLE recompute_list DROP COLUMN eff_stack_tenths; DROP TABLE IF EXISTS analysis_checker_rows; DROP INDEX IF EXISTS hand_analysis_checker_idx;
+         ALTER TABLE hand_analysis DROP COLUMN checker_version; ALTER TABLE hand_analysis DROP COLUMN checker_position;
+         DROP TABLE IF EXISTS node_lock_folders; DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings;
          ALTER TABLE hand_list DROP COLUMN hero_bluff; ALTER TABLE hand_list DROP COLUMN vs_bluff;
          ALTER TABLE recompute_list DROP COLUMN hero_bluff; ALTER TABLE recompute_list DROP COLUMN vs_bluff;")
         .expect("rewind version 22");
@@ -272,7 +276,9 @@ fn leaves_a_store_without_such_hands_as_it_was() {
     let before = (snapshot(&conn), table_rows(&conn, "kv"));
     // Versions 22 (T3's `hud_settings`), 23 (caught bluffing) and 24 (nodelocks)
     // come after: rewind them too.
-    conn.execute_batch("DROP TABLE IF EXISTS node_lock_folders; DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings;
+    conn.execute_batch("DROP TABLE IF EXISTS pool_player_results; ALTER TABLE hand_list DROP COLUMN eff_stack_tenths; ALTER TABLE recompute_list DROP COLUMN eff_stack_tenths; DROP TABLE IF EXISTS analysis_checker_rows; DROP INDEX IF EXISTS hand_analysis_checker_idx;
+         ALTER TABLE hand_analysis DROP COLUMN checker_version; ALTER TABLE hand_analysis DROP COLUMN checker_position;
+         DROP TABLE IF EXISTS node_lock_folders; DROP TABLE IF EXISTS node_locks; DROP TABLE IF EXISTS hud_settings;
          ALTER TABLE hand_list DROP COLUMN hero_bluff; ALTER TABLE hand_list DROP COLUMN vs_bluff;
          ALTER TABLE recompute_list DROP COLUMN hero_bluff; ALTER TABLE recompute_list DROP COLUMN vs_bluff;")
         .expect("rewind version 22");

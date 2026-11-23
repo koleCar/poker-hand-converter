@@ -42,14 +42,10 @@ pub const TAG_MAX_CHARS: usize = 40;
 /// The longest note, in characters.
 pub const NOTE_MAX_CHARS: usize = 10_000;
 
-/// The hero's stack depth groups of the stack filter: id, lowest stack in
-/// tenths of a big blind (inclusive), highest (exclusive; `None`: no limit).
-pub const STACK_DEPTHS: [(&str, i64, Option<i64>); 4] = [
-    ("0-40", 0, Some(400)),
-    ("40-80", 400, Some(800)),
-    ("80-120", 800, Some(1200)),
-    ("120+", 1200, None),
-];
+/// The stack depth groups of the Stack and Effective stack filters: the
+/// `filter` buckets of `config/stats/stack-buckets.json`
+/// ([`rail_stats::stack_buckets`]; `0-40`, `40-80`, `80-120`, `120+`).
+pub use rail_stats::stack_buckets::Scheme as StackScheme;
 
 /// The hero's result in a hand, for the result filter.
 pub const RESULTS: [&str; 3] = ["won", "lost", "even"];
@@ -84,8 +80,12 @@ pub struct HandFilter {
     pub pot_types: Vec<String>,
     /// The hero's result: [`RESULTS`].
     pub results: Vec<String>,
-    /// The hero's starting stack: ids of [`STACK_DEPTHS`].
+    /// The hero's starting stack: ids of the `filter` stack buckets.
     pub stacks: Vec<String>,
+    /// The hero's effective stack at its first preflop action
+    /// (docs/ANALYTICS.md Step 11, `hand_list.eff_stack_tenths`): ids of
+    /// the same buckets.
+    pub eff_stacks: Vec<String>,
     /// Only hands where the hero was all in with cards to come (`true`), or
     /// only the others (`false`).
     pub all_in: Option<bool>,
@@ -708,7 +708,7 @@ pub struct HandFacets {
     pub pot_types: Vec<FacetCount>,
     /// [`RESULTS`]; hands without a hero are not counted.
     pub results: Vec<FacetCount>,
-    /// [`STACK_DEPTHS`]; hands without a hero are not counted.
+    /// The `filter` stack buckets; hands without a hero are not counted.
     pub stacks: Vec<FacetCount>,
     /// `1` all in, `0` not.
     pub all_in: Vec<FacetCount>,
@@ -947,20 +947,7 @@ fn clauses(filter: &HandFilter, segments: &HashMap<i64, SegmentDims>, w: &mut Wh
         w.in_text(RESULT_SQL, &filter.results);
     }
     if !filter.stacks.is_empty() {
-        let ranges: Vec<String> = STACK_DEPTHS
-            .iter()
-            .filter(|(id, _, _)| filter.stacks.iter().any(|s| s == id))
-            .map(|(_, from, below)| match below {
-                Some(below) => format!(
-                    "(l.hero_stack_bb_tenths >= {from} AND l.hero_stack_bb_tenths < {below})"
-                ),
-                None => format!("l.hero_stack_bb_tenths >= {from}"),
-            })
-            .collect();
-        if ranges.is_empty() {
-            return None;
-        }
-        w.push(format!("({})", ranges.join(" OR ")));
+        w.push(stack_clause(&filter.stacks, "l.hero_stack_bb_tenths")?);
     }
     if let Some(all_in) = filter.all_in {
         w.push(format!("l.all_in = {}", i64::from(all_in)));
@@ -1188,6 +1175,14 @@ fn builder_clauses(filter: &HandFilter, w: &mut Where) {
             n - 1
         ));
     }
+    // The effective stack's chips (docs/ANALYTICS.md Step 11); ids that are
+    // no bucket match nothing.
+    if !filter.eff_stacks.is_empty() {
+        w.push(
+            stack_clause(&filter.eff_stacks, "l.eff_stack_tenths")
+                .unwrap_or_else(|| "0".to_owned()),
+        );
+    }
     // Big blinds as typed, scaled in SQL (tenths, thousandths of a big blind).
     if let Some(min) = filter.hero_stack_min.filter(|v| v.is_finite()) {
         w.push(format!("l.hero_stack_bb_tenths >= {min} * 10"));
@@ -1359,10 +1354,20 @@ struct GroupKey {
 
 /// The stack depth group of a stack in tenths of a big blind.
 fn stack_depth(stack: i64) -> &'static str {
-    STACK_DEPTHS
+    rail_stats::stack_buckets::bucket_of(StackScheme::Filter, stack).unwrap_or("")
+}
+
+/// "`column` is in any of these stack buckets"; `None` when none of the ids
+/// is a bucket (the filter then matches nothing).
+pub(crate) fn stack_clause(ids: &[String], column: &str) -> Option<String> {
+    let ranges: Vec<String> = rail_stats::stack_buckets::buckets(StackScheme::Filter)
         .iter()
-        .find(|(_, from, below)| stack >= *from && below.is_none_or(|below| stack < below))
-        .map_or("", |(id, _, _)| id)
+        .filter(|bucket| ids.contains(&bucket.id))
+        .filter_map(|bucket| {
+            rail_stats::stack_buckets::sql_range(StackScheme::Filter, &bucket.id, column)
+        })
+        .collect();
+    (!ranges.is_empty()).then(|| format!("({})", ranges.join(" OR ")))
 }
 
 /// One counted group of the facets' pass.

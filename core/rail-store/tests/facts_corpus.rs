@@ -54,6 +54,7 @@ fn as_json(extras: &HandExtras) -> Value {
         "bounty": extras.bounty,
         "level": extras.level,
         "bluff": extras.bluff,
+        "effStack": extras.eff_stack_tenths,
     })
 }
 

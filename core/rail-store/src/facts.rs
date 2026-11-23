@@ -46,6 +46,11 @@ pub struct HandExtras {
     /// Caught bluffing ([`caught_bluffing`]): the hero's streets, then any
     /// opponent's, as bits (1 flop, 2 turn, 4 river).
     pub bluff: [i64; 2],
+    /// The hero's effective stack at its first preflop action, in tenths of
+    /// the largest forced blind (docs/ANALYTICS.md Step 11,
+    /// [`rail_stats::events::effective_first_action_bb`] / 100): the
+    /// Effective stack filter's.
+    pub eff_stack_tenths: Option<i64>,
 }
 
 /// A hero's made hand, weakest first; stored as its index.
@@ -390,6 +395,7 @@ pub fn derive(hand: &PhfHand, rows: &[PreparedSeat]) -> HandExtras {
             }
         }
         sizes(hand, hero.row.seat.seat, &mut extras);
+        extras.eff_stack_tenths = eff_stack_tenths(hand, hero.row.seat.seat);
     }
     extras.bluff = caught_bluffing(hand, rows);
     if let Some(tournament) = &hand.tournament {
@@ -400,6 +406,13 @@ pub fn derive(hand: &PhfHand, rows: &[PreparedSeat]) -> HandExtras {
         extras.level = tournament.level_number.map(i64::from);
     }
     extras
+}
+
+/// The hero's effective stack in tenths of the largest forced blind
+/// (thousandths / 100, rounded down).
+pub fn eff_stack_tenths(hand: &PhfHand, hero_seat: u32) -> Option<i64> {
+    rail_stats::events::effective_first_action_bb(hand, hero_seat)
+        .map(|thousandths| thousandths / 100)
 }
 
 /// Who was caught bluffing, street by street (2026-11-15, the owner's ask):

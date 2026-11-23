@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "5:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1,turn_barrel=0/1,river_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1 7:vpip=1/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,river_bet=0/1",
+      "events": "f1789c8ab1b914cea76898a16cd48c55038e99e8433651053d0a9d19e309a92d",
+      "handId": "888-441698247",
+      "index": 0,
+      "members": "0@5:vpip+,pfr+,rfi+ 1@6:vpip-,pfr-,three_bet- 2@7:vpip+,pfr-,three_bet-,bb_fold_vs_steal- 4@5:cbet_flop+ 5@7:flop_fold_vs_bet-,flop_raise_vs_bet- 7@5:turn_barrel- 8@7:river_bet- 9@5:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/888poker/10-omaha-hilo-hi-only-summary.txt"
+}

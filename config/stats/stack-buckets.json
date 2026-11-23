@@ -1,0 +1,18 @@
+{
+  "$comment": "Stack depth buckets, the one definition (docs/ANALYTICS.md Step 11). Each bucket runs from its `min` (tenths of a big blind, inclusive) to the next bucket's `min` (exclusive); the last has no end. `filter`: the Hands filter's Stack and Effective stack chips (the hero's starting stack, `hand_list.hero_stack_bb_tenths` / `hand_stats.starting_stack_bb_tenths`; the effective stack at the hero's first preflop action, `eff_stack_tenths`). `breakdown`: the Analytics Breakdown tab's Stack split of the hero's starting stack (stored per hand on the web as `hero_report_rows.stack`, so its edges are kept). Read by Rust (`rail_stats::stack_buckets`), TypeScript (`packages/ui/hands/stackBuckets.ts`, its data copied) and SQL (`rail_stack_bucket`, generated: tests/test/stackBuckets.test.ts holds every copy equal).",
+  "filter": [
+    { "id": "0-40", "min": 0 },
+    { "id": "40-80", "min": 400 },
+    { "id": "80-120", "min": 800 },
+    { "id": "120+", "min": 1200 }
+  ],
+  "breakdown": [
+    { "id": "0-20", "min": 0 },
+    { "id": "20-40", "min": 200 },
+    { "id": "40-70", "min": 400 },
+    { "id": "70-100", "min": 700 },
+    { "id": "100-150", "min": 1000 },
+    { "id": "150-250", "min": 1500 },
+    { "id": "250+", "min": 2500 }
+  ]
+}

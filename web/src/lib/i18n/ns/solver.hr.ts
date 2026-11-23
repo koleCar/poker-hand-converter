@@ -151,6 +151,8 @@ export const solverHr: Dict["solver"] = {
   },
   blocked: "Blokirano boardom",
   vsBase: (delta: string, label: string) => `${delta} prema ${label}`,
+  /** Compare with GTO: an action GTO plays that the locked decision no longer offers. */
+  notOffered: (label: string) => `Nije ponuđeno u ovom locku; ${label} je igra`,
   share: (share: number, count: number) => `${pct1(share)} · ${combos(Math.round(count))}`,
   shareOnly: pct1,
   combosCount: (count: number) => combos(Math.round(count)),
@@ -174,7 +176,7 @@ export const solverHr: Dict["solver"] = {
   signed: (value: number) => signedBb(value).replace(/ bb$/, ""),
   evShort: (value: number) => num(Math.round(value * 100) / 100 || 0, 2),
 
-  tabs: { label: "Prikaz", strategy: "Strategija + EV", ranges: "Rangeovi", rangeModes: "Što mreže prikazuju" },
+  tabs: { label: "Prikaz", strategy: "Strategija + EV", ranges: "Rangeovi" },
 
   ranges: {
     modes: { strategy: "Strategija", ev: "EV", equity: "Equity", range: "Range", eqr: "EQR" },
@@ -202,6 +204,12 @@ export const solverHr: Dict["solver"] = {
       (ev === null ? "" : ` · EV ${num(ev, 2)} bb`),
     otherNote: (position: string) => `${position} ovdje ne odlučuje: za svaku kombinaciju težina u rasponu, equity i EV (bb).`,
     hoverEmpty: "Prijeđi mišem preko ruke da vidiš kombinacije, equity i EV.",
+    scale: {
+      ev: (pot: number) => ["0", `${num(pot, 1)} bb`] as const,
+      equity: () => [pct(0), pct(1)] as const,
+      eqr: () => [pct(0), pct(2)] as const,
+    },
+    scaleLabel: (mode: string, low: string, high: string) => `${mode}: crveno ${low}, žuto na pola, zeleno ${high}`,
     cellValue: {
       strategy: () => "",
       ev: (value: number) => num(value, 1),
@@ -228,6 +236,9 @@ export const solverHr: Dict["solver"] = {
     suit: (suit: string, suited: boolean) => (suited ? `Suited ${suit}${suit}` : `Offsuit s ${suit}`),
     andAbove: (label: string) => `${label} i sve iznad`,
     forPlayer: (position: string) => `Udjeli rangea igrača ${position} na ovoj odluci`,
+    /** Compare with GTO: the rows' last figure. */
+    evGain: (label: string) => `Desno: koliko svaka dobiva prema ${label}, EV u bb`,
+    evGainOf: (row: string, delta: string, label: string) => `${row}: ${delta} prema ${label}`,
     groups: { made: "Ruke", draw: "Drawovi", eq: "EQ grupe – jednostavno", band: "EQ grupe – detaljno" },
     made: {
       straightFlush: "Straight flush",

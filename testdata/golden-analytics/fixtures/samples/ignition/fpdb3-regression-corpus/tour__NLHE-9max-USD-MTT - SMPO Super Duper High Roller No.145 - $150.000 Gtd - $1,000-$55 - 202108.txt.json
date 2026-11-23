@@ -1,0 +1,34 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "25:vpip=0/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=1/1 43:vpip=0/1,pfr=0/1,three_bet=0/1 53:vpip=0/1,pfr=0/1,rfi=0/1 56:vpip=0/1,pfr=0/1,three_bet=0/1 181:vpip=0/1,pfr=0/1,three_bet=0/1 208:vpip=0/1,pfr=0/1,rfi=0/1 225:vpip=0/1,pfr=0/1,three_bet=0/1 242:vpip=1/1,pfr=1/1,rfi=1/1",
+      "events": "a270e702fbd1d8e53a4be15be0aa9cff2f68443aa11dcb46dcb29144a70036fd",
+      "handId": "4370494854",
+      "index": 0,
+      "members": "0@208:vpip-,pfr-,rfi- 1@53:vpip-,pfr-,rfi- 2@242:vpip+,pfr+,rfi+ 3@225:vpip-,pfr-,three_bet- 4@181:vpip-,pfr-,three_bet- 5@56:vpip-,pfr-,three_bet- 6@43:vpip-,pfr-,three_bet- 7@25:vpip-,pfr-,three_bet-,bb_fold_vs_steal+"
+    },
+    {
+      "counts": "25:vpip=0/1,pfr=0/1,three_bet=0/1 43:vpip=0/1,pfr=0/1,three_bet=0/1 53:vpip=0/1,pfr=0/1,rfi=0/1 56:vpip=1/1,pfr=1/1,rfi=1/1 181:vpip=0/1,pfr=0/1,rfi=0/1 208:vpip=0/1,pfr=0/1,three_bet=0/1 225:vpip=0/1,pfr=0/1,rfi=0/1 242:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "59cd44c7dc96c089bcc602b8e9971ca1e20c095a2e0616002c5a864b27a2b304",
+      "handId": "4370495444",
+      "index": 1,
+      "members": "0@53:vpip-,pfr-,rfi- 1@242:vpip-,pfr-,rfi- 2@225:vpip-,pfr-,rfi- 3@181:vpip-,pfr-,rfi- 4@56:vpip+,pfr+,rfi+ 5@43:vpip-,pfr-,three_bet- 6@25:vpip-,pfr-,three_bet- 7@208:vpip-,pfr-,three_bet-"
+    },
+    {
+      "counts": "25:vpip=0/1,pfr=0/1,three_bet=0/1 43:vpip=0/1,pfr=0/1,three_bet=0/1 53:vpip=0/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=1/1 56:vpip=0/1,pfr=0/1,three_bet=0/1 181:vpip=1/1,pfr=1/1,rfi=1/1 208:vpip=0/1,pfr=0/1,three_bet=0/1 225:vpip=0/1,pfr=0/1,rfi=0/1 232:vpip=0/1,pfr=0/1,three_bet=0/1 242:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "9450531dc978b3d012b87b4217ca4a5c93d9b1d6c2ecda6f20e051480397011a",
+      "handId": "4370495877",
+      "index": 2,
+      "members": "0@242:vpip-,pfr-,rfi- 1@225:vpip-,pfr-,rfi- 2@181:vpip+,pfr+,rfi+ 3@56:vpip-,pfr-,three_bet- 4@232:vpip-,pfr-,three_bet- 5@43:vpip-,pfr-,three_bet- 6@25:vpip-,pfr-,three_bet- 7@208:vpip-,pfr-,three_bet- 8@53:vpip-,pfr-,three_bet-,bb_fold_vs_steal+"
+    },
+    {
+      "counts": "25:vpip=0/1,pfr=0/1 43:vpip=0/1,pfr=0/1 53:vpip=1/1,pfr=0/1,four_bet=0/1 56:vpip=0/1,pfr=0/1 181:vpip=0/1,pfr=0/1 208:vpip=0/1,pfr=0/1 225:vpip=1/1,pfr=1/1,rfi=0/1,three_bet=1/1 232:vpip=0/1,pfr=0/1 242:vpip=1/1,pfr=1/1",
+      "events": "d657d46d03800c32feb973faa1ea6af9f01b74250f0b0412437ef201290e38d9",
+      "handId": "4370496336",
+      "index": 3,
+      "members": "0@225:vpip+,pfr-,rfi- 1@181:vpip-,pfr- 2@56:vpip-,pfr- 3@232:vpip-,pfr- 4@43:vpip-,pfr- 5@25:vpip-,pfr- 6@208:vpip-,pfr- 7@53:vpip+,pfr- 8@242:vpip+,pfr+ 9@225:three_bet+ 10@53:four_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - SMPO Super Duper High Roller No.145 - $150.000 Gtd - $1,000-$55 - 202108.txt"
+}

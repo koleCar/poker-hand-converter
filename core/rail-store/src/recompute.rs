@@ -92,11 +92,14 @@ pub enum Table {
     CustomPlayerRollups,
     /// (R3.7) `custom_player_rollups`' part from hands without a hero seat.
     CustomPlayerRollupsObserved,
+    /// (docs/ANALYTICS.md Step 10) the Pool tab's opponent results, summed
+    /// from the seat rows by `pool::pool_step`.
+    PoolPlayerResults,
 }
 
 impl Table {
     /// Every derived table.
-    pub const ALL: [Self; 16] = [
+    pub const ALL: [Self; 17] = [
         Self::Segments,
         Self::HandStats,
         Self::SeatStats,
@@ -113,6 +116,7 @@ impl Table {
         Self::CustomHeroRollups,
         Self::CustomPlayerRollups,
         Self::CustomPlayerRollupsObserved,
+        Self::PoolPlayerResults,
     ];
 
     /// The table's name in the store.
@@ -134,6 +138,7 @@ impl Table {
             Self::CustomHeroRollups => "custom_hero_rollups",
             Self::CustomPlayerRollups => "custom_player_rollups",
             Self::CustomPlayerRollupsObserved => "custom_player_rollups_observed",
+            Self::PoolPlayerResults => "pool_player_results",
         }
     }
 }
@@ -245,6 +250,7 @@ pub const DEPENDENCIES: [Dependency; 7] = [
             (Table::CustomHeroRollups, Extent::AllStatistics),
             (Table::CustomPlayerRollups, Extent::AllStatistics),
             (Table::CustomPlayerRollupsObserved, Extent::AllStatistics),
+            (Table::PoolPlayerResults, Extent::AllStatistics),
         ],
     },
     Dependency {
@@ -267,6 +273,9 @@ pub const DEPENDENCIES: [Dependency; 7] = [
             (Table::CustomHeroRollups, Extent::IfSeatsMoved),
             (Table::CustomPlayerRollups, Extent::IfSeatsMoved),
             (Table::CustomPlayerRollupsObserved, Extent::IfSeatsMoved),
+            // Emptied by the swap when a seat row was rewritten (its result may have
+            // changed) or seats moved, and summed again by the pool pass.
+            (Table::PoolPlayerResults, Extent::AllStatistics),
         ],
     },
     Dependency {
@@ -285,6 +294,7 @@ pub const DEPENDENCIES: [Dependency; 7] = [
             (Table::CustomHeroRollups, Extent::IfSeatsMoved),
             (Table::CustomPlayerRollups, Extent::IfSeatsMoved),
             (Table::CustomPlayerRollupsObserved, Extent::IfSeatsMoved),
+            (Table::PoolPlayerResults, Extent::IfSeatsMoved),
         ],
     },
     Dependency {
@@ -645,7 +655,7 @@ const SEAT_POSITION: usize = 4;
 const SEAT_TOTALS: usize = 9;
 
 /// `hand_list`'s columns, in this order.
-const LIST_COLUMNS: [&str; 40] = [
+const LIST_COLUMNS: [&str; 41] = [
     "played_at",
     "hand_key",
     "site_hand_id",
@@ -686,6 +696,7 @@ const LIST_COLUMNS: [&str; 40] = [
     "tour_level",
     "hero_bluff",
     "vs_bluff",
+    "eff_stack_tenths",
 ];
 const LIST_SEGMENT: usize = 3;
 const LIST_ALL_IN: usize = 10;
@@ -821,6 +832,7 @@ fn list_values(hand_key: &str, stats: &PreparedStats, segment_id: i64) -> Result
         stats.list.extras.level.map_or(Value::Null, int),
         int(stats.list.extras.bluff[0]),
         int(stats.list.extras.bluff[1]),
+        stats.list.extras.eff_stack_tenths.map_or(Value::Null, int),
     ])
 }
 
@@ -1588,6 +1600,12 @@ pub fn finish_rows(conn: &Connection) -> Result<bool> {
         begin_rows(conn, state.job)?;
         return Ok(false);
     }
+    // A seat row rewritten may carry another result: the pool's results are
+    // summed again (a rebuild that rewrites nothing leaves them).
+    let seats_rewritten: bool =
+        conn.query_row("SELECT EXISTS (SELECT 1 FROM recompute_seats)", [], |row| {
+            row.get(0)
+        })?;
     swap_staged(conn)?;
     for summed in Summed::ALL {
         let (live, twin) = (Target::Live.table(summed), Target::Shadow.table(summed));
@@ -1600,6 +1618,8 @@ pub fn finish_rows(conn: &Connection) -> Result<bool> {
     }
     if kv_get(conn, KV_ROWS_CUSTOM)?.as_deref() == Some("1") {
         crate::custom::reset_custom_counts(conn)?;
+    } else if seats_rewritten {
+        crate::pool::reset_pool(conn)?;
     }
     kv_set(conn, KV_VERSION, STATS_VERSION)?;
     kv_set(conn, KV_SEGMENT_VERSION, SEGMENT_VERSION)?;

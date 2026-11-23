@@ -1,0 +1,34 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=1/1 2:vpip=0/1,pfr=0/1 3:vpip=1/1,pfr=0/1,rfi=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 5:vpip=0/1,pfr=0/1",
+      "events": "8980d83a83adc22afd4a2a5dd41cb0f9cd111a7b5e729bac2fb4f139c6e7f1f2",
+      "handId": "SD27208848",
+      "index": 0,
+      "members": "0@3:vpip+,pfr-,rfi- 1@5:vpip-,pfr- 2@1:vpip+,pfr- 3@2:vpip-,pfr- 6@3:flop_fold_vs_bet+,flop_raise_vs_bet- 7@1:flop_fold_vs_bet-,flop_raise_vs_bet- 10@1:turn_fold_vs_bet+"
+    },
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1,river_bet=0/1 2:vpip=1/1,pfr=1/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,river_bet=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "d14606b9ec28b09e033d61ac48db6299624601a354158bbefcf22481fdc4dc76",
+      "handId": "SD27208838",
+      "index": 1,
+      "members": "0@3:vpip-,pfr-,rfi- 1@5:vpip-,pfr-,rfi- 2@1:vpip+,pfr-,rfi- 3@2:vpip+,pfr+ 4@1:three_bet- 6@2:flop_fold_vs_bet-,flop_raise_vs_bet- 9@1:river_bet- 10@2:river_bet-"
+    },
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "eaa10731239d097b4af080ca168be4ca801786f0f4c4c23ef31badfa01f9b1c4",
+      "handId": "SD27208832",
+      "index": 2,
+      "members": "0@3:vpip-,pfr-,rfi- 1@5:vpip-,pfr-,rfi- 2@1:vpip-,pfr-,rfi-"
+    },
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "00e9b84020a1aab1beb3e63d5d068e35550d039ae248318df7036db8f54781ab",
+      "handId": "SD27208824",
+      "index": 3,
+      "members": "0@3:vpip-,pfr-,rfi- 1@5:vpip-,pfr-,rfi- 2@1:vpip-,pfr-,rfi-"
+    }
+  ],
+  "input": "fixtures/samples/ggpoker/11-fpdb3-cash-nl-shortdeck-5max-usd-0-2-202103.txt"
+}

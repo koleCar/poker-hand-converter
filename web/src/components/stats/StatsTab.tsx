@@ -1,5 +1,6 @@
 /**
- * The statistics screen (`/stats`).
+ * The Analytics screen (`/stats`; docs/ANALYTICS.md Step 4, the statistics
+ * screen until then).
  *
  * Since R4.5c the report itself is the shared Reports screen
  * (`@rail/ui/reports/ReportsScreen`, the desktop app's since R2.7b) over the
@@ -22,6 +23,11 @@
  * function missing from its schema cache; `isMissingSchemaError` is that
  * check, a code rather than a string match.
  *
+ * A stat's drill-down (docs/ANALYTICS.md Step 8) is `/stats/<id>` on this same
+ * screen: the address says which (`drillOfPath`), and moving in and out is a
+ * `history.pushState`, so the filter and the tab stay; its hands open on
+ * their analysis page at the decision, with a way back to the stat.
+ *
  * Live arrival (Rail R1.10): hands synced by the desktop app while the screen
  * is open re-read the numbers in place, and the ones without statistics get
  * them derived (`/api/stats/rebuild`) without a click. One catch-up at a
@@ -30,10 +36,22 @@
 
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { FilterState } from "@rail/ui/hands/filter";
 import type { HandFilter } from "@rail/ui/hands/model";
-import { ReportsScreen, type Tab } from "@rail/ui/reports/ReportsScreen";
+import type { AnalyticsChecker } from "@rail/ui/analytics/model";
+import { useUiStrings } from "@rail/ui/i18n";
+import { checkerFiltersOf, drillOfPath } from "@rail/ui/analytics/view";
+import {
+  ReportsScreen,
+  type AnalyticsView,
+  type DrillHandLinkProps,
+  type DrillNav,
+  type Tab,
+} from "@rail/ui/reports/ReportsScreen";
+import { encodePosition } from "@rail/ui/replayer/position";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import reportStyles from "@rail/ui/reports/Reports.module.css";
 import {
@@ -44,12 +62,17 @@ import {
   rebuildStats,
   type RebuildProgress,
   type StatsCoverage,
+  villainRowsEnabled,
 } from "../../lib/db";
+import { webPool } from "../../lib/db/analyticsPool";
+import { backfillAnalyticsRows, checkerSource } from "../../lib/db/analyticsRows";
+import { libraryFilter } from "../../lib/db/handsSource";
 import { WEB_DEFINITIONS, webReportSource } from "../../lib/db/reportSource";
 import { useAuth } from "../../lib/auth";
 import { useEntitlements } from "../../lib/entitlements/context";
 import { useDict } from "../../lib/i18n/client";
-import { ProLock } from "../plan/ProLock";
+import { paths } from "../../lib/routes";
+import { ProLock, ProLockLine } from "../plan/ProLock";
 import type { ArrivalBatch } from "../../lib/live/arrivals";
 import { OpponentsPanel } from "./OpponentsPanel";
 import { opponentsScope } from "./opponentsScope";
@@ -70,11 +93,55 @@ type Status = "ready" | "not-installed" | "error";
 const STATS_TABLE = "hand_stats";
 const STATS_MIGRATION = "supabase/migrations/20261005090000_hand_stats.sql";
 
+/**
+ * All stats' sums (`analytics_checker`): the keys the checker reads, and the
+ * Hands list's filter for every other group it sets - so All stats covers
+ * the hands the list shows.
+ */
+const webChecker: AnalyticsChecker = {
+  sums: (query) => {
+    const { filters, hands } = checkerFiltersOf(query);
+    return checkerSource.checker(hands ? { ...filters, hands: libraryFilter(query) } : filters);
+  },
+  partial: () => false,
+  examples: (query, example) => {
+    const { filters, hands } = checkerFiltersOf(query);
+    return checkerSource.examples(hands ? { ...filters, hands: libraryFilter(query) } : filters, example);
+  },
+  // Hands analysed before the checker existed (or at another catalogue
+  // version) get their rows here, while a tab that reads them is open
+  // (docs/ANALYTICS.md Step 12), not only at the end of the next analysis run.
+  backfill: (signal, onProgress) => backfillAnalyticsRows(signal, onProgress),
+};
+
+/** The Analytics lock as one line (the tab's words): the player's own numbers stay. */
+const lockLine = (line: string) => <ProLockLine line={line} />;
+
+/** The opponents' statistics setting lives in this browser's storage; nothing to subscribe to. */
+const subscribeNever = () => () => undefined;
+
+/**
+ * The drill-down's way in and out (docs/ANALYTICS.md Step 8): `/stats/<id>`
+ * and back to `/stats`, as history entries of this one screen (Next keeps
+ * `usePathname` in step with `history.pushState`), so the filter and the tab
+ * stay as they were.
+ */
+const webDrillNav: DrillNav = {
+  href: (stat) => (stat === null ? paths.stats() : paths.statsStat(stat)),
+  go: (stat) => {
+    window.history.pushState(null, "", stat === null ? paths.stats() : paths.statsStat(stat));
+    window.scrollTo({ top: 0 });
+  },
+};
+
 
 export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   const dict = useDict();
+  const ui = useUiStrings();
   const t = dict.stats;
   const en = t.tab;
+  // Pool's types come from the opponents' statistics; off, it links to the setting (Players).
+  const opponentsOn = useSyncExternalStore(subscribeNever, villainRowsEnabled, () => true);
   const auth = useAuth();
   const { locked, status: planStatus } = useEntitlements();
   const planPending = planStatus === "loading";
@@ -87,7 +154,23 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   /** Bumped when the numbers change under the screen (a rebuild, an arrival, an upload): it reads again. */
   const [generation, setGeneration] = useState(0);
   const [chosen, setChosen] = useState<FilterState | null>(null);
+  const [view, setView] = useState<AnalyticsView>("overview");
   const [tab, setTab] = useState<Tab>("position");
+  // `/stats/<id>`: that stat's drill-down (Step 8), over the tab it was opened from.
+  const drill = drillOfPath(usePathname());
+  // A drill-down hand opens on its analysis page, at the decision; its Back returns to the stat.
+  const renderHandLink = useCallback(
+    ({ handId, actionIndex, label, className, children }: DrillHandLinkProps) => {
+      const back = drill === null ? "" : `&from=stats&stat=${encodeURIComponent(drill)}`;
+      const position = encodeURIComponent(encodePosition({ kind: "action", actionIndex }));
+      return (
+        <Link href={paths.analysisHand(handId, `t=${position}${back}`)} className={className} aria-label={label}>
+          {children}
+        </Link>
+      );
+    },
+    [drill],
+  );
 
   const base = useMemo(() => webReportSource(dict.converter.library.standardFormat), [dict]);
   // Full reports (situations, sessions, opponents) are Pro (R6.2); basic
@@ -95,6 +178,8 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   // while enforcement is on and the plan lacks them; the server refuses
   // them on its own (PT402) either way.
   const fullLocked = locked("reports_full");
+  // All stats' targets, gaps and costs come from the analysis (Pro); the player's own numbers stay.
+  const analysisLocked = locked("analysis");
   // A database without the summaries' readers (PGRST202) says "not set up", not a stack trace.
   const source = useMemo(
     () => ({
@@ -288,15 +373,18 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
         definitions={WEB_DEFINITIONS}
         chosen={chosen}
         onChoose={setChosen}
+        view={view}
+        onView={setView}
         tab={tab}
         onTab={setTab}
         title={en.heading}
         titleTag="h2"
         hideTitle
         notice={<CoverageBar coverage={coverage} rebuild={rebuild} onRebuild={() => void runRebuild()} />}
-        emptyText={rebuild.status === "running" ? en.loading : `${en.emptyHeading}. ${en.emptyBody}`}
+        emptyText={rebuild.status === "running" ? en.loading : `${en.emptyHeading}.`}
+        emptyLink={<Link href={paths.convert()}>{en.emptyLink}</Link>}
         reloadToken={generation}
-        renderState={(kind, text) =>
+        renderState={(kind, text, action) =>
           // Nothing to show while a catch-up rebuild runs is still loading.
           kind === "loading" || (kind === "empty" && rebuild.status === "running") ? (
             <RailLoader label={text} showLabel centered />
@@ -305,13 +393,28 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
               className={kind === "error" ? "notice notice--error rail-fade" : "card stats-empty rail-fade"}
               role={kind === "error" ? "alert" : "status"}
             >
-              {kind === "error" ? text : <p className="muted">{text}</p>}
+              {kind === "error" ? (
+                text
+              ) : (
+                <p className="muted">
+                  {text}
+                  {action ? <> {action}</> : null}
+                </p>
+              )}
             </div>
           )
         }
         // (R6.4) The situation tabs and the footer (sessions, opponents)
         // show the Pro teaser instead of an error.
         situationsLock={fullLocked ? <ProLock feature="reports_full" compact /> : undefined}
+        checker={webChecker}
+        pool={webPool}
+        poolOff={opponentsOn ? undefined : <Link href={paths.players()}>{ui.analytics.screen.pool.offLink}</Link>}
+        checkerLock={analysisLocked ? lockLine : undefined}
+        practiseHref={paths.analysisTrain}
+        drill={drill}
+        drillNav={webDrillNav}
+        renderHandLink={renderHandLink}
         footer={(query) => {
           if (fullLocked) {
             return <ProLock feature="reports_full" compact />;

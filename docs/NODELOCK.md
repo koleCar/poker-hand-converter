@@ -310,7 +310,9 @@ plus:
 ### 2.5 The two engines
 
 - **Worker engine** (`app/src/solver/nodelock/engine/`): a pool of
-  `navigator.hardwareConcurrency - 1` module workers in the app's webview.
+  `navigator.hardwareConcurrency - 1` module workers in the app's webview
+  (since #409 the app's pool has one per core, and a solve uses as many as
+  its speed says, §5.2).
   - Messages are transferable `Float32Array`s, with no SharedArrayBuffer (the
     webview is not cross-origin isolated).
   - It is the fallback, and the first engine to ship.
@@ -557,19 +559,45 @@ With the native engine the bar says about how long the solve takes
   - Modes **Hands / Range / Hand classes**.
   - Per-action sliders with typed % and a hold lock per action.
   - Paint brush (choose an action or a mix, then click or drag over the grid).
-  - Reset, Undo, Redo.
+  - Reset, Undo, Redo. Reset goes back to where the editor opened: GTO of
+    the view (inside a lock, that lock's solution), or the lock being edited,
+    its actions included, so a size taken away comes back (#409).
   - A **Suggestions** block: archetype chips with a one-line explanation. A
     click fills the editor; the user can still edit.
 - **Right: the 13×13 grid.**
   - Views Range / Hand classes / Combos.
   - A Current-strategy bar with the GTO marks.
-  - Lock all, Unlock all, Invert, and a lock badge on locked cells.
+  - Lock all, Unlock all, Invert. A locked cell has an amber edge (fainter
+    when only some of its combos are), no glyph: the lock glyph shows only
+    under the pointer at a cell's corner, where a click locks or unlocks it
+    (#409).
 - **Footer.**
   - "Lock earlier nodes": None / This player's / All (default This player's).
   - Accuracy: Standard 1 % / Quick 2.5 %.
-  - Primary **Solve on this computer**, with the engine line underneath:
-    "Uses up to 9 of 10 cores and about 1.2 GB. Nothing leaves this
-    computer."
+  - Speed: Slow / Medium / Fast (default Medium), kept on this computer
+    (`engine/speed.ts`, #409). Beside it what the speed uses: "9 of 10
+    cores · about 1.1 GB" (each option's tooltip says it too).
+  - Primary **Solve on this computer**.
+
+**Speed (#409).** The owner asked for the user to choose how much of the
+computer a solve takes, so it need not take all of its memory:
+
+| Speed | Threads | A flop lock, native | A flop lock, workers |
+|---|---|---|---|
+| Slow | half the cores | 16-bit, ~1.1 GB | ~1.05 GB + 70 MB a worker |
+| Medium (default) | all cores but one | 16-bit, ~1.1 GB | same rule |
+| Fast | every core | float32 when it fits two fifths of the memory (~3.1 GB), else 16-bit | same rule |
+
+- The request carries `speed`; the native engine sends `threads` and, for a
+  flop lock below Fast, `storage: "i16"` (`rail_solver::nodelock::NodelockRequest`
+  already reads both, no Rust change). The worker pool holds a worker per
+  core and splits over the speed's count; workers past it are stopped.
+- Float32 bought no speed in §0's measurement (75 s vs 73 s at 9 threads):
+  threads make the difference, memory is what Fast spends.
+- A turn or river lock is small at any speed and keeps its storage.
+- Another speed is another warm key (threads, storage): the next solve is
+  cold.
+- The `≈` estimate scales by (cores − 1) / the speed's threads.
 
 ### 5.3 Solving
 - The solve does not block. Progress shows the iteration, accuracy, elapsed
@@ -1124,6 +1152,14 @@ library's.
   labels (`B8.25` bets to 8.25, `A97.5` is all-in). Absent on a lock that
   keeps the tree's actions, so v1 hashes don't change. A lock made inside a
   lock that gave the node its own sizes keeps `custom` there.
+- **Own sizes alone are a lock** (#410): with no hand locked, Solve still
+  solves a node whose actions changed (`strategyToSolve` in
+  `editor/state.ts`). With one action left (the donk bet taken away, Check
+  only) every reaching hand is fixed at it, so the marks show it; with more,
+  every hand adapts on the new actions. Only a node with the library's
+  actions and nothing locked says "Lock at least one hand first". This holds
+  inside a lock too, at any depth (a turn lock on a flop lock's result, then
+  another node of that turn added to it).
 - **Tree**: `lockNodeActions(set, pathOf)` gives the spot's `nodeActions`
   (path → labels), which `nodelockFlopSpot` / `nodelockTurnSpot` set. Both
   builders (`betting.ts` `nodeActionsOf`, `betting.rs` `node_actions_of`)
@@ -1133,9 +1169,24 @@ library's.
 - **Cost**: the earlier nodes still freeze at the library's strategies. The
   locked node's subtree is new, so a flop lock with its own sizes solves
   like any flop lock (it was never warm across spots anyway).
-- **Compare and popover**: a node is paired with the library's only when
-  the labels match. A custom node shows no GTO; the row summary's `shifts`
-  has GTO 0 for a new size.
+- **Compare and popover**: the popover pairs a node with the library's only
+  when the labels match; the row summary's `shifts` has GTO 0 for a new
+  size. Compare with GTO (#411) pairs actions by label: a size of the lock's
+  own shows no GTO figure, and an action GTO plays that the lock removed is
+  listed after the others, dimmed, at 0 % beside GTO's share. An action the
+  lock kept but no hand takes (held at 0 %) also stays listed while
+  comparing.
+- **EV against GTO** (#411, `compareWith` in `SolverLibrary.tsx`): while
+  comparing, each combo card in the panel ends with its EV gain over GTO
+  (`+0.42 vs GTO`), the hand's line shows the class's, and every row of the
+  Filters tab its category's, signed and green/red. A hand's EV at a
+  decision is the actor's, in bb, net from the start of the street with the
+  pot winnable (`solve.ts`); the locked solve and GTO reach the decision by
+  the same path from the same pot, so the difference is what the lock gains
+  that hand (whatever the opponent's range and play became). Hands pair by
+  combo. A class or category weighs its combos by how they reach the
+  decision in the locked solve, so the gain is the same hands' and not a
+  change of which hands get here.
 
 ## 9. Range locks: the ranges that reach the flop (owner, 2026-11-19)
 

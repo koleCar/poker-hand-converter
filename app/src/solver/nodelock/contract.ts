@@ -6,6 +6,7 @@
  * behind `nodelock_*` commands).
  */
 
+import type { SolveSpeed } from "./engine/speed";
 import { lockHash, type LockSet } from "./engine/types";
 
 export type LockStreet = "flop" | "turn" | "river";
@@ -39,8 +40,8 @@ export interface NodelockEngine {
   kind: "workers" | "native";
   threads: number;
   solve(
-    /** `baseline`: the library chunk of the lock's spot, its bytes as served. */
-    req: { lockSet: LockSet; baseline: Uint8Array; maxIterations?: number },
+    /** `baseline`: the library chunk of the lock's spot, its bytes as served; `speed`: how hard it works the computer (`engine/speed.ts`). */
+    req: { lockSet: LockSet; baseline: Uint8Array; maxIterations?: number; speed?: SolveSpeed },
     onProgress: (p: NodelockProgress) => void,
     signal: AbortSignal,
   ): Promise<{ chunk: Uint8Array; stats: NodelockStats }>;

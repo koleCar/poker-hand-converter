@@ -1181,6 +1181,16 @@ button.pcardHead:focus-visible {
   opacity: 0.45;
 }
 
+/* Compare with GTO: an action GTO plays that the lock no longer offers. */
+.actGone {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.actGone:hover {
+  background: none;
+}
+
 .actDot {
   inline-size: 10px;
   block-size: 10px;
@@ -1413,6 +1423,7 @@ button.pcardHead:focus-visible {
 }
 
 .heat {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1432,6 +1443,29 @@ button.pcardHead:focus-visible {
 
 .heatOut {
   opacity: 0.15;
+}
+
+/* Over the cell's fill (`.cellFill`: the strategy's columns, or the measure's colour). */
+.heatName {
+  position: relative;
+}
+
+/* A grid's heat map scale, at the end of its head: low (red) to high (green). */
+.heatScale {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-inline-start: auto;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.heatScaleBar {
+  inline-size: 4rem;
+  block-size: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--loss-fg), var(--ev-fg), var(--profit-fg));
 }
 
 .heatHover {
@@ -1636,6 +1670,15 @@ button.pcardHead:focus-visible {
   border-color: var(--border-strong);
 }
 
+.suitToggle:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.suitToggle:disabled:hover {
+  border-color: var(--border-default);
+}
+
 .suitToggle[aria-pressed="true"] {
   border-color: var(--accent-border);
   background: var(--accent-subtle);
@@ -1699,6 +1742,17 @@ button.pcardHead:focus-visible {
   font: inherit;
   text-align: start;
   cursor: pointer;
+}
+
+/* Compare with GTO: a fourth column, the category's EV gain. */
+.filterPickGain {
+  grid-template-columns: minmax(0, 1fr) 3rem minmax(2rem, 3.5rem) 2.75rem;
+}
+
+.filterGain {
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
 }
 
 .filterPick:hover {

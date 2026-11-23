@@ -82,6 +82,8 @@ pub struct FilterDto {
     pot_types: Vec<String>,
     results: Vec<String>,
     stacks: Vec<String>,
+    /// The effective stack's chips (docs/ANALYTICS.md Step 11).
+    eff_stacks: Vec<String>,
     all_in: Option<bool>,
     has_note: Option<bool>,
     tags: Vec<String>,
@@ -178,6 +180,7 @@ impl From<FilterDto> for HandFilter {
             pot_types: dto.pot_types,
             results: dto.results,
             stacks: dto.stacks,
+            eff_stacks: dto.eff_stacks,
             all_in: dto.all_in,
             has_note: dto.has_note,
             tags: hand_list::tag_set(&dto.tags),

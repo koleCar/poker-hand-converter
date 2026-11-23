@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1,turn_fold_vs_bet=1/1 4:vpip=1/1,pfr=0/1,rfi=0/1,turn_fold_vs_bet=0/1,river_fold_vs_bet=0/1,river_raise_vs_bet=1/1 6:vpip=0/1,pfr=0/1 7:vpip=0/1,pfr=0/1 9:vpip=0/1,pfr=0/1,river_bet=1/1",
+      "events": "0075a29804cc12058fbd6ee683979ef69e777f400bf52b56c261a383fd20fd50",
+      "handId": "888-349444554",
+      "index": 0,
+      "members": "0@1:vpip-,pfr-,rfi- 1@4:vpip+,pfr-,rfi- 2@6:vpip-,pfr- 3@7:vpip-,pfr- 4@9:vpip-,pfr- 9@1:turn_fold_vs_bet+ 10@4:turn_fold_vs_bet- 11@9:river_bet+ 12@4:river_fold_vs_bet-,river_raise_vs_bet+"
+    }
+  ],
+  "input": "fixtures/samples/888poker/02-allin-summary-both-shows.txt"
+}

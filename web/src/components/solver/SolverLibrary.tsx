@@ -29,7 +29,7 @@
  * chunk's ranges at the deal (liveTurn.ts): a few seconds, nothing stored.
  *
  * A flop decision has two tabs: the actor's strategy (StrategyView) and both
- * ranges side by side (RangesView, coloured by the toolbar's measure). The
+ * ranges side by side (RangesView, each grid by its own measure). The
  * hand filters (HandFilters) sit in the panel beside either and stay set
  * while the line is walked.
  *
@@ -52,7 +52,9 @@ import { preflopChartSet } from "../../lib/chartSet";
 import { CHART_SETS, chartSetKind, DEFAULT_CHART_SET, type ChartNode, type ChartSet } from "../../lib/charts";
 import {
   classCombos,
+  classOfCombo,
   comboIds,
+  comboText,
   exploreNode,
   flopCards,
   EMPTY_FILTER,
@@ -61,6 +63,7 @@ import {
   LIVE_TURN,
   pickedFlop,
   nodeAt,
+  rangesAt,
   turnDeal,
   type FlopChunk,
   type HandFilter,
@@ -78,7 +81,7 @@ import { DealPicker, FlopCard, PostflopCards, type Where } from "./PostflopBar";
 import { PreflopCards, Strip, TableSelect, type TableOption } from "./PreflopBar";
 import { preflopState } from "./preflop";
 import { filterMasks, useRangeData, type RangeData } from "./rangeData";
-import { RANGE_MODES, RangesView, type RangeMode } from "./RangesView";
+import { DEFAULT_RANGE_MODES, RangesView, type RangeModes } from "./RangesView";
 import { actionColours, StrategyView, type StrategyHero, type StrategyModel } from "./StrategyView";
 import { IconButton, Segmented } from "./ui";
 import styles from "./solver.module.css";
@@ -181,8 +184,8 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
   /** A street's betting is over and its card is being picked: the deal's node (flop chunk: the turn; turn file: the river). */
   const [deal, setDeal] = useState<number | null>(null);
   const [tab, setTab] = useState<"strategy" | "ranges">("strategy");
-  /** What the Ranges tab's grids are coloured by (the toolbar's second segment). */
-  const [rangeMode, setRangeMode] = useState<RangeMode>("equity");
+  /** What the Ranges tab's grids show, by role: kept as the line is walked. */
+  const [rangeModes, setRangeModes] = useState<RangeModes>(DEFAULT_RANGE_MODES);
   /** The preflop cards opened from their summary (the line is at the flop): until the line changes. */
   const [preflopOpen, setPreflopOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -591,7 +594,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
         />
       );
     }
-    const compare = at?.locked && nodelock?.compare ? compareWith(at, chunkKey, include, nodelock.compareLabel, nodelock.shareDelta) : null;
+    const compare = at?.locked && nodelock?.compare ? compareWith(at, chunkKey, include, picked, nodelock.compareLabel, nodelock.shareDelta, t) : null;
     const ranges = tab === "ranges" && rangeData;
     toolbar = (
       <div className={styles.tools}>
@@ -605,15 +608,6 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
             setSwappedAt(model.id);
           }}
         />
-        {ranges ? (
-          <Segmented
-            size="sm"
-            label={t.tabs.rangeModes}
-            value={rangeMode}
-            options={RANGE_MODES.map((m) => ({ value: m, label: t.ranges.modes[m] }))}
-            onChange={setRangeMode}
-          />
-        ) : null}
         <ActiveFilters filter={filter} onFilter={setFilter} />
         <span className={styles.spacer} />
         {at && nodelock ? nodelock.nodeAction(at) : null}
@@ -628,7 +622,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
         compare={compare}
         actionMark={mark ? (key) => (mark.actions.has(key) ? mark.render(key) : null) : undefined}
         hero={hero}
-        main={ranges ? (onHand) => <RangesView data={rangeData} masks={masks} mode={rangeMode} onHand={onHand} /> : undefined}
+        main={ranges ? (onHand) => <RangesView data={rangeData} masks={masks} strategy={model} modes={rangeModes} onModes={setRangeModes} onHand={onHand} /> : undefined}
         empty={
           include && filterActive(filter) && (model.reach ?? 1) <= 0 ? (
             <div className={styles.empty}>
@@ -640,7 +634,15 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
           ) : undefined
         }
         fade={swappedAt === model.id}
-        filters={<HandFilters data={rangeData} filter={filter} onFilter={setFilter} colours={model.actions.map((a) => a.colour)} />}
+        filters={
+          <HandFilters
+            data={rangeData}
+            filter={filter}
+            onFilter={setFilter}
+            colours={model.actions.map((a) => a.colour)}
+            compare={compare ? { label: compare.label, hands: compare.hands } : null}
+          />
+        }
         overview={<Overview actor={decision.position} pot={decision.pot} toCall={decision.toCall} t={t} />}
       />
     );
@@ -868,30 +870,105 @@ function flopModel(
 /**
  * GTO at the decision a locked solution shows (the app's nodelock compare):
  * the library's flop decision on the same path, or on a turn the library's
- * own live turn when it was solved this session. Null when there is none, or
- * the trees differ.
+ * own live turn when it was solved this session. Null when there is none.
+ *
+ * Actions pair by their tree label: a lock that took an action away (its own
+ * sizes, §8) lists GTO's as `missing`, a size of its own has no GTO share.
+ *
+ * EVs: each solve's EV of a hand at this decision is the actor's, in bb, as
+ * net winnings from the start of the street (`solve.ts`), and both solves
+ * reach it by the same path from the same pot, so a hand's EV here minus its
+ * EV in GTO is what the lock gains it. A class or a category weighs its
+ * combos by how they reach the decision in the locked solve, so the delta is
+ * the same hands' gain, not a change of which hands get here.
  */
 function compareWith(
   at: NodelockAt,
   chunkKey: string,
   include: Uint8Array | undefined,
+  picked: PickedFlop,
   label: string,
   shareDelta: (delta: number) => string,
+  t: Dict,
 ): StrategyCompare | null {
   const base = at.turn ? liveTurnCached(chunkKey, at.turn.chance, at.turn.card) : at.library;
   if (!base) return null;
   const shown = at.chunk.result.nodes[at.node];
   const index = nodeAt(base.result, shown.path);
   const node = base.result.nodes[index];
-  // A lock with its own sizes (`NodeLockSpec.custom`) offers other actions here: nothing to compare them with.
-  if (!node || node.kind !== "action" || node.labels.join(" ") !== shown.labels.join(" ")) return null;
-  const sameHands = base.result.hands[node.player].length === at.chunk.result.hands[shown.player].length;
-  const view = exploreNode(base, index, sameHands ? include : undefined);
+  if (!node || node.kind !== "action" || shown.kind !== "action" || node.player !== shown.player) return null;
+  const player = shown.player as 0 | 1;
+
+  // The same hands in both solves, matched by combo (a range lock may leave some out).
+  const handsHere = at.chunk.result.hands[player];
+  const handsBase = base.result.hands[player];
+  const inBase = new Map<number, number>();
+  handsBase.forEach((combo, j) => inBase.set(combo, j));
+  const toBase = Array.from(handsHere, (combo) => inBase.get(combo) ?? -1);
+  let baseInclude: Uint8Array | undefined;
+  if (include) {
+    baseInclude = new Uint8Array(handsBase.length);
+    toBase.forEach((j, i) => {
+      if (j >= 0) baseInclude![j] = include[i];
+    });
+  }
+  const view = exploreNode(base, index, baseInclude);
+
+  const baseLabels = node.labels;
+  const shares = shown.labels.map((key) => {
+    const a = baseLabels.indexOf(key);
+    return a >= 0 ? view.totals[a].share : null;
+  });
+  const colours = actionColours(view.actions);
+  const missing = view.actions
+    .map((action, a) => ({ action, a }))
+    .filter(({ action, a }) => !shown.labels.includes(action.label) && view.totals[a].share > 0)
+    .map(({ action, a }) => ({
+      key: action.label,
+      label: t.action(action.kind, action.sizePot, action.amount),
+      colour: colours[a],
+      share: view.totals[a].share,
+    }));
+
+  // Per hand: its EV here under the shown strategy, minus GTO's.
+  const value = (n: { actions: readonly unknown[]; strategy: ArrayLike<number>; ev: ArrayLike<number> }, size: number, i: number) => {
+    let v = 0;
+    for (let a = 0; a < n.actions.length; a += 1) v += n.strategy[a * size + i] * n.ev[a * size + i];
+    return v;
+  };
+  const hands = new Float64Array(handsHere.length);
+  toBase.forEach((j, i) => {
+    hands[i] = j < 0 ? Number.NaN : value(shown, handsHere.length, i) - value(node, handsBase.length, j);
+  });
+
+  // Per class, through the filter: weighed by the locked reach (all alike when none of the class gets here).
+  const reach = rangesAt(at.chunk.result, at.node)[player];
+  const sum = new Float64Array(169);
+  const weight = new Float64Array(169);
+  const plain = new Float64Array(169);
+  const count = new Float64Array(169);
+  const byCards = new Map<string, number>();
+  handsHere.forEach((combo, i) => {
+    const d = hands[i];
+    if (Number.isNaN(d) || (include && !include[i])) return;
+    const k = classOfCombo(combo);
+    sum[k] += reach[i] * d;
+    weight[k] += reach[i];
+    plain[k] += d;
+    count[k] += 1;
+    const text = comboText(combo);
+    byCards.set(`${picked.toPicked(text.slice(0, 2))}${picked.toPicked(text.slice(2, 4))}`, d);
+  });
+  const classes = Array.from(sum, (s, k) => (weight[k] > 0 ? s / weight[k] : count[k] > 0 ? plain[k] / count[k] : null));
+
   return {
     label,
     shareDelta,
-    shares: view.totals.map((x) => x.share),
-    classes: view.classes.map((c) => ({ freq: c.freq, ev: c.ev, value: c.value })),
+    shares,
+    missing,
+    classes,
+    combo: (cards) => byCards.get(cards) ?? byCards.get(`${cards.slice(2, 4)}${cards.slice(0, 2)}`) ?? null,
+    hands,
   };
 }
 

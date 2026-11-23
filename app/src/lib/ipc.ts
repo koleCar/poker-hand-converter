@@ -540,6 +540,14 @@ export interface SavedFilter {
  */
 export type { Breakdowns, Graph, GraphBucket, Report, StatGroup, Units } from "@rail/ui/reports/model";
 import type { Breakdowns, Report, StatGroup, Units } from "@rail/ui/reports/model";
+import type {
+  CheckerExample,
+  CheckerExampleQuery,
+  CheckerFilters,
+  CheckerSums,
+  PoolFilters,
+  PoolSums,
+} from "@rail/ui/analytics/model";
 
 /** `reports::SessionDto`: the latest session. */
 /** One kind of game's latest session, as Live's switch sees it. */
@@ -1927,6 +1935,13 @@ export const ipc = {
     table: string | null = null,
     pot: string | null = null,
   ) => invoke<LeakExampleDto[]>("leak_examples", { version, filters, days, keys, table, pot, limit }),
+  /** (Analytics Step 2) The stat checker's sums and examples over the store's checker rows. */
+  analyticsChecker: (version: string, filters: CheckerFilters) =>
+    invoke<CheckerSums>("analytics_checker", { version, filters }),
+  /** The Pool tab's sums (docs/ANALYTICS.md Step 10, `rail_store::pool`). */
+  analyticsPool: (filters: PoolFilters) => invoke<PoolSums>("analytics_pool", { filters }),
+  analyticsCheckerExamples: (version: string, filters: CheckerFilters, query: CheckerExampleQuery) =>
+    invoke<CheckerExample[]>("analytics_checker_examples", { version, filters, query }),
   dev: {
     pickFile: () => invoke<string | null>("dev_pick_file"),
     convertFile: (path: string) => invoke<ConvertSummary>("convert_file", { path }),

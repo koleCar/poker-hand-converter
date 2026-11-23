@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "03d4ca8c3816c06ecb7ad92177aae444c0db73f6c2a779aa8127b69ee394abcd",
+      "handId": "888-539304533",
+      "index": 0,
+      "members": "0@1:vpip-,pfr-,rfi- 1@2:vpip-,pfr-,rfi-"
+    }
+  ],
+  "input": "fixtures/samples/888poker/14-fix-limit-no-holecards-shown.txt"
+}

@@ -72,6 +72,7 @@ export type GroupId =
   | "potType"
   | "result"
   | "stack"
+  | "effStack"
   | "allIn"
   | "notes"
   | "tags"
@@ -143,6 +144,7 @@ export const LIST_GROUPS: Partial<Record<GroupId, ListGroup>> = {
   potType: "potTypes",
   result: "results",
   stack: "stacks",
+  effStack: "effStacks",
   tags: "tags",
   showdownPositions: "showdownPositions",
   winnerPositions: "winnerPositions",
@@ -286,6 +288,7 @@ export const HAND_GROUPS: GroupId[] = [
   "potType",
   "result",
   "stack",
+  "effStack",
   "variant",
   "limit",
   "size",
@@ -393,7 +396,7 @@ export const PANES: { section: SectionId; panes: { id: PaneId; groups: GroupId[]
           "anonymization",
         ],
       },
-      { id: "stacks", groups: ["stack", "heroStack", "conditions"] },
+      { id: "stacks", groups: ["stack", "effStack", "heroStack", "conditions"] },
     ],
   },
   {
@@ -554,6 +557,7 @@ export function useGroupWords() {
       potType: t.potTypes,
       result: t.results,
       stack: t.stacks,
+      effStack: t.stacks,
       variant: variants,
       anonymization: t.anonymizations,
       preflopDid: t.builder.preflopDid,
@@ -594,6 +598,7 @@ export function useGroupWords() {
       potType: POT_TYPE_ORDER,
       result: RESULT_ORDER,
       stack: STACK_ORDER,
+      effStack: STACK_ORDER,
       format: FORMAT_ORDER,
       limit: LIMIT_ORDER,
       size: SIZE_ORDER,
@@ -658,6 +663,10 @@ export function useGroupWords() {
         case "heroBluff":
         case "vsBluff":
           values = (BUILDER_ORDERS[group] ?? []).map((value) => ({ value, count: 1 }));
+          break;
+        case "effStack":
+          // Not counted beside the chips (a builder fact, like the others).
+          values = STACK_ORDER.map((value) => ({ value, count: 1 }));
           break;
         case "position": {
           const seen = (facets?.positions ?? []).filter((f) => f.value !== "" && f.count > 0);

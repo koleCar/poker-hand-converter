@@ -27,7 +27,7 @@ import { decodeChunk, liveTurnId, type NodelockAt, type NodelockOverride } from 
 import { solverParam } from "../param";
 import { lockHashOf, type LockSet, type NodelockEngine, type NodelockProgress, type NodelockSummary } from "./contract";
 import { nodelockData, type NodeLockInput, type NodeLockRow } from "./data";
-import { pickEngine } from "./engine";
+import { loadSpeed, pickEngine } from "./engine";
 import { readLockSet } from "./engine/door";
 import { lockChain, resolvePlan, type LockPlan, type LockRef } from "./lineage";
 
@@ -333,7 +333,8 @@ async function run(engine: NodelockEngine, request: SolveRequest): Promise<boole
 
   void engine
     .solve(
-      { lockSet, baseline },
+      // The speed picked on this computer when the solve starts (#409).
+      { lockSet, baseline, speed: loadSpeed() },
       (progress) => {
         const running = state.running;
         if (running?.id === id) set({ running: { ...running, progress, share: shareOf(progress, running.share) } });

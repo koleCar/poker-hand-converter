@@ -358,24 +358,59 @@
   color: var(--text-secondary);
 }
 
-/* The locked board, the one thing that says which solve this is. */
-.sideBoard {
-  color: var(--text-primary);
-  letter-spacing: 0.02em;
+/* A solve running: one line like the sidebar's links, the lock in its
+   colour, the solve's name, and the bar along the bottom (#406). */
+.sideRun {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: auto;
+  margin-bottom: var(--space-2);
+  padding: 6px var(--space-3) 8px;
+  overflow: hidden;
+  border: none;
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  text-align: start;
+  cursor: pointer;
 }
 
-/* "1 of 3 done" under the buttons when more than one solve was asked for. */
-.sideCount {
-  color: var(--text-tertiary);
-  font-size: var(--font-size-sm);
-  font-variant-numeric: tabular-nums;
+.sideRun:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.sideRun:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
+
+/* On the links' icon column (20px wide), the name on their labels'. */
+.sideRun svg {
+  flex: none;
+  inline-size: 16px;
+  block-size: 16px;
+  margin-inline: 2px;
+  color: var(--warning-fg);
+}
+
+.sideRunName {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sideBar {
   position: absolute;
   inset-inline: 0;
   inset-block-end: 0;
-  block-size: 3px;
+  block-size: 2px;
   overflow: hidden;
   background: var(--border-subtle);
 }

@@ -24,8 +24,14 @@ export interface HandFilter {
   potTypes?: string[];
   /** `won`, `lost`, `even`. */
   results?: string[];
-  /** `0-40`, `40-80`, `80-120`, `120+` (big blinds). */
+  /** The hero's starting stack: `0-40`, `40-80`, `80-120`, `120+` (big blinds; `config/stats/stack-buckets.json`). */
   stacks?: string[];
+  /**
+   * The hero's effective stack at its first preflop action, the same buckets
+   * (docs/ANALYTICS.md Step 11; desktop `hand_list.eff_stack_tenths`, web
+   * `hand_facts.eff_stack_tenths`).
+   */
+  effStacks?: string[];
   allIn?: boolean | null;
   hasNote?: boolean | null;
   tags?: string[];

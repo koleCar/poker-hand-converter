@@ -14,6 +14,7 @@ import {
   lockArrays,
   lockedCount,
   shareOf,
+  strategyToSolve,
   type EditorAction,
   type EditorSpot,
   type EditorState,
@@ -162,6 +163,24 @@ describe("nodelock editor state", () => {
     expect(editorReducer(SPOT, state, { type: "undo" }).locked).toEqual([1, 1, 1, 1, 0]);
   });
 
+  it("resets to where the editor opened: its locks and the actions taken away", () => {
+    const check = { label: "X", name: "Check", kind: "check", amount: 0, sizePot: 0, gto: 0 } as const;
+    // Opened on a lock: hand 1 always bets.
+    const opening = run({ type: "paint", hands: [1], mix: [0, 1] });
+    const start = { strategy: opening.strategy, locked: opening.locked, actions: opening.actions };
+    // The bet taken away (the strategy carried to check only), then Reset.
+    const removed = editorReducer(SPOT, opening, { type: "actions", actions: [check], strategy: [[1, 1, 1, 1, 1]], locked: [0, 0, 0, 0, 0] });
+    expect(removed.actions).toEqual([check]);
+    const reset = editorReducer(SPOT, removed, { type: "reset", to: start, preset: "tight" });
+    expect(reset.actions).toBeUndefined();
+    expect(reset.strategy).toEqual(opening.strategy);
+    expect(reset.locked).toEqual([0, 1, 0, 0, 0]);
+    expect(reset.preset).toBe("tight");
+    expect(editorReducer(SPOT, reset, { type: "undo" }).actions).toEqual([check]);
+    // Already there: nothing to do.
+    expect(editorReducer(SPOT, reset, { type: "reset", to: start })).toBe(reset);
+  });
+
   it("writes the lock over the 1,326 combos and reads it back", () => {
     const state = run({ type: "paint", hands: [1], mix: [0.25, 0.75] });
     const lock = lockArrays(SPOT, state);
@@ -188,5 +207,27 @@ describe("nodelock editor steps", () => {
     expect(state.locked).toEqual([1, 1, 1, 0, 0]);
     expect(state.past).toHaveLength(1);
     expect(editorReducer(SPOT, state, { type: "undo" }).locked).toEqual([0, 0, 0, 0, 0]);
+  });
+});
+
+describe("what Solve locks (#410)", () => {
+  it("locks the hands locked, and nothing when none is and the actions are the library's", () => {
+    const painted = run({ type: "paint", hands: [1], mix: [1, 0] });
+    expect(strategyToSolve(SPOT, painted, false)).toBe(painted);
+    expect(strategyToSolve(SPOT, painted, true)).toBe(painted);
+    expect(strategyToSolve(SPOT, initialState(SPOT), false)).toBeNull();
+  });
+
+  it("solves a node whose sizes the lock changed with no hand fixed", () => {
+    const state = initialState(SPOT);
+    expect(strategyToSolve(SPOT, state, true)).toBe(state);
+  });
+
+  it("fixes every reaching hand at the one action left (the donk bet taken away)", () => {
+    const checkOnly: EditorSpot = { ...SPOT, gto: [[1, 1, 1, 1, 1]], ev: [SPOT.ev[0]] };
+    const solved = strategyToSolve(checkOnly, initialState(checkOnly), true);
+    expect(solved?.locked).toEqual([1, 1, 1, 1, 0]);
+    expect(solved?.strategy).toEqual([[1, 1, 1, 1, 1]]);
+    expect(lockedCount(checkOnly, solved!)).toEqual({ locked: 4, reaching: 4 });
   });
 });

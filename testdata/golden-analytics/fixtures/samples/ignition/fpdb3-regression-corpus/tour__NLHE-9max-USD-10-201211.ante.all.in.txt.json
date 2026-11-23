@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "",
+      "events": "6488e01f2a7887e883fffa7f49fc51d1881b5c3cc860f9754124bb3adba3f71e",
+      "handId": "2690849153",
+      "index": 0,
+      "members": ""
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-10-201211.ante.all.in.txt"
+}

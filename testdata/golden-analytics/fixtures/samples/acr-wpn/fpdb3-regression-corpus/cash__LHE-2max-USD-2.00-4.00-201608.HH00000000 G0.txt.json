@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 2:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1",
+      "events": "4ca901d346036d2ba31ce60ce18e979f669df9587b9bccbb9d4e914e64590d47",
+      "handId": "693968595",
+      "index": 0,
+      "members": "0@2:vpip+,pfr+,rfi+ 1@1:vpip+,pfr-,three_bet- 3@2:cbet_flop+ 4@1:flop_fold_vs_bet+,flop_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__LHE-2max-USD-2.00-4.00-201608.HH00000000 G0.txt"
+}

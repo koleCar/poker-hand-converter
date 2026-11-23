@@ -16,6 +16,9 @@ import { INTL_LOCALE } from "../i18n/types";
 import type { GameKind } from "@rail/ui/hands/gameKind";
 import { fetchTopLeaks } from "../lib/leaksSource";
 import { errorText, inApp, ipc, onAccountChanged } from "../lib/ipc";
+import { handAnalysisOf } from "../analysis/service";
+import { drillParam } from "@rail/ui/analytics/view";
+import type { PhfHand } from "@rail/ui/model/phf";
 import { enqueue, flushOutbox } from "./outbox";
 import {
   focusAreas,
@@ -28,6 +31,7 @@ import {
   type GradedAnswer,
   type KeptAnswer,
   type RangeView,
+  type PlayedHand,
   type PlayOptions,
   type PlayStep,
   type TrainerHost,
@@ -189,6 +193,19 @@ export function onHistory(listener: () => void): () => void {
   return () => historyListeners.delete(listener);
 }
 
+/**
+ * "Play it ▸" from Analytics: the hand from the store and its analysis (the
+ * stored row at the app's version, else analysed now, as the hand view does).
+ */
+async function played(handKey: string): Promise<PlayedHand | null> {
+  if (!inApp) return null;
+  const json = await ipc.handPhf(handKey);
+  if (json === null) return null;
+  const phf = JSON.parse(json) as PhfHand;
+  const got = await handAnalysisOf(handKey, phf);
+  return got ? { phf, decisions: got.analysis.decisions } : null;
+}
+
 /** "For you" from the store: every analysed hand of one kind of game, grouped into focus areas. */
 async function focus(kind: GameKind | null): Promise<FocusState> {
   if (!inApp) return { status: "signed-out" };
@@ -232,6 +249,9 @@ export function useAppTrainerHost(kind: GameKind | null): TrainerHost {
       sessions,
       initialSession: lastSession(),
       onSession: keepSession,
+      played,
+      // The bar's way back: the stat's drill-down in Analytics.
+      analyticsHref: (stat) => `#/reports/${drillParam(encodeURIComponent(stat))}`,
     }),
     [locale, kind],
   );

@@ -499,6 +499,9 @@ fn write_rows(tx: &Transaction<'_>, rows: &[HandAnalysisIn], now_ms: i64) -> Res
                 d.best,
             ])?;
         }
+        // The Analytics checker rows (docs/ANALYTICS.md Step 2), from the
+        // decisions just stored and the hand's PHF.
+        crate::checker::write_hand(tx, &row.hand_key)?;
         outcome.saved += 1;
     }
     Ok(outcome)

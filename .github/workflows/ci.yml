@@ -87,15 +87,18 @@ jobs:
       # stats goldens (R2.1, testdata/golden-stats/) and the all-in EV goldens
       # (R2.2, testdata/golden-ev/) come out of the same run: a change to
       # lib/stats or lib/equity lands with them, as a parser change lands with
-      # testdata/golden/.
+      # testdata/golden/. So do the Analytics catalogue's counts and the
+      # decision events' hashes (docs/ANALYTICS.md Step 1,
+      # testdata/golden-analytics/), which rail-stats' analytics_corpus test
+      # holds the Rust twin to.
       - name: Goldens match what is committed
         run: |
-          changes="$(git status --porcelain --untracked-files=all -- testdata/golden testdata/golden-stats testdata/golden-ev)"
+          changes="$(git status --porcelain --untracked-files=all -- testdata/golden testdata/golden-stats testdata/golden-ev testdata/golden-analytics)"
           if [ -n "$changes" ]; then
-            echo "::error file=testdata/golden/README.md::Goldens are stale. Run 'npm run golden:emit' in tests/ and commit testdata/golden/, testdata/golden-stats/ and testdata/golden-ev/ in the same PR as the parser, stats or equity change."
+            echo "::error file=testdata/golden/README.md::Goldens are stale. Run 'npm run golden:emit' in tests/ and commit testdata/golden/, testdata/golden-stats/, testdata/golden-ev/ and testdata/golden-analytics/ in the same PR as the parser, stats or equity change."
             echo "$changes" | head -100
-            git --no-pager diff --stat -- testdata/golden testdata/golden-stats testdata/golden-ev | tail -20
-            git --no-pager diff -- testdata/golden testdata/golden-stats testdata/golden-ev | head -300
+            git --no-pager diff --stat -- testdata/golden testdata/golden-stats testdata/golden-ev testdata/golden-analytics | tail -20
+            git --no-pager diff -- testdata/golden testdata/golden-stats testdata/golden-ev testdata/golden-analytics | head -300
             exit 1
           fi
           echo "Goldens are fresh."

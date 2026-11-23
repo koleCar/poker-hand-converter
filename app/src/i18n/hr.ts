@@ -71,7 +71,7 @@ export const hr: Dict = {
     label: "Glavni izbornik",
     live: "Uživo",
     hands: "Ruke",
-    reports: "Izvještaji",
+    reports: "Analitika",
     players: "Igrači",
     analysis: "Analiza",
     solver: "Solver",
@@ -133,8 +133,8 @@ export const hr: Dict = {
       lead: "Sve ruke, s filterima, replayerom, oznakama i bilješkama.",
     },
     reports: {
-      title: "Izvještaji",
-      lead: "Zarada i all-in EV kroz vrijeme, rezultati po poziciji i situaciji.",
+      title: "Analitika",
+      lead: "Zarada i all-in EV, tvoje statistike prema ciljevima, rezultati po poziciji i situaciji.",
     },
     players: {
       title: "Igrači",
@@ -267,8 +267,8 @@ export const hr: Dict = {
       hint: "Sesija se ovdje pojavi s prvom rukom koju odigraš.",
       last: "Zadnja sesija",
       range: (from, to) => `${from} – ${to}`,
-      reports: "Otvori u Izvještajima",
-      reportsTitle: "Otvori u Izvještajima, filtrirano na ovu sesiju",
+      reports: "Otvori u Analitici",
+      reportsTitle: "Otvori u Analitici, filtrirano na ovu sesiju",
     },
   },
 
@@ -720,7 +720,7 @@ export const hr: Dict = {
 
     custom: {
       heading: "Vlastite statistike",
-      body: "Broji ono što standardne statistike ne broje. Brojač je pravilo nad svakom odlukom u tvojim rukama - kada je odluka prilika i što se računa kao iskorištena prilika - a statistika ga prikazuje kroz formulu, s vlastitom oznakom, bojama i minimalnim uzorkom. Rail novi brojač prebroji kroz sve tvoje ruke u pozadini; Izvještaji ga prikazuju uz ostale statistike.",
+      body: "Broji ono što standardne statistike ne broje. Brojač je pravilo nad svakom odlukom u tvojim rukama - kada je odluka prilika i što se računa kao iskorištena prilika - a statistika ga prikazuje kroz formulu, s vlastitom oznakom, bojama i minimalnim uzorkom. Rail novi brojač prebroji kroz sve tvoje ruke u pozadini; Analitika ga prikazuje uz ostale statistike.",
       loading: "Učitavanje vlastitih statistika…",
       loadFailed: (reason) => `Vlastite statistike nisu učitane: ${reason}`,
       empty: "Još nema vlastitih statistika.",
@@ -1184,8 +1184,9 @@ export const hr: Dict = {
     // The summary, the graph's card, the statistics and the breakdowns: the
     // shared screen's words (R4.5c, `@rail/ui/strings/reports.hr.ts`).
     ...reportsUiHr,
-    unavailable: "Izvještaji su dostupni samo unutar aplikacije Rail.",
-    empty: "Još nema ruku. Izvještaji se pune kako Rail uvozi tvoje povijesti ruku.",
+    unavailable: "Analitika je dostupna samo unutar aplikacije Rail.",
+    empty: "Još nema ruku.",
+    emptyLink: "Uvezi povijesti ruku →",
     rebuilding: (done, total) =>
       `Ažuriram statistiku nakon nadogradnje: ${n(done)} od ${odRuku(total)}. Brojke rastu kako napreduje.`,
     graph: {
@@ -1203,8 +1204,8 @@ export const hr: Dict = {
     recent: "Nedavno",
     screens: "Ekrani",
     hands: "Ruke",
-    reports: "Izvještaji",
-    report: (name) => `Izvještaj: ${name}`,
+    reports: "Analitika",
+    report: (name) => `Analitika: ${name}`,
     searching: "Tražim…",
     screen: (name) => name,
     goTo: "idi na otvori ekran",
@@ -1609,8 +1610,11 @@ export const hr: Dict = {
     accuracyLabel: "Točnost",
     accuracy: { standard: "Standardna 1%", quick: "Brza 2,5%" },
     solve: "Solvaj na ovom računalu",
-    engineLine: (threads: number, cores: number, memoryMb: number) =>
-      `Koristi do ${n(threads)} od ${n(cores)} jezgri i oko ${memoryMb >= 1000 ? `${n(Math.round(memoryMb / 100) / 10)} GB` : `${n(Math.round(memoryMb / 10) * 10)} MB`}. Ništa ne napušta ovo računalo.`,
+    speedLabel: "Brzina",
+    speeds: { slow: "Sporo", medium: "Srednje", fast: "Brzo" },
+    /** What a speed uses: under the choice, and on each option. */
+    speedLine: (threads: number, cores: number, memoryMb: number) =>
+      `${n(threads)} od ${n(cores)} jezgri · oko ${memoryMb >= 1000 ? `${n(Math.round(memoryMb / 100) / 10)} GB` : `${n(Math.round(memoryMb / 10) * 10)} MB`}`,
     noEngine: "Ova verzija Raila još ne može solvati nodelockove.",
     queued: "Drugi nodelock se solva: ovaj kreće odmah nakon njega.",
     startError: "Solve se nije mogao pokrenuti. Pokušaj ponovno.",
@@ -1745,6 +1749,8 @@ export const hr: Dict = {
       },
       deleteBody: "Briše se s ovog računala. Ovo se ne može poništiti.",
       deleteSolving: "Solve koji je u tijeku prvo se prekida.",
+      cancelSolve: "Prekini solve",
+      cancelQueue: "Prekini sve solveove",
     },
   },
 

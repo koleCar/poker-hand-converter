@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "2:vpip=1/1,pfr=0/1,rfi=0/1 3:vpip=0/1,pfr=0/1,river_bet=0/1 4:vpip=1/1,pfr=0/1,river_bet=0/1 9:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "6371491a7fec6707194d35d8672199be0bd4097cde031c4b1a57b14e8cbbbcc9",
+      "handId": "3325979755",
+      "index": 0,
+      "members": "0@9:vpip-,pfr-,rfi- 1@2:vpip+,pfr-,rfi- 2@4:vpip+,pfr- 3@3:vpip-,pfr- 8@3:river_bet- 9@4:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-STT - $3-$0.30 - 201601.repeat.actions.ok.txt"
+}

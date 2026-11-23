@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=1/1,pfr=1/1,rfi=1/1 5:vpip=0/1,pfr=0/1,three_bet=0/1",
+      "events": "c1e5ef17364ae0862d40548b590b2361d950d18260e85ebaa999d3a5ae9a45d9",
+      "handId": "OM1171256",
+      "index": 0,
+      "members": "0@4:vpip+,pfr+,rfi+ 1@5:vpip-,pfr-,three_bet- 2@3:vpip-,pfr-,three_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ggpoker/24-fpdb3-cash-plo5-6max-usd-25-50-202104-straddle.txt"
+}

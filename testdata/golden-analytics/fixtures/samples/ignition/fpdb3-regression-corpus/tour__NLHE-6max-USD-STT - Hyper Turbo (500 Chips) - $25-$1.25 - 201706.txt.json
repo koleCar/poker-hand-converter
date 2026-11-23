@@ -1,0 +1,27 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=1/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,cbet_flop=0/1,turn_fold_vs_bet=1/1 2:vpip=1/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1 4:vpip=0/1,pfr=0/1 5:vpip=0/1,pfr=0/1 6:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=1/1",
+      "events": "b59418bc7455d6b064b35b807aba88fbe6934408abd21030f0fccda92d2b69c2",
+      "handId": "3534392210",
+      "index": 0,
+      "members": "0@6:vpip+,pfr-,rfi- 1@5:vpip-,pfr- 2@4:vpip-,pfr- 3@3:vpip-,pfr- 4@1:vpip+,pfr+ 5@2:vpip+,pfr-,three_bet- 6@6:three_bet- 7@1:cbet_flop- 9@6:flop_fold_vs_bet-,flop_raise_vs_bet- 10@1:flop_fold_vs_bet-,flop_raise_vs_bet- 13@6:turn_fold_vs_bet+ 14@1:turn_fold_vs_bet+"
+    },
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=1/1,pfr=1/1,rfi=1/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
+      "events": "b37b5723a71628dbdb9b6e4d5f96aad01ed9642921466debca4d9030c6334071",
+      "handId": "3534392764",
+      "index": 1,
+      "members": "0@5:vpip-,pfr-,rfi- 1@4:vpip-,pfr-,rfi- 2@3:vpip+,pfr+,rfi+ 3@1:vpip-,pfr-,three_bet- 4@2:vpip-,pfr-,three_bet- 5@6:vpip-,pfr-,three_bet-"
+    },
+    {
+      "counts": "1:vpip=1/1,pfr=1/1,rfi=1/1 2:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1",
+      "events": "ea741c8b74c5cd309d38e54192fbafcc42ab304b132de17722582b0cd4fd70bd",
+      "handId": "3534392956",
+      "index": 2,
+      "members": "0@4:vpip-,pfr-,rfi- 1@3:vpip-,pfr-,rfi- 2@1:vpip+,pfr+,rfi+ 3@2:vpip-,pfr-,three_bet- 4@6:vpip-,pfr-,three_bet- 5@5:vpip-,pfr-,three_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-6max-USD-STT - Hyper Turbo (500 Chips) - $25-$1.25 - 201706.txt"
+}

@@ -1,0 +1,223 @@
+/**
+ * The Analytics stat checker's data, as both surfaces hand it over
+ * (docs/ANALYTICS.md Step 2). The web reads it from `analytics_checker` /
+ * `analytics_checker_examples` (`web/src/lib/db/analyticsRows.ts`), the
+ * desktop app from the async Tauri commands of the same names
+ * (`app/src-tauri/src/analytics.rs`, over `rail_store::checker`): the same
+ * shapes, the same sums over the same decisions (the fixture in
+ * `core/rail-stats/tests/data/analytics/rows/`).
+ *
+ * The sums are per (stat, spot, size bucket, hand class), over the
+ * analysed decisions of the catalogue's rates (`config/stats/analytics.json`):
+ *
+ * - `opps` / `oppsTaken`: every member decision with a stored row, and those
+ *   that took the stat's action class;
+ * - `n` / `taken`: of them, the analysed ones (the reference had options) -
+ *   the player's number and the target come from these;
+ * - `refShare`: Σ of the reference's share of the class over the `n`
+ *   (target = refShare / n);
+ * - `evHigh`: Σ EV loss (bb) of the `n` that took the class ("too much");
+ *   `evLow`: of the `n` that did not although the reference's best option is
+ *   in the class ("too little");
+ * - `hands`: distinct hands in the group.
+ */
+
+import type { HandFilter } from "../hands/model";
+
+/** The filters the checker reads: the analysis readers' (`analysis_filter_of`) plus a pot kind. */
+export interface CheckerFilters {
+  analysisVersion?: string;
+  /** Default `analytics/1` (`ANALYTICS_MEMBERSHIP_VERSION`). */
+  membershipVersion?: string;
+  /** ISO times, `from` inclusive, `to` exclusive. */
+  from?: string;
+  to?: string;
+  site?: string;
+  gameFormat?: string;
+  gameKind?: string;
+  currency?: string;
+  bigBlind?: number;
+  position?: string;
+  potType?: string;
+  /** `hu`, `mw` (by the decision's scenario) or `bomb`. */
+  potKind?: "hu" | "mw" | "bomb";
+  /**
+   * The hero's effective stack at its first preflop action: ids of the
+   * stack buckets (docs/ANALYTICS.md Step 11). The desktop's store reads it
+   * (`hand_list.eff_stack_tenths`); the web reads it from `hands`.
+   */
+  effStacks?: string[];
+  /**
+   * The web's only: the Hands list's filter (`library_where`'s shape), for
+   * the groups the keys above cannot say (`analysis_hand_ids`).
+   */
+  hands?: Record<string, unknown>;
+}
+
+export interface CheckerGroup {
+  stat: string;
+  /** `pot|role|hero|opponent` ({@link parseSpot}). */
+  spot: string;
+  /** A catalogue size bucket id; '' preflop or with no bet faced. */
+  size: string;
+  /** A catalogue hand class id; '' preflop. */
+  handClass: string;
+  opps: number;
+  oppsTaken: number;
+  n: number;
+  taken: number;
+  refShare: number;
+  evHigh: number;
+  evLow: number;
+  hands: number;
+}
+
+export interface CheckerSums {
+  analysisVersion: string;
+  membershipVersion: string;
+  /** Hands in scope with stored rows: the bb/100 cost's denominator. */
+  hands: number;
+  /** Hands analysed at the version still without rows (the backfill's work). */
+  pending: number;
+  /** Ordered by (stat, spot, size, handClass), byte order. */
+  groups: CheckerGroup[];
+}
+
+/** Which decisions an example list shows. */
+export type CheckerSide = "high" | "low" | "any";
+
+/** One decision behind a group, the costliest first. */
+export interface CheckerExample {
+  handId: string;
+  ord: number;
+  actionIndex: number;
+  playedAt: string | null;
+  site: string;
+  stat: string;
+  spot: string;
+  size: string;
+  handClass: string;
+  taken: boolean;
+  bestIn: boolean;
+  refShare: number;
+  evLossBb: number;
+  /** The bet faced, a fraction of the pot; null with none. */
+  facingPot: number | null;
+  cards: string[];
+  board: string[];
+}
+
+export interface CheckerExampleQuery {
+  stat: string;
+  spot?: string | null;
+  size?: string | null;
+  handClass?: string | null;
+  /** Default `high`. */
+  side?: CheckerSide;
+  /** 1..100, default 20. */
+  limit?: number;
+}
+
+/** What each surface implements over its own data layer. */
+export interface CheckerSource {
+  checker(filters: CheckerFilters): Promise<CheckerSums | null>;
+  examples(filters: CheckerFilters, query: CheckerExampleQuery): Promise<CheckerExample[]>;
+}
+
+/**
+ * What the Analytics screen asks a surface for (Step 4): the checker's sums
+ * over the screen's filter. Each surface maps the filter onto its own
+ * `CheckerFilters` (`checkerFiltersOf` in `view.ts`, the web adding the
+ * Hands list's filter) and says when it had to leave groups out.
+ */
+export interface AnalyticsChecker {
+  sums(query: HandFilter): Promise<CheckerSums | null>;
+  /** The filter sets groups the checker does not follow (they are left out). */
+  partial(query: HandFilter): boolean;
+  /**
+   * The drill-down's hands (Step 8): the decisions behind a stat's spot,
+   * size or class over the same filter, the costliest first. Absent: the
+   * drill-down shows no hands.
+   */
+  examples?(query: HandFilter, example: CheckerExampleQuery): Promise<CheckerExample[]>;
+  /**
+   * The web (docs/ANALYTICS.md Step 12): derives the rows of the hands
+   * analysed without them (`pending` - analysed before the checker existed,
+   * or at another catalogue version), in the browser, a page at a time,
+   * until done or `signal` aborts; the screen reads the sums again after.
+   * Absent where the surface fills them itself (the desktop's background pass).
+   */
+  backfill?(signal: AbortSignal, onProgress: (progress: CheckerProgress) => void): Promise<CheckerProgress>;
+}
+
+/** How far a browser backfill of the checker rows is. */
+export interface CheckerProgress {
+  /** Hands read from the work list. */
+  processed: number;
+  /** Hands whose rows were saved. */
+  saved: number;
+}
+
+/* --------------------------------------------------------------- Pool -- */
+
+/**
+ * The Pool tab's data (docs/ANALYTICS.md Step 10): the web reads it from
+ * `analytics_pool` (`web/src/lib/db/analyticsPool.ts`), the desktop from the
+ * async Tauri command of the same name (`rail_store::pool`). Opponents are
+ * typed by Rail's rule (the Hands filter's "vs type": 30+ hands; fish VPIP ≥
+ * 40; reg VPIP 15–30 and PFR ≥ 0.6·VPIP) over every hand of theirs; their
+ * results and rates count the hands they played with the hero.
+ */
+export type PoolType = "reg" | "fish";
+
+/** What the pool is read over: the kind or one format, and the rooms. */
+export interface PoolFilters {
+  gameFormat?: string;
+  gameKind?: string;
+  sites?: string[];
+}
+
+/** One player type's results. */
+export interface PoolTypeSums {
+  players: number;
+  /** Their seat rows in hands with the hero. */
+  hands: number;
+  /** Σ result and Σ result², big blinds. */
+  netBb: number;
+  netBbSq: number;
+}
+
+/** One catalogue rate's counts for one type. */
+export interface PoolStatSums {
+  stat: string;
+  type: PoolType;
+  made: number;
+  opp: number;
+}
+
+export interface PoolSums {
+  /** The catalogue version the rates were counted at (`analytics/1`). */
+  version: string;
+  /** Hands not counted for the pool yet (the backfill's work). */
+  pending: number;
+  reg: PoolTypeSums;
+  fish: PoolTypeSums;
+  stats: PoolStatSums[];
+}
+
+/** How far a browser backfill is (the web counts the pool in the browser). */
+export interface PoolProgress {
+  processed: number;
+  saved: number;
+}
+
+/** What the Analytics screen asks a surface for on the Pool tab. */
+export interface AnalyticsPool {
+  sums(query: HandFilter): Promise<PoolSums | null>;
+  /**
+   * The web: counts the hands the pool has not counted yet, in the browser,
+   * a page at a time, until done or `signal` aborts. Absent where the
+   * surface counts them itself (the desktop's background pass).
+   */
+  backfill?(signal: AbortSignal, onProgress: (progress: PoolProgress) => void): Promise<PoolProgress>;
+}

@@ -1,0 +1,5 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/pokerstars/45-cash-razz-brings-in-excerpt.txt"
+}

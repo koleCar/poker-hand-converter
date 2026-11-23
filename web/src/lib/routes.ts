@@ -26,6 +26,8 @@ export const paths = {
   convertManual: () => "/convert/manual",
   library: () => "/library",
   stats: () => "/stats",
+  /** One stat's drill-down on the Analytics screen (docs/ANALYTICS.md Step 8): spots, bet sizes, hand classes, hands. */
+  statsStat: (statId: string) => `/stats/${encodeURIComponent(statId)}`,
   /** The shared Players screen (R4.5c): the opponents of your hands. A top-level segment, so `players` is a reserved username (`20270714090000_players_screen.sql`). */
   players: () => "/players",
   /**

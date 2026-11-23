@@ -12,6 +12,7 @@
  */
 import { extractCards, parseHeroHand } from "../model/cards";
 import type { HandFilter, HandSort, PlayerRef } from "./model";
+import { stackOrder } from "./stackBuckets";
 
 /** The pot filter's unit: big blinds, or the table's money (`$`). */
 export type PotUnit = "bb" | "money";
@@ -34,6 +35,7 @@ export type ListGroup =
   | "potTypes"
   | "results"
   | "stacks"
+  | "effStacks"
   | "tags"
   | "showdownPositions"
   | "winnerPositions"
@@ -83,6 +85,7 @@ const LIST_GROUPS: ListGroup[] = [
   "potTypes",
   "results",
   "stacks",
+  "effStacks",
   "tags",
   "showdownPositions",
   "winnerPositions",
@@ -133,6 +136,8 @@ export interface FilterState {
   potTypes: string[];
   results: string[];
   stacks: string[];
+  /** The hero's effective stack at its first preflop action: the same buckets (docs/ANALYTICS.md Step 11). */
+  effStacks: string[];
   tags: string[];
   allIn: boolean | null;
   hasNote: boolean | null;
@@ -253,6 +258,7 @@ export const EMPTY_FILTER: FilterState = {
   potTypes: [],
   results: [],
   stacks: [],
+  effStacks: [],
   tags: [],
   allIn: null,
   hasNote: null,
@@ -395,7 +401,8 @@ export function parseRange(text: string): { min: number | null; max: number | nu
 export const POSITION_ORDER = ["UTG", "UTG+1", "UTG+2", "MP", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
 export const POT_TYPE_ORDER = ["walk", "limped", "single-raised", "3bet", "4bet+", "bomb"];
 export const RESULT_ORDER = ["won", "lost", "even"];
-export const STACK_ORDER = ["0-40", "40-80", "80-120", "120+"];
+/** The Stack and Effective stack chips: `config/stats/stack-buckets.json`'s `filter` buckets. */
+export const STACK_ORDER = stackOrder("filter");
 export const FORMAT_ORDER = ["cash", "tournament", "sng", "spin"];
 export const LIMIT_ORDER = ["nl", "pl", "fl"];
 export const SIZE_ORDER = ["hu", "6max", "full"];
@@ -576,6 +583,7 @@ export function toQuery(filter: FilterState, now: Date = new Date()): HandFilter
   if (filter.weekdays.length > 0) query.weekdays = filter.weekdays.map(Number);
   if (filter.weekdays.length > 0 || filter.dayParts.length > 0) query.utcOffsetMinutes = -now.getTimezoneOffset();
   if (filter.lastHands.length > 0) query.lastHands = Math.max(...filter.lastHands.map(Number));
+  if (filter.effStacks.length > 0) query.effStacks = filter.effStacks;
   const stack = parseRange(filter.heroStack);
   if (stack.min !== null) query.heroStackMin = stack.min;
   if (stack.max !== null) query.heroStackMax = stack.max;
@@ -680,6 +688,7 @@ export function fromSaved(json: string): FilterState | null {
     potTypes: list("potTypes"),
     results: list("results"),
     stacks: list("stacks"),
+    effStacks: list("effStacks"),
     tags: list("tags"),
     // All-in and the winners' positions are no longer filters (2026-11-05):
     // a saved filter that set them shows every hand as to those.

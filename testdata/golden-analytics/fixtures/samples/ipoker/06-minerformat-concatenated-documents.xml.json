@@ -1,0 +1,34 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "5:vpip=1/1,pfr=1/1,rfi=1/1 8:vpip=0/1,pfr=0/1,three_bet=0/1",
+      "events": "ecc29d310f2534ae927d0feba1f50a13f4f22f77ea187c4398ab44f763fa1cfb",
+      "handId": "IPN-5382871187",
+      "index": 0,
+      "members": "0@5:vpip+,pfr+,rfi+ 1@8:vpip-,pfr-,three_bet-"
+    },
+    {
+      "counts": "5:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1,turn_barrel=0/1,river_fold_vs_bet=0/1,river_raise_vs_bet=0/1 8:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,river_bet=1/1",
+      "events": "68d6edae10edeab4d775d77fe7f7eb81cf402e4756b57e2afe5b28c841163417",
+      "handId": "IPN-5383845527",
+      "index": 1,
+      "members": "0@5:vpip+,pfr+,rfi+ 1@8:vpip+,pfr-,three_bet- 3@5:cbet_flop+ 4@8:flop_fold_vs_bet-,flop_raise_vs_bet- 6@5:turn_barrel- 7@8:river_bet+ 8@5:river_fold_vs_bet-,river_raise_vs_bet-"
+    },
+    {
+      "counts": "5:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=1/1 8:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1",
+      "events": "e4f24c4e2096e3392229c75c6094ebf737a2bd2d66bce2da1e7e0aa8981729fd",
+      "handId": "IPN-5383888874",
+      "index": 2,
+      "members": "0@8:vpip+,pfr+,rfi+ 1@5:vpip+,pfr-,three_bet- 2@6:vpip-,pfr-,three_bet-,bb_fold_vs_steal+ 4@8:cbet_flop+ 5@5:flop_fold_vs_bet+,flop_raise_vs_bet-"
+    },
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 10:vpip=1/1,pfr=1/1,rfi=1/1",
+      "events": "a18c59bdd8b20f63feddd7fe92e49b3c0e5b008cc070b7e39364f283bde84d3f",
+      "handId": "IPN-5383352629",
+      "index": 3,
+      "members": "0@10:vpip+,pfr+,rfi+ 1@1:vpip-,pfr-,three_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ipoker/06-minerformat-concatenated-documents.xml"
+}

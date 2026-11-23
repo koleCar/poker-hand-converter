@@ -41,6 +41,10 @@ describe("golden oracle", () => {
         `testdata/golden-ev-full ${(report.evFullBytes / 1e6).toFixed(1)} MB, ` +
         `${report.evNegativeZeros} -0 written as 0`,
     );
+    console.log(
+      `golden facts: testdata/golden-facts ${(report.factsBytes / 1e6).toFixed(1)} MB; ` +
+        `golden analytics: testdata/golden-analytics ${(report.analyticsBytes / 1e6).toFixed(1)} MB`,
+    );
     expect(report.files).toBeGreaterThan(500);
   });
 });

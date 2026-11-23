@@ -26,6 +26,9 @@ import { Fold, Tick } from "./Session";
 import { earlierOn, figuresOf, pickRepeat, sessionSettings, todayOf, type SessionAnswer, type SpotRef, type TrainerSession } from "./sessions";
 import { SpotPlayer, type TableStatus } from "./SpotPlayer";
 import { TableBox } from "./TrainerTable";
+import { analyticsAction, sizeLabel, type PlayedRef } from "./analytics";
+import { AnalyticsBar, GoalPanel } from "./FromAnalytics";
+import { PlayedPlayer } from "./PlayedPlayer";
 import styles from "./trainer.module.css";
 
 export interface SessionTrainerProps {
@@ -39,9 +42,27 @@ export interface SessionTrainerProps {
   onReview: () => void;
   onChangeSettings: () => void;
   onRename: (name: string) => void;
+  /** A played decision to deal first, once ("Play it ▸" from Analytics); then the session's own deals. */
+  play?: PlayedRef | null;
+  /** The played decision is over. */
+  onPlayed?: () => void;
+  /** The Analytics spot is dealt as near as the dealers can (the bar says so). */
+  approximate?: boolean;
 }
 
-export function SessionTrainer({ session, answers, onAnswer, again = null, onSessions, onReview, onChangeSettings, onRename }: SessionTrainerProps) {
+export function SessionTrainer({
+  session,
+  answers,
+  onAnswer,
+  again = null,
+  onSessions,
+  onReview,
+  onChangeSettings,
+  onRename,
+  play = null,
+  onPlayed,
+  approximate = false,
+}: SessionTrainerProps) {
   const host = useTrainerHost();
   const { t } = host;
   const settings = useMemo(() => sessionSettings(session), [session]);
@@ -179,6 +200,8 @@ export function SessionTrainer({ session, answers, onAnswer, again = null, onSes
         </button>
       </div>
 
+      {settings.from ? <AnalyticsBar from={settings.from} size={settings.size} approximate={approximate} /> : null}
+
       {settings.mode === "focus" ? (
         <FocusBar
           state={focus}
@@ -208,10 +231,13 @@ export function SessionTrainer({ session, answers, onAnswer, again = null, onSes
               <p>{blocked === "flop" ? t.unavailable.flop : t.unavailable.set}</p>
             </div>
           ) : null}
-          {handMode && playRequest ? (
+          {play ? (
+            <PlayedPlayer key={`${play.hand}|${play.action}`} played={play} settings={plan?.settings ?? settings} onScored={scored} onAnswer={onAnswer} onDone={() => onPlayed?.()} />
+          ) : null}
+          {!play && handMode && playRequest ? (
             <HandPlayer request={playRequest} settings={plan?.settings ?? settings} onScored={scored} onAnswer={onAnswer} onHandDone={handDone} />
           ) : null}
-          {!handMode && spotRequest && plan ? (
+          {!play && !handMode && spotRequest && plan ? (
             <div className={styles.tables} data-count={tables}>
               {Array.from({ length: tables }, (_, i) => (
                 <SpotPlayer
@@ -233,6 +259,7 @@ export function SessionTrainer({ session, answers, onAnswer, again = null, onSes
         </div>
 
         <aside className={styles.side} aria-label={t.session.label}>
+          {settings.from ? <GoalPanel settings={settings} answers={answers} /> : null}
           <div className={styles.sideHead}>
             <div className={styles.period} role="group" aria-label={t.session.label}>
               {(["today", "all"] as const).map((id) => (
@@ -434,8 +461,11 @@ export function lockedSummary(s: TrainerSettings, t: TrainerDict): string {
     if (s.role !== "any") parts.push(t.roles[s.role] ?? s.role);
     if (s.facing !== "any") parts.push(`${t.facing.toLowerCase()} ${(t.facings[s.facing] ?? s.facing).toLowerCase()}`);
     if (mode === "flop" && s.line) parts.push(t.words.lineName(s.line));
+    if (s.size) parts.push(t.analytics.facingSize(sizeLabel(s.size, t)));
   }
-  parts.push(t.deals[s.deal] ?? s.deal);
+  // Hands from Analytics' classes in place of the dealing bias (it still weighs them).
+  parts.push(mode !== "preflop" && s.classes.length > 0 ? t.analytics.hands(analyticsAction(s)) : (t.deals[s.deal] ?? s.deal));
   if (s.play === "spot") parts.push(`${t.sessions.repeatLabel}: ${(t.sessions.repeats[s.repeat] ?? s.repeat).toLowerCase()}`);
   return parts.join(" · ");
 }
+

@@ -272,7 +272,7 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 'vote_poll', 'vote_post',
                 -- the library (under the cap) and the converter's failure registry
                 'get_hand', 'ingest_hands', 'library_count', 'library_facets', 'library_list', 'library_page',
-                'library_result', 'library_rows', 'library_size', 'library_stack', 'library_stake',
+                'library_result', 'library_rows', 'library_size', 'library_stack', 'library_stake', 'rail_stack_bucket',
                 'library_table_names', 'library_where', 'library_beyond_rollups', 'library_builder_where',
                 'library_builder_ids', 'library_act_sql', 'library_number', 'record_conversion_failures',
                 'register_web_hand_source', 'save_hands',
@@ -297,6 +297,8 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 'analysis_month_of', 'analysis_spot_key',
                 'analysis_street_bit', 'analysis_version_of', 'drill_keys_valid', 'drill_next', 'drill_quality',
                 'filter_formats', 'game_kind_formats',
+                -- Analytics (20271122090000): the checker's filter readers (the readers themselves are gated)
+                'analytics_membership_version_of', 'analytics_pot_kind_of',
                 'preflop_chart_key_ok', 'preflop_chart_node_key', 'preflop_chart_nodes_problem',
                 'preflop_chart_seats', 'preflop_chart_set_table', 'preflop_chart_window', 'preflop_class_index',
                 'preflop_decision_fields', 'study_week', 'study_week_valid',
@@ -324,8 +326,8 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
 
 select is((select string_agg(feature || ':' || n, ' ' order by feature)
              from (select feature, count(*) as n from public.entitlement_gates group by 1) x),
-  'analysis:53 desktop_sync:3 learn:3 reports_full:6',
-  'the gate list: 53 analysis (20271116090000: the trainer''s sessions; 20271119250000: the Multiway and Bomb pots pages), 3 desktop sync, 3 learn, 6 full reports');
+  'analysis:60 desktop_sync:3 learn:3 reports_full:6',
+  'the gate list: 60 analysis (20271116090000: the trainer''s sessions; 20271119250000: the Multiway and Bomb pots pages; 20271122090000: the Analytics checker; 20271122100000: the Pool tab), 3 desktop sync, 3 learn, 6 full reports');
 
 -- ---------------------------------------------------------- early users --
 

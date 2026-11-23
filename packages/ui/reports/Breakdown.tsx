@@ -23,6 +23,7 @@ import { useEffect, useId, useRef, type KeyboardEvent, type ReactNode } from "re
 import { FORMAT_ORDER, POSITION_ORDER, POT_TYPE_ORDER, SIZE_ORDER } from "../hands/filter";
 import { stakeLabel } from "../hands/format";
 import type { HandFacets } from "../hands/model";
+import { stackOrder } from "../hands/stackBuckets";
 import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
 import type { StatDefinition } from "../model/stats";
@@ -59,7 +60,8 @@ export function needsBreakdowns(tab: Tab): boolean {
   return SITUATION.includes(tab);
 }
 
-const STACK_ORDER = ["0-20", "20-40", "40-70", "70-100", "100-150", "150-250", "250+"];
+/** The Stack split: `config/stats/stack-buckets.json`'s `breakdown` buckets. */
+const STACK_ORDER = stackOrder("breakdown");
 const STREET_ORDER = ["preflop", "flop", "turn", "river", "showdown"];
 
 function rank(order: readonly string[], key: string): number {

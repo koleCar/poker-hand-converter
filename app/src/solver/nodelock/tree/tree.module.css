@@ -1,9 +1,12 @@
 /* My nodelocks (§7.1): the tree's column left of the open lock's grid and
    panel (the library's `side`), as the library's panels ("Studio", SV-A). */
 
-/* Stays in view while the solve scrolls; as tall as the library's grid. */
+/* Stays in view while the solve scrolls; as tall as the library's grid.
+   Sticky makes it a stacking context: lifted over the grid beside it, so
+   its menu, hover card and drag ghost are not drawn under the cells (#406). */
 .side {
   position: sticky;
+  z-index: 1;
   inset-block-start: var(--space-3);
   display: flex;
   min-inline-size: 0;

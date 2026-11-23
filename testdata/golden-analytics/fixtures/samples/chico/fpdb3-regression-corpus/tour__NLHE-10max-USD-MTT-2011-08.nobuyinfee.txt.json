@@ -1,0 +1,118 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "0:vpip=0/1,pfr=0/1,three_bet=0/1 1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1,river_bet=0/1 3:vpip=0/1,pfr=0/1 4:vpip=0/1,pfr=0/1 5:vpip=0/1,pfr=0/1 6:vpip=0/1,pfr=0/1 7:vpip=1/1,pfr=1/1,cbet_flop=0/1,river_bet=0/1 8:vpip=0/1,pfr=0/1,three_bet=0/1 9:vpip=0/1,pfr=0/1,three_bet=0/1",
+      "events": "6553186def33a1a160fd98cb80597688b1a9e8deb4aac4f3e152d7ccd6174d98",
+      "handId": "CHC-900218526",
+      "index": 0,
+      "members": "0@2:vpip+,pfr-,rfi- 1@3:vpip-,pfr- 2@4:vpip-,pfr- 3@5:vpip-,pfr- 4@6:vpip-,pfr- 5@7:vpip+,pfr+ 6@8:vpip-,pfr-,three_bet- 7@9:vpip-,pfr-,three_bet- 8@0:vpip-,pfr-,three_bet- 9@1:vpip-,pfr-,three_bet- 10@2:three_bet- 12@7:cbet_flop- 15@2:river_bet- 16@7:river_bet-"
+    },
+    {
+      "counts": "0:vpip=0/1,pfr=0/1 1:vpip=0/1,pfr=0/1 2:vpip=1/1,pfr=1/1,cbet_flop=1/1,turn_barrel=1/1,river_bet=1/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1 7:vpip=0/1,pfr=0/1,rfi=0/1 8:vpip=0/1,pfr=0/1,rfi=0/1 9:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1",
+      "events": "d9b77be905541c862b786dcf3e5f5e265a83852e6a165b1ba87b338fba21bccb",
+      "handId": "CHC-900219162",
+      "index": 1,
+      "members": "0@3:vpip-,pfr-,rfi- 1@4:vpip-,pfr-,rfi- 2@5:vpip-,pfr-,rfi- 3@6:vpip-,pfr-,rfi- 4@7:vpip-,pfr-,rfi- 5@8:vpip-,pfr-,rfi- 6@9:vpip+,pfr-,rfi- 7@0:vpip-,pfr- 8@1:vpip-,pfr- 9@2:vpip+,pfr+ 10@9:three_bet- 11@2:cbet_flop+ 12@9:flop_fold_vs_bet-,flop_raise_vs_bet- 13@2:turn_barrel+ 14@9:turn_fold_vs_bet- 15@2:river_bet+ 16@9:river_fold_vs_bet+,river_raise_vs_bet-"
+    },
+    {
+      "counts": "0:vpip=0/1,pfr=0/1 1:vpip=1/1,pfr=0/1 2:vpip=0/1,pfr=0/1 4:vpip=0/1,pfr=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=1/1 5:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1 7:vpip=1/1,pfr=0/1,rfi=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 8:vpip=0/1,pfr=0/1 9:vpip=0/1,pfr=0/1",
+      "events": "a3402cedc73b1eb90c34d551d69b029d9f535c9e2eca3ccb6a30d0a6b0e8fd8f",
+      "handId": "CHC-900219408",
+      "index": 2,
+      "members": "0@5:vpip-,pfr-,rfi- 1@6:vpip-,pfr-,rfi- 2@7:vpip+,pfr-,rfi- 3@8:vpip-,pfr- 4@9:vpip-,pfr- 5@0:vpip-,pfr- 6@1:vpip+,pfr- 7@2:vpip-,pfr- 8@4:vpip-,pfr- 12@4:flop_fold_vs_bet-,flop_raise_vs_bet- 13@7:flop_fold_vs_bet+,flop_raise_vs_bet- 16@4:turn_fold_vs_bet+"
+    },
+    {
+      "counts": "0:vpip=0/1,pfr=0/1 1:vpip=1/1,pfr=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=1/1,turn_fold_vs_bet=0/1,river_fold_vs_bet=0/1,river_raise_vs_bet=1/1 2:vpip=0/1,pfr=0/1 4:vpip=0/1,pfr=0/1 5:vpip=0/1,pfr=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1 7:vpip=1/1,pfr=0/1,rfi=0/1,river_bet=1/1 8:vpip=0/1,pfr=0/1 9:vpip=0/1,pfr=0/1",
+      "events": "4e96abba020c4d562a5bd7a6cc920131da94c59f7c9826a5f113b9cd421f6a6b",
+      "handId": "CHC-900219823",
+      "index": 3,
+      "members": "0@6:vpip-,pfr-,rfi- 1@7:vpip+,pfr-,rfi- 2@8:vpip-,pfr- 3@9:vpip-,pfr- 4@0:vpip-,pfr- 5@1:vpip+,pfr- 6@2:vpip-,pfr- 7@4:vpip-,pfr- 8@5:vpip-,pfr- 10@1:flop_fold_vs_bet-,flop_raise_vs_bet+ 13@1:turn_fold_vs_bet- 14@7:river_bet+ 15@1:river_fold_vs_bet-,river_raise_vs_bet+"
+    },
+    {
+      "counts": "0:vpip=0/1,pfr=0/1,rfi=0/1 1:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1 2:vpip=0/1,pfr=0/1 3:vpip=0/1,pfr=0/1 4:vpip=1/1,pfr=1/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1 7:vpip=0/1,pfr=0/1,rfi=0/1 8:vpip=0/1,pfr=0/1,rfi=0/1 9:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "6f019406a176fa38a95ac28b6eaa25973d6be7ae5acdac85ad2893386b5eb57c",
+      "handId": "CHC-900220209",
+      "index": 4,
+      "members": "0@7:vpip-,pfr-,rfi- 1@8:vpip-,pfr-,rfi- 2@9:vpip-,pfr-,rfi- 3@0:vpip-,pfr-,rfi- 4@1:vpip+,pfr-,rfi- 5@2:vpip-,pfr- 6@3:vpip-,pfr- 7@4:vpip+,pfr+ 8@5:vpip-,pfr-,three_bet- 9@6:vpip-,pfr-,three_bet- 10@1:three_bet-"
+    },
+    {
+      "counts": "0:vpip=0/1,pfr=0/1,rfi=0/1 1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1 8:vpip=0/1,pfr=0/1,rfi=0/1 9:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "365df19382bd77075344f1e44978485c9f501ffd714fea740d7e87e57b5fff10",
+      "handId": "CHC-900220510",
+      "index": 5,
+      "members": "0@8:vpip-,pfr-,rfi- 1@9:vpip-,pfr-,rfi- 2@0:vpip-,pfr-,rfi- 3@1:vpip-,pfr-,rfi- 4@2:vpip-,pfr-,rfi- 5@3:vpip-,pfr-,rfi- 6@4:vpip-,pfr-,rfi- 7@5:vpip-,pfr-,rfi- 8@6:vpip-,pfr-,rfi-"
+    },
+    {
+      "counts": "0:vpip=0/1,pfr=0/1,rfi=0/1 1:vpip=1/1,pfr=1/1,rfi=1/1 2:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1 7:vpip=0/1,pfr=0/1,three_bet=0/1 8:vpip=0/1,pfr=0/1,three_bet=0/1 9:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "786584051b26e4affd076b62f9872cba640e14ec6a7928db9d499ceea45eae2a",
+      "handId": "CHC-900220684",
+      "index": 6,
+      "members": "0@9:vpip-,pfr-,rfi- 1@0:vpip-,pfr-,rfi- 2@1:vpip+,pfr+,rfi+ 3@2:vpip-,pfr-,three_bet- 4@3:vpip-,pfr-,three_bet- 5@4:vpip-,pfr-,three_bet- 6@5:vpip-,pfr-,three_bet- 7@6:vpip-,pfr-,three_bet- 8@7:vpip-,pfr-,three_bet- 9@8:vpip-,pfr-,three_bet-"
+    },
+    {
+      "counts": "0:vpip=0/1,pfr=0/1,rfi=0/1 1:vpip=1/1,pfr=0/1,rfi=0/1 2:vpip=0/1,pfr=0/1 3:vpip=0/1,pfr=0/1 4:vpip=0/1,pfr=0/1 5:vpip=0/1,pfr=0/1 6:vpip=0/1,pfr=0/1 7:vpip=1/1,pfr=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 8:vpip=0/1,pfr=0/1 9:vpip=0/1,pfr=0/1",
+      "events": "2699af17dc937e384cfe0b92166819e900c7628ba0e6ed3004f5fd3205e67fba",
+      "handId": "CHC-900220806",
+      "index": 7,
+      "members": "0@0:vpip-,pfr-,rfi- 1@1:vpip+,pfr-,rfi- 2@2:vpip-,pfr- 3@3:vpip-,pfr- 4@4:vpip-,pfr- 5@5:vpip-,pfr- 6@6:vpip-,pfr- 7@7:vpip+,pfr- 8@8:vpip-,pfr- 9@9:vpip-,pfr- 11@7:flop_fold_vs_bet+,flop_raise_vs_bet-"
+    },
+    {
+      "counts": "2:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1 7:vpip=0/1,pfr=0/1,rfi=0/1 8:vpip=0/1,pfr=0/1,rfi=0/1 9:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "08b2106a7c65375b860eba322b3975f1f0e6a5e8d08f017b8b79eef9a16ac037",
+      "handId": "CHC-900221098",
+      "index": 8,
+      "members": "0@2:vpip-,pfr-,rfi- 1@3:vpip-,pfr-,rfi- 2@4:vpip-,pfr-,rfi- 3@5:vpip-,pfr-,rfi- 4@6:vpip-,pfr-,rfi- 5@7:vpip-,pfr-,rfi- 6@8:vpip-,pfr-,rfi- 7@9:vpip-,pfr-,rfi-"
+    },
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,turn_fold_vs_bet=1/1 3:vpip=0/1,pfr=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1 7:vpip=1/1,pfr=0/1,rfi=0/1,turn_fold_vs_bet=1/1 8:vpip=0/1,pfr=0/1 9:vpip=0/1,pfr=0/1",
+      "events": "50089de8220ae63b209eae229492248894453f73273f7027a04a24e00a72279a",
+      "handId": "CHC-900221194",
+      "index": 9,
+      "members": "0@4:vpip-,pfr-,rfi- 1@5:vpip-,pfr-,rfi- 2@6:vpip-,pfr-,rfi- 3@7:vpip+,pfr-,rfi- 4@8:vpip-,pfr- 5@9:vpip-,pfr- 6@1:vpip+,pfr- 7@3:vpip-,pfr- 13@7:turn_fold_vs_bet+ 14@1:turn_fold_vs_bet+"
+    },
+    {
+      "counts": "0:vpip=0/1,pfr=0/1 1:vpip=1/1,pfr=0/1 3:vpip=0/1,pfr=0/1 4:vpip=0/1,pfr=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1 7:vpip=1/1,pfr=0/1,rfi=0/1,turn_fold_vs_bet=1/1 8:vpip=0/1,pfr=0/1 9:vpip=0/1,pfr=0/1",
+      "events": "7289a3801dbd81a14e1ec00fa6658f8ef078c25b36738643b59729564857a0fc",
+      "handId": "CHC-900221545",
+      "index": 10,
+      "members": "0@5:vpip-,pfr-,rfi- 1@6:vpip-,pfr-,rfi- 2@7:vpip+,pfr-,rfi- 3@8:vpip-,pfr- 4@9:vpip-,pfr- 5@0:vpip-,pfr- 6@1:vpip+,pfr- 7@3:vpip-,pfr- 8@4:vpip-,pfr- 13@7:turn_fold_vs_bet+"
+    },
+    {
+      "counts": "0:vpip=0/1,pfr=0/1 1:vpip=1/1,pfr=1/1 2:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1 7:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1 8:vpip=0/1,pfr=0/1 9:vpip=1/1,pfr=0/1,three_bet=0/1",
+      "events": "f2e2609e1d270529354a2b4e2b55e8ae8a3a5fce6d44803696375f6c7517aa76",
+      "handId": "CHC-900221873",
+      "index": 11,
+      "members": "0@6:vpip-,pfr-,rfi- 1@7:vpip+,pfr-,rfi- 2@8:vpip-,pfr- 3@9:vpip+,pfr- 4@0:vpip-,pfr- 5@1:vpip+,pfr+ 6@2:vpip-,pfr-,three_bet- 7@3:vpip-,pfr-,three_bet- 8@4:vpip-,pfr-,three_bet- 9@5:vpip-,pfr-,three_bet- 10@7:three_bet- 11@9:three_bet-"
+    },
+    {
+      "counts": "0:vpip=0/1,pfr=0/1 1:vpip=0/1,pfr=0/1 2:vpip=0/1,pfr=0/1 3:vpip=0/1,pfr=0/1 4:vpip=1/1,pfr=0/1 5:vpip=0/1,pfr=0/1 6:vpip=0/1,pfr=0/1 7:vpip=1/1,pfr=0/1,rfi=0/1 8:vpip=0/1,pfr=0/1 9:vpip=0/1,pfr=0/1",
+      "events": "778eec203c38ac48f3266e94097b0eedbaed6cb601dc55a6d9000ae7ca0fbdd7",
+      "handId": "CHC-900222217",
+      "index": 12,
+      "members": "0@7:vpip+,pfr-,rfi- 1@8:vpip-,pfr- 2@9:vpip-,pfr- 3@0:vpip-,pfr- 4@1:vpip-,pfr- 5@2:vpip-,pfr- 6@3:vpip-,pfr- 7@4:vpip+,pfr- 8@5:vpip-,pfr- 9@6:vpip-,pfr-"
+    },
+    {
+      "counts": "0:vpip=0/1,pfr=0/1,rfi=0/1 1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1 4:vpip=1/1,pfr=1/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1 7:vpip=0/1,pfr=0/1,three_bet=0/1 8:vpip=0/1,pfr=0/1,rfi=0/1 9:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "19658b082926cdbe5a7de7af24895f4da0a844f6de834fac291eca78d1f13a7c",
+      "handId": "CHC-900222500",
+      "index": 13,
+      "members": "0@8:vpip-,pfr-,rfi- 1@9:vpip-,pfr-,rfi- 2@0:vpip-,pfr-,rfi- 3@1:vpip-,pfr-,rfi- 4@2:vpip-,pfr-,rfi- 5@3:vpip+,pfr-,rfi- 6@4:vpip+,pfr+ 7@5:vpip-,pfr-,three_bet- 8@6:vpip-,pfr-,three_bet- 9@7:vpip-,pfr-,three_bet- 10@3:three_bet-"
+    },
+    {
+      "counts": "0:vpip=0/1,pfr=0/1,rfi=0/1 1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=1/1,pfr=0/1,rfi=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1 3:vpip=0/1,pfr=0/1 4:vpip=1/1,pfr=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1 5:vpip=0/1,pfr=0/1 6:vpip=0/1,pfr=0/1 7:vpip=1/1,pfr=0/1,river_bet=1/1 9:vpip=0/1,pfr=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1",
+      "events": "ba36b8ec229d15ad159911b1f896be1e85ee8792a3c42b5fcf71d24b37e001a7",
+      "handId": "CHC-900222789",
+      "index": 14,
+      "members": "0@0:vpip-,pfr-,rfi- 1@1:vpip-,pfr-,rfi- 2@2:vpip+,pfr-,rfi- 3@3:vpip-,pfr- 4@4:vpip+,pfr- 5@5:vpip-,pfr- 6@6:vpip-,pfr- 7@7:vpip+,pfr- 8@9:vpip-,pfr- 17@7:river_bet+ 18@9:river_fold_vs_bet+,river_raise_vs_bet- 19@2:river_fold_vs_bet+,river_raise_vs_bet- 20@4:river_fold_vs_bet+,river_raise_vs_bet-"
+    },
+    {
+      "counts": "0:vpip=0/1,pfr=0/1 1:vpip=1/1,pfr=0/1,rfi=0/1,river_bet=0/1 2:vpip=0/1,pfr=0/1 3:vpip=0/1,pfr=0/1 4:vpip=0/1,pfr=0/1 5:vpip=0/1,pfr=0/1 6:vpip=0/1,pfr=0/1 7:vpip=1/1,pfr=0/1,river_bet=0/1 9:vpip=1/1,pfr=0/1,river_bet=0/1",
+      "events": "148ab64dfbfe525c477ac7dcbee673c31ee58479465b493068406d964fc26db9",
+      "handId": "CHC-900223168",
+      "index": 15,
+      "members": "0@1:vpip+,pfr-,rfi- 1@2:vpip-,pfr- 2@3:vpip-,pfr- 3@4:vpip-,pfr- 4@5:vpip-,pfr- 5@6:vpip-,pfr- 6@7:vpip+,pfr- 7@9:vpip+,pfr- 8@0:vpip-,pfr- 15@9:river_bet- 16@1:river_bet- 17@7:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/chico/fpdb3-regression-corpus/tour__NLHE-10max-USD-MTT-2011-08.nobuyinfee.txt"
+}

@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1 2:vpip=1/1,pfr=0/1,three_bet=0/1 3:vpip=1/1,pfr=1/1,three_bet=1/1 4:vpip=1/1,pfr=1/1,fold_to_three_bet=0/1,four_bet=1/1 5:vpip=1/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1 7:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1 8:vpip=0/1,pfr=0/1 9:vpip=0/1,pfr=0/1 10:vpip=0/1,pfr=0/1",
+      "events": "3695a19fc7848867e18213f1cd75a8745ee3bb5387bf79a7efbd97107a844187",
+      "handId": "74759586758",
+      "index": 0,
+      "members": "0@7:vpip+,pfr-,rfi- 1@8:vpip-,pfr- 2@9:vpip-,pfr- 3@10:vpip-,pfr- 4@1:vpip-,pfr- 5@2:vpip+,pfr- 6@3:vpip+,pfr- 7@4:vpip+,pfr+ 8@5:vpip+,pfr-,three_bet- 9@6:vpip-,pfr-,three_bet- 10@7:three_bet- 11@2:three_bet- 12@3:three_bet+ 13@4:fold_to_three_bet-,four_bet+"
+    }
+  ],
+  "input": "fixtures/samples/pokerstars/34-tour-stt-nlhe-8bet-preflop-dualtimestamp.txt"
+}

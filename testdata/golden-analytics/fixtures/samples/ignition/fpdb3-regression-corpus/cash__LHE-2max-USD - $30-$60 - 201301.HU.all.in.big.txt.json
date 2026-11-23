@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "",
+      "events": "2afade2b58d37f160912dc7fcbb329a086d3817dc7219c389a1a924939e3d5c3",
+      "handId": "2667379227",
+      "index": 0,
+      "members": ""
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__LHE-2max-USD - $30-$60 - 201301.HU.all.in.big.txt"
+}

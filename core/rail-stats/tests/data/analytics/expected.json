@@ -1,0 +1,1003 @@
+{
+  "about": "Golden counts of every Analytics rate (config/stats/analytics.json) on pinned hands: per player, (made, opportunities) of each rate that is not 0/0; every other rate is 0/0. Read by core/rail-stats/tests/analytics.rs and tests/test/analytics.test.ts.",
+  "hands": [
+    {
+      "file": "core/rail-stats/tests/data/analytics/01-probe-called-river-raise.txt",
+      "about": "BTN opens, BB calls; flop checks through; BB probes the turn, BTN calls; BB check-raises the river bet, BTN folds.",
+      "seats": {
+        "Btn": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            1,
+            1
+          ],
+          "rfi": [
+            1,
+            1
+          ],
+          "cbet_flop": [
+            0,
+            1
+          ],
+          "turn_fold_vs_bet": [
+            0,
+            1
+          ],
+          "turn_fold_vs_probe": [
+            0,
+            1
+          ],
+          "river_bet": [
+            1,
+            1
+          ]
+        },
+        "Sb": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        },
+        "Bb": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ],
+          "bb_fold_vs_steal": [
+            0,
+            1
+          ],
+          "river_bet": [
+            0,
+            1
+          ],
+          "river_fold_vs_bet": [
+            0,
+            1
+          ],
+          "river_raise_vs_bet": [
+            1,
+            1
+          ]
+        },
+        "Utg": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "rfi": [
+            0,
+            1
+          ]
+        },
+        "Hj": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "rfi": [
+            0,
+            1
+          ]
+        },
+        "Co": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "rfi": [
+            0,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "file": "core/rail-stats/tests/data/analytics/02-four-bet-raised-cbet.txt",
+      "about": "CO opens, BTN 3-bets, the blinds fold, CO 4-bets, BTN calls; CO cbets, BTN raises, CO calls; CO checks the turn and folds to a bet.",
+      "seats": {
+        "Co": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            1,
+            1
+          ],
+          "rfi": [
+            1,
+            1
+          ],
+          "fold_to_three_bet": [
+            0,
+            1
+          ],
+          "four_bet": [
+            1,
+            1
+          ],
+          "cbet_flop": [
+            1,
+            1
+          ],
+          "turn_fold_vs_bet": [
+            1,
+            1
+          ]
+        },
+        "Btn": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            1,
+            1
+          ],
+          "three_bet": [
+            1,
+            1
+          ],
+          "flop_fold_vs_bet": [
+            0,
+            1
+          ],
+          "flop_raise_vs_bet": [
+            1,
+            1
+          ]
+        },
+        "Sb": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "four_bet": [
+            0,
+            1
+          ]
+        },
+        "Bb": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "four_bet": [
+            0,
+            1
+          ]
+        },
+        "Utg": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "rfi": [
+            0,
+            1
+          ]
+        },
+        "Hj": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "rfi": [
+            0,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "file": "core/rail-stats/tests/data/analytics/03-fold-to-probe.txt",
+      "about": "CO opens, BB calls; flop checks through; BB bets the turn, CO folds: a fold to a probe.",
+      "seats": {
+        "Co": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            1,
+            1
+          ],
+          "rfi": [
+            1,
+            1
+          ],
+          "cbet_flop": [
+            0,
+            1
+          ],
+          "turn_fold_vs_bet": [
+            1,
+            1
+          ],
+          "turn_fold_vs_probe": [
+            1,
+            1
+          ]
+        },
+        "Bb": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ],
+          "bb_fold_vs_steal": [
+            0,
+            1
+          ]
+        },
+        "Btn": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        },
+        "Sb": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        },
+        "Utg": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "rfi": [
+            0,
+            1
+          ]
+        },
+        "Hj": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "rfi": [
+            0,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "file": "core/rail-stats/tests/data/analytics/04-fold-to-three-bet.txt",
+      "about": "UTG opens, the big blind 3-bets, UTG folds.",
+      "seats": {
+        "Utg": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            1,
+            1
+          ],
+          "rfi": [
+            1,
+            1
+          ],
+          "fold_to_three_bet": [
+            1,
+            1
+          ],
+          "four_bet": [
+            0,
+            1
+          ]
+        },
+        "Hj": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        },
+        "Co": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        },
+        "Btn": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        },
+        "Sb": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        },
+        "Bb": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            1,
+            1
+          ],
+          "three_bet": [
+            1,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "file": "core/rail-stats/tests/data/analytics/05-fold-to-flop-cbet.txt",
+      "about": "HJ opens, BTN calls; HJ cbets, BTN folds.",
+      "seats": {
+        "Hj": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            1,
+            1
+          ],
+          "rfi": [
+            1,
+            1
+          ],
+          "cbet_flop": [
+            1,
+            1
+          ]
+        },
+        "Btn": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ],
+          "flop_fold_vs_bet": [
+            1,
+            1
+          ],
+          "flop_raise_vs_bet": [
+            0,
+            1
+          ]
+        },
+        "Utg": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "rfi": [
+            0,
+            1
+          ]
+        },
+        "Co": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        },
+        "Sb": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        },
+        "Bb": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "file": "core/rail-stats/tests/data/analytics/06-turn-checked-back.txt",
+      "about": "CO opens, BB calls; CO cbets, BB calls; CO checks the turn back; CO bets the river, BB folds.",
+      "seats": {
+        "Co": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            1,
+            1
+          ],
+          "rfi": [
+            1,
+            1
+          ],
+          "cbet_flop": [
+            1,
+            1
+          ],
+          "turn_barrel": [
+            0,
+            1
+          ],
+          "river_bet": [
+            1,
+            1
+          ]
+        },
+        "Bb": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ],
+          "bb_fold_vs_steal": [
+            0,
+            1
+          ],
+          "flop_fold_vs_bet": [
+            0,
+            1
+          ],
+          "flop_raise_vs_bet": [
+            0,
+            1
+          ],
+          "river_bet": [
+            0,
+            1
+          ],
+          "river_fold_vs_bet": [
+            1,
+            1
+          ],
+          "river_raise_vs_bet": [
+            0,
+            1
+          ]
+        },
+        "Btn": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        },
+        "Sb": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        },
+        "Utg": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "rfi": [
+            0,
+            1
+          ]
+        },
+        "Hj": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "rfi": [
+            0,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "file": "tests/test/fixtures/stats/04-steal-and-fold-to-steal.txt",
+      "about": "CO steals, everyone folds: the big blind folds to a steal.",
+      "seats": {
+        "Co": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            1,
+            1
+          ],
+          "rfi": [
+            1,
+            1
+          ]
+        },
+        "Btn": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        },
+        "Sb": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        },
+        "Bb": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ],
+          "bb_fold_vs_steal": [
+            1,
+            1
+          ]
+        },
+        "Utg": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "rfi": [
+            0,
+            1
+          ]
+        },
+        "Hj": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "rfi": [
+            0,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "file": "tests/test/fixtures/stats/16-fold-to-cbet-legs.txt",
+      "about": "CO opens, BTN and BB call; CO cbets, BTN raises, both fold.",
+      "seats": {
+        "Co": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            1,
+            1
+          ],
+          "rfi": [
+            1,
+            1
+          ],
+          "cbet_flop": [
+            1,
+            1
+          ]
+        },
+        "Btn": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ],
+          "flop_fold_vs_bet": [
+            0,
+            1
+          ],
+          "flop_raise_vs_bet": [
+            1,
+            1
+          ]
+        },
+        "Sb": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        },
+        "Bb": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ],
+          "bb_fold_vs_steal": [
+            0,
+            1
+          ]
+        },
+        "Utg": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "rfi": [
+            0,
+            1
+          ]
+        },
+        "Hj": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "rfi": [
+            0,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "file": "tests/test/fixtures/stats/17-triple-barrel-and-rake.txt",
+      "about": "CO opens, BB calls; CO bets flop, turn and river, called twice, folded to on the river.",
+      "seats": {
+        "Co": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            1,
+            1
+          ],
+          "rfi": [
+            1,
+            1
+          ],
+          "cbet_flop": [
+            1,
+            1
+          ],
+          "turn_barrel": [
+            1,
+            1
+          ],
+          "river_bet": [
+            1,
+            1
+          ]
+        },
+        "Bb": {
+          "vpip": [
+            1,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ],
+          "bb_fold_vs_steal": [
+            0,
+            1
+          ],
+          "flop_fold_vs_bet": [
+            0,
+            1
+          ],
+          "flop_raise_vs_bet": [
+            0,
+            1
+          ],
+          "turn_fold_vs_bet": [
+            0,
+            1
+          ],
+          "river_bet": [
+            0,
+            1
+          ],
+          "river_fold_vs_bet": [
+            1,
+            1
+          ],
+          "river_raise_vs_bet": [
+            0,
+            1
+          ]
+        },
+        "Btn": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        },
+        "Sb": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "three_bet": [
+            0,
+            1
+          ]
+        },
+        "Utg": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "rfi": [
+            0,
+            1
+          ]
+        },
+        "Hj": {
+          "vpip": [
+            0,
+            1
+          ],
+          "pfr": [
+            0,
+            1
+          ],
+          "rfi": [
+            0,
+            1
+          ]
+        }
+      }
+    }
+  ]
+}

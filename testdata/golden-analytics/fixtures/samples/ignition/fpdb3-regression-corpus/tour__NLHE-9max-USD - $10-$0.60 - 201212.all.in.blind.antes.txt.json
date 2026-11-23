@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "8:vpip=1/1,pfr=0/1,rfi=0/1",
+      "events": "bffc04bb4aef272fd49f38093199cab352ddad22d50d87c56a994c4be6f40569",
+      "handId": "2701691320",
+      "index": 0,
+      "members": "0@8:vpip+,pfr-,rfi-"
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD - $10-$0.60 - 201212.all.in.blind.antes.txt"
+}

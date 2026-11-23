@@ -45,6 +45,7 @@ import {
 } from "./door";
 import { defaultWorker, WorkerPool, type MakeWorker } from "./pool";
 import type { EngineResponse } from "./protocol";
+import { speedThreads } from "./speed";
 import type { NodelockEngine, NodelockProgress, NodelockRequest, NodelockResult } from "./types";
 
 export interface WorkerEngineOptions {
@@ -59,10 +60,14 @@ export interface WorkerEngineOptions {
   now?: () => number;
 }
 
+/** This computer's cores, as the window sees them. */
+function cores(): number {
+  return (typeof navigator !== "undefined" ? navigator.hardwareConcurrency : 0) || 2;
+}
+
 /** The threads a pool uses by default: every core but one, which keeps the window responsive. */
 export function defaultThreads(): number {
-  const cores = typeof navigator !== "undefined" ? navigator.hardwareConcurrency : 0;
-  return Math.max(1, (cores || 2) - 1);
+  return Math.max(1, cores() - 1);
 }
 
 /** The pace of a solve and the time to its target (a power law through the last two measurements). */
@@ -93,9 +98,9 @@ function abortError(signal: AbortSignal): unknown {
  * The cache key of a flop spot's split solve: what the parts' games are built
  * from. A range lock (§9) changes the game's ranges: its hash is in the key.
  */
-function spotKey(lockSet: LockSet, spec: SplitSpec, chartsHash: string): string {
+function spotKey(lockSet: LockSet, spec: SplitSpec, chartsHash: string, parts: number): string {
   const ranges = rangesHash(lockSet.ranges);
-  return JSON.stringify([lockSet.spot.set, chartsHash, lockSet.spot.line, lockSet.spot.flop, spec.spot.symmetry ?? null, spec.dcfr ?? null, spec.storage, spec.spot.nodeActions ?? null, ranges]);
+  return JSON.stringify([lockSet.spot.set, chartsHash, lockSet.spot.line, lockSet.spot.flop, spec.spot.symmetry ?? null, spec.dcfr ?? null, spec.storage, spec.spot.nodeActions ?? null, ranges, parts]);
 }
 
 interface Warm {
@@ -139,7 +144,9 @@ export function createWorkerEngine(options: WorkerEngineOptions = {}): NodelockE
     if (signal.aborted) throw abortError(signal);
     const how = nodelockFlopRun(lockSet, req.maxIterations);
     const spec: SplitSpec = { spot, dcfr: how.dcfr, storage: "i16" };
-    const key = spotKey(lockSet, spec, chartsHash);
+    // The speed's threads (#409), at most the pool's: a different count is another split, built cold.
+    const wanted = req.speed ? Math.min(threads, speedThreads(req.speed, cores())) : threads;
+    const key = spotKey(lockSet, spec, chartsHash, wanted);
 
     let state = warm?.key === key ? warm : null;
     const isWarm = state !== null;
@@ -151,7 +158,9 @@ export function createWorkerEngine(options: WorkerEngineOptions = {}): NodelockE
       warm = null;
       const coordinator = new SplitCoordinator(spec, []);
       checkBaseline(coordinator.built, baseline, lockSet);
-      const groups = splitCards(coordinator.built, threads);
+      const groups = splitCards(coordinator.built, wanted);
+      // Workers past this split's parts would keep an older split's part in memory: they stop.
+      for (let i = groups.length; i < threads; i += 1) pool.kill(i, new Error("the nodelock split shrank"));
       const ready = await Promise.all(groups.map((cards, i) => pool.call(i, { type: "part", key, spec, cards })));
       const answers = ready.map((r) => r as Extract<EngineResponse, { type: "ready" }>);
       coordinator.setPartSums(answers.map((r) => r.valueSum));
