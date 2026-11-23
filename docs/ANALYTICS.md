@@ -1025,6 +1025,75 @@ Status: done in 22ca26a3 (2026-11-23)
 - Prod migrations are applied before the main promotion, per `CLAUDE.md`.
   Backfills run on prod in batches, out of hours.
 
+Status: done in 87944dd1 (2026-11-23)
+
+- **As built:**
+  - **States** (`packages/ui/analytics/States.tsx`, `view.ts`
+    `withUncovered` / `isUncovered`), the same on every tab and both apps:
+    - *small sample*: grey, "Not sure yet", no cost (as Step 3 built it;
+      checked against the board);
+    - *no target yet*: a rate (or a spot, size or class row) whose
+      decisions were all seen and none analysed against a reference shows
+      the player's number from every decision (`oppsTaken / opps`), no
+      colour, "—" as the target, "No target yet", Times = every decision, no
+      cost; a share with nothing analysed says "No target yet" too; the
+      coded stats keep "No target"; a drill-down of such a stat says so in
+      one line;
+    - *analysis still running*: "Targets fill in as hands are analysed: N
+      hands to go" (`pendingLeft`), from the checker's `pending` or the
+      web's live countdown, with no "nothing analysed" line under it;
+    - *Free*: one line per tab (`analytics.screen.lock`: "Targets and costs
+      are part of Rail Pro.", the Pool's, the drill-down's...) with "See Pro"
+      / "Upgrade": web `ProLockLine`, desktop `ProLockView inline`.
+      `ReportsScreen.checkerLock` may be a function of the tab's line;
+    - *empty*: one line and one link: "None of your hands matches these
+      filters. Clear filters" (the reader's own filter, not the kind the
+      screen pins), else the surface's line and `emptyLink` (web "Upload a
+      hand history →", desktop "Import hand histories →");
+    - *web Pool, opponent statistics off*: when nobody can be typed, one
+      line and "Turn them on in Players →" (`ReportsScreen.poolOff`); while
+      the browser counts, the count's line alone.
+  - **The web fills the checker rows itself** (`AnalyticsChecker.backfill`,
+    `useChecker`'s `filling`): while a tab that reads the checker is open,
+    the hands analysed without rows (`pending`) are derived in the browser
+    (`backfillAnalyticsRows`), then the sums are read again. Before, only the
+    end of a complete analysis run did it, so a fully analysed library on
+    production would have shown "targets fill in" for ever.
+  - **Facts across a version bump** (`20271123090000_analytics_rollout_safety.sql`):
+    `library_builder_where` reads each hand's facts row at the client's
+    version, else its newest, so every builder-fact filter keeps matching
+    while a user's `facts/2` rebuild has not run (before: none matched); the
+    Effective stack chip matches a hand once it has `facts/2`.
+    `save_hand_facts` drops a saved hand's older versions (never a newer
+    one), so `hand_facts` does not double. The rebuild now also starts from
+    the web's shell on any signed-in page (`lib/db/factsCatchUp.ts`, once a
+    page load, shared with Hands); the Hands list says "The Effective stack
+    fills in as your hands are updated: N hands to go" while its chip is set.
+  - **Migrations made re-runnable**: `20271122090000` and `20271122100000`
+    (not applied to production yet) now create their tables and indexes `if
+    not exists` and drop their policies and trigger before creating them;
+    edited in place because they are only on `prestaging` and a second
+    application (a retried Management API request) must not fail.
+  - `docs/GUIDE.md`: the Stats section is now **Analytics** (the tabs, the
+    target, the band and colours, the cost, Pool's sentences, Practise, the
+    states, Breakdown). The guide is not rendered by either app (no HR copy
+    needed).
+  - Tests: `tests/test/analyticsStates.test.ts` (13), pgTAP
+    `analytics_rollout.test.sql` (20: a user with only `facts/1` rows, the
+    prune, an old build beside a new one, RLS on the delete, the readers on an
+    account with nothing backfilled).
+  - Rollout notes for production: `an-program/PROD-ROLLOUT.md` (not in git).
+- **Deviations:**
+  - The one-line lock is per tab (its own words), not the board's single
+    sentence: Pool and the drill-down hold back more than targets and costs.
+  - "No target yet" numbers come from the checker's opportunities in the
+    view (`withUncovered`); the checker and its Rust twin still leave them
+    null, so the fixture and the parity hold.
+  - Desktop: no extra progress line for the background fills (checker rows,
+    Analytics counts, pool, effective stacks): on the owner's 92k-hand store
+    they took ~33 s in all after a 0.6 s open (longest step 0.22 s); the
+    checker's and the pool's own "pending" lines cover the two that show.
+
 ## 6. Open questions for the owner
 
 1. **Today's breakdown tabs** (Position, Pot type, Stack, Starting hands,
