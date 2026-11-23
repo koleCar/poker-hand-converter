@@ -1,8 +1,9 @@
 /**
  * Analysis (R5.4): the web's analysis in the app, over the local store and
  * offline. Its sections are the shared package's screens with the app's
- * sources - the session review (R5.1, `packages/ui/review`) and the top
- * leaks - and one hand's decision-by-decision grades,
+ * sources - the session review (R5.1, `packages/ui/review`), the top
+ * leaks and Analytics (docs/ANALYTICS.md, `analysis/AnalyticsTab.tsx`) - and
+ * one hand's decision-by-decision grades,
  * reached from Hands and from the lists. Above them, the background run's
  * status (how far it is, why it waits) with Pause / Resume.
  *
@@ -32,6 +33,7 @@ import { storeReviewSource } from "../lib/reviewSource";
 import { replaceParam, screenHref, useRouteParam } from "../lib/router";
 import { useTablesOpen } from "../lib/useTablesOpen";
 import { AnalysisStatus, ShowAnalysisProgress } from "./analysis/AnalysisStatus";
+import { AnalyticsTab } from "./analysis/AnalyticsTab";
 import { useProgressHidden } from "./analysis/progressHidden";
 import styles from "./analysis/Analysis.module.css";
 import { HandAnalysis } from "./analysis/HandAnalysis";
@@ -79,6 +81,9 @@ function AnalysisSection({ view }: { view: AnalysisView }) {
         <MultiwayTab hidden={hidden} reload={reload} spots={hidden ? null : <MultiwaySpots reload={reload} />} />
       </div>
     );
+  }
+  if (view.kind === "stats") {
+    return hidden ? nav() : <AnalyticsTab view={view.view} stat={view.stat} nav={nav()} />;
   }
   if (view.kind === "leaks") {
     return (

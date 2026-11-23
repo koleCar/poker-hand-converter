@@ -13,9 +13,18 @@ in the same spots**. A stat is coloured only when the gap is bigger than
 the sample's luck. Each gap carries what it costs in bb/100, from the
 graded decisions. Every leak leads to the Trainer with that spot set up.
 
-Desktop Reports (`#/reports`) and web `/stats` render the same shared
-screen (`packages/ui/reports`), so they ship together. Both are renamed
-**Analytics**; the routes stay.
+Analytics is a section of **Analysis** on both surfaces: desktop
+`#/analysis/stats` and web `/analysis/stats` render the same shared screen
+(`packages/ui/analytics/AnalyticsScreen.tsx`), so they ship together.
+
+**Moved 2026-11-23 (after 0.13.0).** Steps 4–12 first built Analytics in
+place of Reports (desktop `#/reports`, web `/stats`, both renamed
+Analytics, with Breakdown as a fifth tab). The owner: Reports was good and
+should have stayed as it was; all of Analytics belongs inside the Analysis
+tab. So Reports is back as it was in 0.12.0 (its name, its screen, its
+breakdowns), and Analytics has four tabs (Overview · Streets · All stats ·
+Pool) under Analysis, its drill-down at `#/analysis/stats?stat=<id>` and
+`/analysis/stats/<id>` (the old `/stats/<id>` redirects there).
 
 Written 2026-11-22. It replaces the first version of this plan
 (`STACK-ANALYTICS.md`, analytics by stack depth). The owner turned that

@@ -36,7 +36,7 @@ import {
 import { EMPTY_FILTER } from "@rail/ui/hands/filter";
 import { UiStringsProvider, type UiStrings } from "@rail/ui/i18n";
 import type { ReportSource } from "@rail/ui/reports/model";
-import { ReportsScreen } from "@rail/ui/reports/ReportsScreen";
+import { AnalyticsScreen } from "@rail/ui/analytics/AnalyticsScreen";
 import { analyticsUiEn } from "@rail/ui/strings/analytics.en";
 import { analyticsUiHr } from "@rail/ui/strings/analytics.hr";
 import { handsUiEn } from "@rail/ui/strings/hands.en";
@@ -381,16 +381,14 @@ describe("the screen's tab row on Streets", () => {
         chosen: { ...EMPTY_FILTER, formats: ["cash"] },
         onChoose: () => undefined,
         onView: () => undefined,
-        tab: "position" as const,
-        onTab: () => undefined,
         title: words.screen.tabsLabel,
         emptyText: "No hands",
         renderState: (kind: string, label: string) => createElement("p", { "data-state": kind }, label),
       };
-      const streets = text(render(locale, createElement(ReportsScreen, { ...props, view: "streets" })));
+      const streets = text(render(locale, createElement(AnalyticsScreen, { ...props, view: "streets" })));
       expect(streets).toContain(words.screen.streets.raiseBet);
       expect(streets).toMatch(new RegExp(`aria-selected="true"[^>]*>${words.screen.tabs.streets}<`));
-      const overview = text(render(locale, createElement(ReportsScreen, { ...props, view: "overview" })));
+      const overview = text(render(locale, createElement(AnalyticsScreen, { ...props, view: "overview" })));
       expect(overview).not.toContain(words.screen.streets.raiseBet);
     });
   }

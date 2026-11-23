@@ -26,8 +26,6 @@ export const paths = {
   convertManual: () => "/convert/manual",
   library: () => "/library",
   stats: () => "/stats",
-  /** One stat's drill-down on the Analytics screen (docs/ANALYTICS.md Step 8): spots, bet sizes, hand classes, hands. */
-  statsStat: (statId: string) => `/stats/${encodeURIComponent(statId)}`,
   /** The shared Players screen (R4.5c): the opponents of your hands. A top-level segment, so `players` is a reserved username (`20270714090000_players_screen.sql`). */
   players: () => "/players",
   /**
@@ -46,6 +44,10 @@ export const paths = {
    * the rest of `/analysis`; `query` is its filters (dates, room, stake, seat).
    */
   analysisReports: (query?: string) => (query ? `/analysis/reports?${query}` : "/analysis/reports"),
+  /** Analytics (docs/ANALYTICS.md), a section of Analysis: your stats against their targets. */
+  analysisStats: () => "/analysis/stats",
+  /** One stat's drill-down in Analytics (Step 8): spots, bet sizes, hand classes, hands. */
+  analysisStat: (statId: string) => `/analysis/stats/${encodeURIComponent(statId)}`,
   /** Leaks (phase A6): EV lost by spot, ranked. Private; `query` is its filters, sort and open leak. */
   analysisLeaks: (query?: string) => (query ? `/analysis/leaks?${query}` : "/analysis/leaks"),
   /**

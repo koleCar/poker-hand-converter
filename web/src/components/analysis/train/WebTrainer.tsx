@@ -141,7 +141,7 @@ export function WebTrainer({ query }: { query: Record<string, string | string[] 
             return record && analysis ? { phf: record.phf, decisions: analysis.decisions } : null;
           }
         : undefined,
-      analyticsHref: (stat) => paths.statsStat(stat),
+      analyticsHref: (stat) => paths.analysisStat(stat),
       aside: signedIn ? <PlanCard generation={kept} /> : null,
       extraModes: signedIn ? (
         <Link href={paths.analysisTrain(trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "drills" }))} className={own.modeLink}>

@@ -645,8 +645,6 @@ describe("the screen's first render on each source", () => {
             definitions: DEFINITIONS,
             chosen: { ...EMPTY_FILTER, formats: ["cash"] },
             onChoose: () => undefined,
-            view: "breakdown",
-            onView: () => undefined,
             tab: "position",
             onTab: () => undefined,
             title: "Reports",

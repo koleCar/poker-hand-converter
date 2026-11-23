@@ -94,6 +94,12 @@ interface AppFrameProps {
   feature?: Feature | null;
   /** Edge to edge (`AppShell.wide`). */
   wide?: boolean;
+  /**
+   * The screen catches the builder facts up itself, with its own progress
+   * line (the statistics screens: Reports at `/stats`, Analytics at
+   * `/analysis/stats`), so the shell's quiet catch-up stays out of its way.
+   */
+  ownsFactsCatchUp?: boolean;
   children: (context: AppFrameContext) => ReactNode;
 }
 
@@ -116,7 +122,15 @@ const TAB_FEATURE: Partial<Record<ShellTab, Feature>> = { analysis: "analysis", 
  */
 let lastCount: { user: string; count: number } | null = null;
 
-export function AppFrame({ tab, redirectWhenEmpty = false, live = false, feature, wide = false, children }: AppFrameProps) {
+export function AppFrame({
+  tab,
+  redirectWhenEmpty = false,
+  live = false,
+  feature,
+  wide = false,
+  ownsFactsCatchUp = false,
+  children,
+}: AppFrameProps) {
   const router = useRouter();
   const entitlements = useEntitlements();
   const screenFeature = feature === undefined ? (tab ? (TAB_FEATURE[tab] ?? null) : null) : feature;
@@ -150,12 +164,13 @@ export function AppFrame({ tab, redirectWhenEmpty = false, live = false, feature
 
   // The builder facts' catch-up after a facts version bump, on any page of a
   // signed-in account with hands, once a page load (docs/ANALYTICS.md Step
-  // 12). Analytics runs its own, with its progress line.
+  // 12). The statistics screens run their own, with its progress line.
   const hasHands = storedCount !== null && storedCount > 0;
+  const quietCatchUp = tab !== "stats" && !ownsFactsCatchUp;
   useEffect(() => {
-    if (!isSupabaseConfigured || !countUser || !hasHands || tab === "stats") return;
+    if (!isSupabaseConfigured || !countUser || !hasHands || !quietCatchUp) return;
     void catchUpFacts(countUser);
-  }, [countUser, hasHands, tab]);
+  }, [countUser, hasHands, quietCatchUp]);
 
   // Hands arriving live move the count and are handed to the screen. Keyed by
   // the account, so a sign-out or a switch drops the subscription and the

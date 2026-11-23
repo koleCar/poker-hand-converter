@@ -116,7 +116,6 @@ export const analyticsUiEn = {
       streets: "Streets",
       stats: "All stats",
       pool: "Pool",
-      breakdown: "Breakdown",
     } as Record<string, string>,
     figures: {
       label: "Results per 100 hands",

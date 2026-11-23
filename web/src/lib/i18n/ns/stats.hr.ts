@@ -43,7 +43,7 @@ export const statsHr: Dict["stats"] = {
   },
 
   tab: {
-    heading: "Analitika",
+    heading: "Statistika",
     sample: (count: number, version: string) => `${hands(count)} · ${version}`,
     signInHeading: "Prijavi se da vidiš svoju statistiku",
     signInBody:

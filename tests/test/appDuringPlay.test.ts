@@ -78,8 +78,15 @@ describe("A10: no help during play", () => {
     expect(app).toMatch(/screenHiddenDuringPlay\(route, tablesOpen\)/);
     // (R5.4) Every link into the analysis is drawn only when it may be
     // followed, and the shared analysis screens are told too (they read
-    // nothing then).
-    const links = files.filter((f) => /screenHref\("analysis"/.test(f.text) && !f.path.includes("/screens/analysis/") && !f.path.endsWith("Analysis.tsx"));
+    // nothing then). The Trainer's own (the From Analytics bar's way back to
+    // a stat) is drawn only inside the Trainer, itself hidden during play.
+    const links = files.filter(
+      (f) =>
+        /screenHref\("analysis"/.test(f.text) &&
+        !f.path.includes("/screens/analysis/") &&
+        !f.path.endsWith("Analysis.tsx") &&
+        !f.path.includes("/trainer/"),
+    );
     expect(links.length).toBeGreaterThan(0);
     for (const { path, text } of links) expect(text, path).toMatch(/hiddenDuringPlay\("analysis"/);
     const screen = readFileSync(join(APP_SRC, "screens/Analysis.tsx"), "utf8");
