@@ -51,33 +51,38 @@ export async function backfillPool(
   onProgress?: (progress: PoolProgress) => void,
 ): Promise<PoolProgress> {
   const total: PoolProgress = { processed: 0, saved: 0 };
-  let after: string | null = null;
+  const fetchPage = async (after: string | null): Promise<PendingRow[]> =>
+    (await rpc<PendingRow[] | null>("analytics_pool_pending", {
+      p_version: ANALYTICS_MEMBERSHIP_VERSION,
+      p_after: after ?? undefined,
+      p_limit: PAGE,
+    })) ?? [];
+  let next: Promise<PendingRow[]> | null = fetchPage(null);
   // Bounded so a server that never runs dry cannot spin a tab forever.
-  for (let guard = 0; guard < 100_000 && !signal?.aborted; guard += 1) {
-    const page: PendingRow[] =
-      (await rpc<PendingRow[] | null>("analytics_pool_pending", {
-        p_version: ANALYTICS_MEMBERSHIP_VERSION,
-        p_after: after ?? undefined,
-        p_limit: PAGE,
-      })) ?? [];
+  for (let guard = 0; next !== null && guard < 100_000 && !signal?.aborted; guard += 1) {
+    const page: PendingRow[] = await next;
     if (page.length === 0) break;
-    after = page[page.length - 1].id;
-    const hands: PoolHand[] = [];
-    for (const row of page) {
-      let phf = null;
-      try {
-        phf = await handOfRow(row);
-      } catch {
-        phf = null;
-      }
-      hands.push(poolHand(row.id, phf));
-    }
+    // The next page is on its way while this one is read and saved (keyset
+    // order: this page's rows are never in it).
+    next = page.length < PAGE ? null : fetchPage(page[page.length - 1].id);
+    const hands: PoolHand[] = await Promise.all(
+      page.map(async (row) => {
+        let phf = null;
+        try {
+          phf = await handOfRow(row);
+        } catch {
+          phf = null;
+        }
+        return poolHand(row.id, phf);
+      }),
+    );
     if (signal?.aborted) break;
     total.saved += await savePool(hands);
     total.processed += page.length;
     onProgress?.({ ...total });
-    if (page.length < PAGE) break;
   }
+  // A page fetched ahead and not needed (stopped): nothing waits on it.
+  next?.catch(() => undefined);
   return total;
 }
 

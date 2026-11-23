@@ -21,7 +21,7 @@
 //! 21; who was caught bluffing on each street: 23; the user's nodelocks,
 //! local only: 24; their folders and tree: 25; the Analytics checker rows:
 //! 27; the Pool tab's opponent results: 28; the hero's effective stack on
-//! the list: 29). A
+//! the list: 29; `player_hands` by hand, for the "vs type" filters: 30). A
 //! migration may also fill in Rust what its SQL cannot ([`after_sql`]: 14
 //! sums the seat rows' blobs, 20 and 23 read the hands' PHF, 21 rewrites it), in the same
 //! transaction.
@@ -154,6 +154,10 @@ pub const MIGRATIONS: &[Migration] = &[
     Migration {
         name: "0029_list_effective_stack.sql",
         sql: include_str!("../migrations/0029_list_effective_stack.sql"),
+    },
+    Migration {
+        name: "0030_player_hands_by_hand.sql",
+        sql: include_str!("../migrations/0030_player_hands_by_hand.sql"),
     },
 ];
 

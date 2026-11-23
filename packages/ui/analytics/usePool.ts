@@ -3,7 +3,8 @@
  * the surface's `PoolSums`, and the player's results with a fish in the pot
  * and with a reg or a fish (two reports over the Hands filter's "vs type",
  * `youQueries`). Read while the tab is open (`enabled`), again when the
- * filter or `reloadToken` changes.
+ * filter or `reloadToken` changes. The sums show as soon as they come; the
+ * two reports (slower: every hand's opponents by type) fill in after.
  *
  * Where the surface counts the pool in the browser (the web's `backfill`),
  * hands the pool has not counted (`pending`) are counted while the tab is
@@ -41,9 +42,10 @@ export function usePool(
 ): PoolState {
   const [counted, setCounted] = useState(0);
   const key = `${JSON.stringify(query)}#${String(reloadToken)}#${counted}`;
-  const [state, setState] = useState<{ key: string; sums: PoolSums | null; withFish: Report | null; regOrFish: Report | null } | null>(
-    null,
-  );
+  const [state, setState] = useState<{ key: string; sums: PoolSums | null } | null>(null);
+  // The player's two reports over the "vs type" filters: slower than the
+  // pool's sums on a large library, so they fill in after the tab shows.
+  const [reports, setReports] = useState<{ key: string; withFish: Report | null; regOrFish: Report | null } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [counting, setCounting] = useState<number | null>(null);
@@ -58,10 +60,11 @@ export function usePool(
     const queries = youQueries(filter);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- a new filter starts loading
     setLoading(true);
-    Promise.all([pool.sums(filter), source.report(queries.fish, POINTS), source.report(queries.regOrFish, POINTS)])
-      .then(([sums, withFish, regOrFish]) => {
+    pool
+      .sums(filter)
+      .then((sums) => {
         if (mine !== generation.current) return;
-        setState({ key, sums, withFish, regOrFish });
+        setState({ key, sums });
         setError(null);
       })
       .catch((reason: unknown) => {
@@ -69,6 +72,13 @@ export function usePool(
       })
       .finally(() => {
         if (mine === generation.current) setLoading(false);
+      });
+    Promise.all([source.report(queries.fish, POINTS), source.report(queries.regOrFish, POINTS)])
+      .then(([withFish, regOrFish]) => {
+        if (mine === generation.current) setReports({ key, withFish, regOrFish });
+      })
+      .catch((reason: unknown) => {
+        if (mine === generation.current) setError(errorText(reason));
       });
   }, [pool, source, enabled, key, state?.key]);
 
@@ -102,10 +112,11 @@ export function usePool(
 
   const current = state?.key === key ? state : null;
   const shown = current ?? state;
+  const you = reports?.key === key ? reports : current === null ? reports : null;
   return {
     sums: shown?.sums ?? null,
-    withFish: shown?.withFish ?? null,
-    regOrFish: shown?.regOrFish ?? null,
+    withFish: you?.withFish ?? null,
+    regOrFish: you?.regOrFish ?? null,
     loaded: current !== null,
     loading,
     error,
