@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "2:vpip=1/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1 6:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1",
+      "events": "dfd0bc7f11fb867b5802e37c37e3590580dc9c69adc9b5704ea2fe42ea1d9f5b",
+      "handId": "258671202",
+      "index": 0,
+      "members": "0@3:vpip-,pfr-,rfi- 1@5:vpip+,pfr+,rfi+ 2@6:vpip+,pfr-,three_bet- 3@2:vpip+,pfr-,three_bet-,bb_fold_vs_steal- 6@5:cbet_flop+ 7@6:flop_fold_vs_bet+,flop_raise_vs_bet- 8@2:flop_fold_vs_bet+,flop_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_HandActionTests_StrangePlayerNames.txt"
+}

@@ -1,0 +1,5 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_StreetTests_Flop.txt"
+}

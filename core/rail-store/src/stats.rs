@@ -655,8 +655,8 @@ pub(crate) const INSERT_SEAT_SQL: &str =
 pub(crate) const INSERT_LIST_SQL: &str = "INSERT INTO hand_list (played_at, hand_key, site_hand_id,
         segment_id, hero_position, hero_cards, hero_net, hero_net_bb_milli, hero_stack_bb_tenths,
         board, all_in, showdown, pot_type, currency_symbol, kind, hero_wtsd, currency,
-        minor_units, hero_acts, open_tenths, flop_bet_pct, turn_bet_pct, river_bet_pct, flop_made, turn_made, river_made, flop_kicker, turn_kicker, river_kicker, flop_draws, turn_draws, players_flop, hero_ip, vs_seats, vs_positions, buy_in_cents, bounty, tour_level, hero_bluff, vs_bluff)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?29, ?30, ?31, ?32, ?33, ?34, ?35, ?36, ?37, ?38, ?39, ?40)";
+        minor_units, hero_acts, open_tenths, flop_bet_pct, turn_bet_pct, river_bet_pct, flop_made, turn_made, river_made, flop_kicker, turn_kicker, river_kicker, flop_draws, turn_draws, players_flop, hero_ip, vs_seats, vs_positions, buy_in_cents, bounty, tour_level, hero_bluff, vs_bluff, eff_stack_tenths)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?29, ?30, ?31, ?32, ?33, ?34, ?35, ?36, ?37, ?38, ?39, ?40, ?41)";
 
 /// The hero's actions as `hand_list.hero_acts`: bit `i` of
 /// [`crate::hand_list::ACTS`] is set when its counter (or one of them) is.
@@ -1166,6 +1166,7 @@ impl Pending {
             stats.list.extras.level,
             stats.list.extras.bluff[0],
             stats.list.extras.bluff[1],
+            stats.list.extras.eff_stack_tenths,
         ])?;
         // The Players list's lines (R2.7c): the hero's result in this hand.
         let sum = HandSum {
@@ -1457,12 +1458,14 @@ pub fn begin_rebuild(conn: &Connection) -> Result<u64> {
 }
 
 /// On open: bring the statistics up to this build's definitions - the
-/// jobs of [`crate::recompute::ensure_current`], and the user's own
-/// statistics' events version.
+/// jobs of [`crate::recompute::ensure_current`], the user's own
+/// statistics' events version, and the Analytics catalogue's rates as
+/// custom statistics (docs/ANALYTICS.md Step 10).
 pub(crate) fn ensure_current(conn: &mut Connection) -> Result<()> {
     let tx = conn.transaction()?;
     crate::recompute::ensure_current(&tx)?;
     crate::custom::ensure_events_version(&tx)?;
+    crate::pool::install_analytics_stats(&tx)?;
     tx.commit()?;
     Ok(())
 }

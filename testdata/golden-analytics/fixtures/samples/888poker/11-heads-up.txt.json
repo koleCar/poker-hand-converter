@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "4:vpip=1/1,pfr=0/1,three_bet=0/1 9:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=0/1,turn_fold_vs_bet=1/1,turn_fold_vs_probe=1/1",
+      "events": "87b67338e637c5d78f22a62b4aedabd0b44b2e5ec5b5b64efb24a0025d62591c",
+      "handId": "888-349695084",
+      "index": 0,
+      "members": "0@9:vpip+,pfr+,rfi+ 1@4:vpip+,pfr-,three_bet- 3@9:cbet_flop- 5@9:turn_fold_vs_bet+,turn_fold_vs_probe+"
+    }
+  ],
+  "input": "fixtures/samples/888poker/11-heads-up.txt"
+}

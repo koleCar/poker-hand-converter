@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,rfi=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 3:vpip=1/1,pfr=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=0/1,river_bet=0/1 4:vpip=0/1,pfr=0/1 5:vpip=0/1,pfr=0/1,river_bet=0/1",
+      "events": "27321ebc6ee8070a34385193eb01f99d9d753a2f773d8e7e6e7b502df0b8763a",
+      "handId": "86015904171",
+      "index": 0,
+      "members": "0@1:vpip+,pfr-,rfi- 1@3:vpip+,pfr- 2@4:vpip-,pfr- 3@5:vpip-,pfr- 5@1:flop_fold_vs_bet+,flop_raise_vs_bet- 6@3:flop_fold_vs_bet-,flop_raise_vs_bet- 8@3:turn_fold_vs_bet- 9@5:river_bet- 10@3:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/pokerstars/04-cash-nlhe-playername-slashes-brackets.txt"
+}

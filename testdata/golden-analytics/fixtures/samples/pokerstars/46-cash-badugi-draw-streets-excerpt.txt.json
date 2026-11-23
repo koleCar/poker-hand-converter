@@ -1,0 +1,5 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/pokerstars/46-cash-badugi-draw-streets-excerpt.txt"
+}

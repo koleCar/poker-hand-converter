@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "6:vpip=1/1,pfr=1/1,three_bet=1/1 7:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=1/1,four_bet=0/1",
+      "events": "46a73e69fdadd5033e5ae5e34f439f4f331b7eab5a046c1f0e00d6a9ca4c80a2",
+      "handId": "888-184089742",
+      "index": 0,
+      "members": "0@7:vpip+,pfr+,rfi+ 1@6:vpip+,pfr+,three_bet+ 2@7:fold_to_three_bet+,four_bet-"
+    }
+  ],
+  "input": "fixtures/samples/888poker/08-cassava-skin-thousands-separator.txt"
+}

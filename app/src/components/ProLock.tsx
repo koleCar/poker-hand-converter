@@ -42,6 +42,12 @@ export interface ProLockViewProps {
   compact?: boolean;
   /** The one line, when the screen has its own (the Trainer, Players). */
   line?: string;
+  /**
+   * One line inside a screen that keeps its free part (Analytics: the
+   * player's own numbers stay, docs/ANALYTICS.md Step 12): the badge, the
+   * line, the buttons; no skeleton.
+   */
+  inline?: boolean;
 }
 
 /** The skeleton behind the card: no real data, just the screen's rhythm. */
@@ -58,11 +64,50 @@ function Skeleton({ compact }: { compact: boolean }) {
 }
 
 /** The lock itself, given the plan: what the tests render in each language. */
-export function ProLockView({ feature, status, onSignIn, onUpgrade, onCheck, checking = false, compact = false, line }: ProLockViewProps) {
+export function ProLockView({
+  feature,
+  status,
+  onSignIn,
+  onUpgrade,
+  onCheck,
+  checking = false,
+  compact = false,
+  line,
+  inline = false,
+}: ProLockViewProps) {
   const p = useT().plan;
   const reason = status.effective.reason;
   const why = lockReason(status, p);
   const id = `pro-lock-${feature}`;
+  const buttons = (
+    <>
+      <button type="button" className={styles.gold} onClick={onUpgrade}>
+        {p.upgrade}
+      </button>
+      {reason === "signedOut" && (
+        <button type="button" className={styles.ghost} onClick={onSignIn}>
+          {p.signIn}
+        </button>
+      )}
+      {(reason === "notChecked" || reason === "graceExpired") && (
+        <button type="button" className={styles.ghost} disabled={checking} onClick={onCheck}>
+          {checking ? p.checking : p.checkAgain}
+        </button>
+      )}
+    </>
+  );
+  if (inline) {
+    return (
+      <section className={styles.inline} aria-labelledby={id} data-feature={feature}>
+        <span className={styles.badge}>{p.pro}</span>
+        <span id={id} className={styles.inlineLine}>
+          {line ?? p.features[feature]}
+          {why ? <span className={styles.reason}> {why}</span> : null}
+        </span>
+        {buttons}
+      </section>
+    );
+  }
   return (
     <section className={`${styles.lock}${compact ? ` ${styles.compact}` : ""}`} aria-labelledby={id} data-feature={feature}>
       <Skeleton compact={compact} />
@@ -73,21 +118,7 @@ export function ProLockView({ feature, status, onSignIn, onUpgrade, onCheck, che
             {line ?? p.features[feature]}
           </p>
           {why && <p className={styles.reason}>{why}</p>}
-          <div className={styles.actions}>
-            <button type="button" className={styles.gold} onClick={onUpgrade}>
-              {p.upgrade}
-            </button>
-            {reason === "signedOut" && (
-              <button type="button" className={styles.ghost} onClick={onSignIn}>
-                {p.signIn}
-              </button>
-            )}
-            {(reason === "notChecked" || reason === "graceExpired") && (
-              <button type="button" className={styles.ghost} disabled={checking} onClick={onCheck}>
-                {checking ? p.checking : p.checkAgain}
-              </button>
-            )}
-          </div>
+          <div className={styles.actions}>{buttons}</div>
         </div>
       </div>
     </section>

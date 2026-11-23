@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=1/1,rfi=1/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=0/1 6:vpip=1/1,pfr=0/1,three_bet=0/1",
+      "events": "d59943ba650b4eb8b6adfbb67c71fca179d1ad8a4117390d2ff9a5162d378794",
+      "handId": "2635581996",
+      "index": 0,
+      "members": "0@2:vpip-,pfr-,rfi- 1@5:vpip+,pfr+,rfi+ 2@6:vpip+,pfr-,three_bet- 3@1:vpip+,pfr-,three_bet-,bb_fold_vs_steal- 5@1:flop_fold_vs_bet+,flop_raise_vs_bet- 6@5:flop_fold_vs_bet-,flop_raise_vs_bet- 8@5:turn_fold_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-USD-$2-$4-201209.Bodog.UK.txt"
+}

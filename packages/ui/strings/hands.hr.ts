@@ -17,6 +17,9 @@ export const handsUiHr: typeof handsUiEn = {
   storeError: (reason) => `Popis ruku nije se učitao: ${reason}`,
   loading: "Učitavam ruke…",
   noMatch: "Nijedna ruka ne odgovara ovim filterima.",
+  /** The Effective stack chip on hands whose facts are still being derived again (a facts version bump). */
+  effStackFilling: (count) =>
+    `Efektivni stack se popunjava dok se ruke ažuriraju: još ${ruku(count)}.`,
   count: (shown) => ruku(shown),
   countOf: (matching, total) => `${num(matching)} od ${odRuku(total)}`,
   loadingMore: "Učitavam još…",
@@ -75,6 +78,7 @@ export const handsUiHr: typeof handsUiEn = {
       potType: "Pot",
       result: "Rezultat",
       stack: "Stack",
+      effStack: "Efektivni stack",
       allIn: "All-in",
       notes: "Bilješke",
       tags: "Oznake",

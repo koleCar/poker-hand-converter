@@ -1,4 +1,6 @@
 import type { UiStrings } from "@rail/ui/i18n";
+import { analyticsUiEn } from "@rail/ui/strings/analytics.en";
+import { analyticsUiHr } from "@rail/ui/strings/analytics.hr";
 import { chartsUiEn } from "@rail/ui/strings/charts.en";
 import { chartsUiHr } from "@rail/ui/strings/charts.hr";
 import { feedbackUiEn } from "@rail/ui/strings/feedback.en";
@@ -36,6 +38,7 @@ function uiStrings(
   charts: UiStrings["charts"],
   feedback: UiStrings["feedback"],
   potKinds: UiStrings["potKinds"],
+  analytics: UiStrings["analytics"],
 ): UiStrings {
   return {
     intlLocale: INTL_LOCALE[locale],
@@ -59,10 +62,11 @@ function uiStrings(
     charts,
     feedback,
     potKinds,
+    analytics,
   };
 }
 
 export const UI_STRINGS: Record<Locale, UiStrings> = {
-  en: uiStrings("en", en, replayerEn, statsUiEn, reviewUiEn, chartsUiEn, feedbackUiEn, potKindsUiEn),
-  hr: uiStrings("hr", hr, replayerHr, statsUiHr, reviewUiHr, chartsUiHr, feedbackUiHr, potKindsUiHr),
+  en: uiStrings("en", en, replayerEn, statsUiEn, reviewUiEn, chartsUiEn, feedbackUiEn, potKindsUiEn, analyticsUiEn),
+  hr: uiStrings("hr", hr, replayerHr, statsUiHr, reviewUiHr, chartsUiHr, feedbackUiHr, potKindsUiHr, analyticsUiHr),
 };

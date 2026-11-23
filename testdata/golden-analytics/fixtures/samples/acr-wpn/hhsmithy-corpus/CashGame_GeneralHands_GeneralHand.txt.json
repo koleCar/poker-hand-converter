@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=1/1,pfr=1/1,rfi=1/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=0/1,river_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=1/1,pfr=0/1,three_bet=0/1,river_bet=0/1",
+      "events": "133500674f204666880b0468a839ae8ef9931e987cc54331eea44934eb95cbc5",
+      "handId": "261641541",
+      "index": 0,
+      "members": "0@2:vpip-,pfr-,rfi- 1@3:vpip+,pfr+,rfi+ 2@4:vpip-,pfr-,three_bet- 3@5:vpip-,pfr-,three_bet- 4@6:vpip+,pfr-,three_bet- 5@1:vpip-,pfr-,three_bet- 7@3:flop_fold_vs_bet-,flop_raise_vs_bet- 9@3:turn_fold_vs_bet- 10@6:river_bet- 11@3:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_GeneralHands_GeneralHand.txt"
+}

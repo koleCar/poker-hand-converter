@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 2:vpip=0/1,pfr=0/1 3:vpip=0/1,pfr=0/1 4:vpip=0/1,pfr=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1",
+      "events": "03a78e8937dc6244017e6a4d072623dfd13f7aa105f44b7f58b3bc4ce0379b69",
+      "handId": "WMX-5282949-1701-1382615078",
+      "index": 0,
+      "members": "0@5:vpip+,pfr-,rfi- 1@1:vpip-,pfr- 2@2:vpip-,pfr- 3@3:vpip-,pfr- 4@4:vpip-,pfr- 7@1:flop_fold_vs_bet+,flop_raise_vs_bet- 8@4:flop_fold_vs_bet+,flop_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_Tables_Table3.txt"
+}

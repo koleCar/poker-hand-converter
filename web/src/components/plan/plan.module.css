@@ -96,6 +96,27 @@
   font-weight: var(--font-weight-semibold);
 }
 
+/* The lock as one line in a screen that keeps its free part (Analytics). */
+
+.lockInline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.lockInlineText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 /* A locked control (Nodelock): the lock and the tooltip on hover or focus. */
 
 .lockedControl {

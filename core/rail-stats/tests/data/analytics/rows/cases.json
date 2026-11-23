@@ -1,0 +1,2388 @@
+{
+  "about": "Step 2 checker-row fixture (docs/ANALYTICS.md): every hero decision of the pinned analytics hands and tests/test/fixtures/stats, with a made-up stored analysis (options, EV loss, facts). rows.json is what analyticsRows / analytics_rows derive from it; sums.json is what analytics_checker (web) and the store's checker reader (desktop) return over it. Read by tests/test/analyticsRows.test.ts, core/rail-stats/tests/analytics_rows.rs, core/rail-store/tests/checker.rs and supabase/tests/database/analytics_checker.test.sql (which embeds a copy).",
+  "cases": [
+    {
+      "file": "core/rail-stats/tests/data/analytics/01-probe-called-river-raise.txt",
+      "decisions": [
+        {
+          "ord": 3,
+          "action_index": 6,
+          "street": "preflop",
+          "action": "raise",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.469,
+              "ev": 4.71
+            },
+            {
+              "action": "raise",
+              "freq": 0.531,
+              "ev": 3.109
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 1.601,
+          "facts": {
+            "street": "preflop",
+            "position": "BTN",
+            "scenario": "pf",
+            "preflopScenario": "unopened",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        },
+        {
+          "ord": 7,
+          "action_index": 10,
+          "street": "flop",
+          "action": "check",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.72,
+              "ev": 2.885
+            },
+            {
+              "action": "bet",
+              "freq": 0.28,
+              "ev": 2.987
+            }
+          ],
+          "chosen": 0,
+          "ev_loss_bb": 0.102,
+          "facts": {
+            "street": "flop",
+            "position": "BTN",
+            "scenario": "pfr-first",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": null,
+            "made": {
+              "class": "weak-pair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "gutshot"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 9,
+          "action_index": 12,
+          "street": "turn",
+          "action": "call",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.176,
+              "ev": 4.845
+            },
+            {
+              "action": "call",
+              "freq": 0.457,
+              "ev": 1.775
+            },
+            {
+              "action": "raise",
+              "freq": 0.366,
+              "ev": 4.047
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 3.07,
+          "facts": {
+            "street": "turn",
+            "position": "BTN",
+            "scenario": "pfr-vs-bet",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": 0.491,
+            "made": {
+              "class": "underpair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "backdoor-flush"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 11,
+          "action_index": 14,
+          "street": "river",
+          "action": "bet",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.537,
+              "ev": 2.571
+            },
+            {
+              "action": "bet",
+              "freq": 0.463,
+              "ev": -0.88
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 3.451,
+          "facts": {
+            "street": "river",
+            "position": "BTN",
+            "scenario": "pfr-first",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": null,
+            "made": {
+              "class": "ace-high",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "overcards"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 13,
+          "action_index": 16,
+          "street": "river",
+          "action": "fold",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.46,
+              "ev": 1.586
+            },
+            {
+              "action": "call",
+              "freq": 0.13,
+              "ev": -0.048
+            },
+            {
+              "action": "raise",
+              "freq": 0.41,
+              "ev": 2.515
+            }
+          ],
+          "chosen": 0,
+          "ev_loss_bb": 0.929,
+          "facts": {
+            "street": "river",
+            "position": "BTN",
+            "scenario": "pfr-mw-vs-bet",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": 0.582,
+            "made": {
+              "class": "nothing",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "oesd",
+              "backdoor-flush"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "core/rail-stats/tests/data/analytics/02-four-bet-raised-cbet.txt",
+      "decisions": [
+        {
+          "ord": 2,
+          "action_index": 5,
+          "street": "preflop",
+          "action": "raise",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.733,
+              "ev": 1.113
+            },
+            {
+              "action": "raise",
+              "freq": 0.267,
+              "ev": 3.807
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "preflop",
+            "position": "CO",
+            "scenario": "pf",
+            "preflopScenario": "unopened",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        },
+        {
+          "ord": 6,
+          "action_index": 9,
+          "street": "preflop",
+          "action": "raise",
+          "status": "not-analysed",
+          "options": [],
+          "chosen": null,
+          "ev_loss_bb": null,
+          "facts": {
+            "street": "preflop",
+            "position": "CO",
+            "scenario": "pf",
+            "preflopScenario": "vs-3bet",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        },
+        {
+          "ord": 8,
+          "action_index": 11,
+          "street": "flop",
+          "action": "bet",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.651,
+              "ev": 1.695
+            },
+            {
+              "action": "bet",
+              "freq": 0.349,
+              "ev": 1.317
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0.378,
+          "facts": {
+            "street": "flop",
+            "position": "CO",
+            "scenario": "pfr-first",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": null,
+            "made": {
+              "class": "two-pair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "flush-draw"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 10,
+          "action_index": 13,
+          "street": "flop",
+          "action": "call",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.794,
+              "ev": 4.049
+            },
+            {
+              "action": "call",
+              "freq": 0.101,
+              "ev": -0.189
+            },
+            {
+              "action": "raise",
+              "freq": 0.106,
+              "ev": 4.151
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 4.34,
+          "facts": {
+            "street": "flop",
+            "position": "CO",
+            "scenario": "pfr-vs-bet",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": 0.553,
+            "made": {
+              "class": "king-high",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "gutshot"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 11,
+          "action_index": 14,
+          "street": "turn",
+          "action": "check",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.477,
+              "ev": 3.311
+            },
+            {
+              "action": "bet",
+              "freq": 0.523,
+              "ev": 4.626
+            }
+          ],
+          "chosen": 0,
+          "ev_loss_bb": 1.315,
+          "facts": {
+            "street": "turn",
+            "position": "CO",
+            "scenario": "pfr-mw-first",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": null,
+            "made": {
+              "class": "top-pair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "backdoor-flush"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 13,
+          "action_index": 16,
+          "street": "turn",
+          "action": "fold",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.304,
+              "ev": 4.443
+            },
+            {
+              "action": "call",
+              "freq": 0.232,
+              "ev": 2.157
+            },
+            {
+              "action": "raise",
+              "freq": 0.464,
+              "ev": 3.418
+            }
+          ],
+          "chosen": 0,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "turn",
+            "position": "CO",
+            "scenario": "pfr-vs-bet",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": 0.276,
+            "made": {
+              "class": "second-pair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "overcards"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "core/rail-stats/tests/data/analytics/03-fold-to-probe.txt",
+      "decisions": [
+        {
+          "ord": 2,
+          "action_index": 5,
+          "street": "preflop",
+          "action": "raise",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.197,
+              "ev": 1.884
+            },
+            {
+              "action": "raise",
+              "freq": 0.803,
+              "ev": 2.714
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "preflop",
+            "position": "CO",
+            "scenario": "pf",
+            "preflopScenario": "unopened",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        },
+        {
+          "ord": 7,
+          "action_index": 10,
+          "street": "flop",
+          "action": "check",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.395,
+              "ev": -0.115
+            },
+            {
+              "action": "bet",
+              "freq": 0.605,
+              "ev": 3.716
+            }
+          ],
+          "chosen": 0,
+          "ev_loss_bb": 3.831,
+          "facts": {
+            "street": "flop",
+            "position": "CO",
+            "scenario": "pfr-first",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": null,
+            "made": {
+              "class": "underpair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 9,
+          "action_index": 12,
+          "street": "turn",
+          "action": "fold",
+          "status": "not-analysed",
+          "options": [],
+          "chosen": null,
+          "ev_loss_bb": null,
+          "facts": {
+            "street": "turn",
+            "position": "CO",
+            "scenario": "pfr-vs-bet",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": 0.927,
+            "made": {
+              "class": "ace-high",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "core/rail-stats/tests/data/analytics/04-fold-to-three-bet.txt",
+      "decisions": [
+        {
+          "ord": 0,
+          "action_index": 3,
+          "street": "preflop",
+          "action": "raise",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.779,
+              "ev": 1.22
+            },
+            {
+              "action": "raise",
+              "freq": 0.221,
+              "ev": 4.867
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "preflop",
+            "position": "UTG",
+            "scenario": "pf",
+            "preflopScenario": "unopened",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        },
+        {
+          "ord": 6,
+          "action_index": 9,
+          "street": "preflop",
+          "action": "fold",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.231,
+              "ev": 4.245
+            },
+            {
+              "action": "call",
+              "freq": 0.508,
+              "ev": 2.131
+            },
+            {
+              "action": "raise",
+              "freq": 0.261,
+              "ev": 1.722
+            }
+          ],
+          "chosen": 0,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "preflop",
+            "position": "UTG",
+            "scenario": "pf",
+            "preflopScenario": "vs-3bet",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        }
+      ]
+    },
+    {
+      "file": "core/rail-stats/tests/data/analytics/05-fold-to-flop-cbet.txt",
+      "decisions": [
+        {
+          "ord": 3,
+          "action_index": 6,
+          "street": "preflop",
+          "action": "call",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.397,
+              "ev": 3.967
+            },
+            {
+              "action": "call",
+              "freq": 0.181,
+              "ev": 3.402
+            },
+            {
+              "action": "raise",
+              "freq": 0.421,
+              "ev": -0.335
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0.565,
+          "facts": {
+            "street": "preflop",
+            "position": "BTN",
+            "scenario": "pf",
+            "preflopScenario": "vs-open",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        },
+        {
+          "ord": 7,
+          "action_index": 10,
+          "street": "flop",
+          "action": "fold",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.364,
+              "ev": 4.287
+            },
+            {
+              "action": "call",
+              "freq": 0.428,
+              "ev": 0.816
+            },
+            {
+              "action": "raise",
+              "freq": 0.208,
+              "ev": 1.37
+            }
+          ],
+          "chosen": 0,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "flop",
+            "position": "BTN",
+            "scenario": "caller-vs-bet",
+            "preflopScenario": null,
+            "role": "caller",
+            "facingPot": 0.415,
+            "made": {
+              "class": "two-pair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "overcards"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "core/rail-stats/tests/data/analytics/06-turn-checked-back.txt",
+      "decisions": [
+        {
+          "ord": 2,
+          "action_index": 5,
+          "street": "preflop",
+          "action": "raise",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.51,
+              "ev": 2.479
+            },
+            {
+              "action": "raise",
+              "freq": 0.49,
+              "ev": 0.528
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 1.951,
+          "facts": {
+            "street": "preflop",
+            "position": "CO",
+            "scenario": "pf",
+            "preflopScenario": "unopened",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        },
+        {
+          "ord": 7,
+          "action_index": 10,
+          "street": "flop",
+          "action": "bet",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.523,
+              "ev": 0.05
+            },
+            {
+              "action": "bet",
+              "freq": 0.477,
+              "ev": 0.865
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "flop",
+            "position": "CO",
+            "scenario": "pfr-mw-first",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": null,
+            "made": {
+              "class": "top-pair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 10,
+          "action_index": 13,
+          "street": "turn",
+          "action": "check",
+          "status": "not-analysed",
+          "options": [],
+          "chosen": null,
+          "ev_loss_bb": null,
+          "facts": {
+            "street": "turn",
+            "position": "CO",
+            "scenario": "pfr-first",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": null,
+            "made": {
+              "class": "second-pair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 12,
+          "action_index": 15,
+          "street": "river",
+          "action": "bet",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.245,
+              "ev": 0.168
+            },
+            {
+              "action": "bet",
+              "freq": 0.755,
+              "ev": 4.725
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "river",
+            "position": "CO",
+            "scenario": "pfr-first",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": null,
+            "made": {
+              "class": "weak-pair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "flush-draw"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "tests/test/fixtures/stats/02-straddle-open-is-not-a-three-bet.txt",
+      "decisions": [
+        {
+          "ord": 1,
+          "action_index": 4,
+          "street": "preflop",
+          "action": "raise",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.354,
+              "ev": 1.254
+            },
+            {
+              "action": "raise",
+              "freq": 0.646,
+              "ev": 0.015
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 1.239,
+          "facts": {
+            "street": "preflop",
+            "position": "CO",
+            "scenario": "pf",
+            "preflopScenario": "unopened",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        }
+      ]
+    },
+    {
+      "file": "tests/test/fixtures/stats/03-dead-post-is-not-vpip.txt",
+      "decisions": [
+        {
+          "ord": 1,
+          "action_index": 4,
+          "street": "preflop",
+          "action": "fold",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.724,
+              "ev": -0.341
+            },
+            {
+              "action": "raise",
+              "freq": 0.276,
+              "ev": 0.616
+            }
+          ],
+          "chosen": 0,
+          "ev_loss_bb": 0.957,
+          "facts": {
+            "street": "preflop",
+            "position": "HJ",
+            "scenario": "pf",
+            "preflopScenario": "unopened",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        }
+      ]
+    },
+    {
+      "file": "tests/test/fixtures/stats/04-steal-and-fold-to-steal.txt",
+      "decisions": [
+        {
+          "ord": 2,
+          "action_index": 5,
+          "street": "preflop",
+          "action": "raise",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.767,
+              "ev": 2.692
+            },
+            {
+              "action": "raise",
+              "freq": 0.233,
+              "ev": 1.146
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 1.546,
+          "facts": {
+            "street": "preflop",
+            "position": "CO",
+            "scenario": "pf",
+            "preflopScenario": "unopened",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        }
+      ]
+    },
+    {
+      "file": "tests/test/fixtures/stats/05-isolation-raise-is-not-rfi.txt",
+      "decisions": [
+        {
+          "ord": 2,
+          "action_index": 5,
+          "street": "preflop",
+          "action": "raise",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.182,
+              "ev": -0.305
+            },
+            {
+              "action": "call",
+              "freq": 0.247,
+              "ev": -0.497
+            },
+            {
+              "action": "raise",
+              "freq": 0.572,
+              "ev": 3.025
+            }
+          ],
+          "chosen": 2,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "preflop",
+            "position": "CO",
+            "scenario": "pf",
+            "preflopScenario": "vs-limp",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        }
+      ]
+    },
+    {
+      "file": "tests/test/fixtures/stats/06-squeeze.txt",
+      "decisions": [
+        {
+          "ord": 3,
+          "action_index": 6,
+          "street": "preflop",
+          "action": "raise",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.527,
+              "ev": 2.859
+            },
+            {
+              "action": "call",
+              "freq": 0.074,
+              "ev": 2.532
+            },
+            {
+              "action": "raise",
+              "freq": 0.398,
+              "ev": 3.669
+            }
+          ],
+          "chosen": 2,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "preflop",
+            "position": "BTN",
+            "scenario": "pf",
+            "preflopScenario": "vs-open",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        }
+      ]
+    },
+    {
+      "file": "tests/test/fixtures/stats/07-four-bet-war.txt",
+      "decisions": [
+        {
+          "ord": 0,
+          "action_index": 3,
+          "street": "preflop",
+          "action": "raise",
+          "status": "not-analysed",
+          "options": [],
+          "chosen": null,
+          "ev_loss_bb": null,
+          "facts": {
+            "street": "preflop",
+            "position": "UTG",
+            "scenario": "pf",
+            "preflopScenario": "unopened",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        },
+        {
+          "ord": 6,
+          "action_index": 9,
+          "street": "preflop",
+          "action": "raise",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.385,
+              "ev": 3.842
+            },
+            {
+              "action": "call",
+              "freq": 0.457,
+              "ev": 3.239
+            },
+            {
+              "action": "raise",
+              "freq": 0.158,
+              "ev": 0.538
+            }
+          ],
+          "chosen": 2,
+          "ev_loss_bb": 3.304,
+          "facts": {
+            "street": "preflop",
+            "position": "UTG",
+            "scenario": "pf",
+            "preflopScenario": "vs-3bet",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        }
+      ]
+    },
+    {
+      "file": "tests/test/fixtures/stats/08-blind-defence-is-not-a-cold-call.txt",
+      "decisions": [
+        {
+          "ord": 5,
+          "action_index": 8,
+          "street": "preflop",
+          "action": "call",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.576,
+              "ev": 1.3
+            },
+            {
+              "action": "call",
+              "freq": 0.259,
+              "ev": 4.353
+            },
+            {
+              "action": "raise",
+              "freq": 0.164,
+              "ev": 2.87
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "preflop",
+            "position": "BB",
+            "scenario": "pf",
+            "preflopScenario": "vs-open",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        },
+        {
+          "ord": 6,
+          "action_index": 9,
+          "street": "flop",
+          "action": "check",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.577,
+              "ev": 1.075
+            },
+            {
+              "action": "bet",
+              "freq": 0.423,
+              "ev": 2.493
+            }
+          ],
+          "chosen": 0,
+          "ev_loss_bb": 1.418,
+          "facts": {
+            "street": "flop",
+            "position": "BB",
+            "scenario": "caller-first",
+            "preflopScenario": null,
+            "role": "caller",
+            "facingPot": null,
+            "made": {
+              "class": "second-pair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "backdoor-flush"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 9,
+          "action_index": 12,
+          "street": "turn",
+          "action": "check",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.685,
+              "ev": 2.612
+            },
+            {
+              "action": "bet",
+              "freq": 0.315,
+              "ev": 1.344
+            }
+          ],
+          "chosen": 0,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "turn",
+            "position": "BB",
+            "scenario": "caller-first",
+            "preflopScenario": null,
+            "role": "caller",
+            "facingPot": null,
+            "made": {
+              "class": "weak-pair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "overcards"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 12,
+          "action_index": 15,
+          "street": "river",
+          "action": "check",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.541,
+              "ev": 4.025
+            },
+            {
+              "action": "bet",
+              "freq": 0.459,
+              "ev": -0.315
+            }
+          ],
+          "chosen": 0,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "river",
+            "position": "BB",
+            "scenario": "caller-first",
+            "preflopScenario": null,
+            "role": "caller",
+            "facingPot": null,
+            "made": {
+              "class": "underpair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "oesd",
+              "backdoor-flush"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "tests/test/fixtures/stats/09-turn-cbet-needs-a-called-flop-cbet.txt",
+      "decisions": [
+        {
+          "ord": 2,
+          "action_index": 5,
+          "street": "preflop",
+          "action": "raise",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.536,
+              "ev": 2.597
+            },
+            {
+              "action": "raise",
+              "freq": 0.464,
+              "ev": 4.885
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "preflop",
+            "position": "CO",
+            "scenario": "pf",
+            "preflopScenario": "unopened",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        },
+        {
+          "ord": 7,
+          "action_index": 10,
+          "street": "flop",
+          "action": "bet",
+          "status": "not-analysed",
+          "options": [],
+          "chosen": null,
+          "ev_loss_bb": null,
+          "facts": {
+            "street": "flop",
+            "position": "CO",
+            "scenario": "pfr-mw-first",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": null,
+            "made": {
+              "class": "nothing",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 10,
+          "action_index": 13,
+          "street": "turn",
+          "action": "bet",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.601,
+              "ev": -0.778
+            },
+            {
+              "action": "bet",
+              "freq": 0.399,
+              "ev": 3.803
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "turn",
+            "position": "CO",
+            "scenario": "pfr-first",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": null,
+            "made": {
+              "class": "set",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "flush-draw"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "tests/test/fixtures/stats/10-raised-flop-cbet-ends-the-chain.txt",
+      "decisions": [
+        {
+          "ord": 2,
+          "action_index": 5,
+          "street": "preflop",
+          "action": "raise",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.089,
+              "ev": 0.486
+            },
+            {
+              "action": "raise",
+              "freq": 0.911,
+              "ev": 0.468
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0.018,
+          "facts": {
+            "street": "preflop",
+            "position": "CO",
+            "scenario": "pf",
+            "preflopScenario": "unopened",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        },
+        {
+          "ord": 7,
+          "action_index": 10,
+          "street": "flop",
+          "action": "bet",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.358,
+              "ev": 1.56
+            },
+            {
+              "action": "bet",
+              "freq": 0.642,
+              "ev": 3.197
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "flop",
+            "position": "CO",
+            "scenario": "pfr-first",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": null,
+            "made": {
+              "class": "two-pair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "backdoor-flush"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 9,
+          "action_index": 12,
+          "street": "flop",
+          "action": "call",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.149,
+              "ev": -0.696
+            },
+            {
+              "action": "call",
+              "freq": 0.057,
+              "ev": -0.225
+            },
+            {
+              "action": "raise",
+              "freq": 0.794,
+              "ev": 1.363
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 1.588,
+          "facts": {
+            "street": "flop",
+            "position": "CO",
+            "scenario": "pfr-vs-bet",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": 0.938,
+            "made": {
+              "class": "king-high",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "overcards"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 11,
+          "action_index": 14,
+          "street": "turn",
+          "action": "bet",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.82,
+              "ev": 3.268
+            },
+            {
+              "action": "bet",
+              "freq": 0.18,
+              "ev": -0.864
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 4.132,
+          "facts": {
+            "street": "turn",
+            "position": "CO",
+            "scenario": "pfr-mw-first",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": null,
+            "made": {
+              "class": "top-pair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "oesd",
+              "backdoor-flush"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "tests/test/fixtures/stats/11-donk-bet-removes-the-cbet-spot.txt",
+      "decisions": [
+        {
+          "ord": 5,
+          "action_index": 8,
+          "street": "preflop",
+          "action": "call",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.116,
+              "ev": 1.561
+            },
+            {
+              "action": "call",
+              "freq": 0.152,
+              "ev": 0.879
+            },
+            {
+              "action": "raise",
+              "freq": 0.732,
+              "ev": 0.484
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0.682,
+          "facts": {
+            "street": "preflop",
+            "position": "BB",
+            "scenario": "pf",
+            "preflopScenario": "vs-open",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        },
+        {
+          "ord": 6,
+          "action_index": 9,
+          "street": "flop",
+          "action": "bet",
+          "status": "not-analysed",
+          "options": [],
+          "chosen": null,
+          "ev_loss_bb": null,
+          "facts": {
+            "street": "flop",
+            "position": "BB",
+            "scenario": "caller-first",
+            "preflopScenario": null,
+            "role": "caller",
+            "facingPot": null,
+            "made": {
+              "class": "weak-pair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "tests/test/fixtures/stats/12-limped-pot-has-no-cbet.txt",
+      "decisions": [
+        {
+          "ord": 5,
+          "action_index": 8,
+          "street": "preflop",
+          "action": "check",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.125,
+              "ev": 4.06
+            },
+            {
+              "action": "call",
+              "freq": 0.427,
+              "ev": 2.001
+            },
+            {
+              "action": "raise",
+              "freq": 0.448,
+              "ev": 2.551
+            }
+          ],
+          "chosen": 0,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "preflop",
+            "position": "BB",
+            "scenario": "pf",
+            "preflopScenario": "vs-limp",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        },
+        {
+          "ord": 6,
+          "action_index": 9,
+          "street": "flop",
+          "action": "check",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.497,
+              "ev": 2.755
+            },
+            {
+              "action": "bet",
+              "freq": 0.503,
+              "ev": 2.264
+            }
+          ],
+          "chosen": 0,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "flop",
+            "position": "BB",
+            "scenario": "caller-first",
+            "preflopScenario": null,
+            "role": "caller",
+            "facingPot": null,
+            "made": {
+              "class": "ace-high",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "gutshot"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 9,
+          "action_index": 12,
+          "street": "flop",
+          "action": "fold",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.349,
+              "ev": 4.679
+            },
+            {
+              "action": "call",
+              "freq": 0.557,
+              "ev": 2.967
+            },
+            {
+              "action": "raise",
+              "freq": 0.094,
+              "ev": 0.074
+            }
+          ],
+          "chosen": 0,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "flop",
+            "position": "BB",
+            "scenario": "caller-mw-vs-bet",
+            "preflopScenario": null,
+            "role": "caller",
+            "facingPot": 0.571,
+            "made": {
+              "class": "nothing",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "backdoor-flush"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "tests/test/fixtures/stats/13-all-in-preflop-is-not-a-cbet-spot.txt",
+      "decisions": [
+        {
+          "ord": 2,
+          "action_index": 5,
+          "street": "preflop",
+          "action": "raise",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.358,
+              "ev": 0.58
+            },
+            {
+              "action": "raise",
+              "freq": 0.642,
+              "ev": 1.608
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "preflop",
+            "position": "CO",
+            "scenario": "pf",
+            "preflopScenario": "unopened",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        }
+      ]
+    },
+    {
+      "file": "tests/test/fixtures/stats/14-heads-up-has-no-steal.txt",
+      "decisions": [
+        {
+          "ord": 0,
+          "action_index": 3,
+          "street": "preflop",
+          "action": "raise",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.219,
+              "ev": -0.874
+            },
+            {
+              "action": "raise",
+              "freq": 0.781,
+              "ev": 0.019
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "preflop",
+            "position": "SB",
+            "scenario": "pf",
+            "preflopScenario": "unopened",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        }
+      ]
+    },
+    {
+      "file": "tests/test/fixtures/stats/15-big-blind-ante.txt",
+      "decisions": [
+        {
+          "ord": 2,
+          "action_index": 5,
+          "street": "preflop",
+          "action": "raise",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.431,
+              "ev": 0.701
+            },
+            {
+              "action": "raise",
+              "freq": 0.569,
+              "ev": 4.644
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "preflop",
+            "position": "CO",
+            "scenario": "pf",
+            "preflopScenario": "unopened",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        }
+      ]
+    },
+    {
+      "file": "tests/test/fixtures/stats/16-fold-to-cbet-legs.txt",
+      "decisions": [
+        {
+          "ord": 2,
+          "action_index": 5,
+          "street": "preflop",
+          "action": "raise",
+          "status": "not-analysed",
+          "options": [],
+          "chosen": null,
+          "ev_loss_bb": null,
+          "facts": {
+            "street": "preflop",
+            "position": "CO",
+            "scenario": "pf",
+            "preflopScenario": "unopened",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        },
+        {
+          "ord": 7,
+          "action_index": 10,
+          "street": "flop",
+          "action": "bet",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.534,
+              "ev": -0.031
+            },
+            {
+              "action": "bet",
+              "freq": 0.466,
+              "ev": 4.785
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "flop",
+            "position": "CO",
+            "scenario": "pfr-mw-first",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": null,
+            "made": {
+              "class": "top-pair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "flush-draw"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 10,
+          "action_index": 13,
+          "street": "flop",
+          "action": "fold",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.264,
+              "ev": -0.721
+            },
+            {
+              "action": "call",
+              "freq": 0.419,
+              "ev": 1.394
+            },
+            {
+              "action": "raise",
+              "freq": 0.317,
+              "ev": -0.454
+            }
+          ],
+          "chosen": 0,
+          "ev_loss_bb": 2.115,
+          "facts": {
+            "street": "flop",
+            "position": "CO",
+            "scenario": "pfr-vs-bet",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": 0.718,
+            "made": {
+              "class": "second-pair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "gutshot"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "tests/test/fixtures/stats/17-triple-barrel-and-rake.txt",
+      "decisions": [
+        {
+          "ord": 2,
+          "action_index": 5,
+          "street": "preflop",
+          "action": "raise",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "fold",
+              "freq": 0.795,
+              "ev": 1.26
+            },
+            {
+              "action": "raise",
+              "freq": 0.205,
+              "ev": 0.688
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0.572,
+          "facts": {
+            "street": "preflop",
+            "position": "CO",
+            "scenario": "pf",
+            "preflopScenario": "unopened",
+            "role": null,
+            "facingPot": null,
+            "made": null,
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": []
+          }
+        },
+        {
+          "ord": 7,
+          "action_index": 10,
+          "street": "flop",
+          "action": "bet",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.614,
+              "ev": 2.726
+            },
+            {
+              "action": "bet",
+              "freq": 0.386,
+              "ev": 4.834
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "flop",
+            "position": "CO",
+            "scenario": "pfr-first",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": null,
+            "made": {
+              "class": "underpair",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "overcards"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 10,
+          "action_index": 13,
+          "street": "turn",
+          "action": "bet",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.43,
+              "ev": 3.577
+            },
+            {
+              "action": "bet",
+              "freq": 0.57,
+              "ev": 4.419
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "turn",
+            "position": "CO",
+            "scenario": "pfr-first",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": null,
+            "made": {
+              "class": "ace-high",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [
+              "oesd",
+              "backdoor-flush"
+            ],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        },
+        {
+          "ord": 13,
+          "action_index": 16,
+          "street": "river",
+          "action": "bet",
+          "status": "analysed",
+          "options": [
+            {
+              "action": "check",
+              "freq": 0.466,
+              "ev": -0.655
+            },
+            {
+              "action": "bet",
+              "freq": 0.534,
+              "ev": 4.571
+            }
+          ],
+          "chosen": 1,
+          "ev_loss_bb": 0,
+          "facts": {
+            "street": "river",
+            "position": "CO",
+            "scenario": "pfr-mw-first",
+            "preflopScenario": null,
+            "role": "pfr",
+            "facingPot": null,
+            "made": {
+              "class": "nothing",
+              "kicker": null,
+              "nuts": false
+            },
+            "draws": [],
+            "holeCards": [
+              "As",
+              "Kd"
+            ],
+            "board": [
+              "Qh",
+              "7c",
+              "2d"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

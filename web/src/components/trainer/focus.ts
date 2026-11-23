@@ -17,7 +17,8 @@ import type { RiverPot, RiverRole, RiverSeat } from "../../lib/training";
 import type { AreaWhere, FocusArea, TrainerTarget } from "../../lib/training/plan";
 import { pickFocus } from "../../lib/training/plan";
 import { FLOP_LIBRARY_SETS } from "../../lib/analysis/flopLibrary";
-import { CHART_SETS } from "../../lib/charts";
+import { CHART_SETS, type ChartPosition } from "../../lib/charts";
+import type { AnalyticsFrom } from "./analytics";
 
 /**
  * A turn spot to practise (the study plan has no turn trainer, so its
@@ -32,7 +33,24 @@ export interface TurnTarget {
   set?: string;
 }
 
-export type FocusTarget = TrainerTarget | TurnTarget;
+/**
+ * What Analytics adds to a target (docs/ANALYTICS.md Step 9, `analytics.ts`):
+ * the bet sizes faced (size bucket ids), the hand classes the hero is dealt
+ * from, where the drill came from, and on the turn and river the seats and
+ * what is faced (the study plan's targets carry none of them).
+ */
+export interface AnalyticsFocus {
+  sizes?: readonly string[];
+  classes?: readonly string[];
+  from?: AnalyticsFrom;
+  /** Turn, river: the hero's and the villain's seats. */
+  seat?: ChartPosition | null;
+  vs?: ChartPosition | null;
+  /** Turn, river: checked to, a bet to answer, or the hero's first decision (the flop's own `facing` says it there). */
+  faced?: "check" | "bet" | "any";
+}
+
+export type FocusTarget = (TrainerTarget | TurnTarget) & AnalyticsFocus;
 
 const HEADS_UP_SET = "nlhe-cash-hu-100bb";
 

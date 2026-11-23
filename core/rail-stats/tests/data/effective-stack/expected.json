@@ -1,0 +1,11 @@
+{
+  "about": "docs/ANALYTICS.md Step 11: the hero's effective_first_action_bb (thousandths of the largest forced blind) and the Effective stack filter's bucket (config/stats/stack-buckets.json). Read by core/rail-stats/tests/effective_stack.rs and tests/test/effectiveStack.test.ts.",
+  "cases": [
+    { "file": "core/rail-stats/tests/data/effective-stack/01-folded-deep-stack-left-out.txt", "hero": 6, "thousandths": 100000, "bucket": "80-120", "why": "UTG's $400 folded before CO acted; the largest live stack is $100" },
+    { "file": "core/rail-stats/tests/data/effective-stack/02-straddle-is-the-unit.txt", "hero": 6, "thousandths": 75000, "bucket": "40-80", "why": "CO's $150 against BTN's $300, in $2 straddles" },
+    { "file": "core/rail-stats/tests/data/effective-stack/03-walk-is-the-own-stack.txt", "hero": 3, "thousandths": 80000, "bucket": "80-120", "why": "a walk: the big blind's own $80" },
+    { "file": "core/rail-stats/tests/data/effective-stack/04-big-blind-against-the-opener.txt", "hero": 3, "thousandths": 45500, "bucket": "40-80", "why": "BTN $300 and SB $200 folded before the big blind decided; CO has $45.50" },
+    { "file": "core/rail-stats/tests/data/effective-stack/05-first-to-act-covers-the-table.txt", "hero": 4, "thousandths": 120000, "bucket": "120+", "why": "UTG acts first: every stack is live, the largest is BB's $120" },
+    { "file": "tests/test/fixtures/stats/17-triple-barrel-and-rake.txt", "hero": 6, "thousandths": 100000, "bucket": "80-120", "why": "100 bb everywhere" }
+  ]
+}

@@ -18,6 +18,7 @@
           32,
           8
         ],
+        "effStack": 6,
         "heroIp": true,
         "kicker": [
           null,

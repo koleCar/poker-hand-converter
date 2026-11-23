@@ -12,7 +12,7 @@
 "use client";
 
 import { RailLoader } from "@rail/ui/loader/RailLoader";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DecisionAnalysis, OptionAnalysis } from "../../lib/analysis/types";
 import { nextSeed, STREAK_GRADES, type GradedAnswer, type TrainerAnswer, type TrainerSpot } from "../../lib/training";
 import { gradeMix, normalised, type MixResult } from "../../lib/training/frequency";
@@ -22,13 +22,15 @@ import { DecisionPanel } from "./DecisionPanel";
 import { bestIndex, useOptionText, Verdict } from "./Feedback";
 import { useTrainerHost } from "./host";
 import { SeenBefore } from "./SeenBefore";
-import { cardsText, spotKey, type SessionAnswer, type SpotRef } from "./sessions";
+import { answerMix, cardsText, spotKey, type SessionAnswer, type SpotRef } from "./sessions";
 import type { SpotRequest, StreetMode, TrainerSettings } from "./settings";
 import { ActionStrip, StatusRow } from "./SpotFelt";
 import { TableBox, TrainerTable, type HeroMove } from "./TrainerTable";
 import styles from "./trainer.module.css";
 
 const DEAL_TRIES = 3;
+/** Seeds tried for a deal Analytics narrowed (a size, hand classes): a board may hold none of the classes. */
+const NARROW_TRIES = 8;
 const AUTO_NEXT_MS = 1600;
 
 export type TableStatus = "dealing" | "waiting" | "answered";
@@ -94,10 +96,16 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
   const [holding, setHolding] = useState(false);
   const [open, setOpen] = useState(!compact);
   const requestJson = JSON.stringify(request);
+  // The host as it is now: a host that changes (an answer kept on the web) must not deal this table's spot again.
+  const hostNow = useRef(host);
+  useEffect(() => {
+    hostNow.current = host;
+  }, [host]);
 
   // The spot, dealt once.
   useEffect(() => {
     let live = true;
+    const host = hostNow.current;
     const parsed = JSON.parse(requestJson) as SpotRequest;
     (async (): Promise<{ spot: TrainerSpot; ref: SpotRef } | null> => {
       // The spot again, exactly: its own request and seed. A reference that changed since (another deal) is dealt anew.
@@ -105,7 +113,8 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
         const again = await host.deal(forced.ref.request, forced.ref.seed).catch(() => null);
         if (again && spotKey(again) === forced.key) return { spot: again, ref: forced.ref };
       }
-      for (let attempt = 0; attempt < DEAL_TRIES; attempt += 1) {
+      const narrow = parsed.kind !== "preflop" && Boolean(parsed.options.size || parsed.options.classes?.length);
+      for (let attempt = 0; attempt < (narrow ? NARROW_TRIES : DEAL_TRIES); attempt += 1) {
         const seed = nextSeed();
         const got = await host.deal(parsed, seed);
         if (got) return { spot: got, ref: { request: parsed, seed } };
@@ -126,7 +135,7 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
     return () => {
       live = false;
     };
-  }, [requestJson, host, forced]);
+  }, [requestJson, forced]);
 
 
   const status: TableStatus = !dealt ? "dealing" : answered || !spot ? "answered" : "waiting";
@@ -195,6 +204,7 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
           evLoss: scored.evLoss,
           score: scored.score,
           ref,
+          ...answerMix(d),
         });
       }
       if (settings.pause === "mistakes" && STREAK_GRADES.includes(scored.grade)) setHolding(true);

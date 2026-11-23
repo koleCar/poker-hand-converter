@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1,three_bet=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1,turn_barrel=0/1,river_bet=0/1 4:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,river_bet=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=1/1 7:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "e48265b3377021e4c08cf4f5b72608fd85e97d1198f579c44b430ef1662892a8",
+      "handId": "352025868",
+      "index": 0,
+      "members": "0@7:vpip-,pfr-,rfi- 1@1:vpip-,pfr-,rfi- 2@2:vpip-,pfr-,rfi- 3@3:vpip+,pfr+,rfi+ 4@4:vpip+,pfr-,three_bet- 5@5:vpip-,pfr-,three_bet-,bb_fold_vs_steal+ 6@1:three_bet- 8@3:cbet_flop+ 9@4:flop_fold_vs_bet-,flop_raise_vs_bet- 11@3:turn_barrel- 12@4:river_bet- 13@3:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/coinpoker/06-cash-timebank-disconnect.txt"
+}

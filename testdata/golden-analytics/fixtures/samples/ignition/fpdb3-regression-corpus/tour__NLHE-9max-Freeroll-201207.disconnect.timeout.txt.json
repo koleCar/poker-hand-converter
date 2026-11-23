@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=1/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1 6:vpip=1/1,pfr=1/1 7:vpip=0/1,pfr=0/1,three_bet=0/1 8:vpip=0/1,pfr=0/1,three_bet=0/1 9:vpip=1/1,pfr=0/1,three_bet=0/1",
+      "events": "95d8e70941784ccff21aa59387cf8e2cb81dc0aa38ca9d6f65a980e77d461efc",
+      "handId": "2648080702",
+      "index": 0,
+      "members": "0@5:vpip+,pfr-,rfi- 1@6:vpip+,pfr+ 2@7:vpip-,pfr-,three_bet- 3@8:vpip-,pfr-,three_bet- 4@9:vpip+,pfr-,three_bet- 5@1:vpip-,pfr-,three_bet- 6@2:vpip-,pfr-,three_bet- 7@3:vpip+,pfr-,three_bet- 8@4:vpip-,pfr-,three_bet- 9@5:three_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-Freeroll-201207.disconnect.timeout.txt"
+}

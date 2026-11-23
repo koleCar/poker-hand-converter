@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=1/1,three_bet=1/1,cbet_flop=0/1 2:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=0/1,turn_fold_vs_bet=0/1",
+      "events": "479eb10dfbeead8a712c329289d7bc6653cf0ee425bc1d602aa66ab1a5c7d212",
+      "handId": "WMX-5313422-1-1383828693",
+      "index": 0,
+      "members": "0@2:vpip+,pfr+,rfi+ 1@1:vpip+,pfr+,three_bet+ 2@2:fold_to_three_bet-,four_bet- 3@1:cbet_flop- 6@2:turn_fold_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_GameTypeTests_PotLimitOmaha.txt"
+}

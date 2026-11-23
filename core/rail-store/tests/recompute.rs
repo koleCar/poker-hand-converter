@@ -211,6 +211,10 @@ const NOT_DERIVED: &[&str] = &[
     "node_lock_folders",
     // Version 26: the keys of the hands the user deleted.
     "deleted_hands",
+    // Version 27 (docs/ANALYTICS.md Step 2): the Analytics checker rows,
+    // derived from the analysis and versioned by `MEMBERSHIP_VERSION`, never
+    // by a statistics definition.
+    "analysis_checker_rows",
 ];
 
 #[test]

@@ -1,0 +1,1360 @@
+[
+  {
+    "file": "core/rail-stats/tests/data/analytics/01-probe-called-river-raise.txt",
+    "rows": [
+      {
+        "ord": 3,
+        "actionIndex": 6,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.531,
+        "bestIn": false,
+        "evLossBb": 1.601,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|BTN|",
+        "multiway": false
+      },
+      {
+        "ord": 3,
+        "actionIndex": 6,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": 0.531,
+        "bestIn": false,
+        "evLossBb": 1.601,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|BTN|",
+        "multiway": false
+      },
+      {
+        "ord": 3,
+        "actionIndex": 6,
+        "stat": "rfi",
+        "taken": true,
+        "refShare": 0.531,
+        "bestIn": false,
+        "evLossBb": 1.601,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|BTN|",
+        "multiway": false
+      },
+      {
+        "ord": 7,
+        "actionIndex": 10,
+        "stat": "cbet_flop",
+        "taken": false,
+        "refShare": 0.28,
+        "bestIn": true,
+        "evLossBb": 0.102,
+        "size": "",
+        "handClass": "weak_pair",
+        "spot": "single-raised|pfr|BTN|BB",
+        "multiway": false
+      },
+      {
+        "ord": 9,
+        "actionIndex": 12,
+        "stat": "turn_fold_vs_bet",
+        "taken": false,
+        "refShare": 0.176,
+        "bestIn": true,
+        "evLossBb": 3.07,
+        "size": "40-60",
+        "handClass": "underpair",
+        "spot": "single-raised|pfr|BTN|BB",
+        "multiway": false
+      },
+      {
+        "ord": 9,
+        "actionIndex": 12,
+        "stat": "turn_fold_vs_probe",
+        "taken": false,
+        "refShare": 0.176,
+        "bestIn": true,
+        "evLossBb": 3.07,
+        "size": "40-60",
+        "handClass": "underpair",
+        "spot": "single-raised|pfr|BTN|BB",
+        "multiway": false
+      },
+      {
+        "ord": 11,
+        "actionIndex": 14,
+        "stat": "river_bet",
+        "taken": true,
+        "refShare": 0.463,
+        "bestIn": false,
+        "evLossBb": 3.451,
+        "size": "",
+        "handClass": "overcards",
+        "spot": "single-raised|pfr|BTN|BB",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "core/rail-stats/tests/data/analytics/02-four-bet-raised-cbet.txt",
+    "rows": [
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.267,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": 0.267,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "rfi",
+        "taken": true,
+        "refShare": 0.267,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 6,
+        "actionIndex": 9,
+        "stat": "fold_to_three_bet",
+        "taken": false,
+        "refShare": null,
+        "bestIn": null,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-3bet|CO|BTN",
+        "multiway": false
+      },
+      {
+        "ord": 6,
+        "actionIndex": 9,
+        "stat": "four_bet",
+        "taken": true,
+        "refShare": null,
+        "bestIn": null,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-3bet|CO|BTN",
+        "multiway": false
+      },
+      {
+        "ord": 8,
+        "actionIndex": 11,
+        "stat": "cbet_flop",
+        "taken": true,
+        "refShare": 0.349,
+        "bestIn": false,
+        "evLossBb": 0.378,
+        "size": "",
+        "handClass": "top_pair_plus",
+        "spot": "4bet+|pfr|CO|BTN",
+        "multiway": false
+      },
+      {
+        "ord": 13,
+        "actionIndex": 16,
+        "stat": "turn_fold_vs_bet",
+        "taken": true,
+        "refShare": 0.304,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "20-40",
+        "handClass": "middle_pair",
+        "spot": "4bet+|pfr|CO|BTN",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "core/rail-stats/tests/data/analytics/03-fold-to-probe.txt",
+    "rows": [
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.803,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": 0.803,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "rfi",
+        "taken": true,
+        "refShare": 0.803,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 7,
+        "actionIndex": 10,
+        "stat": "cbet_flop",
+        "taken": false,
+        "refShare": 0.605,
+        "bestIn": true,
+        "evLossBb": 3.831,
+        "size": "",
+        "handClass": "underpair",
+        "spot": "single-raised|pfr|CO|BB",
+        "multiway": false
+      },
+      {
+        "ord": 9,
+        "actionIndex": 12,
+        "stat": "turn_fold_vs_bet",
+        "taken": true,
+        "refShare": null,
+        "bestIn": null,
+        "evLossBb": 0,
+        "size": "85-125",
+        "handClass": "nothing",
+        "spot": "single-raised|pfr|CO|BB",
+        "multiway": false
+      },
+      {
+        "ord": 9,
+        "actionIndex": 12,
+        "stat": "turn_fold_vs_probe",
+        "taken": true,
+        "refShare": null,
+        "bestIn": null,
+        "evLossBb": 0,
+        "size": "85-125",
+        "handClass": "nothing",
+        "spot": "single-raised|pfr|CO|BB",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "core/rail-stats/tests/data/analytics/04-fold-to-three-bet.txt",
+    "rows": [
+      {
+        "ord": 0,
+        "actionIndex": 3,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.221,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|UTG|",
+        "multiway": false
+      },
+      {
+        "ord": 0,
+        "actionIndex": 3,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": 0.221,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|UTG|",
+        "multiway": false
+      },
+      {
+        "ord": 0,
+        "actionIndex": 3,
+        "stat": "rfi",
+        "taken": true,
+        "refShare": 0.221,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|UTG|",
+        "multiway": false
+      },
+      {
+        "ord": 6,
+        "actionIndex": 9,
+        "stat": "fold_to_three_bet",
+        "taken": true,
+        "refShare": 0.231,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-3bet|UTG|BB",
+        "multiway": false
+      },
+      {
+        "ord": 6,
+        "actionIndex": 9,
+        "stat": "four_bet",
+        "taken": false,
+        "refShare": 0.261,
+        "bestIn": false,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-3bet|UTG|BB",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "core/rail-stats/tests/data/analytics/05-fold-to-flop-cbet.txt",
+    "rows": [
+      {
+        "ord": 3,
+        "actionIndex": 6,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.602,
+        "bestIn": false,
+        "evLossBb": 0.565,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-open|BTN|HJ",
+        "multiway": false
+      },
+      {
+        "ord": 3,
+        "actionIndex": 6,
+        "stat": "pfr",
+        "taken": false,
+        "refShare": 0.421,
+        "bestIn": false,
+        "evLossBb": 0.565,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-open|BTN|HJ",
+        "multiway": false
+      },
+      {
+        "ord": 3,
+        "actionIndex": 6,
+        "stat": "three_bet",
+        "taken": false,
+        "refShare": 0.421,
+        "bestIn": false,
+        "evLossBb": 0.565,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-open|BTN|HJ",
+        "multiway": false
+      },
+      {
+        "ord": 7,
+        "actionIndex": 10,
+        "stat": "flop_fold_vs_bet",
+        "taken": true,
+        "refShare": 0.364,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "40-60",
+        "handClass": "top_pair_plus",
+        "spot": "single-raised|caller|BTN|HJ",
+        "multiway": false
+      },
+      {
+        "ord": 7,
+        "actionIndex": 10,
+        "stat": "flop_raise_vs_bet",
+        "taken": false,
+        "refShare": 0.208,
+        "bestIn": false,
+        "evLossBb": 0,
+        "size": "40-60",
+        "handClass": "top_pair_plus",
+        "spot": "single-raised|caller|BTN|HJ",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "core/rail-stats/tests/data/analytics/06-turn-checked-back.txt",
+    "rows": [
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.49,
+        "bestIn": false,
+        "evLossBb": 1.951,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": 0.49,
+        "bestIn": false,
+        "evLossBb": 1.951,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "rfi",
+        "taken": true,
+        "refShare": 0.49,
+        "bestIn": false,
+        "evLossBb": 1.951,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 7,
+        "actionIndex": 10,
+        "stat": "cbet_flop",
+        "taken": true,
+        "refShare": 0.477,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "top_pair_plus",
+        "spot": "single-raised|pfr|CO|BB",
+        "multiway": true
+      },
+      {
+        "ord": 10,
+        "actionIndex": 13,
+        "stat": "turn_barrel",
+        "taken": false,
+        "refShare": null,
+        "bestIn": null,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "middle_pair",
+        "spot": "single-raised|pfr|CO|BB",
+        "multiway": false
+      },
+      {
+        "ord": 12,
+        "actionIndex": 15,
+        "stat": "river_bet",
+        "taken": true,
+        "refShare": 0.755,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "weak_pair",
+        "spot": "single-raised|pfr|CO|BB",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "tests/test/fixtures/stats/02-straddle-open-is-not-a-three-bet.txt",
+    "rows": [
+      {
+        "ord": 1,
+        "actionIndex": 4,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.646,
+        "bestIn": false,
+        "evLossBb": 1.239,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 1,
+        "actionIndex": 4,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": 0.646,
+        "bestIn": false,
+        "evLossBb": 1.239,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 1,
+        "actionIndex": 4,
+        "stat": "rfi",
+        "taken": true,
+        "refShare": 0.646,
+        "bestIn": false,
+        "evLossBb": 1.239,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "tests/test/fixtures/stats/03-dead-post-is-not-vpip.txt",
+    "rows": [
+      {
+        "ord": 1,
+        "actionIndex": 4,
+        "stat": "vpip",
+        "taken": false,
+        "refShare": 0.276,
+        "bestIn": true,
+        "evLossBb": 0.957,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|HJ|",
+        "multiway": false
+      },
+      {
+        "ord": 1,
+        "actionIndex": 4,
+        "stat": "pfr",
+        "taken": false,
+        "refShare": 0.276,
+        "bestIn": true,
+        "evLossBb": 0.957,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|HJ|",
+        "multiway": false
+      },
+      {
+        "ord": 1,
+        "actionIndex": 4,
+        "stat": "rfi",
+        "taken": false,
+        "refShare": 0.276,
+        "bestIn": true,
+        "evLossBb": 0.957,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|HJ|",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "tests/test/fixtures/stats/04-steal-and-fold-to-steal.txt",
+    "rows": [
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.233,
+        "bestIn": false,
+        "evLossBb": 1.546,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": 0.233,
+        "bestIn": false,
+        "evLossBb": 1.546,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "rfi",
+        "taken": true,
+        "refShare": 0.233,
+        "bestIn": false,
+        "evLossBb": 1.546,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "tests/test/fixtures/stats/05-isolation-raise-is-not-rfi.txt",
+    "rows": [
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.819,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-limp|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": 0.572,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-limp|CO|",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "tests/test/fixtures/stats/06-squeeze.txt",
+    "rows": [
+      {
+        "ord": 3,
+        "actionIndex": 6,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.472,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-open|BTN|UTG",
+        "multiway": false
+      },
+      {
+        "ord": 3,
+        "actionIndex": 6,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": 0.398,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-open|BTN|UTG",
+        "multiway": false
+      },
+      {
+        "ord": 3,
+        "actionIndex": 6,
+        "stat": "three_bet",
+        "taken": true,
+        "refShare": 0.398,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-open|BTN|UTG",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "tests/test/fixtures/stats/07-four-bet-war.txt",
+    "rows": [
+      {
+        "ord": 0,
+        "actionIndex": 3,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": null,
+        "bestIn": null,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|UTG|",
+        "multiway": false
+      },
+      {
+        "ord": 0,
+        "actionIndex": 3,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": null,
+        "bestIn": null,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|UTG|",
+        "multiway": false
+      },
+      {
+        "ord": 0,
+        "actionIndex": 3,
+        "stat": "rfi",
+        "taken": true,
+        "refShare": null,
+        "bestIn": null,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|UTG|",
+        "multiway": false
+      },
+      {
+        "ord": 6,
+        "actionIndex": 9,
+        "stat": "fold_to_three_bet",
+        "taken": false,
+        "refShare": 0.385,
+        "bestIn": true,
+        "evLossBb": 3.304,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-3bet|UTG|CO",
+        "multiway": false
+      },
+      {
+        "ord": 6,
+        "actionIndex": 9,
+        "stat": "four_bet",
+        "taken": true,
+        "refShare": 0.158,
+        "bestIn": false,
+        "evLossBb": 3.304,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-3bet|UTG|CO",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "tests/test/fixtures/stats/08-blind-defence-is-not-a-cold-call.txt",
+    "rows": [
+      {
+        "ord": 5,
+        "actionIndex": 8,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.423,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-open|BB|CO",
+        "multiway": false
+      },
+      {
+        "ord": 5,
+        "actionIndex": 8,
+        "stat": "pfr",
+        "taken": false,
+        "refShare": 0.164,
+        "bestIn": false,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-open|BB|CO",
+        "multiway": false
+      },
+      {
+        "ord": 5,
+        "actionIndex": 8,
+        "stat": "three_bet",
+        "taken": false,
+        "refShare": 0.164,
+        "bestIn": false,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-open|BB|CO",
+        "multiway": false
+      },
+      {
+        "ord": 5,
+        "actionIndex": 8,
+        "stat": "bb_fold_vs_steal",
+        "taken": false,
+        "refShare": 0.576,
+        "bestIn": false,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-open|BB|CO",
+        "multiway": false
+      },
+      {
+        "ord": 12,
+        "actionIndex": 15,
+        "stat": "river_bet",
+        "taken": false,
+        "refShare": 0.459,
+        "bestIn": false,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "underpair",
+        "spot": "single-raised|caller|BB|multi",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "tests/test/fixtures/stats/09-turn-cbet-needs-a-called-flop-cbet.txt",
+    "rows": [
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.464,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": 0.464,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "rfi",
+        "taken": true,
+        "refShare": 0.464,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 7,
+        "actionIndex": 10,
+        "stat": "cbet_flop",
+        "taken": true,
+        "refShare": null,
+        "bestIn": null,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "nothing",
+        "spot": "single-raised|pfr|CO|BB",
+        "multiway": true
+      },
+      {
+        "ord": 10,
+        "actionIndex": 13,
+        "stat": "turn_barrel",
+        "taken": true,
+        "refShare": 0.399,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "top_pair_plus",
+        "spot": "single-raised|pfr|CO|BB",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "tests/test/fixtures/stats/10-raised-flop-cbet-ends-the-chain.txt",
+    "rows": [
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.911,
+        "bestIn": false,
+        "evLossBb": 0.018,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": 0.911,
+        "bestIn": false,
+        "evLossBb": 0.018,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "rfi",
+        "taken": true,
+        "refShare": 0.911,
+        "bestIn": false,
+        "evLossBb": 0.018,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 7,
+        "actionIndex": 10,
+        "stat": "cbet_flop",
+        "taken": true,
+        "refShare": 0.642,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "top_pair_plus",
+        "spot": "single-raised|pfr|CO|BB",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "tests/test/fixtures/stats/11-donk-bet-removes-the-cbet-spot.txt",
+    "rows": [
+      {
+        "ord": 5,
+        "actionIndex": 8,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.884,
+        "bestIn": false,
+        "evLossBb": 0.682,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-open|BB|CO",
+        "multiway": false
+      },
+      {
+        "ord": 5,
+        "actionIndex": 8,
+        "stat": "pfr",
+        "taken": false,
+        "refShare": 0.732,
+        "bestIn": false,
+        "evLossBb": 0.682,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-open|BB|CO",
+        "multiway": false
+      },
+      {
+        "ord": 5,
+        "actionIndex": 8,
+        "stat": "three_bet",
+        "taken": false,
+        "refShare": 0.732,
+        "bestIn": false,
+        "evLossBb": 0.682,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-open|BB|CO",
+        "multiway": false
+      },
+      {
+        "ord": 5,
+        "actionIndex": 8,
+        "stat": "bb_fold_vs_steal",
+        "taken": false,
+        "refShare": 0.116,
+        "bestIn": true,
+        "evLossBb": 0.682,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-open|BB|CO",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "tests/test/fixtures/stats/12-limped-pot-has-no-cbet.txt",
+    "rows": [
+      {
+        "ord": 5,
+        "actionIndex": 8,
+        "stat": "vpip",
+        "taken": false,
+        "refShare": 0.875,
+        "bestIn": false,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-limp|BB|",
+        "multiway": false
+      },
+      {
+        "ord": 5,
+        "actionIndex": 8,
+        "stat": "pfr",
+        "taken": false,
+        "refShare": 0.448,
+        "bestIn": false,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|vs-limp|BB|",
+        "multiway": false
+      },
+      {
+        "ord": 9,
+        "actionIndex": 12,
+        "stat": "flop_fold_vs_bet",
+        "taken": true,
+        "refShare": 0.349,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "40-60",
+        "handClass": "nothing",
+        "spot": "limped|caller|BB|UTG",
+        "multiway": true
+      },
+      {
+        "ord": 9,
+        "actionIndex": 12,
+        "stat": "flop_raise_vs_bet",
+        "taken": false,
+        "refShare": 0.094,
+        "bestIn": false,
+        "evLossBb": 0,
+        "size": "40-60",
+        "handClass": "nothing",
+        "spot": "limped|caller|BB|UTG",
+        "multiway": true
+      }
+    ]
+  },
+  {
+    "file": "tests/test/fixtures/stats/13-all-in-preflop-is-not-a-cbet-spot.txt",
+    "rows": [
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.642,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": 0.642,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "rfi",
+        "taken": true,
+        "refShare": 0.642,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "tests/test/fixtures/stats/14-heads-up-has-no-steal.txt",
+    "rows": [
+      {
+        "ord": 0,
+        "actionIndex": 3,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.781,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|SB|",
+        "multiway": false
+      },
+      {
+        "ord": 0,
+        "actionIndex": 3,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": 0.781,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|SB|",
+        "multiway": false
+      },
+      {
+        "ord": 0,
+        "actionIndex": 3,
+        "stat": "rfi",
+        "taken": true,
+        "refShare": 0.781,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|SB|",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "tests/test/fixtures/stats/15-big-blind-ante.txt",
+    "rows": [
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.569,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": 0.569,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "rfi",
+        "taken": true,
+        "refShare": 0.569,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      }
+    ]
+  },
+  {
+    "file": "tests/test/fixtures/stats/16-fold-to-cbet-legs.txt",
+    "rows": [
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": null,
+        "bestIn": null,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": null,
+        "bestIn": null,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "rfi",
+        "taken": true,
+        "refShare": null,
+        "bestIn": null,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 7,
+        "actionIndex": 10,
+        "stat": "cbet_flop",
+        "taken": true,
+        "refShare": 0.466,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "top_pair_plus",
+        "spot": "single-raised|pfr|CO|multi",
+        "multiway": true
+      }
+    ]
+  },
+  {
+    "file": "tests/test/fixtures/stats/17-triple-barrel-and-rake.txt",
+    "rows": [
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "vpip",
+        "taken": true,
+        "refShare": 0.205,
+        "bestIn": false,
+        "evLossBb": 0.572,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "pfr",
+        "taken": true,
+        "refShare": 0.205,
+        "bestIn": false,
+        "evLossBb": 0.572,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 2,
+        "actionIndex": 5,
+        "stat": "rfi",
+        "taken": true,
+        "refShare": 0.205,
+        "bestIn": false,
+        "evLossBb": 0.572,
+        "size": "",
+        "handClass": "",
+        "spot": "|unopened|CO|",
+        "multiway": false
+      },
+      {
+        "ord": 7,
+        "actionIndex": 10,
+        "stat": "cbet_flop",
+        "taken": true,
+        "refShare": 0.386,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "underpair",
+        "spot": "single-raised|pfr|CO|BB",
+        "multiway": false
+      },
+      {
+        "ord": 10,
+        "actionIndex": 13,
+        "stat": "turn_barrel",
+        "taken": true,
+        "refShare": 0.57,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "strong_draw",
+        "spot": "single-raised|pfr|CO|BB",
+        "multiway": false
+      },
+      {
+        "ord": 13,
+        "actionIndex": 16,
+        "stat": "river_bet",
+        "taken": true,
+        "refShare": 0.534,
+        "bestIn": true,
+        "evLossBb": 0,
+        "size": "",
+        "handClass": "nothing",
+        "spot": "single-raised|pfr|CO|BB",
+        "multiway": true
+      }
+    ]
+  }
+]

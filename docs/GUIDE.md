@@ -41,7 +41,7 @@ The web app is at **https://poker-hand-converter.vercel.app**.
 2. [Convert](#convert) - upload and convert hand histories, manual entry, refused hands
 3. [Library](#library) - browse, filter, search, saved filters
 4. [Replayer](#replayer) - the hand page, share links, embeds
-5. [Stats](#stats) - statistics, reports, all-in EV
+5. [Analytics](#analytics) - your statistics against their targets, the pool, all-in EV
 6. [Players](#players) - opponent profiles and notes
 7. [Analysis](#analysis) - session review, leaks, charts, training, plan, progress, reports
 8. [Learn](#learn) - course, placement test, reference, review
@@ -324,27 +324,150 @@ hand: your other hands, statistics and reports stay private.
 
 ---
 
-## Stats
+## Analytics
 
 > Tutorial video: _coming soon_ (id: `stats`)
 
-**Statistics** (`/stats`) is the report over the hands in your library. It is
-the same screen as the desktop app's Reports.
+**Analytics** (`/stats` on the web, **Analytics** in the desktop app's
+sidebar) is the review of the hands in your library, the one a coach would
+do. It answers three questions in order: which of your statistics are off,
+where exactly and with which hands, and how to practise it. Both apps show
+the same screen.
 
-### What you see
+### The tabs
 
-1. **The filter chips**: date, room, stakes, position, game, variant, limit,
-   table size. Every number below follows them.
-2. **The summary**: hands, result, bb/100 (big blinds won per 100 hands) and
-   all-in EV bb/100.
-3. **The win-rate graph**: total, showdown, non-showdown and all-in EV lines,
-   in big blinds or money. The x-axis counts hands, not days, so a break
-   between sessions takes no space.
-4. **Every statistic by group** (preflop, postflop, showdown), each with its
+The filter chips sit on top, and every number below follows them. Among them
+is **Effective stack**: your stack against the biggest stack still in the
+hand at your first preflop decision, in big blinds.
+
+1. **Overview**: the figures row (hands, and won, all-in EV, showdown and
+   non-showdown per 100 hands, in big blinds or money), the win-rate graph,
+   then your three costliest **findings**. A finding is a headline ("You give
+   up too many pots after the flop"), its statistics against their targets
+   and what it costs; open it for why, the spots behind it and **Practise
+   this ▸**. The statistics in range are listed under the findings.
+2. **Streets**: preflop to river in blocks (*Facing a bet*, *Cbet*, *River
+   bet*, ...). A block shows your fold / call / raise as a bar over the
+   target's bar, the gap in words and the cost. Click a block to see its
+   spots.
+3. **All stats**: one row per statistic: your number, the band track, the
+   target, the gap in words ("Folds too much · +11 pts"), how many times it
+   came up, and the cost. Sort by street or by cost, and show all rows or only
+   the ones off target. A row opens to its spots, and **By bet size and hand
+   →** opens the stat's drill-down: its spots, each bet size you faced, what
+   you fold by hand class (strongest first), and the hands themselves.
+4. **Pool**: how the regs and fish in your games play (see below).
+5. **Breakdown**: every statistic by group and the breakdowns (see below).
+
+### The target
+
+A statistic's **target** is what Rail's reference does with **the hands you
+actually held, in the same spots**: Rail's preflop charts before the flop
+(*Charts*), and Rail's solver after it (*Solver*: the flop library, the turn
+and river solves). For each of your decisions Rail takes how often the
+reference takes the statistic's action with your exact hand there, and the
+target is the average over your decisions.
+
+So it is not a population average. If you were dealt more strong hands in the
+big blind than usual, your target for folding the big blind is lower, and a
+lower fold rate is not a leak.
+
+- Your number and the target come from the **same analysed decisions**. When
+  fewer than 90 % of your chances were analysed, the row says so ("62 %
+  analysed").
+- Hover a statistic for what it counts and where its target comes from.
+- **No target**: WTSD, W$SD and WWSF depend on your opponents' cards as much as
+  on yours, so they show your number only.
+- **No target yet**: spots the reference does not cover yet (4-bet pots on the
+  turn, multiway pots). Your number from every decision, no colour, no cost.
+
+### Reading a row: the band and the colours
+
+The green strip on a row's track is the **band**: the range a player who
+plays exactly like the reference would land in, 95 times out of 100, over
+the same number of decisions. It is the target plus or minus the luck of the
+sample (at least 2 points either way). The dot is you.
+
+- **Green, "In range"**: you are inside the band. A gap this small is luck,
+  not a leak.
+- **Grey, "Not sure yet"**: outside the band, but on too few decisions for
+  the statistic to say. No cost is charged.
+- **Amber**: outside the band. **Red**: far outside it (more than twice the
+  band's half-width beyond its edge).
+- The direction is always in words ("Folds too much", "Bets too little"),
+  never a colour.
+
+**Most rows stay green or grey, and that is the point.** Analytics colours a
+number only when the sample vouches for it, so the amber and red rows that
+remain are the ones worth your time.
+
+### What the cost means
+
+The **cost** is what the gap loses you, in big blinds per 100 hands, from
+the graded decisions' EV (the same money as the [Analysis](#analysis) leaks):
+
+- **too much** of an action: the EV you gave up in the decisions where you
+  took it and the reference preferred something else;
+- **too little**: the EV you gave up where you did not take it and the
+  reference's best move was it.
+
+A row in range or not sure yet costs nothing. A finding adds up its
+statistics without counting the same decisions twice. Costs are always in
+big blinds per 100 hands, even when the figures show money.
+
+### Pool
+
+**Pool** compares the regs and fish you play against with **your own
+targets**:
+
+- the figures: regs to fish by hands, the regs' win rate (with its margin),
+  and your win rate with a fish in the pot and with regs only;
+- the table: You, Regs, Fish, the target (≈, your own: their cards are mostly
+  unknown, so it is approximate), and **What it means for you**.
+
+A sentence appears only when a type's gap is clear on its own sample, and it
+says what to do about it: "Regs fold the river too much: bluff them more"
+means bluff the river more against regs. "Close to the target" and "Not sure
+yet" mean there is nothing to exploit there yet. Regs and fish are Rail's
+player types (fish: VPIP 40 or more over 30 hands; regs: VPIP 15 to 30 and
+PFR at least 0.6 of it).
+
+On the web the types come from your opponents' statistics, so Pool needs
+them on ([Players](#players)), and your browser counts the opponents while
+the tab is open ("Counting your opponents: N hands to go").
+
+### Practise
+
+Every leak leads to the **Trainer** with the spot set up:
+
+- **Practise this ▸** on a finding, **Practise <spot> ▸** in a drill-down and
+  **Practise ▸** on a hand class open the Trainer at that spot and bet size,
+  dealing from the hand classes you get wrong;
+- **Play it ▸** on a hand replays that decision of yours, graded against its
+  stored analysis.
+
+A **From Analytics** bar names the leak, its cost and the way back; the side
+panel shows the goal: your rate, the reference's, and this drill's so far.
+
+### While it fills in
+
+- **"Targets fill in as hands are analysed: N hands to go"**: some analysed
+  hands are not in Analytics yet (after an update, or while the analysis
+  runs). The numbers meanwhile are a fair sample of your hands, not the
+  oldest or the newest.
+- **"The Effective stack fills in as your hands are updated"**: after an
+  update the web re-reads your hands in the background; until it is done the
+  chip matches only the hands already re-read. Every other filter keeps
+  working.
+- **No hands at these filters**: **Clear filters**.
+
+### Breakdown
+
+1. **Every statistic by group** (preflop, postflop, showdown), each with its
    sample.
-5. **Breakdowns**: position, pot type, stack depth, the 13 x 13 starting-hand
+2. **Breakdowns**: position, pot type, stack depth, the 13 x 13 starting-hand
    grid, players, street, stakes, table size, room, game.
-6. **Sessions** and **Opponents** panels over the same filter.
+3. **Sessions** and **Opponents** panels over the same filter (web).
 
 A line above says how much of your library the numbers cover ("N of M hands
 are not in these numbers yet") with **Rebuild statistics** if they fall
@@ -389,9 +512,10 @@ its [session review](#analysis).
 
 ### Plan limits
 
-On Free (once enforced) the summary, every statistic and the graph stay open;
-the situation breakdowns, sessions, opponents and the Players screen show the
-Pro lock.
+On Free (once enforced) your own numbers, the figures, the graph and every
+statistic stay open. Targets, gaps, costs, findings, the drill-down and Pool
+are Pro, and so are the situation breakdowns, sessions, opponents and the
+Players screen: a one-line Pro lock says so where they would be.
 
 ---
 
@@ -753,7 +877,7 @@ The desktop app's screens, in the sidebar (Cmd / Ctrl + 1 to 7 to switch):
 | --- | --- |
 | **Live** | The session being played (a break over 30 minutes ends it): its graph (winnings, all-in EV, showdown, non-showdown) with the result in money and big blinds, hands and hands per hour; its key statistics by short name, the full name and target range on hover; its hands, newest first, ten to a page. With no session on, what starts one and the last session. |
 | **Hands** | The same hand list, filter chips, saved filters and replayer as the web's [library](#library), over the hands on this computer; a tag and a note per hand. |
-| **Reports** | The same report as the web's [Stats](#stats), with its own saved filters, in big blinds or money. |
+| **Analytics** | The same screen as the web's [Analytics](#analytics), with its own saved filters, in big blinds or money. |
 | **Players** | Opponents of rooms that print screen names, with their profile; plus a **colour tag**, **labels** and a **note** per player, which the HUD can show. |
 | **Analysis** | Session review, top leaks, your own charts and a hand's grades, run in the background on this computer. Hidden while a poker table is open. |
 | **HUD** | The HUD's status and its editor (see [HUD](#hud)). |
@@ -765,13 +889,14 @@ The desktop app's screens, in the sidebar (Cmd / Ctrl + 1 to 7 to switch):
 - **Your statistics** (Settings): write your own statistic as a counter
   (for example "first street = flop and facing a c-bet and multiway => fold")
   and a formula; the editor underlines mistakes and previews the value on
-  your last 5 000 hands. It then appears in Reports. A change to a statistic
+  your last 5 000 hands. It then appears in Analytics. A change to a statistic
   recomputes only what it touches, in the background.
 - **Preferences**: dark, light or system theme; comfortable or compact lists;
   English or Croatian.
 
 On Free (once enforced) the app keeps importing, the library, the replayer and
-basic statistics; the HUD, Analysis, Players and Reports' situation tabs need
+basic statistics; the HUD, Analysis, Players, Analytics' targets and costs
+and its situation tabs need
 Pro, and sync waits. A Pro app keeps working offline for 14 days after its
 last plan check, then asks you to reconnect.
 

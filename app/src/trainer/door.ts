@@ -16,5 +16,7 @@ export { trainerEn } from "@rail/web-lib/i18n/ns/trainer.en";
 export { trainerHr } from "@rail/web-lib/i18n/ns/trainer.hr";
 export { focusAreas } from "@rail/web-lib/training/plan";
 export { trainerResultRow } from "@rail/web-trainer/results";
+export { analyticsLink, type AnalyticsLink } from "@rail/web-trainer/analytics";
+export type { PlayedHand } from "@rail/web-trainer/played";
 export { localSessionStore, type SessionStore } from "@rail/web-trainer/sessions";
 export type { GradedAnswer, PlayOptions, PlayStep, RangeView, TrainerSpot, TrainingRequest, TrainingResponse } from "@rail/web-lib/training";

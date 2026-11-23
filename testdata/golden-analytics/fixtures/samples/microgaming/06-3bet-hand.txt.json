@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=1/1,four_bet=0/1 2:vpip=1/1,pfr=1/1,three_bet=1/1,bb_fold_vs_steal=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "e61d38e73bce466489919ec8f82076b5b23aadd0b9407eac0e76469d98a381d0",
+      "handId": "MG-5049092880",
+      "index": 0,
+      "members": "0@3:vpip-,pfr-,rfi- 1@4:vpip-,pfr-,rfi- 2@5:vpip-,pfr-,rfi- 3@6:vpip-,pfr-,rfi- 4@1:vpip+,pfr+,rfi+ 5@2:vpip+,pfr+,three_bet+,bb_fold_vs_steal- 6@1:fold_to_three_bet+,four_bet-"
+    }
+  ],
+  "input": "fixtures/samples/microgaming/06-3bet-hand.txt"
+}

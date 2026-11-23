@@ -286,6 +286,8 @@ pub(crate) fn delete_hands(
 
     // The custom statistics read the hands' PHF and seats: before they go.
     crate::custom::uncount_hands(conn, &stat_ids)?;
+    // So do the Pool tab's results (their seat rows).
+    crate::pool::uncount_pool(conn, &stat_ids)?;
 
     let mut tombstone = conn.prepare_cached(
         "INSERT INTO deleted_hands (hand_key, deleted_at, server) VALUES (?1, ?2, ?3)
@@ -601,6 +603,7 @@ pub(crate) fn delete_all(conn: &Connection, at_ms: i64) -> Result<u64> {
         "ev_pending",
         "outbox",
         "sync_rejected",
+        "analysis_checker_rows",
         "decision_analysis",
         "analysis_leak_rows",
         "chart_decisions",
@@ -616,6 +619,7 @@ pub(crate) fn delete_all(conn: &Connection, at_ms: i64) -> Result<u64> {
         "custom_hero_rollups",
         "custom_player_rollups",
         "custom_player_rollups_observed",
+        "pool_player_results",
         "source_days",
         "hands",
     ] {
@@ -626,6 +630,7 @@ pub(crate) fn delete_all(conn: &Connection, at_ms: i64) -> Result<u64> {
     }
     conn.execute("UPDATE files SET hands = 0 WHERE hands <> 0", [])?;
     conn.execute("UPDATE custom_stats SET counted_to = 0", [])?;
+    crate::pool::reset_pool(conn)?;
     recompute_after(conn)?;
     if crate::recompute::ev_state(conn)?.is_some() {
         crate::recompute::begin_ev(conn)?;

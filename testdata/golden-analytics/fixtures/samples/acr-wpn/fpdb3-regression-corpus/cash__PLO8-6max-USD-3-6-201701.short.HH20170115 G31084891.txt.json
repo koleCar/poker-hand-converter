@@ -1,0 +1,5 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__PLO8-6max-USD-3-6-201701.short.HH20170115 G31084891.txt"
+}

@@ -1,0 +1,5 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__7-Stud-USD-2.00-4.00-201205.txt"
+}

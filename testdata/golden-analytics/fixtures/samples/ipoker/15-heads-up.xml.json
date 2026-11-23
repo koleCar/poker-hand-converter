@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "3:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "d8f6dd8fa86fc9ba3d67eacd66c2cca76a3c2bc40f692f31938f58364aa0fc1c",
+      "handId": "IPN-5383465399",
+      "index": 0,
+      "members": "0@3:vpip-,pfr-,rfi-"
+    }
+  ],
+  "input": "fixtures/samples/ipoker/15-heads-up.xml"
+}

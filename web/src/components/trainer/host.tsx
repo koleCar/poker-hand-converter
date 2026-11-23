@@ -19,6 +19,7 @@ import type { RangeView } from "../../lib/training/rangeView";
 import type { FocusArea } from "../../lib/training/plan";
 import type { SpotRequest } from "./settings";
 import type { SessionStore } from "./sessions";
+import type { PlayedHand } from "./played";
 
 export type TrainerDict = Dict["trainer"];
 
@@ -84,6 +85,14 @@ export interface TrainerHost {
   aside?: ReactNode;
   /** What sits beside the modes (the web's link to the drills of your own mistakes). */
   extraModes?: ReactNode;
+  /**
+   * A played hand and its analysed decisions, for "Play it ▸" from Analytics
+   * (`played.ts`): the web's `get_hand` and `analysis_hand`, the desktop's
+   * store. Null when the hand is not there. Absent: "Play it" deals the drill.
+   */
+  played?(handId: string): Promise<PlayedHand | null>;
+  /** The address of a stat's drill-down in Analytics (the bar's way back). Absent: no link. */
+  analyticsHref?(stat: string): string;
 }
 
 const HostContext = createContext<TrainerHost | null>(null);

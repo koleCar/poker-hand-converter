@@ -41,6 +41,7 @@ import { preflopCharts, preflopChartsFor } from "../chartSet";
 export { preflopCharts };
 import type { PhfHand } from "../phf/types";
 import { STATS_VERSION } from "../stats";
+import { backfillAnalyticsRows, saveRowsOfAnalysed } from "./analyticsRows";
 import { currentUserId, rpc } from "./client";
 import { fetchStatsOpponents } from "./stats";
 import { handOfRow, type StoredHandRow } from "./storedHand";
@@ -645,10 +646,13 @@ export async function runAnalysis(
         if (error instanceof Stopped) return;
         throw error;
       }
+      const phfOf = new Map(chunk.map((item) => [item.id, item.phf]));
       for (let i = 0; i < batch.rows.length; i += WRITE_SIZE) {
         const slice: HandAnalysisInsert[] = batch.rows.slice(i, i + WRITE_SIZE);
         const saved = await rpc<{ inserted?: number } | null>("save_hand_analysis", { p_rows: slice });
         total.saved += saved?.inserted ?? 0;
+        // The Analytics checker rows of the same hands (Step 2); what fails here the backfill writes.
+        await saveRowsOfAnalysed(slice, (id) => phfOf.get(id));
       }
       inChunk.delete(k);
       total.processed += chunk.length;
@@ -676,6 +680,14 @@ export async function runAnalysis(
         });
         total.pruned += pruned?.deleted ?? 0;
         if (!pruned?.more) break;
+      }
+    }
+    // The checker rows of hands analysed before they existed, or at another membership version.
+    if (done) {
+      try {
+        await backfillAnalyticsRows(inner.signal);
+      } catch (error) {
+        console.warn("The Analytics rows' backfill stopped; the next run goes on with it.", error);
       }
     }
     total.etaSeconds = null;

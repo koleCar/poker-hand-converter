@@ -1,0 +1,1017 @@
+{
+  "$schema": "./analytics.schema.json",
+  "version": 1,
+  "actionClasses": {
+    "fold": [
+      "fold"
+    ],
+    "call": [
+      "call"
+    ],
+    "raise": [
+      "raise"
+    ],
+    "bet": [
+      "bet"
+    ],
+    "vpip": [
+      "call",
+      "bet",
+      "raise"
+    ],
+    "pfr": [
+      "raise"
+    ]
+  },
+  "handClasses": [
+    {
+      "id": "top_pair_plus",
+      "label": {
+        "en": "Top pair or better",
+        "hr": "Top par ili bolje"
+      },
+      "made": [
+        "straight-flush",
+        "quads",
+        "full-house",
+        "flush",
+        "straight",
+        "set",
+        "trips",
+        "two-pair",
+        "overpair",
+        "top-pair"
+      ]
+    },
+    {
+      "id": "middle_pair",
+      "label": {
+        "en": "Middle pair",
+        "hr": "Srednji par"
+      },
+      "made": [
+        "second-pair",
+        "pocket-pair-below-top"
+      ]
+    },
+    {
+      "id": "weak_pair",
+      "label": {
+        "en": "Third pair or worse",
+        "hr": "Treći par ili slabiji"
+      },
+      "made": [
+        "weak-pair"
+      ]
+    },
+    {
+      "id": "underpair",
+      "label": {
+        "en": "Pocket pair under the board",
+        "hr": "Džepni par ispod boarda"
+      },
+      "made": [
+        "underpair"
+      ]
+    },
+    {
+      "id": "strong_draw",
+      "label": {
+        "en": "Strong draw",
+        "hr": "Jak draw"
+      },
+      "draws": [
+        "nut-flush-draw",
+        "flush-draw",
+        "oesd"
+      ]
+    },
+    {
+      "id": "gutshot",
+      "label": {
+        "en": "Gutshot",
+        "hr": "Gutshot"
+      },
+      "draws": [
+        "gutshot"
+      ]
+    },
+    {
+      "id": "ace_high_backdoor",
+      "label": {
+        "en": "Ace high with a backdoor",
+        "hr": "As high s backdoorom"
+      },
+      "made": [
+        "ace-high"
+      ],
+      "draws": [
+        "backdoor-flush",
+        "backdoor-straight"
+      ]
+    },
+    {
+      "id": "overcards",
+      "label": {
+        "en": "Overcards",
+        "hr": "Overcardovi"
+      },
+      "draws": [
+        "overcards"
+      ]
+    },
+    {
+      "id": "nothing",
+      "label": {
+        "en": "Nothing",
+        "hr": "Ništa"
+      }
+    }
+  ],
+  "sizeBuckets": [
+    {
+      "id": "20-40",
+      "min": 0,
+      "label": {
+        "en": "20–40%",
+        "hr": "20–40%"
+      }
+    },
+    {
+      "id": "40-60",
+      "min": 400,
+      "label": {
+        "en": "40–60%",
+        "hr": "40–60%"
+      }
+    },
+    {
+      "id": "60-85",
+      "min": 600,
+      "label": {
+        "en": "60–85%",
+        "hr": "60–85%"
+      }
+    },
+    {
+      "id": "85-125",
+      "min": 850,
+      "label": {
+        "en": "85–125%",
+        "hr": "85–125%"
+      }
+    },
+    {
+      "id": "125+",
+      "min": 1250,
+      "label": {
+        "en": "125%+",
+        "hr": "125%+"
+      }
+    }
+  ],
+  "groups": [
+    {
+      "id": "preflop_overall",
+      "street": "preflop",
+      "label": {
+        "en": "Overall",
+        "hr": "Ukupno"
+      }
+    },
+    {
+      "id": "preflop_first_in",
+      "street": "preflop",
+      "label": {
+        "en": "First in",
+        "hr": "Prvi u pot"
+      }
+    },
+    {
+      "id": "preflop_vs_open",
+      "street": "preflop",
+      "label": {
+        "en": "Facing an open",
+        "hr": "Protiv opena"
+      }
+    },
+    {
+      "id": "preflop_vs_three_bet",
+      "street": "preflop",
+      "label": {
+        "en": "Facing a 3-bet",
+        "hr": "Protiv 3-beta"
+      }
+    },
+    {
+      "id": "flop_facing_bet",
+      "street": "flop",
+      "label": {
+        "en": "Facing a bet",
+        "hr": "Protiv beta"
+      }
+    },
+    {
+      "id": "flop_cbet",
+      "street": "flop",
+      "label": {
+        "en": "Cbet as raiser",
+        "hr": "Cbet kao raiser"
+      }
+    },
+    {
+      "id": "turn_facing_bet",
+      "street": "turn",
+      "label": {
+        "en": "Facing a bet",
+        "hr": "Protiv beta"
+      }
+    },
+    {
+      "id": "turn_barrel",
+      "street": "turn",
+      "label": {
+        "en": "Barrel after cbet",
+        "hr": "Barrel nakon cbeta"
+      }
+    },
+    {
+      "id": "river_facing_bet",
+      "street": "river",
+      "label": {
+        "en": "Facing a bet",
+        "hr": "Protiv beta"
+      }
+    },
+    {
+      "id": "river_bet",
+      "street": "river",
+      "label": {
+        "en": "Bet",
+        "hr": "Bet"
+      }
+    },
+    {
+      "id": "showdown",
+      "street": "showdown",
+      "label": {
+        "en": "Showdown",
+        "hr": "Showdown"
+      }
+    }
+  ],
+  "families": [
+    "range",
+    "vs_open",
+    "vs_three_bet",
+    "gives_up",
+    "flop_raise",
+    "cbet",
+    "river_aggression",
+    "showdown"
+  ],
+  "stats": [
+    {
+      "id": "vpip",
+      "kind": "rate",
+      "street": "preflop",
+      "group": "preflop_overall",
+      "family": "range",
+      "label": {
+        "en": "VPIP",
+        "hr": "VPIP"
+      },
+      "count": "any street = preflop and not bomb_pot and not (walk and big_blind) => action in (call, bet, raise)",
+      "class": "vpip",
+      "coded": "vpip",
+      "words": {
+        "high": {
+          "en": "Plays too many hands",
+          "hr": "Igra previše ruku"
+        },
+        "low": {
+          "en": "Plays too few hands",
+          "hr": "Igra premalo ruku"
+        }
+      },
+      "sample": {
+        "min": 200
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "pfr",
+      "kind": "rate",
+      "street": "preflop",
+      "group": "preflop_overall",
+      "family": "range",
+      "label": {
+        "en": "PFR",
+        "hr": "PFR"
+      },
+      "count": "any street = preflop and not bomb_pot and not (walk and big_blind) => action = raise",
+      "class": "pfr",
+      "coded": "pfr",
+      "words": {
+        "high": {
+          "en": "Raises too much",
+          "hr": "Raisea previše"
+        },
+        "low": {
+          "en": "Raises too little",
+          "hr": "Raisea premalo"
+        }
+      },
+      "sample": {
+        "min": 200
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "rfi",
+      "kind": "rate",
+      "street": "preflop",
+      "group": "preflop_first_in",
+      "family": "range",
+      "label": {
+        "en": "Open raise",
+        "hr": "Open raise"
+      },
+      "sub": {
+        "en": "first in, all positions",
+        "hr": "prvi u pot, sve pozicije"
+      },
+      "count": "first street = preflop and not bomb_pot and not (walk and big_blind) and first_on_street and facing = none => action = raise",
+      "class": "raise",
+      "coded": "rfi",
+      "words": {
+        "high": {
+          "en": "Opens too much",
+          "hr": "Otvara previše"
+        },
+        "low": {
+          "en": "Opens too little",
+          "hr": "Otvara premalo"
+        }
+      },
+      "sample": {
+        "min": 200
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "three_bet",
+      "kind": "rate",
+      "street": "preflop",
+      "group": "preflop_vs_open",
+      "family": "vs_open",
+      "label": {
+        "en": "3-bet",
+        "hr": "3-bet"
+      },
+      "sub": {
+        "en": "facing an open",
+        "hr": "protiv opena"
+      },
+      "count": "first street = preflop and not bomb_pot and not (walk and big_blind) and raise_level = 1 => action = raise",
+      "class": "raise",
+      "coded": "three_bet",
+      "words": {
+        "high": {
+          "en": "3-bets too much",
+          "hr": "3-beta previše"
+        },
+        "low": {
+          "en": "3-bets too little",
+          "hr": "3-beta premalo"
+        }
+      },
+      "sample": {
+        "min": 200
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "bb_fold_vs_steal",
+      "kind": "rate",
+      "street": "preflop",
+      "group": "preflop_vs_open",
+      "family": "vs_open",
+      "label": {
+        "en": "BB fold vs steal",
+        "hr": "BB fold na steal"
+      },
+      "sub": {
+        "en": "big blind, facing a steal",
+        "hr": "big blind, protiv steala"
+      },
+      "count": "first street = preflop and not bomb_pot and not (walk and big_blind) and facing_steal and posted_blind and big_blind and first_on_street => action = fold",
+      "class": "fold",
+      "words": {
+        "high": {
+          "en": "Folds too much",
+          "hr": "Folda previše"
+        },
+        "low": {
+          "en": "Folds too little",
+          "hr": "Folda premalo"
+        }
+      },
+      "sample": {
+        "min": 100
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "fold_to_three_bet",
+      "kind": "rate",
+      "street": "preflop",
+      "group": "preflop_vs_three_bet",
+      "family": "vs_three_bet",
+      "label": {
+        "en": "Fold to 3-bet",
+        "hr": "Fold na 3-bet"
+      },
+      "sub": {
+        "en": "after your raise",
+        "hr": "nakon tvog raisea"
+      },
+      "count": "first street = preflop and not bomb_pot and not (walk and big_blind) and raise_level = 2 and own_raise = 1 => action = fold",
+      "class": "fold",
+      "coded": "fold_to_three_bet",
+      "words": {
+        "high": {
+          "en": "Folds too much",
+          "hr": "Folda previše"
+        },
+        "low": {
+          "en": "Folds too little",
+          "hr": "Folda premalo"
+        }
+      },
+      "sample": {
+        "min": 100
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "four_bet",
+      "kind": "rate",
+      "street": "preflop",
+      "group": "preflop_vs_three_bet",
+      "family": "vs_three_bet",
+      "label": {
+        "en": "4-bet",
+        "hr": "4-bet"
+      },
+      "sub": {
+        "en": "facing a 3-bet",
+        "hr": "protiv 3-beta"
+      },
+      "count": "first street = preflop and not bomb_pot and not (walk and big_blind) and raise_level = 2 => action = raise",
+      "class": "raise",
+      "coded": "four_bet",
+      "words": {
+        "high": {
+          "en": "4-bets too much",
+          "hr": "4-beta previše"
+        },
+        "low": {
+          "en": "4-bets too little",
+          "hr": "4-beta premalo"
+        }
+      },
+      "sample": {
+        "min": 100
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "flop_fold_vs_bet",
+      "kind": "rate",
+      "street": "flop",
+      "group": "flop_facing_bet",
+      "family": "gives_up",
+      "label": {
+        "en": "Fold vs bet",
+        "hr": "Fold na bet"
+      },
+      "sub": {
+        "en": "any line",
+        "hr": "bilo koja linija"
+      },
+      "count": "first street = flop and facing = bet and not bomb_pot => action = fold",
+      "class": "fold",
+      "words": {
+        "high": {
+          "en": "Folds too much",
+          "hr": "Folda previše"
+        },
+        "low": {
+          "en": "Folds too little",
+          "hr": "Folda premalo"
+        }
+      },
+      "sample": {
+        "min": 100
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "flop_raise_vs_bet",
+      "kind": "rate",
+      "street": "flop",
+      "group": "flop_facing_bet",
+      "family": "flop_raise",
+      "label": {
+        "en": "Raise vs bet",
+        "hr": "Raise na bet"
+      },
+      "sub": {
+        "en": "any line",
+        "hr": "bilo koja linija"
+      },
+      "count": "first street = flop and facing = bet and not bomb_pot => action = raise",
+      "class": "raise",
+      "words": {
+        "high": {
+          "en": "Raises too much",
+          "hr": "Raisea previše"
+        },
+        "low": {
+          "en": "Raises too little",
+          "hr": "Raisea premalo"
+        }
+      },
+      "sample": {
+        "min": 100
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "flop_raise_weak",
+      "kind": "share",
+      "street": "flop",
+      "group": "flop_facing_bet",
+      "family": "flop_raise",
+      "label": {
+        "en": "Raise · weak share",
+        "hr": "Raise · udio slabih"
+      },
+      "sub": {
+        "en": "middle pair or worse",
+        "hr": "srednji par ili slabije"
+      },
+      "of": "flop_raise_vs_bet",
+      "weak": [
+        "middle_pair",
+        "weak_pair",
+        "underpair",
+        "strong_draw",
+        "gutshot",
+        "ace_high_backdoor",
+        "overcards",
+        "nothing"
+      ],
+      "words": {
+        "high": {
+          "en": "Too many bluffs",
+          "hr": "Previše blefova"
+        },
+        "low": {
+          "en": "Too few bluffs",
+          "hr": "Premalo blefova"
+        }
+      },
+      "sample": {
+        "min": 50
+      },
+      "band": {
+        "floor": 4
+      }
+    },
+    {
+      "id": "cbet_flop",
+      "kind": "rate",
+      "street": "flop",
+      "group": "flop_cbet",
+      "family": "cbet",
+      "label": {
+        "en": "Cbet",
+        "hr": "Cbet"
+      },
+      "sub": {
+        "en": "as the preflop raiser",
+        "hr": "kao preflop raiser"
+      },
+      "count": "first street = flop and first_on_street and preflop_aggressor and barrels = 0 and facing = none and not bomb_pot => action = bet",
+      "class": "bet",
+      "coded": "cbet_flop",
+      "words": {
+        "high": {
+          "en": "Cbets too much",
+          "hr": "Cbeta previše"
+        },
+        "low": {
+          "en": "Cbets too little",
+          "hr": "Cbeta premalo"
+        }
+      },
+      "sample": {
+        "min": 100
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "turn_fold_vs_bet",
+      "kind": "rate",
+      "street": "turn",
+      "group": "turn_facing_bet",
+      "family": "gives_up",
+      "label": {
+        "en": "Fold vs bet",
+        "hr": "Fold na bet"
+      },
+      "sub": {
+        "en": "any line",
+        "hr": "bilo koja linija"
+      },
+      "count": "first street = turn and facing = bet and not bomb_pot => action = fold",
+      "class": "fold",
+      "words": {
+        "high": {
+          "en": "Folds too much",
+          "hr": "Folda previše"
+        },
+        "low": {
+          "en": "Folds too little",
+          "hr": "Folda premalo"
+        }
+      },
+      "sample": {
+        "min": 100
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "turn_fold_vs_probe",
+      "kind": "rate",
+      "street": "turn",
+      "group": "turn_facing_bet",
+      "family": "gives_up",
+      "label": {
+        "en": "Fold vs probe",
+        "hr": "Fold na probe"
+      },
+      "sub": {
+        "en": "after the flop checks through",
+        "hr": "nakon checkanog flopa"
+      },
+      "count": "first street = turn and facing = bet and preflop_aggressor and checked_through and not bomb_pot => action = fold",
+      "class": "fold",
+      "within": "turn_fold_vs_bet",
+      "words": {
+        "high": {
+          "en": "Folds too much",
+          "hr": "Folda previše"
+        },
+        "low": {
+          "en": "Folds too little",
+          "hr": "Folda premalo"
+        }
+      },
+      "sample": {
+        "min": 50
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "turn_barrel",
+      "kind": "rate",
+      "street": "turn",
+      "group": "turn_barrel",
+      "family": "cbet",
+      "label": {
+        "en": "Barrel",
+        "hr": "Barrel"
+      },
+      "sub": {
+        "en": "after your flop cbet",
+        "hr": "nakon tvog cbeta na flopu"
+      },
+      "count": "first street = turn and first_on_street and preflop_aggressor and barrels = 1 and facing = none and not bomb_pot => action = bet",
+      "class": "bet",
+      "coded": "cbet_turn",
+      "words": {
+        "high": {
+          "en": "Barrels too much",
+          "hr": "Barrela previše"
+        },
+        "low": {
+          "en": "Barrels too little",
+          "hr": "Barrela premalo"
+        }
+      },
+      "sample": {
+        "min": 100
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "river_bet",
+      "kind": "rate",
+      "street": "river",
+      "group": "river_bet",
+      "family": "river_aggression",
+      "label": {
+        "en": "Bet",
+        "hr": "Bet"
+      },
+      "sub": {
+        "en": "any line",
+        "hr": "bilo koja linija"
+      },
+      "count": "first street = river and facing = none and not bomb_pot => action = bet",
+      "class": "bet",
+      "words": {
+        "high": {
+          "en": "Bets too much",
+          "hr": "Beta previše"
+        },
+        "low": {
+          "en": "Bets too little",
+          "hr": "Beta premalo"
+        }
+      },
+      "sample": {
+        "min": 100
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "river_bet_weak",
+      "kind": "share",
+      "street": "river",
+      "group": "river_bet",
+      "family": "river_aggression",
+      "label": {
+        "en": "Bet · weak share",
+        "hr": "Bet · udio slabih"
+      },
+      "sub": {
+        "en": "third pair or worse",
+        "hr": "treći par ili slabije"
+      },
+      "of": "river_bet",
+      "weak": [
+        "weak_pair",
+        "underpair",
+        "strong_draw",
+        "gutshot",
+        "ace_high_backdoor",
+        "overcards",
+        "nothing"
+      ],
+      "words": {
+        "high": {
+          "en": "Too many bluffs",
+          "hr": "Previše blefova"
+        },
+        "low": {
+          "en": "Too few bluffs",
+          "hr": "Premalo blefova"
+        }
+      },
+      "sample": {
+        "min": 50
+      },
+      "band": {
+        "floor": 4
+      }
+    },
+    {
+      "id": "river_fold_vs_bet",
+      "kind": "rate",
+      "street": "river",
+      "group": "river_facing_bet",
+      "family": "gives_up",
+      "label": {
+        "en": "Fold vs bet",
+        "hr": "Fold na bet"
+      },
+      "sub": {
+        "en": "any line",
+        "hr": "bilo koja linija"
+      },
+      "count": "first street = river and facing = bet and not bomb_pot => action = fold",
+      "class": "fold",
+      "words": {
+        "high": {
+          "en": "Folds too much",
+          "hr": "Folda previše"
+        },
+        "low": {
+          "en": "Folds too little",
+          "hr": "Folda premalo"
+        }
+      },
+      "sample": {
+        "min": 100
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "river_raise_vs_bet",
+      "kind": "rate",
+      "street": "river",
+      "group": "river_facing_bet",
+      "family": "river_aggression",
+      "label": {
+        "en": "Raise vs bet",
+        "hr": "Raise na bet"
+      },
+      "sub": {
+        "en": "any line",
+        "hr": "bilo koja linija"
+      },
+      "count": "first street = river and facing = bet and not bomb_pot => action = raise",
+      "class": "raise",
+      "words": {
+        "high": {
+          "en": "Raises too much",
+          "hr": "Raisea previše"
+        },
+        "low": {
+          "en": "Raises too little",
+          "hr": "Raisea premalo"
+        }
+      },
+      "sample": {
+        "min": 100
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "river_raise_weak",
+      "kind": "share",
+      "street": "river",
+      "group": "river_facing_bet",
+      "family": "river_aggression",
+      "label": {
+        "en": "Raise · weak share",
+        "hr": "Raise · udio slabih"
+      },
+      "sub": {
+        "en": "middle pair or worse",
+        "hr": "srednji par ili slabije"
+      },
+      "of": "river_raise_vs_bet",
+      "weak": [
+        "middle_pair",
+        "weak_pair",
+        "underpair",
+        "strong_draw",
+        "gutshot",
+        "ace_high_backdoor",
+        "overcards",
+        "nothing"
+      ],
+      "words": {
+        "high": {
+          "en": "Too many bluffs",
+          "hr": "Previše blefova"
+        },
+        "low": {
+          "en": "Too few bluffs",
+          "hr": "Premalo blefova"
+        }
+      },
+      "sample": {
+        "min": 50
+      },
+      "band": {
+        "floor": 4
+      }
+    },
+    {
+      "id": "wtsd",
+      "kind": "coded",
+      "street": "showdown",
+      "group": "showdown",
+      "family": "showdown",
+      "label": {
+        "en": "Went to showdown",
+        "hr": "Došao/la do showdowna"
+      },
+      "sub": {
+        "en": "after seeing the flop",
+        "hr": "nakon viđenog flopa"
+      },
+      "coded": "wtsd",
+      "words": {
+        "high": {
+          "en": "Goes to showdown too often",
+          "hr": "Prečesto ide do showdowna"
+        },
+        "low": {
+          "en": "Gives up before showdown",
+          "hr": "Odustaje prije showdowna"
+        }
+      },
+      "sample": {
+        "min": 200
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "wsd",
+      "kind": "coded",
+      "street": "showdown",
+      "group": "showdown",
+      "family": "showdown",
+      "label": {
+        "en": "Won at showdown",
+        "hr": "Dobio/la na showdownu"
+      },
+      "coded": "wsd",
+      "words": {
+        "high": {
+          "en": "Arrives at showdown too strong",
+          "hr": "Do showdowna dolazi s prejakim rukama"
+        },
+        "low": {
+          "en": "Arrives at showdown too weak",
+          "hr": "Do showdowna dolazi s preslabim rukama"
+        }
+      },
+      "sample": {
+        "min": 200
+      },
+      "band": {
+        "floor": 2
+      }
+    },
+    {
+      "id": "wwsf",
+      "kind": "coded",
+      "street": "showdown",
+      "group": "showdown",
+      "family": "showdown",
+      "label": {
+        "en": "Won when saw flop",
+        "hr": "Dobio/la nakon viđenog flopa"
+      },
+      "coded": "wwsf",
+      "words": {
+        "high": {
+          "en": "Wins more pots than expected",
+          "hr": "Osvaja više potova od očekivanog"
+        },
+        "low": {
+          "en": "Wins too few pots after the flop",
+          "hr": "Osvaja premalo potova nakon flopa"
+        }
+      },
+      "sample": {
+        "min": 200
+      },
+      "band": {
+        "floor": 2
+      }
+    }
+  ]
+}

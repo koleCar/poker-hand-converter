@@ -1,0 +1,27 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,three_bet=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1,turn_barrel=1/1,river_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1 7:vpip=0/1,pfr=0/1,three_bet=0/1 8:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=0/1,river_bet=0/1 9:vpip=1/1,pfr=0/1,three_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1",
+      "events": "e0cc4b0161c707557933d6ea4aef877ee3f53aff5dad37694a7ecfd86cbc1d25",
+      "handId": "3031585570",
+      "index": 0,
+      "members": "0@2:vpip-,pfr-,rfi- 1@3:vpip+,pfr+,rfi+ 2@4:vpip-,pfr-,three_bet- 3@5:vpip-,pfr-,three_bet- 4@6:vpip-,pfr-,three_bet- 5@7:vpip-,pfr-,three_bet- 6@8:vpip+,pfr-,three_bet- 7@9:vpip+,pfr-,three_bet- 8@1:vpip-,pfr-,three_bet- 10@3:cbet_flop+ 11@8:flop_fold_vs_bet-,flop_raise_vs_bet- 12@9:flop_fold_vs_bet+,flop_raise_vs_bet- 13@3:turn_barrel+ 14@8:turn_fold_vs_bet- 15@3:river_bet- 16@8:river_bet-"
+    },
+    {
+      "counts": "1:vpip=0/1,pfr=0/1 2:vpip=0/1,pfr=0/1,turn_fold_vs_bet=1/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1 8:vpip=0/1,pfr=0/1 9:vpip=0/1,pfr=0/1",
+      "events": "b36395e43ae88ee8b7e97e4c69772a5050f01b6a512526953f7e607ec588be21",
+      "handId": "3031588137",
+      "index": 1,
+      "members": "0@3:vpip-,pfr-,rfi- 1@4:vpip-,pfr-,rfi- 2@5:vpip+,pfr-,rfi- 3@6:vpip-,pfr- 4@8:vpip-,pfr- 5@9:vpip-,pfr- 6@1:vpip-,pfr- 7@2:vpip-,pfr- 12@2:turn_fold_vs_bet+"
+    },
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,four_bet=0/1 2:vpip=0/1,pfr=0/1,four_bet=0/1 3:vpip=0/1,pfr=0/1,four_bet=0/1 4:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=1/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=1/1,pfr=1/1,three_bet=1/1 7:vpip=0/1,pfr=0/1,four_bet=0/1 8:vpip=0/1,pfr=0/1,four_bet=0/1 9:vpip=0/1,pfr=0/1,four_bet=0/1",
+      "events": "e5eb7ba5373f812b83d73d70ab95805c3a2dff834b847b86dce6b0e8cc3df0a2",
+      "handId": "3031589003",
+      "index": 2,
+      "members": "0@4:vpip+,pfr+,rfi+ 1@5:vpip-,pfr-,three_bet- 2@6:vpip+,pfr+,three_bet+ 3@7:vpip-,pfr-,four_bet- 4@8:vpip-,pfr-,four_bet- 5@9:vpip-,pfr-,four_bet- 6@1:vpip-,pfr-,four_bet- 7@2:vpip-,pfr-,four_bet- 8@3:vpip-,pfr-,four_bet- 9@4:fold_to_three_bet-,four_bet+"
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - $9.000 Guaranteed (DS) - $20-$2 - 201408.corrupted.lines.txt"
+}

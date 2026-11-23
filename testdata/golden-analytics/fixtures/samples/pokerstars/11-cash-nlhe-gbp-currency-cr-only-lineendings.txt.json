@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "2:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=1/1,pfr=1/1,rfi=1/1",
+      "events": "fad0777be2df69634ad9f8bbd785381e23c1ee65516457918a09467e52a20a7c",
+      "handId": "78782145143",
+      "index": 0,
+      "members": "0@6:vpip+,pfr+,rfi+ 1@2:vpip-,pfr-,three_bet-"
+    }
+  ],
+  "input": "fixtures/samples/pokerstars/11-cash-nlhe-gbp-currency-cr-only-lineendings.txt"
+}

@@ -236,7 +236,51 @@ new name; the old one stays as it was. Designed on the map canvas (Ideas,
 - The saved drills of T4 became sessions on the first opening (`drills.ts`
   is read once and emptied).
 
-## 7. Not in this version
+## 7. From Analytics (2026-11-22, docs/ANALYTICS.md Step 9)
+
+Analytics' "Practise ▸" links (a finding, a drill-down spot, a hand class)
+and "Play it ▸" (a hand) open the Trainer on that spot - the web's
+`/analysis/train?from=analytics&stat=…&spot=…&size=…&classes=…&you=…&ref=…&cost=…&tone=…`,
+the desktop's `#/trainer/<the same query, encoded>` (read with
+`useRouteParam`, dropped from the address once read).
+
+- **The target** (`components/trainer/analytics.ts`, `analyticsLink`): the
+  stat's street and what it faces (a `facing = bet` predicate) with the
+  checker spot's seats, pot and role (`pot|role|hero|opponent`), as a
+  `FocusTarget` with `sizes`, `classes` and `from: { stat, spot, you, ref,
+  cost, tone }`; on the flop the library line of the two seats, on the turn
+  and river the seats themselves (`hero`, `villain`) and, out of position, a
+  bet after the hero's check (`facing: "check-bet"`). A spot the dealers
+  cannot hold (a bomb or 4-bet pot, several opponents, a line the library
+  lacks) is dealt as near as they can and the bar says so.
+- **Settings.** `targetSettings` maps it onto three new fields: `size` (a
+  size bucket; the sheet's "Bet faced" row), `classes` (the Hands row's chip
+  "Hands you tend to fold") and `from`. The link opens that spot's session
+  straight away (one training the same spot is continued, with the newer
+  figures), one spot at a time.
+- **The deal** (`lib/training/focusDeal.ts`): the villain's bet faced only of
+  the bucket (the flop tree's edge, the turn's and river's first bet), the
+  hero's combo only of the classes, read exactly as the checker rows read a
+  played decision (`toCall / (pot − toCall)`; `ANALYTICS.handClass` of
+  `madeHand` and `draws`). A narrowed deal tries 8 seeds, not 3.
+- **The bar and the goal** (`FromAnalytics.tsx`): the leak in Analytics' own
+  words, the spot and size, the cost, "← Back to the stat"; beside the table
+  your rate here and the target (from the link), and this drill's rate with
+  the reference's on the same hands (`drillGoal`, judged like the checker
+  with a 5-point floor). Answers carry their action and the reference's mix
+  (`SessionAnswer.action`, `mix`) on the device and in the visit; the account
+  keeps neither, so the drill's rate counts this visit's answers.
+- **Play it** (`played.ts`, `PlayedPlayer.tsx`): the played decision dealt
+  once - the real seats, line, board and cards, nothing after the decision -
+  with the analysis' stored options as the buttons, graded against them as a
+  drill of your own mistakes is (`gradeDrill`: the move made keeps its stored
+  grade, so the reference is the one the analysis used: the chart node, the
+  flop library, the turn or river solve). Recorded like a whole hand's
+  decision; then the drill goes on. The hand comes from `get_hand` and
+  `analysis_hand` (web) or the store's `hand_phf` and stored analysis
+  (desktop, `handAnalysisOf`).
+
+## 8. Not in this version
 
 - The app's sessions are per computer, not in the account.
 - Whole-hand decisions are kept in a session but never dealt again (a hand's

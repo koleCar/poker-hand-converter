@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "2:vpip=1/1,pfr=0/1,three_bet=0/1,turn_fold_vs_bet=1/1 3:vpip=0/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=0/1,river_bet=0/1 7:vpip=1/1,pfr=0/1,three_bet=0/1,turn_fold_vs_bet=0/1,river_bet=0/1 8:vpip=0/1,pfr=0/1,three_bet=0/1",
+      "events": "8e3d5b838ba5be0179535907357b64b4b8561d8654767e362d8065944222bc59",
+      "handId": "HD71749253",
+      "index": 0,
+      "members": "0@4:vpip-,pfr-,rfi- 1@5:vpip+,pfr+,rfi+ 2@7:vpip+,pfr-,three_bet- 3@8:vpip-,pfr-,three_bet- 4@2:vpip+,pfr-,three_bet- 5@3:vpip-,pfr-,three_bet- 7@5:cbet_flop- 11@7:turn_fold_vs_bet- 12@2:turn_fold_vs_bet+ 13@5:river_bet- 14@7:river_bet-"
+    }
+  ],
+  "input": "weplay-hh/h.kolaric992@gmail.com/HH20260106 Novi Sad #1 (#11375800) - $0.50-$1 - Money 3 No Limit Hold_em.txt"
+}

@@ -1,0 +1,20 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=0/1,turn_fold_vs_bet=0/1,turn_fold_vs_probe=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=1/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=0/1,river_bet=1/1",
+      "events": "3c17f0fb9ff14d70d1bd8f25d8ef59ee2a9c2d40a5cf620dc03b4af24e38c165",
+      "handId": "698347374",
+      "index": 0,
+      "members": "0@1:vpip-,pfr-,rfi- 1@2:vpip+,pfr+,rfi+ 2@4:vpip-,pfr-,three_bet- 3@5:vpip+,pfr-,three_bet-,bb_fold_vs_steal- 5@2:cbet_flop- 7@2:turn_fold_vs_bet-,turn_fold_vs_probe- 8@5:river_bet+ 9@2:river_fold_vs_bet+,river_raise_vs_bet-"
+    },
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=1/1,pfr=0/1,rfi=0/1,river_bet=0/1 6:vpip=0/1,pfr=0/1,river_bet=0/1",
+      "events": "45376db0a758d69eb8257d8c76ce8ca3d06def3a1f3353e96c1927209a532993",
+      "handId": "698347770",
+      "index": 1,
+      "members": "0@1:vpip-,pfr-,rfi- 1@2:vpip-,pfr-,rfi- 2@4:vpip-,pfr-,rfi- 3@5:vpip+,pfr-,rfi- 4@6:vpip-,pfr- 9@5:river_bet- 10@6:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__NLHE-6max-USD-0.01-0.02-201608.Short.HH00000000 G0.txt"
+}

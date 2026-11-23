@@ -1,0 +1,28 @@
+Poker Hand #ES05: Hold'em No Limit ($0.5/$1) - 2026/01/01 12:00:00
+Table 'Effective' 6-max Seat #1 is the button
+Seat 1: Btn ($100 in chips)
+Seat 2: Sb ($35 in chips)
+Seat 3: Bb ($120 in chips)
+Seat 4: Utg ($300 in chips)
+Seat 5: Hj ($90 in chips)
+Seat 6: Co ($100 in chips)
+Sb: posts small blind $0.5
+Bb: posts big blind $1
+*** HOLE CARDS ***
+Dealt to Utg [Kc Kd]
+Utg: raises $2 to $3
+Hj: folds
+Co: folds
+Btn: folds
+Sb: folds
+Bb: folds
+Uncalled bet ($2) returned to Utg
+Utg collected $2.5 from pot
+*** SUMMARY ***
+Total pot $2.5 | Rake $0 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0
+Seat 1: Btn (button) folded before Flop (didn't bet)
+Seat 2: Sb (small blind) folded before Flop
+Seat 3: Bb (big blind) folded before Flop
+Seat 4: Utg collected ($2.5)
+Seat 5: Hj folded before Flop (didn't bet)
+Seat 6: Co folded before Flop (didn't bet)

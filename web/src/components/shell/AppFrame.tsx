@@ -7,6 +7,7 @@ import { hasPendingHand } from "../converter/handoff";
 import { AppShell, type ShellTab } from "./AppShell";
 import { markSignInOffered, useAuth, wasSignInOffered } from "../../lib/auth";
 import { countHands } from "../../lib/db";
+import { catchUpFacts } from "../../lib/db/factsCatchUp";
 import { paths } from "../../lib/routes";
 import { isSupabaseConfigured } from "../../lib/supabase/config";
 import {
@@ -146,6 +147,15 @@ export function AppFrame({ tab, redirectWhenEmpty = false, live = false, feature
   }, [countUser]);
 
   useEffect(refreshCount, [refreshCount, refreshToken]);
+
+  // The builder facts' catch-up after a facts version bump, on any page of a
+  // signed-in account with hands, once a page load (docs/ANALYTICS.md Step
+  // 12). Analytics runs its own, with its progress line.
+  const hasHands = storedCount !== null && storedCount > 0;
+  useEffect(() => {
+    if (!isSupabaseConfigured || !countUser || !hasHands || tab === "stats") return;
+    void catchUpFacts(countUser);
+  }, [countUser, hasHands, tab]);
 
   // Hands arriving live move the count and are handed to the screen. Keyed by
   // the account, so a sign-out or a switch drops the subscription and the

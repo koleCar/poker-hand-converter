@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "0:vpip=0/1,pfr=0/1,three_bet=0/1 1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=0/1,pfr=0/1,rfi=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1 7:vpip=0/1,pfr=0/1,rfi=0/1 8:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1,turn_fold_vs_bet=0/1,river_bet=1/1 9:vpip=1/1,pfr=1/1,cbet_flop=0/1,river_bet=0/1,river_fold_vs_bet=1/1,river_raise_vs_bet=0/1",
+      "events": "d6b1277d7bdf1958dad3e756a89ea51024e229a35dadbac2b93c7898fe59e571",
+      "handId": "CHC-1587461647",
+      "index": 0,
+      "members": "0@1:vpip-,pfr-,rfi- 1@2:vpip-,pfr-,rfi- 2@3:vpip-,pfr-,rfi- 3@4:vpip-,pfr-,rfi- 4@5:vpip-,pfr-,rfi- 5@6:vpip-,pfr-,rfi- 6@7:vpip-,pfr-,rfi- 7@8:vpip+,pfr-,rfi- 8@9:vpip+,pfr+ 9@0:vpip-,pfr-,three_bet- 10@8:three_bet- 11@9:cbet_flop- 14@8:turn_fold_vs_bet- 15@9:river_bet- 16@8:river_bet+ 17@9:river_fold_vs_bet+,river_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/chico/fpdb3-regression-corpus/tour__NLHE-10max-USD-MTT-201603.post.ante.txt"
+}

@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "71d25dcec2a6ed2bffb8c3080ec719c436e9ef9cd8b193a6308cfb9492c39816",
+      "handId": "261409536",
+      "index": 0,
+      "members": "0@1:vpip-,pfr-,rfi-"
+    }
+  ],
+  "input": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_Limits_Limit2.txt"
+}

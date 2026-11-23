@@ -14,8 +14,12 @@ const bb = (value: number) => {
   return `${num(tenth, tenth % 1 !== 0 ? 1 : 0)} bb`;
 };
 const pct = (value: number) => `${num(Math.round(value * 100))} %`;
+/** Akcija kao ime postotka ("postotak folda"). */
+const ACTION_HR: Record<string, string> = { fold: "folda", call: "calla", raise: "raisea", bet: "beta", vpip: "VPIP-a", pfr: "PFR-a" };
 
 export const trainerHr = {
+  /** The language, for the catalogue's own labels (Analytics' size buckets and hand classes). */
+  lang: "hr" as "en" | "hr",
   modesLabel: "Što vježbaš",
   modes: {
     focus: "Za tebe",
@@ -307,6 +311,31 @@ export const trainerHr = {
     signIn: "Prijavi se i analiziraj ruke: trener tada dijeli spotove u kojima najviše gubiš.",
     loading: "Čitam tvoje leakove…",
     general: "Spotovi koje većina griješi",
+  },
+
+  /** Trener otvoren iz Analitike (docs/ANALYTICS.md korak 9). */
+  analytics: {
+    from: "Iz Analitike",
+    back: "← Natrag na statistiku",
+    costs: (per100: number) => `košta te −${num(per100, 2)} bb/100`,
+    approximate: "Rail ne može podijeliti baš ovaj spot, pa dijeli najbliži.",
+    hands: (action: string) => (action === "fold" ? "Ruke koje često foldaš" : "Ruke iz Analitike"),
+    size: "Bet na koji odgovaraš",
+    facingSize: (size: string) => `Protiv beta od ${size} pota`,
+    goal: "Cilj iz Analitike",
+    rateHere: (action: string) => `Tvoj postotak ${ACTION_HR[action] ?? action} ovdje`,
+    target: "Solver",
+    targetCharts: "Tablice",
+    drill: "Ova vježba",
+    drillRef: (value: string) => `referenca ${value} na ovim rukama`,
+    few: "Odgovori na nekoliko ruku",
+    dealtFrom: (classes: string) => `Ruke se dijele iz klasa u kojima griješiš: ${classes}.`,
+    later: "Analitika pokazuje je li se spot pomaknuo kako stižu nove ruke.",
+    playIt: "Tvoja ruka, kako si je odigrao",
+    playNote: "Dijeli se jednom iz tvoje ruke. Nakon nje vježba se nastavlja.",
+    playLoading: "Učitavam tvoju ruku…",
+    playMissing: "Ova se ruka nije mogla učitati. Vježba se nastavlja.",
+    playOn: "Nastavi s vježbom",
   },
 
   session: {

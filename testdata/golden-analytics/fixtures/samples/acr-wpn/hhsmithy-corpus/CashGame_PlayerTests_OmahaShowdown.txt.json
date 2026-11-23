@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=1/1 4:vpip=1/1,pfr=1/1,three_bet=1/1,cbet_flop=1/1",
+      "events": "2cb10cb3f00bac57791e64eb60a3865aaa9357a9aab2cc306cee3565bb8148b5",
+      "handId": "261402183",
+      "index": 0,
+      "members": "0@1:vpip+,pfr+,rfi+ 1@4:vpip+,pfr+,three_bet+ 2@1:fold_to_three_bet-,four_bet- 3@4:cbet_flop+ 4@1:flop_fold_vs_bet-,flop_raise_vs_bet+"
+    }
+  ],
+  "input": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_PlayerTests_OmahaShowdown.txt"
+}

@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=1/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,turn_fold_vs_bet=0/1,river_bet=1/1 3:vpip=1/1,pfr=1/1,three_bet=1/1,river_bet=0/1,river_fold_vs_bet=0/1,river_raise_vs_bet=0/1 5:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "bd9dfa7a26462494d6f127e67b4fa0a468f51ac5eed54c0855a5b80b65dda326",
+      "handId": "2725384529",
+      "index": 0,
+      "members": "0@5:vpip-,pfr-,rfi- 1@1:vpip+,pfr+,rfi+ 2@3:vpip+,pfr+,three_bet+ 3@1:fold_to_three_bet-,four_bet+ 6@1:flop_fold_vs_bet-,flop_raise_vs_bet- 8@1:turn_fold_vs_bet- 10@3:river_bet- 11@1:river_bet+ 12@3:river_fold_vs_bet-,river_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__FLHE-9max-USD - $8-$16 - 201307.all.in.blind.txt"
+}

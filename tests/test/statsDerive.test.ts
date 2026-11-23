@@ -109,15 +109,20 @@ describe("the module stays importable from a server", () => {
 
   it("has all its files", () => {
     expect(sources.sort()).toEqual([
+      "analytics.ts",
+      "analyticsRows.ts",
       "builderFacts.ts",
+      "checker.ts",
       "context.ts",
       "definitions.ts",
       "derive.ts",
       "display.ts",
+      "events.ts",
       "index.ts",
       "mapping.ts",
       "money.ts",
       "postflop.ts",
+      "predicate.ts",
       "preflop.ts",
       "rates.ts",
       "reliability.ts",

@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,four_bet=0/1 2:vpip=1/1,pfr=1/1,rfi=1/1,fold_to_three_bet=0/1,four_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,river_bet=0/1 3:vpip=1/1,pfr=1/1,three_bet=1/1,cbet_flop=1/1,turn_barrel=0/1,river_bet=0/1 4:vpip=1/1,pfr=0/1,four_bet=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 6:vpip=0/1,pfr=0/1,four_bet=0/1",
+      "events": "31faa359e5f5a6fc3ad884affbc20ed3eb29c15f4a404680e6238be556d87f8e",
+      "handId": "ENT-2703545521",
+      "index": 0,
+      "members": "0@2:vpip+,pfr+,rfi+ 1@3:vpip+,pfr+,three_bet+ 2@4:vpip+,pfr-,four_bet- 3@6:vpip-,pfr-,four_bet- 4@1:vpip-,pfr-,four_bet- 5@2:fold_to_three_bet-,four_bet- 7@3:cbet_flop+ 8@4:flop_fold_vs_bet+,flop_raise_vs_bet- 9@2:flop_fold_vs_bet-,flop_raise_vs_bet- 11@3:turn_barrel- 12@2:river_bet- 13@3:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/entraction/05-five-card-pot-limit-omaha.txt"
+}

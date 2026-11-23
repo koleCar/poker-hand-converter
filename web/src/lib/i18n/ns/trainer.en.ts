@@ -21,8 +21,12 @@ const bb = (value: number) => {
   return `${num(tenth, tenth % 1 !== 0 ? 1 : 0)} bb`;
 };
 const pct = (value: number) => `${num(Math.round(value * 100))}%`;
+/** An action class as a rate's name ("fold rate"). */
+const ACTION_EN: Record<string, string> = { fold: "fold", call: "call", raise: "raise", bet: "bet", vpip: "VPIP", pfr: "PFR" };
 
 export const trainerEn = {
+  /** The language, for the catalogue's own labels (Analytics' size buckets and hand classes). */
+  lang: "en" as "en" | "hr",
   modesLabel: "What to practise",
   modes: {
     focus: "For you",
@@ -315,6 +319,32 @@ export const trainerEn = {
     signIn: "Sign in and analyse your hands: the trainer then deals the spots where you lose the most.",
     loading: "Reading your leaks…",
     general: "Spots most players misplay",
+  },
+
+  /** The Trainer opened from Analytics (docs/ANALYTICS.md Step 9): the bar, the goal, the chips, a played hand. */
+  analytics: {
+    from: "From Analytics",
+    back: "← Back to the stat",
+    costs: (per100: number) => `costs you −${num(per100, 2)} bb/100`,
+    approximate: "Rail cannot deal this exact spot, so it deals the nearest one.",
+    /** The Hands chip: the classes the drill deals from. */
+    hands: (action: string) => (action === "fold" ? "Hands you tend to fold" : "Hands from Analytics"),
+    size: "Bet faced",
+    facingSize: (size: string) => `Facing ${size} of the pot`,
+    goal: "Goal from Analytics",
+    rateHere: (action: string) => `Your ${ACTION_EN[action] ?? action} rate here`,
+    target: "Solver",
+    targetCharts: "Charts",
+    drill: "This drill",
+    drillRef: (value: string) => `reference ${value} on these hands`,
+    few: "Answer a few hands",
+    dealtFrom: (classes: string) => `Hands are dealt from the classes you got wrong: ${classes}.`,
+    later: "Analytics shows whether the spot moved as new hands come in.",
+    playIt: "Your hand, as you played it",
+    playNote: "Dealt once from your own hand. The drill goes on after it.",
+    playLoading: "Loading your hand…",
+    playMissing: "This hand could not be loaded. The drill goes on.",
+    playOn: "Go on with the drill",
   },
 
   session: {

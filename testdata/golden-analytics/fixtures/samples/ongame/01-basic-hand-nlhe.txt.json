@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1 7:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1 8:vpip=1/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 9:vpip=0/1,pfr=0/1,rfi=0/1 10:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "1ffcbc35b533a4dd71b78f8ba117d63d3befb870cd19c466a9fccdbb19b8dded",
+      "handId": "OG-R5-361850810-474",
+      "index": 0,
+      "members": "0@9:vpip-,pfr-,rfi- 1@10:vpip-,pfr-,rfi- 2@1:vpip-,pfr-,rfi- 3@2:vpip-,pfr-,rfi- 4@7:vpip+,pfr+,rfi+ 5@8:vpip+,pfr-,three_bet-,bb_fold_vs_steal- 6@7:cbet_flop+ 7@8:flop_fold_vs_bet+,flop_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ongame/01-basic-hand-nlhe.txt"
+}

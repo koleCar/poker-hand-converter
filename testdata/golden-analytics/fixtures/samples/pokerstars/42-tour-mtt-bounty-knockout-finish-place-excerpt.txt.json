@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=1/1,pfr=1/1,rfi=1/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=1/1,cbet_flop=0/1 2:vpip=0/1,pfr=0/1,three_bet=0/1 3:vpip=1/1,pfr=0/1,three_bet=0/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=0/1,pfr=0/1,three_bet=0/1 6:vpip=0/1,pfr=0/1,three_bet=0/1 7:vpip=0/1,pfr=0/1,three_bet=0/1 8:vpip=0/1,pfr=0/1,rfi=0/1 9:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "e057ee6f23916fe4900def98a678f29e8a6bef42a28d52be8c52a4a8d067dd22",
+      "handId": "47658722448",
+      "index": 0,
+      "members": "0@8:vpip-,pfr-,rfi- 1@9:vpip-,pfr-,rfi- 2@1:vpip+,pfr+,rfi+ 3@2:vpip-,pfr-,three_bet- 4@3:vpip+,pfr-,three_bet- 5@4:vpip-,pfr-,three_bet- 6@5:vpip-,pfr-,three_bet- 7@6:vpip-,pfr-,three_bet- 8@7:vpip-,pfr-,three_bet- 9@1:cbet_flop- 11@1:flop_fold_vs_bet-,flop_raise_vs_bet+"
+    }
+  ],
+  "input": "fixtures/samples/pokerstars/42-tour-mtt-bounty-knockout-finish-place-excerpt.txt"
+}

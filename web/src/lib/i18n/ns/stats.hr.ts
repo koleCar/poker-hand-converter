@@ -43,7 +43,7 @@ export const statsHr: Dict["stats"] = {
   },
 
   tab: {
-    heading: "Statistika",
+    heading: "Analitika",
     sample: (count: number, version: string) => `${hands(count)} · ${version}`,
     signInHeading: "Prijavi se da vidiš svoju statistiku",
     signInBody:
@@ -58,6 +58,7 @@ export const statsHr: Dict["stats"] = {
     },
     loading: "Čitam tvoje ruke…",
     emptyHeading: "Još nema ruku sa statistikom",
+    emptyLink: "Učitaj hand history →",
     emptyBody:
       "Statistika se računa iz ruku u tvojoj biblioteci, na serveru, čim se spreme. Učitaj hand history i ovaj ekran će se popuniti.",
     winRateNote:

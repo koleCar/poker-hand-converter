@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "2:vpip=1/1,pfr=0/1,rfi=0/1,three_bet=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=0/1,river_bet=0/1 4:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1,turn_fold_vs_bet=0/1,turn_barrel=0/1,river_bet=0/1",
+      "events": "171fb75f6e32589b4b6c701f94d36232f7602f6c61c1a1d0fd347ff962fd0e4d",
+      "handId": "OG-R5-361878619-322",
+      "index": 0,
+      "members": "0@2:vpip-,pfr-,rfi- 1@4:vpip+,pfr+,rfi+ 2@2:three_bet- 3@4:cbet_flop+ 4@2:flop_fold_vs_bet-,flop_raise_vs_bet- 5@4:turn_barrel- 7@4:turn_fold_vs_bet- 8@4:river_bet- 9@2:river_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ongame/04-pot-limit-omaha.txt"
+}

@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=0/1,pfr=0/1,rfi=0/1 4:vpip=1/1,pfr=0/1,rfi=0/1 6:vpip=0/1,pfr=0/1,flop_fold_vs_bet=0/1,flop_raise_vs_bet=1/1",
+      "events": "6d0062cdd676c2916a27db75afb187d3092db2204a7b88edc1aa152bebb9aceb",
+      "handId": "258592151",
+      "index": 0,
+      "members": "0@1:vpip-,pfr-,rfi- 1@2:vpip-,pfr-,rfi- 2@4:vpip+,pfr-,rfi- 3@6:vpip-,pfr- 5@6:flop_fold_vs_bet-,flop_raise_vs_bet+"
+    }
+  ],
+  "input": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_StreetTests_Flop.txt"
+}

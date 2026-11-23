@@ -87,7 +87,7 @@ export const hr: Dict = {
       description: "Pregledaj, filtriraj i odigraj svaku spremljenu ruku, i podijeli je jednim linkom.",
     },
     stats: {
-      title: "Statistika | Rail",
+      title: "Analitika | Rail",
       description:
         "VPIP, PFR, 3-bet, continuation betovi i graf dobitka sa showdownom i bez njega, za svaku spremljenu ruku.",
     },
@@ -184,7 +184,7 @@ export const hr: Dict = {
     forum: "Forum",
     convert: "Učitaj ruku",
     library: "Povijest ruku",
-    stats: "Statistika",
+    stats: "Analitika",
     players: "Igrači",
     analysis: "Analiza",
     learn: "Učenje",
@@ -193,7 +193,7 @@ export const hr: Dict = {
       forum: "Forum",
       convert: "Učitaj",
       library: "Ruke",
-      stats: "Statistika",
+      stats: "Analitika",
       analysis: "Analiza",
       solver: "Solver",
       download: "Aplikacija",

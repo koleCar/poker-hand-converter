@@ -1285,6 +1285,7 @@ export const analysisHr: Dict["analysis"] = {
   hand: {
     back: "Natrag na analizu",
     backToSession: "Natrag na pregled sesije",
+    backToStat: "Natrag na statistiku",
     loading: "Učitavam ruku…",
     notFound: "Ova ruka nije u tvojoj biblioteci.",
     notSynced: "Ova ruka još nije u tvojoj web biblioteci. Desktop aplikacija je šalje pri sljedećoj sinkronizaciji: otvori je ponovno za minutu.",

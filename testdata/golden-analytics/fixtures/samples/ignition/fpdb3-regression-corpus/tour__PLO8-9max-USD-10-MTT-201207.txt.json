@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "1:vpip=0/1,pfr=0/1,rfi=0/1 2:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=1/1 4:vpip=0/1,pfr=0/1,three_bet=0/1 5:vpip=1/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=0/1,flop_fold_vs_bet=1/1,flop_raise_vs_bet=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1 7:vpip=0/1,pfr=0/1,rfi=0/1 8:vpip=0/1,pfr=0/1,rfi=0/1 9:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "8d2b33a31eeb66eaaf54d9c62e214815d6ab866b795966509c0f70f999e37b71",
+      "handId": "2645486142",
+      "index": 0,
+      "members": "0@6:vpip-,pfr-,rfi- 1@7:vpip-,pfr-,rfi- 2@8:vpip-,pfr-,rfi- 3@9:vpip-,pfr-,rfi- 4@1:vpip-,pfr-,rfi- 5@2:vpip+,pfr+,rfi+ 6@4:vpip-,pfr-,three_bet- 7@5:vpip+,pfr-,three_bet-,bb_fold_vs_steal- 9@2:cbet_flop+ 10@5:flop_fold_vs_bet+,flop_raise_vs_bet-"
+    }
+  ],
+  "input": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__PLO8-9max-USD-10-MTT-201207.txt"
+}

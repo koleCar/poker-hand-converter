@@ -34,6 +34,8 @@ import {
   setsFor,
   type TrainerSettings,
 } from "./settings";
+import { analyticsAction, sizeLabel } from "./analytics";
+import { ANALYTICS } from "../../lib/stats/analytics";
 import styles from "./trainer.module.css";
 
 interface ChipsProps<T extends string> {
@@ -246,6 +248,14 @@ export function SettingsSheet({
                   onChange={(facing) => onChange({ facing })}
                 />
                 )}
+                {!hand && (settings.facing === "bet" || settings.facing === "raise" || settings.size !== null) ? (
+                  <Chips
+                    label={t.analytics.size}
+                    value={settings.size ?? ""}
+                    options={[{ value: "", label: t.any }, ...ANALYTICS.file.sizeBuckets.map((bucket) => ({ value: bucket.id, label: sizeLabel(bucket.id, t) }))]}
+                    onChange={(size) => onChange({ size: size || null })}
+                  />
+                ) : null}
               </>
             ) : null}
             {mode === "flop" ? (
@@ -278,9 +288,15 @@ export function SettingsSheet({
           {settings.play === "spot" ? <p className={styles.muted}>{s.repeatHints[settings.repeat]}</p> : null}
           <Chips
             label={t.deal}
-            value={settings.deal}
-            options={DEAL_BIASES.map((value) => ({ value, label: t.deals[value] ?? value }))}
-            onChange={(deal) => onChange({ deal })}
+            value={postflop && !hand && settings.classes.length > 0 ? "classes" : settings.deal}
+            options={[
+              ...DEAL_BIASES.map((value) => ({ value: value as string, label: t.deals[value] ?? value })),
+              // Analytics' classes (Step 9): offered while the sheet was opened with them.
+              ...(postflop && !hand && initial.classes.length > 0 ? [{ value: "classes", label: t.analytics.hands(analyticsAction(initial)) }] : []),
+            ]}
+            onChange={(deal) =>
+              onChange(deal === "classes" ? { classes: [...initial.classes] } : { deal: deal as TrainerSettings["deal"], classes: [] })
+            }
           />
           {!hand ? (
             <Chips

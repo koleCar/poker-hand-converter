@@ -49,6 +49,17 @@ use crate::recompute::custom_on_hold;
 use crate::stats::{Exclusions, current_gen, day_of, kv_get, kv_set};
 use crate::stats_read::{HeroFilter, bound, day_ranges, in_list, kind_from};
 
+/// The Analytics catalogue's rates live in `custom_stats` too (`an_<id>`,
+/// docs/ANALYTICS.md Step 10, [`crate::pool`]): counted by the same pass
+/// into `custom_player_rollups` only (no hero rows), and left out of the
+/// user's own list ([`Reader::custom_stats`], [`Reader::custom_progress`]).
+const NOT_ANALYTICS: &str = "substr(stat_key, 1, 3) <> 'an_'";
+
+/// Whether a `custom_stats.stat_key` is one of the Analytics catalogue's.
+pub(crate) fn is_analytics_key(key: &str) -> bool {
+    key.starts_with(rail_stats::custom::RESERVED_PREFIX)
+}
+
 /// Hands per step of the custom pass.
 pub const CUSTOM_PAGE: u32 = 1000;
 
@@ -188,6 +199,8 @@ pub fn reset_custom_counts(conn: &Connection) -> Result<()> {
     conn.execute("DELETE FROM custom_player_rollups_observed", [])?;
     conn.execute("UPDATE custom_stats SET counted_to = 0", [])?;
     kv_set(conn, KV_EVENTS_VERSION, rail_stats::custom::EVENTS_VERSION)?;
+    // The pool's results are keyed as these rollups: counted again with them.
+    crate::pool::reset_pool(conn)?;
     Ok(())
 }
 
@@ -207,6 +220,8 @@ struct PageStat {
     id: i64,
     rev: i64,
     counted_to: i64,
+    /// An Analytics rate (`an_<id>`): the players' rollups only.
+    players_only: bool,
 }
 
 /// One page of the custom pass, computed on the pass's thread.
@@ -362,7 +377,7 @@ fn count_hand(
                 continue;
             }
             let (made, opp) = (i64::from(counts.made), i64::from(counts.opp));
-            if seat.is_hero {
+            if seat.is_hero && !stat.players_only {
                 page.hero_rows.push((stat.id, hand.id, made, opp));
                 page.heroes
                     .entry((
@@ -395,7 +410,7 @@ fn count_hand(
 /// The statistics with a predicate this build can count, parsed.
 fn counted_stats(conn: &Connection) -> Result<Vec<(PageStat, CustomCounter)>> {
     let mut stmt = conn.prepare_cached(
-        "SELECT id, rev, predicate, counted_to FROM custom_stats
+        "SELECT id, rev, predicate, counted_to, stat_key FROM custom_stats
          WHERE predicate IS NOT NULL ORDER BY id",
     )?;
     let mut stats: Vec<(PageStat, CustomCounter)> = Vec::new();
@@ -408,6 +423,7 @@ fn counted_stats(conn: &Connection) -> Result<Vec<(PageStat, CustomCounter)>> {
                     id: row.get(0)?,
                     rev: row.get(1)?,
                     counted_to: row.get(3)?,
+                    players_only: is_analytics_key(&row.get::<_, String>(4)?),
                 },
                 counter,
             )),
@@ -643,13 +659,14 @@ fn stat_from(row: &rusqlite::Row<'_>) -> rusqlite::Result<StatColumns> {
 }
 
 impl Reader {
-    /// Every saved statistic, in the user's order.
+    /// Every statistic the user saved, in their order (the Analytics
+    /// catalogue's `an_<id>` left out).
     pub fn custom_stats(&self) -> Result<Vec<CustomStatRow>> {
         self.with(|conn| {
-            let mut stmt = conn.prepare_cached(
+            let mut stmt = conn.prepare_cached(&format!(
                 "SELECT id, rev, definition, predicate, counted_to, created_at, updated_at
-                 FROM custom_stats ORDER BY ord, id",
-            )?;
+                 FROM custom_stats WHERE {NOT_ANALYTICS} ORDER BY ord, id"
+            ))?;
             let rows = stmt
                 .query_map([], stat_from)?
                 .collect::<rusqlite::Result<Vec<_>>>()?;
@@ -709,16 +726,18 @@ impl Reader {
             .collect())
     }
 
-    /// How far the pass is with each statistic that has a counter.
+    /// How far the pass is with each of the user's statistics that has a
+    /// counter.
     pub fn custom_progress(&self) -> Result<Vec<CustomProgress>> {
         self.with(|conn| {
             let total: i64 =
                 conn.query_row("SELECT count(*) FROM hand_stats", [], |row| row.get(0))?;
-            let mut stmt = conn.prepare_cached(
+            let mut stmt = conn.prepare_cached(&format!(
                 "SELECT c.id, c.stat_key,
                         (SELECT count(*) FROM hand_stats d WHERE d.id > c.counted_to)
-                 FROM custom_stats c WHERE c.predicate IS NOT NULL ORDER BY c.ord, c.id",
-            )?;
+                 FROM custom_stats c WHERE c.predicate IS NOT NULL AND {NOT_ANALYTICS}
+                 ORDER BY c.ord, c.id"
+            ))?;
             let rows = stmt
                 .query_map([], |row| {
                     Ok(CustomProgress {

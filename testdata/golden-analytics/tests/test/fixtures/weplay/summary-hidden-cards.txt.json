@@ -1,0 +1,13 @@
+{
+  "format": "rail-analytics-golden/1",
+  "hands": [
+    {
+      "counts": "2:vpip=0/1,pfr=0/1,rfi=0/1 3:vpip=1/1,pfr=1/1,rfi=1/1,cbet_flop=0/1,river_bet=0/1 4:vpip=1/1,pfr=0/1,three_bet=0/1,bb_fold_vs_steal=0/1,river_bet=0/1 6:vpip=0/1,pfr=0/1,rfi=0/1",
+      "events": "f0011df6f9266f32a3d8ae9076d594eeb43fc9530b91e27d4c85e4874fb3841c",
+      "handId": "HD83820277",
+      "index": 0,
+      "members": "0@6:vpip-,pfr-,rfi- 1@2:vpip-,pfr-,rfi- 2@3:vpip+,pfr+,rfi+ 3@4:vpip+,pfr-,three_bet-,bb_fold_vs_steal- 4@3:cbet_flop- 8@3:river_bet- 9@4:river_bet-"
+    }
+  ],
+  "input": "tests/test/fixtures/weplay/summary-hidden-cards.txt"
+}

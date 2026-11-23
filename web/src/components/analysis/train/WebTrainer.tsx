@@ -15,7 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { GameKind } from "@rail/ui/hands/gameKind";
 import type { ChartNode, ChartSet } from "../../../lib/charts";
 import { preflopChartSet } from "../../../lib/chartSet";
-import { isDatabaseConfigured } from "../../../lib/db";
+import { fetchHandAnalysis, getHand, isDatabaseConfigured } from "../../../lib/db";
 import { fetchLeaks } from "../../../lib/db/analysisLeaks";
 import { recordTrainerResults } from "../../../lib/db/training";
 import { accountSessionStore } from "../../../lib/db/trainerSessions";
@@ -40,6 +40,7 @@ import { focusAreas } from "../../../lib/training/plan";
 import { TrainerHostProvider, type FocusState, type TrainerHost } from "../../trainer/host";
 import { localSessionStore, type SessionStore } from "../../trainer/sessions";
 import { initialSettings } from "./trainerQuery";
+import { analyticsLink } from "../../trainer/analytics";
 import { Trainer } from "../../trainer/Trainer";
 import { useIntlLocale } from "../../stats/format";
 import { ChartGrid } from "../ChartGrid";
@@ -73,6 +74,8 @@ export function WebTrainer({ query }: { query: Record<string, string | string[] 
   // A link with settings (a leak's, the study plan's) opens a new session on them; `session` opens that session.
   const [suggest] = useState(() => typeof query.mode === "string");
   const [initialSession] = useState(() => (typeof query.session === "string" ? query.session : null));
+  // From Analytics (`from=analytics&stat=…`, docs/ANALYTICS.md Step 9): that spot's session, straight to training.
+  const [analytics] = useState(() => analyticsLink(query, initial.set));
   // Sessions live in the account; without a database (a local build), in this browser.
   const sessions = useMemo<SessionStore>(() => (isDatabaseConfigured ? accountSessionStore() : localSessionStore()), []);
 
@@ -131,6 +134,14 @@ export function WebTrainer({ query }: { query: Record<string, string | string[] 
         window.history.replaceState(window.history.state, "", `${paths.analysisTrain()}${search}`);
       },
       study: (graded, spot) => <WebStudy graded={graded} spot={spot} />,
+      // "Play it ▸": the hand and its analysis, as the hand's analysis page loads them.
+      played: signedIn
+        ? async (handId) => {
+            const [record, analysis] = await Promise.all([getHand(handId), fetchHandAnalysis(handId)]);
+            return record && analysis ? { phf: record.phf, decisions: analysis.decisions } : null;
+          }
+        : undefined,
+      analyticsHref: (stat) => paths.statsStat(stat),
       aside: signedIn ? <PlanCard generation={kept} /> : null,
       extraModes: signedIn ? (
         <Link href={paths.analysisTrain(trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "drills" }))} className={own.modeLink}>
@@ -143,7 +154,7 @@ export function WebTrainer({ query }: { query: Record<string, string | string[] 
 
   return (
     <TrainerHostProvider host={host}>
-      <Trainer initial={initial} suggest={suggest} />
+      <Trainer initial={initial} suggest={suggest && !analytics} analytics={analytics} />
     </TrainerHostProvider>
   );
 }

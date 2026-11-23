@@ -769,11 +769,23 @@ except the twelve the language cannot see.
 | `core/rail-stats/src/custom.rs` | the fields, `CustomCounter` (evaluation), `CustomSet` (a user's definitions validated and compiled), `EVENTS_VERSION` |
 | `core/rail-stats/tests/custom_acceptance.rs` | the standard set in the language against the coded counters (§14.4) |
 | `core/rail-stats/tests/events.rs` | the facts the acceptance test does not reach (sizes, position) on pinned hands |
+| `core/rail-stats/src/analytics.rs` | the Analytics stat catalogue (`config/stats/analytics.json`): rates written in the language, validated, counted, and their member decisions (docs/ANALYTICS.md Step 1) |
+| `web/src/lib/stats/events.ts`, `predicate.ts`, `analytics.ts` | the web's port of the events, the language and the catalogue |
 | `core/rail-store/src/custom.rs` | the definitions in the user's store, the background count, the sums |
 
-Rust only: the desktop app is the consumer. The web shows a user's statistic
-once it runs the Rust core (R4.1) or ports `events.rs` and `custom.rs`; it
-does not yet.
+The desktop app is the consumer of a user's statistic. The web has a port of
+the events and of the language since the Analytics catalogue (docs/ANALYTICS.md
+Step 1, 2026-11-22): `web/src/lib/stats/events.ts` (`handEvents`) and
+`predicate.ts` (the grammar, `FIELDS`, `countSeat`, `members`), held equal to
+the Rust over the golden corpus - every event field of every seat as a hash, and
+the catalogue's counts and membership - by `npm run golden:emit`
+(`testdata/golden-analytics/`) and `core/rail-stats/tests/analytics_corpus.rs`.
+The web does not yet show a user's own statistic (no store, no editor); the
+port is what it would count with.
+
+Each event also carries `order`, the decision's `Decision.order` (the analysis
+row's `ord`): not a field of the language, the key that ties an event to an
+analysed decision.
 
 ### 14.1 Decision events
 
@@ -852,6 +864,7 @@ fields changed no other field's meaning, so `EVENTS_VERSION` stays
 | `barrels` | number | the cbets of earlier streets, each called and not raised, unbroken from the flop: 0 on the flop, 1 on the turn after a called flop cbet, 2 on the river after two (§4.4) |
 | `initiative` | yes/no | the seat made the previous street's last bet or raise (on the flop: the preflop raiser); preflop false |
 | `ahead_of_aggressor` | yes/no | the previous street's aggressor is another seat, still in the hand on this street, that has not acted on it yet (the donk test) |
+| `checked_through` | yes/no | (Analytics, 2026-11-22) the street before this one - the flop for the turn, the turn for the river - was dealt and nobody bet on it; false preflop and on the flop. The probe test: `preflop_aggressor and checked_through and facing = bet` on the turn is a fold-to-probe spot. A new field changes no other field's meaning, so `EVENTS_VERSION` stays `events/1` |
 | `in_position` | yes/no | postflop: the seat is the last to make its first decision on the street - it acts last among the seats that can act; none preflop |
 | `players` | number | seats still in the hand when the street began (all-in seats included); preflop the seats dealt in |
 | `multiway` | yes/no | `players` is 3 or more |
