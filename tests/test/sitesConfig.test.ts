@@ -198,6 +198,7 @@ describe("config/sites.json", () => {
         Object.assign(site(d, "winamax").tables, {
           verified: true,
           title: "^(?<table>.+?) - ",
+          checkedAt: null,
           source: "Observed on a Windows install, 2026-10-20: Winamax 7",
         }),
     ],

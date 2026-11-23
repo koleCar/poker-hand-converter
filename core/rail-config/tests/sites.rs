@@ -667,6 +667,10 @@ const VERIFIED_FILES: &[&str] = &["ggpoker", "coinpoker", "weplay"];
 /// The folders seen on a real install: (site, OS).
 const VERIFIED_PATHS: &[(&str, &str)] = &[("weplay", "macos")];
 
+/// The `tables` blocks seen on a real install (R3.3): Winamax's Windows
+/// client, 2026-11-23 (issue #426).
+const VERIFIED_TABLES: &[&str] = &["winamax"];
+
 /// Unknown is null, not a guess: only what R1.4 saw on a real install is
 /// verified (the lists above, each with its date and an "Observed on"
 /// source); every other path and `files` block stays unverified, and no
@@ -711,11 +715,26 @@ fn only_what_was_seen_is_verified() {
                 );
             }
         }
-        assert!(
-            !site.tables.verified && site.tables.is_unknown(),
-            "{}",
-            site.id
-        );
+        if VERIFIED_TABLES.contains(&site.id.as_str()) {
+            let tables = &site.tables;
+            assert!(tables.verified, "{}", site.id);
+            assert!(tables.checked_at.is_some(), "{}", site.id);
+            assert!(
+                tables
+                    .source
+                    .as_deref()
+                    .is_some_and(|s| s.starts_with("Observed on ")),
+                "{}",
+                site.id
+            );
+            assert!(tables.title.is_some(), "{}", site.id);
+        } else {
+            assert!(
+                !site.tables.verified && site.tables.is_unknown(),
+                "{}",
+                site.id
+            );
+        }
     }
 }
 
@@ -902,6 +921,7 @@ fn validator_problems() {
                 let tables = &mut site_mut(v, "winamax")["tables"];
                 tables["verified"] = json!(true);
                 tables["title"] = json!("^(?P<table>.+?) - ");
+                tables["checkedAt"] = Value::Null;
                 tables["source"] = json!("Observed on a Windows install, 2026-10-20: Winamax 7");
             },
             "winamax: tables.verified without checkedAt",
@@ -922,6 +942,7 @@ fn validator_problems() {
             |v| {
                 let tables = &mut site_mut(v, "winamax")["tables"];
                 tables["verified"] = json!(true);
+                tables["title"] = Value::Null;
                 tables["checkedAt"] = json!("2026-10-20");
                 tables["source"] = json!("Observed on a Windows install, 2026-10-20: Winamax 7");
             },
