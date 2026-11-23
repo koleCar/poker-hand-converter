@@ -3532,10 +3532,19 @@ mod tests {
             StoreView::new(None),
             Settings::default(),
         );
+        // The shipped rooms with a tables block for this system: Winamax's
+        // Windows client only (R3.3, issue #426).
+        let shipped: &[&str] = if cfg!(windows) {
+            &["winamax Winamax.exe"]
+        } else {
+            &[]
+        };
         step(&mut hud);
-        assert!(offered.borrow().is_empty(), "no room has a tables block");
+        assert_eq!(*offered.borrow(), shipped);
         hud.add_simulator_room("acr", regex::Regex::new("^(?P<table>.+)$").expect("regex"));
         step(&mut hud);
-        assert_eq!(*offered.borrow(), ["acr rail-hud-sim"]);
+        let mut expected = shipped.to_vec();
+        expected.push("acr rail-hud-sim");
+        assert_eq!(*offered.borrow(), expected);
     }
 }

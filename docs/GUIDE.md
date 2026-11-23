@@ -937,8 +937,12 @@ app; the web has no HUD.
 
 > **Status.** The HUD is complete and tested on Rail's own table simulator. It
 > attaches to a real room's tables only after that room's table windows have
-> been captured and checked; no room has been yet. Until then the HUD screen
-> lists open tables as tables without the HUD.
+> been captured and checked. So far that is **Winamax on Windows** (cash
+> tables); other rooms' open tables are listed as tables without the HUD.
+>
+> **Winamax:** open each table in its own window and switch the table's
+> **Playground** mode off. In Playground mode the window is titled
+> "Playground" and does not say which table it is, so the HUD cannot attach.
 
 ### Where the HUD may run (compliance mode)
 

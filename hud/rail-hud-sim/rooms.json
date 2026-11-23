@@ -51,7 +51,7 @@
       "header": "^Winamax Poker - CashGame - ",
       "sizes": [5, 2, 9],
       "cash": {
-        "title": "{table} - {game} - {stakes}",
+        "title": "Winamax {table}",
         "file": "{date}_{table}_real_{gameFile}.txt"
       },
       "tournament": null,
@@ -73,7 +73,7 @@
         "sizes": "SOURCED: the corpus's cash tables are 5-max (25 hands), heads-up (4) and 9-max (4); no 6-max.",
         "tableNames": "SOURCED: the corpus's table names ('Florence 03', 'Milwaukee 06', ...).",
         "dealt": "SOURCED: 'Dealt to <hero> [cards]' right before '*** PRE-FLOP ***' (CashGame_GeneralHands_HeroName.txt).",
-        "title": "INVENTED (unverified).",
+        "title": "SOURCED: 'Winamax <table>' (Windows client, 2026-11-23, issue #426; sites.json tables.title).",
         "file": "INVENTED: no real Winamax export name is known (winamax.md section 12); '<date>_<table>_real_<game>.txt' is a guess to verify.",
         "encoding": "SOURCED: UTF-8 with BOM and LF in most corpus files (winamax.md section 12).",
         "separator": "SOURCED: five blank lines between hands (winamax.md section 12, CashGame_MultipleHandsTests_10MultipleHands.txt). The corpus file's last hand has no line end at all; whether the client writes the separator before or after a hand is unknown - before would make a live file's last hand end without a line end (the watcher's settle time, R1.3).",

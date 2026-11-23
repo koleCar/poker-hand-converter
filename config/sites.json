@@ -182,15 +182,15 @@
       },
       "tables": {
         "process": {
-          "windows": null,
+          "windows": ["Winamax.exe"],
           "macos": null
         },
-        "title": null,
+        "title": "^Winamax (?P<table>.+)$",
         "seatLayouts": null,
-        "preferredSeat": null,
-        "verified": false,
-        "source": null,
-        "checkedAt": null
+        "preferredSeat": true,
+        "verified": true,
+        "source": "Observed on a Windows install, 2026-11-23 (issue #426, rail-hud --list-windows): Winamax.exe, class Chrome_WidgetWin_1; two cash 5-max tables in their own windows titled 'Winamax Valencia' and 'Winamax Athens 02', matching the hands' Table: 'Valencia' / 'Athens 02'; the lobby is titled 'Winamax' (not taken). With the client's Playground mode on, every table window is titled 'Playground' and carries no table name, so the HUD cannot attach - tables must be in their own windows with Playground off. The hero was drawn bottom centre on both tables (preferredSeat). Tournament, Expresso and heads-up titles not captured; macOS not captured; seat layouts not measured (the HUD's default geometry).",
+        "checkedAt": "2026-11-23"
       },
       "hud": {
         "allowed": true,
