@@ -60,6 +60,7 @@ function body(section: Exclude<LoadingSection, "overview">) {
         </>
       );
     case "leaks":
+    case "stats":
     case "multiway":
     case "bomb":
       return <LeaksTabSkeleton />;

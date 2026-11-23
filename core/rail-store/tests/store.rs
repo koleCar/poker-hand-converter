@@ -120,6 +120,32 @@ fn a_newer_schema_is_refused_untouched() {
 }
 
 #[test]
+fn player_hands_are_found_by_hand() {
+    // Schema 30: the "vs type" filters go from a hand to its named opponents
+    // (`hand_list`); without an index led by `hand_id` that lookup scanned the
+    // whole table once per hand, and the Pool tab's reports never finished.
+    let dir = scratch_dir("player-hands-by-hand");
+    let store = Store::open(dir.join("rail.db")).expect("open");
+    let conn = Connection::open(store.path()).expect("open");
+    let plan: Vec<String> = conn
+        .prepare("EXPLAIN QUERY PLAN SELECT player, seat FROM player_hands WHERE hand_id = ?1")
+        .expect("plan")
+        .query_map([1_i64], |row| row.get::<_, String>(3))
+        .expect("rows")
+        .collect::<rusqlite::Result<_>>()
+        .expect("plan rows");
+    assert!(
+        plan.iter()
+            .any(|step| step.contains("player_hands_hand_idx")),
+        "{plan:?}"
+    );
+    assert!(
+        !plan.iter().any(|step| step.starts_with("SCAN")),
+        "{plan:?}"
+    );
+}
+
+#[test]
 fn opens_with_wal_normal_sync_and_foreign_keys() {
     let dir = scratch_dir("pragmas");
     let store = Store::open(dir.join("nested/rail.db")).expect("open");

@@ -144,30 +144,35 @@ export async function backfillAnalyticsRows(
   onProgress?: (progress: BackfillProgress) => void,
 ): Promise<BackfillProgress> {
   const total: BackfillProgress = { processed: 0, saved: 0 };
-  let after: string | null = null;
+  const fetchPage = async (after: string | null): Promise<PendingRow[]> =>
+    (await rpc<PendingRow[] | null>("analytics_rows_pending", {
+      p_analysis_version: ANALYSIS_VERSION,
+      p_membership_version: ANALYTICS_MEMBERSHIP_VERSION,
+      p_after: after ?? undefined,
+      p_limit: BACKFILL_PAGE,
+    })) ?? [];
+  let next: Promise<PendingRow[]> | null = fetchPage(null);
   // Bounded so a server that never runs dry cannot spin a tab forever.
-  for (let guard = 0; guard < 100_000 && !signal?.aborted; guard += 1) {
-    const page: PendingRow[] =
-      (await rpc<PendingRow[] | null>("analytics_rows_pending", {
-        p_analysis_version: ANALYSIS_VERSION,
-        p_membership_version: ANALYTICS_MEMBERSHIP_VERSION,
-        p_after: after ?? undefined,
-        p_limit: BACKFILL_PAGE,
-      })) ?? [];
+  for (let guard = 0; next !== null && guard < 100_000 && !signal?.aborted; guard += 1) {
+    const page: PendingRow[] = await next;
     if (page.length === 0) break;
-    after = page[page.length - 1].id;
+    // The next page is on its way while this one is read and saved (keyset
+    // order: this page's rows are never in it).
+    next = page.length < BACKFILL_PAGE ? null : fetchPage(page[page.length - 1].id);
+    const read = await Promise.all(page.map((row) => handOfRow(row)));
     const hands: AnalyticsRowsHand[] = [];
-    for (const row of page) {
+    page.forEach((row, index) => {
       // A text this build cannot read back stays on the list for a later build.
-      const phf = await handOfRow(row);
+      const phf = read[index];
       if (phf) hands.push(analyticsRowsHand(row.id, ANALYSIS_VERSION, phf, row.decisions ?? []));
-    }
+    });
     if (signal?.aborted) break;
     total.saved += await saveAnalyticsRows(hands);
     total.processed += page.length;
     onProgress?.({ ...total });
-    if (page.length < BACKFILL_PAGE) break;
   }
+  // A page fetched ahead and not needed (stopped): nothing waits on it.
+  next?.catch(() => undefined);
   return total;
 }
 

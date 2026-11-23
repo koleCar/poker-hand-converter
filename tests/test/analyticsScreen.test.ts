@@ -43,7 +43,7 @@ import { EMPTY_FILTER } from "@rail/ui/hands/filter";
 import { UiStringsProvider, type UiStrings } from "@rail/ui/i18n";
 import type { Shown } from "@rail/ui/model/stats";
 import type { Graph, Report, ReportSource } from "@rail/ui/reports/model";
-import { ReportsScreen } from "@rail/ui/reports/ReportsScreen";
+import { AnalyticsScreen } from "@rail/ui/analytics/AnalyticsScreen";
 import { analyticsUiEn } from "@rail/ui/strings/analytics.en";
 import { analyticsUiHr } from "@rail/ui/strings/analytics.hr";
 import { handsUiEn } from "@rail/ui/strings/hands.en";
@@ -90,11 +90,12 @@ function render(locale: "en" | "hr", node: ReturnType<typeof createElement>): st
 const text = (html: string) => html.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
 
 describe("the tabs", () => {
-  it("are Overview, Streets, All stats, Pool and Breakdown; the figures row on the first three", () => {
-    expect([...ANALYTICS_VIEWS]).toEqual(["overview", "streets", "stats", "pool", "breakdown"]);
+  it("are Overview, Streets, All stats and Pool (the breakdowns stay on Reports); the figures row on the first three", () => {
+    expect([...ANALYTICS_VIEWS]).toEqual(["overview", "streets", "stats", "pool"]);
     expect(ANALYTICS_VIEWS.filter(hasFigures)).toEqual(["overview", "streets", "stats"]);
     expect(isAnalyticsView("stats")).toBe(true);
-    // A breakdown's split (the desktop's old `#/reports/position`) is not a view: the app opens Breakdown at it.
+    // Breakdown and its splits are Reports', not a view of Analytics.
+    expect(isAnalyticsView("breakdown")).toBe(false);
     expect(isAnalyticsView("position")).toBe(false);
     expect(isAnalyticsView(null)).toBe(false);
     for (const lang of [analyticsUiEn, analyticsUiHr]) {
@@ -383,18 +384,16 @@ describe("the screen's tab row", () => {
         chosen: { ...EMPTY_FILTER, formats: ["cash"] },
         onChoose: () => undefined,
         onView: () => undefined,
-        tab: "position" as const,
-        onTab: () => undefined,
         title: words.screen.tabsLabel,
         emptyText: "No hands",
         renderState: (kind: string, label: string) => createElement("p", { "data-state": kind }, label),
       };
-      const stats = text(render(locale, createElement(ReportsScreen, { ...props, view: "stats" })));
+      const stats = text(render(locale, createElement(AnalyticsScreen, { ...props, view: "stats" })));
       for (const view of ANALYTICS_VIEWS) expect(stats).toContain(`>${words.screen.tabs[view]}<`);
       expect(stats).toMatch(new RegExp(`aria-selected="true"[^>]*>${words.screen.tabs.stats}<`));
       expect(stats).toContain(words.screen.stats.byCost);
       expect(stats).toContain(words.screen.stats.off);
-      const overview = text(render(locale, createElement(ReportsScreen, { ...props, view: "overview" })));
+      const overview = text(render(locale, createElement(AnalyticsScreen, { ...props, view: "overview" })));
       expect(overview).not.toContain(words.screen.stats.byCost);
       expect(overview).toContain('data-state="loading"');
     });

@@ -71,7 +71,7 @@ export const hr: Dict = {
     label: "Glavni izbornik",
     live: "Uživo",
     hands: "Ruke",
-    reports: "Analitika",
+    reports: "Izvještaji",
     players: "Igrači",
     analysis: "Analiza",
     solver: "Solver",
@@ -133,8 +133,8 @@ export const hr: Dict = {
       lead: "Sve ruke, s filterima, replayerom, oznakama i bilješkama.",
     },
     reports: {
-      title: "Analitika",
-      lead: "Zarada i all-in EV, tvoje statistike prema ciljevima, rezultati po poziciji i situaciji.",
+      title: "Izvještaji",
+      lead: "Zarada i all-in EV kroz vrijeme, rezultati po poziciji i situaciji.",
     },
     players: {
       title: "Igrači",
@@ -267,8 +267,8 @@ export const hr: Dict = {
       hint: "Sesija se ovdje pojavi s prvom rukom koju odigraš.",
       last: "Zadnja sesija",
       range: (from, to) => `${from} – ${to}`,
-      reports: "Otvori u Analitici",
-      reportsTitle: "Otvori u Analitici, filtrirano na ovu sesiju",
+      reports: "Otvori u Izvještajima",
+      reportsTitle: "Otvori u Izvještajima, filtrirano na ovu sesiju",
     },
   },
 
@@ -720,7 +720,7 @@ export const hr: Dict = {
 
     custom: {
       heading: "Vlastite statistike",
-      body: "Broji ono što standardne statistike ne broje. Brojač je pravilo nad svakom odlukom u tvojim rukama - kada je odluka prilika i što se računa kao iskorištena prilika - a statistika ga prikazuje kroz formulu, s vlastitom oznakom, bojama i minimalnim uzorkom. Rail novi brojač prebroji kroz sve tvoje ruke u pozadini; Analitika ga prikazuje uz ostale statistike.",
+      body: "Broji ono što standardne statistike ne broje. Brojač je pravilo nad svakom odlukom u tvojim rukama - kada je odluka prilika i što se računa kao iskorištena prilika - a statistika ga prikazuje kroz formulu, s vlastitom oznakom, bojama i minimalnim uzorkom. Rail novi brojač prebroji kroz sve tvoje ruke u pozadini; Izvještaji ga prikazuju uz ostale statistike.",
       loading: "Učitavanje vlastitih statistika…",
       loadFailed: (reason) => `Vlastite statistike nisu učitane: ${reason}`,
       empty: "Još nema vlastitih statistika.",
@@ -1184,9 +1184,8 @@ export const hr: Dict = {
     // The summary, the graph's card, the statistics and the breakdowns: the
     // shared screen's words (R4.5c, `@rail/ui/strings/reports.hr.ts`).
     ...reportsUiHr,
-    unavailable: "Analitika je dostupna samo unutar aplikacije Rail.",
-    empty: "Još nema ruku.",
-    emptyLink: "Uvezi povijesti ruku →",
+    unavailable: "Izvještaji su dostupni samo unutar aplikacije Rail.",
+    empty: "Još nema ruku. Izvještaji se pune kako Rail uvozi tvoje povijesti ruku.",
     rebuilding: (done, total) =>
       `Ažuriram statistiku nakon nadogradnje: ${n(done)} od ${odRuku(total)}. Brojke rastu kako napreduje.`,
     graph: {
@@ -1204,8 +1203,8 @@ export const hr: Dict = {
     recent: "Nedavno",
     screens: "Ekrani",
     hands: "Ruke",
-    reports: "Analitika",
-    report: (name) => `Analitika: ${name}`,
+    reports: "Izvještaji",
+    report: (name) => `Izvještaj: ${name}`,
     searching: "Tražim…",
     screen: (name) => name,
     goTo: "idi na otvori ekran",
@@ -1269,7 +1268,11 @@ export const hr: Dict = {
 
   analysis: {
     tabsLabel: "Dijelovi analize",
-    tabs: { session: "Pregled sessiona", leaks: "Najveći leakovi", multiway: "Multiway ≈", bomb: "Bomb potovi ≈" },
+    tabs: { session: "Pregled sessiona", leaks: "Najveći leakovi", stats: "Analitika", multiway: "Multiway ≈", bomb: "Bomb potovi ≈" },
+    analytics: {
+      empty: "Još nema ruku.",
+      emptyLink: "Uvezi povijesti ruku →",
+    },
     unavailable: "Analiza je dostupna samo u aplikaciji Rail.",
     loading: "Otvaram analizu…",
     status: {

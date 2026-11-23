@@ -26,6 +26,7 @@ export type AnalysisSection =
   | "plan"
   | "train"
   | "leaks"
+  | "stats"
   | "progress"
   | "reports"
   | "charts"
@@ -33,7 +34,7 @@ export type AnalysisSection =
   | "bomb"
   | "learn";
 
-type Tab = "overview" | "session" | "leaks" | "progress" | "reports" | "multiway" | "bomb" | "train" | "charts";
+type Tab = "overview" | "session" | "leaks" | "stats" | "progress" | "reports" | "multiway" | "bomb" | "train" | "charts";
 
 /** The tab a section lights up: the plan is on Train. */
 function tabOf(section: AnalysisSection): Tab | null {
@@ -62,6 +63,7 @@ export function AnalysisNav({ current, children, status }: { current: AnalysisSe
     { id: "overview", href: paths.analysis(), label: t.overview },
     { id: "session", href: paths.analysisSession(), label: t.session },
     { id: "leaks", href: paths.analysisLeaks(), label: t.leaks },
+    { id: "stats", href: paths.analysisStats(), label: t.stats },
     { id: "progress", href: paths.analysisProgress(), label: t.progress },
     { id: "reports", href: paths.analysisReports(), label: t.reports },
     { id: "multiway", href: paths.analysisMultiway(), label: t.multiway },

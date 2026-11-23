@@ -78,7 +78,6 @@ export const analyticsUiHr: AnalyticsStrings = {
       streets: "Ulice",
       stats: "Sve statistike",
       pool: "Pool",
-      breakdown: "Raščlamba",
     } as Record<string, string>,
     figures: {
       label: "Rezultati na 100 ruku",

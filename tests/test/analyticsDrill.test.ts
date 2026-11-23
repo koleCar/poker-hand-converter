@@ -119,14 +119,14 @@ describe("drill-down routes", () => {
     expect(drillOfParam(null)).toBeNull();
   });
 
-  it("the web path: /stats/<id> (encoded), not /stats", () => {
-    expect(drillOfPath("/stats/flop_fold_vs_bet")).toBe("flop_fold_vs_bet");
-    expect(drillOfPath("/stats/flop_fold_vs_bet/")).toBe("flop_fold_vs_bet");
-    expect(drillOfPath("/stats/a%20b")).toBe("a b");
-    expect(drillOfPath("/stats")).toBeNull();
-    expect(drillOfPath("/stats/")).toBeNull();
+  it("the web path: /analysis/stats/<id> (encoded), not /analysis/stats", () => {
+    expect(drillOfPath("/analysis/stats/flop_fold_vs_bet")).toBe("flop_fold_vs_bet");
+    expect(drillOfPath("/analysis/stats/flop_fold_vs_bet/")).toBe("flop_fold_vs_bet");
+    expect(drillOfPath("/analysis/stats/a%20b")).toBe("a b");
+    expect(drillOfPath("/analysis/stats")).toBeNull();
+    expect(drillOfPath("/analysis/stats/")).toBeNull();
     expect(drillOfPath("/analysis/x")).toBeNull();
-    expect(drillOfPath("/stats/%E0%A4%A")).toBeNull();
+    expect(drillOfPath("/analysis/stats/%E0%A4%A")).toBeNull();
     expect(drillOfPath(null)).toBeNull();
   });
 

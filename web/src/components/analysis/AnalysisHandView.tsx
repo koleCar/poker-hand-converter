@@ -60,7 +60,7 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
   // Opened from an Analytics drill-down (`from=stats&stat=<id>`): back to that stat.
   const fromStat = query.from === "stats" && typeof query.stat === "string" && query.stat !== "" ? query.stat : null;
   const back = fromStat
-    ? paths.statsStat(fromStat)
+    ? paths.analysisStat(fromStat)
     : fromSession
       ? paths.analysisSession(sessionQueryString(parseSessionQuery(query)))
       : paths.analysis(listQuery(parseListState(query)));

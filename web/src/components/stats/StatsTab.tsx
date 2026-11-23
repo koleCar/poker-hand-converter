@@ -1,6 +1,10 @@
 /**
- * The Analytics screen (`/stats`; docs/ANALYTICS.md Step 4, the statistics
- * screen until then).
+ * The statistics screens: Reports at `/stats` (`mode: "reports"`, as it was
+ * in 0.12.0) and Analytics at `/analysis/stats` (`mode: "analytics"`,
+ * docs/ANALYTICS.md, a section of Analysis since 2026-11-23). Both read the
+ * same report source and share this page's states, coverage line, rebuild
+ * and live arrivals; Analytics draws the shared Analytics screen
+ * (`@rail/ui/analytics/AnalyticsScreen`) under the Analysis tabs.
  *
  * Since R4.5c the report itself is the shared Reports screen
  * (`@rail/ui/reports/ReportsScreen`, the desktop app's since R2.7b) over the
@@ -23,8 +27,8 @@
  * function missing from its schema cache; `isMissingSchemaError` is that
  * check, a code rather than a string match.
  *
- * A stat's drill-down (docs/ANALYTICS.md Step 8) is `/stats/<id>` on this same
- * screen: the address says which (`drillOfPath`), and moving in and out is a
+ * A stat's drill-down (docs/ANALYTICS.md Step 8) is `/analysis/stats/<id>` on
+ * the Analytics screen: the address says which (`drillOfPath`), and moving in and out is a
  * `history.pushState`, so the filter and the tab stay; its hands open on
  * their analysis page at the decision, with a way back to the stat.
  *
@@ -44,13 +48,9 @@ import type { HandFilter } from "@rail/ui/hands/model";
 import type { AnalyticsChecker } from "@rail/ui/analytics/model";
 import { useUiStrings } from "@rail/ui/i18n";
 import { checkerFiltersOf, drillOfPath } from "@rail/ui/analytics/view";
-import {
-  ReportsScreen,
-  type AnalyticsView,
-  type DrillHandLinkProps,
-  type DrillNav,
-  type Tab,
-} from "@rail/ui/reports/ReportsScreen";
+import { AnalyticsScreen, type DrillHandLinkProps, type DrillNav } from "@rail/ui/analytics/AnalyticsScreen";
+import type { AnalyticsView } from "@rail/ui/analytics/view";
+import { ReportsScreen, type Tab } from "@rail/ui/reports/ReportsScreen";
 import { encodePosition } from "@rail/ui/replayer/position";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import reportStyles from "@rail/ui/reports/Reports.module.css";
@@ -74,6 +74,7 @@ import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
 import { ProLock, ProLockLine } from "../plan/ProLock";
 import type { ArrivalBatch } from "../../lib/live/arrivals";
+import { AnalysisNav } from "../analysis/AnalysisNav";
 import { OpponentsPanel } from "./OpponentsPanel";
 import { opponentsScope } from "./opponentsScope";
 import { SessionsPanel } from "./SessionsPanel";
@@ -85,6 +86,8 @@ interface StatsTabProps {
   refreshToken?: number;
   /** The latest live batch from the shell (`AppFrame`, R1.10); null until one arrives. */
   arrival?: ArrivalBatch | null;
+  /** Reports (`/stats`, the default) or Analytics (`/analysis/stats`). */
+  mode?: "reports" | "analytics";
 }
 
 type Status = "ready" | "not-installed" | "error";
@@ -121,21 +124,21 @@ const lockLine = (line: string) => <ProLockLine line={line} />;
 const subscribeNever = () => () => undefined;
 
 /**
- * The drill-down's way in and out (docs/ANALYTICS.md Step 8): `/stats/<id>`
- * and back to `/stats`, as history entries of this one screen (Next keeps
+ * The drill-down's way in and out (docs/ANALYTICS.md Step 8):
+ * `/analysis/stats/<id>` and back to `/analysis/stats`, as history entries of this one screen (Next keeps
  * `usePathname` in step with `history.pushState`), so the filter and the tab
  * stay as they were.
  */
 const webDrillNav: DrillNav = {
-  href: (stat) => (stat === null ? paths.stats() : paths.statsStat(stat)),
+  href: (stat) => (stat === null ? paths.analysisStats() : paths.analysisStat(stat)),
   go: (stat) => {
-    window.history.pushState(null, "", stat === null ? paths.stats() : paths.statsStat(stat));
+    window.history.pushState(null, "", stat === null ? paths.analysisStats() : paths.analysisStat(stat));
     window.scrollTo({ top: 0 });
   },
 };
 
 
-export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
+export function StatsTab({ refreshToken = 0, arrival = null, mode = "reports" }: StatsTabProps) {
   const dict = useDict();
   const ui = useUiStrings();
   const t = dict.stats;
@@ -156,8 +159,9 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   const [chosen, setChosen] = useState<FilterState | null>(null);
   const [view, setView] = useState<AnalyticsView>("overview");
   const [tab, setTab] = useState<Tab>("position");
-  // `/stats/<id>`: that stat's drill-down (Step 8), over the tab it was opened from.
-  const drill = drillOfPath(usePathname());
+  // `/analysis/stats/<id>`: that stat's drill-down (Step 8), over the tab it was opened from.
+  const pathname = usePathname();
+  const drill = mode === "analytics" ? drillOfPath(pathname) : null;
   // A drill-down hand opens on its analysis page, at the decision; its Back returns to the stat.
   const renderHandLink = useCallback(
     ({ handId, actionIndex, label, className, children }: DrillHandLinkProps) => {
@@ -287,7 +291,7 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   if (!isDatabaseConfigured) {
     return (
       <div className="stats">
-        <Header />
+        <Header mode={mode} />
         <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>
       </div>
     );
@@ -298,14 +302,14 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
     if (auth.status === "loading") {
       return (
         <div className="stats">
-          <Header />
+          <Header mode={mode} />
           <RailLoader label={dict.settings.loading} centered />
         </div>
       );
     }
     return (
       <div className="stats">
-        <Header />
+        <Header mode={mode} />
         <div className="card stats-empty">
           <h3>{en.signInHeading}</h3>
           <p className="muted">{en.signInBody}</p>
@@ -320,7 +324,7 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   if (status === "not-installed") {
     return (
       <div className="stats">
-        <Header />
+        <Header mode={mode} />
         <div className="card stats-empty">
           <h3>{en.notInstalledHeading}</h3>
           <p className="muted">
@@ -348,7 +352,7 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   if (status === "error") {
     return (
       <div className="stats">
-        <Header />
+        <Header mode={mode} />
         <p className="notice notice--error">{message}</p>
         <button
           type="button"
@@ -364,6 +368,58 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
     );
   }
 
+  if (mode === "analytics") {
+    return (
+      <div className="stats">
+        <AnalysisNav current="stats" />
+        <AnalyticsScreen
+          key={auth.user?.id ?? ""}
+          source={source}
+          definitions={WEB_DEFINITIONS}
+          chosen={chosen}
+          onChoose={setChosen}
+          view={view}
+          onView={setView}
+          title={dict.analysis.ui.nav.stats}
+          titleTag="h2"
+          hideTitle
+          notice={<CoverageBar coverage={coverage} rebuild={rebuild} onRebuild={() => void runRebuild()} />}
+          emptyText={rebuild.status === "running" ? en.loading : `${en.emptyHeading}.`}
+          emptyLink={<Link href={paths.convert()}>{en.emptyLink}</Link>}
+          reloadToken={generation}
+          renderState={(kind, text, action) =>
+            // Nothing to show while a catch-up rebuild runs is still loading.
+            kind === "loading" || (kind === "empty" && rebuild.status === "running") ? (
+              <RailLoader label={text} showLabel centered />
+            ) : (
+              <div
+                className={kind === "error" ? "notice notice--error rail-fade" : "card stats-empty rail-fade"}
+                role={kind === "error" ? "alert" : "status"}
+              >
+                {kind === "error" ? (
+                  text
+                ) : (
+                  <p className="muted">
+                    {text}
+                    {action ? <> {action}</> : null}
+                  </p>
+                )}
+              </div>
+            )
+          }
+          checker={webChecker}
+          pool={webPool}
+          poolOff={opponentsOn ? undefined : <Link href={paths.players()}>{ui.analytics.screen.pool.offLink}</Link>}
+          checkerLock={analysisLocked ? lockLine : undefined}
+          practiseHref={paths.analysisTrain}
+          drill={drill}
+          drillNav={webDrillNav}
+          renderHandLink={renderHandLink}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="stats">
       <StatsNav current="reports" />
@@ -373,18 +429,15 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
         definitions={WEB_DEFINITIONS}
         chosen={chosen}
         onChoose={setChosen}
-        view={view}
-        onView={setView}
         tab={tab}
         onTab={setTab}
         title={en.heading}
         titleTag="h2"
         hideTitle
         notice={<CoverageBar coverage={coverage} rebuild={rebuild} onRebuild={() => void runRebuild()} />}
-        emptyText={rebuild.status === "running" ? en.loading : `${en.emptyHeading}.`}
-        emptyLink={<Link href={paths.convert()}>{en.emptyLink}</Link>}
+        emptyText={rebuild.status === "running" ? en.loading : `${en.emptyHeading}. ${en.emptyBody}`}
         reloadToken={generation}
-        renderState={(kind, text, action) =>
+        renderState={(kind, text) =>
           // Nothing to show while a catch-up rebuild runs is still loading.
           kind === "loading" || (kind === "empty" && rebuild.status === "running") ? (
             <RailLoader label={text} showLabel centered />
@@ -393,28 +446,13 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
               className={kind === "error" ? "notice notice--error rail-fade" : "card stats-empty rail-fade"}
               role={kind === "error" ? "alert" : "status"}
             >
-              {kind === "error" ? (
-                text
-              ) : (
-                <p className="muted">
-                  {text}
-                  {action ? <> {action}</> : null}
-                </p>
-              )}
+              {kind === "error" ? text : <p className="muted">{text}</p>}
             </div>
           )
         }
         // (R6.4) The situation tabs and the footer (sessions, opponents)
         // show the Pro teaser instead of an error.
         situationsLock={fullLocked ? <ProLock feature="reports_full" compact /> : undefined}
-        checker={webChecker}
-        pool={webPool}
-        poolOff={opponentsOn ? undefined : <Link href={paths.players()}>{ui.analytics.screen.pool.offLink}</Link>}
-        checkerLock={analysisLocked ? lockLine : undefined}
-        practiseHref={paths.analysisTrain}
-        drill={drill}
-        drillNav={webDrillNav}
-        renderHandLink={renderHandLink}
         footer={(query) => {
           if (fullLocked) {
             return <ProLock feature="reports_full" compact />;
@@ -435,10 +473,21 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   );
 }
 
-/** The states' heading: for assistive technology only, like the report's own (`hideTitle`). */
-function Header() {
-  const en = useDict().stats.tab;
-  return <h2 className={reportStyles.visuallyHidden}>{en.heading}</h2>;
+/**
+ * The states' heading: for assistive technology only, like the report's own
+ * (`hideTitle`); Analytics' under the Analysis tabs.
+ */
+function Header({ mode }: { mode: "reports" | "analytics" }) {
+  const dict = useDict();
+  if (mode === "analytics") {
+    return (
+      <>
+        <AnalysisNav current="stats" />
+        <h2 className={reportStyles.visuallyHidden}>{dict.analysis.ui.nav.stats}</h2>
+      </>
+    );
+  }
+  return <h2 className={reportStyles.visuallyHidden}>{dict.stats.tab.heading}</h2>;
 }
 
 type RebuildState =

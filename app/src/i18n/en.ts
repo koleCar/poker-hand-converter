@@ -55,7 +55,7 @@ export const en = {
     label: "Main",
     live: "Live",
     hands: "Hands",
-    reports: "Analytics",
+    reports: "Reports",
     players: "Players",
     analysis: "Analysis",
     solver: "Solver",
@@ -119,8 +119,8 @@ export const en = {
       lead: "Every hand, with filters, the replayer, tags and notes.",
     },
     reports: {
-      title: "Analytics",
-      lead: "Winnings and all-in EV, your stats against their targets, results by position and situation.",
+      title: "Reports",
+      lead: "Winnings and all-in EV over time, results by position and situation.",
     },
     players: {
       title: "Players",
@@ -255,8 +255,8 @@ export const en = {
       hint: "Your session shows up here with the first hand you play.",
       last: "Last session",
       range: (from: string, to: string) => `${from} – ${to}`,
-      reports: "Open in Analytics",
-      reportsTitle: "Open in Analytics, filtered to this session",
+      reports: "Open in Reports",
+      reportsTitle: "Open in Reports, filtered to this session",
     },
   },
 
@@ -738,7 +738,7 @@ export const en = {
     /** Settings, Your statistics (R2.10; guideline §5 "Custom statistike"). */
     custom: {
       heading: "Your statistics",
-      body: "Count what the standard statistics do not. A counter is a rule over every decision in your hands - when a decision is a chance, and what counts as taking it - and the statistic shows it through a formula, with its own label, colours and minimum sample. Rail counts a new counter over all your hands in the background; Analytics lists the result with the other statistics.",
+      body: "Count what the standard statistics do not. A counter is a rule over every decision in your hands - when a decision is a chance, and what counts as taking it - and the statistic shows it through a formula, with its own label, colours and minimum sample. Rail counts a new counter over all your hands in the background; Reports lists the result with the other statistics.",
       loading: "Loading your statistics…",
       loadFailed: (reason: string) => `Could not load your statistics: ${reason}`,
       empty: "No statistics of your own yet.",
@@ -1228,10 +1228,8 @@ export const en = {
     // The summary, the graph's card, the statistics and the breakdowns: the
     // shared screen's words (R4.5c, `@rail/ui/strings/reports.en.ts`).
     ...reportsUiEn,
-    unavailable: "Analytics is only available inside the Rail app.",
-    empty: "No hands yet.",
-    /** The empty state's one way on (docs/ANALYTICS.md Step 12). */
-    emptyLink: "Import hand histories →",
+    unavailable: "Reports are only available inside the Rail app.",
+    empty: "No hands yet. Reports fill in as Rail imports your hand histories.",
     rebuilding: (done: number, total: number) =>
       `Updating the statistics after an upgrade: ${n(done)} of ${hands(total)}. The numbers grow as it goes.`,
     graph: {
@@ -1248,8 +1246,8 @@ export const en = {
     recent: "Recent",
     screens: "Screens",
     hands: "Hands",
-    reports: "Analytics",
-    report: (name: string) => `Analytics: ${name}`,
+    reports: "Reports",
+    report: (name: string) => `Report: ${name}`,
     searching: "Searching…",
     screen: (name: string) => name,
     goTo: "go to open screen",
@@ -1314,7 +1312,13 @@ export const en = {
   /** The analysis (R5.4): its screen, the background run's status, a hand's grades. */
   analysis: {
     tabsLabel: "Analysis sections",
-    tabs: { session: "Session review", leaks: "Top leaks", multiway: "Multiway ≈", bomb: "Bomb pots ≈" },
+    tabs: { session: "Session review", leaks: "Top leaks", stats: "Analytics", multiway: "Multiway ≈", bomb: "Bomb pots ≈" },
+    /** The Analytics section (docs/ANALYTICS.md): your stats against their targets. */
+    analytics: {
+      empty: "No hands yet.",
+      /** The empty state's one way on (docs/ANALYTICS.md Step 12). */
+      emptyLink: "Import hand histories →",
+    },
     unavailable: "The analysis is only available inside the Rail app.",
     loading: "Opening the analysis…",
     status: {

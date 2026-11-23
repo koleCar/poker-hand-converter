@@ -17,7 +17,8 @@ import type { GameKind } from "@rail/ui/hands/gameKind";
 import { fetchTopLeaks } from "../lib/leaksSource";
 import { errorText, inApp, ipc, onAccountChanged } from "../lib/ipc";
 import { handAnalysisOf } from "../analysis/service";
-import { drillParam } from "@rail/ui/analytics/view";
+import { screenHref } from "../lib/router";
+import { viewParam } from "../screens/analysis/view";
 import type { PhfHand } from "@rail/ui/model/phf";
 import { enqueue, flushOutbox } from "./outbox";
 import {
@@ -250,8 +251,8 @@ export function useAppTrainerHost(kind: GameKind | null): TrainerHost {
       initialSession: lastSession(),
       onSession: keepSession,
       played,
-      // The bar's way back: the stat's drill-down in Analytics.
-      analyticsHref: (stat) => `#/reports/${drillParam(encodeURIComponent(stat))}`,
+      // The bar's way back: the stat's drill-down in Analytics (a section of Analysis).
+      analyticsHref: (stat) => screenHref("analysis", viewParam({ kind: "stats", view: "overview", stat })),
     }),
     [locale, kind],
   );

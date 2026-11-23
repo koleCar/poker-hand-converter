@@ -7,9 +7,9 @@
  * the tone and the cost are the checker's (`checkStats`, `model/checker.ts`).
  * The words are `findings.ts`' and `strings/analytics.*.ts`'.
  *
- * - **Views.** Overview · Streets · All stats · Pool, and Breakdown (open
- *   question 1's default: today's breakdown tabs as a fifth tab). The
- *   figures row is shared by the first three.
+ * - **Views.** Overview · Streets · All stats · Pool (the breakdowns stay on
+ *   Reports, as in 0.12.0; the owner, 2026-11-23). The figures row is
+ *   shared by the first three.
  * - **Figures** are rates per 100 hands from the graph's end, so they and
  *   the curve agree: won, all-in EV, showdown and non-showdown, in big blinds
  *   or in the sample's money.
@@ -26,7 +26,7 @@
  * - **Drill-down** (Step 8, `drillOf`): one stat's analysed spots, and for
  *   the open spot its bet sizes (fold / call / raise against the target)
  *   and hand classes, from the checker over that spot's (and size's)
- *   groups; its routes (`#/reports/stat/<id>`, `/stats/<id>`) and the
+ *   groups; its routes (`#/analysis/stats?stat=<id>`, `/analysis/stats/<id>`) and the
  *   Trainer's queries (`drillQuery`, `playQuery`).
  * - **No target yet** (Step 12, `withUncovered`): a rate, spot, size or
  *   class whose decisions were all seen but none analysed against a
@@ -92,7 +92,7 @@ export function withUncovered(result: CheckerResult): CheckerResult {
 
 /* ------------------------------------------------------------ views -- */
 
-export const ANALYTICS_VIEWS = ["overview", "streets", "stats", "pool", "breakdown"] as const;
+export const ANALYTICS_VIEWS = ["overview", "streets", "stats", "pool"] as const;
 export type AnalyticsView = (typeof ANALYTICS_VIEWS)[number];
 
 export function isAnalyticsView(value: string | null | undefined): value is AnalyticsView {
@@ -714,9 +714,10 @@ export function practiseQuery(finding: CheckerFinding): string {
 /* ------------------------------------------------------- Drill-down -- */
 
 /**
- * The drill-down's route (docs/ANALYTICS.md Step 8): the desktop's
- * `#/reports/stat/<id>` carries `stat/<id>` as the screen's parameter; the
- * web's `/stats/<id>` the id alone.
+ * The drill-down's route (docs/ANALYTICS.md Step 8), under Analysis: the
+ * desktop's `#/analysis/stats?stat=<id>` (`app/src/screens/analysis/view.ts`)
+ * and the web's `/analysis/stats/<id>`. `stat/<id>` is the parameter form
+ * the desktop's Reports carried before Analytics moved (kept for old links).
  */
 export const DRILL_PREFIX = "stat/";
 
@@ -732,9 +733,9 @@ export function drillOfParam(param: string | null | undefined): string | null {
   return id === "" ? null : id;
 }
 
-/** The stat a web path drills into (`/stats/<id>`), else null. */
+/** The stat a web path drills into (`/analysis/stats/<id>`), else null. */
 export function drillOfPath(pathname: string | null | undefined): string | null {
-  const match = /^\/stats\/([^/]+)\/?$/.exec(pathname ?? "");
+  const match = /^\/analysis\/stats\/([^/]+)\/?$/.exec(pathname ?? "");
   if (!match?.[1]) return null;
   try {
     return decodeURIComponent(match[1]);
