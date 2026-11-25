@@ -37,7 +37,7 @@
 use std::collections::BTreeMap;
 
 use rail_config::model::HudRestrictions;
-use rail_config::stats::{HudPlace, Tone};
+use rail_config::stats::{HudPlace, Players, Tone};
 use rail_core::js::JsNumber;
 use rail_stats::custom::{CustomSet, custom_sums};
 use rail_stats::display::{Display, DisplayStat, Sums, format_fixed};
@@ -213,6 +213,86 @@ pub struct StatCell {
     pub tone: Option<Tone>,
     /// R2.5's reliability opacity, thousandths (600 - 1000).
     pub opacity_permille: u32,
+    /// (#429) The definition's short label (`VPIP`): the hover tip's head.
+    pub label: String,
+    /// (#429) The sample the value stands on (`sample.of`, or a rate's
+    /// opportunities); `None` without one.
+    pub sample: Option<i64>,
+    /// (#429) The statistics the hover tip shows with it ([`related`]),
+    /// over the same rollups.
+    pub more: Vec<MoreCell>,
+}
+
+/// (#429) A related statistic in a panel cell's hover tip.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MoreCell {
+    /// The definition's short label (`Limp`).
+    pub label: String,
+    /// The value as a whole number (`-` without one).
+    pub text: String,
+    pub tone: Option<Tone>,
+    pub opacity_permille: u32,
+}
+
+/// (#429) The shipped statistics a panel statistic's hover tip shows next
+/// to it: the ones that say more about the same decision (VPIP: how the
+/// money went in; 3-bet: what follows it; a flop c-bet: the later
+/// streets). Fixed per statistic, never per player or situation, and the
+/// player's own rollups as on the panel. A statistic not listed (a user's
+/// own) shows its value and sample only.
+pub fn related(id: &str) -> &'static [&'static str] {
+    match id {
+        "vpip" => &["limp", "cold_call", "rfi", "saw_flop"],
+        "pfr" => &["rfi", "iso", "steal", "four_bet"],
+        "rfi" => &["steal", "limp", "iso"],
+        "limp" => &["iso", "cold_call", "rfi"],
+        "iso" => &["rfi", "limp", "three_bet"],
+        "cold_call" => &["vpip", "three_bet", "squeeze"],
+        "three_bet" => &[
+            "four_bet",
+            "squeeze",
+            "three_bet_vs_steal",
+            "fold_to_three_bet",
+        ],
+        "fold_to_three_bet" => &["call_three_bet", "four_bet", "fold_to_four_bet"],
+        "call_three_bet" => &["fold_to_three_bet", "four_bet"],
+        "four_bet" => &["fold_to_four_bet", "five_bet", "three_bet"],
+        "fold_to_four_bet" => &["four_bet", "five_bet", "fold_to_three_bet"],
+        "five_bet" => &["four_bet", "fold_to_four_bet"],
+        "squeeze" => &["three_bet", "cold_call"],
+        "steal" => &["fold_to_steal", "call_steal", "three_bet_vs_steal"],
+        "fold_to_steal" => &["call_steal", "three_bet_vs_steal", "steal"],
+        "call_steal" | "three_bet_vs_steal" => {
+            &["fold_to_steal", "call_steal", "three_bet_vs_steal"]
+        }
+        "saw_flop" => &["wwsf", "wtsd", "wsd"],
+        "cbet_flop" => &["cbet_turn", "cbet_river", "fold_to_cbet_flop", "donk_flop"],
+        "cbet_turn" => &["cbet_flop", "cbet_river", "fold_to_cbet_turn"],
+        "cbet_river" => &["cbet_flop", "cbet_turn", "fold_to_cbet_river"],
+        "fold_to_cbet_flop" => &["raise_cbet_flop", "fold_to_cbet_turn", "fold_to_cbet_river"],
+        "fold_to_cbet_turn" => &["raise_cbet_turn", "fold_to_cbet_flop", "fold_to_cbet_river"],
+        "fold_to_cbet_river" => &["raise_cbet_river", "fold_to_cbet_flop", "fold_to_cbet_turn"],
+        "raise_cbet_flop" => &["fold_to_cbet_flop", "check_raise_flop"],
+        "donk_flop" => &["donk_turn", "donk_river"],
+        "check_raise_flop" => &["check_raise_turn", "check_raise_river", "raise_cbet_flop"],
+        "aggression_frequency" => &[
+            "aggression_frequency_flop",
+            "aggression_frequency_turn",
+            "aggression_frequency_river",
+            "aggression_factor",
+        ],
+        "aggression_factor" => &[
+            "aggression_factor_flop",
+            "aggression_factor_turn",
+            "aggression_factor_river",
+            "aggression_frequency",
+        ],
+        "wwsf" => &["wtsd", "wsd", "saw_flop"],
+        "wtsd" => &["wsd", "wwsf", "saw_flop"],
+        "wsd" => &["wtsd", "wwsf"],
+        "hands" | "bb_per_100" => &["vpip", "pfr", "three_bet"],
+        _ => &[],
+    }
 }
 
 /// One statistic of a panel, compiled.
@@ -227,6 +307,9 @@ struct PanelStat {
     decimals: u32,
     /// (R3.9) Shown only at these stack depths.
     when: Option<StackWhen>,
+    /// (#429) Its hover tip's statistics ([`related`]): shipped ones for
+    /// any player only.
+    more: Vec<DisplayStat>,
 }
 
 /// The compiled panel statistics, evaluated per player.
@@ -278,11 +361,18 @@ impl PanelStats {
                     ),
                     None => display,
                 };
+                let more = related(&slot.id)
+                    .iter()
+                    .filter_map(|id| shipped.as_ref()?.get(id))
+                    .filter(|stat| stat.def.players == Players::Any)
+                    .cloned()
+                    .collect();
                 Some(PanelStat {
                     display,
                     custom: names,
                     decimals: over.and_then(|o| o.decimals).unwrap_or(0),
                     when: slot.when,
+                    more,
                 })
             })
             .collect();
@@ -353,6 +443,23 @@ impl PanelStats {
                     ),
                     tone: shown.tone,
                     opacity_permille: permille(shown.reliability.opacity),
+                    label: stat.def.label.en.clone(),
+                    sample: shown.sample.and_then(|n| n.round().to_i64()),
+                    more: panel_stat
+                        .more
+                        .iter()
+                        .map(|more| {
+                            let shown = more.show(sums, None);
+                            MoreCell {
+                                label: more.def.label.en.clone(),
+                                text: shown
+                                    .value
+                                    .map_or_else(|| "-".to_owned(), |value| format_fixed(value, 0)),
+                                tone: shown.tone,
+                                opacity_permille: permille(shown.reliability.opacity),
+                            }
+                        })
+                        .collect(),
                 }
             })
             .collect()
@@ -759,6 +866,31 @@ mod tests {
         ] {
             assert_eq!(hands_text(hands), text);
             assert!(text.len() <= 5);
+        }
+    }
+
+    /// (#429) Each panel cell carries its label, its sample and its related
+    /// statistics' values for the hover tip, over the same rollups.
+    #[test]
+    fn cells_carry_their_hover_tip() {
+        let stats = PanelStats::new(&PanelDesign::default());
+        let cells = stats.cells(&rate_sums("vpip", 30, 120));
+        let vpip = cells.iter().find(|c| c.id == "vpip").expect("VPIP");
+        assert_eq!(vpip.label, "VPIP");
+        assert_eq!(vpip.text, "25");
+        assert_eq!(vpip.sample, Some(120));
+        let labels: Vec<&str> = vpip.more.iter().map(|m| m.label.as_str()).collect();
+        assert_eq!(labels, ["Limp", "CC", "RFI", "Flop"]);
+        // No opportunity for them in these rollups: no value yet.
+        assert!(vpip.more.iter().all(|m| m.text == "-"), "{:?}", vpip.more);
+        // Every related id is a shipped statistic for any player.
+        let display = Display::shipped().expect("shipped");
+        for cell in &cells {
+            for id in related(&cell.id) {
+                let stat = display.get(id).unwrap_or_else(|| panic!("{id}"));
+                assert_eq!(stat.def.players, Players::Any, "{id}");
+            }
+            assert_eq!(cell.more.len(), related(&cell.id).len(), "{}", cell.id);
         }
     }
 }

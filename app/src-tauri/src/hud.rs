@@ -1325,6 +1325,35 @@ pub async fn hud_reset_seat_positions(
     Ok(gone)
 }
 
+/// (#429) Whether the user locked the HUD's panels in place: a press on a
+/// panel at the table then never drags it (a click still opens the popup).
+/// Kept in the store's `kv` (`rail_hud::data::LOCKED_KEY`), which the HUD
+/// reads at its start and on every settings change.
+#[tauri::command]
+pub async fn hud_locked(store: State<'_, StoreState>) -> Result<bool, String> {
+    let store = store.store.as_ref().ok_or("the store is not open")?;
+    let value = store
+        .reader()
+        .kv(rail_hud::data::LOCKED_KEY)
+        .map_err(|error| error.to_string())?;
+    Ok(value.as_deref() == Some("1"))
+}
+
+/// (#429) Lock or unlock the HUD's panels; the HUD applies it at once.
+#[tauri::command]
+pub async fn hud_set_locked(
+    store: State<'_, StoreState>,
+    hud: State<'_, HudState>,
+    locked: bool,
+) -> Result<(), String> {
+    let store = store.store.as_ref().ok_or("the store is not open")?;
+    store
+        .set_kv(rail_hud::data::LOCKED_KEY, if locked { "1" } else { "0" })
+        .map_err(|error| error.to_string())?;
+    hud.settings_changed();
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

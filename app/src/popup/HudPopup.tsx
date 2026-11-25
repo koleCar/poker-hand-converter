@@ -1,21 +1,17 @@
 /**
- * The HUD popup (R3.8): the app's own small window beside a panel the user
- * clicked at a table (`src-tauri/src/popup.rs` opens and places it). It
- * shows, for that player, what the room's HUD rules allow:
+ * The HUD popup (R3.8; compact since #429): the app's own small window
+ * beside a panel the user clicked at a table (`src-tauri/src/popup.rs`
+ * opens and places it). For that player, what the room's HUD rules allow,
+ * as short as it can be - abbreviations and numbers, no sentences:
  *
- * - their statistics - every R2.4 definition for any player that the HUD
- *   shows (panel and popup) - over the table's game, from the user's own
- *   hands only where the room asks, coloured as on the panel (at most two
- *   thresholds), with R2.5's reliability; grouped like the Players screen;
- * - the legend: each statistic's thresholds in use, in words;
- * - hands together and your result against them (big blinds, cash and
- *   tournaments apart, never added);
- * - their rows by position, unless the room forbids a display that changes
- *   with position (PokerStars; Winamax read as conservatively) - then a
- *   line says why;
+ * - the name, the hands their numbers stand on (hover: the sample, the
+ *   room's own-hands rule, hands together and your result against them);
+ * - their statistics on four tabs - Preflop, Flop, Turn, River
+ *   (`streetOf`) - as a grid of label over value, coloured as on the panel
+ *   (at most two thresholds), faded by R2.5's reliability; hovering a value
+ *   gives its name, sample and interval (`StatTip`);
  * - where the room allows labelling players (Winamax; not PokerStars, not
- *   ACR), the user's words - colour, labels and note - editable; elsewhere
- *   a line says they stay in the Players screen.
+ *   ACR), the user's words - colour, labels and note - folded under "Note".
  *
  * Nothing about the hand in play, no advice: historical statistics only
  * (guideline §7). Esc closes it, so does its close button and the pointer
@@ -23,22 +19,39 @@
  * typed); a click elsewhere after it got the keyboard closes it from the
  * Rust side. The window opens without taking the keyboard from the table.
  */
-import { useCallback, useEffect, useId, useRef, useState } from "react";
-import type { StatDefinition, StatGroup as DefinitionGroup } from "@rail/ui/model/stats";
-import { StatTable } from "@rail/ui/stats/StatTable";
+import { useCallback, useEffect, useId, useState } from "react";
+import type { StatDefinition } from "@rail/ui/model/stats";
+import { useStatTip } from "@rail/ui/stats/StatTip";
+import { decimalMark, shownText } from "@rail/ui/stats/StatValue";
+import { PlayerWords } from "@rail/ui/players/PlayerProfile";
 
 import { StateMessage } from "../components/StateMessage";
 import { useLocale, useT } from "../i18n";
-import { errorText, inApp, ipc, onHudPopupChanged, type HudPopup as Popup, type PopupBand } from "../lib/ipc";
-import { statRows, useStatDefinitions } from "../lib/useStatDefinitions";
-import { POSITION_ORDER } from "../screens/hands/filter";
+import { formatLocale } from "../i18n/format";
+import { errorText, inApp, ipc, onHudPopupChanged, type HudPopup as Popup } from "../lib/ipc";
+import { shownOf, useStatDefinitions } from "../lib/useStatDefinitions";
 import { bigBlinds, count } from "../screens/hands/format";
 import { storePlayersSource } from "../lib/playersSource";
-import { PlayerWords } from "@rail/ui/players/PlayerProfile";
-import { GroupTable } from "@rail/ui/reports/Breakdown";
 import styles from "./HudPopup.module.css";
 
-const GROUPS: DefinitionGroup[] = ["preflop", "postflop", "showdown", "results"];
+/** The popup's tabs, in the hand's order. */
+export const STREETS = ["preflop", "flop", "turn", "river"] as const;
+export type Street = (typeof STREETS)[number];
+
+/**
+ * (#429) The tab a statistic goes on: preflop ones on Preflop; a
+ * postflop one by the street its id names (`_turn`, `_river`), showdown
+ * on River, the rest - the flop and the whole-hand postflop figures (AF,
+ * AFq, WWSF) - on Flop. Results (hands, win rate) are on no tab.
+ */
+export function streetOf(definition: Pick<StatDefinition, "id" | "group">): Street | null {
+  if (definition.group === "results") return null;
+  if (definition.group === "preflop") return "preflop";
+  const id = definition.id;
+  if (id.endsWith("_river") || id === "wtsd" || id === "wsd") return "river";
+  if (id.endsWith("_turn")) return "turn";
+  return "flop";
+}
 
 /** How long the pointer may be away before the popup closes. */
 const LEAVE_MS = 350;
@@ -138,74 +151,124 @@ function PopupBody({ popup, onClose }: { popup: Popup; onClose: () => void }) {
   const locale = useLocale();
   const definitions = useStatDefinitions();
   const headingId = useId();
-  const closeRef = useRef<HTMLButtonElement>(null);
-  const shown = (definition: StatDefinition) => popup.ids.includes(definition.id);
-  const thresholds = Math.max(
-    0,
-    ...popup.legend.map((entry) => entry.bands.length - 1),
+  const tip = useStatTip();
+  const [street, setStreet] = useState<Street>("preflop");
+  const mark = decimalMark(formatLocale());
+
+  // Every statistic the popup has, on its street's tab, in the
+  // definitions' order.
+  const cells = (definitions ?? []).flatMap((definition) => {
+    if (!popup.ids.includes(definition.id) || streetOf(definition) !== street) return [];
+    const found = shownOf(definitions ?? [], popup.stats, definition.id, popup.ids);
+    return found ? [found] : [];
+  });
+  const counts = STREETS.map((s) =>
+    (definitions ?? []).filter((d) => popup.ids.includes(d.id) && streetOf(d) === s).length,
   );
+  const winRate = definitions ? shownOf(definitions, popup.stats, "bb_per_100", popup.ids) : null;
+
+  // The hands count's hover: what the numbers stand on, in words.
+  const about = [
+    t.sample(popup.hands),
+    popup.rules.ownHandsOnly ? t.ownHands : null,
+    popup.opaque ? t.opaque : null,
+    popup.together
+      ? `${t.together}: ${
+          popup.together.cash.hands + popup.together.chips.hands > 0
+            ? count(popup.together.cash.hands + popup.together.chips.hands)
+            : t.noTogether
+        }`
+      : null,
+    popup.together && popup.together.cash.moneyHands > 0
+      ? t.resultCash(bigBlinds(popup.together.cash.netBbMilli), popup.together.cash.moneyHands)
+      : null,
+    popup.together && popup.together.chips.moneyHands > 0
+      ? t.resultChips(bigBlinds(popup.together.chips.netBbMilli), popup.together.chips.moneyHands)
+      : null,
+  ]
+    .filter((line): line is string => line !== null)
+    .join("\n");
 
   return (
     <article className={styles.body} aria-labelledby={headingId}>
+      {tip.layer}
       <header className={styles.head}>
-        <div className={styles.who}>
-          <h1 id={headingId} className={styles.name}>
-            {popup.hero ? `${popup.player} (${t.you})` : popup.player}
-          </h1>
-          <p className={styles.muted}>
-            {popup.table ? t.tableAt(popup.siteName, popup.table) : popup.siteName}
-          </p>
-        </div>
-        <button
-          ref={closeRef}
-          type="button"
-          className="btn btn--icon"
-          aria-label={t.close}
-          title={t.close}
-          onClick={onClose}
-        >
-          ×
-        </button>
+        <h1 id={headingId} className={styles.name} title={popup.table ?? undefined}>
+          {popup.hero ? `${popup.player} (${t.you})` : popup.player}
+        </h1>
+        <span className={styles.hands} title={about}>
+          {t.handsShort(count(popup.hands))}
+        </span>
+        {winRate && winRate.shown.text !== null ? (
+          <span
+            className={styles.hands}
+            data-tone={winRate.shown.tone ?? undefined}
+            {...tip.on({ definition: winRate.definition, shown: winRate.shown })}
+          >
+            {`${winRate.definition.label[locale]} ${shownText(winRate.shown, winRate.definition.format.unit, mark)}`}
+          </span>
+        ) : null}
+        <span className={styles.actions}>
+          {popup.together ? (
+            <button
+              type="button"
+              className="btn btn--icon"
+              aria-label={t.openInApp}
+              title={t.openInApp}
+              onClick={() => {
+                ipc.hudPopupOpenInApp().catch(() => undefined);
+              }}
+            >
+              ↗
+            </button>
+          ) : null}
+          <button type="button" className="btn btn--icon" aria-label={t.close} title={t.close} onClick={onClose}>
+            ×
+          </button>
+        </span>
       </header>
 
-      {popup.opaque ? <p className={styles.notice}>{t.opaque}</p> : null}
+      <div className={styles.tabs} role="tablist" aria-label={t.stats}>
+        {STREETS.map((s, index) => (
+          <button
+            key={s}
+            type="button"
+            role="tab"
+            className={`chip-btn${s === street ? " is-active" : ""}`}
+            aria-selected={s === street}
+            disabled={counts[index] === 0}
+            onClick={() => setStreet(s)}
+          >
+            {t.streets[s]}
+          </button>
+        ))}
+      </div>
 
-      <dl className={styles.facts}>
-        <div className={styles.fact}>
-          <dt>{t.sample(popup.hands)}</dt>
-          {popup.rules.ownHandsOnly ? <dd className={styles.muted}>{t.ownHands}</dd> : null}
-        </div>
-        {popup.together ? (
-          <>
-            <div className={styles.fact}>
-              <dt>{t.together}</dt>
-              <dd>
-                {popup.together.cash.hands + popup.together.chips.hands > 0
-                  ? count(popup.together.cash.hands + popup.together.chips.hands)
-                  : t.noTogether}
-              </dd>
-            </div>
-            {popup.together.cash.moneyHands > 0 || popup.together.chips.moneyHands > 0 ? (
-              <div className={styles.fact}>
-                <dt>{t.result}</dt>
-                {popup.together.cash.moneyHands > 0 ? (
-                  <dd className={tone(popup.together.cash.netBbMilli)}>
-                    {t.resultCash(bigBlinds(popup.together.cash.netBbMilli), popup.together.cash.moneyHands)}
-                  </dd>
-                ) : null}
-                {popup.together.chips.moneyHands > 0 ? (
-                  <dd className={tone(popup.together.chips.netBbMilli)}>
-                    {t.resultChips(bigBlinds(popup.together.chips.netBbMilli), popup.together.chips.moneyHands)}
-                  </dd>
-                ) : null}
-              </div>
-            ) : null}
-          </>
-        ) : null}
-      </dl>
+      {definitions === null ? (
+        <StateMessage kind="loading" compact>
+          {t.loading}
+        </StateMessage>
+      ) : (
+        <ul className={styles.grid} role="tabpanel" aria-label={t.streets[street]}>
+          {cells.map(({ definition, shown }) => (
+            <li
+              key={definition.id}
+              className={styles.cell}
+              data-tone={shown.tone ?? undefined}
+              {...tip.on({ definition, shown })}
+            >
+              <span className={styles.label}>{definition.label[locale]}</span>
+              <span className={styles.value} style={{ opacity: shown.reliability.opacity }}>
+                {shownText(shown, definition.format.unit, mark).replace(/%$/, "")}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {popup.notes ? (
-        <section className={styles.section} aria-label={t.note}>
+        <details className={styles.words}>
+          <summary>{t.note}</summary>
           <PlayerWords
             source={storePlayersSource}
             site={popup.storeSite}
@@ -213,138 +276,8 @@ function PopupBody({ popup, onClose }: { popup: Popup; onClose: () => void }) {
             initial={popup.notes}
             onNotes={() => undefined}
           />
-        </section>
-      ) : popup.together && !popup.rules.words ? (
-        <p className={styles.muted}>{t.wordsHidden(popup.siteName)}</p>
+        </details>
       ) : null}
-
-      <section className={styles.section}>
-        <h2 className={styles.subhead}>{t.stats}</h2>
-        {definitions === null ? (
-          <StateMessage kind="loading" compact>
-            {t.loading}
-          </StateMessage>
-        ) : popup.sections !== null ? (
-          // (R3.9) The table's design's sections, in its order.
-          <div className={styles.groups}>
-            {popup.sections.map((section, index) => {
-              const rows = statRows(
-                definitions,
-                popup.stats,
-                locale,
-                (definition) => section.ids.includes(definition.id),
-                popup.ids,
-              ).sort((a, b) => section.ids.indexOf(a.id) - section.ids.indexOf(b.id));
-              return rows.length === 0 ? null : (
-                <StatTable
-                  key={index}
-                  caption={section.title ?? (section.group ? all.reports.stats.groups[section.group] : "")}
-                  showCaption
-                  rows={rows}
-                />
-              );
-            })}
-          </div>
-        ) : (
-          <div className={styles.groups}>
-            {GROUPS.map((group) => {
-              const rows = statRows(
-                definitions,
-                popup.stats,
-                locale,
-                (definition) => definition.group === group && shown(definition),
-                popup.ids,
-              );
-              return rows.length === 0 ? null : (
-                <StatTable key={group} caption={all.reports.stats.groups[group]} showCaption rows={rows} />
-              );
-            })}
-          </div>
-        )}
-        <p className={styles.muted}>{t.statsNote}</p>
-      </section>
-
-      <details className={styles.section}>
-        <summary className={styles.subhead}>{t.legend}</summary>
-        <p className={styles.muted}>{t.legendNote(thresholds)}</p>
-        {definitions === null ? null : (
-          <ul className={styles.legend}>
-            {popup.legend.map((entry) => {
-              const definition = definitions.find((d) => d.id === entry.id);
-              return definition ? (
-                <li key={entry.id} className={styles.legendRow}>
-                  <span className={styles.legendName}>{definition.label[locale]}</span>
-                  <span className={styles.bands}>
-                    {entry.bands.map((band, index) => (
-                      <span key={band.tone} className={styles.band} data-tone={band.tone}>
-                        {`${bandText(entry.bands, index, locale, t)} · ${t.tones[band.tone]}`}
-                      </span>
-                    ))}
-                  </span>
-                </li>
-              ) : null;
-            })}
-          </ul>
-        )}
-      </details>
-
-      {popup.together ? (
-        <section className={styles.section}>
-          <h2 className={styles.subhead}>{t.byPosition}</h2>
-          {popup.byPosition === null ? (
-            <p className={styles.muted}>{t.byPositionHidden(popup.siteName)}</p>
-          ) : definitions === null ? null : (
-            <GroupTable
-              head={t.byPosition}
-              rows={[...popup.byPosition].sort((a, b) => rank(a.key) - rank(b.key))}
-              columns={popup.columns.map((id) => definitions.find((d) => d.id === id) ?? null)}
-              label={(row) => (row.key === "" ? t.noPosition : row.key)}
-            />
-          )}
-        </section>
-      ) : null}
-
-      <footer className={styles.foot}>
-        {popup.together ? (
-          <button
-            type="button"
-            className="btn"
-            onClick={() => {
-              ipc.hudPopupOpenInApp().catch(() => undefined);
-            }}
-          >
-            {t.openInApp}
-          </button>
-        ) : null}
-        <p className={styles.muted}>{t.historical}</p>
-      </footer>
     </article>
   );
-}
-
-function rank(key: string): number {
-  const index = POSITION_ORDER.indexOf(key);
-  return index < 0 ? POSITION_ORDER.length : index;
-}
-
-function tone(netBbMilli: number): string {
-  return netBbMilli > 0 ? styles.up : netBbMilli < 0 ? styles.down : "";
-}
-
-/** A band's range in words: "below 22", "22 to 30", "from 30". */
-function bandText(
-  bands: readonly PopupBand[],
-  index: number,
-  locale: string,
-  t: { below: (v: string) => string; from: (v: string) => string; range: (a: string, b: string) => string },
-): string {
-  const number = new Intl.NumberFormat(locale === "hr" ? "hr-HR" : "en-GB", { maximumFractionDigits: 2 });
-  const band = bands[index];
-  const previous = index > 0 ? bands[index - 1] : undefined;
-  const low = previous?.below ?? null;
-  const high = band?.below ?? null;
-  if (low === null && high !== null) return t.below(number.format(high));
-  if (low !== null && high === null) return t.from(number.format(low));
-  if (low !== null && high !== null) return t.range(number.format(low), number.format(high));
-  return "";
 }

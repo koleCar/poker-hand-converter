@@ -82,6 +82,9 @@ fn cells() -> Vec<StatCell> {
             text: "24".into(),
             tone: None,
             opacity_permille: 1000,
+            label: String::new(),
+            sample: None,
+            more: Vec::new(),
         })
         .collect()
 }
@@ -113,6 +116,7 @@ fn frame(site: &str, size: u32, seats: &[u32], rotate_to: Option<u32>) -> Overla
             .collect(),
         legend: Vec::new(),
         design: PanelDesign::default(),
+        locked: false,
     }
 }
 

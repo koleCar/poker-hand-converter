@@ -18,7 +18,8 @@
  * start ─▶ (preflop: a chart spot, the opponent the line's raiser or a seat behind;
  *           flop: a library line and flop, both hands drawn from their preflop ranges)
  *   ─▶ advance: whoever is to act - the opponent from the reference, anyone else folds -
- *      streets dealt from the five cards drawn at the start, until the hero is to act
+ *      streets dealt from the five cards drawn at the start (a flop the library does not
+ *      hold for the line traded for one it does: {@link libraryFlop}), until the hero is to act
  *   ─▶ decision (menu) ─▶ answer graded ─▶ advance … ─▶ over (a fold or the showdown)
  * ```
  *
@@ -29,6 +30,9 @@
 
 import {
   analyzeHand,
+  chartLineOf,
+  chunkFor,
+  libraryLine,
   opponentRanges,
   walkRanges,
   type DecisionAnalysis,
@@ -40,7 +44,7 @@ import { cardCode, cardIndex, evaluate } from "../equity/evaluator";
 import type { PhfHand } from "../phf/types";
 import { COMBO_CLASS, comboHi, comboLo, NUM_COMBOS, flopCards, permuteCard, SUIT_PERMUTATIONS } from "../solver";
 import { buildContext } from "../stats/context";
-import { planFlop, type FlopSpotOptions } from "./flop";
+import { libraryFlops, planFlop, type FlopSpotOptions } from "./flop";
 import {
   completePreflop,
   handUpTo,
@@ -371,6 +375,41 @@ function dealNext(state: PlayState): PlayState {
   return { ...state, script: { ...state.script, board: state.runout.slice(0, BOARD_AT[next]), [next]: [] } };
 }
 
+/**
+ * The flop of a hand played from preflop, before it is dealt: the runout's
+ * own when the flop library holds it (or its representative) for the line
+ * the two players took, else one of the line's library flops in suits that
+ * miss both hands, the turn and river drawn again around it. A flop the
+ * library does not hold has no reference for either player, so the hand
+ * would stop at the hero's first flop decision with no buttons (#414); the
+ * flop trainer deals library flops only for the same reason. Without a
+ * library, or on a line it holds no flop of, the runout as drawn.
+ */
+function libraryFlop(state: PlayState, charts: ChartSet, library: PlayLibrary | null, rng: Rng): PlayState {
+  if (!library) return state;
+  const seats = seatsOf(state.script);
+  const [oop] = orderOf(state.script, "flop").filter((p) => p === state.hero || p === state.villain);
+  // The flop as the analysis would read it (a stand-in check makes the hand reach it).
+  const hand = scriptHand({ ...state.script, board: state.runout.slice(0, 3), flop: [{ position: oop, type: "check" }] });
+  if (chunkFor(hand, buildContext(hand), charts, library.library)) return state;
+  const placed = chartLineOf(hand, [seatOf(state.hero, seats), seatOf(state.villain, seats)], charts);
+  const line = placed ? libraryLine(placed.set, placed.line) : null;
+  const flops = placed && line ? libraryFlops(library.library, placed.set.id, line.id) : [];
+  if (flops.length === 0) return state;
+  const holes = new Set([...state.heroCards, ...state.villainCards].map(cardIndex));
+  const flop = flopCards(pickOne(flops, rng)).map(cardIndex);
+  // The suits relabelled, from a random relabelling on, until the flop misses both hands.
+  const start = Math.floor(rng() * SUIT_PERMUTATIONS.length);
+  for (let k = 0; k < SUIT_PERMUTATIONS.length; k += 1) {
+    const perm = SUIT_PERMUTATIONS[(start + k) % SUIT_PERMUTATIONS.length];
+    const cards = flop.map((card) => permuteCard(card, perm));
+    if (cards.some((card) => holes.has(card))) continue;
+    const dead = new Set([...holes, ...cards]);
+    return { ...state, runout: [...cards.map(cardCode), ...restOfDeck(dead, rng, 2)] };
+  }
+  return state;
+}
+
 function contributed(script: HandScript, position: ScriptPosition): number {
   return script.stackBb - (scriptMoney(script).behind[position] ?? script.stackBb);
 }
@@ -429,6 +468,7 @@ export async function advance(start: PlayState, charts: ChartSet, library: PlayL
         while (streetOf(state.script) !== "river") state = dealNext(state);
         return finish(state, "showdown");
       }
+      if (street === "preflop") state = libraryFlop(state, charts, library, rng);
       state = dealNext(state);
       continue;
     }

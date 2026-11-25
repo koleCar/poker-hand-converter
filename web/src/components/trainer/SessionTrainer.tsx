@@ -8,6 +8,10 @@
  *
  * Every async step is keyed (`mode | request | round`): a slow deal or grade
  * for an old spot never lands on a new one.
+ *
+ * Left and opened again (#420: back from the Solver's spot, or from any other
+ * screen), the session goes on where it was: each table's spot as it was left
+ * and "For you"'s place in its areas (`parked.ts`).
  */
 
 "use client";
@@ -29,6 +33,7 @@ import { TableBox } from "./TrainerTable";
 import { analyticsAction, sizeLabel, type PlayedRef } from "./analytics";
 import { AnalyticsBar, GoalPanel } from "./FromAnalytics";
 import { PlayedPlayer } from "./PlayedPlayer";
+import { park, parked } from "./parked";
 import styles from "./trainer.module.css";
 
 export interface SessionTrainerProps {
@@ -67,9 +72,16 @@ export function SessionTrainer({
   const { t } = host;
   const settings = useMemo(() => sessionSettings(session), [session]);
   const [focus, setFocus] = useState<FocusState>({ status: "loading" });
-  const [areaIndex, setAreaIndex] = useState(0);
+  // "For you"'s place as the session was left (`parked.ts`), so its tables' kept spots are dealt for the same area.
+  const placeKey = `${session.id}|area`;
+  const [areaIndex, setAreaIndex] = useState(() => parked<{ area: number; inArea: number }>(placeKey)?.area ?? 0);
   /** Answers (spots) or hands in the current area of "For you". */
-  const inArea = useRef(0);
+  const inArea = useRef(parked<{ area: number; inArea: number }>(placeKey)?.inArea ?? 0);
+  const areaNow = useRef(areaIndex);
+  useEffect(() => {
+    areaNow.current = areaIndex;
+  }, [areaIndex]);
+  useEffect(() => () => park(placeKey, { area: areaNow.current, inArea: inArea.current }), [placeKey]);
   const [statuses, setStatuses] = useState<TableStatus[]>([]);
   const [period, setPeriod] = useState<"today" | "all">("today");
 
@@ -252,6 +264,8 @@ export function SessionTrainer({
                   pickRef={pickRef}
                   onAnswer={onAnswer}
                   earlier={earlier}
+                  parkKey={`${session.id}|${i}`}
+                  resume={!again}
                 />
               ))}
             </div>

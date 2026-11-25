@@ -72,7 +72,6 @@ export const trainerHr = {
   pause: "Nakon odgovora",
   pauses: { always: "Uvijek čekaj", mistakes: "Čekaj samo nakon greške" } as Record<string, string>,
   strategy: "Strategija za tvoju ruku",
-  facts: "Činjenice o ruci",
   on: "Uključeno",
   off: "Isključeno",
 
@@ -235,6 +234,12 @@ export const trainerHr = {
   board: { flop: "Flop", turn: "Turn", river: "River" } as Record<string, string>,
 
   next: "Sljedeća ruka",
+  solver: {
+    open: "Pogledaj u Solveru",
+    title: "Otvori Solver na ovom spotu. Kad se vratiš u Trener, sesija se nastavlja odavde.",
+    looking: "Tražim spot…",
+    none: "Solver ovdje nema spot.",
+  },
   autoNext: "Sljedeća ruka za trenutak…",
   stay: "Ostani",
   you: (label: string) => `Ti: ${label}`,
@@ -246,17 +251,67 @@ export const trainerHr = {
   strategyHeading: "Što solver radi s ovom rukom",
   evHeading: "EV",
   whyHeading: "Zašto",
-  factsHeading: "Tvoja ruka ovdje",
-  fact: {
-    equity: "Equity protiv rangea",
-    potOdds: "Pot odds",
-    mdf: "Moraš braniti",
-    spr: "SPR",
-    made: "Ruka",
-    draws: "Drawovi",
-    blockers: "Blokeri",
-  },
   ruleOfThumb: "Pravilo",
+  details: {
+    sizing: (note: import("../../training/details").SizingNote, label: (index: number) => string): string => {
+      const low = (index: number) => {
+        const text = label(index);
+        return text.charAt(0).toLowerCase() + text.slice(1);
+      };
+      const worth = (value: number) => `${num(value, 2)} bb`;
+      switch (note.kind) {
+        case "size-better":
+          return `${label(note.better)} je bolja veličina: donosi ${worth(note.bb)} više od tvog poteza (${low(note.chosen)}).`;
+        case "size-best":
+          return note.bb > 0
+            ? `Tvoja veličina je ovdje najbolja od ${note.raise ? "raiseova" : "betova"}: donosi ${worth(note.bb)} više od sljedeće (${low(note.next)}).`
+            : `Tvoja veličina i ${low(note.next)} ovdje vrijede isto.`;
+        case "passive-better":
+          return `${label(note.passive)} je ovdje bolji od ${note.sizes > 1 ? `svakog ${note.raise ? "raisea" : "beta"}` : note.raise ? "raisea" : "beta"}: donosi ${worth(note.bb)} više od ${note.sizes > 1 ? "najbolje veličine" : "njega"} (${low(note.best)}).`;
+        case "aggressive-better":
+          return `${note.raise ? "Raise" : "Bet"} je ovdje bolji: ${low(note.best)}${note.sizes > 1 ? " (najbolja veličina)" : ""} donosi ${worth(note.bb)} više od tvog poteza (${low(note.chosen)}).`;
+        case "passive-right":
+          return note.bb > 0
+            ? `${label(note.chosen)} je ovdje točan potez: ${note.sizes > 1 ? `najbolji ${note.raise ? "raise" : "bet"}, ` : ""}${low(note.best)}, donosi ${worth(note.bb)} manje.`
+            : `${label(note.chosen)} i ${low(note.best)} ovdje vrijede isto.`;
+      }
+    },
+    blockers: (b: import("../../training/details").BluffBlockers): string[] => {
+      const suit = (code: string) => ({ s: "♠", h: "♥", d: "♦", c: "♣" })[code] ?? code;
+      const card = (code: string) => `${code[0]}${suit(code[1])}`;
+      const join = (items: string[], last: string) =>
+        items.length <= 1 ? items.join("") : `${items.slice(0, -1).join(", ")} ${last} ${items[items.length - 1]}`;
+      const group = (g: import("../../training/details").BlockerGroup) => {
+        switch (g.kind) {
+          case "flush":
+            return `${join(g.cards.map(card), "ili")} (flushevi)`;
+          case "straight":
+            return `${join(g.ranks, "ili")} (skala)`;
+          case "top-pair":
+            return `${join(g.ranks, "ili")} (top par)`;
+          case "missed-flush":
+            return `bilo koji ${suit(g.suit)} (promašeni flush drawovi)`;
+          case "missed-straight":
+            return `${join(g.ranks, "ili")} (promašeni straight drawovi)`;
+        }
+      };
+      const out: string[] = [];
+      if (b.good.length > 0) out.push(`Za blef su dobre karte koje uklanjaju ruke koje callaju: ${b.good.map(group).join("; ")}.`);
+      if (b.bad.length > 0) out.push(`Loše su one koje uklanjaju ruke koje bi foldale: ${b.bad.map(group).join("; ")}.`);
+      const good = join(b.mine.good.map(card), "i");
+      const bad = join(b.mine.bad.map(card), "i");
+      const goodIs = b.mine.good.length === 1 ? "je dobar bloker" : "su dobri blokeri";
+      const badIs = b.mine.bad.length === 1 ? "je loš bloker" : "su loši blokeri";
+      const yours = (n: number) => (n === 1 ? "Tvoj" : "Tvoji");
+      if (good && bad) out.push(`${yours(b.mine.good.length)} ${good} ${goodIs}, a ${bad} ${badIs}.`);
+      else if (good) out.push(`${yours(b.mine.good.length)} ${good} ${goodIs}.`);
+      else if (bad) out.push(`${yours(b.mine.bad.length)} ${bad} ${badIs}.`);
+      else out.push("Nijedna tvoja karta nije među njima.");
+      return out;
+    },
+    blocks: (names: string[]) =>
+      `Tvoje karte blokiraju ${names.length <= 1 ? names.join("") : `${names.slice(0, -1).join(", ")} i ${names[names.length - 1]}`}.`,
+  },
   principles: {
     rfi: "Kad prvi ulaziš, što je manje igrača iza tebe, to otvaraš šire: s ranih pozicija samo ruke koje ostaju jake protiv više rangeova, s buttona i small blinda puno više. Suited, povezane ruke i parovi otvaraju se prije offsuit ruku iste jačine jer rade jake ruke i dobro se igraju nakon flopa.",
     "vs-open": "Protiv opena referenca uglavnom 3-beta ili folda, a calla uži dio rangea: ruke koje se dobro igraju nakon flopa, više njih u poziciji. Svaka pozicija iza tebe može squeezati, a flat call ostavlja ti ograničen (capped) range.",
@@ -448,7 +503,7 @@ export const trainerHr = {
     grades: analysisHr.grades,
     option: analysisHr.sheet.option,
     chartAction: analysisHr.charts.action,
-    explain: analysisHr.explain,
+    details: analysisHr.details,
     reasons: analysisHr.reasons,
     handFacts: analysisHr.handFacts,
     lineName: courseHr.spot.lineName,

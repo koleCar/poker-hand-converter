@@ -16,5 +16,5 @@ export function initialSettings(query: Record<string, string | string[] | undefi
   const saved = parseSettings(stored);
   if (typeof flat.mode !== "string") return saved;
   const fromAddress = parseSettings(flat);
-  return { ...fromAddress, pause: saved.pause, strategy: saved.strategy, facts: saved.facts };
+  return { ...fromAddress, pause: saved.pause, strategy: saved.strategy };
 }

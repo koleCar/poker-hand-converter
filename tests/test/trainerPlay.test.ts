@@ -8,7 +8,8 @@
 
 import { describe, expect, it } from "vitest";
 
-import { answerPlay, gradePlay, startHand, toAct, type PlayStep } from "../../web/src/lib/training/play.js";
+import { advance, answerPlay, gradePlay, startHand, toAct, type PlayLibrary, type PlayState, type PlayStep } from "../../web/src/lib/training/play.js";
+import { FLOP_REPRESENTATIVES, flopKey } from "../../web/src/lib/solver/index.js";
 import type { HandScript } from "../../web/src/lib/training/handText.js";
 import { fullLibrary } from "./charts/support.js";
 
@@ -88,4 +89,82 @@ describe("a whole hand from preflop", () => {
     }
     expect(played).toBeGreaterThan(20);
   }, 120_000);
+});
+
+describe("the flop of a hand from preflop (#414)", () => {
+  // A library holding one flop of the button's open called by the big blind: its chunk never loads here, but the flop
+  // dealt must be that one - a flop the library does not hold leaves both players without a reference, and the hand
+  // would stop at the hero's first flop decision with no buttons.
+  const SET = "nlhe-cash-6max-100bb";
+  const REP = FLOP_REPRESENTATIVES[17];
+  const has = (set: string, line: string, flop: string) => set === SET && line === "btn-bb" && flop === REP;
+  const library = {
+    library: { tree: "flop-m1", has, get: () => null },
+    ready: async () => true,
+    load: async () => undefined,
+  } as unknown as PlayLibrary;
+
+  it("is one the library holds for the line, in suits that miss both hands", async () => {
+    for (let seed = 1; seed <= 12; seed += 1) {
+      const state: PlayState = {
+        seed,
+        steps: 0,
+        set: SET,
+        hero: "BTN",
+        villain: "BB",
+        heroCards: ["Ah", "Kd"],
+        villainCards: ["7c", "7s"],
+        runout: ["2c", "2d", "2h", "3c", "3d"],
+        script: {
+          id: `T${seed}`,
+          hero: "BTN",
+          heroCards: ["Ah", "Kd"],
+          stackBb: 100,
+          preflop: [
+            ...["UTG", "HJ", "CO"].map((position) => ({ position, type: "fold" as const })),
+            { position: "BTN", type: "raise", to: 2.5 },
+            { position: "SB", type: "fold" },
+            { position: "BB", type: "call" },
+          ],
+        },
+        approximate: false,
+      };
+      const step = await advance(state, charts, library);
+      const board = (step.decision ?? step.over)!.board;
+      expect(flopKey(board), `seed ${seed}`).toBe(REP);
+      const cards = [...state.heroCards, ...state.villainCards, ...step.state.runout];
+      expect(new Set(cards).size, `seed ${seed}`).toBe(9);
+      expect(step.state.runout.slice(0, 3)).toEqual(board);
+    }
+  });
+
+  it("is the runout's own on a line the library holds no flop of", async () => {
+    const empty = { ...library, library: { ...library.library, has: () => false } } as unknown as PlayLibrary;
+    const runout = ["2c", "2d", "2h", "3c", "3d"];
+    const state: PlayState = {
+      seed: 5,
+      steps: 0,
+      set: SET,
+      hero: "BTN",
+      villain: "BB",
+      heroCards: ["Ah", "Kd"],
+      villainCards: ["7c", "7s"],
+      runout,
+      script: {
+        id: "T5",
+        hero: "BTN",
+        heroCards: ["Ah", "Kd"],
+        stackBb: 100,
+        preflop: [
+          ...["UTG", "HJ", "CO"].map((position) => ({ position, type: "fold" as const })),
+          { position: "BTN", type: "raise", to: 2.5 },
+          { position: "SB", type: "fold" },
+          { position: "BB", type: "call" },
+        ],
+      },
+      approximate: false,
+    };
+    const step = await advance(state, charts, empty);
+    expect(step.state.runout).toEqual(runout);
+  });
 });

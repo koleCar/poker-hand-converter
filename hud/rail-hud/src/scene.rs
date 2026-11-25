@@ -199,9 +199,37 @@ pub struct Scene {
     /// statistic id, its cell (the editor's preview opens a statistic's
     /// settings from it).
     pub cell_rects: Vec<(u32, String, Rect)>,
+    /// (#429) Which of the frame's panels each seat's slot draws: slot,
+    /// index into `OverlayFrame::panels` (what a hover tip reads).
+    pub seat_players: Vec<(u32, usize)>,
+    /// (#429) The user locked the panels: a press is a click, never a drag.
+    pub locked: bool,
+    /// (#429) The hover tip, when drawn: where, and the statistic it is
+    /// for. Not a click target: clicks under it reach the table.
+    pub tip: Option<(Rect, Hover)>,
+}
+
+/// (#429) The statistic the pointer rests on: a seat's slot and the
+/// statistic's id.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Hover {
+    pub slot: u32,
+    pub id: String,
 }
 
 impl Scene {
+    /// (#429) The statistic drawn at a point (client-relative), if any.
+    pub fn cell_at(&self, x: i32, y: i32) -> Option<Hover> {
+        self.cell_rects
+            .iter()
+            .rev()
+            .find(|(_, _, r)| layout::contains(r, x, y))
+            .map(|(slot, id, _)| Hover {
+                slot: *slot,
+                id: id.clone(),
+            })
+    }
+
     /// Whether a point (client-relative) is on a panel.
     pub fn hit(&self, x: i32, y: i32) -> bool {
         self.panels.iter().any(|r| layout::contains(r, x, y))
@@ -275,6 +303,7 @@ pub fn compose_with(
         width,
         height,
         size,
+        locked: frame.locked,
         ..Scene::default()
     };
 
@@ -462,6 +491,9 @@ pub fn compose_with(
         });
         scene.panels.push(rect);
         scene.seat_panels.push((slot, rect));
+        if let Some(index) = players.iter().position(|p| std::ptr::eq(p, player)) {
+            scene.seat_players.push((slot, index));
+        }
         // (R3.8) The player's colour tag and note mark, where the room
         // allows labelling players.
         if design.player_labels {
@@ -607,6 +639,170 @@ pub fn compose_with(
     scene
 }
 
+/// (#429) [`compose_with`], and on top the hover tip of the statistic the
+/// pointer rests on (`hover`), when it is still drawn.
+#[allow(clippy::too_many_arguments)]
+pub fn compose_hovered(
+    frame: &OverlayFrame,
+    width: u32,
+    height: u32,
+    scale_permille: u32,
+    design: &PanelDesign,
+    overrides: &Positions,
+    hover: Option<&Hover>,
+) -> Scene {
+    let mut scene = compose_with(frame, width, height, scale_permille, design, overrides);
+    if let Some(hover) = hover {
+        add_tip(&mut scene, frame, scale_permille, design, hover);
+    }
+    scene
+}
+
+/// (#429) The hover tip: the statistic's label, value and sample on the
+/// first row, then its related statistics ([`crate::panel::related`]) as
+/// columns of label over value, coloured as on the panel under the room's
+/// thresholds. Below the panel, else above it, inside the client area and,
+/// on a room that forbids covering its table graphics (ACR), clear of
+/// them; nowhere it may go, no tip.
+fn add_tip(
+    scene: &mut Scene,
+    frame: &OverlayFrame,
+    scale_permille: u32,
+    design: &PanelDesign,
+    hover: &Hover,
+) {
+    let restrictions = frame.permit.restrictions();
+    let design = design.enforce(restrictions);
+    if !design.shows(&hover.id) {
+        return;
+    }
+    let Some(cell_rect) = scene
+        .cell_rects
+        .iter()
+        .find(|(slot, id, _)| *slot == hover.slot && *id == hover.id)
+        .map(|(_, _, r)| *r)
+    else {
+        return;
+    };
+    let Some(panel) = scene.draggable(hover.slot) else {
+        return;
+    };
+    let Some(cell) = scene
+        .seat_players
+        .iter()
+        .find(|(slot, _)| *slot == hover.slot)
+        .and_then(|(_, index)| frame.panels.get(*index))
+        .and_then(|player| player.stats.iter().find(|c| c.id == hover.id))
+    else {
+        return;
+    };
+    let metrics = Metrics::for_client(scene.height, scale_permille);
+    let small = (metrics.font * 4 / 5).max(7);
+    let head = match cell.sample {
+        Some(sample) => format!("{} {} ({sample})", cell.label, cell.text),
+        None => format!("{} {}", cell.label, cell.text),
+    };
+    let head_chars = u32::try_from(head.chars().count()).unwrap_or(u32::MAX);
+    let columns = u32::try_from(cell.more.len()).unwrap_or(0);
+    let column = metrics.wide_cell;
+    let width = (2 * metrics.pad + columns * column)
+        .max(2 * metrics.pad + metrics.font + head_chars.saturating_mul(metrics.font) * 60 / 100);
+    let rows = if columns == 0 { 1 } else { 3 };
+    let size = (width, 2 * metrics.pad + rows * metrics.row);
+
+    let table_size = scene.size;
+    let table = frame
+        .seating
+        .layout
+        .clone()
+        .filter(|l| l.size == table_size)
+        .unwrap_or_else(|| TableLayout::simulator(table_size));
+    let graphics = table.graphics(scene.width, scene.height);
+    let gap = i32::try_from(metrics.gap).unwrap_or(0);
+    let (w, h) = (
+        i32::try_from(size.0).unwrap_or(i32::MAX),
+        i32::try_from(size.1).unwrap_or(i32::MAX),
+    );
+    let max_x = i32::try_from(scene.width)
+        .unwrap_or(i32::MAX)
+        .saturating_sub(w);
+    let cell_mid = cell_rect.x + i32::try_from(cell_rect.width / 2).unwrap_or(0);
+    let x = (cell_mid - w / 2).clamp(0, max_x.max(0));
+    let below = panel.y + i32::try_from(panel.height).unwrap_or(0) + gap;
+    let above = panel.y - gap - h;
+    let Some(rect) = [below, above]
+        .into_iter()
+        .map(|y| Rect {
+            x,
+            y,
+            width: size.0,
+            height: size.1,
+        })
+        .find(|rect| {
+            layout::inside(rect, scene.width, scene.height)
+                && !(restrictions.no_overlap_table_graphics
+                    && graphics.iter().any(|g| layout::intersects(rect, g)))
+        })
+    else {
+        return;
+    };
+
+    let pad = i32::try_from(metrics.pad).unwrap_or(0);
+    let row = i32::try_from(metrics.row).unwrap_or(0);
+    let max = design.max_colour_thresholds;
+    scene.items.push(Item::Fill {
+        rect,
+        radius: metrics.radius,
+        color: PANEL,
+    });
+    scene.items.push(Item::Text {
+        rect: Rect {
+            x: rect.x + pad,
+            y: rect.y + pad,
+            width: size.0.saturating_sub(2 * metrics.pad),
+            height: metrics.row,
+        },
+        text: head,
+        px: metrics.font,
+        color: tone_color(cell.tone.map(|t| collapse_tone(t, max))).faded(cell.opacity_permille),
+        bold: true,
+        align: Align::Center,
+    });
+    let step = i32::try_from(column).unwrap_or(0);
+    let left = rect.x + (w - i32::try_from(columns).unwrap_or(0) * step) / 2;
+    for (index, more) in (0_i32..).zip(&cell.more) {
+        let x = left + index * step;
+        scene.items.push(Item::Text {
+            rect: Rect {
+                x,
+                y: rect.y + pad + row,
+                width: column,
+                height: metrics.row,
+            },
+            text: more.label.clone(),
+            px: small,
+            color: MUTED,
+            bold: false,
+            align: Align::Center,
+        });
+        scene.items.push(Item::Text {
+            rect: Rect {
+                x,
+                y: rect.y + pad + 2 * row,
+                width: column,
+                height: metrics.row,
+            },
+            text: more.text.clone(),
+            px: metrics.font,
+            color: tone_color(more.tone.map(|t| collapse_tone(t, max)))
+                .faded(more.opacity_permille),
+            bold: true,
+            align: Align::Center,
+        });
+    }
+    scene.tip = Some((rect, hover.clone()));
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -620,6 +816,9 @@ mod tests {
             text: text.into(),
             tone: Some(tone),
             opacity_permille: opacity,
+            label: String::new(),
+            sample: None,
+            more: Vec::new(),
         }
     }
 
@@ -655,6 +854,7 @@ mod tests {
                 .collect(),
             legend: PanelStats::new(&PanelDesign::default()).legend_tones(),
             design: PanelDesign::default(),
+            locked: false,
         }
     }
 
@@ -1150,5 +1350,139 @@ mod tests {
         assert_eq!(NORMAL.faded(600).a, 153);
         assert_eq!(PANEL.faded(500).a, 112);
         assert_eq!(NORMAL.faded(5000), NORMAL);
+    }
+
+    /// (#429) A frame whose cells carry a hover tip's data.
+    fn hovered_frame(site: &str) -> OverlayFrame {
+        let mut frame = frame(site, Some(6), &[1, 2, 3, 4, 5, 6]);
+        for panel in &mut frame.panels {
+            for cell in &mut panel.stats {
+                cell.label = cell.id.to_uppercase();
+                cell.sample = Some(140);
+                cell.more = ["Limp", "CC", "RFI"]
+                    .into_iter()
+                    .map(|label| crate::panel::MoreCell {
+                        label: label.into(),
+                        text: "12".into(),
+                        tone: Some(Tone::VeryHigh),
+                        opacity_permille: 1000,
+                    })
+                    .collect();
+            }
+        }
+        frame
+    }
+
+    /// (#429) The pointer on a statistic: its tip, with the head and the
+    /// related statistics, next to the panel, inside the client area,
+    /// never a click target; off the statistics, none.
+    #[test]
+    fn a_hovered_statistic_shows_its_tip() {
+        let (w, h) = (1200, 860);
+        let frame = hovered_frame("winamax");
+        let design = PanelDesign::default();
+        let plain = compose(&frame, w, h, 1000, &design);
+        let (slot, id, rect) = plain.cell_rects[0].clone();
+        let (x, y) = (
+            rect.x + i32::try_from(rect.width / 2).unwrap_or(0),
+            rect.y + i32::try_from(rect.height / 2).unwrap_or(0),
+        );
+        let hover = plain.cell_at(x, y).expect("a statistic");
+        assert_eq!((hover.slot, hover.id.as_str()), (slot, id.as_str()));
+        assert_eq!(plain.cell_at(-5, -5), None);
+
+        let scene = compose_hovered(&frame, w, h, 1000, &design, &Positions::new(), Some(&hover));
+        let (tip, shown) = scene.tip.clone().expect("a tip");
+        assert_eq!(shown, hover);
+        assert!(layout::inside(&tip, w, h), "{tip:?}");
+        assert!(!scene.panels.contains(&tip), "the tip takes no clicks");
+        let panel = scene.draggable(slot).expect("the panel");
+        assert!(
+            !layout::intersects(&tip, &panel),
+            "beside the panel: {tip:?} {panel:?}"
+        );
+        let texts: Vec<&str> = scene
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                Item::Text { text, .. } => Some(text.as_str()),
+                Item::Fill { .. } => None,
+            })
+            .collect();
+        assert!(
+            texts.contains(&format!("{} 25 (140)", id.to_uppercase()).as_str()),
+            "{texts:?}"
+        );
+        for label in ["Limp", "CC", "RFI"] {
+            assert!(texts.contains(&label), "{label}: {texts:?}");
+        }
+        // Everything else is what the plain scene draws.
+        assert_eq!(scene.panels, plain.panels);
+        assert_eq!(scene.cell_rects, plain.cell_rects);
+
+        // A statistic no longer drawn: no tip.
+        let gone = Hover {
+            slot,
+            id: "nothing".into(),
+        };
+        let scene = compose_hovered(&frame, w, h, 1000, &design, &Positions::new(), Some(&gone));
+        assert_eq!(scene.tip, None);
+    }
+
+    /// (#429) ACR: the tip never covers the table's graphics; PokerStars'
+    /// tones are cut to its two thresholds there too.
+    #[test]
+    fn the_tip_keeps_the_rooms_rules() {
+        let (w, h) = (1200, 860);
+        let design = PanelDesign::default();
+        let table = TableLayout::simulator(6);
+        let graphics = table.graphics(w, h);
+        let frame = hovered_frame("acr");
+        let plain = compose(&frame, w, h, 1000, &design);
+        for (slot, id, _) in &plain.cell_rects {
+            let hover = Hover {
+                slot: *slot,
+                id: id.clone(),
+            };
+            let scene =
+                compose_hovered(&frame, w, h, 1000, &design, &Positions::new(), Some(&hover));
+            if let Some((tip, _)) = scene.tip {
+                assert!(
+                    !graphics.iter().any(|g| layout::intersects(&tip, g)),
+                    "{tip:?}"
+                );
+            }
+        }
+
+        let frame = hovered_frame("pokerstars");
+        let plain = compose(&frame, w, h, 1000, &design);
+        let (slot, id, _) = plain.cell_rects[0].clone();
+        let scene = compose_hovered(
+            &frame,
+            w,
+            h,
+            1000,
+            &design,
+            &Positions::new(),
+            Some(&Hover { slot, id }),
+        );
+        assert!(scene.tip.is_some());
+        let very_high = tone_color(Some(Tone::VeryHigh));
+        assert!(
+            !scene.items.iter().any(|item| matches!(
+                item,
+                Item::Text { color, .. } if Rgba { a: 255, ..*color } == very_high
+            )),
+            "PokerStars shows no outer band"
+        );
+    }
+
+    /// (#429) A locked frame's scene says so: a press there is never a drag.
+    #[test]
+    fn a_locked_frame_locks_its_scene() {
+        let mut frame = frame("winamax", Some(6), &[1]);
+        assert!(!compose(&frame, 800, 580, 1000, &PanelDesign::default()).locked);
+        frame.locked = true;
+        assert!(compose(&frame, 800, 580, 1000, &PanelDesign::default()).locked);
     }
 }

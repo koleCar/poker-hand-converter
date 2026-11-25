@@ -501,6 +501,8 @@ pub struct Hud {
     /// The user's layouts were read from the store (once it opens, and
     /// again on `layout_changed` / `settings_changed`).
     user_layouts_read: bool,
+    /// (#429) The user locked the panels in place (`kv` `hud.locked`).
+    locked: bool,
     /// (T2) Table tiling, when it is on ([`Hud::enable_tiling`]).
     tiling: Option<Tiling>,
     /// (T3) Panels are drawn (the plan includes the HUD): `false` runs the
@@ -568,6 +570,7 @@ impl Hud {
             find_interval: settings.find_every,
             rooms,
             user_layouts_read: false,
+            locked: false,
             tiling: None,
             panels: true,
             tiling_reported: TilingReport::default(),
@@ -1890,6 +1893,9 @@ impl Hud {
     /// Read the user's layouts from the store (R3.6); a store that cannot
     /// say keeps what is known.
     fn read_user_layouts(&mut self) {
+        if let Some(locked) = self.store.hud_locked() {
+            self.locked = locked;
+        }
         match self.store.user_layouts() {
             None => {}
             Some(Ok((positions, settings))) => {
@@ -2164,6 +2170,7 @@ impl Hud {
             // they changed them (R3.9).
             legend: design.stats.legend_tones(),
             design: design.panel.clone(),
+            locked: self.locked,
         };
         if let Err(error) = self.platform.overlay(id, &frame) {
             eprintln!("rail-hud: overlay on window {}: {error}", id.0);

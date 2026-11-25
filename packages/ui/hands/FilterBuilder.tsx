@@ -2,7 +2,8 @@
  * The filter builder ("All filters"): every group the row has, in panes on
  * a left rail - Situation (quick filters, positions, pot and action), Cards
  * (the hero's hand, the board), Context (game, result, date, table, marks) -
- * a search over all of them on top, and on the right what is set, in
+ * a search over all of them on top (a group's name opens that group: "hero
+ * hand" shows the grid, #418), and on the right what is set, in
  * words, each one a click from its pane or a × from gone. It edits a draft:
  * nothing reaches the list until "Show N hands", which counts the draft as
  * it changes (where the surface can count). Escape or Cancel leaves the
@@ -94,6 +95,11 @@ export function FilterBuilder({ groups, filter, facets, loadFacets, saved, start
   const { facets: draftFacets, total } = useDraftFacets(draft, facets, loadFacets);
   const hits = useSearchHits(groups, draft, draftFacets, query);
   const searching = query.trim() !== "";
+  // One group by that name: its editor, right there. Several: a row each, to their panes.
+  const named = hits.filter((hit) => hit.open !== undefined);
+  const lone = named.length === 1 ? named[0]?.open : undefined;
+  const rows = lone === undefined ? hits : hits.filter((hit) => hit.open === undefined);
+  const values = rows.filter((hit) => hit.open === undefined).length;
 
   useEffect(() => {
     const dialog = ref.current;
@@ -163,22 +169,40 @@ export function FilterBuilder({ groups, filter, facets, loadFacets, saved, start
 
           <div className={styles.builderMain}>
             {searching ? (
-              <div className={styles.results}>
-                <p className={styles.resultsTitle}>{hits.length > 0 ? b.results(hits.length) : b.noResults(query.trim())}</p>
-                {hits.slice(0, 40).map((hit) => (
-                  <button
-                    key={hit.key}
-                    type="button"
-                    className={styles.resultRow}
-                    aria-pressed={hit.on}
-                    onClick={() => setDraft((was) => hit.apply(was))}
-                  >
-                    <span className={styles.menuLabel}>{hit.label}</span>
-                    <span className={styles.menuWhere}>{hit.where}</span>
-                    <span className={styles.resultVerb}>{hit.on ? b.added : b.add}</span>
-                  </button>
-                ))}
-              </div>
+              <>
+                {lone !== undefined ? (
+                  <GroupEditor group={lone} filter={draft} facets={draftFacets} onChange={setDraft} variant="builder" titled />
+                ) : null}
+                {rows.length > 0 || lone === undefined ? (
+                  <div className={styles.results}>
+                    {values > 0 || lone === undefined ? (
+                      <p className={styles.resultsTitle}>{values > 0 ? b.results(values) : b.noResults(query.trim())}</p>
+                    ) : null}
+                    {rows.slice(0, 40).map((hit) => {
+                      const group = hit.open;
+                      return group !== undefined ? (
+                        <button key={hit.key} type="button" className={styles.resultRow} onClick={() => go(paneOf(group))}>
+                          <span className={styles.menuLabel}>{hit.label}</span>
+                          <span className={styles.menuWhere}>{hit.where}</span>
+                          <span className={styles.resultVerb}>{b.open} ›</span>
+                        </button>
+                      ) : (
+                        <button
+                          key={hit.key}
+                          type="button"
+                          className={styles.resultRow}
+                          aria-pressed={hit.on}
+                          onClick={() => setDraft((was) => hit.apply(was))}
+                        >
+                          <span className={styles.menuLabel}>{hit.label}</span>
+                          <span className={styles.menuWhere}>{hit.where}</span>
+                          <span className={styles.resultVerb}>{hit.on ? b.added : b.add}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </>
             ) : current ? (
               <>
                 <div className={styles.paneHead}>

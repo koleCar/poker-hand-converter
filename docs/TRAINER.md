@@ -29,7 +29,13 @@ screen) render the same component. A Pro feature.
   `analyzeHand` on the spot's hand with the answer appended (`lib/training`):
   preflop from Rail's charts, flops from Rail's flop library, turns and
   rivers solved on the spot. A trainer grade is the analysis grade of the
-  same spot by construction, so practice and review never disagree.
+  same spot by construction, so practice and review never disagree - but
+  for one word (#417, 2026-11-25): the trainer keeps **Perfect for the best
+  move**. A move the analysis calls Perfect because the reference plays it
+  nearly as often as its top option, yet loses EV the verdict shows (over
+  0.005 bb), is Good there, with the best move named
+  (`lib/training/grade.ts`, `bestMoveGrade`; spots and whole hands, not
+  drills or Play it, which keep their stored grades).
 - **"For you" first.** The leak finder groups the player's costly decisions
   into focus areas (`focusAreas`, the same areas the study plan uses); each
   has a trainer target. The Trainer works through the areas the sample
@@ -53,11 +59,22 @@ screen) render the same component. A Pro feature.
      hands from the range — first to act on a solved street value / thin
      value / bluffs by how much of the opponent's range they beat,
      elsewhere by the play — each with the EV of its play (a click rings
-     its class); the hand's facts as chips;
-  4. folded under Details: the analysis' own sentences (`explain`), the
+     its class);
+  4. folded under Details, only what the rest does not say (#424,
+     `lib/training/details.ts`): which bet size earns more than the one
+     played, or whether the check (call) beats every bet (raise); the
+     analysis' own sentences without the spot, the mix, the size played
+     and what the solve rests on (`details`); on a river bluff the good
+     blockers (cards that remove hands that call) and the bad ones (the
+     missed draws that fold), and which of yours are which; the
      **rule of thumb** for the kind of spot (`principles.ts`), and on the
      web the whole chart or range and the Learn links.
   While answering only the range can be opened (one button, remembered).
+  Once graded, with the strategy shown (settings → Show), every answer
+  button says how the reference plays it without opening anything (#417):
+  its frequency and EV for the hand, a bar of that frequency in the action's
+  colour, and the button tinted by the grade it would have had as the
+  answer (`buttonInfo`, `optionGrades`). No score circle.
 - **Easy settings.** One sheet, every choice a row of chips (one click, no
   dropdowns), only the rows the current mode reads: table, situation, seats;
   pot, position, preflop role, facing, line; hands (as the range holds them
@@ -235,6 +252,16 @@ new name; the old one stays as it was. Designed on the map canvas (Ideas,
   new session on them. Every answer still goes to `trainer_results` too.
 - The saved drills of T4 became sessions on the first opening (`drills.ts`
   is read once and emptied).
+- **Look up in Solver** (#420; the host's `solver`, the app's only for now):
+  beside Next hand after an answer, the Solver tab at the spot - the chart
+  node preflop, the library's flop at the spot's node, the hand's line from
+  the flop onto the live-solved turn and river (`lib/training/solverLink.ts`,
+  the worker's `solver` job, read as the replayer's "Open in Solver" reads a
+  hand); a flop the library holds only by its representative stops at the
+  turn's deal, one it does not hold at all opens the preflop line. Leaving
+  the Trainer keeps the session's tables as they were (`parked.ts`, for the
+  window's life): back in the session, the same spot is on the table, answered
+  or not, and "For you" is in the same area.
 
 ## 7. From Analytics (2026-11-22, docs/ANALYTICS.md Step 9)
 

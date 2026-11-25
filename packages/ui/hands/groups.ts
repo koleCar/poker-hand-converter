@@ -53,8 +53,10 @@ import {
   PCT_GROUPS,
   ordered,
   parseRange,
+  periodOf,
   type FilterState,
   type ListGroup,
+  type Period,
 } from "./filter";
 import { stakeLabel } from "./format";
 import { holdKind, isWholeKind, kindOf, kindOfFormat, withFormats, withKind, type GameKind } from "./gameKind";
@@ -545,6 +547,12 @@ function customEnd(value: string, locale: string, start?: string): string {
   return new Intl.DateTimeFormat(locale, sameDay ? { hour: "2-digit", minute: "2-digit" } : { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(at);
 }
 
+/** A calendar year or month as it reads: "2025", "March 2025". */
+export function periodLabel(period: Period, locale: string): string {
+  if (period.month === null) return String(period.year);
+  return new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(new Date(period.year, period.month, 1));
+}
+
 export function useGroupWords() {
   const strings = useUiStrings();
   const t = strings.hands.filters;
@@ -716,10 +724,14 @@ export function useGroupWords() {
         return joined(values.map((value) => labelOf(group, value, facets)));
       }
       switch (group) {
-        case "date":
+        case "date": {
+          // A whole year or month typed into the search reads as one (#418).
+          const whole = filter.date === "custom" ? periodOf(filter.dateFrom, filter.dateTo) : null;
+          if (whole) return periodLabel(whole, strings.intlLocale);
           return filter.date === "custom"
             ? `${customEnd(filter.dateFrom, strings.intlLocale) || "…"} – ${customEnd(filter.dateTo, strings.intlLocale, filter.dateFrom) || "…"}`
             : t.dates[filter.date ?? "custom"];
+        }
         case "allIn":
           return filter.allIn ? t.allIn.yes : t.allIn.no;
         case "notes":

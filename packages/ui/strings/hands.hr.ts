@@ -146,8 +146,11 @@ export const handsUiHr: typeof handsUiEn = {
     },
     dates: {
       today: "Danas",
+      thisWeek: "Ovaj tjedan",
       week: "Zadnjih 7 dana",
+      thisMonth: "Ovaj mjesec",
       month: "Zadnjih 30 dana",
+      thisYear: "Ova godina",
       year: "Zadnjih 12 mjeseci",
       custom: "Raspon",
       from: "Od",

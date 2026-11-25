@@ -34,6 +34,22 @@ export const reviewUiHr: typeof reviewUiEn = {
     clearFilter: "Sve ruke",
   },
 
+  hands: {
+    loading: "Tražim tvoje ruke…",
+    noHands: "Još nema ruku: kad spremiš ruke, ovdje su one koje vrijedi ponovno pogledati.",
+    noMatch: "Nijedna tvoja ruka ne odgovara ovom filteru.",
+    noAnalysed: "Nijedna od ovih ruku još nije analizirana.",
+    dates: "Odigrano",
+    analysedOnly: "Samo analizirane ruke",
+    analysed: (analysed, total) => `Analizirano ${num(analysed)} od ${num(total)} ${plural(total, "ruke", "ruke", "ruku")}`,
+    empty: {
+      worst: "Nijedna odluka u ovim rukama nije ocijenjena kao Netočno ili lošije.",
+      deviations: "Svaka ocijenjena preflop odluka ovih ruku prati chartove.",
+      pots: "Nijedan pot ovih ruku nema veličinu u big blindovima.",
+    },
+    emptyUnanalysed: "Nijedna od ovih ruku još nije ocijenjena.",
+  },
+
   ongoing: {
     text: (from, to) =>
       `Tvoja zadnja sesija (${from}–${to}) možda još traje, pa je prikazana zadnja završena. Pregled je za poslije igre.`,

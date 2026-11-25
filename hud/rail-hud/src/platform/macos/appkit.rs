@@ -132,9 +132,9 @@ use objc2::runtime::{AnyObject, NSObjectProtocol, ProtocolObject};
 use objc2::{MainThreadMarker, MainThreadOnly};
 use objc2_app_kit::{
     NSApplication, NSApplicationActivationPolicy, NSBackingStoreType, NSColor, NSEvent,
-    NSEventMask, NSEventModifierFlags, NSEventType, NSPanel, NSScreen, NSView, NSWindow,
-    NSWindowAnimationBehavior, NSWindowCollectionBehavior, NSWindowNumberListOptions,
-    NSWindowOrderingMode, NSWindowStyleMask, NSWorkspace,
+    NSEventMask, NSEventModifierFlags, NSEventType, NSPanel, NSScreen, NSTrackingArea,
+    NSTrackingAreaOptions, NSView, NSWindow, NSWindowAnimationBehavior, NSWindowCollectionBehavior,
+    NSWindowNumberListOptions, NSWindowOrderingMode, NSWindowStyleMask, NSWorkspace,
     NSWorkspaceActiveSpaceDidChangeNotification,
 };
 use objc2_core_foundation::{
@@ -161,7 +161,7 @@ use super::{
     restack_every, stacking,
 };
 use crate::layout::Positions;
-use crate::scene::{Item, Rgba, Scene, compose_with};
+use crate::scene::{Hover, Item, Rgba, Scene, compose_hovered};
 
 /// The application-defined event's subtype that says "the channel has
 /// commands".
@@ -627,6 +627,35 @@ fn make_panel(mtm: MainThreadMarker, frame: &Frame, takes_mouse: bool) -> Retain
     panel
 }
 
+/// (#429) A tracking area over the whole of a click window's content
+/// (it follows the view's bounds): the pointer entering, moving over and
+/// leaving it arrive on this thread's queue as `MouseEntered`,
+/// `MouseMoved` and `MouseExited` events for the window - whether or not
+/// the app is active, with no permission - and [`Overlays::mouse`] takes
+/// them for the hover tip.
+#[allow(unsafe_code)]
+fn track_pointer(panel: &NSPanel) {
+    let Some(view) = panel.contentView() else {
+        return;
+    };
+    let options = NSTrackingAreaOptions::MouseEnteredAndExited
+        | NSTrackingAreaOptions::MouseMoved
+        | NSTrackingAreaOptions::ActiveAlways
+        | NSTrackingAreaOptions::InVisibleRect;
+    // SAFETY: the owner is the view itself, which the window keeps alive as
+    // long as the tracking area it holds; no user info.
+    let area = unsafe {
+        NSTrackingArea::initWithRect_options_owner_userInfo(
+            <NSTrackingArea as objc2::AllocAnyThread>::alloc(),
+            NSRect::ZERO,
+            options,
+            Some(view.as_ref()),
+            None,
+        )
+    };
+    view.addTrackingArea(&area);
+}
+
 /// A click window over one panel.
 struct Hit {
     panel: Retained<NSPanel>,
@@ -669,6 +698,8 @@ struct Overlay {
     kept: Vec<(u64, u32, (u32, u32))>,
     drags: u64,
     clicks: u64,
+    /// (#429) The statistic the pointer rests on: its tip is painted.
+    hover: Option<Hover>,
 }
 
 impl Overlay {
@@ -763,8 +794,10 @@ impl Overlay {
             };
             let frame = appkit_frame(&screen, g.scale_permille, main_height);
             if i == self.hits.len() {
+                let panel = make_panel(mtm, &frame, true);
+                track_pointer(&panel);
                 self.hits.push(Hit {
-                    panel: make_panel(mtm, &frame, true),
+                    panel,
                     rect: *rect,
                     frame,
                     shown: false,
@@ -1096,6 +1129,7 @@ impl Overlays {
                     kept: Vec::new(),
                     drags: 0,
                     clicks: 0,
+                    hover: None,
                 },
             );
         }
@@ -1251,6 +1285,12 @@ impl Overlays {
     /// else (dispatched as usual).
     fn mouse(&mut self, event: &NSEvent) -> bool {
         let kind = event.r#type();
+        if kind == NSEventType::MouseMoved
+            || kind == NSEventType::MouseEntered
+            || kind == NSEventType::MouseExited
+        {
+            return self.hover_event(event, kind);
+        }
         if kind != NSEventType::LeftMouseDown
             && kind != NSEventType::LeftMouseDragged
             && kind != NSEventType::LeftMouseUp
@@ -1286,6 +1326,45 @@ impl Overlays {
         true
     }
 
+    /// (#429) The pointer entering, moving over or leaving a panel's click
+    /// window (its tracking area, [`track_pointer`]) with no button down:
+    /// the tip of the statistic under it, painted when that changed;
+    /// `false` for a window that is not a click window.
+    fn hover_event(&mut self, event: &NSEvent, kind: NSEventType) -> bool {
+        let Some((table, frame)) = self.window_of(event.windowNumber()) else {
+            return false;
+        };
+        let Some(overlay) = self.windows.get(&table) else {
+            return false;
+        };
+        if overlay.drag.is_some() {
+            return true;
+        }
+        let hover = if kind == NSEventType::MouseExited {
+            None
+        } else {
+            let g = overlay.geometry;
+            let at = event.locationInWindow();
+            let point = (frame.x + milli(at.x), frame.y + milli(at.y));
+            let (x, y) = client_pixel(point, &g.client, g.scale_permille, ffi::main_height());
+            overlay.scene.cell_at(x, y)
+        };
+        self.set_hover(table, hover);
+        true
+    }
+
+    /// (#429) Show the tip of `hover` on `table`'s overlay (none: no tip),
+    /// painting only on a change.
+    fn set_hover(&mut self, table: WindowId, hover: Option<Hover>) {
+        let Some(overlay) = self.windows.get_mut(&table) else {
+            return;
+        };
+        if overlay.hover != hover {
+            overlay.hover = hover;
+            self.repaint(table);
+        }
+    }
+
     /// A press, a move with the button down, a release at client pixel
     /// (`x`, `y`) of `table`'s overlay: the shared drag ([`Drag`]).
     fn pointer(&mut self, table: WindowId, kind: NSEventType, x: i32, y: i32) {
@@ -1295,6 +1374,8 @@ impl Overlays {
                 // A release we never saw: end that drag first.
                 self.end_drag(table, false);
             }
+            // (#429) A press takes the hover tip away.
+            self.set_hover(table, None);
             if let Some(overlay) = self.windows.get_mut(&table) {
                 overlay.drag = Drag::press(&overlay.scene, x, y);
             }
@@ -1389,9 +1470,11 @@ impl Overlays {
             Mouse::Press(x, y) => (NSEventType::LeftMouseDown, x, y),
             Mouse::Move(x, y) => (NSEventType::LeftMouseDragged, x, y),
             Mouse::Release(x, y) => (NSEventType::LeftMouseUp, x, y),
+            Mouse::Hover(x, y) => (NSEventType::MouseMoved, x, y),
         };
         let hits = &overlay.hits[..overlay.used];
-        let hit = match (kind == NSEventType::LeftMouseDown, &overlay.drag) {
+        let at_point = kind == NSEventType::LeftMouseDown || kind == NSEventType::MouseMoved;
+        let hit = match (at_point, &overlay.drag) {
             (true, _) => hits.iter().find(|h| crate::layout::contains(&h.rect, x, y)),
             (false, Some(drag)) => hits
                 .iter()
@@ -1482,6 +1565,8 @@ fn info(overlay: &Overlay) -> OverlayInfo {
         legend: overlay.scene.legend.as_ref().map(|(rect, _)| *rect),
         seat_cells: overlay.scene.seat_cells.clone(),
         dropped: overlay.scene.dropped.clone(),
+        tip: overlay.scene.tip.as_ref().map(|(rect, _)| *rect),
+        cell_rects: overlay.scene.cell_rects.clone(),
         moves: overlay.moves,
         restacked: overlay.restacked,
         error: overlay.error.clone(),
@@ -1497,7 +1582,7 @@ fn paint(painter: &mut Painter, overlay: &mut Overlay, main_height: i64) -> Resu
     let Some(frame) = &overlay.frame else {
         return Ok(0);
     };
-    let scene = compose_with(
+    let scene = compose_hovered(
         frame,
         g.client.width,
         g.client.height,
@@ -1505,6 +1590,8 @@ fn paint(painter: &mut Painter, overlay: &mut Overlay, main_height: i64) -> Resu
         // (R3.9) The table's own design travels with its frame.
         &frame.design,
         &overlay.overrides(),
+        // (#429) The tip of the statistic the pointer rests on.
+        overlay.hover.as_ref(),
     );
     let fits = overlay
         .surface
