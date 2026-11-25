@@ -6,9 +6,11 @@
  * 2. one panel (`DecisionPanel`, canvas `ideas-trainer` A): the hero's whole
  *    range on the left, and on the right the short *why* (`Brief`) - what
  *    the hand is and what to do, what the play is worth, at most three
- *    points, example hands from the range with the EV of their play, the
- *    hand's facts as chips - and the analysis' full sentences (`explain`),
- *    the rule of thumb and the host's deeper study folded under Details.
+ *    points, example hands from the range with the EV of their play - and,
+ *    folded under Details, what those do not say already (#424): the
+ *    analysis' sentences without the spot, the mix and the solve's caveats
+ *    (`details`), the size against the other options, a river bluff's good
+ *    and bad blockers, the rule of thumb and the host's deeper study.
  *
  * Every word is built only from facts the engine computed, so it cannot
  * invent a reason.
@@ -20,6 +22,7 @@ import { useState, type ReactNode } from "react";
 import type { DecisionAnalysis, OptionAnalysis } from "../../lib/analysis/types";
 import type { TrainerSpot } from "../../lib/training";
 import { briefGain, briefHead, briefPoints, rangeExamples } from "../../lib/training/brief";
+import { bluffBlockers, sizingNotes } from "../../lib/training/details";
 import type { RangeView } from "../../lib/training/rangeView";
 import { useTrainerHost } from "./host";
 import { principleOf } from "./principles";
@@ -49,7 +52,8 @@ export function Verdict({
   const label = useOptionText();
   const chosen = decision.chosen !== null ? decision.options[decision.chosen] : null;
   const best = bestIndex(decision);
-  const playable = decision.grade === "perfect" || decision.grade === "good";
+  // Short of Perfect the best move is named, a Good move mixed in too (#417).
+  const perfect = decision.grade === "perfect";
   return (
     <div className={styles.verdict} data-grade={decision.grade ?? undefined} aria-live="polite">
       <span className={styles.verdictGrade}>
@@ -58,7 +62,7 @@ export function Verdict({
       </span>
       {note ? <span>{note}</span> : chosen && !compact ? <span>{t.you(label(chosen))}</span> : null}
       <span className={styles.verdictLoss}>{decision.evLoss && decision.evLoss > 0.005 ? t.evLost(decision.evLoss) : t.noLoss}</span>
-      {!compact && !playable && best !== null && best !== decision.chosen ? <span>{t.best(label(decision.options[best]))}</span> : null}
+      {!compact && !perfect && best !== null && best !== decision.chosen ? <span>{t.best(label(decision.options[best]))}</span> : null}
     </div>
   );
 }
@@ -69,23 +73,6 @@ export function bestIndex(decision: DecisionAnalysis): number | null {
     if (best === null || option.ev > decision.options[best].ev + 1e-9) best = index;
   });
   return best;
-}
-
-type Words = ReturnType<typeof useTrainerHost>["t"];
-
-/** The hand's facts at the decision: the numbers the reason is made of. */
-export function factsOf(decision: DecisionAnalysis, t: Words, locale: string): Array<[string, string]> {
-  const pct = (value: number) => `${Math.round(value * 100).toLocaleString(locale)}%`;
-  const f = decision.facts;
-  const facts: Array<[string, string]> = [];
-  if (f.handClass || f.made) facts.push([t.fact.made, t.words.handFacts.hand(f)]);
-  if (f.equity) facts.push([t.fact.equity, pct(f.equity.value)]);
-  if (f.potOdds !== null && f.toCallBb > 0) facts.push([t.fact.potOdds, pct(f.potOdds)]);
-  if (f.mdf !== null && f.toCallBb > 0) facts.push([t.fact.mdf, pct(f.mdf)]);
-  if (f.spr !== null && f.street !== "preflop") facts.push([t.fact.spr, f.spr.toLocaleString(locale, { maximumFractionDigits: 1 })]);
-  if (f.draws.length > 0) facts.push([t.fact.draws, f.draws.map((d) => t.words.handFacts.draws[d] ?? d).join(", ")]);
-  if (f.blockers.length > 0) facts.push([t.fact.blockers, f.blockers.map((b) => t.words.handFacts.blockers[b] ?? b).join(", ")]);
-  return facts;
 }
 
 export const isGraded = (decision: DecisionAnalysis) => decision.grade !== null && decision.options.length > 0;
@@ -108,8 +95,8 @@ const DASH = (
 
 /**
  * The short why: the headline, what the play is worth, at most three
- * points, example hands from the range, the facts as chips, and the full
- * reasoning folded under Details.
+ * points, example hands from the range, and the rest of the reasoning
+ * folded under Details.
  */
 export function Brief({
   decision,
@@ -139,7 +126,14 @@ export function Brief({
   const gain = settings.strategy ? briefGain(decision) : null;
   const points = briefPoints(decision);
   const groups = settings.strategy && view ? rangeExamples(view) : [];
-  const facts = settings.facts ? factsOf(decision, t, locale) : [];
+  const sizing = sizingNotes(decision);
+  const bluff = bluffBlockers(decision);
+  // A bluff's blockers get their own words; anything else's, only where the points above do not say them.
+  const blockerLines = bluff
+    ? t.details.blockers(bluff)
+    : decision.facts.blockers.length > 0 && !points.some((point) => point.kind === "blockers")
+      ? [t.details.blocks(decision.facts.blockers.map((b) => t.words.handFacts.blockers[b] ?? b))]
+      : [];
   const principleKey = principleOf(spot, decision);
   const principle = principleKey ? t.principles[principleKey] : undefined;
   const ev = (value: number) =>
@@ -230,15 +224,6 @@ export function Brief({
           ))}
         </div>
       ) : null}
-      {facts.length > 0 ? (
-        <ul className={styles.factChips} aria-label={t.factsHeading}>
-          {facts.map(([name, value]) => (
-            <li key={name}>
-              {name} <strong>{value}</strong>
-            </li>
-          ))}
-        </ul>
-      ) : null}
       <div className={styles.details}>
         <button type="button" className={styles.detailsToggle} aria-expanded={details} onClick={toggleDetails}>
           {t.brief.details}
@@ -246,7 +231,11 @@ export function Brief({
         </button>
         {details ? (
           <div className={styles.detailsBody}>
-            {t.words.explain(decision).map((sentence) => (
+            {[
+              ...sizing.map((note) => t.details.sizing(note, (index) => label(decision.options[index]))),
+              ...t.words.details(decision),
+              ...blockerLines,
+            ].map((sentence) => (
               <p key={sentence}>{sentence}</p>
             ))}
             {principle ? (

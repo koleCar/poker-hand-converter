@@ -7,7 +7,9 @@
  * - one chip per group that is set - "Position BTN, CO" - which opens that
  *   group's editor, and its × takes it off; groups that are not set are not
  *   in the row at all;
- * - "+ Add filter", a searchable menu of every group and value;
+ * - "+ Add filter", a searchable menu of every group and value, which a
+ *   click anywhere on the row's empty space opens too, as on a search bar
+ *   (#418);
  * - "Clear all" and "All filters", the builder with every group in panes.
  *
  * The second is always in view: the quick filters (one-click spots over the
@@ -20,7 +22,7 @@
  * the same on every screen: a screen cannot pick its own, so a change to
  * the filters is a change everywhere (2026-11-16, the owner).
  */
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState, type MouseEvent } from "react";
 
 import { useUiStrings } from "../i18n";
 import type { FilterState } from "./filter";
@@ -98,10 +100,27 @@ export function FilterBar({
   const player = filter.player ?? null;
   const active = set.length + (player !== null ? 1 : 0);
   const openBuilder = useCallback((pane?: PaneId) => setBuilder({ pane }), []);
+  const [adding, setAdding] = useState(false);
+  // A press on the row while a panel is open only closes that panel (the
+  // panel's own outside-press); the click after it does not open the menu.
+  const addOnClick = useRef(false);
+
+  // The row's empty space opens "+ Add filter", like a click into a search
+  // bar; its chips, buttons and open panels keep their own clicks. The
+  // keyboard has the "+ Add filter" button itself.
+  const onBarPointerDown = (event: MouseEvent<HTMLDivElement>) => {
+    addOnClick.current = event.currentTarget.querySelector('[role="dialog"]') === null;
+  };
+  const onBarClick = (event: MouseEvent<HTMLDivElement>) => {
+    for (let at = event.target as Element | null; at && at !== event.currentTarget; at = at.parentElement) {
+      if (at.matches('button, a, input, select, textarea, label, [role="dialog"]') || at.classList.contains(styles.chip ?? "")) return;
+    }
+    if (addOnClick.current) setAdding(true);
+  };
 
   return (
     <div className={styles.wrap}>
-      <div className={styles.bar} role="toolbar" aria-label={t.label}>
+      <div className={styles.bar} role="toolbar" aria-label={t.label} onPointerDown={onBarPointerDown} onClick={onBarClick}>
         <div className={styles.chips}>
           {player !== null ? (
             // Set from the Players screen ("hands with this player"): it is taken off, not edited.
@@ -124,7 +143,15 @@ export function FilterBar({
           {set.map((group) => (
             <ActiveChip key={group} group={group} filter={filter} facets={facets} onChange={onChange} onMore={openBuilder} />
           ))}
-          <AddFilter groups={rowGroups} filter={filter} facets={facets} onChange={onChange} onBrowse={openBuilder} />
+          <AddFilter
+            groups={rowGroups}
+            filter={filter}
+            facets={facets}
+            onChange={onChange}
+            onBrowse={openBuilder}
+            open={adding}
+            onOpenChange={setAdding}
+          />
         </div>
         <div className={styles.tools}>
           {active > 0 ? (

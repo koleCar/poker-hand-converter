@@ -48,6 +48,9 @@ pub struct Drag {
     /// Where the pointer has taken the panel's centre (thousandths of the
     /// client area); `None` until it moved past the threshold.
     pub at: Option<(u32, u32)>,
+    /// (#429) The HUD is locked ([`Scene::locked`]): the press stays a
+    /// click however far the pointer goes.
+    pub locked: bool,
 }
 
 impl Drag {
@@ -59,6 +62,7 @@ impl Drag {
             from: (x, y),
             panel,
             at: None,
+            locked: scene.locked,
         })
     }
 
@@ -77,6 +81,9 @@ impl Drag {
             i64::from(x) - i64::from(self.from.0),
             i64::from(y) - i64::from(self.from.1),
         );
+        if self.locked {
+            return None;
+        }
         let reach = i64::from(threshold);
         if self.at.is_none() && dx.abs() <= reach && dy.abs() <= reach {
             return None;
@@ -142,6 +149,9 @@ mod tests {
                             text: "20".into(),
                             tone: None,
                             opacity_permille: 1000,
+                            label: String::new(),
+                            sample: None,
+                            more: Vec::new(),
                         })
                         .collect(),
                     words: PanelWords::default(),
@@ -149,6 +159,7 @@ mod tests {
                 .collect(),
             legend: Vec::new(),
             design: PanelDesign::default(),
+            locked: false,
         }
     }
 
@@ -238,5 +249,21 @@ mod tests {
             assert_eq!(covers, !clear, "{site}: {rect:?}");
             assert_eq!(kept, layout::center_permille(&rect, w, h));
         }
+    }
+
+    /// (#429) Locked: however far the pointer goes, the press stays a
+    /// click (it opens the popup) and nothing moves.
+    #[test]
+    fn a_locked_hud_never_drags() {
+        let (w, h) = (800, 580);
+        let mut frame = frame("pokerstars", &[1, 2]);
+        frame.locked = true;
+        let scene = compose(&frame, w, h, 1000, &PanelDesign::default());
+        let (x, y) = middle(&scene.seat_panels[0].1);
+        let mut drag = Drag::press(&scene, x, y).expect("on a panel");
+        assert!(drag.locked);
+        assert_eq!(drag.moved(x + 200, y + 90, threshold(1000), w, h), None);
+        assert!(drag.is_click());
+        assert_eq!(drag.release(&scene), None);
     }
 }

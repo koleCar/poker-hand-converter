@@ -114,13 +114,13 @@ export function sessionSettings(session: Pick<TrainerSession, "fields">): Traine
 
 /**
  * Whether two settings deal and train the same: every field but the panels
- * shown (strategy, facts, range), which change nothing about the spots.
+ * shown (strategy, range), which change nothing about the spots.
  */
 export function sameTraining(a: TrainerSettings, b: TrainerSettings): boolean {
   const strip = (s: TrainerSettings) => {
     // Analytics' figures (your rate, the target, the cost) change with every new hand; the stat and the spot do not.
     const from = s.from ? { stat: s.from.stat, spot: s.from.spot, you: null, ref: null, cost: null } : null;
-    const fields = settingsFields({ ...s, from, strategy: DEFAULT_SETTINGS.strategy, facts: DEFAULT_SETTINGS.facts, range: DEFAULT_SETTINGS.range });
+    const fields = settingsFields({ ...s, from, strategy: DEFAULT_SETTINGS.strategy, range: DEFAULT_SETTINGS.range });
     return JSON.stringify(Object.keys(fields).sort().map((k) => [k, fields[k]]));
   };
   return strip(a) === strip(b);

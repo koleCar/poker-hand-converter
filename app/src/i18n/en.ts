@@ -1359,9 +1359,6 @@ export const en = {
       hide: "Hide the analysis progress",
       show: "Show the analysis progress",
     },
-    session: {
-      notAnalysed: "Analysed in the background",
-    },
     /** The Top leaks tab's own labels (the leak words themselves are the web's). */
     leaks: {
       per100: "bb / 100",
@@ -1514,6 +1511,14 @@ export const en = {
     /** The HUD screen's two views (`#/hud`, `#/hud/tables`): the header's pill. */
     views: { label: "HUD view", editor: "Editor", tables: "At the tables" },
     /** The header's status pill. */
+    /** (#429) The header's lock: panels can't be dragged at the tables while on. */
+    lock: {
+      on: "Panels locked",
+      off: "Lock panels",
+      hintOn: "The HUD's panels stay where they are at the tables; a click still opens the popup. Click to unlock.",
+      hintOff: "Keep the HUD's panels from moving when you click them at the tables.",
+      failed: (reason: string) => `Not changed: ${reason}`,
+    },
     pill: {
       running: "HUD running",
       tables: (count: number) => (count === 1 ? "1 table" : `${n(count)} tables`),
@@ -1835,39 +1840,18 @@ export const en = {
     failed: (reason: string) => `Not loaded: ${reason}`,
     none: "Click a player's panel at a table to see their numbers here.",
     you: "You",
-    tableAt: (room: string, table: string) => `${room} · ${table}`,
     opaque: "This room hides screen names: these numbers are from this session only, and the seat takes no notes.",
     sample: (count: number) => (count === 1 ? "Over 1 hand" : `Over ${hands(count)}`),
     ownHands: "Hands you played only, as this room's rules ask.",
     together: "Hands together",
     noTogether: "None yet",
-    result: "Your result against them",
     resultCash: (bb: string, count: number) => `Cash: ${bb} bb over ${hands(count)}`,
     resultChips: (bb: string, count: number) => `Tournaments: ${bb} bb over ${hands(count)}`,
     stats: "Statistics",
-    statsNote: "Past hands only, as on the table. A value fades while its sample is thin; hover it for the sample and its 95% interval.",
-    legend: "Colours",
-    legendNote: (thresholds: number) =>
-      `What each colour means, statistic by statistic: the ${thresholds === 1 ? "threshold" : "thresholds"} in use at this room's tables. On the table: - low, = normal, + high.`,
-    tones: {
-      "very-low": "very low",
-      low: "low",
-      normal: "normal",
-      high: "high",
-      "very-high": "very high",
-    },
-    below: (value: string) => `below ${value}`,
-    from: (value: string) => `from ${value}`,
-    range: (low: string, high: string) => `${low} to ${high}`,
-    byPosition: "By position",
-    byPositionHidden: (room: string) =>
-      `Not shown at ${room} tables: the room does not allow a HUD whose display changes with position.`,
-    noPosition: "No position",
     note: "Note",
-    wordsHidden: (room: string) =>
-      `${room} does not allow labelling players at the table, so your notes, colours and labels for them stay in Rail's Players screen.`,
+    handsShort: (hands: string) => `${hands}h`,
+    streets: { preflop: "Preflop", flop: "Flop", turn: "Turn", river: "River" },
     openInApp: "Open in Rail",
-    historical: "Statistics from past hands only: Rail gives no advice and shows nothing about the hand being played.",
   },
 
   /** The HUD editor (R3.9): designs, presets, where each is used, a preview. */

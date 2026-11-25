@@ -136,6 +136,9 @@ mod macos {
                             text: format!("{}", 10 + i * 7),
                             tone: Some(tones[usize::try_from(i).unwrap_or(0) % tones.len()]),
                             opacity_permille: if i % 2 == 0 { 1000 } else { 650 },
+                            label: String::new(),
+                            sample: None,
+                            more: Vec::new(),
                         })
                         .collect(),
                     words: PanelWords::default(),
@@ -143,6 +146,7 @@ mod macos {
                 .collect(),
             legend: vec![Tone::Low, Tone::Normal, Tone::High],
             design: PanelDesign::default(),
+            locked: false,
         }
     }
 
@@ -651,6 +655,40 @@ mod macos {
             "the click windows follow the dropped panel",
             || sits_on(&first, &info_of(&backend, first.id), me),
         );
+
+        // (#429) The pointer resting on a statistic with no button down:
+        // its hover tip is painted (a moved-event on the click window, as
+        // its tracking area delivers); a press takes it away.
+        let (_, _, cell) = info_of(&backend, first.id).cell_rects[0].clone();
+        let at = middle(&cell);
+        assert!(backend.inject_mouse(first.id, Mouse::Hover(at.0, at.1)));
+        wait_for(
+            Duration::from_secs(5),
+            "the hover tip is painted",
+            || match info_of(&backend, first.id).tip {
+                Some(_) => Ok(()),
+                None => Err("no tip yet".to_owned()),
+            },
+        );
+        let tipped = info_of(&backend, first.id);
+        assert!(
+            tipped.panels.iter().all(|p| Some(*p) != tipped.tip),
+            "the tip takes no clicks"
+        );
+        assert!(backend.inject_mouse(first.id, Mouse::Press(at.0, at.1)));
+        assert!(backend.inject_mouse(first.id, Mouse::Release(at.0, at.1)));
+        wait_for(
+            Duration::from_secs(5),
+            "a press takes the tip away",
+            || match info_of(&backend, first.id).tip {
+                None => Ok(()),
+                Some(tip) => Err(format!("still a tip at {tip:?}")),
+            },
+        );
+        let _ = events_until(&mut backend, "the press on the cell is a click", |e| {
+            !e.is_empty()
+        });
+        eprintln!("step ok: a hovered statistic shows its tip");
 
         // Real clicks through the window server: needs the permission to
         // post events (Accessibility).

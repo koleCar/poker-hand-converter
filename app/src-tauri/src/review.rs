@@ -6,12 +6,13 @@
 //! card, with the app's sources (`src/lib/reviewSource.ts`,
 //! `src/lib/chartsSource.ts`, `src/lib/leaksSource.ts`).
 
-use rail_store::review::{CompareQuery, ReviewQuery};
+use rail_store::review::{CompareQuery, HandsReviewQuery, ReviewQuery};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::State;
 
 use crate::commands::StoreState;
+use crate::hands::FilterDto;
 
 fn open(store: &StoreState) -> Result<&rail_store::Store, String> {
     store
@@ -44,6 +45,28 @@ pub async fn session_review(
             version,
             now_ms: rail_store::time::now_ms(),
             kind,
+        })
+        .map_err(text)
+}
+
+/// The review of every hand the Hands screen's filter matches (#425; the
+/// same shape), only the hands the analysis has been through when
+/// `analysed_only`.
+#[tauri::command]
+pub async fn hands_review(
+    store: State<'_, StoreState>,
+    version: String,
+    filter: FilterDto,
+    analysed_only: bool,
+    limit: usize,
+) -> Result<Value, String> {
+    open(&store)?
+        .reader()
+        .hands_review(&HandsReviewQuery {
+            filter: filter.into(),
+            analysed_only,
+            limit,
+            version,
         })
         .map_err(text)
 }

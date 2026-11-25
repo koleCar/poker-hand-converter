@@ -93,6 +93,13 @@ export interface TrainerHost {
   played?(handId: string): Promise<PlayedHand | null>;
   /** The address of a stat's drill-down in Analytics (the bar's way back). Absent: no link. */
   analyticsHref?(stat: string): string;
+  /**
+   * "Look up in Solver" after an answer (#420): the host's Solver opened at
+   * the spot (the app's Solver tab). Resolves false when the Solver has no
+   * spot for it. The table is kept as it was (`parked.ts`), so going back to
+   * the session continues there. Absent: no button.
+   */
+  solver?(spot: TrainerSpot): Promise<boolean>;
 }
 
 const HostContext = createContext<TrainerHost | null>(null);

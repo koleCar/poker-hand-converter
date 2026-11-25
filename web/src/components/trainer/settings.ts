@@ -104,8 +104,6 @@ export interface TrainerSettings {
   pause: Pause;
   /** After an answer: the strategy for the hand (every option's frequency and EV). */
   strategy: boolean;
-  /** After an answer: the hand's facts (equity, pot odds, made hand, draws). */
-  facts: boolean;
   range: RangePanel;
   timebank: Timebank;
   buttons: Buttons;
@@ -136,7 +134,6 @@ export const DEFAULT_SETTINGS: TrainerSettings = {
   deal: "borderline",
   pause: "always",
   strategy: true,
-  facts: true,
   range: "range",
   timebank: "0",
   buttons: "all",
@@ -378,7 +375,6 @@ export function parseSettings(raw: Record<string, unknown> | null | undefined): 
     deal: oneOf(r.deal, DEAL_BIASES, d.deal),
     pause: oneOf(r.pause, PAUSES, d.pause),
     strategy: flag(r.strategy, d.strategy),
-    facts: flag(r.facts, d.facts),
     range: oneOf(r.range, RANGES, d.range),
     timebank: oneOf(r.timebank, TIMEBANKS, d.timebank),
     buttons: oneOf(r.buttons, BUTTONS, d.buttons),

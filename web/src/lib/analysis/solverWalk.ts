@@ -82,7 +82,10 @@ const STREETS = ["flop", "turn", "river"] as const;
  * it from the flop on, and the turn and river cards it saw (`facts.board`).
  * Null preflop, or when the board is short of the decision's street.
  */
-export function handWalk(hand: PhfHand, decision: Pick<DecisionAnalysis, "street" | "actionIndex" | "facts">): WalkStep[] | null {
+export function handWalk(
+  hand: PhfHand,
+  decision: Pick<DecisionAnalysis, "street" | "actionIndex"> & { facts: Pick<DecisionAnalysis["facts"], "board"> },
+): WalkStep[] | null {
   const last = STREETS.indexOf(decision.street as (typeof STREETS)[number]);
   if (last < 0) return null;
   const board = decision.facts.board;

@@ -96,6 +96,18 @@ export function progressOf(status: RunnerStatus): StatusProgress | null {
   };
 }
 
+/**
+ * Every hand analysed and nothing else to say (#425): the run's line goes,
+ * its count and buttons with it. It is back once hands arrive, the run is
+ * paused or waits, or the flop library does not answer.
+ */
+export function allAnalysed(status: RunnerStatus): boolean {
+  const counts = status.counts;
+  return (
+    status.phase === "idle" && !status.paused && status.library && counts !== null && counts.hands > 0 && counts.missing === 0
+  );
+}
+
 /** The words beside (or instead of) the bar. */
 export function describeStatus(status: RunnerStatus, s: Dict["analysis"]["status"]): StatusLine[] {
   const lines: StatusLine[] = [];

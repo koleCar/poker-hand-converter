@@ -19,7 +19,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DecisionAnalysis, OptionAnalysis } from "../../lib/analysis/types";
 import { nextSeed, STREAK_GRADES, type GradedAnswer, type TrainerAnswer } from "../../lib/training";
 import type { PlayOptions, PlayStep } from "../../lib/training/play";
-import { ActionButtons, groupChoices, groupForKey, TimebankBar, useTimebank, type Choice } from "./Decision";
+import { ActionButtons, buttonInfo, groupChoices, groupForKey, TimebankBar, useTimebank, type Choice } from "./Decision";
 import { feltOf } from "./felt";
 import { DecisionPanel } from "./DecisionPanel";
 import { bestIndex, useOptionText, Verdict } from "./Feedback";
@@ -48,6 +48,12 @@ interface LogRow {
 
 function tone(option: OptionAnalysis): string {
   return option.allIn ? "allin" : option.action;
+}
+
+/** The same option of two analyses of one node: the action, the all-in and the size. */
+function sameOption(a: OptionAnalysis, b: OptionAnalysis): boolean {
+  const near = (x: number | undefined, y: number | undefined) => x === undefined || y === undefined || Math.abs(x - y) < 0.01;
+  return a.action === b.action && Boolean(a.allIn) === Boolean(b.allIn) && near(a.sizeBb, b.sizeBb) && near(a.sizePot, b.sizePot);
 }
 
 interface HandPlayerProps {
@@ -129,6 +135,17 @@ function OneHand({ request, settings, onScored, onAnswer, onHandDone, newHand }:
 
   const graded = answered?.graded ?? null;
   const verdict = graded?.decision ?? null;
+  // Every button's frequency, EV and grade once graded (#417): the menu is the analysis' options, matched by action and size.
+  const info = useMemo(
+    () =>
+      decision && settings.strategy
+        ? buttonInfo(verdict, groups, (index) => {
+            const item = decision.menu[index];
+            return item ? (verdict?.options.findIndex((o) => sameOption(o, item)) ?? -1) : -1;
+          })
+        : null,
+    [decision, settings.strategy, verdict, groups],
+  );
 
   // The answer on the table: the chips pushed out, or the cards folded.
   const picked = answered?.picked ?? null;
@@ -303,7 +320,7 @@ function OneHand({ request, settings, onScored, onAnswer, onHandDone, newHand }:
       <StatusRow>
         {verdict && verdict.grade ? (
           <Verdict decision={verdict} />
-        ) : over ? (
+        ) : over && over.reason !== "no-reference" ? (
           <Result step={step} />
         ) : answered?.error ? (
           <span className={styles.statusError}>{t.failed(answered.error)}</span>
@@ -318,7 +335,7 @@ function OneHand({ request, settings, onScored, onAnswer, onHandDone, newHand }:
       </StatusRow>
 
       {decision ? (
-        <ActionButtons choices={buttons} groups={groups} picked={answered?.picked ?? null} disabled={Boolean(answered)} onPick={pickGroup} />
+        <ActionButtons choices={buttons} groups={groups} picked={answered?.picked ?? null} disabled={Boolean(answered)} onPick={pickGroup} info={info} />
       ) : null}
       {decision ? (
         <div className={styles.afterRow}>

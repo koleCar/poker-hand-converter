@@ -5,6 +5,8 @@
  * (`#/hud`), or the HUD at the tables (`#/hud/tables`, `HUD_TABLES`): which
  * design each game gets, and the rooms where it may be used.
  *
+ * (#429) Beside the pill, the lock: panels that stay put at the tables.
+ *
  * (R6.4) While the plan holds the HUD back the pill says so and offers what
  * the plan's reason calls for (upgrade, sign in, check again); the editor
  * stays usable, so designs can be made ready.
@@ -17,6 +19,7 @@ import { HUD_TABLES, go, useRouteParam } from "../lib/router";
 import { useEntitlements, type UseEntitlements } from "../lib/useEntitlements";
 import { useHudCompliance, type HudCompliance } from "../lib/useHudCompliance";
 import { HudEditor } from "./hud/HudEditor";
+import { HudLock } from "./hud/HudLock";
 import { HudStatusPanel } from "./hud/HudStatusPanel";
 
 type View = "editor" | "tables";
@@ -32,7 +35,12 @@ export function Hud() {
     <>
       <HeaderRow
         title={t.screens.hud.title}
-        start={<HudPill compliance={compliance} plan={plan} />}
+        start={
+          <>
+            <HudPill compliance={compliance} plan={plan} />
+            <HudLock />
+          </>
+        }
         end={
           <PillSwitch
             label={v.label}

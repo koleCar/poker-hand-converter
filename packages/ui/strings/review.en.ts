@@ -33,6 +33,26 @@ export const reviewUiEn = {
     clearFilter: "All hands",
   },
 
+  /**
+   * The review of every hand of the filter instead of one session (the
+   * desktop app's, #425: the filter row above it, no session picker).
+   */
+  hands: {
+    loading: "Finding your hands…",
+    noHands: "No hands yet: once you have saved hands, the ones worth a second look are here.",
+    noMatch: "None of your hands matches this filter.",
+    noAnalysed: "None of these hands has been analysed yet.",
+    dates: "Played",
+    analysedOnly: "Analysed hands only",
+    analysed: (analysed: number, total: number) => `${num(analysed)} of ${hands(total)} analysed`,
+    empty: {
+      worst: "No decision of these hands was graded Inaccurate or worse.",
+      deviations: "Every graded preflop decision of these hands follows the charts.",
+      pots: "No pot of these hands has a size in big blinds.",
+    },
+    emptyUnanalysed: "None of these hands is graded yet.",
+  },
+
   ongoing: {
     text: (from: string, to: string) =>
       `Your latest session (${from}–${to}) may still be going on, so the last finished one is shown. The review is for after you play.`,

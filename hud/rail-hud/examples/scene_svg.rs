@@ -543,6 +543,7 @@ fn render(
         panels,
         legend: stats.legend_tones(),
         design: design.clone(),
+        locked: false,
     };
     let scene = scene::compose(&frame, WIDTH, HEIGHT, SCALE_PERMILLE, &design);
     if !scene.dropped.is_empty() {

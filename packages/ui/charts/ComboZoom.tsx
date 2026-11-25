@@ -9,9 +9,10 @@
  * forms:
  *
  * - {@link GridZoom}: the hover. The class box sits over the hovered cell,
- *   the combo cards under it (above it when there is no room), both inside
- *   the grid's wrapper, which is `position: relative` (`zoomAnchor` measures
- *   the cell against it). It never takes the pointer.
+ *   the combo cards under it (above it when there is no room, beside the
+ *   grid when neither fits on screen), both inside the grid's wrapper, which
+ *   is `position: relative` (`zoomAnchor` measures the cell against it). It
+ *   never takes the pointer.
  * - {@link ComboCards}: the same cards in a panel, with the EV of every
  *   action when the caller has it, combos the board takes out as hatched
  *   cards and an optional click (the nodelock editor paints a combo).
@@ -77,13 +78,45 @@ export interface ZoomAnchor {
   /** The wrapper's size, px. */
   gw: number;
   gh: number;
+  /**
+   * What shows of the page around the grid (the window and every scrolling
+   * or clipping box the wrapper sits in), against the wrapper, px. The combo
+   * cards stay inside it: past it they grow the page, the scrollbar that
+   * comes and goes moves the grid under the pointer, and the hover flickers
+   * (#422).
+   */
+  view: { top: number; bottom: number; left: number; right: number };
 }
 
 /** The hovered cell measured against the grid's wrapper (the zoom's positioned ancestor). */
 export function zoomAnchor(cell: number, el: Element, wrap: Element): ZoomAnchor {
   const c = el.getBoundingClientRect();
   const g = wrap.getBoundingClientRect();
-  return { cell, x: c.left - g.left, y: c.top - g.top, w: c.width, h: c.height, gw: g.width, gh: g.height };
+  const root = document.documentElement;
+  let top = 0;
+  let left = 0;
+  let bottom = root.clientHeight || window.innerHeight;
+  let right = root.clientWidth || window.innerWidth;
+  for (let box = wrap.parentElement; box && box !== root && box !== document.body; box = box.parentElement) {
+    const style = getComputedStyle(box);
+    if (!/auto|scroll|hidden|clip/.test(`${style.overflowX} ${style.overflowY}`)) continue;
+    // The box's inside, without its border and scrollbar.
+    const r = box.getBoundingClientRect();
+    top = Math.max(top, r.top + box.clientTop);
+    left = Math.max(left, r.left + box.clientLeft);
+    bottom = Math.min(bottom, r.top + box.clientTop + box.clientHeight);
+    right = Math.min(right, r.left + box.clientLeft + box.clientWidth);
+  }
+  return {
+    cell,
+    x: c.left - g.left,
+    y: c.top - g.top,
+    w: c.width,
+    h: c.height,
+    gw: g.width,
+    gh: g.height,
+    view: { top: top - g.top, bottom: bottom - g.top, left: left - g.left, right: right - g.left },
+  };
 }
 
 /** Below this an action is nothing: left out of the rows of a class or combo that never takes it. */
@@ -314,12 +347,23 @@ export function ClassCard({
 }
 
 const LINE = 15;
+/** Between the class box (or the grid) and the combo cards, px. */
+const GAP = 4;
+/** Kept clear of the edge of what shows, px. */
+const EDGE = 8;
+/** How far past the grid the combo cards may reach before they flip above it, px. */
+const SPILL = 60;
 
 /**
  * The hover: the class box over the hovered cell (four cells wide, three
  * tall, inside the grid) and its combos under it. Rendered inside the grid's
  * positioned wrapper; `combos` empty (preflop, where every combo plays the
  * class's mix) shows the class box alone.
+ *
+ * The combos go under the class box, else above it, near the grid when they
+ * can and always where they show on screen; when neither fits (a low class
+ * with many combos on a short window), they go beside the grid, on the right
+ * or else the left, as high as the class box and kept on screen (#422).
  */
 export function GridZoom({
   anchor,
@@ -361,9 +405,22 @@ export function GridZoom({
   const lines = Math.ceil(shown.length / cols);
   const W2 = cols * cw + (cols - 1) * 2 + 4;
   const H2 = lines * ch + (lines - 1) * 2 + 4;
-  const x2 = Math.max(0, Math.min(x, anchor.gw - W2));
-  let y2 = y + H + 4;
-  if (y2 + H2 > anchor.gh + 60 && y - 4 - H2 >= -60) y2 = y - 4 - H2;
+  const { view } = anchor;
+  const below = y + H + GAP;
+  const above = y - GAP - H2;
+  const onScreen = (top: number) => top >= view.top + EDGE && top + H2 <= view.bottom - EDGE;
+  let x2 = Math.max(0, Math.min(x, anchor.gw - W2));
+  let y2: number;
+  if (below + H2 <= anchor.gh + SPILL && onScreen(below)) y2 = below;
+  else if (above >= -SPILL && onScreen(above)) y2 = above;
+  else if (onScreen(below)) y2 = below;
+  else if (onScreen(above)) y2 = above;
+  else {
+    // Beside the grid; with no room either side, over it (it never takes the pointer).
+    if (anchor.gw + GAP + W2 <= view.right - EDGE) x2 = anchor.gw + GAP;
+    else if (-GAP - W2 >= view.left + EDGE) x2 = -GAP - W2;
+    y2 = Math.max(view.top + EDGE, Math.min(y, view.bottom - EDGE - H2));
+  }
 
   return (
     <>

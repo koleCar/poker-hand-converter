@@ -19,6 +19,10 @@
 //!   preflop decision graded against the shipped charts at Inaccurate or
 //!   worse, the biggest pots - with what the lists show of each hand.
 //!   Grades are read as stored; nothing here grades.
+//! - **Every hand of a filter** ([`Reader::hands_review`], #425): the same
+//!   answer over the hands the Hands screen's filter matches instead of one
+//!   session (the app's review has no session picker), optionally only the
+//!   hands the analysis has been through.
 //! - **The own charts** (R5.3b): the stored preflop decisions on the
 //!   shipped tree (`decision_analysis.chart_*`, filed by the runner as the
 //!   web's `preflop_decision_fields` files them) per situation, class and
@@ -28,12 +32,13 @@
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-use rusqlite::{Connection, OptionalExtension, params};
+use rusqlite::types::Value as SqlValue;
+use rusqlite::{Connection, OptionalExtension, params, params_from_iter};
 use serde_json::{Map, Value, json};
 
 use crate::error::{Error, Result};
 use crate::game_kind::{self, segment_test};
-use crate::hand_list::segments;
+use crate::hand_list::{HandFilter, SegmentDims, hand_keys_in, segments};
 use crate::read::Reader;
 use crate::time::{iso_from_ms, ms_from_iso};
 
@@ -342,7 +347,11 @@ fn seat_ok(position: &str) -> bool {
 }
 
 /// The decisions of Inaccurate or worse of these hands at `version`.
-fn bad_decisions(conn: &Connection, hands: &[SessionHand], version: &str) -> Result<Vec<Bad>> {
+fn bad_decisions<'a>(
+    conn: &Connection,
+    hands: impl IntoIterator<Item = &'a SessionHand>,
+    version: &str,
+) -> Result<Vec<Bad>> {
     let mut stmt = conn.prepare_cached(
         "SELECT d.ord, d.action_index, d.street, d.action, d.scenario, d.source, d.grade,
                 d.grade_rank, d.ev_loss_bb, d.ev_loss_pot, d.best, d.chosen, d.options, d.facts
@@ -456,6 +465,76 @@ fn hand_json(conn: &Connection, hand: &SessionHand, format: &str, version: &str)
     }))
 }
 
+/// A segment's format (`cash`, `tournament`, ...; '' when unknown).
+fn format_in(dims: &HashMap<i64, SegmentDims>, segment: i64) -> &str {
+    dims.get(&segment).map_or("", |d| d.format.as_str())
+}
+
+/// A review's summary sums (`report_sessions`'): the result in big blinds
+/// and, for one currency of cash, in money, an EV cashout's result left out;
+/// the all-in hands' EV beside them.
+#[derive(Debug, Default)]
+struct Sums {
+    net: i64,
+    bb: i64,
+    ev_delta_net: i64,
+    ev_delta_bb: i64,
+    all_in: i64,
+    any_cash: bool,
+    any_chips: bool,
+    currencies: BTreeSet<String>,
+    minor_units: Option<i64>,
+    symbol: Option<String>,
+}
+
+impl Sums {
+    /// One hand; `ev` its all-in EV row (`ev_net`, `ev_net_bb_milli`), if any.
+    fn add(&mut self, hand: &SessionHand, cash: bool, ev: Option<(i64, i64)>) {
+        self.any_cash |= cash;
+        self.any_chips |= !cash;
+        self.currencies.insert(hand.currency.clone());
+        self.minor_units = Some(
+            self.minor_units
+                .map_or(hand.minor_units, |m| m.min(hand.minor_units)),
+        );
+        if cash && self.symbol.is_none() && !hand.symbol.is_empty() {
+            self.symbol = Some(hand.symbol.clone());
+        }
+        if hand.kind & KIND_CASHOUT == 0 {
+            self.net += hand.net;
+            self.bb += hand.net_bb_milli;
+            if let Some((ev_net, ev_bb)) = ev {
+                self.all_in += 1;
+                self.ev_delta_net += ev_net - hand.net;
+                self.ev_delta_bb += ev_bb - hand.net_bb_milli;
+            }
+        }
+    }
+
+    /// The summary's result fields, into the session's object.
+    fn write(&self, session: &mut Value) {
+        let one_currency = self.currencies.len() == 1;
+        let mixed_kind = self.any_cash && self.any_chips;
+        let money = self.any_cash && !self.any_chips && one_currency;
+        let fields = json!({
+            "allInHands": self.all_in,
+            "mixedUnitKind": mixed_kind,
+            "mixedCurrency": self.currencies.len() > 1,
+            "cash": self.any_cash && !self.any_chips,
+            "currency": if one_currency { self.currencies.iter().next().cloned() } else { None },
+            "currencySymbol": self.symbol,
+            "currencyMinorUnits": if one_currency { self.minor_units } else { None },
+            "netBbMilli": if mixed_kind { None } else { Some(self.bb) },
+            "evNetBbMilli": if mixed_kind { None } else { Some(self.bb + self.ev_delta_bb) },
+            "net": if money { Some(self.net) } else { None },
+            "evNet": if money { Some(self.net + self.ev_delta_net) } else { None },
+        });
+        if let (Some(session), Value::Object(fields)) = (session.as_object_mut(), fields) {
+            session.extend(fields);
+        }
+    }
+}
+
 fn review(conn: &Connection, query: &ReviewQuery) -> Result<Value> {
     let gap_ms = query.gap_minutes.saturating_mul(60_000);
     let limit = query.limit.clamp(1, LIST_MAX);
@@ -489,47 +568,25 @@ fn review(conn: &Connection, query: &ReviewQuery) -> Result<Value> {
     let (start, end, previous, next) = found;
     let hands = session_hands(conn, &start.played_at, &end.played_at, formats)?;
     let dims = segments(conn)?;
-    let format_of = |segment: i64| dims.get(&segment).map_or("", |d| d.format.as_str());
 
     // The summary: `report_sessions`' sums (an EV cashout's result left out).
     let mut tables = BTreeSet::new();
-    let (mut net, mut bb, mut ev_delta_bb, mut ev_delta_net, mut all_in) =
-        (0_i64, 0_i64, 0_i64, 0_i64, 0_i64);
-    let (mut any_cash, mut any_chips) = (false, false);
-    let mut currencies = BTreeSet::new();
-    let mut minor_units = None;
-    let mut symbol = None;
+    let mut sums = Sums::default();
     for hand in &hands {
         let facts = hand_facts(conn, &hand.hand_key)?;
         if let Some(table) = facts.table {
             tables.insert(table);
         }
-        let cash = format_of(hand.segment_id) == "cash";
-        any_cash |= cash;
-        any_chips |= !cash;
-        currencies.insert(hand.currency.clone());
-        minor_units = Some(minor_units.map_or(hand.minor_units, |m: i64| m.min(hand.minor_units)));
-        if cash && symbol.is_none() && !hand.symbol.is_empty() {
-            symbol = Some(hand.symbol.clone());
-        }
-        if hand.kind & KIND_CASHOUT == 0 {
-            net += hand.net;
-            bb += hand.net_bb_milli;
-            let ev: Option<(i64, i64)> = conn
-                .prepare_cached("SELECT ev_net, ev_net_bb_milli FROM ev_rows WHERE hand_key = ?1")?
+        let ev: Option<(i64, i64)> = if hand.kind & KIND_CASHOUT == 0 {
+            conn.prepare_cached("SELECT ev_net, ev_net_bb_milli FROM ev_rows WHERE hand_key = ?1")?
                 .query_row([&hand.hand_key], |row| Ok((row.get(0)?, row.get(1)?)))
-                .optional()?;
-            if let Some((ev_net, ev_bb)) = ev {
-                all_in += 1;
-                ev_delta_net += ev_net - hand.net;
-                ev_delta_bb += ev_bb - hand.net_bb_milli;
-            }
-        }
+                .optional()?
+        } else {
+            None
+        };
+        sums.add(hand, format_in(&dims, hand.segment_id) == "cash", ev);
     }
-    let one_currency = currencies.len() == 1;
-    let mixed_kind = any_cash && any_chips;
-    let money = any_cash && !any_chips && one_currency;
-    let session = json!({
+    let mut session = json!({
         "startedAt": start.played_at,
         "endedAt": end.played_at,
         "finished": query.now_ms - end.ms > gap_ms,
@@ -537,18 +594,8 @@ fn review(conn: &Connection, query: &ReviewQuery) -> Result<Value> {
         "nextAt": next.map(|h| h.played_at),
         "hands": hands.len(),
         "tables": tables.len(),
-        "allInHands": all_in,
-        "mixedUnitKind": mixed_kind,
-        "mixedCurrency": currencies.len() > 1,
-        "cash": any_cash && !any_chips,
-        "currency": if one_currency { currencies.iter().next().cloned() } else { None },
-        "currencySymbol": symbol,
-        "currencyMinorUnits": if one_currency { minor_units } else { None },
-        "netBbMilli": if mixed_kind { None } else { Some(bb) },
-        "evNetBbMilli": if mixed_kind { None } else { Some(bb + ev_delta_bb) },
-        "net": if money { Some(net) } else { None },
-        "evNet": if money { Some(net + ev_delta_net) } else { None },
     });
+    sums.write(&mut session);
 
     // The analysis' coverage at the version.
     let mut coverage = (0_i64, 0_i64, 0_i64);
@@ -571,10 +618,61 @@ fn review(conn: &Connection, query: &ReviewQuery) -> Result<Value> {
         }
     }
 
-    // The lists.
+    // The lists, the biggest pots from the hands' facts.
+    let mut pots: Vec<(i64, i64, &SessionHand)> = Vec::new();
+    for hand in &hands {
+        let facts = hand_facts(conn, &hand.hand_key)?;
+        if let Some(pot) = facts.total_pot
+            && facts.big_blind > 0
+        {
+            pots.push((pot, facts.big_blind, hand));
+        }
+    }
     let bad = bad_decisions(conn, &hands, &query.version)?;
-    let worst = per_hand(
+    let mut out = json!({
+        "gapMinutes": query.gap_minutes,
+        "session": session,
+        "ongoing": ongoing,
+        "coverage": {
+            "hands": hands.len(),
+            "analysed": coverage.0,
+            "graded": coverage.1,
+            "notAnalysed": coverage.2,
+        },
+    });
+    let by_key: HashMap<&str, &SessionHand> =
+        hands.iter().map(|h| (h.hand_key.as_str(), h)).collect();
+    lists(
+        conn,
+        &by_key,
         &bad,
+        pots,
+        limit,
+        &query.version,
+        &dims,
+        &mut out,
+    )?;
+    Ok(out)
+}
+
+/// The three ranked, capped lists of a review - per hand its worst decision
+/// of Inaccurate or worse, its preflop decision off the shipped charts, the
+/// biggest pots (`(pot, big blind, hand)`) - and the rows of the hands they
+/// name (`by_key`: every hand reviewed), written into `out` (`worst`,
+/// `chartDeviations`, `pots`, `hands`).
+#[allow(clippy::too_many_arguments)]
+fn lists(
+    conn: &Connection,
+    by_key: &HashMap<&str, &SessionHand>,
+    bad: &[Bad],
+    mut pots: Vec<(i64, i64, &SessionHand)>,
+    limit: usize,
+    version: &str,
+    dims: &HashMap<i64, SegmentDims>,
+    out: &mut Value,
+) -> Result<()> {
+    let worst = per_hand(
+        bad,
         |_| true,
         |a, b| {
             b.rank
@@ -592,7 +690,7 @@ fn review(conn: &Connection, query: &ReviewQuery) -> Result<Value> {
         limit,
     );
     let deviations = per_hand(
-        &bad,
+        bad,
         |b| b.street == "preflop" && b.source == "chart",
         |a, b| {
             ev_desc(a.ev_loss_bb, b.ev_loss_bb)
@@ -608,15 +706,6 @@ fn review(conn: &Connection, query: &ReviewQuery) -> Result<Value> {
         limit,
     );
     // The biggest pots in big blinds (crosswise in integers), newest first on a tie.
-    let mut pots: Vec<(i64, i64, &SessionHand)> = Vec::new();
-    for hand in &hands {
-        let facts = hand_facts(conn, &hand.hand_key)?;
-        if let Some(pot) = facts.total_pot
-            && facts.big_blind > 0
-        {
-            pots.push((pot, facts.big_blind, hand));
-        }
-    }
     pots.sort_by(|a, b| {
         (i128::from(b.0) * i128::from(a.1))
             .cmp(&(i128::from(a.0) * i128::from(b.1)))
@@ -625,8 +714,6 @@ fn review(conn: &Connection, query: &ReviewQuery) -> Result<Value> {
     });
     pots.truncate(limit);
 
-    let by_key: HashMap<&str, &SessionHand> =
-        hands.iter().map(|h| (h.hand_key.as_str(), h)).collect();
     let mut named: BTreeSet<&str> = BTreeSet::new();
     named.extend(worst.iter().map(|b| b.hand_key.as_str()));
     named.extend(deviations.iter().map(|b| b.hand_key.as_str()));
@@ -636,25 +723,184 @@ fn review(conn: &Connection, query: &ReviewQuery) -> Result<Value> {
         if let Some(hand) = by_key.get(key) {
             rows.insert(
                 key.to_owned(),
-                hand_json(conn, hand, format_of(hand.segment_id), &query.version)?,
+                hand_json(conn, hand, format_in(dims, hand.segment_id), version)?,
             );
         }
     }
-    Ok(json!({
-        "gapMinutes": query.gap_minutes,
+    out["worst"] = Value::from(worst.iter().map(decision_json).collect::<Vec<_>>());
+    out["chartDeviations"] = Value::from(deviations.iter().map(decision_json).collect::<Vec<_>>());
+    out["pots"] = Value::from(
+        pots.iter()
+            .map(|p| json!({"handId": p.2.hand_key, "potBb": pot_bb(p.0, p.1)}))
+            .collect::<Vec<_>>(),
+    );
+    out["hands"] = Value::Object(rows);
+    Ok(())
+}
+
+/// What [`Reader::hands_review`] is asked (#425): the review of every hand
+/// a filter matches, not of one session.
+#[derive(Debug, Clone)]
+pub struct HandsReviewQuery {
+    /// The Hands screen's filter (the app's one filter row); bomb pots are
+    /// left out, as a session leaves them out.
+    pub filter: HandFilter,
+    /// Only the hands the analysis has been through at `version` (a row in
+    /// `hand_analysis`, graded or not).
+    pub analysed_only: bool,
+    /// Hands per list, at most [`LIST_MAX`].
+    pub limit: usize,
+    /// The analysis version the coverage and the lists read.
+    pub version: String,
+}
+
+/// A hand of a hands review, with what its summary, coverage and pots read.
+struct FilteredHand {
+    hand: SessionHand,
+    /// `ev_rows`' (`ev_net`, `ev_net_bb_milli`): all in with cards to come.
+    ev: Option<(i64, i64)>,
+    /// `hand_analysis`' status at the version, and whether it has a grade.
+    analysis: Option<(String, bool)>,
+    /// `hand_stats.total_pot` and the hand's big blind.
+    pot: Option<i64>,
+    big_blind: i64,
+}
+
+/// The review of every hand of `query.filter` (`SessionReview`'s shape):
+/// one read of the list's rows with their EV, analysis and pot beside them,
+/// then the decisions of the analysed ones. The "session" is the hands shown
+/// (the first and last instant, never a break: `finished`, no neighbours, no
+/// tables); the coverage counts every hand of the filter, so with
+/// `analysed_only` the hands it leaves out are `hands - analysed`.
+fn hands_review(conn: &Connection, query: &HandsReviewQuery) -> Result<Value> {
+    let limit = query.limit.clamp(1, LIST_MAX);
+    let mut params: Vec<SqlValue> = vec![SqlValue::Text(query.version.clone())];
+    let within = hand_keys_in(conn, &query.filter, "x.hand_key", &mut params)?;
+    let mut stmt = conn.prepare(&format!(
+        "SELECT x.hand_key, x.played_at, x.segment_id, x.hero_position, x.hero_cards, x.hero_net,
+                x.hero_net_bb_milli, x.board, x.pot_type, x.kind, x.currency, x.currency_symbol,
+                x.minor_units, e.ev_net, e.ev_net_bb_milli, a.status, a.grade IS NOT NULL,
+                d.total_pot, coalesce(h.big_blind, 0)
+         FROM hand_list x
+         LEFT JOIN ev_rows e ON e.hand_key = x.hand_key
+         LEFT JOIN hand_analysis a ON a.hand_key = x.hand_key AND a.analysis_version = ?1
+         LEFT JOIN hand_stats d ON d.hand_key = x.hand_key
+         LEFT JOIN hands h ON h.hand_key = x.hand_key
+         WHERE x.hero_net IS NOT NULL AND (x.kind & 1) = 0{within}"
+    ))?;
+    let rows = stmt.query_map(params_from_iter(params.iter()), |row| {
+        let ev = match (
+            row.get::<_, Option<i64>>(13)?,
+            row.get::<_, Option<i64>>(14)?,
+        ) {
+            (Some(net), Some(bb)) => Some((net, bb)),
+            _ => None,
+        };
+        let analysis = row
+            .get::<_, Option<String>>(15)?
+            .map(|status| -> rusqlite::Result<(String, bool)> { Ok((status, row.get(16)?)) })
+            .transpose()?;
+        Ok(FilteredHand {
+            hand: SessionHand {
+                hand_key: row.get(0)?,
+                played_at: row.get(1)?,
+                segment_id: row.get(2)?,
+                position: row.get(3)?,
+                cards: row.get(4)?,
+                net: row.get::<_, Option<i64>>(5)?.unwrap_or(0),
+                net_bb_milli: row.get::<_, Option<i64>>(6)?.unwrap_or(0),
+                board: row.get(7)?,
+                pot_type: row.get(8)?,
+                kind: row.get(9)?,
+                currency: row.get(10)?,
+                symbol: row.get(11)?,
+                minor_units: row.get(12)?,
+            },
+            ev,
+            analysis,
+            pot: row.get(17)?,
+            big_blind: row.get(18)?,
+        })
+    })?;
+    let all: Vec<FilteredHand> = rows.collect::<rusqlite::Result<_>>()?;
+
+    let (mut analysed, mut graded, mut not_analysed) = (0_i64, 0_i64, 0_i64);
+    for (status, has_grade) in all.iter().filter_map(|f| f.analysis.as_ref()) {
+        analysed += 1;
+        graded += i64::from(*has_grade);
+        not_analysed += i64::from(status == "not-analysed");
+    }
+    let shown: Vec<&FilteredHand> = all
+        .iter()
+        .filter(|f| !query.analysed_only || f.analysis.is_some())
+        .collect();
+
+    let dims = segments(conn)?;
+    let mut sums = Sums::default();
+    let (mut first, mut last): (Option<&str>, Option<&str>) = (None, None);
+    for f in &shown {
+        sums.add(&f.hand, format_in(&dims, f.hand.segment_id) == "cash", f.ev);
+        let at = f.hand.played_at.as_str();
+        if !at.is_empty() {
+            first = Some(first.map_or(at, |b| b.min(at)));
+            last = Some(last.map_or(at, |b| b.max(at)));
+        }
+    }
+    let session = if shown.is_empty() {
+        Value::Null
+    } else {
+        let mut session = json!({
+            "startedAt": first.unwrap_or(""),
+            "endedAt": last.unwrap_or(""),
+            "finished": true,
+            "previousAt": Value::Null,
+            "nextAt": Value::Null,
+            "hands": shown.len(),
+            "tables": 0,
+        });
+        sums.write(&mut session);
+        session
+    };
+
+    let bad = bad_decisions(
+        conn,
+        shown
+            .iter()
+            .filter(|f| f.analysis.is_some())
+            .map(|f| &f.hand),
+        &query.version,
+    )?;
+    let pots: Vec<(i64, i64, &SessionHand)> = shown
+        .iter()
+        .filter(|f| f.big_blind > 0)
+        .filter_map(|f| f.pot.map(|pot| (pot, f.big_blind, &f.hand)))
+        .collect();
+    let by_key: HashMap<&str, &SessionHand> = shown
+        .iter()
+        .map(|f| (f.hand.hand_key.as_str(), &f.hand))
+        .collect();
+    let mut out = json!({
+        "gapMinutes": 0,
         "session": session,
-        "ongoing": ongoing,
+        "ongoing": Value::Null,
         "coverage": {
-            "hands": hands.len(),
-            "analysed": coverage.0,
-            "graded": coverage.1,
-            "notAnalysed": coverage.2,
+            "hands": all.len(),
+            "analysed": analysed,
+            "graded": graded,
+            "notAnalysed": not_analysed,
         },
-        "worst": worst.iter().map(decision_json).collect::<Vec<_>>(),
-        "chartDeviations": deviations.iter().map(decision_json).collect::<Vec<_>>(),
-        "pots": pots.iter().map(|p| json!({"handId": p.2.hand_key, "potBb": pot_bb(p.0, p.1)})).collect::<Vec<_>>(),
-        "hands": Value::Object(rows),
-    }))
+    });
+    lists(
+        conn,
+        &by_key,
+        &bad,
+        pots,
+        limit,
+        &query.version,
+        &dims,
+        &mut out,
+    )?;
+    Ok(out)
 }
 
 /// One session in the picker.
@@ -806,6 +1052,11 @@ impl Reader {
             return Err(Error::OutOfRange("session gap"));
         }
         self.with(|conn| review(conn, query))
+    }
+
+    /// The review of every hand a filter matches (#425; `SessionReview`'s JSON).
+    pub fn hands_review(&self, query: &HandsReviewQuery) -> Result<Value> {
+        self.with(|conn| hands_review(conn, query))
     }
 
     /// The sessions (bomb pots out) whose last hand is at or after `since`

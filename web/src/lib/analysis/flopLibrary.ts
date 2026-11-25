@@ -659,7 +659,7 @@ export class FlopLibraryLoader implements FlopLibrary {
 const DECISIONS = new Set(["fold", "check", "call", "bet", "raise"]);
 
 /** The two seats that saw the flop, if exactly two did. */
-function flopPair(context: StatsContext): [number, number] | null {
+export function flopPair(context: StatsContext): [number, number] | null {
   if (!context.dealt.has("flop")) return null;
   const seats = context.dealtInSeats.filter((seat) => context.foldedOn.get(seat) !== "preflop");
   return seats.length === 2 ? [seats[0], seats[1]] : null;

@@ -6,6 +6,8 @@
  * web groups them), and the training sessions kept on this computer
  * (`localSessionStore`): the last one opened opens again with the Trainer.
  * Every graded spot answer also goes to the account (`outbox.ts`).
+ * "Look up in Solver" (#420) opens the Solver tab at the spot; the Trainer
+ * keeps the session's table as it was, so going back continues there.
  */
 import { createElement, useEffect, useMemo } from "react";
 
@@ -17,7 +19,8 @@ import type { GameKind } from "@rail/ui/hands/gameKind";
 import { fetchTopLeaks } from "../lib/leaksSource";
 import { errorText, inApp, ipc, onAccountChanged } from "../lib/ipc";
 import { handAnalysisOf } from "../analysis/service";
-import { screenHref } from "../lib/router";
+import { go, screenHref } from "../lib/router";
+import { spotParam } from "../solver/param";
 import { viewParam } from "../screens/analysis/view";
 import type { PhfHand } from "@rail/ui/model/phf";
 import { enqueue, flushOutbox } from "./outbox";
@@ -160,6 +163,27 @@ async function range(spot: TrainerSpot): Promise<RangeView | null> {
   return response.type === "range" ? response.view : null;
 }
 
+/**
+ * "Look up in Solver" (#420): the Solver tab at the spot, as the replayer's
+ * "Open in Solver" opens a hand's (`solver/param.ts`: a link with the hero's
+ * cards, read afresh even with the tab open). False when it has no spot.
+ */
+async function openSolver(spot: TrainerSpot): Promise<boolean> {
+  const response = await ask({ type: "solver", spot });
+  if (response.type === "error") throw new Error(response.message);
+  const link = response.type === "solver" ? response.link : null;
+  if (!link) return false;
+  const query = new URLSearchParams(
+    spotParam(
+      { set: link.set, line: link.line, flop: link.flop, node: null, turn: null, path: link.path, walk: link.walk },
+      { cards: spot.cards.join(""), position: spot.hero },
+    ),
+  );
+  if (link.approx) query.set("approx", link.approx);
+  go("solver", query.toString());
+  return true;
+}
+
 async function playRange(step: PlayStep): Promise<RangeView | null> {
   const response = await ask({ type: "play-range", step });
   if (response.type === "error") throw new Error(response.message);
@@ -253,6 +277,7 @@ export function useAppTrainerHost(kind: GameKind | null): TrainerHost {
       played,
       // The bar's way back: the stat's drill-down in Analytics (a section of Analysis).
       analyticsHref: (stat) => screenHref("analysis", viewParam({ kind: "stats", view: "overview", stat })),
+      solver: openSolver,
     }),
     [locale, kind],
   );

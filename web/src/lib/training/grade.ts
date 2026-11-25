@@ -21,6 +21,13 @@
  *   that kept a Blunder (folding a hand that cannot lose, calling with one
  *   that beats nothing) were judged for the action taken, and a different
  *   answer is never assumed to be one of them.
+ *
+ * **Perfect is the best move** (#417). The analysis calls a move Perfect
+ * when the reference plays it within five points of its most frequent
+ * option, whatever it costs; the trainer, which tells a player what to play,
+ * keeps Perfect for an answer that loses no EV it shows (`bestMoveGrade`).
+ * Any other move the reference plays that often is Good, the best move
+ * named beside it. Drills keep their stored grades (above).
  */
 
 import type { ChartSet } from "../charts";
@@ -136,4 +143,40 @@ export function asAnswered(decision: DecisionAnalysis, answer: number, result: G
     flags: [],
     worstFlag: null,
   };
+}
+
+/** EV lost up to this many big blinds reads as none: the verdict's "No EV lost". */
+export const NO_LOSS_BB = 0.005;
+
+/**
+ * The trainer's Perfect: a Perfect that loses EV the verdict shows (more
+ * than `NO_LOSS_BB`) is a move the reference mixes in, not the best one,
+ * so it is Good. Every other grade comes back as it is.
+ */
+export function bestMoveGrade<T extends { grade: Grade | null; evLoss: number | null }>(graded: T): T {
+  return graded.grade === "perfect" && (graded.evLoss ?? 0) > NO_LOSS_BB ? { ...graded, grade: "good" } : graded;
+}
+
+/**
+ * Every option of a graded decision as the trainer would grade it had it
+ * been the answer: the answer's own grade for the answer, the others as a
+ * drill grades them (the same caps, `gradeDrill`) with the trainer's
+ * Perfect. Empty when the decision is not graded.
+ */
+export function optionGrades(decision: DecisionAnalysis): Grade[] {
+  const { grade: own, chosen } = decision;
+  if (own === null || chosen === null || decision.options.length === 0) return [];
+  const stored: DrillDecision = {
+    options: decision.options,
+    chosen,
+    grade: own,
+    evLoss: decision.evLoss ?? 0,
+    evLossPot: decision.evLossPot ?? 0,
+    freqDiff: decision.freqDiff ?? 0,
+    score: decision.score ?? 0,
+    potBb: decision.facts.potBb,
+    source: decision.source,
+    approximations: decision.approximations,
+  };
+  return decision.options.map((_, i) => (i === chosen ? own : bestMoveGrade(gradeDrill(stored, i)).grade));
 }

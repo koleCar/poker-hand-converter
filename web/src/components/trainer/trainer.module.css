@@ -317,11 +317,14 @@
 .action {
   --tone: var(--chart-raise);
 
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
+  gap: 2px;
   min-block-size: 3rem;
+  overflow: hidden;
   padding: var(--space-2) var(--space-3);
   border: 0;
   border-radius: var(--radius-2);
@@ -369,6 +372,61 @@
   border-radius: var(--radius-1);
   background: rgb(0 0 0 / 20%);
   font-size: var(--font-size-2xs);
+}
+
+.actionHead {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/*
+ * Graded (#417): every button takes the colour of the grade it would have
+ * had as the answer, says how often the reference plays it and for what EV,
+ * and draws that frequency as a bar in the action's own colour.
+ */
+.action[data-grade] {
+  background: color-mix(in srgb, var(--grade-color) 22%, var(--surface-raised));
+  box-shadow: inset 0 0 0 2px var(--grade-color);
+  color: var(--text-primary);
+}
+
+.action[data-grade]:disabled {
+  opacity: 1;
+}
+
+.action[data-grade="perfect"] {
+  --grade-color: var(--grade-perfect);
+}
+
+.action[data-grade="good"] {
+  --grade-color: var(--grade-good);
+}
+
+.action[data-grade="inaccurate"] {
+  --grade-color: var(--grade-inaccurate);
+}
+
+.action[data-grade="mistake"] {
+  --grade-color: var(--grade-mistake);
+}
+
+.action[data-grade="blunder"] {
+  --grade-color: var(--grade-blunder);
+}
+
+.actionInfo {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.actionFreq {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-start: 0;
+  block-size: 4px;
+  background: var(--tone);
 }
 
 /* ------------------------------------------------------------- feedback */
@@ -623,8 +681,55 @@
 }
 
 .fieldLabel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
+}
+
+/* A row's explanation (#423): an ⓘ beside the label, its box under the label
+   (as wide as the row, over the chips) on hover or focus. */
+.infoTip {
+  display: inline-flex;
+}
+
+.infoButton {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--text-tertiary);
+  cursor: help;
+}
+
+.infoButton:hover,
+.infoButton:focus {
+  color: var(--text-primary);
+}
+
+.infoBox {
+  position: absolute;
+  inset-block-start: calc(100% + var(--space-1));
+  inset-inline: 0;
+  z-index: 20;
+  display: none;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-overlay);
+  box-shadow: var(--shadow-2);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  pointer-events: none;
+}
+
+.infoTip:hover > .infoBox,
+.infoButton:focus + .infoBox {
+  display: block;
 }
 
 .chips {
@@ -800,26 +905,22 @@
   opacity: 1 !important;
 }
 
+/* The overall frequencies (#421): one row per action, label left and share
+   right in the action's colour, over a bar of the whole mix. */
 .rangeLegend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: var(--font-size-xs);
+  display: grid;
+  max-inline-size: 30rem;
+  font-size: var(--font-size-sm);
 }
 
-.rangeLegend li {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
+.rangeShare {
+  font-variant-numeric: tabular-nums;
 }
 
-.rangeSwatch {
-  inline-size: 0.6rem;
+.rangeBar {
   block-size: 0.6rem;
-  border-radius: 2px;
+  margin-block-start: var(--space-1);
+  border-radius: var(--radius-sm);
 }
 
 /* ---------------------------------------------------------- timebank (T5) */
@@ -918,9 +1019,11 @@
 
 /* ------------------------------------------------------- tables (T5) */
 
+/* Each table as tall as its own content: one table's open why must not stretch the one beside it (#417). */
 .tables {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  align-items: start;
   gap: var(--space-4);
 }
 
@@ -1108,20 +1211,21 @@
 }
 
 .rangeOption {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-0-5) var(--space-2);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-0-5) var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--text-primary);
   font: inherit;
-  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-align: start;
   cursor: pointer;
   transition:
     background-color 140ms ease,
-    border-color 140ms ease;
+    opacity 140ms ease;
 }
 
 .rangeOption:hover {
@@ -1129,8 +1233,12 @@
 }
 
 .rangeOption[aria-pressed="true"] {
-  border-color: var(--accent-border);
   background: var(--accent-bg-subtle, var(--surface-hover));
+}
+
+/* With one action picked, the others step back. */
+.rangeLegend[data-picked] .rangeOption[aria-pressed="false"] {
+  opacity: 0.45;
 }
 
 .rangeCell {
@@ -2167,29 +2275,6 @@
   color: color-mix(in srgb, var(--pcard-ink-c) 55%, var(--pcard-face));
 }
 
-.factChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.factChips li {
-  padding: var(--space-0-5) var(--space-2);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-1);
-  background: var(--surface-inset);
-  color: var(--text-secondary);
-  font-size: var(--font-size-xs);
-}
-
-.factChips strong {
-  color: var(--text-primary);
-  font-weight: var(--font-weight-semibold);
-}
-
 .details {
   display: grid;
   gap: var(--space-2);
@@ -2472,13 +2557,10 @@
     letter-spacing: -0.03em;
   }
 
-  .rangeLegend {
-    gap: var(--space-2);
-  }
-
   .rangeOption {
+    align-items: center;
     min-block-size: 40px;
-    padding: 0 var(--space-3);
+    padding: 0 var(--space-2);
   }
 }
 
@@ -2540,4 +2622,27 @@
 .playedHead {
   margin: 0;
   font-size: var(--font-size-sm);
+}
+
+/* "Look up in Solver" beside Next hand (#420): the same size, quiet. */
+.lookup {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.lookup:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.lookup:disabled {
+  color: var(--text-tertiary);
+  cursor: default;
 }
