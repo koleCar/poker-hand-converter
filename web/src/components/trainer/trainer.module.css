@@ -800,26 +800,22 @@
   opacity: 1 !important;
 }
 
+/* The overall frequencies (#421): one row per action, label left and share
+   right in the action's colour, over a bar of the whole mix. */
 .rangeLegend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: var(--font-size-xs);
+  display: grid;
+  max-inline-size: 30rem;
+  font-size: var(--font-size-sm);
 }
 
-.rangeLegend li {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
+.rangeShare {
+  font-variant-numeric: tabular-nums;
 }
 
-.rangeSwatch {
-  inline-size: 0.6rem;
+.rangeBar {
   block-size: 0.6rem;
-  border-radius: 2px;
+  margin-block-start: var(--space-1);
+  border-radius: var(--radius-sm);
 }
 
 /* ---------------------------------------------------------- timebank (T5) */
@@ -1108,20 +1104,21 @@
 }
 
 .rangeOption {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-0-5) var(--space-2);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-0-5) var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--text-primary);
   font: inherit;
-  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-align: start;
   cursor: pointer;
   transition:
     background-color 140ms ease,
-    border-color 140ms ease;
+    opacity 140ms ease;
 }
 
 .rangeOption:hover {
@@ -1129,8 +1126,12 @@
 }
 
 .rangeOption[aria-pressed="true"] {
-  border-color: var(--accent-border);
   background: var(--accent-bg-subtle, var(--surface-hover));
+}
+
+/* With one action picked, the others step back. */
+.rangeLegend[data-picked] .rangeOption[aria-pressed="false"] {
+  opacity: 0.45;
 }
 
 .rangeCell {
@@ -2472,13 +2473,10 @@
     letter-spacing: -0.03em;
   }
 
-  .rangeLegend {
-    gap: var(--space-2);
-  }
-
   .rangeOption {
+    align-items: center;
     min-block-size: 40px;
-    padding: 0 var(--space-3);
+    padding: 0 var(--space-2);
   }
 }
 

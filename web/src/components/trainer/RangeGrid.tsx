@@ -7,8 +7,10 @@
  * Hovering a class zooms it (canvas `ideas-trainer` A): the class with every
  * action's frequency, and under it each of its combos that reach the node,
  * with its own mix (postflop, where the reference plays combos apart). Under
- * the grid, each action's share of the range as a button: picking one shows
- * only the hands that take it.
+ * the grid, the overall frequencies as GTO Wizard lists them: each action's
+ * share of the range on its own row in the action's colour, over one bar of
+ * the whole mix. A row is a button: picking one shows only the hands that
+ * take it.
  */
 
 "use client";
@@ -106,7 +108,8 @@ export function RangeGrid({
   const total = view.cells.reduce((sum, cell) => sum + cell.combos, 0);
   const picked = strategy && only !== null && only < tones.length ? only : null;
   const combos = picked === null ? total : view.cells.reduce((sum, cell) => sum + cell.combos * (cell.freq[picked] ?? 0), 0);
-  const pct = (value: number) => `${Math.round(value * 100).toLocaleString(locale)}%`;
+  // Each action's share of the range to a tenth, as GTO Wizard's overall frequencies (#421).
+  const sharePct = (value: number) => `${(value * 100).toLocaleString(locale, { maximumFractionDigits: 1 })}%`;
 
   const onOver = (event: MouseEvent<HTMLDivElement>) => {
     const el = (event.target as HTMLElement).closest<HTMLElement>("[data-cell]");
@@ -164,21 +167,22 @@ export function RangeGrid({
         {hover ? <Zoom view={view} hover={hover} strategy={strategy} order={order} colours={colours} /> : null}
       </div>
       {strategy ? (
-        <div className={styles.rangeLegend} role="group" aria-label={t.rangeShow}>
+        <div className={styles.rangeLegend} role="group" aria-label={t.rangeShow} data-picked={picked !== null || undefined}>
           {order.map((a) => (
             <button
               key={a}
               type="button"
               className={styles.rangeOption}
               data-action={tones[a]}
+              style={{ color: colours[a] }}
               aria-pressed={picked === a}
               onClick={() => setOnly((current) => (current === a ? null : a))}
             >
-              <span className={styles.rangeSwatch} style={{ background: colours[a] }} aria-hidden="true" />
-              {t.words.option(view.options[a].action, view.options[a].sizeBb, view.options[a].allIn, view.options[a].sizePot)}
-              <span className={styles.muted}>{pct(view.shares[a] ?? 0)}</span>
+              <span>{t.words.option(view.options[a].action, view.options[a].sizeBb, view.options[a].allIn, view.options[a].sizePot)}</span>
+              <span className={styles.rangeShare}>{sharePct(view.shares[a] ?? 0)}</span>
             </button>
           ))}
+          <span className={styles.rangeBar} style={{ background: bands(view.shares, order, colours) }} aria-hidden="true" />
         </div>
       ) : null}
     </div>
