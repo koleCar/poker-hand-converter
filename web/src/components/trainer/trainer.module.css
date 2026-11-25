@@ -623,8 +623,55 @@
 }
 
 .fieldLabel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
+}
+
+/* A row's explanation (#423): an ⓘ beside the label, its box under the label
+   (as wide as the row, over the chips) on hover or focus. */
+.infoTip {
+  display: inline-flex;
+}
+
+.infoButton {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--text-tertiary);
+  cursor: help;
+}
+
+.infoButton:hover,
+.infoButton:focus {
+  color: var(--text-primary);
+}
+
+.infoBox {
+  position: absolute;
+  inset-block-start: calc(100% + var(--space-1));
+  inset-inline: 0;
+  z-index: 20;
+  display: none;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-overlay);
+  box-shadow: var(--shadow-2);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  pointer-events: none;
+}
+
+.infoTip:hover > .infoBox,
+.infoButton:focus + .infoBox {
+  display: block;
 }
 
 .chips {

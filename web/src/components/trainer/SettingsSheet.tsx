@@ -5,11 +5,14 @@
  * training runs, and what an answer shows. The settings are fixed once the
  * session starts; opened from a running session, the sheet starts a new one
  * and says so. Settings another session already trains offer to continue it.
+ * A row's longer explanation sits behind an ⓘ beside its label, shown on
+ * hover or focus, not as a paragraph under the chips (#423).
  */
 
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Icon } from "@rail/ui/icon/Icon";
 import type { ChartPosition } from "../../lib/charts";
 import { DEAL_BIASES, FLOP_FACINGS, PLAY_FAMILIES, RIVER_POTS, RIVER_ROLES, RIVER_SEATS } from "../../lib/training";
 import { useTrainerHost } from "./host";
@@ -43,12 +46,26 @@ interface ChipsProps<T extends string> {
   value: T;
   options: ReadonlyArray<{ value: T; label: string }>;
   onChange: (value: T) => void;
+  /** What the chosen value does, in the ⓘ's hover box beside the label. */
+  info?: string;
 }
 
-function Chips<T extends string>({ label, value, options, onChange }: ChipsProps<T>) {
+function Chips<T extends string>({ label, value, options, onChange, info }: ChipsProps<T>) {
   return (
     <div className={styles.field} role="radiogroup" aria-label={label}>
-      <span className={styles.fieldLabel}>{label}</span>
+      <span className={styles.fieldLabel}>
+        {label}
+        {info ? (
+          <span className={styles.infoTip}>
+            <button type="button" className={styles.infoButton} aria-label={info}>
+              <Icon name="info" />
+            </button>
+            <span className={styles.infoBox} role="tooltip">
+              {info}
+            </span>
+          </span>
+        ) : null}
+      </span>
       <span className={styles.chips}>
         {options.map((option) => (
           <button
@@ -284,8 +301,8 @@ export function SettingsSheet({
             value={settings.repeat}
             options={REPEATS.map((value) => ({ value, label: s.repeats[value] ?? value }))}
             onChange={(repeat) => onChange({ repeat })}
+            info={settings.play === "spot" ? s.repeatHints[settings.repeat] : undefined}
           />
-          {settings.play === "spot" ? <p className={styles.muted}>{s.repeatHints[settings.repeat]}</p> : null}
           <Chips
             label={t.deal}
             value={postflop && !hand && settings.classes.length > 0 ? "classes" : settings.deal}
