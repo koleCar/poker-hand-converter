@@ -14,10 +14,18 @@
  *
  * Every section shows the kind of game chosen in the sidebar
  * (`lib/gameKind.ts`); none has a Cash | Tournaments switch of its own.
+ *
+ * The review (#425) is of every hand the filter row matches - the Hands
+ * and Reports filters - not of one session: no session picker, and
+ * "Analysed hands only" while some of them are not analysed yet. Once every
+ * hand is, the run's line goes too.
  */
 import { BombPotsTab, MultiwayTab } from "./analysis/PotKinds";
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import { kindFormats } from "@rail/ui/hands/gameKind";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { FilterBar } from "@rail/ui/hands/FilterBar";
+import { EMPTY_FILTER, toQuery, type FilterState } from "@rail/ui/hands/filter";
+import { groupsHiddenFor, holdSurfaceKind } from "@rail/ui/hands/groups";
+import type { HandFacets, HandFilter } from "@rail/ui/hands/model";
 import { useUiStrings } from "@rail/ui/i18n";
 import { shippedChartDeviations, type SessionQuery } from "@rail/ui/review/model";
 import { SessionReviewScreen, type HandLinkProps } from "@rail/ui/review/SessionReviewScreen";
@@ -25,16 +33,18 @@ import { SessionReviewScreen, type HandLinkProps } from "@rail/ui/review/Session
 import { ChosenLink, HandTable } from "../components/HandTable";
 import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
-import { onAnalysisRows } from "../analysis/service";
+import { onAnalysisRows, useAnalysisStatus } from "../analysis/service";
 import { hiddenDuringPlay } from "../lib/duringPlay";
 import { inApp } from "../lib/ipc";
 import { useAppKind } from "../lib/gameKind";
-import { storeReviewSource } from "../lib/reviewSource";
+import { storeReportSource } from "../lib/reportSource";
+import { storeHandsReviewSource } from "../lib/reviewSource";
 import { replaceParam, screenHref, useRouteParam } from "../lib/router";
 import { useTablesOpen } from "../lib/useTablesOpen";
 import { AnalysisStatus, ShowAnalysisProgress } from "./analysis/AnalysisStatus";
 import { AnalyticsTab } from "./analysis/AnalyticsTab";
 import { useProgressHidden } from "./analysis/progressHidden";
+import { allAnalysed } from "./analysis/status";
 import styles from "./analysis/Analysis.module.css";
 import { HandAnalysis } from "./analysis/HandAnalysis";
 import { openInReplayer } from "./analysis/openHand";
@@ -102,7 +112,7 @@ function AnalysisSection({ view }: { view: AnalysisView }) {
       </div>
     );
   }
-  return <Session view={view} nav={nav} hidden={hidden} reload={reload} />;
+  return <Session nav={nav} hidden={hidden} reload={reload} />;
 }
 
 /** The multiway spots ranked among themselves (analysis/45): the top leaks with `potKind: "mw"`. */
@@ -125,7 +135,10 @@ function useRowsWritten(): number {
  */
 function AnalysisNav({ current, end }: { current: AnalysisView["kind"]; end?: ReactNode }) {
   const t = useT();
+  // Every hand analysed (#425): no line, and nothing to show again.
+  const done = allAnalysed(useAnalysisStatus());
   const progressHidden = useProgressHidden();
+  const showAgain = progressHidden && !done;
   return (
     <div className={styles.nav}>
       <div className={styles.navRow}>
@@ -141,25 +154,52 @@ function AnalysisNav({ current, end }: { current: AnalysisView["kind"]; end?: Re
             </a>
           ))}
         </nav>
-        {end || progressHidden ? (
+        {end || showAgain ? (
           <div className={styles.navEnd}>
             {end}
-            {progressHidden ? <ShowAnalysisProgress /> : null}
+            {showAgain ? <ShowAnalysisProgress /> : null}
           </div>
         ) : null}
       </div>
-      {progressHidden ? null : <AnalysisStatus />}
+      {progressHidden || done ? null : <AnalysisStatus />}
     </div>
   );
 }
 
+/** How often at most the review reads every hand again while the background run writes rows. */
+const RELOAD_MS = 30_000;
+
+/** `value`, changing at most once per `ms`; the last change always lands. */
+function useThrottled<T>(value: T, ms: number): T {
+  const [shown, setShown] = useState(value);
+  const last = useRef(0);
+  useEffect(() => {
+    const timer = setTimeout(
+      () => {
+        last.current = Date.now();
+        setShown(value);
+      },
+      Math.max(0, last.current + ms - Date.now()),
+    );
+    return () => clearTimeout(timer);
+  }, [value, ms]);
+  return shown;
+}
+
+/** The review's filter and "Analysed hands only", kept while the app runs (leaving Analysis and coming back keeps them). */
+let lastFilter: FilterState | null = null;
+let lastAnalysedOnly = false;
+
+/**
+ * The review of every hand of the filter (#425): the shared screen with
+ * `scope: "hands"` under the filter row (Hands' and Reports' groups, the
+ * sidebar's kind of game held), read from the store (`hands_review`).
+ */
 function Session({
-  view,
   nav,
   hidden,
   reload,
 }: {
-  view: Extract<AnalysisView, { kind: "session" }>;
   nav: (end?: ReactNode) => ReactNode;
   hidden: boolean;
   reload: number;
@@ -168,13 +208,49 @@ function Session({
   const ui = useUiStrings();
   // One kind of game at a time: the sidebar's (`lib/gameKind.ts`).
   const { kind } = useAppKind();
-  const query: SessionQuery | null = useMemo(
-    () => (kind === null ? null : { at: view.at, gapMinutes: view.gap, filter: { formats: kindFormats(kind) } }),
-    [view.at, view.gap, kind],
+  const [chosen, setChosen] = useState<FilterState | null>(() => lastFilter);
+  const [analysedOnly, setAnalysedOnly] = useState(() => lastAnalysedOnly);
+  // The chips' counts; the first review waits for them (they settle the kind's formats).
+  const [facets, setFacets] = useState<{ value: HandFacets | null } | null>(null);
+  const seen = facets?.value ?? null;
+  const filter = useMemo(
+    () => (kind === null ? null : holdSurfaceKind(chosen ?? EMPTY_FILTER, kind, seen)),
+    [chosen, kind, seen],
   );
-  const onQuery = useCallback((next: SessionQuery) => {
-    replaceParam("analysis", viewParam({ kind: "session", at: next.at, gap: next.gapMinutes }));
+  const handFilter = useMemo(() => (filter === null ? null : toQuery(filter)), [filter]);
+  const filterKey = handFilter === null ? null : JSON.stringify(handFilter);
+  useEffect(() => {
+    if (hidden || filterKey === null) return;
+    let live = true;
+    storeReportSource.facets(JSON.parse(filterKey) as HandFilter).then(
+      (value) => {
+        if (live) setFacets({ value });
+      },
+      () => {
+        // The counts are a convenience: the review is read without them.
+        if (live) setFacets((current) => current ?? { value: null });
+      },
+    );
+    return () => {
+      live = false;
+    };
+  }, [filterKey, hidden]);
+  // Every hand is read again as the background run writes rows, at most twice a minute.
+  const reloadEvery = useThrottled(reload, RELOAD_MS);
+
+  const query: SessionQuery | null = useMemo(
+    () => (handFilter === null ? null : { at: null, gapMinutes: 30, filter: handFilter, analysedOnly }),
+    [handFilter, analysedOnly],
+  );
+  const choose = useCallback((next: FilterState) => {
+    lastFilter = next;
+    setChosen(next);
   }, []);
+  const onQuery = useCallback((next: SessionQuery) => {
+    lastAnalysedOnly = next.analysedOnly ?? false;
+    setAnalysedOnly(lastAnalysedOnly);
+  }, []);
+  const loadFacets = useCallback((draft: HandFilter) => storeReportSource.facets(draft), []);
 
   // Each hand chooses as a Hands row does (`HandTable`): several replayed or tagged at once.
   const renderHandLink = useCallback(
@@ -192,32 +268,50 @@ function Session({
     [],
   );
 
-  if (query === null) {
+  if (filter === null || query === null || (facets === null && !hidden)) {
     return (
       <>
         {nav()}
-        <StateMessage kind="loading">{ui.review.loading}</StateMessage>
+        <StateMessage kind="loading">{ui.review.hands.loading}</StateMessage>
       </>
     );
   }
 
+  const top = (
+    <>
+      {nav()}
+      {hidden ? null : (
+        <FilterBar
+          filter={filter}
+          facets={seen}
+          onChange={choose}
+          features={storeReportSource.filters}
+          hideGroups={kind === null ? undefined : groupsHiddenFor(kind)}
+          screen="reports"
+          saved={storeReportSource.savedFilters}
+          loadFacets={loadFacets}
+        />
+      )}
+    </>
+  );
+
   return (
-    <HandTable resetKey={`${view.at ?? ""}|${kind ?? ""}`}>
+    <HandTable resetKey={`${filterKey ?? ""}|${analysedOnly ? 1 : 0}`}>
       <SessionReviewScreen
-        source={storeReviewSource}
+        source={storeHandsReviewSource}
         deviationSource={shippedChartDeviations}
         query={query}
         onQuery={onQuery}
         renderHandLink={renderHandLink}
         title={t.analysis.tabs.session}
         hideTitle
-        notice={nav()}
-        reloadToken={reload}
-        coverageAction={<span>{t.analysis.session.notAnalysed}</span>}
+        notice={top}
+        reloadToken={reloadEvery}
         hiddenDuringPlay={hidden}
         intro={false}
         layout="table"
-        renderState={(kind, text) => <StateMessage kind={kind}>{text}</StateMessage>}
+        scope="hands"
+        renderState={(state, text) => <StateMessage kind={state}>{text}</StateMessage>}
       />
     </HandTable>
   );

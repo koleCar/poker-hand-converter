@@ -15,6 +15,11 @@
  * `hiddenDuringPlay` and nothing of the review is rendered or read. By
  * default the screen opens the latest session that has *ended*; one that
  * may still be going on is named, and opened only when asked for.
+ *
+ * `scope: "hands"` (the desktop app's since #425) reviews every hand of the
+ * query's filter instead: no session picker (the surface's filter row says
+ * which hands), the dates they were played over, and an "Analysed hands
+ * only" toggle with the count analysed while some of them are not.
  */
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
@@ -113,9 +118,16 @@ export interface SessionReviewScreenProps {
    * to one kind (`pinFormats`).
    */
   kindCounts?: Record<GameKind, number> | null;
+  /**
+   * One session (default), or every hand of the query's filter (`hands`,
+   * #425): the source answers that, `sessions` is never asked, and the
+   * query's `analysedOnly` is the toggle's.
+   */
+  scope?: ReviewScope;
 }
 
 export type ReviewLayout = "cards" | "table";
+export type ReviewScope = "session" | "hands";
 
 type Loaded =
   | { status: "loading" }
@@ -129,7 +141,8 @@ type Loaded =
       source: DeviationSource;
     };
 
-const keyOf = (query: SessionQuery) => JSON.stringify([query.at, query.gapMinutes, query.filter]);
+const keyOf = (query: SessionQuery) =>
+  JSON.stringify([query.at, query.gapMinutes, query.filter, query.analysedOnly ?? false]);
 const listKeyOf = (query: SessionQuery) => JSON.stringify([query.gapMinutes, query.filter]);
 
 export function SessionReviewScreen({
@@ -151,6 +164,7 @@ export function SessionReviewScreen({
   intro = true,
   layout = "cards",
   kindCounts,
+  scope = "session",
 }: SessionReviewScreenProps) {
   const r = useUiStrings().review;
   const key = keyOf(query);
@@ -161,8 +175,8 @@ export function SessionReviewScreen({
   useEffect(() => {
     if (hiddenDuringPlay) return;
     let live = true;
-    const asked = JSON.parse(key) as [string | null, number, SessionQuery["filter"]];
-    const current: SessionQuery = { at: asked[0], gapMinutes: asked[1], filter: asked[2] };
+    const asked = JSON.parse(key) as [string | null, number, SessionQuery["filter"], boolean];
+    const current: SessionQuery = { at: asked[0], gapMinutes: asked[1], filter: asked[2], analysedOnly: asked[3] };
     void (async () => {
       try {
         const review = await source.review(current, REVIEW_FETCHED);
@@ -187,7 +201,7 @@ export function SessionReviewScreen({
   }, [key, source, deviationSource, reloadToken, hiddenDuringPlay]);
 
   useEffect(() => {
-    if (hiddenDuringPlay) return;
+    if (hiddenDuringPlay || scope === "hands") return;
     let live = true;
     const asked = JSON.parse(listKey) as [number, SessionQuery["filter"]];
     source.sessions({ at: null, gapMinutes: asked[0], filter: asked[1] }).then(
@@ -202,7 +216,7 @@ export function SessionReviewScreen({
     return () => {
       live = false;
     };
-  }, [listKey, source, reloadToken, hiddenDuringPlay]);
+  }, [listKey, source, reloadToken, hiddenDuringPlay, scope]);
 
   let body: ReactNode;
   if (hiddenDuringPlay) {
@@ -210,7 +224,7 @@ export function SessionReviewScreen({
   } else if (loaded.status === "error") {
     body = renderState("error", r.error(loaded.message));
   } else if (loaded.status === "loading") {
-    body = renderState("loading", r.loading);
+    body = renderState("loading", scope === "hands" ? r.hands.loading : r.loading);
   } else {
     body = (
       <SessionReviewView
@@ -230,6 +244,7 @@ export function SessionReviewScreen({
         coverageAction={coverageAction}
         stale={loaded.key !== key}
         layout={layout}
+        scope={scope}
       />
     );
   }
@@ -280,6 +295,7 @@ export interface SessionReviewViewProps {
   /** Hands shown per list. */
   cap?: number;
   layout?: ReviewLayout;
+  scope?: ReviewScope;
 }
 
 /** The loaded review: the picker, the summary and the lists. Pure (the tests render it). */
@@ -301,6 +317,7 @@ export function SessionReviewView({
   stale = false,
   cap = REVIEW_SHOWN,
   layout = "cards",
+  scope = "session",
 }: SessionReviewViewProps) {
   const ui = useUiStrings();
   const r = ui.review;
@@ -318,7 +335,19 @@ export function SessionReviewView({
     group === "formats" && isKindFormats(query.filter.formats) ? false : Array.isArray(value) ? value.length > 0 : value != null,
   );
   const session = review.session;
+  const all = scope === "hands";
 
+  if (session === null && all) {
+    return (
+      <>
+        <HandsBar review={review} query={query} onQuery={onQuery} stale={stale} />
+        {renderState(
+          "empty",
+          query.analysedOnly && review.coverage.hands > 0 ? r.hands.noAnalysed : filtered ? r.hands.noMatch : r.hands.noHands,
+        )}
+      </>
+    );
+  }
   if (session === null) {
     return (
       <>
@@ -334,12 +363,14 @@ export function SessionReviewView({
 
   return (
     <div className={`${styles.body} rail-dims`} aria-busy={stale}>
-      {layout === "table" ? (
+      {all ? (
+        <HandsBar review={review} query={query} onQuery={onQuery} stale={stale} />
+      ) : layout === "table" ? (
         <CompactPicker review={review} sessions={sessions} query={query} onQuery={onQuery} stale={stale} />
       ) : (
         <Picker review={review} sessions={sessions} query={query} onQuery={onQuery} stale={stale} />
       )}
-      {filtered ? <FilterLine query={query} onQuery={onQuery} /> : null}
+      {filtered && !all ? <FilterLine query={query} onQuery={onQuery} /> : null}
 
       {review.ongoing ? (
         <p className={styles.notice} role="status">
@@ -355,9 +386,9 @@ export function SessionReviewView({
       ) : null}
       {!session.finished ? <p className={styles.notice}>{r.notFinished}</p> : null}
 
-      <Summary review={review} />
+      <Summary review={review} scope={scope} />
 
-      {missing > 0 ? (
+      {missing > 0 && !all ? (
         <p className={styles.notice}>
           {r.coverage.missing(missing, review.coverage.hands)} {coverageAction}
         </p>
@@ -385,10 +416,52 @@ export function SessionReviewView({
           }
           graded={review.coverage.graded}
           layout={layout}
+          scope={scope}
           dayTime={(iso) => (iso ? `${day.format(new Date(iso))} ${time.format(new Date(iso))}` : "—")}
           renderHandLink={(props) => renderHandLink({ ...props, sessionAt: session.startedAt })}
         />
       ))}
+    </div>
+  );
+}
+
+/**
+ * Over every hand of the filter (#425): "Analysed hands only" and how many
+ * of them are, while some are not (once every one is, the row goes); the
+ * loader while another filter's hands are read.
+ */
+function HandsBar({
+  review,
+  query,
+  onQuery,
+  stale,
+}: {
+  review: SessionReview;
+  query: SessionQuery;
+  onQuery: (query: SessionQuery) => void;
+  stale: boolean;
+}) {
+  const r = useUiStrings().review;
+  const { hands, analysed } = review.coverage;
+  const on = query.analysedOnly ?? false;
+  const toggle = analysed < hands;
+  if (!toggle && !stale) return null;
+  return (
+    <div className={styles.handsBar}>
+      {toggle ? (
+        <>
+          <button
+            type="button"
+            className={`chip-btn${on ? " is-active" : ""}`}
+            aria-pressed={on}
+            onClick={() => onQuery({ ...query, analysedOnly: !on })}
+          >
+            {r.hands.analysedOnly}
+          </button>
+          <span className={styles.muted}>{r.hands.analysed(analysed, hands)}</span>
+        </>
+      ) : null}
+      {stale ? <RailLoader size="inline" label={r.hands.loading} /> : null}
     </div>
   );
 }
@@ -485,7 +558,7 @@ function Picker({
   );
 }
 
-function Summary({ review }: { review: SessionReview }) {
+function Summary({ review, scope }: { review: SessionReview; scope: ReviewScope }) {
   const ui = useUiStrings();
   const r = ui.review;
   const locale = ui.intlLocale;
@@ -500,29 +573,46 @@ function Summary({ review }: { review: SessionReview }) {
       : null;
   const tone = (value: number | null) => (value === null || value === 0 ? "" : value > 0 ? styles.up : styles.down);
   const bb100 = bbPer100(session.netBbMilli, session.hands);
+  // Every hand of a filter: the days they were played over ('' without any instant).
+  const days = (from: string, to: string) => {
+    if (!from || !to) return "—";
+    const [first, last] = [day.format(new Date(from)), day.format(new Date(to))];
+    return first === last ? first : `${first} – ${last}`;
+  };
 
   return (
     <section className={styles.summary} aria-label={r.summary.label}>
       <dl className={`${styles.tiles} rail-stagger`}>
-        <div className={`${styles.tile} ${styles.tileWide}`}>
-          <dt>{r.summary.when}</dt>
-          <dd className={styles.when}>
-            {day.format(new Date(session.startedAt))}, {time.format(new Date(session.startedAt))}–
-            {time.format(new Date(session.endedAt))}
-          </dd>
-        </div>
+        {scope === "hands" ? (
+          <div className={`${styles.tile} ${styles.tileWide}`}>
+            <dt>{r.hands.dates}</dt>
+            <dd className={styles.when}>{days(session.startedAt, session.endedAt)}</dd>
+          </div>
+        ) : (
+          <div className={`${styles.tile} ${styles.tileWide}`}>
+            <dt>{r.summary.when}</dt>
+            <dd className={styles.when}>
+              {day.format(new Date(session.startedAt))}, {time.format(new Date(session.startedAt))}–
+              {time.format(new Date(session.endedAt))}
+            </dd>
+          </div>
+        )}
         <div className={styles.tile}>
           <dt>{r.summary.hands}</dt>
           <dd>{countIn(locale, session.hands)}</dd>
         </div>
-        <div className={styles.tile}>
-          <dt>{r.summary.duration}</dt>
-          <dd>{r.summary.durationValue(minutesBetween(session.startedAt, session.endedAt))}</dd>
-        </div>
-        <div className={styles.tile}>
-          <dt>{r.summary.tables}</dt>
-          <dd>{countIn(locale, session.tables)}</dd>
-        </div>
+        {scope === "hands" ? null : (
+          <>
+            <div className={styles.tile}>
+              <dt>{r.summary.duration}</dt>
+              <dd>{r.summary.durationValue(minutesBetween(session.startedAt, session.endedAt))}</dd>
+            </div>
+            <div className={styles.tile}>
+              <dt>{r.summary.tables}</dt>
+              <dd>{countIn(locale, session.tables)}</dd>
+            </div>
+          </>
+        )}
         {session.net !== null && unit ? (
           <div className={styles.tile}>
             <dt>{r.summary.result}</dt>
@@ -559,11 +649,13 @@ function ListSection({
   choice,
   graded,
   layout,
+  scope,
   dayTime,
   renderHandLink,
 }: {
   section: ReviewSection;
   layout: ReviewLayout;
+  scope: ReviewScope;
   /** The deviations come from the user's own chart of this name. */
   own: string | null;
   /** The surface's choice of deviation source, over the list. */
@@ -577,12 +669,17 @@ function ListSection({
   const id = `review-${section.kind}`;
   let empty: string | null = null;
   if (section.candidates === 0) {
+    const all = scope === "hands";
     empty =
       section.kind !== "pots" && graded === 0
-        ? (words as typeof r.lists.worst).emptyUnanalysed
+        ? all
+          ? r.hands.emptyUnanalysed
+          : (words as typeof r.lists.worst).emptyUnanalysed
         : own !== null
           ? r.deviationSource.empty(own)
-          : words.empty;
+          : all
+            ? r.hands.empty[section.kind]
+            : words.empty;
   }
   const description = own !== null ? r.deviationSource.description(own) : words.description;
   if (layout === "table") {

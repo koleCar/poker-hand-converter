@@ -111,6 +111,15 @@
   flex-basis: 100%;
 }
 
+/* Every hand of a filter (#425): "Analysed hands only" and the count analysed. */
+.handsBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  pointer-events: auto;
+}
+
 /* The table layout's picker (the desktop app): previous, the sessions as a
    select drawn as a button with its own chevron, next - one row. */
 .compactPicker {

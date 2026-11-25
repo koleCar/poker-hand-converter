@@ -1159,6 +1159,75 @@ fn the_session_review_reads_the_webs_sessions_and_lists() {
     assert_eq!(small["worst"].as_array().map(Vec::len), Some(3));
     assert_eq!(small["worst"][0], worst[0]);
 
+    // Every hand of a filter (#425). The coverage counts them all; with
+    // analysed hands only, the hands are the session's (the only ones
+    // analysed), so its summary and lists are the session's.
+    let every = |filter: rail_store::HandFilter, analysed_only: bool| {
+        store
+            .reader()
+            .hands_review(&rail_store::review::HandsReviewQuery {
+                filter,
+                analysed_only,
+                limit: 20,
+                version: V1.to_owned(),
+            })
+            .expect("hands review")
+    };
+    let count = |format: Option<&str>| -> i64 {
+        conn.query_row(
+            "SELECT count(*) FROM hand_list l JOIN segments s ON s.id = l.segment_id
+             WHERE l.hero_net IS NOT NULL AND (l.kind & 1) = 0
+               AND (?1 IS NULL OR s.game_format = ?1)",
+            [format],
+            |r| r.get(0),
+        )
+        .expect("count")
+    };
+    let hero_hands = count(None);
+    let all = every(rail_store::HandFilter::default(), false);
+    assert_eq!(all["coverage"]["hands"], json!(hero_hands));
+    assert_eq!(all["coverage"]["analysed"], json!(keys.len()));
+    assert_eq!(all["session"]["hands"], json!(hero_hands));
+    assert_eq!(all["session"]["finished"], json!(true));
+    assert_eq!(all["session"]["previousAt"], Value::Null);
+    let analysed = every(rail_store::HandFilter::default(), true);
+    assert_eq!(analysed["coverage"]["hands"], json!(hero_hands));
+    assert_eq!(analysed["session"]["hands"], json!(keys.len()));
+    assert_eq!(analysed["session"]["startedAt"], json!(start));
+    assert_eq!(analysed["session"]["endedAt"], json!(end));
+    for field in [
+        "netBbMilli",
+        "evNetBbMilli",
+        "net",
+        "allInHands",
+        "currency",
+    ] {
+        assert_eq!(
+            analysed["session"][field], review["session"][field],
+            "{field}"
+        );
+    }
+    for list in ["worst", "chartDeviations", "pots", "hands"] {
+        assert_eq!(analysed[list], review[list], "{list}");
+    }
+    // A filter: the list's own (the cash hands), the toggle on top of it.
+    let cash = rail_store::HandFilter {
+        formats: vec!["cash".to_owned()],
+        ..rail_store::HandFilter::default()
+    };
+    assert_eq!(
+        every(cash.clone(), false)["coverage"]["hands"],
+        json!(count(Some("cash")))
+    );
+    let nothing = rail_store::HandFilter {
+        sites: vec!["no-such-room".to_owned()],
+        ..rail_store::HandFilter::default()
+    };
+    let none = every(nothing, false);
+    assert_eq!(none["session"], Value::Null);
+    assert_eq!(none["coverage"]["hands"], json!(0));
+    assert_eq!(none["worst"], json!([]));
+
     // The own charts: the session's preflop decisions, and the rows of hands.
     let preflop = store
         .reader()

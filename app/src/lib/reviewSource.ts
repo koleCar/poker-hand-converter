@@ -10,6 +10,10 @@
  * its formats name is applied (cash, or every tournament format: never both
  * kinds in one session, the owner's rule of 2026-11-04); the rest are not
  * (the review reads every hand of the kind, bomb pots out).
+ *
+ * Since #425 the Analysis screen reviews every hand of its filter instead
+ * ({@link storeHandsReviewSource}, `hands_review`): the whole filter, the
+ * Hands screen's, applied by the store, and "Analysed hands only".
  */
 import type { SessionChartsSource } from "@rail/ui/charts/sessionSource";
 import type { TableSize } from "@rail/ui/charts/model";
@@ -63,6 +67,16 @@ export const storeReviewSource: SessionReviewSource = {
     if (recent.length >= 2) return recent.slice(0, -1);
     return ipc.reviewSessions(query.gapMinutes, null, PICKER_MAX, kind);
   },
+};
+
+/** Every hand of the query's filter (`scope: "hands"`): no sessions to pick from. */
+export const storeHandsReviewSource: SessionReviewSource = {
+  async review(query, limit): Promise<SessionReview> {
+    const review = (await ipc.handsReview(ANALYSIS_VERSION, query.filter, query.analysedOnly ?? false, limit)) as unknown as SessionReview;
+    return { ...review, hands: hands(review.hands) };
+  },
+
+  sessions: () => Promise.resolve([]),
 };
 
 export const storeSessionChartsSource: SessionChartsSource = {

@@ -562,6 +562,78 @@ describe("the view", () => {
     });
   }
 
+  for (const locale of ["en", "hr"] as const) {
+    const r = locale === "en" ? reviewUiEn : reviewUiHr;
+
+    it(`${locale}: every hand of the filter (#425) - no picker, the dates, "Analysed hands only" while some are not`, () => {
+      const all = reviewFromPayload(
+        {
+          ...PAYLOAD,
+          session: { ...PAYLOAD.session, startedAt: "2026-03-01T10:00:00+00:00", endedAt: "2026-09-01T12:40:00+00:00" },
+          analysis: { hands: 40, analysed: 12, graded: 10, notAnalysed: 1 },
+        },
+        30,
+      );
+      const hands = { query: { at: null, gapMinutes: 30, filter: { formats: ["cash"] } }, scope: "hands", layout: "table" };
+      const html = view(locale, all, hands);
+      expect(html).not.toContain(r.picker.latest);
+      expect(html).not.toContain(r.picker.clearFilter);
+      expect(html).not.toContain(`<dt>${r.summary.duration}</dt>`);
+      expect(html).not.toContain(`<dt>${r.summary.tables}</dt>`);
+      expect(html).toContain(`<dt>${r.hands.dates}</dt>`);
+      expect(html).toContain(r.hands.analysedOnly);
+      expect(html).toContain('aria-pressed="false"');
+      expect(html).toContain(r.hands.analysed(12, 40));
+      // The toggle says what is left out: no "not analysed yet" line besides.
+      expect(html).not.toContain(r.coverage.missing(28, 40));
+      const links = [...html.matchAll(/href="\/h\/(h\d+)\?t=a(\d*)&at=([^"]+)"/g)].map((m) => `${m[1]}@${m[2]}`);
+      expect(links).toEqual(["h13@15", "h11@4", "h12@9", "h14@"]);
+      const on = view(locale, all, { ...hands, query: { ...hands.query, analysedOnly: true } });
+      expect(on).toContain('aria-pressed="true"');
+      // Every hand analysed: neither the toggle nor its count.
+      const done = view(locale, reviewFromPayload({ ...PAYLOAD, analysis: { hands: 40, analysed: 40, graded: 38, notAnalysed: 2 } }, 30), hands);
+      expect(done).not.toContain(r.hands.analysedOnly);
+      expect(done).not.toContain(r.hands.analysed(40, 40));
+    });
+
+    it(`${locale}: every hand of the filter - none at all, none matching, none analysed yet`, () => {
+      const none = (analysis: Record<string, number>) =>
+        reviewFromPayload({ gapMinutes: 30, session: null, analysis }, 30);
+      const empty = { hands: 0, analysed: 0, graded: 0, notAnalysed: 0 };
+      const at = (filter: Record<string, unknown>, analysedOnly = false) => ({
+        query: { at: null, gapMinutes: 30, filter, analysedOnly },
+        scope: "hands",
+      });
+      expect(view(locale, none(empty), at({ formats: ["cash"] }))).toContain(r.hands.noHands);
+      expect(view(locale, none(empty), at({ formats: ["cash"], positions: ["BTN"] }))).toContain(r.hands.noMatch);
+      const unanalysed = view(locale, none({ ...empty, hands: 7 }), at({}, true));
+      expect(unanalysed).toContain(r.hands.noAnalysed);
+      // The toggle stays, to switch it off again.
+      expect(unanalysed).toContain(r.hands.analysedOnly);
+    });
+  }
+
+  it("over every hand, the screen never asks for sessions", async () => {
+    const source: SessionReviewSource = {
+      review: vi.fn(() => Promise.resolve(reviewFromPayload({ gapMinutes: 30, session: null }, 30))),
+      sessions: vi.fn(),
+    };
+    const loading = render(
+      "en",
+      createElement(SessionReviewScreen, {
+        source,
+        query: { at: null, gapMinutes: 30, filter: {}, analysedOnly: true },
+        onQuery: () => undefined,
+        renderHandLink: link,
+        renderState: state,
+        title: "Review",
+        scope: "hands",
+      }),
+    );
+    expect(loading).toContain(reviewUiEn.hands.loading);
+    expect(source.sessions).not.toHaveBeenCalled();
+  });
+
   it("the screen's first render is the loading state; A10 hides it and reads nothing", () => {
     const source: SessionReviewSource = { review: vi.fn(), sessions: vi.fn() };
     const props = {

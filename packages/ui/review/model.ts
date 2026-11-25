@@ -30,9 +30,18 @@ export interface SessionQuery {
   gapMinutes: number;
   /** The shared screens' filter (groups and options; never dates: a session is not cut by them). */
   filter: HandFilter;
+  /**
+   * The review of every hand of the filter (the screen's `scope: "hands"`,
+   * #425): only the hands the analysis has been through. Unused by a session.
+   */
+  analysedOnly?: boolean;
 }
 
-/** One session's summary. Money only for one currency of cash. */
+/**
+ * One session's summary. Money only for one currency of cash. Over every
+ * hand of a filter (`scope: "hands"`): the first and last hand's instants
+ * ('' when no hand has one), finished, no neighbours, no tables counted.
+ */
 export interface ReviewSession {
   startedAt: string;
   endedAt: string;
@@ -113,7 +122,11 @@ export interface ReviewPot {
   potBb: number;
 }
 
-/** How much of the session the analysis has seen, at the client's version. */
+/**
+ * How much of the session the analysis has seen, at the client's version.
+ * Over every hand of a filter (`scope: "hands"`) it counts every hand the
+ * filter matches, `analysedOnly` or not: the toggle leaves out `hands - analysed`.
+ */
 export interface ReviewCoverage {
   hands: number;
   analysed: number;

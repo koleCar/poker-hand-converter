@@ -1,7 +1,8 @@
 /**
  * The Analysis screen's views in the address (R5.4): `#/analysis/<view>`.
  *
- * - `session` (the default), with `?at=<instant>&gap=<minutes>`;
+ * - `session` (the default), with `?at=<instant>&gap=<minutes>` - read, and
+ *   unused since the review is of every hand of its filter (#425);
  * - `leaks`, with `?period=all` (the last 30 days of play by default);
  * - `stats` (Analytics, docs/ANALYTICS.md), with `?view=streets|stats|pool`
  *   (Overview by default) or `?stat=<id>` (a stat's drill-down, Step 8);

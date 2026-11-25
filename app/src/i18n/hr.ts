@@ -1309,9 +1309,6 @@ export const hr: Dict = {
       hide: "Sakrij napredak analize",
       show: "Prikaži napredak analize",
     },
-    session: {
-      notAnalysed: "Analizira se u pozadini",
-    },
     leaks: {
       per100: "bb / 100",
       range: (low, high) => `95%: ${low}–${high}`,

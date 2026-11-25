@@ -21,10 +21,10 @@ import { hr } from "../../app/src/i18n/hr";
 import { DictProvider } from "../../app/src/i18n/index";
 import { storeChartsSource } from "../../app/src/lib/chartsSource";
 import { fetchTopLeaks, spotRow, topOf } from "../../app/src/lib/leaksSource";
-import { reviewHand, storeReviewSource, storeSessionChartsSource } from "../../app/src/lib/reviewSource";
+import { reviewHand, storeHandsReviewSource, storeReviewSource, storeSessionChartsSource } from "../../app/src/lib/reviewSource";
 import { HandAnalysisView, type Loaded } from "../../app/src/screens/analysis/HandAnalysis";
 import { TopLeaksBody } from "../../app/src/screens/analysis/TopLeaks";
-import { describeStatus, monthsOf, progressOf } from "../../app/src/screens/analysis/status";
+import { allAnalysed, describeStatus, monthsOf, progressOf } from "../../app/src/screens/analysis/status";
 import { parseView, tabOf, viewParam, type AnalysisView } from "../../app/src/screens/analysis/view";
 import { ANALYSIS_VERSION, analyzeHand, type HandAnalysis } from "../../web/src/lib/analysis/index";
 import { loadCharts } from "../../web/src/lib/charts/index";
@@ -113,6 +113,16 @@ describe("the background run's line", () => {
     // Not running: no bar.
     expect(progressOf({ ...base, phase: "waiting", reason: "tables" })).toBeNull();
     expect(progressOf({ ...base, phase: "idle", counts: { ...base.counts!, current: 1204, missing: 0 } })).toBeNull();
+  });
+
+  it("goes once every hand is analysed (#425), and is back when there is anything to say", () => {
+    const done: RunnerStatus = { ...base, phase: "idle", counts: { ...base.counts!, current: 1204, missing: 0 } };
+    expect(allAnalysed(done)).toBe(true);
+    expect(allAnalysed(base)).toBe(false);
+    expect(allAnalysed({ ...done, paused: true })).toBe(false);
+    expect(allAnalysed({ ...done, library: false })).toBe(false);
+    expect(allAnalysed({ ...done, phase: "error", lastError: "x" })).toBe(false);
+    expect(allAnalysed({ ...done, counts: { ...done.counts!, hands: 0, current: 0 } })).toBe(false);
   });
 
   it("shows the month under way, every month's state, and the whole store beside them", () => {
@@ -267,6 +277,18 @@ describe("the app's sources for the shared screens", () => {
     answers.review_sessions = () => [item(5), item(4), item(3)];
     // Two or more: the window's oldest left out (it may begin before it).
     expect(await storeReviewSource.sessions({ at: null, gapMinutes: 30, filter: {} as never })).toEqual([item(5), item(4)]);
+  });
+
+  it("reads every hand of the filter (#425): the whole filter, analysed only when asked, no sessions", async () => {
+    answers.hands_review = { gapMinutes: 0, session: null, ongoing: null, coverage: { hands: 9, analysed: 3, graded: 3, notAnalysed: 0 }, worst: [], chartDeviations: [], pots: [], hands: { k1: storeHand } };
+    const filter = { formats: ["cash"], positions: ["BTN"], acts: [["flop:cbet"]] };
+    const review = await storeHandsReviewSource.review({ at: null, gapMinutes: 30, filter: filter as never, analysedOnly: true }, 20);
+    expect(review.hands.k1.stakesLabel).toBe("$0.50/$1");
+    expect(calls[0]).toMatchObject({ command: "hands_review", args: { version: ANALYSIS_VERSION, filter, analysedOnly: true, limit: 20 } });
+    await storeHandsReviewSource.review({ at: null, gapMinutes: 30, filter: {} as never }, 20);
+    expect(calls[1]?.args.analysedOnly).toBe(false);
+    expect(await storeHandsReviewSource.sessions({ at: null, gapMinutes: 30, filter: {} as never })).toEqual([]);
+    expect(calls).toHaveLength(2);
   });
 
   it("reads a session's preflop decisions for an own chart", async () => {

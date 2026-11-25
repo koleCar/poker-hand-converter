@@ -1906,6 +1906,9 @@ export const ipc = {
   /** (R5.4) The session review over the store: `SessionReview`'s shape, each hand with its `smallBlind`. */
   sessionReview: (version: string, at: string | null, gapMinutes: number, limit: number, kind: HandsGameKind | null) =>
     invoke<Record<string, unknown>>("session_review", { version, at, gapMinutes, limit, kind }),
+  /** (#425) The review of every hand of the Hands screen's filter, the same shape; only the analysed ones when asked. */
+  handsReview: (version: string, filter: HandFilter, analysedOnly: boolean, limit: number) =>
+    invoke<Record<string, unknown>>("hands_review", { version, filter, analysedOnly, limit }),
   reviewSessions: (gapMinutes: number, since: string | null, limit: number, kind: HandsGameKind | null) =>
     invoke<{ startedAt: string; endedAt: string; hands: number; tables: number; netBbMilli: number | null }[]>(
       "review_sessions",

@@ -1359,9 +1359,6 @@ export const en = {
       hide: "Hide the analysis progress",
       show: "Show the analysis progress",
     },
-    session: {
-      notAnalysed: "Analysed in the background",
-    },
     /** The Top leaks tab's own labels (the leak words themselves are the web's). */
     leaks: {
       per100: "bb / 100",
