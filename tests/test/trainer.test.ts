@@ -34,7 +34,7 @@ import { fullLibrary } from "./charts/support.js";
 const library = fullLibrary();
 
 describe("trainer settings", () => {
-  it("opens on For you, waiting after every answer, with the strategy and the facts shown", () => {
+  it("opens on For you, waiting after every answer, with the strategy shown", () => {
     expect(parseSettings(null)).toEqual(DEFAULT_SETTINGS);
     expect(DEFAULT_SETTINGS.mode).toBe("focus");
     expect(DEFAULT_SETTINGS.pause).toBe("always");
@@ -53,12 +53,12 @@ describe("trainer settings", () => {
   });
 
   it("reads the old trainer's addresses (the study plan's and the leaks' links) for the spot, this browser's for the rest", () => {
-    const s = initialSettings({ mode: "preflop", family: "vs-3bet", seat: "BTN", set: DEFAULT_CHART_SET }, { pause: "mistakes", facts: "0", family: "rfi" });
+    const s = initialSettings({ mode: "preflop", family: "vs-3bet", seat: "BTN", set: DEFAULT_CHART_SET }, { pause: "mistakes", strategy: "0", family: "rfi" });
     expect(s.mode).toBe("preflop");
     expect(s.family).toBe("vs-3bet");
     expect(s.seat).toBe("BTN");
     expect(s.pause).toBe("mistakes");
-    expect(s.facts).toBe(false);
+    expect(s.strategy).toBe(false);
     // No mode in the address: the stored settings, whole.
     expect(initialSettings({}, { mode: "river", side: "ip" })).toMatchObject({ mode: "river", side: "ip" });
   });

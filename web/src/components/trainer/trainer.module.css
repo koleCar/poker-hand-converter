@@ -2275,29 +2275,6 @@
   color: color-mix(in srgb, var(--pcard-ink-c) 55%, var(--pcard-face));
 }
 
-.factChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.factChips li {
-  padding: var(--space-0-5) var(--space-2);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-1);
-  background: var(--surface-inset);
-  color: var(--text-secondary);
-  font-size: var(--font-size-xs);
-}
-
-.factChips strong {
-  color: var(--text-primary);
-  font-weight: var(--font-weight-semibold);
-}
-
 .details {
   display: grid;
   gap: var(--space-2);

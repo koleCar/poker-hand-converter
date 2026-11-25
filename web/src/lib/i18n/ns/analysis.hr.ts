@@ -404,7 +404,7 @@ function multiwaySentences(decision: DecisionAnalysis): string[] {
  * oblik raspona i na čemu rješenje počiva. Samo brojevi iz `facts.turn` i
  * `facts.texture`.
  */
-function turnSentences(decision: DecisionAnalysis): string[] {
+function turnSentences(decision: DecisionAnalysis, trainer = false): string[] {
   const turn = decision.facts.turn;
   if (decision.source !== "solver" || !turn) return [];
   const out: string[] = [];
@@ -467,6 +467,7 @@ function turnSentences(decision: DecisionAnalysis): string[] {
       ),
     );
   }
+  if (trainer) return out;
   out.push(
     turn.converged
       ? `Oba raspona sužena su na flopu heurističkim modelom; turn je riješen kroz river — s jednom veličinom river beta i all-inom ispod njega — do ${num(turn.exploitabilityPct, 1)} % pota od ravnoteže.`
@@ -480,7 +481,7 @@ function turnSentences(decision: DecisionAnalysis): string[] {
  * oblik tog raspona, blokeri i na čemu rješenje počiva. Samo brojevi iz
  * `facts.river`.
  */
-function riverSentences(decision: DecisionAnalysis): string[] {
+function riverSentences(decision: DecisionAnalysis, trainer = false): string[] {
   const river = decision.facts.river;
   if (decision.source !== "solver" || !river) return [];
   const out: string[] = [];
@@ -537,6 +538,7 @@ function riverSentences(decision: DecisionAnalysis): string[] {
       ),
     );
   }
+  if (trainer) return out;
   const narrowed =
     river.narrowing === "turn-solver"
       ? "Oba raspona sužena su na flopu heurističkim modelom, a na turnu riješenom turn strategijom"
@@ -549,7 +551,8 @@ function riverSentences(decision: DecisionAnalysis): string[] {
   return out;
 }
 
-function chartSentences(decision: DecisionAnalysis): string[] {
+/** `trainer`: Detalji u Treneru, gdje ocjenu i mix već kažu presuda i strategija. */
+function chartSentences(decision: DecisionAnalysis, trainer = false): string[] {
   if ((decision.source !== "chart" && decision.source !== "solver") || decision.chosen === null || !decision.grade) return [];
   const out: string[] = [];
   const chosen = decision.options[decision.chosen];
@@ -567,7 +570,9 @@ function chartSentences(decision: DecisionAnalysis): string[] {
   }
   const plays = mix.length > 1 ? `miješa ${mixLabel(decision)}` : `igra ${mixLabel(decision)}`;
   const better = betterAlternative(decision);
-  if (decision.grade === "perfect") {
+  if (trainer) {
+    if (decision.grade !== "perfect" && decision.grade !== "good") out.push(...floorSentences(decision));
+  } else if (decision.grade === "perfect") {
     out.push(`${word}: odigrao/la si ${optionLabel(chosen)}; ${who} ovdje ${plays}.`);
   } else if (decision.grade === "good") {
     out.push(`${word}: ${who} ovdje igra ${optionLabel(chosen)} u ${pct(chosen.freq)} slučajeva, a ukupno ${plays}.`);
@@ -667,6 +672,15 @@ function flagSentence(flag: Flag, facts: SpotFacts): string {
 }
 
 function explain(decision: DecisionAnalysis): string[] {
+  return sentences(decision, false);
+}
+
+/** Detalji u Treneru (#424): `explain()` bez onoga što Trener već prikazuje — vidi `analysis.en.ts`. */
+function details(decision: DecisionAnalysis): string[] {
+  return sentences(decision, true);
+}
+
+function sentences(decision: DecisionAnalysis, trainer: boolean): string[] {
   const facts = decision.facts;
   const out: string[] = [];
   if (decision.status === "not-analysed") {
@@ -684,7 +698,9 @@ function explain(decision: DecisionAnalysis): string[] {
   }
 
   const spot = scenarioLabel(facts);
-  if (facts.street === "preflop") {
+  if (trainer) {
+    // Stol prikazuje situaciju.
+  } else if (facts.street === "preflop") {
     out.push(`${spot} na ${facts.position ?? "tvojem sjedalu"} s ${facts.handClass ?? facts.holeCards.join("")}, efektivno ${bb(facts.effStackBb)}.`);
   } else {
     const texture = textureLabel(facts);
@@ -692,7 +708,7 @@ function explain(decision: DecisionAnalysis): string[] {
     out.push(`${streets[facts.street]}: ${spot}. Imaš ${handPhrase(facts)}${drawText}.${texture ? ` Board je ${texture}.` : ""}`);
   }
 
-  out.push(...chartSentences(decision));
+  out.push(...chartSentences(decision, trainer));
   out.push(...icmSentencesHr(decision));
   out.push(...approxSentences(decision));
   if (isBombPot(decision) && decision.grade) {
@@ -700,8 +716,8 @@ function explain(decision: DecisionAnalysis): string[] {
       "Bomb pot: svi su uložili ante i otišli ravno na flop s bilo koje dvije karte, duboko i multiway. Rail nema riješene bomb potove, pa su brojke iznad gruba procjena iz modela za multiway, ne presuda: ocjena je ograničena na Netočno.",
     );
   }
-  out.push(...turnSentences(decision));
-  out.push(...riverSentences(decision));
+  out.push(...turnSentences(decision, trainer));
+  out.push(...riverSentences(decision, trainer));
   out.push(...multiwaySentences(decision));
 
   if (facts.potOdds !== null) {
@@ -726,13 +742,13 @@ function explain(decision: DecisionAnalysis): string[] {
             : `Protiv ${rangeOf(facts.equity.range)} — privremenog, nesuženog kasnijim betovima — tvoja ruka ima oko ${pct(facts.equity.value)}${strong}.`,
     );
   }
-  if (facts.betPot !== null && (decision.action === "bet" || decision.action === "raise")) {
+  if (!trainer && facts.betPot !== null && (decision.action === "bet" || decision.action === "raise")) {
     out.push(`${decision.action === "bet" ? "Betao/la" : "Raiseao/la"} si ${pct(facts.betPot)} pota${facts.allIn ? ", all-in" : ""}.`);
   }
   if (facts.spr !== null && facts.spr <= 3 && facts.street !== "river") {
     out.push(`SPR ${num(facts.spr, 1)}: stackovi su kratki u odnosu na pot, pa ih sljedeći bet veže.`);
   }
-  if (facts.blockers.length > 0) {
+  if (!trainer && facts.blockers.length > 0) {
     out.push(`Tvoje karte blokiraju ${list(facts.blockers.map((b) => blockers[b] ?? b))}.`);
   }
   for (const flag of decision.flags) {
@@ -1485,5 +1501,6 @@ export const analysisHr: Dict["analysis"] = {
   /** Činjenice o ruci riječima, za trenerov "tvoja ruka ovdje" (`components/trainer`). */
   handFacts: { hand: handPhrase, draws, blockers },
   explain,
+  details,
   brief,
 };

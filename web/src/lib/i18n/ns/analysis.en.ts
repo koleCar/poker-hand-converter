@@ -223,8 +223,12 @@ const chartReasons = {
   "chart-unavailable": "the charts were not loaded",
 } as Record<string, string>;
 
-/** The grade, said against the reference's options (§4, keyed by grade and source). */
-function chartSentences(decision: DecisionAnalysis): string[] {
+/**
+ * The grade, said against the reference's options (§4, keyed by grade and
+ * source). `trainer`: the Trainer's Details, whose verdict row and strategy
+ * already say the grade and the mix, so only what explains the grade stays.
+ */
+function chartSentences(decision: DecisionAnalysis, trainer = false): string[] {
   if ((decision.source !== "chart" && decision.source !== "solver") || decision.chosen === null || !decision.grade) return [];
   const out: string[] = [];
   const chosen = decision.options[decision.chosen];
@@ -242,7 +246,9 @@ function chartSentences(decision: DecisionAnalysis): string[] {
   }
   const plays = mix.length > 1 ? `mixes ${mixLabel(decision)}` : `plays ${mixLabel(decision)}`;
   const better = betterAlternative(decision);
-  if (decision.grade === "perfect") {
+  if (trainer) {
+    if (decision.grade !== "perfect" && decision.grade !== "good") out.push(...floorSentences(decision));
+  } else if (decision.grade === "perfect") {
     out.push(`${word}: you played ${optionLabel(chosen)}; ${who} ${plays} here.`);
   } else if (decision.grade === "good") {
     out.push(`${word}: ${who} plays ${optionLabel(chosen)} ${pct(chosen.freq)} of the time here, and ${plays} overall.`);
@@ -465,7 +471,7 @@ const turnReasons = {
  * the board, the range's shape, and what the solve rests on. Only numbers
  * from `facts.turn` and `facts.texture`.
  */
-function turnSentences(decision: DecisionAnalysis): string[] {
+function turnSentences(decision: DecisionAnalysis, trainer = false): string[] {
   const turn = decision.facts.turn;
   if (decision.source !== "solver" || !turn) return [];
   const out: string[] = [];
@@ -528,6 +534,7 @@ function turnSentences(decision: DecisionAnalysis): string[] {
       ),
     );
   }
+  if (trainer) return out;
   out.push(
     turn.converged
       ? `Both ranges were narrowed on the flop by a heuristic model; the turn was solved through the river — with one river bet size and all-in below it — to within ${num(turn.exploitabilityPct, 1)}% of the pot.`
@@ -541,7 +548,7 @@ function turnSentences(decision: DecisionAnalysis): string[] {
  * faces, the shape of that range, blockers, and what the solve rests on. Only
  * numbers from `facts.river`.
  */
-function riverSentences(decision: DecisionAnalysis): string[] {
+function riverSentences(decision: DecisionAnalysis, trainer = false): string[] {
   const river = decision.facts.river;
   if (decision.source !== "solver" || !river) return [];
   const out: string[] = [];
@@ -598,6 +605,7 @@ function riverSentences(decision: DecisionAnalysis): string[] {
       ),
     );
   }
+  if (trainer) return out;
   const narrowed =
     river.narrowing === "turn-solver"
       ? "Both ranges were narrowed on the flop by a heuristic model and on the turn by the solved turn strategy"
@@ -688,6 +696,20 @@ function flagSentence(flag: Flag, facts: SpotFacts): string {
  * computes a number the engine did not.
  */
 function explain(decision: DecisionAnalysis): string[] {
+  return sentences(decision, false);
+}
+
+/**
+ * The Trainer's Details (#424): `explain()` without what the Trainer already
+ * shows or knows — the spot (the table shows it), the grade and the mix (the
+ * verdict and the strategy), the size played, what the solve rests on, and
+ * the blockers, which the Trainer explains for a bluff itself.
+ */
+function details(decision: DecisionAnalysis): string[] {
+  return sentences(decision, true);
+}
+
+function sentences(decision: DecisionAnalysis, trainer: boolean): string[] {
   const facts = decision.facts;
   const out: string[] = [];
   if (decision.status === "not-analysed") {
@@ -705,7 +727,9 @@ function explain(decision: DecisionAnalysis): string[] {
   }
 
   const spot = scenarioLabel(facts);
-  if (facts.street === "preflop") {
+  if (trainer) {
+    // The table shows the spot.
+  } else if (facts.street === "preflop") {
     out.push(`${spot} in ${facts.position ?? "your seat"} with ${facts.handClass ?? facts.holeCards.join("")}, ${bb(facts.effStackBb)} effective.`);
   } else {
     const texture = textureLabel(facts);
@@ -713,7 +737,7 @@ function explain(decision: DecisionAnalysis): string[] {
     out.push(`${streets[facts.street]}: ${spot}. You hold ${handPhrase(facts)}${drawText}${texture ? ` on a ${texture} board` : ""}.`);
   }
 
-  out.push(...chartSentences(decision));
+  out.push(...chartSentences(decision, trainer));
   out.push(...icmSentencesEn(decision));
   out.push(...approxSentences(decision));
   if (isBombPot(decision) && decision.grade) {
@@ -721,8 +745,8 @@ function explain(decision: DecisionAnalysis): string[] {
       "A bomb pot: everyone put in the ante and went straight to the flop with any two cards, deep and multiway. Rail has no solved bomb pots, so the numbers above are a rough guide from its multiway model, not a verdict: the grade is capped at Inaccurate.",
     );
   }
-  out.push(...turnSentences(decision));
-  out.push(...riverSentences(decision));
+  out.push(...turnSentences(decision, trainer));
+  out.push(...riverSentences(decision, trainer));
   out.push(...multiwaySentences(decision));
 
   if (facts.potOdds !== null) {
@@ -747,13 +771,13 @@ function explain(decision: DecisionAnalysis): string[] {
             : `Against ${rangeOf(facts.equity.range)} — a placeholder, not narrowed by later betting — your hand has about ${pct(facts.equity.value)}${strong}.`,
     );
   }
-  if (facts.betPot !== null && (decision.action === "bet" || decision.action === "raise")) {
+  if (!trainer && facts.betPot !== null && (decision.action === "bet" || decision.action === "raise")) {
     out.push(`You ${decision.action === "bet" ? "bet" : "raised"} ${pct(facts.betPot)} of the pot${facts.allIn ? ", all in" : ""}.`);
   }
   if (facts.spr !== null && facts.spr <= 3 && facts.street !== "river") {
     out.push(`SPR ${num(facts.spr, 1)}: the stacks are short next to the pot, so the next bet commits them.`);
   }
-  if (facts.blockers.length > 0) {
+  if (!trainer && facts.blockers.length > 0) {
     out.push(`Your cards block ${list(facts.blockers.map((b) => blockers[b] ?? b))}.`);
   }
   for (const flag of decision.flags) {
@@ -1539,5 +1563,6 @@ export const analysisEn = {
   /** A hand's facts in words, for the trainer's "your hand here" (`components/trainer`). */
   handFacts: { hand: handPhrase, draws, blockers },
   explain,
+  details,
   brief,
 } as const;

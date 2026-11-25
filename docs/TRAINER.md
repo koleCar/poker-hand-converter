@@ -59,8 +59,14 @@ screen) render the same component. A Pro feature.
      hands from the range — first to act on a solved street value / thin
      value / bluffs by how much of the opponent's range they beat,
      elsewhere by the play — each with the EV of its play (a click rings
-     its class); the hand's facts as chips;
-  4. folded under Details: the analysis' own sentences (`explain`), the
+     its class);
+  4. folded under Details, only what the rest does not say (#424,
+     `lib/training/details.ts`): which bet size earns more than the one
+     played, or whether the check (call) beats every bet (raise); the
+     analysis' own sentences without the spot, the mix, the size played
+     and what the solve rests on (`details`); on a river bluff the good
+     blockers (cards that remove hands that call) and the bad ones (the
+     missed draws that fold), and which of yours are which; the
      **rule of thumb** for the kind of spot (`principles.ts`), and on the
      web the whole chart or range and the Learn links.
   While answering only the range can be opened (one button, remembered).

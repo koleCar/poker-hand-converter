@@ -371,15 +371,6 @@ export function SettingsSheet({
             ]}
             onChange={(value) => onChange({ strategy: value === "on" })}
           />
-          <Chips
-            label={t.facts}
-            value={settings.facts ? "on" : "off"}
-            options={[
-              { value: "on", label: t.on },
-              { value: "off", label: t.off },
-            ]}
-            onChange={(value) => onChange({ facts: value === "on" })}
-          />
         </section>
       </div>
     </div>

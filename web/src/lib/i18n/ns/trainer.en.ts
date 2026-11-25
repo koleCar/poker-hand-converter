@@ -79,7 +79,6 @@ export const trainerEn = {
   pause: "After an answer",
   pauses: { always: "Always wait", mistakes: "Wait only after a mistake" } as Record<string, string>,
   strategy: "Strategy for your hand",
-  facts: "Hand facts",
   on: "On",
   off: "Off",
 
@@ -254,17 +253,71 @@ export const trainerEn = {
   strategyHeading: "What the solver does with this hand",
   evHeading: "EV",
   whyHeading: "Why",
-  factsHeading: "Your hand here",
-  fact: {
-    equity: "Equity vs range",
-    potOdds: "Pot odds",
-    mdf: "Must defend",
-    spr: "SPR",
-    made: "Made hand",
-    draws: "Draws",
-    blockers: "Blockers",
-  },
   ruleOfThumb: "Rule of thumb",
+  /** Details (#424): the size against the other options, and a river bluff's blockers (`lib/training/details.ts`). */
+  details: {
+    /** `label` gives an option's label (`Bet 5.8 bb (33%)`) by its index. */
+    sizing: (note: import("../../training/details").SizingNote, label: (index: number) => string): string => {
+      const low = (index: number) => {
+        const text = label(index);
+        return text.charAt(0).toLowerCase() + text.slice(1);
+      };
+      const worth = (value: number) => `${num(value, 2)} bb`;
+      const bet = note.raise ? "raise" : "bet";
+      switch (note.kind) {
+        case "size-better":
+          return `${label(note.better)} is the better size: it earns ${worth(note.bb)} more than your ${low(note.chosen)}.`;
+        case "size-best":
+          return note.bb > 0
+            ? `Your size is the best of the ${bet}s here: it earns ${worth(note.bb)} more than ${low(note.next)}.`
+            : `Your size and ${low(note.next)} are worth the same here.`;
+        case "passive-better":
+          return `${label(note.passive)} beats ${note.sizes > 1 ? `every ${bet}` : `the ${bet}`} here: it earns ${worth(note.bb)} more than ${low(note.best)}${note.sizes > 1 ? ", the best size" : ""}.`;
+        case "aggressive-better":
+          return `${note.raise ? "Raising" : "Betting"} is better here: ${low(note.best)}${note.sizes > 1 ? ", the best size," : ""} earns ${worth(note.bb)} more than your ${low(note.chosen)}.`;
+        case "passive-right":
+          return note.bb > 0
+            ? `${label(note.chosen)} is right here: the best ${bet}, ${low(note.best)}, earns ${worth(note.bb)} less.`
+            : `${label(note.chosen)} and ${low(note.best)} are worth the same here.`;
+      }
+    },
+    /** A river bluff's blockers: the good cards, the bad ones, then yours. */
+    blockers: (b: import("../../training/details").BluffBlockers): string[] => {
+      const suit = (code: string) => ({ s: "♠", h: "♥", d: "♦", c: "♣" })[code] ?? code;
+      const card = (code: string) => `${code[0]}${suit(code[1])}`;
+      const join = (items: string[], last: string) =>
+        items.length <= 1 ? items.join("") : `${items.slice(0, -1).join(", ")} ${last} ${items[items.length - 1]}`;
+      const group = (g: import("../../training/details").BlockerGroup) => {
+        switch (g.kind) {
+          case "flush":
+            return `${join(g.cards.map(card), "or")} (the flushes)`;
+          case "straight":
+            return `${join(g.ranks, "or")} (the straight)`;
+          case "top-pair":
+            return `${join(g.ranks, "or")} (top pair)`;
+          case "missed-flush":
+            return `any ${suit(g.suit)} (the missed flush draws)`;
+          case "missed-straight":
+            return `${join(g.ranks, "or")} (the missed straight draws)`;
+        }
+      };
+      const out: string[] = [];
+      if (b.good.length > 0) out.push(`Good cards to bluff with take away hands that call: ${b.good.map(group).join("; ")}.`);
+      if (b.bad.length > 0) out.push(`Bad ones take away hands that would fold: ${b.bad.map(group).join("; ")}.`);
+      const good = join(b.mine.good.map(card), "and");
+      const bad = join(b.mine.bad.map(card), "and");
+      const goodIs = b.mine.good.length === 1 ? "is a good blocker" : "are good blockers";
+      const badIs = b.mine.bad.length === 1 ? "is a bad blocker" : "are bad blockers";
+      if (good && bad) out.push(`Your ${good} ${goodIs}, your ${bad} ${badIs}.`);
+      else if (good) out.push(`Your ${good} ${goodIs}.`);
+      else if (bad) out.push(`Your ${bad} ${badIs}.`);
+      else out.push("Neither of your cards is one of them.");
+      return out;
+    },
+    /** Anything but a river bluff: what the cards remove, as before. */
+    blocks: (names: string[]) =>
+      `Your cards block ${names.length <= 1 ? names.join("") : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`}.`,
+  },
   principles: {
     rfi: "First in, the fewer players left behind you, the wider you open: from the early seats only hands that stay strong against several ranges, from the button and the small blind far more. Suited, connected hands and pairs open before offsuit hands of the same rank, because they make strong hands and play well after the flop.",
     "vs-open": "Facing an open, the reference mostly 3-bets or folds and calls with a narrower band: hands that play well after the flop, more of them in position. Every seat still behind you can squeeze, and a flat call leaves you with a capped range.",
@@ -461,7 +514,7 @@ export const trainerEn = {
     grades: analysisEn.grades,
     option: analysisEn.sheet.option,
     chartAction: analysisEn.charts.action,
-    explain: analysisEn.explain,
+    details: analysisEn.details,
     reasons: analysisEn.reasons,
     handFacts: analysisEn.handFacts,
     lineName: courseEn.spot.lineName,
