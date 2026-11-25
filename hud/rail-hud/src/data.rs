@@ -27,6 +27,9 @@ use rail_store::{
     RoomSettings, SeatPosition, StoredLayout, Totals,
 };
 
+/// (#429) The `kv` key the app keeps the HUD lock under: `1` locked.
+pub const LOCKED_KEY: &str = "hud.locked";
+
 /// The user's HUD layouts as the store has them (R3.6): the panels they
 /// placed, their per-room preferred-seat answers.
 pub type UserLayouts = (Vec<SeatPosition>, Vec<RoomSettings>);
@@ -201,6 +204,21 @@ impl StoreView {
                 .and_then(|positions| Ok((positions, reader.hud_room_settings()?)))
                 .map_err(|error| error.to_string()),
         )
+    }
+
+    /// (#429) Whether the user locked the HUD's panels in place (`kv`
+    /// [`LOCKED_KEY`] is `1`). `None`: no store yet, or it did not read.
+    pub fn hud_locked(&mut self) -> Option<bool> {
+        if !self.ensure_open() {
+            return None;
+        }
+        match self.reader.as_ref()?.kv(LOCKED_KEY) {
+            Ok(value) => Some(value.as_deref() == Some("1")),
+            Err(error) => {
+                eprintln!("rail-hud: the HUD lock did not read: {error}");
+                None
+            }
+        }
     }
 
     /// (R3.9) The user's designs and where each is used, as the app wrote

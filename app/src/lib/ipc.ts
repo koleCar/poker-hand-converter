@@ -1838,6 +1838,10 @@ export const ipc = {
   /** R3.6's: the user's client rotates the table (`null`: as `sites.json` says). */
   hudSetPreferredSeat: (site: string, preferred: boolean | null) =>
     invoke<null>("hud_set_preferred_seat", { site, preferred }),
+  /** (#429) Whether the HUD's panels are locked in place at the tables. */
+  hudLocked: () => invoke<boolean>("hud_locked"),
+  /** (#429) Lock or unlock the HUD's panels; the HUD applies it at once. */
+  hudSetLocked: (locked: boolean) => invoke<null>("hud_set_locked", { locked }),
   /** The hand analysis (R5.4). The runner asks the gate before every page. */
   analysisGate: () => invoke<AnalysisGate>("analysis_gate"),
   analysisSetPaused: (paused: boolean) => invoke<boolean>("analysis_set_paused", { paused }),

@@ -730,6 +730,9 @@ pub fn preview(
                         tone: tone_of(&bands, value),
                         // A thin sample on one seat: R2.5's dimming.
                         opacity_permille: if seat == 3 { 700 } else { 1000 },
+                        label: String::new(),
+                        sample: None,
+                        more: Vec::new(),
                     })
                 })
                 .collect();
@@ -764,6 +767,7 @@ pub fn preview(
         panels,
         legend: compiled.legend_tones(),
         design: panel.clone(),
+        locked: false,
     };
     let scene = scene::compose(&frame, PREVIEW_WIDTH, PREVIEW_HEIGHT, 1000, &frame.design);
     let table = TableLayout::simulator(size);

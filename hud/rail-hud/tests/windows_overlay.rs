@@ -86,6 +86,9 @@ fn frame(site: &str, seats: u32, hands: i64) -> OverlayFrame {
                         text: format!("{}", 10 + i * 7),
                         tone: Some(tones[usize::try_from(i).unwrap_or(0) % tones.len()]),
                         opacity_permille: if i % 2 == 0 { 1000 } else { 650 },
+                        label: String::new(),
+                        sample: None,
+                        more: Vec::new(),
                     })
                     .collect(),
                 words: PanelWords::default(),
@@ -93,6 +96,7 @@ fn frame(site: &str, seats: u32, hands: i64) -> OverlayFrame {
             .collect(),
         legend: Vec::new(),
         design: PanelDesign::default(),
+        locked: false,
     }
 }
 

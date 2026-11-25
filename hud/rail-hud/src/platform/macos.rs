@@ -1080,6 +1080,10 @@ pub struct OverlayInfo {
     pub legend: Option<Rect>,
     pub seat_cells: Vec<(u32, Vec<String>)>,
     pub dropped: Vec<String>,
+    /// (#429) The hover tip drawn, client-relative physical pixels.
+    pub tip: Option<Rect>,
+    /// (#429) Where each statistic is drawn: slot, id, cell.
+    pub cell_rects: Vec<(u32, String, Rect)>,
     /// Moved without a repaint.
     pub moves: u64,
     /// Put back directly above its table (it had been raised over it).
@@ -1108,6 +1112,8 @@ pub enum Mouse {
     Press(i32, i32),
     Move(i32, i32),
     Release(i32, i32),
+    /// (#429) The pointer over the panels with no button down.
+    Hover(i32, i32),
 }
 
 // ---------------------------------------------------------------------

@@ -61,6 +61,13 @@
 //! for the popup. The overlay never activates (`MA_NOACTIVATE`), so the
 //! click leaves the keyboard with the table.
 //!
+//! **Hover (#429).** A move without the button over a statistic of a panel
+//! (`Scene::cell_at`) paints that statistic's hover tip
+//! (`crate::scene::compose_hovered`): its sample and related statistics.
+//! `TrackMouseEvent` asks for `WM_MOUSELEAVE` once the pointer leaves the
+//! overlay's panels (outside them the overlay is `HTTRANSPARENT`), which
+//! takes the tip away; so does a press.
+//!
 //! **The table's geometry is always read here, at the moment it is used**
 //! (for a new frame, a hook event, the engine's `follow`), never taken
 //! from a description handed over, which can be older than what the hooks
@@ -115,7 +122,9 @@ use windows::Win32::Graphics::Gdi::{
 use windows::Win32::System::LibraryLoader::GetModuleHandleW;
 use windows::Win32::System::Threading::GetCurrentThreadId;
 use windows::Win32::UI::Accessibility::{HWINEVENTHOOK, SetWinEventHook, UnhookWinEvent};
-use windows::Win32::UI::Input::KeyboardAndMouse::{ReleaseCapture, SetCapture};
+use windows::Win32::UI::Input::KeyboardAndMouse::{
+    ReleaseCapture, SetCapture, TME_LEAVE, TRACKMOUSEEVENT, TrackMouseEvent,
+};
 use windows::Win32::UI::WindowsAndMessaging::{
     CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, GW_HWNDPREV, GetMessageW,
     GetWindow, HTTRANSPARENT, HWND_TOP, IsWindowVisible, KillTimer, MA_NOACTIVATE, MSG,
@@ -139,7 +148,11 @@ use super::ffi::{
     stacking_of, state_of, window_text,
 };
 use crate::layout::{self, Positions};
-use crate::scene::{Item, Rgba, Scene, compose_with};
+use crate::scene::{Hover, Item, Rgba, Scene, compose_hovered};
+
+/// (#429) `WM_MOUSELEAVE` (`winuser.h`): the windows crate keeps it under
+/// `Win32_UI_Controls`, a feature this crate does not otherwise need.
+const WM_MOUSELEAVE: u32 = 0x02A3;
 
 /// The thread message that says "the channel has commands".
 const WAKE: u32 = WM_APP + 0x52;
@@ -669,6 +682,10 @@ struct Overlay {
     drags: u64,
     /// (R3.8) Clicks on its panels (popups asked for).
     clicks: u64,
+    /// (#429) The statistic the pointer rests on: its tip is painted.
+    hover: Option<Hover>,
+    /// (#429) `TrackMouseEvent` asked for this overlay's `WM_MOUSELEAVE`.
+    tracking: bool,
 }
 
 impl Overlay {
@@ -1086,6 +1103,8 @@ impl Overlays {
                     clicks: 0,
                     kept: Vec::new(),
                     drags: 0,
+                    hover: None,
+                    tracking: false,
                 },
                 Err(error) => {
                     eprintln!("rail-hud: overlay for window {}: {error}", table.0);
@@ -1164,7 +1183,7 @@ impl Overlays {
     fn mouse(&mut self, message: &MSG) -> bool {
         if !matches!(
             message.message,
-            WM_LBUTTONDOWN | WM_MOUSEMOVE | WM_LBUTTONUP
+            WM_LBUTTONDOWN | WM_MOUSEMOVE | WM_LBUTTONUP | WM_MOUSELEAVE
         ) {
             return false;
         }
@@ -1181,6 +1200,14 @@ impl Overlays {
                     // A release we never saw: end that drag first.
                     self.end_drag(table, false);
                 }
+                // (#429) A press takes the hover tip away.
+                if self
+                    .windows
+                    .get_mut(&table)
+                    .is_some_and(|overlay| overlay.hover.take().is_some())
+                {
+                    self.repaint(table);
+                }
                 if let Some(overlay) = self.windows.get_mut(&table)
                     && let Some(drag) = Drag::press(&overlay.scene, x, y)
                 {
@@ -1193,6 +1220,10 @@ impl Overlays {
                 // release comes as one (the capture makes sure), or the
                 // capture's loss ends the drag.
                 let down = message.wParam.0 & LEFT_BUTTON != 0;
+                if !down && !dragging {
+                    self.hover(table, x, y);
+                    return true;
+                }
                 let moved = self.windows.get_mut(&table).and_then(|overlay| {
                     let g = overlay.geometry;
                     let drag = overlay.drag.as_mut().filter(|_| down)?;
@@ -1208,6 +1239,16 @@ impl Overlays {
                     self.repaint(table);
                 }
             }
+            WM_MOUSELEAVE => {
+                // (#429) Off the panels: no tip.
+                let gone = self.windows.get_mut(&table).is_some_and(|overlay| {
+                    overlay.tracking = false;
+                    overlay.hover.take().is_some()
+                });
+                if gone {
+                    self.repaint(table);
+                }
+            }
             _ => {
                 if dragging {
                     release_capture();
@@ -1216,6 +1257,23 @@ impl Overlays {
             }
         }
         true
+    }
+
+    /// (#429) The pointer at client pixel (`x`, `y`) of `table`'s overlay
+    /// with no button down: the tip of the statistic under it, painted
+    /// when that changed; the leave asked for once per entry.
+    fn hover(&mut self, table: WindowId, x: i32, y: i32) {
+        let Some(overlay) = self.windows.get_mut(&table) else {
+            return;
+        };
+        if !overlay.tracking {
+            overlay.tracking = track_leave(overlay.hwnd);
+        }
+        let hover = overlay.scene.cell_at(x, y);
+        if hover != overlay.hover {
+            overlay.hover = hover;
+            self.repaint(table);
+        }
     }
 
     /// End the drag of `table`'s overlay where the panel is: kept, and the
@@ -1341,7 +1399,7 @@ fn paint(painter: &mut Painter, overlay: &mut Overlay) -> Result<u64, String> {
     let Some(frame) = &overlay.frame else {
         return Ok(0);
     };
-    let scene = compose_with(
+    let scene = compose_hovered(
         frame,
         g.client.width,
         g.client.height,
@@ -1349,6 +1407,8 @@ fn paint(painter: &mut Painter, overlay: &mut Overlay) -> Result<u64, String> {
         // (R3.9) The table's own design travels with its frame.
         &frame.design,
         &overlay.overrides(),
+        // (#429) The tip of the statistic the pointer rests on.
+        overlay.hover.as_ref(),
     );
     let fits = overlay
         .surface
@@ -1391,6 +1451,21 @@ fn set_capture(hwnd: HWND) {
     // SAFETY: a window of this thread; the previous capture window it
     // returns is not used.
     let _ = unsafe { SetCapture(hwnd) };
+}
+
+/// (#429) Ask for `WM_MOUSELEAVE` when the pointer leaves `hwnd` (off its
+/// panels: outside them the overlay is `HTTRANSPARENT`). Whether it took.
+#[allow(unsafe_code)]
+fn track_leave(hwnd: HWND) -> bool {
+    let mut track = TRACKMOUSEEVENT {
+        cbSize: u32::try_from(std::mem::size_of::<TRACKMOUSEEVENT>()).unwrap_or(0),
+        dwFlags: TME_LEAVE,
+        hwndTrack: hwnd,
+        dwHoverTime: 0,
+    };
+    // SAFETY: `track` is fully initialised and lives across the call;
+    // `hwnd` is a window of this thread.
+    unsafe { TrackMouseEvent(&mut track) }.is_ok()
 }
 
 /// Give the mouse back after a drag.

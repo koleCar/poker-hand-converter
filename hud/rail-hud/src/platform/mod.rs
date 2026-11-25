@@ -521,6 +521,10 @@ pub struct OverlayFrame {
     /// may refuse; `crate::scene::compose` cuts it down to the permit's
     /// restrictions before anything is laid out.
     pub design: PanelDesign,
+    /// (#429) The user locked the HUD (the app's "Lock panels", `kv`
+    /// `hud.locked`): a press on a panel never drags it, a click still
+    /// opens the popup.
+    pub locked: bool,
 }
 
 impl OverlayFrame {
@@ -535,6 +539,7 @@ impl OverlayFrame {
             panels: Vec::new(),
             legend: Vec::new(),
             design: PanelDesign::default(),
+            locked: false,
         }
     }
 

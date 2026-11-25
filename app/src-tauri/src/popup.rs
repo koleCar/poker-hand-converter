@@ -85,7 +85,7 @@
 use std::sync::{Mutex, PoisonError};
 
 use rail_config::model::HudRestrictions;
-use rail_config::stats::{Group, HudPlace, Players, Unit, collapse_bands};
+use rail_config::stats::{Group, Players, Unit, collapse_bands};
 use rail_hud_ipc::protocol::{PlayerRef, ScreenRect};
 use rail_stats::display::DisplayStat;
 use rail_store::report::Units;
@@ -110,8 +110,9 @@ pub const POPUP_CHANGED_EVENT: &str = "hud-popup-changed";
 /// The popup's page: the app's own, on the popup's route.
 pub const POPUP_ROUTE: &str = "index.html#/hud-popup";
 
-/// The popup's size, logical pixels (scaled by the table's monitor).
-pub const POPUP_SIZE: (u32, u32) = (380, 560);
+/// The popup's size, logical pixels (scaled by the table's monitor): (#429)
+/// small - a header, four street tabs and a grid of abbreviations.
+pub const POPUP_SIZE: (u32, u32) = (300, 250);
 
 /// Space between the panel and the popup, logical pixels.
 const GAP: u32 = 6;
@@ -666,16 +667,17 @@ pub fn build_popup(
     let for_anyone = |stat: &DisplayStat| {
         stat.def.players == Players::Any && stat.def.format.unit != Unit::Money
     };
+    // (#429) Without a design's own list, every statistic for any player:
+    // the popup spreads them over its Preflop, Flop, Turn and River tabs.
+    let every = || -> Vec<&'static DisplayStat> {
+        display
+            .stats
+            .iter()
+            .filter(|stat| for_anyone(stat))
+            .collect()
+    };
     let (shown, sections): (Vec<&'static DisplayStat>, Option<Vec<SectionDto>>) = match &design {
-        None => (
-            display
-                .stats
-                .iter()
-                .filter(|stat| for_anyone(stat) && stat.def.hud != HudPlace::None)
-                .collect(),
-            None,
-        ),
-        Some(design) => {
+        Some(design) if design.popup.iter().any(|section| !section.stats.is_empty()) => {
             let mut shown: Vec<&'static DisplayStat> = Vec::new();
             let mut sections = Vec::new();
             for section in &design.popup {
@@ -701,6 +703,7 @@ pub fn build_popup(
             }
             (shown, Some(sections))
         }
+        _ => (every(), None),
     };
     // The user's overrides (bands, decimals, sample) over the definitions.
     let as_designed: Vec<DisplayStat> = shown
@@ -944,7 +947,7 @@ mod tests {
         let windows = placement(&anchored(rect(400, 300, 135, 60), 1500), None, false);
         assert_eq!(
             (windows.x, windows.y, windows.width, windows.logical),
-            (400 + 135 + 9, 300, 570, false)
+            (400 + 135 + 9, 300, POPUP_SIZE.0 * 3 / 2, false)
         );
         // Rounding and negative coordinates (a screen left of the main one).
         assert_eq!(to_points(rect(-3, -301, 3, 1), 2000), rect(-2, -151, 2, 1));
@@ -1055,9 +1058,17 @@ mod tests {
                 let def = &definitions.get(id).expect("a definition").def;
                 assert_eq!(def.players, Players::Any, "{id}");
                 assert_ne!(def.format.unit, Unit::Money, "{id}");
-                assert_ne!(def.hud, HudPlace::None, "{id}");
             }
             assert!(popup.ids.contains(&"vpip") && popup.ids.contains(&"wtsd"));
+            // (#429) Every street has statistics for its tab, not only
+            // the panel's and the popup's.
+            for id in [
+                "cbet_turn",
+                "fold_to_cbet_river",
+                "aggression_frequency_turn",
+            ] {
+                assert!(popup.ids.contains(&id), "{room}: {id}");
+            }
             assert!(!popup.ids.contains(&"allin_ev_bb_per_100"));
             for shown in &popup.stats {
                 assert!(
