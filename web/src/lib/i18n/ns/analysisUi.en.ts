@@ -13,6 +13,8 @@ export const uiEn = {
     overview: "Overview",
     session: "Sessions",
     leaks: "Leaks",
+    /** Analytics (docs/ANALYTICS.md): your stats against their targets. */
+    stats: "Analytics",
     progress: "Trends",
     reports: "Reports",
     train: "Train",

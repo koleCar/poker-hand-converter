@@ -44,6 +44,9 @@ describe("the analysis' views in the address", () => {
       { kind: "session", at: null, gap: 30 },
       { kind: "session", at: "2026-02-20T21:15:00.000Z", gap: 60 },
       { kind: "leaks", period: "all" },
+      { kind: "stats", view: "overview", stat: null },
+      { kind: "stats", view: "streets", stat: null },
+      { kind: "stats", view: "pool", stat: "flop_fold_vs_bet" },
       { kind: "multiway" },
       { kind: "bomb" },
       { kind: "hand", key: "pokerstars:123/4?x=1", actionIndex: 7, back: "session?at=2026-02-20T21%3A15%3A00.000Z" },
@@ -51,6 +54,10 @@ describe("the analysis' views in the address", () => {
     ];
     for (const view of views) expect(parseView(viewParam(view))).toEqual(view);
     expect(viewParam({ kind: "session", at: null, gap: 30 })).toBe("session");
+    // Analytics (docs/ANALYTICS.md) is a section of Analysis: Overview by default, a stat's drill-down by `stat`.
+    expect(viewParam({ kind: "stats", view: "overview", stat: null })).toBe("stats");
+    expect(parseView("stats?view=breakdown")).toEqual({ kind: "stats", view: "overview", stat: null });
+    expect(tabOf(parseView("stats?stat=vpip"))).toBe("stats");
     expect(parseView(null)).toEqual({ kind: "session", at: null, gap: 30 });
     expect(parseView("nonsense?gap=7")).toEqual({ kind: "session", at: null, gap: 30 });
     expect(parseView("hand")).toEqual({ kind: "session", at: null, gap: 30 });

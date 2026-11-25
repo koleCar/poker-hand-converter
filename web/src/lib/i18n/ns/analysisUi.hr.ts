@@ -14,6 +14,7 @@ export const uiHr: Dict["analysis"]["ui"] = {
     overview: "Pregled",
     session: "Sesije",
     leaks: "Leakovi",
+    stats: "Analitika",
     progress: "Trendovi",
     reports: "Izvještaji",
     train: "Vježbaj",

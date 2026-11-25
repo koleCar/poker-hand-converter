@@ -309,8 +309,44 @@ mod tests {
         assert_eq!(compliance.store_site("acr"), "acrwpn");
         assert_eq!(compliance.store_site("pokerstars"), "pokerstars");
         assert_eq!(compliance.store_site("wpt-global"), "wpt-global");
-        // No room's tables are known yet (R3.3 / R3.11).
-        assert!(compliance.matchers().is_empty());
+        // Only Winamax's Windows tables are known so far (R3.3, issue
+        // #426); no room's macOS tables yet (R3.11).
+        let rooms: Vec<String> = compliance
+            .matchers()
+            .into_iter()
+            .map(|matcher| matcher.site)
+            .collect();
+        let expected: &[&str] = if cfg!(windows) { &["winamax"] } else { &[] };
+        assert_eq!(rooms, expected);
+    }
+
+    /// Winamax's Windows titles as captured on a real install (issue #426):
+    /// a table is "Winamax <table name>", the name exactly as the hands
+    /// carry it; the lobby ("Winamax") and a Playground-mode window
+    /// ("Playground", no table name) are not tables, nor another program's
+    /// window with the same title.
+    #[test]
+    fn winamax_titles_read_the_hands_table_name() {
+        let compliance = Compliance::shipped().expect("shipped");
+        // The Windows matcher, on every system the test runs on.
+        let tables = &compliance.config().site("winamax").expect("winamax").tables;
+        let winamax = TableMatcher {
+            site: "winamax".to_owned(),
+            processes: tables.process.windows.clone().expect("windows processes"),
+            title: Regex::new(tables.title.as_deref().expect("title")).expect("regex"),
+        };
+        for (title, table) in [
+            ("Winamax Valencia", "Valencia"),
+            ("Winamax Athens 02", "Athens 02"),
+        ] {
+            let found = winamax.matches("Winamax.exe", title).expect(title);
+            assert_eq!(found.table.as_deref(), Some(table), "{title}");
+            assert_eq!(found.seats, None, "{title}");
+        }
+        assert!(winamax.matches("winamax", "Winamax Valencia").is_some());
+        assert!(winamax.matches("Winamax.exe", "Winamax").is_none());
+        assert!(winamax.matches("Winamax.exe", "Playground").is_none());
+        assert!(winamax.matches("chrome.exe", "Winamax Valencia").is_none());
     }
 
     fn remote_with(edit: impl Fn(&mut serde_json::Value)) -> String {

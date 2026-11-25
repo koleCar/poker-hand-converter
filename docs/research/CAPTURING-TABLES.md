@@ -361,7 +361,15 @@ on again. Developer ID signed releases (P3) keep it across updates.
 
 ## Seen so far
 
-Nothing yet: no `tables` block is filled.
+- **Winamax, Windows** (2026-11-23, issue #426): `Winamax.exe`, class
+  `Chrome_WidgetWin_1` (Electron). A table in its own window is titled
+  `Winamax <table>` (`Winamax Valencia`, `Winamax Athens 02`), the name
+  exactly as the hands carry it; the lobby is `Winamax`. With the client's
+  Playground mode on, a table window is titled `Playground` with no table
+  name and the tables may share one window - the HUD cannot attach there.
+  The hero is drawn bottom centre (`preferredSeat: true`). Not captured
+  yet: tournament, Expresso and heads-up titles, the macOS client, seat
+  layouts (the HUD's default geometry until measured).
 
 Once a room's `tables` block is merged, check the HUD on its real client:
 [`REAL-CLIENT-CHECK.md`](REAL-CLIENT-CHECK.md) (R3.14).

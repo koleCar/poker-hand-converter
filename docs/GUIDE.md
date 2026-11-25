@@ -41,15 +41,16 @@ The web app is at **https://poker-hand-converter.vercel.app**.
 2. [Convert](#convert) - upload and convert hand histories, manual entry, refused hands
 3. [Library](#library) - browse, filter, search, saved filters
 4. [Replayer](#replayer) - the hand page, share links, embeds
-5. [Analytics](#analytics) - your statistics against their targets, the pool, all-in EV
+5. [Stats](#stats) - statistics, reports, all-in EV
 6. [Players](#players) - opponent profiles and notes
 7. [Analysis](#analysis) - session review, leaks, charts, training, plan, progress, reports
-8. [Learn](#learn) - course, placement test, reference, review
-9. [Community](#community) - forum, published hands, profiles, notifications, moderation
-10. [Account](#account) - settings, data export, account deletion, billing
-11. [Desktop setup](#desktop-setup) - install, sign in, folders, import, sync
-12. [Desktop app](#desktop-app) - the desktop screens day to day
-13. [HUD](#hud) - the HUD on your tables, panels, popups, room rules
+8. [Analytics](#analytics) - your statistics against their targets, the pool, the drill-down
+9. [Learn](#learn) - course, placement test, reference, review
+10. [Community](#community) - forum, published hands, profiles, notifications, moderation
+11. [Account](#account) - settings, data export, account deletion, billing
+12. [Desktop setup](#desktop-setup) - install, sign in, folders, import, sync
+13. [Desktop app](#desktop-app) - the desktop screens day to day
+14. [HUD](#hud) - the HUD on your tables, panels, popups, room rules
 
 ---
 
@@ -324,14 +325,176 @@ hand: your other hands, statistics and reports stay private.
 
 ---
 
-## Analytics
+## Stats
 
 > Tutorial video: _coming soon_ (id: `stats`)
 
-**Analytics** (`/stats` on the web, **Analytics** in the desktop app's
-sidebar) is the review of the hands in your library, the one a coach would
-do. It answers three questions in order: which of your statistics are off,
-where exactly and with which hands, and how to practise it. Both apps show
+**Statistics** (`/stats`) is the report over the hands in your library. It is
+the same screen as the desktop app's Reports.
+
+### What you see
+
+1. **The filter chips**: date, room, stakes, position, game, variant, limit,
+   table size. Every number below follows them.
+2. **The summary**: hands, result, bb/100 (big blinds won per 100 hands) and
+   all-in EV bb/100.
+3. **The win-rate graph**: total, showdown, non-showdown and all-in EV lines,
+   in big blinds or money. The x-axis counts hands, not days, so a break
+   between sessions takes no space.
+4. **Every statistic by group** (preflop, postflop, showdown), each with its
+   sample.
+5. **Breakdowns**: position, pot type, stack depth, the 13 x 13 starting-hand
+   grid, players, street, stakes, table size, room, game.
+6. **Sessions** and **Opponents** panels over the same filter.
+
+A line above says how much of your library the numbers cover ("N of M hands
+are not in these numbers yet") with **Rebuild statistics** if they fall
+behind. Hands are added to the statistics as they are saved.
+
+### Reading a number
+
+- Each statistic is "made / had the chance". VPIP 24 % over 1 200 hands means
+  you put money in voluntarily in 24 % of the hands where you could.
+- **Reliability**: a value is drawn fainter while its sample is small, and its
+  tooltip shows the sample and a 95 % range. In breakdowns, grey numbers rest
+  on few opportunities and a dotted win rate on fewer than 100 hands: a
+  direction, not a reading.
+- A win rate does not settle until a large sample; the summary says so while
+  it is provisional.
+- Mixed currencies, or tournament chips mixed with cash, have no money total;
+  Rail says so and shows big blinds, which are a unit of the game.
+
+The main statistics, briefly: **VPIP** (money in voluntarily), **PFR**
+(raised preflop), **RFI** (opened an unopened pot), **3-bet** (facing one
+raise), **Fold to 3-bet** (after opening), **4-bet**, **Squeeze**, **Cold
+call**, **Steal** (CO / BTN / SB, folded to you) and **Fold to steal**;
+**C-bet** flop / turn / river (a turn c-bet counts only after the flop c-bet
+was called), **Fold to c-bet**, **Raise c-bet**, **Donk bet**,
+**Check-raise**, **Aggression factor / frequency**; **Saw flop**, **WWSF**
+(won when saw flop), **WTSD** (went to showdown having seen a flop) and
+**W$SD** (won at showdown). Exact definitions:
+[`STATS-SPEC.md`](STATS-SPEC.md).
+
+### All-in EV
+
+The all-in EV line and bb/100 divide each pot at the moment of an all-in by
+each player's equity instead of by the cards that came. Compare it with your
+real result to see how much of a good or bad run was the deck. It is the same
+money split another way: over all players it adds up to the same total.
+
+### Sessions
+
+A session ends at a break longer than 30 minutes. The Sessions panel lists
+each one with its length, tables, result and bankroll line; **Review** opens
+its [session review](#analysis).
+
+### Plan limits
+
+On Free (once enforced) the summary, every statistic and the graph stay open;
+the situation breakdowns, sessions, opponents and the Players screen show the
+Pro lock.
+
+---
+
+## Players
+
+> Tutorial video: _coming soon_ (id: `players`)
+
+**Players** (the Statistics / Players switch, `/players`) lists the opponents
+in your hands and your result against each.
+
+### Turning it on
+
+Opponent statistics store a row per opponent per hand (about six times the
+space of your own statistics), so on the web they are **off until you turn
+them on** (**Turn on opponent statistics**). Turning them off later deletes
+those rows; your hands and your own numbers are untouched.
+
+### Using it
+
+1. The list shows opponents from rooms that print screen names, most hands
+   together first. Search by the start of a name; filter by room, game, or
+   "with a note".
+2. Open one for their profile: hands together, first and last seen, your
+   result against them, their statistics with reliability, their rows by
+   position, stake, table size and game.
+3. Add a **private note** (and tags in the Opponents panel). Notes are visible
+   only to you.
+4. **Hands with this player** opens your library filtered to that player.
+
+Limits: opponents of GGPoker (names change between sessions) are counted but
+not listed; rooms that label seats by position (Ignition) never record
+opponents. Colour tags and labels belong to the desktop app and stay there.
+
+---
+
+## Analysis
+
+> Tutorial video: _coming soon_ (id: `analysis`)
+
+**Analysis** (`/analysis`) walks every decision you made in your saved hands
+and grades the ones a reference covers. It is private to you and runs in your
+browser tab (on the desktop, in the background).
+
+### Running it
+
+1. Choose **Run analysis** (or **Analyse new hands**). You can start with the
+   most recent hands.
+2. Progress shows with time left; **Stop** keeps what is done, and running
+   again carries on. A new analysis version asks to **Bring it up to date**.
+
+### What is graded, and against what
+
+- **Preflop**: graded **Perfect, Good, Inaccurate, Mistake or Blunder** against
+  Rail's own preflop charts where a chart covers the spot (6-max at 40-200 bb,
+  full ring at 100-200 bb, heads-up at 100 and 150 bb; no open limpers).
+- **Turn and river** in heads-up pots: graded by Rail's own solver.
+- **Flop**: facts and flags only. A flag ("Called without the odds", "Folded
+  the nuts", ...) is a note to read with the hand open, never a grade.
+- **Multiway pots**: facts against every opponent's range, and an approximate
+  grade for a call or fold facing a bet, labelled as such.
+- **Tournaments**: preflop all-in-or-fold decisions at 20 bb or less are graded
+  in a push/fold model, in prize equity (ICM) when the players left and payouts
+  are known (you can set them), otherwise in chips. Deeper or postflop
+  tournament decisions are not graded.
+- Not analysed: hands without a hero seat or hero cards, non-Hold'em, Hi/Lo,
+  non-No-Limit, bomb pots. The overview lists why.
+
+A grade is the EV you gave up against the reference's best move, in big blinds
+and as a share of the pot. The overview shows coverage, the grade
+distribution, a **score** (mean over graded moves, 0-100) and **EV loss per
+100 hands**. Each hand opens in the replayer with the Analysis sheet
+(`/analysis/h/...`).
+
+### The parts of Analysis
+
+| Screen | What it gives you |
+| --- | --- |
+| **Session review** (`/analysis/session`) | After a session (a break over 30 minutes), the hands worth a look: the worst graded decisions with the EV they cost, preflop decisions off the charts, and the biggest pots, under the session's result. Previous / Next and a 90-day picker walk to other sessions. |
+| **Three biggest leaks** (on the overview) and **Leaks** (`/analysis/leaks`) | Graded decisions grouped into spots (street, scenario, seat, opponent) and ranked by EV lost, with how often, a confidence (high needs 50 decisions in the spot and 5 mistakes, medium 20 and 2), the reference's move, and example hands. Thin spots are merged into coarser ones so one bad hand does not become a leak. |
+| **Analytics** (`/analysis/stats`) | Your statistics against their targets, by street, with the spots, bet sizes and hands behind each: see [Analytics](#analytics). |
+| **Reports** (`/analysis/reports`) | Your preflop frequencies at every chart spot next to the reference's, blind defence against each opener, and postflop frequencies by role. |
+| **Progress** (`/analysis/progress`) | Score and EV lost per 100 hands by week, month or session, by street, seat and pot type. |
+| **Train** (`/analysis/train`) | Practise preflop spots, river spots and **your own mistakes** until they are right, graded exactly as the analysis grades. |
+| **Study plan** (`/analysis/plan`) | This week's focus from your leaks: concepts to read, trainer spots, drills and your own hands to review, rebuilt every Monday. Trainer items tick themselves as you play them. |
+| **Your preflop charts** (`/analysis/my-charts`) | Build or import your own ranges situation by situation (paint a 13 x 13 grid, paste ranges in common formats, start from Rail's chart), then **Compare** them with the hands you played: how often you followed them, where you left them, and what it cost. |
+| **Preflop charts** (`/analysis/charts`) and **Concepts** (`/analysis/learn`) | Rail's own charts and the concept library with calculators. Public, no account needed. |
+
+Limits: the charts value some speculative hands low (the page says which), so
+grades against playing those lean harsh. Everything here is study after the
+session; on the desktop the analysis is hidden while a poker table is open.
+
+---
+
+## Analytics
+
+> Tutorial video: _coming soon_ (id: `analytics`)
+
+**Analytics** is a part of [Analysis](#analysis): **Analytics** among its tabs
+(`/analysis/stats` on the web, **Analysis → Analytics** in the desktop app).
+It is the review of the hands in your library, the one a coach would do.
+It answers three questions in order: which of your statistics are off, where
+exactly and with which hands, and how to practise it. Both apps show
 the same screen.
 
 ### The tabs
@@ -357,7 +520,9 @@ hand at your first preflop decision, in big blinds.
    →** opens the stat's drill-down: its spots, each bet size you faced, what
    you fold by hand class (strongest first), and the hands themselves.
 4. **Pool**: how the regs and fish in your games play (see below).
-5. **Breakdown**: every statistic by group and the breakdowns (see below).
+
+Every statistic by group and the breakdowns by position, stakes and the rest
+stay on [Stats](#stats) (the desktop app's **Reports**).
 
 ### The target
 
@@ -461,150 +626,11 @@ panel shows the goal: your rate, the reference's, and this drill's so far.
   working.
 - **No hands at these filters**: **Clear filters**.
 
-### Breakdown
-
-1. **Every statistic by group** (preflop, postflop, showdown), each with its
-   sample.
-2. **Breakdowns**: position, pot type, stack depth, the 13 x 13 starting-hand
-   grid, players, street, stakes, table size, room, game.
-3. **Sessions** and **Opponents** panels over the same filter (web).
-
-A line above says how much of your library the numbers cover ("N of M hands
-are not in these numbers yet") with **Rebuild statistics** if they fall
-behind. Hands are added to the statistics as they are saved.
-
-### Reading a number
-
-- Each statistic is "made / had the chance". VPIP 24 % over 1 200 hands means
-  you put money in voluntarily in 24 % of the hands where you could.
-- **Reliability**: a value is drawn fainter while its sample is small, and its
-  tooltip shows the sample and a 95 % range. In breakdowns, grey numbers rest
-  on few opportunities and a dotted win rate on fewer than 100 hands: a
-  direction, not a reading.
-- A win rate does not settle until a large sample; the summary says so while
-  it is provisional.
-- Mixed currencies, or tournament chips mixed with cash, have no money total;
-  Rail says so and shows big blinds, which are a unit of the game.
-
-The main statistics, briefly: **VPIP** (money in voluntarily), **PFR**
-(raised preflop), **RFI** (opened an unopened pot), **3-bet** (facing one
-raise), **Fold to 3-bet** (after opening), **4-bet**, **Squeeze**, **Cold
-call**, **Steal** (CO / BTN / SB, folded to you) and **Fold to steal**;
-**C-bet** flop / turn / river (a turn c-bet counts only after the flop c-bet
-was called), **Fold to c-bet**, **Raise c-bet**, **Donk bet**,
-**Check-raise**, **Aggression factor / frequency**; **Saw flop**, **WWSF**
-(won when saw flop), **WTSD** (went to showdown having seen a flop) and
-**W$SD** (won at showdown). Exact definitions:
-[`STATS-SPEC.md`](STATS-SPEC.md).
-
-### All-in EV
-
-The all-in EV line and bb/100 divide each pot at the moment of an all-in by
-each player's equity instead of by the cards that came. Compare it with your
-real result to see how much of a good or bad run was the deck. It is the same
-money split another way: over all players it adds up to the same total.
-
-### Sessions
-
-A session ends at a break longer than 30 minutes. The Sessions panel lists
-each one with its length, tables, result and bankroll line; **Review** opens
-its [session review](#analysis).
-
 ### Plan limits
 
 On Free (once enforced) your own numbers, the figures, the graph and every
 statistic stay open. Targets, gaps, costs, findings, the drill-down and Pool
-are Pro, and so are the situation breakdowns, sessions, opponents and the
-Players screen: a one-line Pro lock says so where they would be.
-
----
-
-## Players
-
-> Tutorial video: _coming soon_ (id: `players`)
-
-**Players** (the Statistics / Players switch, `/players`) lists the opponents
-in your hands and your result against each.
-
-### Turning it on
-
-Opponent statistics store a row per opponent per hand (about six times the
-space of your own statistics), so on the web they are **off until you turn
-them on** (**Turn on opponent statistics**). Turning them off later deletes
-those rows; your hands and your own numbers are untouched.
-
-### Using it
-
-1. The list shows opponents from rooms that print screen names, most hands
-   together first. Search by the start of a name; filter by room, game, or
-   "with a note".
-2. Open one for their profile: hands together, first and last seen, your
-   result against them, their statistics with reliability, their rows by
-   position, stake, table size and game.
-3. Add a **private note** (and tags in the Opponents panel). Notes are visible
-   only to you.
-4. **Hands with this player** opens your library filtered to that player.
-
-Limits: opponents of GGPoker (names change between sessions) are counted but
-not listed; rooms that label seats by position (Ignition) never record
-opponents. Colour tags and labels belong to the desktop app and stay there.
-
----
-
-## Analysis
-
-> Tutorial video: _coming soon_ (id: `analysis`)
-
-**Analysis** (`/analysis`) walks every decision you made in your saved hands
-and grades the ones a reference covers. It is private to you and runs in your
-browser tab (on the desktop, in the background).
-
-### Running it
-
-1. Choose **Run analysis** (or **Analyse new hands**). You can start with the
-   most recent hands.
-2. Progress shows with time left; **Stop** keeps what is done, and running
-   again carries on. A new analysis version asks to **Bring it up to date**.
-
-### What is graded, and against what
-
-- **Preflop**: graded **Perfect, Good, Inaccurate, Mistake or Blunder** against
-  Rail's own preflop charts where a chart covers the spot (6-max at 40-200 bb,
-  full ring at 100-200 bb, heads-up at 100 and 150 bb; no open limpers).
-- **Turn and river** in heads-up pots: graded by Rail's own solver.
-- **Flop**: facts and flags only. A flag ("Called without the odds", "Folded
-  the nuts", ...) is a note to read with the hand open, never a grade.
-- **Multiway pots**: facts against every opponent's range, and an approximate
-  grade for a call or fold facing a bet, labelled as such.
-- **Tournaments**: preflop all-in-or-fold decisions at 20 bb or less are graded
-  in a push/fold model, in prize equity (ICM) when the players left and payouts
-  are known (you can set them), otherwise in chips. Deeper or postflop
-  tournament decisions are not graded.
-- Not analysed: hands without a hero seat or hero cards, non-Hold'em, Hi/Lo,
-  non-No-Limit, bomb pots. The overview lists why.
-
-A grade is the EV you gave up against the reference's best move, in big blinds
-and as a share of the pot. The overview shows coverage, the grade
-distribution, a **score** (mean over graded moves, 0-100) and **EV loss per
-100 hands**. Each hand opens in the replayer with the Analysis sheet
-(`/analysis/h/...`).
-
-### The parts of Analysis
-
-| Screen | What it gives you |
-| --- | --- |
-| **Session review** (`/analysis/session`) | After a session (a break over 30 minutes), the hands worth a look: the worst graded decisions with the EV they cost, preflop decisions off the charts, and the biggest pots, under the session's result. Previous / Next and a 90-day picker walk to other sessions. |
-| **Three biggest leaks** (on the overview) and **Leaks** (`/analysis/leaks`) | Graded decisions grouped into spots (street, scenario, seat, opponent) and ranked by EV lost, with how often, a confidence (high needs 50 decisions in the spot and 5 mistakes, medium 20 and 2), the reference's move, and example hands. Thin spots are merged into coarser ones so one bad hand does not become a leak. |
-| **Reports** (`/analysis/reports`) | Your preflop frequencies at every chart spot next to the reference's, blind defence against each opener, and postflop frequencies by role. |
-| **Progress** (`/analysis/progress`) | Score and EV lost per 100 hands by week, month or session, by street, seat and pot type. |
-| **Train** (`/analysis/train`) | Practise preflop spots, river spots and **your own mistakes** until they are right, graded exactly as the analysis grades. |
-| **Study plan** (`/analysis/plan`) | This week's focus from your leaks: concepts to read, trainer spots, drills and your own hands to review, rebuilt every Monday. Trainer items tick themselves as you play them. |
-| **Your preflop charts** (`/analysis/my-charts`) | Build or import your own ranges situation by situation (paint a 13 x 13 grid, paste ranges in common formats, start from Rail's chart), then **Compare** them with the hands you played: how often you followed them, where you left them, and what it cost. |
-| **Preflop charts** (`/analysis/charts`) and **Concepts** (`/analysis/learn`) | Rail's own charts and the concept library with calculators. Public, no account needed. |
-
-Limits: the charts value some speculative hands low (the page says which), so
-grades against playing those lean harsh. Everything here is study after the
-session; on the desktop the analysis is hidden while a poker table is open.
+are Pro: a one-line Pro lock says so where they would be.
 
 ---
 
@@ -877,9 +903,9 @@ The desktop app's screens, in the sidebar (Cmd / Ctrl + 1 to 7 to switch):
 | --- | --- |
 | **Live** | The session being played (a break over 30 minutes ends it): its graph (winnings, all-in EV, showdown, non-showdown) with the result in money and big blinds, hands and hands per hour; its key statistics by short name, the full name and target range on hover; its hands, newest first, ten to a page. With no session on, what starts one and the last session. |
 | **Hands** | The same hand list, filter chips, saved filters and replayer as the web's [library](#library), over the hands on this computer; a tag and a note per hand. |
-| **Analytics** | The same screen as the web's [Analytics](#analytics), with its own saved filters, in big blinds or money. |
+| **Reports** | The same report as the web's [Stats](#stats), with its own saved filters, in big blinds or money. |
 | **Players** | Opponents of rooms that print screen names, with their profile; plus a **colour tag**, **labels** and a **note** per player, which the HUD can show. |
-| **Analysis** | Session review, top leaks, your own charts and a hand's grades, run in the background on this computer. Hidden while a poker table is open. |
+| **Analysis** | Session review, top leaks, [Analytics](#analytics), your own charts and a hand's grades, run in the background on this computer. Hidden while a poker table is open. |
 | **HUD** | The HUD's status and its editor (see [HUD](#hud)). |
 | **Settings** | Account (with Plan and Your data), Folders, Refused hands, Your statistics, Preferences (theme, density, language), About. |
 
@@ -889,14 +915,13 @@ The desktop app's screens, in the sidebar (Cmd / Ctrl + 1 to 7 to switch):
 - **Your statistics** (Settings): write your own statistic as a counter
   (for example "first street = flop and facing a c-bet and multiway => fold")
   and a formula; the editor underlines mistakes and previews the value on
-  your last 5 000 hands. It then appears in Analytics. A change to a statistic
+  your last 5 000 hands. It then appears in Reports. A change to a statistic
   recomputes only what it touches, in the background.
 - **Preferences**: dark, light or system theme; comfortable or compact lists;
   English or Croatian.
 
 On Free (once enforced) the app keeps importing, the library, the replayer and
-basic statistics; the HUD, Analysis, Players, Analytics' targets and costs
-and its situation tabs need
+basic statistics; the HUD, Analysis, Players and Reports' situation tabs need
 Pro, and sync waits. A Pro app keeps working offline for 14 days after its
 last plan check, then asks you to reconnect.
 
@@ -912,8 +937,12 @@ app; the web has no HUD.
 
 > **Status.** The HUD is complete and tested on Rail's own table simulator. It
 > attaches to a real room's tables only after that room's table windows have
-> been captured and checked; no room has been yet. Until then the HUD screen
-> lists open tables as tables without the HUD.
+> been captured and checked. So far that is **Winamax on Windows** (cash
+> tables); other rooms' open tables are listed as tables without the HUD.
+>
+> **Winamax:** open each table in its own window and switch the table's
+> **Playground** mode off. In Playground mode the window is titled
+> "Playground" and does not say which table it is, so the HUD cannot attach.
 
 ### Where the HUD may run (compliance mode)
 

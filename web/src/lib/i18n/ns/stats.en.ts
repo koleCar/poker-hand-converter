@@ -49,7 +49,7 @@ export const statsEn = {
   },
 
   tab: {
-    heading: "Analytics",
+    heading: "Statistics",
     /** Next to the heading: "1,234 hands · v3". */
     sample: (count: number, version: string) => `${hands(count)} · ${version}`,
     signInHeading: "Sign in to see your statistics",
