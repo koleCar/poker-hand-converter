@@ -2,13 +2,16 @@
  * "+ Add filter": a menu that searches every value of every group the row
  * has ("3bet" finds the 3-bet pots, "btn" the button) and adds the one
  * picked; with nothing typed it lists the groups, and a group opens its
- * editor in place. The arrow keys move, Enter adds, Escape closes;
- * "Browse all filters" opens the builder.
+ * editor in place. A typed group name lists that group ("hero hand" opens the
+ * grid), a typed year or month the range it means ("2025", "march 2025"), and
+ * a click anywhere on the row's empty space opens the menu, as on a search
+ * bar (#418). The arrow keys move, Enter adds, Escape closes; "Browse all
+ * filters" opens the builder.
  */
 import { useCallback, useMemo, useRef, useState, type KeyboardEvent } from "react";
 
 import { useUiStrings } from "../i18n";
-import { DATE_PRESETS, type FilterState } from "./filter";
+import { DATE_PRESETS, typedPeriods, type FilterState } from "./filter";
 import styles from "./FilterBar.module.css";
 import { GroupEditor } from "./GroupEditor";
 import {
@@ -16,6 +19,7 @@ import {
   LIST_GROUPS,
   PANES,
   isSet,
+  periodLabel,
   quickFor,
   selectedOf,
   useGroupWords,
@@ -34,6 +38,8 @@ export interface SearchHit {
   on: boolean;
   /** Adds (or, when on, removes) it. */
   apply: (filter: FilterState) => FilterState;
+  /** A whole group, by its name: picking it opens the group's editor instead. */
+  open?: GroupId;
 }
 
 /** Lower case, letters, digits and plus only: "3-Bet" and "3bet" meet. */
@@ -43,13 +49,27 @@ export function normalise(text: string): string {
 
 /** Every value of these groups (and the quick filters) that matches what was typed. */
 export function useSearchHits(groups: readonly GroupId[], filter: FilterState, facets: HandFacets | null, query: string) {
-  const t = useUiStrings().hands.filters;
+  const strings = useUiStrings();
+  const t = strings.hands.filters;
   const words = useGroupWords();
   return useMemo(() => {
     const needle = normalise(query);
     if (!needle) return [];
     const hits: SearchHit[] = [];
     const matches = (label: string, group: string) => normalise(label).includes(needle) || normalise(group + label).includes(needle);
+    // The groups whose name it is, first: "hero hand" is the Hero hand group.
+    // Only the groups the builder has a pane for ("Order" is not a filter).
+    for (const group of PANES.flatMap((section) => section.panes.flatMap((pane) => pane.groups))) {
+      if (!groups.includes(group) || !normalise(words.name(group)).includes(needle)) continue;
+      hits.push({
+        key: `group:${group}`,
+        label: words.name(group),
+        where: words.summary(group, filter, facets) ?? "",
+        on: false,
+        apply: (f) => f,
+        open: group,
+      });
+    }
     for (const quick of quickFor(groups)) {
       const label = t.quick[quick.id];
       if (matches(label, "")) {
@@ -87,6 +107,18 @@ export function useSearchHits(groups: readonly GroupId[], filter: FilterState, f
         }
       }
       if (group === "date") {
+        // A year or a month typed: that calendar range.
+        for (const period of typedPeriods(query, new Date(), [strings.intlLocale])) {
+          const on = filter.date === "custom" && filter.dateFrom === period.from && filter.dateTo === period.to;
+          hits.push({
+            key: `date:${period.from}:${period.to}`,
+            label: periodLabel(period, strings.intlLocale),
+            where: name,
+            on,
+            apply: (f) =>
+              on ? { ...f, date: null, dateFrom: "", dateTo: "" } : { ...f, date: "custom", dateFrom: period.from, dateTo: period.to },
+          });
+        }
         for (const preset of DATE_PRESETS) {
           if (preset === "custom" || !matches(t.dates[preset], name)) continue;
           const on = filter.date === preset;
@@ -101,7 +133,7 @@ export function useSearchHits(groups: readonly GroupId[], filter: FilterState, f
       }
     }
     return hits;
-  }, [groups, filter, facets, query, t, words]);
+  }, [groups, filter, facets, query, strings, t, words]);
 }
 
 function PlusIcon() {
@@ -127,6 +159,8 @@ export function AddFilter({
   facets,
   onChange,
   onBrowse,
+  open,
+  onOpenChange,
 }: {
   groups: readonly GroupId[];
   filter: FilterState;
@@ -134,20 +168,22 @@ export function AddFilter({
   onChange: (filter: FilterState) => void;
   /** Opens the builder, on a pane when one is named. */
   onBrowse: (pane?: PaneId) => void;
+  /** Whether the menu is open: the row opens it too, on a click on its empty space. */
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) {
   const t = useUiStrings().hands.filters;
   const words = useGroupWords();
   const anchor = useRef<HTMLSpanElement>(null);
-  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [drill, setDrill] = useState<GroupId | null>(null);
   const [active, setActive] = useState(0);
   const close = useCallback(() => {
-    setOpen(false);
+    onOpenChange(false);
     setQuery("");
     setDrill(null);
     setActive(0);
-  }, []);
+  }, [onOpenChange]);
 
   const hits = useSearchHits(groups, filter, facets, query);
   // With nothing typed: the groups, in the builder's order.
@@ -160,7 +196,9 @@ export function AddFilter({
   const run = (index: number) => {
     if (query.trim()) {
       const hit = hits[index];
-      if (hit) {
+      if (hit?.open) {
+        setDrill(hit.open);
+      } else if (hit) {
         onChange(hit.apply(filter));
         close();
       }
@@ -183,7 +221,7 @@ export function AddFilter({
 
   return (
     <span ref={anchor} className={styles.anchor}>
-      <button type="button" className={styles.add} aria-expanded={open} aria-haspopup="dialog" onClick={() => (open ? close() : setOpen(true))}>
+      <button type="button" className={styles.add} aria-expanded={open} aria-haspopup="dialog" onClick={() => (open ? close() : onOpenChange(true))}>
         <PlusIcon />
         {t.addFilter}
       </button>
@@ -214,12 +252,17 @@ export function AddFilter({
                           type="button"
                           className={styles.menuRow}
                           data-active={index === active || undefined}
-                          aria-pressed={hit.on}
+                          aria-pressed={hit.open ? undefined : hit.on}
                           onMouseEnter={() => setActive(index)}
                           onClick={() => run(index)}
                         >
                           <span className={styles.menuLabel}>{hit.label}</span>
                           <span className={styles.menuWhere}>{hit.where}</span>
+                          {hit.open ? (
+                            <span className={styles.caretRight} aria-hidden="true">
+                              ›
+                            </span>
+                          ) : null}
                         </button>
                       </li>
                     ))

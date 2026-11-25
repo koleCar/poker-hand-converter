@@ -17,9 +17,14 @@ import { stackOrder } from "./stackBuckets";
 /** The pot filter's unit: big blinds, or the table's money (`$`). */
 export type PotUnit = "bb" | "money";
 
-export type DatePreset = "today" | "week" | "month" | "year" | "custom";
+/**
+ * The date presets: "week", "month" and "year" are the last 7, 30 and 365
+ * days; "thisWeek", "thisMonth" and "thisYear" the calendar ones so far, the
+ * week from Monday (#418).
+ */
+export type DatePreset = "today" | "thisWeek" | "week" | "thisMonth" | "month" | "thisYear" | "year" | "custom";
 
-export const DATE_PRESETS: DatePreset[] = ["today", "week", "month", "year", "custom"];
+export const DATE_PRESETS: DatePreset[] = ["today", "thisWeek", "week", "thisMonth", "month", "thisYear", "year", "custom"];
 
 export const SORTS: HandSort[] = ["newest", "oldest", "pot", "potAsc", "won", "lost", "stakes", "stakesAsc", "position", "positionDesc"];
 
@@ -506,10 +511,17 @@ export function dateRange(filter: FilterState, now: Date): { from: string | null
       return { from: null, to: null };
     case "today":
       return { from: today.toISOString(), to: null };
+    case "thisWeek":
+      // Monday: getDay() is 0 on a Sunday.
+      return { from: addDays(today, -((today.getDay() + 6) % 7)).toISOString(), to: null };
     case "week":
       return { from: addDays(today, -6).toISOString(), to: null };
+    case "thisMonth":
+      return { from: new Date(today.getFullYear(), today.getMonth(), 1).toISOString(), to: null };
     case "month":
       return { from: addDays(today, -29).toISOString(), to: null };
+    case "thisYear":
+      return { from: new Date(today.getFullYear(), 0, 1).toISOString(), to: null };
     case "year":
       return { from: addDays(today, -364).toISOString(), to: null };
     case "custom": {
@@ -525,6 +537,95 @@ export function dateRange(filter: FilterState, now: Date): { from: string | null
       };
     }
   }
+}
+
+/** A whole calendar year, or a month of one (`month` 0-11), as a custom range of local days. */
+export interface Period {
+  year: number;
+  month: number | null;
+  from: string;
+  to: string;
+}
+
+const pad = (value: number) => String(value).padStart(2, "0");
+
+function period(year: number, month: number | null): Period {
+  if (month === null) return { year, month, from: `${year}-01-01`, to: `${year}-12-31` };
+  const last = new Date(year, month + 1, 0).getDate();
+  return { year, month, from: `${year}-${pad(month + 1)}-01`, to: `${year}-${pad(month + 1)}-${pad(last)}` };
+}
+
+/** A custom range that is exactly a calendar year or month, so its chip can say "2025" or "March 2025". */
+export function periodOf(from: string, to: string): Period | null {
+  const match = /^(\d{4})-(\d{2})-01$/.exec(from);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]) - 1;
+  const asMonth = period(year, month);
+  if (asMonth.to === to) return asMonth;
+  const asYear = period(year, null);
+  return asYear.from === from && asYear.to === to ? asYear : null;
+}
+
+/** Lower case, without accents: "Ožujak" and "ozujak" meet. */
+function plain(text: string): string {
+  return text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+}
+
+/**
+ * The years and months a search can mean (#418: "if the user types a year he
+ * can pick the year he wants, the same for a month"): "2025", "2025-03",
+ * "3/2025", "march 2025", "mar", "ožujak". A month without a year is its
+ * latest one up to `now`. Month names are read in English and in `locales`
+ * (the reader's), whole or from their third letter. Nothing for anything
+ * else - a lone "3" is a 3-bet, not March.
+ */
+export function typedPeriods(query: string, now: Date, locales: readonly string[] = []): Period[] {
+  const tokens = plain(query.trim()).split(/[\s,./-]+/u).filter(Boolean);
+  if (tokens.length === 0 || tokens.length > 2) return [];
+  const thisYear = now.getFullYear();
+  const yearOf = (token: string) => {
+    if (!/^\d{4}$/.test(token)) return null;
+    const year = Number(token);
+    return year >= 1990 && year <= thisYear + 1 ? year : null;
+  };
+  const names: string[][] = Array.from({ length: 12 }, () => []);
+  for (const locale of new Set(["en", ...locales])) {
+    for (const width of ["long", "short"] as const) {
+      let format: Intl.DateTimeFormat;
+      try {
+        format = new Intl.DateTimeFormat(locale, { month: width });
+      } catch {
+        continue;
+      }
+      for (let month = 0; month < 12; month++) {
+        names[month]?.push(plain(format.format(new Date(2000, month, 15))).replace(/\./g, ""));
+      }
+    }
+  }
+  const monthsOf = (token: string): number[] => {
+    if (/^\d{1,2}$/.test(token)) {
+      const month = Number(token) - 1;
+      return month >= 0 && month < 12 ? [month] : [];
+    }
+    if (!/^\p{L}+$/u.test(token)) return [];
+    return names.flatMap((list, month) =>
+      list.some((name) => name === token || (token.length >= 3 && name.startsWith(token))) ? [month] : [],
+    );
+  };
+
+  const [first = "", second] = tokens;
+  if (second === undefined) {
+    const year = yearOf(first);
+    if (year !== null) return [period(year, null)];
+    if (/^\d+$/.test(first)) return [];
+    // A month alone: its latest, this year's or last year's.
+    return monthsOf(first).map((month) => period(month <= now.getMonth() ? thisYear : thisYear - 1, month));
+  }
+  const year = yearOf(first) ?? yearOf(second);
+  if (year === null) return [];
+  const other = yearOf(first) !== null ? second : first;
+  return monthsOf(other).map((month) => period(year, month));
 }
 
 /** What a source reads. The searches and the order go only where set. */

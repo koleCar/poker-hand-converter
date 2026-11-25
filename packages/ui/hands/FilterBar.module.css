@@ -21,6 +21,12 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-4);
   background: var(--surface-raised);
+  /* Its empty space opens "+ Add filter", as a search bar takes a click (#418). */
+  cursor: text;
+}
+
+.bar:hover {
+  border-color: var(--border-strong);
 }
 
 .divider {
@@ -306,6 +312,7 @@ span.chipOpen {
   border-radius: var(--radius-4);
   background: var(--surface-overlay);
   box-shadow: var(--shadow-2);
+  cursor: auto;
 }
 
 .popoverFoot {

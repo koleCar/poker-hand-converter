@@ -14,10 +14,12 @@ import {
   dateRange,
   fromSaved,
   ordered,
+  periodOf,
   requestFilter,
   takeRequestedFilter,
   toQuery,
   toSaved,
+  typedPeriods,
   type FilterState,
 } from "../../app/src/screens/hands/filter.js";
 import { parsePlayerParam, playerParam } from "../../app/src/screens/players/param.js";
@@ -56,6 +58,13 @@ describe("Hands filter", () => {
     expect(at("week")).toEqual({ from: new Date(2026, 9, 8).toISOString(), to: null });
     expect(at("month")).toEqual({ from: new Date(2026, 8, 15).toISOString(), to: null });
     expect(at("year").from).toBe(new Date(2025, 9, 15).toISOString());
+    // The calendar ones (#418): the week from Monday, the month and the year so far.
+    expect(at("thisWeek")).toEqual({ from: new Date(2026, 9, 12).toISOString(), to: null });
+    expect(dateRange({ ...EMPTY_FILTER, date: "thisWeek" }, new Date(2026, 9, 18, 9)).from).toBe(new Date(2026, 9, 12).toISOString());
+    expect(dateRange({ ...EMPTY_FILTER, date: "thisWeek" }, new Date(2026, 9, 12, 9)).from).toBe(new Date(2026, 9, 12).toISOString());
+    expect(at("thisMonth")).toEqual({ from: new Date(2026, 9, 1).toISOString(), to: null });
+    expect(at("thisYear")).toEqual({ from: new Date(2026, 0, 1).toISOString(), to: null });
+    expect(fromSaved('{"date":"thisMonth"}')?.date).toBe("thisMonth");
     // A custom range includes its last day.
     const custom = dateRange({ ...EMPTY_FILTER, date: "custom", dateFrom: "2026-01-31", dateTo: "2026-02-28" }, NOW);
     expect(custom).toEqual({ from: new Date(2026, 0, 31).toISOString(), to: new Date(2026, 2, 1).toISOString() });
@@ -64,6 +73,31 @@ describe("Hands filter", () => {
       from: null,
       to: null,
     });
+  });
+
+  it("reads a typed year or month as that calendar range (#418)", () => {
+    const ranges = (query: string, locales: string[] = []) => typedPeriods(query, NOW, locales).map((p) => `${p.from}..${p.to}`);
+    expect(ranges("2025")).toEqual(["2025-01-01..2025-12-31"]);
+    expect(ranges("2025-03")).toEqual(["2025-03-01..2025-03-31"]);
+    expect(ranges("2/2024")).toEqual(["2024-02-01..2024-02-29"]);
+    expect(ranges("march 2025")).toEqual(["2025-03-01..2025-03-31"]);
+    expect(ranges("2025 Sept")).toEqual(["2025-09-01..2025-09-30"]);
+    // A month alone is its latest: March this year, November last year.
+    expect(ranges("mar")).toEqual(["2026-03-01..2026-03-31"]);
+    expect(ranges("november")).toEqual(["2025-11-01..2025-11-30"]);
+    expect(ranges("ju")).toEqual([]);
+    expect(ranges("ozujak", ["hr"])).toEqual(["2026-03-01..2026-03-31"]);
+    expect(ranges("Ožujak 2024", ["hr"])).toEqual(["2024-03-01..2024-03-31"]);
+    // Not a period: a lone number, a part of a year, a year to come, words.
+    expect(ranges("3")).toEqual([]);
+    expect(ranges("202")).toEqual([]);
+    expect(ranges("2031")).toEqual([]);
+    expect(ranges("3bet")).toEqual([]);
+    expect(ranges("btn")).toEqual([]);
+    expect(periodOf("2025-03-01", "2025-03-31")).toMatchObject({ year: 2025, month: 2 });
+    expect(periodOf("2025-01-01", "2025-12-31")).toMatchObject({ year: 2025, month: null });
+    expect(periodOf("2025-03-01", "2025-03-30")).toBeNull();
+    expect(periodOf("2025-03-02", "2025-03-31")).toBeNull();
   });
 
   it("writes instants the store compares with PHF's played_at", () => {

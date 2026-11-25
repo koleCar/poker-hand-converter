@@ -147,8 +147,11 @@ export const handsUiEn = {
     },
     dates: {
       today: "Today",
+      thisWeek: "This week",
       week: "Last 7 days",
+      thisMonth: "This month",
       month: "Last 30 days",
+      thisYear: "This year",
       year: "Last 12 months",
       custom: "Custom",
       from: "From",

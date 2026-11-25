@@ -20,6 +20,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { useSearchHits, type SearchHit } from "@rail/ui/hands/AddFilter";
 import { FilterBar, HAND_GROUPS, ROLLUP_GROUPS, filterGroups } from "@rail/ui/hands/FilterBar";
 import { BUILDER_GROUPS, PANES, QUICK_FILTERS, clearAll, clearGroup, pctSummary, potSummary, quickFor, selectedOf, shownSet, withValues } from "@rail/ui/hands/groups";
 import { EMPTY_FILTER, activeGroups, fromSaved, parseRange, potParts, potText, toQuery, toSaved, type FilterState } from "@rail/ui/hands/filter";
@@ -651,6 +652,56 @@ describe("the filter row, rendered", () => {
     expect(html).toContain("Stakes: $1/$2. Change");
     expect(html).toContain("Last 7 days");
     expect(html).not.toContain("3-bet pots");
+  });
+});
+
+describe("the filter search (#418)", () => {
+  const search = (query: string, filter: FilterState = EMPTY_FILTER, locale: "en" | "hr" = "en"): SearchHit[] => {
+    let hits: SearchHit[] = [];
+    const Probe = () => {
+      hits = useSearchHits(filterGroups({ annotations: true, search: true, sorts: [], more: [] }), filter, null, query);
+      return null;
+    };
+    render(locale, createElement(Probe));
+    return hits;
+  };
+
+  it("a group's name finds the group, to open it: \"hero hand\" is the grid", () => {
+    const [first] = search("hero hand");
+    expect(first).toMatchObject({ key: "group:heroHand", label: "Hero hand", open: "heroHand" });
+    expect(search("hero hand").filter((hit) => hit.open !== undefined)).toHaveLength(1);
+    // The order is not a filter.
+    expect(search("order").some((hit) => hit.open === "sort")).toBe(false);
+  });
+
+  it("this week, month and year, and any year or month typed", () => {
+    expect(search("this").map((hit) => hit.label)).toEqual(expect.arrayContaining(["This week", "This month", "This year"]));
+    const year = search("2025").find((hit) => hit.key.startsWith("date:2025"));
+    expect(year).toMatchObject({ label: "2025", where: "Date", on: false });
+    const set = year?.apply(EMPTY_FILTER);
+    expect(set).toMatchObject({ date: "custom", dateFrom: "2025-01-01", dateTo: "2025-12-31" });
+    // Picked again, it comes off.
+    const again = search("2025", set).find((hit) => hit.key.startsWith("date:2025"));
+    expect(again?.on).toBe(true);
+    expect(again?.apply(set ?? EMPTY_FILTER).date).toBeNull();
+    expect(search("march 2025").find((hit) => hit.where === "Date")?.label).toBe("March 2025");
+    expect(search("ožujak 2025", EMPTY_FILTER, "hr").find((hit) => hit.key.startsWith("date:"))?.apply(EMPTY_FILTER)).toMatchObject({
+      dateFrom: "2025-03-01",
+      dateTo: "2025-03-31",
+    });
+  });
+
+  it("a whole year or month reads as one on its chip", () => {
+    const html = render(
+      "en",
+      createElement(FilterBar, {
+        filter: { ...EMPTY_FILTER, date: "custom", dateFrom: "2025-03-01", dateTo: "2025-03-31" },
+        facets: null,
+        onChange: () => undefined,
+        features: { annotations: false, search: true, sorts: [], more: [] },
+      }),
+    );
+    expect(html).toContain("Date: March 2025. Change");
   });
 });
 
