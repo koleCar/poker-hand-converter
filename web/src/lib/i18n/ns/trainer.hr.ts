@@ -234,6 +234,12 @@ export const trainerHr = {
   board: { flop: "Flop", turn: "Turn", river: "River" } as Record<string, string>,
 
   next: "Sljedeća ruka",
+  solver: {
+    open: "Pogledaj u Solveru",
+    title: "Otvori Solver na ovom spotu. Kad se vratiš u Trener, sesija se nastavlja odavde.",
+    looking: "Tražim spot…",
+    none: "Solver ovdje nema spot.",
+  },
   autoNext: "Sljedeća ruka za trenutak…",
   stay: "Ostani",
   you: (label: string) => `Ti: ${label}`,

@@ -15,7 +15,9 @@
  *   analysis (`gradeAnswer`; a turn spot with the turn solve on, a flop spot
  *   with the flop library), Perfect kept for the best move (`bestMoveGrade`).
  *   A flop answer the library graded comes back with its range study
- *   (`flopStudy`), read from the same loaded chunk.
+ *   (`flopStudy`), read from the same loaded chunk;
+ * - `solver`: where a dealt spot sits in the Solver library (`solverLink.ts`,
+ *   the Trainer's "Look up in Solver"), read off the library's manifest.
  *
  * Flop jobs read one chunk of the library: the caller loads it first
  * (`trainingChunk` names it) and passes the library in.
@@ -30,6 +32,7 @@ import { generateLab, type LabItem, type LabOptions } from "./lab";
 import { generatePaint, type PaintItem, type PaintOptions } from "./paint";
 import { dealPreflop, preflopAnswer, trainerSet, type PreflopSpotOptions, type PreflopTrainerSpot } from "./preflop";
 import { generateRiverSpot, riverAnswer, type RiverSpotOptions, type RiverTrainerSpot } from "./river";
+import { trainerSolverLink, type TrainerSolverLink } from "./solverLink";
 import { generateSplit, type SplitItem, type SplitOptions } from "./split";
 import { generateTurnSpot, turnAnswer, type TurnSpotOptions, type TurnTrainerSpot } from "./turn";
 import { answerPlay, gradePlay, playRange, startHand, type PlayOptions, type PlayStep } from "./play";
@@ -52,7 +55,9 @@ export type TrainingRequest =
   | { type: "play-answer"; jobId: number; step: PlayStep; menuIndex: number }
   /** The hero's range at a decision (the range panel, T3): a dealt spot's, or a whole hand's current one. */
   | { type: "range"; jobId: number; spot: TrainerSpot }
-  | { type: "play-range"; jobId: number; step: PlayStep };
+  | { type: "play-range"; jobId: number; step: PlayStep }
+  /** Where a dealt spot sits in the Solver library (`solverLink.ts`). */
+  | { type: "solver"; jobId: number; spot: TrainerSpot };
 
 export interface GradedAnswer {
   /** The spot's hand with the answer appended. */
@@ -77,6 +82,7 @@ export type TrainingResponse =
   | ({ type: "graded"; jobId: number } & GradedAnswer)
   | { type: "play"; jobId: number; step: PlayStep | null }
   | { type: "range"; jobId: number; view: RangeView | null }
+  | { type: "solver"; jobId: number; link: TrainerSolverLink | null }
   | { type: "error"; jobId: number; message: string };
 
 /**
@@ -95,7 +101,7 @@ export function trainingChartSets(request: TrainingRequest): string[] {
     return set ? [set] : [];
   }
   if (request.type === "play-grade" || request.type === "play-answer" || request.type === "play-range") return [request.step.state.set];
-  if (request.type === "range") return [request.spot.set];
+  if (request.type === "range" || request.type === "solver") return [request.spot.set];
   if (request.type === "paint" && request.options.source === "chart" && request.options.set) return [request.options.set];
   return [];
 }
@@ -105,7 +111,9 @@ export function needsFlopLibrary(request: TrainingRequest): boolean {
   return (
     request.type === "flop" ||
     (request.type === "split" && request.options.street === "flop") ||
-    ((request.type === "answer" || request.type === "range") && request.spot.kind === "flop")
+    ((request.type === "answer" || request.type === "range") && request.spot.kind === "flop") ||
+    // The Solver's spot reads the manifest only (`has`): no chunk is fetched.
+    (request.type === "solver" && request.spot.kind !== "preflop")
   );
 }
 
@@ -138,6 +146,7 @@ export async function prepareFlopLibrary(request: TrainingRequest, charts: Chart
   // The set whose manifest the job reads: an answer's spot's, a flop job's own (a heads-up set), else the default.
   let set = charts.id;
   if ((request.type === "answer" || request.type === "range") && request.spot.kind === "flop") set = request.spot.set;
+  else if (request.type === "solver") set = request.spot.set;
   else if (request.type === "flop" && request.options.set) set = request.options.set;
   try {
     await loader.ready(set);
@@ -189,6 +198,7 @@ export function runTrainingJob(request: TrainingRequest, charts: ChartSet, flopL
     return { type: "lab", jobId, item: generateLab(charts, request.options, request.seed) };
   }
   if (request.type === "range") return { type: "range", jobId, view: spotRange(request.spot, charts, flopLibrary) };
+  if (request.type === "solver") return { type: "solver", jobId, link: trainerSolverLink(request.spot, charts, flopLibrary) };
   if (request.type !== "answer") throw new RangeError("unknown job");
   const answer = answerHand(request.spot, request.menuIndex);
   const graded = gradeAnswer(answer.hand, answer.actionIndex, charts, {

@@ -16,6 +16,7 @@
  * lab.ts       the exploit lab (Learn L4): a river with an opponent tendency locked, the best response
  * jobs.ts      the trainer worker's requests and answers, and the function that does them
  * play.ts      a whole hand (T2): the opponent played by the reference, every hero decision graded
+ * solverLink.ts a dealt spot in the Solver library (the Trainer's "Look up in Solver")
  * plan.ts      the study plan (A8b): focus areas from the leak finder, the week's checklist, the retrospective
  * ```
  *
@@ -208,6 +209,7 @@ export {
   type TrainingRequest,
   type TrainingResponse,
 } from "./jobs";
+export { trainerSolverLink, type TrainerSolverLink } from "./solverLink";
 export {
   STREAK_GRADES,
   addAnswer,

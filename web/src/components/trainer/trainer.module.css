@@ -2623,3 +2623,26 @@
   margin: 0;
   font-size: var(--font-size-sm);
 }
+
+/* "Look up in Solver" beside Next hand (#420): the same size, quiet. */
+.lookup {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.lookup:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.lookup:disabled {
+  color: var(--text-tertiary);
+  cursor: default;
+}

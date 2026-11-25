@@ -252,6 +252,16 @@ new name; the old one stays as it was. Designed on the map canvas (Ideas,
   new session on them. Every answer still goes to `trainer_results` too.
 - The saved drills of T4 became sessions on the first opening (`drills.ts`
   is read once and emptied).
+- **Look up in Solver** (#420; the host's `solver`, the app's only for now):
+  beside Next hand after an answer, the Solver tab at the spot - the chart
+  node preflop, the library's flop at the spot's node, the hand's line from
+  the flop onto the live-solved turn and river (`lib/training/solverLink.ts`,
+  the worker's `solver` job, read as the replayer's "Open in Solver" reads a
+  hand); a flop the library holds only by its representative stops at the
+  turn's deal, one it does not hold at all opens the preflop line. Leaving
+  the Trainer keeps the session's tables as they were (`parked.ts`, for the
+  window's life): back in the session, the same spot is on the table, answered
+  or not, and "For you" is in the same area.
 
 ## 7. From Analytics (2026-11-22, docs/ANALYTICS.md Step 9)
 

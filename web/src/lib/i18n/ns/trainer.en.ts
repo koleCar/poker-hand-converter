@@ -242,6 +242,13 @@ export const trainerEn = {
   board: { flop: "Flop", turn: "Turn", river: "River" } as Record<string, string>,
 
   next: "Next hand",
+  /** "Look up in Solver" after an answer (#420): the Solver at this spot; the session waits where it was. */
+  solver: {
+    open: "Look up in Solver",
+    title: "Open the Solver at this spot. Back in the Trainer, the session goes on from here.",
+    looking: "Finding the spot…",
+    none: "The Solver has no spot here.",
+  },
   autoNext: "Next hand in a moment…",
   stay: "Stay",
   you: (label: string) => `You: ${label}`,

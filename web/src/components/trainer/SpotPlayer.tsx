@@ -7,6 +7,11 @@
  *
  * Every async step is keyed by the component itself (`OneSpot` mounts once
  * per spot): a slow deal or grade for an old spot never lands on a new one.
+ *
+ * Left (the Solver's "Look up in Solver", another screen, the session list),
+ * a table keeps its spot as it was (`parked.ts`, #420): back in the session,
+ * the first spot is that one again - waiting for the answer, or answered with
+ * its feedback - and the next hand follows from there.
  */
 
 "use client";
@@ -21,6 +26,7 @@ import { feltOf } from "./felt";
 import { DecisionPanel } from "./DecisionPanel";
 import { bestIndex, useOptionText, Verdict } from "./Feedback";
 import { useTrainerHost } from "./host";
+import { park, parked, unpark } from "./parked";
 import { SeenBefore } from "./SeenBefore";
 import { answerMix, cardsText, spotKey, type SessionAnswer, type SpotRef } from "./sessions";
 import type { SpotRequest, StreetMode, TrainerSettings } from "./settings";
@@ -51,13 +57,46 @@ export interface SpotPlayerProps {
   onAnswer?: (answer: SessionAnswer) => void;
   /** The session's earlier answers on a spot (read when the answer is graded). */
   earlier?: (key: string) => SessionAnswer[];
+  /** Where this table's spot is kept when it is left (`parked.ts`: the session and the table); absent: nowhere. */
+  parkKey?: string;
+  /** Open on the spot kept under `parkKey`, if it was dealt for this request; else deal a new one. */
+  resume?: boolean;
+}
+
+/** A table's spot as it was left (`parked.ts`). */
+interface ParkedSpot {
+  /** The request it was dealt for (JSON): another request deals anew. */
+  request: string;
+  spot: TrainerSpot;
+  ref: SpotRef | null;
+  before: SessionAnswer[];
+  answered: Answered | null;
 }
 
 /** Spots one after another: each its own component, so a new spot starts from a clean state. */
 export function SpotPlayer(props: SpotPlayerProps) {
+  const { parkKey, resume = false } = props;
   const [round, setRound] = useState(0);
   const next = useCallback(() => setRound((value) => value + 1), []);
-  return <OneSpot key={`${JSON.stringify(props.request)}|${round}`} {...props} next={next} />;
+  const key = `${JSON.stringify(props.request)}|${round}`;
+  // The spot kept when the table was left, for the first spot only.
+  const [kept] = useState(() => {
+    const value = parkKey && resume ? parked<ParkedSpot>(parkKey) : null;
+    return value && value.request === JSON.stringify(props.request) ? { key, value } : null;
+  });
+  // The table as it is now, kept when it is left (nothing kept: a spot still dealing or grading is dealt anew).
+  const latest = useRef<ParkedSpot | null>(null);
+  const onState = useCallback((state: ParkedSpot | null) => {
+    latest.current = state;
+  }, []);
+  useEffect(() => {
+    if (!parkKey) return;
+    return () => {
+      if (latest.current) park(parkKey, latest.current);
+      else unpark(parkKey);
+    };
+  }, [parkKey]);
+  return <OneSpot key={key} {...props} next={next} kept={kept?.key === key ? kept.value : null} onState={onState} />;
 }
 
 /** The menu index an analysis option is (same action, same size). */
@@ -81,21 +120,33 @@ interface Answered {
   timedOut: boolean;
 }
 
-function OneSpot({ request, mode, settings, keys, compact = false, onScored, onStatus, pickRef, onAnswer, earlier, next }: SpotPlayerProps & { next: () => void }) {
+interface OneSpotProps extends SpotPlayerProps {
+  next: () => void;
+  /** The spot as the table was left (`parked.ts`): shown again as it was, not dealt. */
+  kept: ParkedSpot | null;
+  /** The table as it is now, to keep when it is left; null while there is nothing to keep. */
+  onState: (state: ParkedSpot | null) => void;
+}
+
+function OneSpot({ request, mode, settings, keys, compact = false, onScored, onStatus, pickRef, onAnswer, earlier, next, kept, onState }: OneSpotProps) {
   const host = useTrainerHost();
   const { t } = host;
   const optionText = useOptionText();
-  // A spot of the session's own, chosen once for this table's spot.
-  const [forced] = useState(() => pickRef?.() ?? null);
-  const [spot, setSpot] = useState<TrainerSpot | null>(null);
-  const [ref, setRef] = useState<SpotRef | null>(null);
-  const [before, setBefore] = useState<SessionAnswer[]>([]);
-  const [dealt, setDealt] = useState(false);
+  // A spot of the session's own, chosen once for this table's spot (none for a kept spot: it is already dealt).
+  const [forced] = useState(() => (kept ? null : (pickRef?.() ?? null)));
+  const [spot, setSpot] = useState<TrainerSpot | null>(kept?.spot ?? null);
+  const [ref, setRef] = useState<SpotRef | null>(kept?.ref ?? null);
+  const [before, setBefore] = useState<SessionAnswer[]>(kept?.before ?? []);
+  const [dealt, setDealt] = useState(Boolean(kept));
   const [error, setError] = useState<string | null>(null);
-  const [answered, setAnswered] = useState<Answered | null>(null);
+  const [answered, setAnswered] = useState<Answered | null>(kept?.answered ?? null);
   const [holding, setHolding] = useState(false);
   const [open, setOpen] = useState(!compact);
+  /** "Look up in Solver": finding the spot, or the Solver has none. */
+  const [lookup, setLookup] = useState<"idle" | "looking" | "none">("idle");
   const requestJson = JSON.stringify(request);
+  // Dealing already began (a kept spot): the deal below is not made.
+  const [resumed] = useState(Boolean(kept));
   // The host as it is now: a host that changes (an answer kept on the web) must not deal this table's spot again.
   const hostNow = useRef(host);
   useEffect(() => {
@@ -104,6 +155,7 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
 
   // The spot, dealt once.
   useEffect(() => {
+    if (resumed) return;
     let live = true;
     const host = hostNow.current;
     const parsed = JSON.parse(requestJson) as SpotRequest;
@@ -135,7 +187,24 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
     return () => {
       live = false;
     };
-  }, [requestJson, forced]);
+  }, [requestJson, forced, resumed]);
+
+  // What to keep if the table is left: a dealt spot, waiting or answered; not one being graded (it is dealt anew).
+  useEffect(() => {
+    const grading = answered !== null && answered.graded === null && answered.error === null;
+    onState(spot && !grading ? { request: requestJson, spot, ref, before, answered } : null);
+  }, [onState, requestJson, spot, ref, before, answered]);
+
+  const lookUp = useCallback(() => {
+    if (!spot || !host.solver || lookup === "looking") return;
+    // A right answer's move to the next hand waits: the spot stays on the table while the Solver opens.
+    setHolding(false);
+    setLookup("looking");
+    host.solver(spot).then(
+      (found) => setLookup(found ? "idle" : "none"),
+      () => setLookup("none"),
+    );
+  }, [spot, host, lookup]);
 
 
   const status: TableStatus = !dealt ? "dealing" : answered || !spot ? "answered" : "waiting";
@@ -419,6 +488,15 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
               <button type="button" className={styles.linkButton} onClick={() => setOpen((value) => !value)} aria-expanded={open}>
                 {t.whyHeading}
               </button>
+            ) : null}
+            {host.solver ? (
+              lookup === "none" ? (
+                <span className={styles.muted}>{t.solver.none}</span>
+              ) : (
+                <button type="button" className={styles.lookup} onClick={lookUp} disabled={lookup === "looking"} title={t.solver.title}>
+                  {lookup === "looking" ? t.solver.looking : t.solver.open}
+                </button>
+              )
             ) : null}
             <button type="button" className={styles.next} onClick={next} aria-keyshortcuts={keys === "next" ? "N Enter" : undefined}>
               {t.next}
