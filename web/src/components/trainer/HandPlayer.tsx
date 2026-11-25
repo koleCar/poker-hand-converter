@@ -303,7 +303,7 @@ function OneHand({ request, settings, onScored, onAnswer, onHandDone, newHand }:
       <StatusRow>
         {verdict && verdict.grade ? (
           <Verdict decision={verdict} />
-        ) : over ? (
+        ) : over && over.reason !== "no-reference" ? (
           <Result step={step} />
         ) : answered?.error ? (
           <span className={styles.statusError}>{t.failed(answered.error)}</span>
