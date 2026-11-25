@@ -16,7 +16,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DecisionAnalysis, OptionAnalysis } from "../../lib/analysis/types";
 import { nextSeed, STREAK_GRADES, type GradedAnswer, type TrainerAnswer, type TrainerSpot } from "../../lib/training";
 import { gradeMix, normalised, type MixResult } from "../../lib/training/frequency";
-import { ActionButtons, groupChoices, groupForKey, MixInput, TimebankBar, useTimebank, type Choice } from "./Decision";
+import { ActionButtons, buttonInfo, groupChoices, groupForKey, MixInput, TimebankBar, useTimebank, type Choice } from "./Decision";
 import { feltOf } from "./felt";
 import { DecisionPanel } from "./DecisionPanel";
 import { bestIndex, useOptionText, Verdict } from "./Feedback";
@@ -301,6 +301,11 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
   const graded = answered?.graded ?? null;
   const decision = graded?.decision ?? null;
   const study = host.study && graded && decision ? host.study(graded, spot) : null;
+  // Every button's frequency, EV and grade once graded (#417), with the strategy shown.
+  const info = useMemo(
+    () => (spot && settings.strategy ? buttonInfo(decision, groups, (index) => decision?.options.findIndex((o) => menuIndexOf(spot, o) === index) ?? -1) : null),
+    [spot, settings.strategy, decision, groups],
+  );
 
   useEffect(() => {
     if (!keys) return;
@@ -394,7 +399,7 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
       {settings.input === "frequency" ? (
         <MixInput choices={choices} disabled={Boolean(answered)} onSubmit={pickMix} />
       ) : (
-        <ActionButtons choices={choices} groups={groups} picked={answered?.picked ?? null} disabled={Boolean(answered)} onPick={(g) => pickGroup(g)} />
+        <ActionButtons choices={choices} groups={groups} picked={answered?.picked ?? null} disabled={Boolean(answered)} onPick={(g) => pickGroup(g)} info={info} />
       )}
       <div className={styles.afterRow}>
         <div className={styles.clock} data-done={answered ? true : undefined}>

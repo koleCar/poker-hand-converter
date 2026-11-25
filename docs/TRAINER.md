@@ -29,7 +29,13 @@ screen) render the same component. A Pro feature.
   `analyzeHand` on the spot's hand with the answer appended (`lib/training`):
   preflop from Rail's charts, flops from Rail's flop library, turns and
   rivers solved on the spot. A trainer grade is the analysis grade of the
-  same spot by construction, so practice and review never disagree.
+  same spot by construction, so practice and review never disagree - but
+  for one word (#417, 2026-11-25): the trainer keeps **Perfect for the best
+  move**. A move the analysis calls Perfect because the reference plays it
+  nearly as often as its top option, yet loses EV the verdict shows (over
+  0.005 bb), is Good there, with the best move named
+  (`lib/training/grade.ts`, `bestMoveGrade`; spots and whole hands, not
+  drills or Play it, which keep their stored grades).
 - **"For you" first.** The leak finder groups the player's costly decisions
   into focus areas (`focusAreas`, the same areas the study plan uses); each
   has a trainer target. The Trainer works through the areas the sample
@@ -58,6 +64,11 @@ screen) render the same component. A Pro feature.
      **rule of thumb** for the kind of spot (`principles.ts`), and on the
      web the whole chart or range and the Learn links.
   While answering only the range can be opened (one button, remembered).
+  Once graded, with the strategy shown (settings → Show), every answer
+  button says how the reference plays it without opening anything (#417):
+  its frequency and EV for the hand, a bar of that frequency in the action's
+  colour, and the button tinted by the grade it would have had as the
+  answer (`buttonInfo`, `optionGrades`). No score circle.
 - **Easy settings.** One sheet, every choice a row of chips (one click, no
   dropdowns), only the rows the current mode reads: table, situation, seats;
   pot, position, preflop role, facing, line; hands (as the range holds them

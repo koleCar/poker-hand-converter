@@ -317,11 +317,14 @@
 .action {
   --tone: var(--chart-raise);
 
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
+  gap: 2px;
   min-block-size: 3rem;
+  overflow: hidden;
   padding: var(--space-2) var(--space-3);
   border: 0;
   border-radius: var(--radius-2);
@@ -369,6 +372,61 @@
   border-radius: var(--radius-1);
   background: rgb(0 0 0 / 20%);
   font-size: var(--font-size-2xs);
+}
+
+.actionHead {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/*
+ * Graded (#417): every button takes the colour of the grade it would have
+ * had as the answer, says how often the reference plays it and for what EV,
+ * and draws that frequency as a bar in the action's own colour.
+ */
+.action[data-grade] {
+  background: color-mix(in srgb, var(--grade-color) 22%, var(--surface-raised));
+  box-shadow: inset 0 0 0 2px var(--grade-color);
+  color: var(--text-primary);
+}
+
+.action[data-grade]:disabled {
+  opacity: 1;
+}
+
+.action[data-grade="perfect"] {
+  --grade-color: var(--grade-perfect);
+}
+
+.action[data-grade="good"] {
+  --grade-color: var(--grade-good);
+}
+
+.action[data-grade="inaccurate"] {
+  --grade-color: var(--grade-inaccurate);
+}
+
+.action[data-grade="mistake"] {
+  --grade-color: var(--grade-mistake);
+}
+
+.action[data-grade="blunder"] {
+  --grade-color: var(--grade-blunder);
+}
+
+.actionInfo {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.actionFreq {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-start: 0;
+  block-size: 4px;
+  background: var(--tone);
 }
 
 /* ------------------------------------------------------------- feedback */
@@ -961,9 +1019,11 @@
 
 /* ------------------------------------------------------- tables (T5) */
 
+/* Each table as tall as its own content: one table's open why must not stretch the one beside it (#417). */
 .tables {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  align-items: start;
   gap: var(--space-4);
 }
 

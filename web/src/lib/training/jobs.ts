@@ -13,8 +13,9 @@
  * - `lab`: an exploit-lab item, a river with an opponent tendency locked (`generateLab`, Learn L4);
  * - `answer`: the spot's hand with the answer appended, graded by the
  *   analysis (`gradeAnswer`; a turn spot with the turn solve on, a flop spot
- *   with the flop library). A flop answer the library graded comes back with
- *   its range study (`flopStudy`), read from the same loaded chunk.
+ *   with the flop library), Perfect kept for the best move (`bestMoveGrade`).
+ *   A flop answer the library graded comes back with its range study
+ *   (`flopStudy`), read from the same loaded chunk.
  *
  * Flop jobs read one chunk of the library: the caller loads it first
  * (`trainingChunk` names it) and passes the library in.
@@ -24,7 +25,7 @@ import { flopStudy, type DecisionAnalysis, type FlopLibrary, type RiverStudy } f
 import type { ChartSet } from "../charts";
 import type { PhfHand } from "../phf/types";
 import { flopAnswer, flopChunkFor, generateFlopSpot, type FlopSpotOptions, type FlopTrainerSpot } from "./flop";
-import { gradeAnswer } from "./grade";
+import { bestMoveGrade, gradeAnswer } from "./grade";
 import { generateLab, type LabItem, type LabOptions } from "./lab";
 import { generatePaint, type PaintItem, type PaintOptions } from "./paint";
 import { dealPreflop, preflopAnswer, trainerSet, type PreflopSpotOptions, type PreflopTrainerSpot } from "./preflop";
@@ -190,10 +191,11 @@ export function runTrainingJob(request: TrainingRequest, charts: ChartSet, flopL
   if (request.type === "range") return { type: "range", jobId, view: spotRange(request.spot, charts, flopLibrary) };
   if (request.type !== "answer") throw new RangeError("unknown job");
   const answer = answerHand(request.spot, request.menuIndex);
-  const decision = gradeAnswer(answer.hand, answer.actionIndex, charts, {
+  const graded = gradeAnswer(answer.hand, answer.actionIndex, charts, {
     turn: request.spot.kind === "turn",
     flopLibrary: request.spot.kind === "flop" ? flopLibrary : null,
   });
+  const decision = graded && bestMoveGrade(graded);
   // The flop's range study from the chunk the grade just read: display only, the grade is `decision`.
   const study =
     request.spot.kind === "flop" && flopLibrary && decision?.source === "solver" && decision.facts.flop?.source === "library"
@@ -221,5 +223,6 @@ export async function runPlayJob(
   if (request.type === "play-answer") return { type: "play", jobId, step: await answerPlay(request.step, request.menuIndex, charts, library) };
   if (request.type === "play-range") return { type: "range", jobId, view: await playRange(request.step, charts, library) };
   const graded = await gradePlay(request.step, request.menuIndex, charts, library);
-  return { type: "graded", jobId, hand: graded.hand, actionIndex: graded.actionIndex, decision: graded.decision, study: null };
+  const decision = graded.decision && bestMoveGrade(graded.decision);
+  return { type: "graded", jobId, hand: graded.hand, actionIndex: graded.actionIndex, decision, study: null };
 }

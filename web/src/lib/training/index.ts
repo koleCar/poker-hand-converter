@@ -182,7 +182,7 @@ export {
   type LabView,
   type LabWorlds,
 } from "./lab";
-export { asAnswered, gradeAnswer, gradeDrill, type DrillDecision } from "./grade";
+export { asAnswered, bestMoveGrade, gradeAnswer, gradeDrill, NO_LOSS_BB, optionGrades, type DrillDecision } from "./grade";
 export {
   INITIAL_EASE,
   MAX_EASE,

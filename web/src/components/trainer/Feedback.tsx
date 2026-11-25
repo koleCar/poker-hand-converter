@@ -49,7 +49,8 @@ export function Verdict({
   const label = useOptionText();
   const chosen = decision.chosen !== null ? decision.options[decision.chosen] : null;
   const best = bestIndex(decision);
-  const playable = decision.grade === "perfect" || decision.grade === "good";
+  // Short of Perfect the best move is named, a Good move mixed in too (#417).
+  const perfect = decision.grade === "perfect";
   return (
     <div className={styles.verdict} data-grade={decision.grade ?? undefined} aria-live="polite">
       <span className={styles.verdictGrade}>
@@ -58,7 +59,7 @@ export function Verdict({
       </span>
       {note ? <span>{note}</span> : chosen && !compact ? <span>{t.you(label(chosen))}</span> : null}
       <span className={styles.verdictLoss}>{decision.evLoss && decision.evLoss > 0.005 ? t.evLost(decision.evLoss) : t.noLoss}</span>
-      {!compact && !playable && best !== null && best !== decision.chosen ? <span>{t.best(label(decision.options[best]))}</span> : null}
+      {!compact && !perfect && best !== null && best !== decision.chosen ? <span>{t.best(label(decision.options[best]))}</span> : null}
     </div>
   );
 }

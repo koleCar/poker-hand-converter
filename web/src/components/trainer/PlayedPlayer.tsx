@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DecisionAnalysis, OptionAnalysis } from "../../lib/analysis/types";
 import type { TrainerAnswer } from "../../lib/training";
 import type { PlayedRef } from "./analytics";
-import { ActionButtons, groupChoices, groupForKey, TimebankBar, useTimebank, type Choice } from "./Decision";
+import { ActionButtons, buttonInfo, groupChoices, groupForKey, TimebankBar, useTimebank, type Choice } from "./Decision";
 import { DecisionPanel } from "./DecisionPanel";
 import { bestIndex, useOptionText, Verdict } from "./Feedback";
 import { feltOf } from "./felt";
@@ -185,6 +185,8 @@ export function PlayedPlayer({
   }
 
   const verdict = answered?.shown ?? null;
+  // Every button's frequency, EV and grade once graded (#417): the buttons are the analysis' own options.
+  const info = settings.strategy ? buttonInfo(verdict, groups, (index) => index) : null;
   const study = host.study && verdict ? host.study({ hand: spot.full, actionIndex: spot.decision.actionIndex, decision: verdict, study: null }, null) : null;
   return (
     <div className={`${styles.spot} rail-fade`} data-played="">
@@ -203,7 +205,7 @@ export function PlayedPlayer({
           </span>
         )}
       </StatusRow>
-      <ActionButtons choices={buttons} groups={groups} picked={answered?.picked ?? null} disabled={Boolean(answered)} onPick={pickGroup} />
+      <ActionButtons choices={buttons} groups={groups} picked={answered?.picked ?? null} disabled={Boolean(answered)} onPick={pickGroup} info={info} />
       <div className={styles.afterRow}>
         <div className={styles.clock} data-done={answered ? true : undefined}>
           <TimebankBar left={left} seconds={seconds} />

@@ -2,11 +2,19 @@
  * What a decision looks like, the same for one spot and for a whole hand:
  * the answer buttons (every size, or one per action, T5), the clock
  * (the timebank, T5) and the mix input (answering with frequencies, T5).
+ *
+ * Once the answer is graded every button says how the reference plays it
+ * (#417): how often and for what EV, coloured by the grade it would have
+ * had as the answer (`optionGrades`), so the best move and the moves mixed
+ * in read at a glance, before the why is opened.
  */
 
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { DecisionAnalysis, Grade } from "../../lib/analysis/types";
+import { gradeRank } from "../../lib/analysis/grading";
+import { optionGrades } from "../../lib/training/grade";
 import { useTrainerHost } from "./host";
 import type { Buttons } from "./settings";
 import styles from "./trainer.module.css";
@@ -50,12 +58,57 @@ export function groupForKey(choices: readonly Choice[], groups: readonly number[
   return groups.findIndex((group) => group.length === 1 && choices[group[0]].alias !== null && wanted.includes(choices[group[0]].alias!));
 }
 
+/** A button once the answer is graded: the reference's frequency and EV, and the grade it would have had. */
+export interface ButtonInfo {
+  /** 0–1: the group's sizes together. */
+  freq: number;
+  /** bb: the group's best. */
+  ev: number;
+  grade: Grade | null;
+}
+
+/**
+ * Each button's `ButtonInfo` from the graded decision; `optionOf` names the
+ * decision's option a menu index is (-1: none). A group of sizes is their
+ * frequencies together, the best EV and the best grade - the answer's own
+ * when the answer is one of them, so the button and the verdict agree.
+ * Null before the grade.
+ */
+export function buttonInfo(
+  decision: DecisionAnalysis | null,
+  groups: readonly number[][],
+  optionOf: (menuIndex: number) => number,
+): (ButtonInfo | null)[] | null {
+  if (!decision || decision.grade === null || decision.options.length === 0) return null;
+  const grades = optionGrades(decision);
+  return groups.map((group) => {
+    let info: ButtonInfo | null = null;
+    let answer = false;
+    for (const index of group) {
+      const at = optionOf(index);
+      const option = at >= 0 ? decision.options[at] : undefined;
+      if (!option) continue;
+      const grade = grades[at] ?? null;
+      answer ||= at === decision.chosen;
+      info = info
+        ? {
+            freq: info.freq + option.freq,
+            ev: Math.max(info.ev, option.ev),
+            grade: grade !== null && (info.grade === null || gradeRank(grade) < gradeRank(info.grade)) ? grade : info.grade,
+          }
+        : { freq: option.freq, ev: option.ev, grade };
+    }
+    return info && answer ? { ...info, grade: decision.grade } : info;
+  });
+}
+
 export function ActionButtons({
   choices,
   groups,
   picked,
   disabled,
   onPick,
+  info = null,
 }: {
   choices: readonly Choice[];
   groups: readonly number[][];
@@ -63,14 +116,20 @@ export function ActionButtons({
   picked: number | null;
   disabled: boolean;
   onPick: (group: number) => void;
+  /** Per group, once graded: how the reference plays it (`buttonInfo`); null: nothing to show. */
+  info?: readonly (ButtonInfo | null)[] | null;
 }) {
-  const { t } = useTrainerHost();
+  const { t, locale } = useTrainerHost();
+  const pct = (value: number) => `${Math.round(value * 100).toLocaleString(locale)}%`;
+  const ev = (value: number) =>
+    `${value > 0.005 ? "+" : value < -0.005 ? "−" : ""}${Math.abs(value).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} bb`;
   return (
     <div className={styles.buttons} role="group" aria-label={t.yourMove}>
       {groups.map((group, g) => {
         const first = choices[group[0]];
         const keys = groupKeys(choices, group, g);
         const label = group.length > 1 ? (first.tone === "raise" ? t.simpleRaise : t.simpleBet) : first.label;
+        const shown = info?.[g] ?? null;
         return (
           <button
             key={g}
@@ -78,12 +137,24 @@ export function ActionButtons({
             className={styles.action}
             data-action={first.tone}
             data-picked={picked !== null && group.includes(picked) ? true : undefined}
+            data-grade={shown?.grade ?? undefined}
             disabled={disabled}
             aria-keyshortcuts={keys.join(" ")}
+            title={shown?.grade ? (t.words.grades[shown.grade] ?? shown.grade) : undefined}
             onClick={() => onPick(g)}
           >
-            <span>{label}</span>
-            <kbd aria-hidden="true">{keys[0]}</kbd>
+            <span className={styles.actionHead}>
+              <span>{label}</span>
+              <kbd aria-hidden="true">{keys[0]}</kbd>
+            </span>
+            {shown ? (
+              <>
+                <span className={styles.actionInfo}>
+                  {pct(shown.freq)} · {ev(shown.ev)}
+                </span>
+                <span className={styles.actionFreq} style={{ inlineSize: `${Math.max(0, Math.min(1, shown.freq)) * 100}%` }} aria-hidden="true" />
+              </>
+            ) : null}
           </button>
         );
       })}
