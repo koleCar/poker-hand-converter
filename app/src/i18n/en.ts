@@ -128,7 +128,7 @@ export const en = {
     },
     analysis: {
       title: "Analysis",
-      lead: "Your decisions graded after the session: the session review, your top leaks, your own charts.",
+      lead: "Your decisions graded: the hand review, your top leaks, your own charts.",
     },
     solver: {
       title: "Solver",
@@ -1312,7 +1312,7 @@ export const en = {
   /** The analysis (R5.4): its screen, the background run's status, a hand's grades. */
   analysis: {
     tabsLabel: "Analysis sections",
-    tabs: { session: "Session review", leaks: "Top leaks", stats: "Analytics", multiway: "Multiway ≈", bomb: "Bomb pots ≈" },
+    tabs: { session: "Hand review", leaks: "Top leaks", stats: "Analytics", multiway: "Multiway ≈", bomb: "Bomb pots ≈" },
     /** The Analytics section (docs/ANALYTICS.md): your stats against their targets. */
     analytics: {
       empty: "No hands yet.",

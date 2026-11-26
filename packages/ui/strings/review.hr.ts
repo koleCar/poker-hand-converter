@@ -36,6 +36,9 @@ export const reviewUiHr: typeof reviewUiEn = {
 
   hands: {
     loading: "Tražim tvoje ruke…",
+    error: (reason) => `Pregled ruku se nije učitao: ${reason}`,
+    hiddenDuringPlay:
+      "Pregled ruku skriven je dok je otvoren poker stol: to je analiza, a analiza je za poslije igre.",
     noHands: "Još nema ruku: kad spremiš ruke, ovdje su one koje vrijedi ponovno pogledati.",
     noMatch: "Nijedna tvoja ruka ne odgovara ovom filteru.",
     noAnalysed: "Nijedna od ovih ruku još nije analizirana.",
