@@ -142,10 +142,16 @@ function wearsTag(seat: SeatFrameState): boolean {
  * The tag's words: the verb only ("raises", "call", "small blind"). The amount
  * is already on the bet pill beside the seat, and the source's own wording
  * prints it unpadded ("raises to $0.6"), so it is cut at the first number,
- * with a dangling "to" / "na" after it. An all-in says so.
+ * with a dangling "to" / "na" after it. A bet says how big it was against the
+ * pot instead ("B 24%"). An all-in says so.
  */
-function tagWords(seat: SeatFrameState, allIn: string): string {
+function tagWords(
+  seat: SeatFrameState,
+  allIn: string,
+  betPotTag: (percent: number) => string,
+): string {
   if (seat.allIn && seat.isActing) return allIn;
+  if (seat.betPotPct != null) return betPotTag(seat.betPotPct);
   const verb = (seat.lastAction ?? "")
     .replace(/\s+\S*\d.*$/u, "")
     .replace(/\s+(to|na)$/iu, "")
@@ -689,7 +695,7 @@ export function ReplayTable({
                   so it is re-rendered here to honour the big-blind setting. */}
               {wearsTag(seat) ? (
                 <span className={`pseat__tag pseat__tag--${tone}`} aria-hidden="true">
-                  {seat.winAmount > 0 ? `+${format(seat.winAmount)}` : tagWords(seat, words.allIn)}
+                  {seat.winAmount > 0 ? `+${format(seat.winAmount)}` : tagWords(seat, words.allIn, words.betPotTag)}
                 </span>
               ) : null}
 

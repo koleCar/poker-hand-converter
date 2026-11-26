@@ -70,6 +70,13 @@ export interface SeatFrameState {
    * whatever language `lastAction` is in, so a translation cannot recolour it.
    */
   lastActionTone: ActionTone;
+  /**
+   * When the pill is a bet: its size as a whole percentage of the pot it was
+   * made into (the middle plus every bet already in front of the seats), for
+   * the "B 24%" tag. Null for anything else, including raises. Optional so a
+   * frame built elsewhere (the manual editor) can leave it out.
+   */
+  betPotPct?: number | null;
   isActing: boolean;
   winAmount: number;
 }
@@ -429,6 +436,7 @@ export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayF
       revealed: boolean;
       lastAction: string | null;
       lastActionTone: ActionTone;
+      betPotPct: number | null;
       winAmount: Amount;
     }
   >();
@@ -439,19 +447,25 @@ export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayF
    * that is not English.
    */
   function setPill(
-    entry: { lastAction: string | null; lastActionTone: ActionTone },
+    entry: { lastAction: string | null; lastActionTone: ActionTone; betPotPct: number | null },
     render: (strings: ReplayStrings) => string,
   ): string {
     const english = render(ENGLISH_REPLAY_STRINGS);
     const shown = words === ENGLISH_REPLAY_STRINGS ? english : render(words);
     entry.lastAction = shown;
     entry.lastActionTone = actionTone(english);
+    entry.betPotPct = null;
     return shown;
   }
 
-  function clearPill(entry: { lastAction: string | null; lastActionTone: ActionTone }): void {
+  function clearPill(entry: {
+    lastAction: string | null;
+    lastActionTone: ActionTone;
+    betPotPct: number | null;
+  }): void {
     entry.lastAction = null;
     entry.lastActionTone = "neutral";
+    entry.betPotPct = null;
   }
 
   const seatOrder = [...hand.players].sort((a, b) => a.seat - b.seat);
@@ -479,6 +493,7 @@ export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayF
       revealed: false,
       lastAction: null,
       lastActionTone: "neutral",
+      betPotPct: null,
       winAmount: 0,
     });
   }
@@ -587,6 +602,7 @@ export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayF
         hasCards: cardsDealt && !entry.folded,
         lastAction: entry.lastAction,
         lastActionTone: entry.lastActionTone,
+        betPotPct: entry.betPotPct,
         isActing: actingPlayer === player.name,
         winAmount: display(entry.winAmount),
       };
@@ -765,6 +781,12 @@ export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayF
       case "raise":
       case "post":
       case "straddle": {
+        // The pot a bet is made into: the middle plus everything already in
+        // front of the seats on this street, before this player's chips move.
+        let facing: Amount = pot;
+        for (const other of state.values()) {
+          facing += other.bet;
+        }
         entry.stack -= action.amount;
         entry.bet += action.amount;
         if (action.allIn || entry.stack <= 0) {
@@ -775,6 +797,9 @@ export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayF
           const label = strings.actionLabel(action, labelMoney);
           return action.allIn ? strings.allIn(label) : label;
         });
+        if (action.type === "bet" && facing > 0) {
+          entry.betPotPct = Math.round((action.amount / facing) * 100);
+        }
         snapshot("action", words.acted(action.player, pill), action.player, {
           actionIndex: action.index,
         });

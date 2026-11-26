@@ -124,6 +124,45 @@ describe("buildReplay over the real corpus", () => {
     expect(anchored).toBeGreaterThan(0);
   });
 
+  /**
+   * The "B 24%" tag: a bet carries its size against the pot it went into (the
+   * middle plus what was already in front of the seats, i.e. the previous
+   * frame's `potWithBets`); a raise, call or blind does not. It stays on the
+   * bettor while the street plays on and is gone by the next street.
+   */
+  it("tags a bet with its share of the pot, and nothing else", () => {
+    let bets = 0;
+    const problems: string[] = [];
+    for (const hand of hands) {
+      const frames = buildReplay(hand);
+      const byIndex = new Map(hand.actions.map((action) => [action.index, action]));
+      for (const frame of frames) {
+        if (frame.actionIndex === null || frame.actingSeat === null) continue;
+        const action = byIndex.get(frame.actionIndex);
+        const seat = frame.seats.find((entry) => entry.seatNo === frame.actingSeat)!;
+        const before = frames[frame.index - 1];
+        if (action?.type === "bet" && before.potWithBets > 0) {
+          bets += 1;
+          const expected = Math.round((seat.bet / before.potWithBets) * 100);
+          if (seat.betPotPct !== expected) {
+            problems.push(`${hand.meta.handId} #${frame.index}: ${seat.betPotPct} vs ${expected}`);
+          }
+        } else if (seat.betPotPct != null) {
+          problems.push(`${hand.meta.handId} #${frame.index}: ${action?.type} tagged ${seat.betPotPct}`);
+        }
+      }
+      for (const frame of frames) {
+        if (frame.kind === "street") {
+          for (const seat of frame.seats) {
+            if (seat.betPotPct != null) problems.push(`${hand.meta.handId} street kept ${seat.betPotPct}`);
+          }
+        }
+      }
+    }
+    expect(bets).toBeGreaterThan(100);
+    expect(problems.slice(0, 5)).toEqual([]);
+  });
+
   it("reveals the full board by the last frame", () => {
     for (const hand of hands) {
       const frames = buildReplay(hand);
