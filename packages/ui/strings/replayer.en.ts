@@ -172,6 +172,7 @@ export const replayerEn = {
     allIn: "ALL-IN",
     dealerButton: "Dealer button",
     betPotTag: (percent: number) => `B ${percent}%`,
+    raisePotTag: (percent: number) => `R ${percent}%`,
   },
 
   seat: {

@@ -10,7 +10,7 @@ import {
   toDisplayNumber,
   type PhfHand,
 } from "../../web/src/lib/phf/types.js";
-import { buildReplay, streetAnchors } from "../../web/src/lib/replay.js";
+import { buildReplay, sizingOf, streetAnchors } from "../../web/src/lib/replay.js";
 import { ggFiles, weplayFiles } from "./support/corpus.js";
 
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };
@@ -125,13 +125,15 @@ describe("buildReplay over the real corpus", () => {
   });
 
   /**
-   * The "B 24%" tag: a bet carries its size against the pot it went into (the
-   * middle plus what was already in front of the seats, i.e. the previous
-   * frame's `potWithBets`); a raise, call or blind does not. It stays on the
-   * bettor while the street plays on and is gone by the next street.
+   * The "B 24%" / "R 80%" tag. A bet carries its size against the pot it went
+   * into (the previous frame's `potWithBets`); a raise carries what it adds on
+   * top of a call against the pot once that call is in. Nothing else carries
+   * one, it stays on the actor while the street plays on, and it is gone by
+   * the next street. Worked out here from the frames alone, not from the
+   * replay's own bookkeeping.
    */
-  it("tags a bet with its share of the pot, and nothing else", () => {
-    let bets = 0;
+  it("tags a bet or raise with its share of the pot, and nothing else", () => {
+    const counted = { bet: 0, raise: 0 };
     const problems: string[] = [];
     for (const hand of hands) {
       const frames = buildReplay(hand);
@@ -141,26 +143,43 @@ describe("buildReplay over the real corpus", () => {
         const action = byIndex.get(frame.actionIndex);
         const seat = frame.seats.find((entry) => entry.seatNo === frame.actingSeat)!;
         const before = frames[frame.index - 1];
+        const was = before.seats.find((entry) => entry.seatNo === frame.actingSeat)!;
+        const toMatch = Math.max(...before.seats.map((entry) => entry.bet));
+        let expected: { kind: string; potPct: number } | null = null;
         if (action?.type === "bet" && before.potWithBets > 0) {
-          bets += 1;
-          const expected = Math.round((seat.bet / before.potWithBets) * 100);
-          if (seat.betPotPct !== expected) {
-            problems.push(`${hand.meta.handId} #${frame.index}: ${seat.betPotPct} vs ${expected}`);
-          }
-        } else if (seat.betPotPct != null) {
-          problems.push(`${hand.meta.handId} #${frame.index}: ${action?.type} tagged ${seat.betPotPct}`);
+          expected = { kind: "bet", potPct: Math.round((seat.bet / before.potWithBets) * 100) };
+        } else if (action?.type === "raise" && seat.bet > toMatch) {
+          const afterCall = before.potWithBets + (toMatch - was.bet);
+          expected = { kind: "raise", potPct: Math.round(((seat.bet - toMatch) / afterCall) * 100) };
+        }
+        if (expected) counted[expected.kind as "bet" | "raise"] += 1;
+        if (JSON.stringify(seat.sizing ?? null) !== JSON.stringify(expected)) {
+          problems.push(
+            `${hand.meta.handId} #${frame.index} ${action?.type}: ${JSON.stringify(seat.sizing)} vs ${JSON.stringify(expected)}`,
+          );
         }
       }
       for (const frame of frames) {
-        if (frame.kind === "street") {
-          for (const seat of frame.seats) {
-            if (seat.betPotPct != null) problems.push(`${hand.meta.handId} street kept ${seat.betPotPct}`);
-          }
+        if (frame.kind !== "street") continue;
+        for (const seat of frame.seats) {
+          if (seat.sizing) problems.push(`${hand.meta.handId} street kept ${JSON.stringify(seat.sizing)}`);
         }
       }
     }
-    expect(bets).toBeGreaterThan(100);
+    expect(counted.bet).toBeGreaterThan(100);
+    expect(counted.raise).toBeGreaterThan(100);
     expect(problems.slice(0, 5)).toEqual([]);
+  });
+
+  it("reads a pot-sized bet and a pot-sized raise as 100%", () => {
+    // 10 in the pot, bet 2.4.
+    expect(sizingOf("bet", 1000, 0, 0, 240)).toEqual({ kind: "bet", potPct: 24 });
+    // Blinds 0.5/1 in front, open to 3.5: call 1, then 2.5 into a 2.5 pot.
+    expect(sizingOf("raise", 150, 100, 0, 350)).toEqual({ kind: "raise", potPct: 100 });
+    // The big blind, already in for 1 of the 5 out, re-raises to 12: call 2.5,
+    // then 8.5 more into a 7.5 pot.
+    expect(sizingOf("raise", 500, 350, 100, 1100)).toEqual({ kind: "raise", potPct: 113 });
+    expect(sizingOf("call", 500, 350, 100, 250)).toBeNull();
   });
 
   it("reveals the full board by the last frame", () => {

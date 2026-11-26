@@ -266,6 +266,7 @@ export const replayerHr: ReplayerStrings = {
     allIn: "ALL-IN",
     dealerButton: "Dealer button",
     betPotTag: (percent) => `B ${percent}%`,
+    raisePotTag: (percent) => `R ${percent}%`,
   },
 
   seat: {

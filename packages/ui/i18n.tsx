@@ -180,6 +180,8 @@ export interface ReplayerStrings {
     dealerButton: string;
     /** The tag under a seat that bet: its size as a share of the pot ("B 24%"). */
     betPotTag: (percent: number) => string;
+    /** The same for a raise, measured the pot-limit way ("R 80%"). */
+    raisePotTag: (percent: number) => string;
   };
   seat: {
     positions: {
