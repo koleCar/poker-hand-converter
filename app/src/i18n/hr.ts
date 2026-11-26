@@ -142,7 +142,7 @@ export const hr: Dict = {
     },
     analysis: {
       title: "Analiza",
-      lead: "Tvoje odluke ocijenjene nakon sessiona: pregled sessiona, najveći leakovi, tvoji chartovi.",
+      lead: "Tvoje odluke ocijenjene: pregled ruku, najveći leakovi, tvoji chartovi.",
     },
     solver: {
       title: "Solver",
@@ -1268,7 +1268,7 @@ export const hr: Dict = {
 
   analysis: {
     tabsLabel: "Dijelovi analize",
-    tabs: { session: "Pregled sessiona", leaks: "Najveći leakovi", stats: "Analitika", multiway: "Multiway ≈", bomb: "Bomb potovi ≈" },
+    tabs: { session: "Pregled ruku", leaks: "Najveći leakovi", stats: "Analitika", multiway: "Multiway ≈", bomb: "Bomb potovi ≈" },
     analytics: {
       empty: "Još nema ruku.",
       emptyLink: "Uvezi povijesti ruku →",
