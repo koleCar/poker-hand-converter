@@ -39,6 +39,9 @@ export const reviewUiEn = {
    */
   hands: {
     loading: "Finding your hands…",
+    error: (reason: string) => `The hand review did not load: ${reason}`,
+    hiddenDuringPlay:
+      "The hand review is hidden while a poker table is open: it is analysis, and analysis is for after you play.",
     noHands: "No hands yet: once you have saved hands, the ones worth a second look are here.",
     noMatch: "None of your hands matches this filter.",
     noAnalysed: "None of these hands has been analysed yet.",

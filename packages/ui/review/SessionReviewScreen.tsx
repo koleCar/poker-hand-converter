@@ -220,9 +220,9 @@ export function SessionReviewScreen({
 
   let body: ReactNode;
   if (hiddenDuringPlay) {
-    body = <p className={styles.notice}>{r.hiddenDuringPlay}</p>;
+    body = <p className={styles.notice}>{scope === "hands" ? r.hands.hiddenDuringPlay : r.hiddenDuringPlay}</p>;
   } else if (loaded.status === "error") {
-    body = renderState("error", r.error(loaded.message));
+    body = renderState("error", (scope === "hands" ? r.hands.error : r.error)(loaded.message));
   } else if (loaded.status === "loading") {
     body = renderState("loading", scope === "hands" ? r.hands.loading : r.loading);
   } else {
