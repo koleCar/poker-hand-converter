@@ -334,6 +334,98 @@ Status: done in 20cc5844 (2026-11-27)
 - **Done when:** the Pool tab on the biggest prod account opens in under a
   second with nothing pending. The perf gate in `tests/` covers it.
 
+Status: done in 089fba55 (2026-11-27)
+
+- **As built:**
+  - **Migration `20271127110000_pool_types.sql`:**
+    - `player_types (owner, stats version, room, player)`: `kind` (`reg`,
+      `fish`, `other`, `unknown` under 30 hands) by the rule the Pool and
+      the Hands filter's "vs type" use, with `n`, `vpip`, `pfr`; filled from
+      `player_stats` by the migration, then kept by statement triggers on
+      `player_stats` (insert / update / delete / truncate) for the players
+      each statement touched - whatever writes it (the one pass, a delete,
+      a rebuild); RLS owner-select, `derived`. Opaque-id rooms stay untyped;
+    - `player_type_changes`: a player whose type moved between reg, fish and
+      neither (no client grant, `internal`);
+    - `hero_report_rows.opp_mix` (`fish` / `regs` / `mixed` / `unknown`,
+      null = not tagged yet): set when the row is written
+      (`hero_report_rows_opp_mix`, from the hand's facts `vs_players` and
+      `player_types`), and again when facts arrive after the statistics
+      (`hand_facts_opp_mix`); `derive_write` now saves the facts first;
+    - `hero_opp_rollups`: the hero's hands and big blinds at `hero_rollups`'
+      grain split by `opp_mix`, kept by statement triggers on
+      `hero_report_rows` (in adds, out subtracts, a re-tag moves); RLS
+      owner-select, `derived`;
+    - the re-tag `opp_mix_retag(budget_ms, owner, page)` (nobody's): the
+      hands of each changed player (`hands.player_names`, GIN) tagged again,
+      2 000 at a time with the player's place kept (a regular's 90 000 hands
+      never hold one call past the statement timeout). The
+      worker's empty claim (`derive_claim` as `rail_derive`) spends up to
+      2 s on it; a user's claim never does; nightly pg_cron is P7's;
+    - the rollout's `hero_opp_mix_backfill(after, limit)` (nobody's);
+    - `analytics_pool` joins `player_types`; `analytics_pool_you(filter)`
+      (Pro, invoker): the two figures over the Hands filter with
+      `report_open`'s rules (whole days from the rollup, partial days and
+      the groups beyond the rollups from the rows).
+  - **Shared / web:** `AnalyticsPool.you?(query)` and `PoolYou` (the two
+    figures as hands, money hands, big blinds); `usePool` reads the surface's
+    `you` when it has one, else the two reports (`youQueries` +
+    `youOfReports`: the desktop, unchanged); `Pool` takes `you`
+    (`youRates(you)`). The web's `webPool.you` = `fetchPoolYou`
+    (`analytics_pool_you` with `libraryFilter`). The Pool tab no longer calls
+    `report_open` over the "vs type" (the screen's own report over the
+    filter, every tab's, stays).
+  - **Tests:** pgTAP `pool_types.test.sql` (49: RLS and grants, the types
+    following `player_stats`, the tags at write and after late facts, GG's
+    opaque opponents, the rollup equal to the rows through writes, re-tags,
+    a delete and the backfill, `analytics_pool_you` equal to the two
+    `report_open` calls for seven filters, the re-tag by the worker's empty
+    claim and not a user's, isolation, an account deletion);
+    `report_summaries` and `entitlements` updated; vitest `poolYou.test.ts`
+    and `analyticsPool.test.ts` (`youOfReports`, `youRates`); the perf gate
+    `tests/scripts/pool-perf` (`npm run pool:perf`).
+  - **Measured** on `fp-p1-big@example.test` (92 616 hands, opponents on,
+    drained, everything tagged), as the user: `analytics_pool_you` 2-4 ms
+    (the two `report_open` calls it replaces: 38.6 s and 50.7 s, the same
+    numbers), `analytics_pool` 6-16 ms, `derive_pending` 0; the whole tab
+    (`report_open`, `report_graph`, `analytics_checker` and the two) under
+    0.5 s in every case of the gate. The backfill: ~3 s per 20 000 hands.
+  - **Checked in the web app** (fp-p1, local stack): 400 new PokerStars
+    hands uploaded were worked out by the upload's own drain (one
+    `/api/derive` call, 3.0 s) without opening a tab; hands written before
+    their opponents reached 30 hands were re-tagged by one cron call (its
+    empty claim); Statistics and Analytics showed no "being processed" line,
+    and the Pool tab read `analytics_pool` + `analytics_pool_you` only (no
+    `report_open` over the "vs type", no `/api/derive`), its figures equal to
+    the two `report_open` calls (2 971 hands with a fish, 1 150 regs only).
+- **Deviations:**
+  - **The figures' rollup is a sibling table** (`hero_opp_rollups`), not
+    more columns on `hero_rollups`: the tag is set after the statistics
+    triggers wrote `hero_rollups` and changes later (a re-tag), so it is
+    kept by `hero_report_rows`' own triggers without touching the summaries'
+    triggers.
+  - **"You, regs only" keeps today's meaning**: a reg and no fish (`regs` +
+    `mixed`), what `["reg", "fish"]` less `["fish"]` counted; `regs` alone
+    (every opponent in the pot a typed reg) is in the data for a later
+    figure.
+  - **`player_types` is keyed by statistics version** too (the types follow
+    the `player_stats` of the version the client reads) and keeps every
+    named opponent (`other`, `unknown` included), not only regs and fish.
+  - **The re-tag is eventually consistent:** a hand is tagged with the
+    types as they are when it is written; a player whose type then moves
+    (often the hand's own statistics tip it) is re-tagged by the worker's
+    next idle claim (cron, every minute once on) or the nightly job. Until
+    then the figures can lag by those hands; `analytics_pool` (the regs and
+    fish columns) is always current.
+  - **The Hands filter's "vs type" still types from `player_stats`** per
+    query (`library_builder_where`); it could join `player_types` too.
+  - **A summaries rebuild re-tags through the queue of changes.**
+    `report_summaries_rebuild` (a wipe that kept hands, the user's repair)
+    empties `player_stats` before it writes the hero rows again, so they are
+    written with no types (`unknown`) and every reg and fish is recorded as
+    changed; the re-tag (worker, nightly) puts the tags back. Rare; until
+    then the two figures read low for that account.
+
 ### P4 — The shared field pool (after the consent decision)
 
 - Consent setting (`profiles.share_field_pool`, the Settings switch, HR +
@@ -406,6 +498,20 @@ Status: done in 20cc5844 (2026-11-27)
      need it too: their pool rows were emptied by the migration.
   3. Check: `select count(*) from public.hands where field_key is null;` is 0,
      and no account's `pool_players` has a row with `seats <= 0`.
+- **The types and tags (P3), the owner's step, after P3's migration** (it
+  fills `player_types` from `player_stats`; existing hero rows have no tag,
+  so "You with a fish" / "You, regs only" read low until step 1 is done). As
+  `postgres`:
+  1. `select public.hero_opp_mix_backfill(<after>, 20000);` repeated from
+     the returned `after` until `done` (~3 s a call locally). Run it after
+     the first fill (P1/P2) has drained, or again after it: it tags only rows
+     whose tag is missing or changed.
+  2. The nightly re-tag on pg_cron (the worker's idle claims do 2 s a minute;
+     a big upload can leave more):
+     `select cron.schedule('opp-mix-retag', '30 3 * * *', $$select public.opp_mix_retag(240000)$$);`
+  3. Check: `select count(*) from public.hero_report_rows where opp_mix is
+     null;` is 0 and `select count(*) from public.player_type_changes;` stays
+     small.
 - Version-bump enqueue and `field_key` backfill in batches, out of hours.
 - The first `field_pool_refresh()` by hand, then pg_cron.
 - `docs/DATABASE.md`, `docs/GUIDE.md` (Pool), `docs/ANALYTICS.md` Step 10
