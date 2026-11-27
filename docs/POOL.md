@@ -150,6 +150,102 @@ Each step ends with its tests and a `Status:` block, as in
 - **Done when:** a fresh upload of 5,000 hands shows full Analytics without
   opening a tab first, and no page calls a `hands_needing_*` reader.
 
+Status: done in 6a53465b (2026-11-27)
+
+- **As built:**
+  - **Migration `20271127090000_derive_queue.sql`:**
+    - tables `derive_queue` (one row per hand: `reason`, `priority`,
+      `claimed_at` / `tries`, `last_error`), `derive_pending_counts` (the
+      counter, kept by statement triggers on the queue), `derive_failures`,
+      `derive_options` (`villains`: opponents' statistics per account, was
+      `localStorage`; on at migration for accounts with opponent rows) and
+      `derive_recounts` (see Deviations); RLS owner-select, no client write,
+      `internal` in the inventory;
+    - triggers: `hands_derive_enqueue` (every hand inserted with a hero, any
+      origin), `hand_analysis_derive_enqueue` (a new analysis: its checker
+      rows) and `analysis_checker_hands_dequeue` (the browser wrote them);
+      `pool_counted_hands_reset` now marks the account for a recount;
+    - the worker's three, definers for `authenticated` and `rail_derive`:
+      `derive_claim(limit, versions)`, `derive_save(hands)`,
+      `derive_fail(hands)`; helpers `derive_caller`, `derive_write`,
+      `derive_act_as`, `derive_recount_step`, `analytics_pool_add` (the body
+      of `analytics_pool_save`, by owner), granted to nobody;
+    - readers / switches for the user: `derive_pending()`,
+      `derive_villains()`, `derive_villains_set(on)`; for the rollout:
+      `derive_enqueue_backlog(reason, after, limit, owner, priority)`
+      (nobody's);
+    - `save_hand_stats`, `save_hand_ev`, `save_hand_facts` also join
+      `owner_id = auth.uid()`; `analytics_pool`'s `pending` is the counter;
+    - role `rail_derive` (no table privilege; the only definer functions it
+      may execute are the three).
+  - **One pass:** `web/src/lib/derive/onePass.ts` (`onePass`, `passPage`:
+    `handDerivation` + `handEvRow` + `analyticsRowsHand` + `poolHand` from
+    one read) and `drain.ts` (claim → pass → save / fail, time-boxed,
+    capped).
+  - **Routes:** `POST /api/derive` (as the user, 8 s slices, answers
+    `{processed, saved, failed, pending, done}`), `GET /api/derive/cron`
+    (`CRON_SECRET`; inert without `DERIVE_WORKER_JWT`; 45 s, 5 000 hands a
+    run). `/api/stats/rebuild` is removed.
+  - **Web:** the upload (`ConverterTab`, `OutputPanel`, `ReplayPanel`,
+    `LibraryHands`) and a hand deletion call `deriveNow()`
+    (`lib/db/derive.ts`); turning opponents' statistics on (Players,
+    Opponents panel) calls `derive_villains_set` then `deriveNow`. Retired:
+    `StatsTab`'s coverage line and automatic rebuild, `factsCatchUp` (shell
+    and Hands), `useChecker`'s `filling` and `usePool`'s `counting` (the
+    `backfill` members are gone from `AnalyticsChecker` / `AnalyticsPool`),
+    `backfillAnalyticsRows` (also at the end of `runAnalysis`),
+    `backfillPool`. Stats and Analytics show one line, "N hands still being
+    processed" / "Još se obrađuje N ruku", from `derive_pending`, read again
+    every 5 s while it is above zero (the numbers at most every 20 s and at
+    zero).
+  - **Tests:** vitest `tests/test/derivePass.test.ts` (14: the pass equals
+    each retired path over the Analytics fixture with opponents on and off,
+    text-only rows, the drain's claims / saves / fails / budget / cap, both
+    routes' refusals); pgTAP `derive_queue.test.sql` (58: RLS and grants, the
+    derive role's surface, the trigger and counter, claim isolation and
+    lapse, the worker and its fallback JWT, save as the owner and
+    idempotency, a refused hand, fail, a delete subtracting from the counter
+    and the recount, the analysis hand-off, opponents on, the pool's pending,
+    the backlog); `analytics_pool` and `entitlements` tests updated;
+    `npm run parity` now drains through `/api/derive`.
+  - **Measured** locally on a 92 616-hand account (all queued):
+    `derive_pending` ≤ 2 ms, `analytics_pool` 4 ms, a claim 9-25 ms, one
+    hand deleted 31 ms; 5 000 hands drained in 18 s by the user's route (3
+    slices) and in 18 s by one cron call (~280 hands/s, hero rows).
+- **Deviations:**
+  - **One queue row per hand**, not per hand and reason: the pass writes
+    every product whatever brought the hand in; `reason` keeps the first
+    cause and `priority` orders the drain (0 new / opponents on, 1 analysis
+    and re-counts, 2 backlog).
+  - **The worker's identity.** Supabase reserves `authenticator`
+    (supautils: "only superusers can modify it"), so `grant rail_derive to
+    authenticator` cannot run from a migration as `postgres`; the migration
+    tries it and goes on. `derive_caller` accepts a JWT with role
+    `rail_derive` (works once a superuser grants the membership) or, as the
+    fallback, role `authenticated` with no `sub` and `rail_worker: derive`
+    (no table it can read: every RLS policy needs a subject). Either is
+    minted with the project's signing key; neither is the service role. See
+    P7.
+  - **A delete still empties the pool** (P2 subtracts). Re-queuing a
+    90k-hand library inside the delete took 5.8 s of the 8 s budget, so the
+    reset marks the account (`derive_recounts`) and each `derive_claim`
+    queues the next 5 000 of its hands; the Hands list calls `deriveNow`
+    after a delete. `pool_counted_hands` stays the pool's idempotency mark.
+  - **The pool is counted for every plan** (`analytics_pool_add`); the
+    reader stays Pro. Checker rows are written only while the owner has
+    `analysis` (they come from an analysis, which is Pro).
+  - **`runAnalysis` still pages `hands_needing_analysis`**: the analysis is
+    a run the user starts, not a product of the pass. No page calls
+    `hands_needing_stats`, `hand_facts_missing`, `stats_coverage`,
+    `analytics_rows_pending` or `analytics_pool_pending` any more; they stay
+    in the schema (older clients during the rollout) and can be dropped
+    later.
+  - **Hands without a hero** (observed tables) are not queued: they have no
+    statistics, facts, EV or pool.
+  - **Nothing prunes an old `stats_version` any more** (the rebuild route
+    did on its last slice); after a bump, `prune_hand_stats` has to be run
+    per account (P7).
+
 ### P2 — Fields
 
 - `hands.field_key` + backfill (batched, out of hours). Pool rollups keyed by
@@ -199,6 +295,35 @@ Each step ends with its tests and a `Status:` block, as in
 ### P7 — Rollout
 
 - Prod migrations before the main promotion (`CLAUDE.md`).
+- **The derive worker (P1), the owner's step.** Without it hands synced from
+  the desktop are never worked out on the web (only uploads drain their
+  own), so do it at the promotion that brings P1:
+  1. Prefer the dedicated role: ask Supabase support (or run as
+     `supabase_admin`) `grant rail_derive to authenticator;`, then mint a
+     long-lived JWT `{"role": "rail_derive"}` with the project's JWT signing
+     key. If that grant is not possible, mint the fallback
+     `{"role": "authenticated", "rail_worker": "derive"}` (no `sub`). Never
+     the service role key.
+  2. Vercel env (Production only): `DERIVE_WORKER_JWT=<the JWT>` and
+     `CRON_SECRET=<random>`.
+  3. Schedule it: `"crons": [{ "path": "/api/derive/cron", "schedule":
+     "* * * * *" }]` in `web/vercel.json` (every minute needs Vercel Pro;
+     Hobby allows a daily cron only and refuses the deploy otherwise), or
+     pg_cron + pg_net calling the URL with the secret.
+  4. Check: `curl -H "Authorization: Bearer $CRON_SECRET"
+     https://<site>/api/derive/cron` answers `{processed, saved, failed,
+     empty}`, not `{inert: true}`.
+- **The first fill (P1).** Existing hands have no queue rows: queue them out
+  of hours with `select public.derive_enqueue_backlog('backfill', <after>,
+  50000);` repeated from the returned `after` until `done` (as `postgres`;
+  priority 2, so new hands still go first). Saving a hand that already has
+  its rows adds nothing; the pool (82k hands to count on the biggest
+  account) and the checker rows of hands analysed before Step 2 are what it
+  fills. Watch `select count(*) from derive_failures`.
+- **A version bump** (`STATS_VERSION`, `FACTS_VERSION`, `EV_VERSION`,
+  `ANALYTICS_MEMBERSHIP_VERSION`) is the same call with the version as the
+  reason, after the deploy; the old rows are pruned by the writers
+  (`save_hand_facts`) or stay until a `prune_*` run.
 - Version-bump enqueue and `field_key` backfill in batches, out of hours.
 - The first `field_pool_refresh()` by hand, then pg_cron.
 - `docs/DATABASE.md`, `docs/GUIDE.md` (Pool), `docs/ANALYTICS.md` Step 10
