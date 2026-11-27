@@ -6,10 +6,14 @@
  * type by `analytics_pool` (`20271122100000_analytics_pool.sql`).
  *
  * - **Reads**: {@link webPool} (`AnalyticsPool` of `@rail/ui`): the tab's
- *   sums over the screen's filter (the kind or format and the rooms; the
+ *   sums over the fields the screen's filter names (docs/POOL.md P2: rooms,
+ *   formats, games, limits, table sizes and stakes - `hands.field_key`; the
  *   types read from `player_stats` at this build's statistics version), and
  *   `pending`: the caller's hands still being processed (a counter).
  *   No `backfill`: the browser no longer counts.
+ * - **Writes** happen on the server only: the one pass keeps each hand's
+ *   opponents with its field (`pool_hand_seats`) and adds them up; a deleted
+ *   hand's seats are taken out again (P2).
  */
 import type { HandFilter } from "@rail/ui/hands/model";
 import type { AnalyticsPool, PoolFilters, PoolStatSums, PoolSums, PoolTypeSums } from "@rail/ui/analytics/model";

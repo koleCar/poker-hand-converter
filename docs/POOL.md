@@ -324,6 +324,18 @@ Status: done in 6a53465b (2026-11-27)
   `ANALYTICS_MEMBERSHIP_VERSION`) is the same call with the version as the
   reason, after the deploy; the old rows are pruned by the writers
   (`save_hand_facts`) or stay until a `prune_*` run.
+- **The fields (P2), the owner's step, after P2's migration** (it empties the
+  pool rollups: they were summed per room and format and cannot be split by
+  field). As `postgres`, out of hours:
+  1. `select public.hands_field_key_backfill(<after>, 20000);` repeated from
+     the returned `after` until `done` (~5 s a call locally; its updates skip
+     the library counts' rebuild). The pool does not wait for it: a row
+     without `field_key` gets it computed when its hand is counted.
+  2. The first fill above (`derive_enqueue_backlog`) counts every hand into
+     the pool by field (`pool_hand_seats`). Accounts already drained by P1
+     need it too: their pool rows were emptied by the migration.
+  3. Check: `select count(*) from public.hands where field_key is null;` is 0,
+     and no account's `pool_players` has a row with `seats <= 0`.
 - Version-bump enqueue and `field_key` backfill in batches, out of hours.
 - The first `field_pool_refresh()` by hand, then pg_cron.
 - `docs/DATABASE.md`, `docs/GUIDE.md` (Pool), `docs/ANALYTICS.md` Step 10

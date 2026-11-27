@@ -156,11 +156,24 @@ export interface AnalyticsChecker {
  */
 export type PoolType = "reg" | "fish";
 
-/** What the pool is read over: the kind or one format, and the rooms. */
+/**
+ * What the pool is read over. The desktop reads the kind or one format and
+ * the rooms (`rail_store::pool`; its field split is docs/POOL.md P6). The
+ * web reads fields (P2): every group below narrows it, each "any" when
+ * absent, with the Hands filter's values.
+ */
 export interface PoolFilters {
   gameFormat?: string;
   gameKind?: string;
   sites?: string[];
+  /** The formats chosen (`cash`, `tournament`, ...); the web prefers it to `gameFormat` / `gameKind`. */
+  formats?: string[];
+  variants?: string[];
+  limits?: string[];
+  /** `hu`, `6max`, `full`. */
+  sizes?: string[];
+  /** `USD:50`, `chips`. */
+  stakes?: string[];
 }
 
 /** One player type's results. */

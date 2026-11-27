@@ -899,17 +899,16 @@ once, on the server, when it arrives; pages only read.
 | `derive_pending_counts` | `owner_id` | The counter: rows the queue holds for the account. Statement triggers on the queue add and subtract (owner order, so two drains never deadlock); `derive_pending()` reads it. |
 | `derive_failures` | `hand_id` | Hands given up on (unreadable, or refused by the database three times), with the error. Not pending. |
 | `derive_options` | `owner_id` | `villains`: the account's opponents' statistics are on (was a browser setting). Set by `derive_villains_set`; filled at migration for every account that had opponent rows. |
-| `derive_recounts` | `owner_id` | An account whose hands are to be queued again (a delete emptied its pool): `derive_claim` queues 5 000 a call from the `after` cursor. P2 replaces it. |
 
-All five: RLS on, owner select only, no client write; `internal` in the
-inventory.
+All four: RLS on, owner select only, no client write; `internal` in the
+inventory. (P1's `derive_recounts` - an account to queue again after a delete
+emptied its pool - went with P2: a delete subtracts, see below.)
 
 **Filled by** `hands_derive_enqueue` (statement trigger on `hands` insert:
 every hand with a hero, whoever stored it - desktop `ingest_hands`, web
 `save_hands`, the upload), `hand_analysis_derive_enqueue` (a new analysis;
 `analysis_checker_hands_dequeue` takes it out again when the browser writes
-the checker rows itself), `pool_counted_hands_reset` (a delete: marks the
-account in `derive_recounts`), `derive_villains_set(true)` (every hand) and
+the checker rows itself), `derive_villains_set(true)` (every hand) and
 `derive_enqueue_backlog(reason, after, limit, owner, priority)` (version
 bumps and the first rollout; granted to nobody, run by hand in batches).
 
@@ -922,8 +921,7 @@ role `rail_derive` only:
   with no subject and `rail_worker = derive`), `for update skip locked`;
   returns the stored hand (as `hands_needing_stats` did), the owner's
   `villains`, and for a hand analysed at `versions.analysis` without checker
-  rows at `versions.membership` its decisions. Also runs one
-  `derive_recount_step`.
+  rows at `versions.membership` its decisions.
 - `derive_save(hands)` - per owner, as that owner (`derive_act_as` sets the
   request's claims for the call and restores them), through `derive_write`:
   `save_hand_stats`, `save_hand_ev`, `save_hand_facts` (which now also join
@@ -945,6 +943,60 @@ Measured locally (92 616 hands queued for one account): `derive_pending`
 recount queues its next 5 000), `delete_hands` of one counted hand 31 ms;
 drained 5 000 hands in 18 s through `/api/derive` (three 8 s slices) and in
 18 s in one `/api/derive/cron` call (~280 hands a second, hero rows only).
+
+### Fields and the owner's pool (P2)
+
+docs/POOL.md P2, `20271127100000_pool_fields.sql`. A **field** is where a
+hand was played: room · format · game · limit · table size · stake, one text
+`hands.field_key` (`ggpoker|cash|holdem|nl|6max|USD:50`; `chips` for the
+stake off the cash tables). `field_key_of(site, format, variant, limit,
+max_seats, player_count, currency, big_blind)` (immutable) applies the report
+segment's rules (size from the seats, else the players dealt in; stake
+`<currency>:<big blind>`), so a field is exactly the `hero_report_rows`
+segment of the hand. `hands_normalize` sets it on insert (never the client's
+value); rows stored before P2 get it from `hands_field_key_backfill(after,
+limit)` (granted to nobody; run by hand in batches, out of hours: POOL.md P7;
+its updates skip `hands_library_counts_after_update` through
+`rail.field_backfill`). Until a row has it, the pool computes it from the
+row.
+
+| Table | Key | What it holds |
+| --- | --- | --- |
+| `pool_hand_seats` | `hand_id` | A hand counted into its owner's pool: `owner_id`, `membership_version` (the catalogue it was counted at), `site_id`, `field_key`, `seats` json `[[player, net_bb (null: an EV cashout), {rate: [made, opp]}], ...]` (named opponents, one entry per name, rates with an opportunity; json rather than jsonb and arrays rather than named keys: ~340 bytes a hand instead of ~1 KB; read back as `seats::jsonb`). The "already counted" mark (was `pool_counted_hands`). FK to `hands` and `auth.users`, cascading. |
+| `pool_players` | `(owner_id, membership_version, site_id, player, field_key)` | Each opponent's `seats`, `hands` (seats with a result), `net_bb`, `net_bb_sq` (numeric: a hand added and taken out leaves them exact). |
+| `pool_player_stats` | `(owner_id, membership_version, site_id, player, field_key, stat)` | Each opponent's catalogue rates: `made`, `opp`. |
+
+All three: RLS on, owner select only, no client write; `derived` in the
+inventory.
+
+- **Written** by the one pass: `derive_save` → `derive_write` →
+  `analytics_pool_add(owner, version, hands)`, which writes the seats row
+  (a hand already counted at that version adds nothing; one of another
+  version is replaced) and adds the seats to the rollups of its field. The
+  first hand saved at a new version drops the rollups of every other version
+  (a catalogue bump is re-counted through the queue, POOL.md P7).
+- **A delete subtracts.** The hand's seats row goes with it (cascade);
+  `pool_hand_seats_subtract` (statement trigger) takes those seats out of the
+  rollups at their version and removes a row left with no seat or no
+  opportunity. Nothing is emptied or queued again. A wipe of every hand
+  (`rail.erasing_account`) skips the trigger; `hand_wipe_finish` then
+  empties the rollups or sums them again from the seats left
+  (`pool_rollups_rebuild(owner)`, internal). Writers, the trigger and the
+  rebuild take `pool_lock(owners)` (an advisory lock per owner, in owner
+  order).
+- **Read** by `analytics_pool(filters)` (Pro): the opponents typed by Rail's
+  rule over `player_stats` (every segment of the room), their results and
+  rates summed over the owner's fields that match `sites`, `formats` (else
+  `gameFormat` / `gameKind`), `variants`, `limits`, `sizes` and `stakes`.
+  `analytics_pool_pending` (older clients) is the hands without a seats row
+  at the version.
+
+Measured locally on a 92 616-hand account (villains on, every hand counted):
+`analytics_pool` 25 ms unfiltered, 3-10 ms over one or two fields; one hand
+deleted (`delete_hands`) 36 ms, changing only that hand's opponents' rows;
+`pool_rollups_rebuild` 2.1 s, equal to the incremental sums;
+`hands_field_key_backfill` ~5 s per 20 000 rows; seats ~390 bytes a hand
+(`pool_hand_seats` 56 MB with its indexes for that account).
 
 ## Hand analysis: `hand_analysis`, `decision_analysis`
 

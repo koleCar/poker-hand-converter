@@ -198,9 +198,8 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
     if (gone && selected !== null && gone.keys.includes(selected)) setSelection(null);
     onHandsSaved();
     notifyHandsChanged();
-    // A delete empties the pool until P2 (docs/POOL.md): the server queues
-    // the library again and this works the caller's queue out now.
-    void deriveNow().catch(() => undefined);
+    // Nothing to work out: a delete subtracts the hand's own part from every
+    // summary on the server (the pool too, docs/POOL.md P2).
   }, [toDelete, selected, onHandsSaved]);
   // A phone choosing hands (Select, or a long press) has the bar from the
   // first hand - or none, with a hint and Delete waiting.

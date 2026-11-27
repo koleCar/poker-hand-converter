@@ -1507,27 +1507,6 @@ export type Database = {
           },
         ]
       }
-      derive_recounts: {
-        Row: {
-          after: string | null
-          owner_id: string
-          queued_at: string
-          reason: string
-        }
-        Insert: {
-          after?: string | null
-          owner_id: string
-          queued_at?: string
-          reason: string
-        }
-        Update: {
-          after?: string | null
-          owner_id?: string
-          queued_at?: string
-          reason?: string
-        }
-        Relationships: []
-      }
       drill_items: {
         Row: {
           action_index: number
@@ -2522,6 +2501,7 @@ export type Database = {
           currency_minor_units: number
           currency_symbol: string | null
           fast_fold: string | null
+          field_key: string | null
           game_format: Database["public"]["Enums"]["game_format"]
           hand_key: string
           hero_cards: string[]
@@ -2571,6 +2551,7 @@ export type Database = {
           currency_minor_units?: number
           currency_symbol?: string | null
           fast_fold?: string | null
+          field_key?: string | null
           game_format?: Database["public"]["Enums"]["game_format"]
           hand_key: string
           hero_cards?: string[]
@@ -2620,6 +2601,7 @@ export type Database = {
           currency_minor_units?: number
           currency_symbol?: string | null
           fast_fold?: string | null
+          field_key?: string | null
           game_format?: Database["public"]["Enums"]["game_format"]
           hand_key?: string
           hero_cards?: string[]
@@ -3729,28 +3711,34 @@ export type Database = {
           },
         ]
       }
-      pool_counted_hands: {
+      pool_hand_seats: {
         Row: {
+          field_key: string
           hand_id: string
           membership_version: string
           owner_id: string
-          saved_at: string
+          seats: Json
+          site_id: string
         }
         Insert: {
+          field_key: string
           hand_id: string
           membership_version: string
           owner_id: string
-          saved_at?: string
+          seats: Json
+          site_id: string
         }
         Update: {
+          field_key?: string
           hand_id?: string
           membership_version?: string
           owner_id?: string
-          saved_at?: string
+          seats?: Json
+          site_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "pool_counted_hands_hand_id_fkey"
+            foreignKeyName: "pool_hand_seats_hand_id_fkey"
             columns: ["hand_id"]
             isOneToOne: true
             referencedRelation: "hands"
@@ -3760,7 +3748,7 @@ export type Database = {
       }
       pool_player_stats: {
         Row: {
-          game_format: string
+          field_key: string
           made: number
           membership_version: string
           opp: number
@@ -3770,7 +3758,7 @@ export type Database = {
           stat: string
         }
         Insert: {
-          game_format: string
+          field_key: string
           made?: number
           membership_version: string
           opp?: number
@@ -3780,7 +3768,7 @@ export type Database = {
           stat: string
         }
         Update: {
-          game_format?: string
+          field_key?: string
           made?: number
           membership_version?: string
           opp?: number
@@ -3793,33 +3781,36 @@ export type Database = {
       }
       pool_players: {
         Row: {
-          game_format: string
+          field_key: string
           hands: number
           membership_version: string
           net_bb: number
           net_bb_sq: number
           owner_id: string
           player: string
+          seats: number
           site_id: string
         }
         Insert: {
-          game_format: string
+          field_key: string
           hands?: number
           membership_version: string
           net_bb?: number
           net_bb_sq?: number
           owner_id: string
           player: string
+          seats?: number
           site_id: string
         }
         Update: {
-          game_format?: string
+          field_key?: string
           hands?: number
           membership_version?: string
           net_bb?: number
           net_bb_sq?: number
           owner_id?: string
           player?: string
+          seats?: number
           site_id?: string
         }
         Relationships: []
@@ -5702,10 +5693,6 @@ export type Database = {
       }
       derive_fail: { Args: { p_hands: Json }; Returns: Json }
       derive_pending: { Args: never; Returns: number }
-      derive_recount_step: {
-        Args: { p_limit?: number; p_owner: string }
-        Returns: number
-      }
       derive_save: { Args: { p_hands: Json }; Returns: Json }
       derive_villains: { Args: never; Returns: boolean }
       derive_villains_set: { Args: { p_on: boolean }; Returns: Json }
@@ -5821,6 +5808,19 @@ export type Database = {
         Args: { p_comment_id: string }
         Returns: number
       }
+      field_key_of: {
+        Args: {
+          p_big_blind: number
+          p_currency: string
+          p_format: string
+          p_limit: string
+          p_max_seats: number
+          p_player_count: number
+          p_site: string
+          p_variant: string
+        }
+        Returns: string
+      }
       filter_formats: { Args: { p_filters: Json }; Returns: string[] }
       forum_author_hidden: { Args: { p_author: string }; Returns: boolean }
       forum_best_rank: {
@@ -5903,6 +5903,7 @@ export type Database = {
           currency_minor_units: number
           currency_symbol: string | null
           fast_fold: string | null
+          field_key: string | null
           game_format: Database["public"]["Enums"]["game_format"]
           hand_key: string
           hero_cards: string[]
@@ -5973,6 +5974,10 @@ export type Database = {
         Returns: Json
       }
       hand_wipe_finish: { Args: { p_owner: string }; Returns: undefined }
+      hands_field_key_backfill: {
+        Args: { p_after?: string; p_limit?: number }
+        Returns: Json
+      }
       hands_needing_analysis: {
         Args: { p_after?: string; p_limit?: number; p_version: string }
         Returns: {
@@ -6302,6 +6307,8 @@ export type Database = {
       }
       poll_post_of_hand: { Args: { p_public_id: string }; Returns: Json }
       poll_public: { Args: { p_post: string }; Returns: Json }
+      pool_lock: { Args: { p_owners: string[] }; Returns: undefined }
+      pool_rollups_rebuild: { Args: { p_owner: string }; Returns: undefined }
       post_status: { Args: { p_public_id: string }; Returns: string }
       posting_block_reason: { Args: { p_uid: string }; Returns: string }
       preflop_chart_examples: {

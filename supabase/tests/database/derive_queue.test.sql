@@ -22,8 +22,8 @@
 --   * fail: final or third time given up (derive_failures), otherwise back
 --     on the queue;
 --   * a deleted hand leaves the queue and the counter subtracts it; a hand
---     whose pool was counted empties the pool and marks the account, whose
---     next claim queues the rest again (derive_recounts);
+--     whose pool was counted takes its own seats out and queues nothing (P2:
+--     `derive_recounts` is gone; pool_fields.test.sql has the sums);
 --   * a new analysis queues the hand, the browser's checker rows take it
 --     out; turning opponents' statistics on queues the library;
 --   * `analytics_pool`'s pending is the counter; the backlog function is
@@ -89,20 +89,20 @@ grant execute on function pg_temp.owner_of(bigint) to anon, authenticated, rail_
 select ok(
   (select bool_and(c.relrowsecurity) from pg_class c
     where c.oid in ('public.derive_queue'::regclass, 'public.derive_pending_counts'::regclass,
-                    'public.derive_failures'::regclass, 'public.derive_options'::regclass,
-                    'public.derive_recounts'::regclass))
+                    'public.derive_failures'::regclass, 'public.derive_options'::regclass))
   and (select count(*) = 0 from information_schema.role_table_grants
         where table_schema = 'public'
-          and table_name in ('derive_queue', 'derive_pending_counts', 'derive_failures', 'derive_options', 'derive_recounts')
+          and table_name in ('derive_queue', 'derive_pending_counts', 'derive_failures', 'derive_options')
           and grantee in ('anon', 'authenticated', 'rail_derive') and privilege_type <> 'SELECT')
   and (select count(*) = 0 from information_schema.role_table_grants
         where table_schema = 'public'
-          and table_name in ('derive_queue', 'derive_pending_counts', 'derive_failures', 'derive_options', 'derive_recounts')
+          and table_name in ('derive_queue', 'derive_pending_counts', 'derive_failures', 'derive_options')
           and grantee = 'anon')
-  and (select count(*) = 5 from public.account_data_inventory
+  and (select count(*) = 4 from public.account_data_inventory
         where name in ('public.derive_queue', 'public.derive_pending_counts', 'public.derive_failures',
-                       'public.derive_options', 'public.derive_recounts')),
-  'the tables: RLS on, select only for authenticated, nothing for anon, all five in the inventory');
+                       'public.derive_options'))
+  and to_regclass('public.derive_recounts') is null,
+  'the tables: RLS on, select only for authenticated, nothing for anon, all four in the inventory (P2 dropped derive_recounts)');
 
 select ok(
   (select bool_and(p.prosecdef and coalesce(array_to_string(p.proconfig, ','), '') like '%search_path=""%')
@@ -135,7 +135,9 @@ select ok(
                        'public.derive_caller()', 'public.analytics_pool_add(uuid, text, jsonb)',
                        'public.derive_enqueue_backlog(text, uuid, integer, uuid, smallint)',
                        'public.hands_derive_enqueue()', 'public.derive_queue_count_insert()',
-                       'public.derive_queue_count_delete()', 'public.derive_recount_step(uuid, integer)']) f),
+                       'public.derive_queue_count_delete()', 'public.pool_hand_seats_subtract()',
+                       'public.pool_lock(uuid[])', 'public.pool_rollups_rebuild(uuid)',
+                       'public.hands_field_key_backfill(uuid, integer)']) f),
   'the helpers and triggers: nobody''s');
 
 select is(
@@ -156,7 +158,6 @@ select is(
 
 -- Whatever a local stack had queued is not this test's (rolled back at the end).
 delete from public.derive_queue;
-delete from public.derive_recounts;
 
 insert into public.hands (id, owner_id, hand_key, phf, standard_text, site, hero_seat, hero_position,
                           game_format, currency, currency_minor_units, small_blind, big_blind, hero_profit,
@@ -277,7 +278,7 @@ select ok(
   (select count(*) = 1 from public.hand_stats s where s.hand_id = pg_temp.hid(1) and s.owner_id = '00000000-0000-0000-0000-0000000d00a1')
   and (select count(*) = 1 from public.hand_stats_ev e where e.hand_id = pg_temp.hid(1))
   and (select count(*) = 1 from public.hand_facts f where f.hand_id = pg_temp.hid(1))
-  and (select count(*) = 1 from public.pool_counted_hands c where c.hand_id = pg_temp.hid(1))
+  and (select count(*) = 1 from public.pool_hand_seats c where c.hand_id = pg_temp.hid(1))
   and (select p.hands = 1 and p.net_bb = 1.5 from public.pool_players p
         where p.owner_id = '00000000-0000-0000-0000-0000000d00a1' and p.player = 'Villain1'),
   'every product of the hand is stored, as A''s');
@@ -354,27 +355,27 @@ select ok(exists (select 1 from public.derive_queue where hand_id = pg_temp.hid(
 
 -- ------------------------------------------------------------ deletion --
 
--- A counted hand deleted: the counter subtracts it, the pool empties and the
--- rest is queued to be counted again.
+-- A counted hand deleted: the counter subtracts it and the pool its seats
+-- (P2); nothing is emptied or queued again.
 delete from public.derive_queue where owner_id = '00000000-0000-0000-0000-0000000d00a1';
 select is((select pending from public.derive_pending_counts where owner_id = '00000000-0000-0000-0000-0000000d00a1'),
   0::bigint, 'A has nothing pending');
 delete from public.hands where id = pg_temp.hid(1);
 select ok(
-  not exists (select 1 from public.pool_players where owner_id = '00000000-0000-0000-0000-0000000d00a1')
-  and (select r.reason = 'pool' and r.after is null from public.derive_recounts r
-        where r.owner_id = '00000000-0000-0000-0000-0000000d00a1')
+  not exists (select 1 from public.pool_players where owner_id = '00000000-0000-0000-0000-0000000d00a1' and player = 'Villain1')
+  and (select p.hands = 1 from public.pool_players p
+        where p.owner_id = '00000000-0000-0000-0000-0000000d00a1' and p.player = 'Villain2')
   and not exists (select 1 from public.derive_queue where owner_id = '00000000-0000-0000-0000-0000000d00a1'),
-  'a counted hand deleted empties the pool and marks the account for a recount (the delete queues nothing itself)');
+  'a counted hand deleted takes its own seats out; the other hand''s stay and nothing is queued');
 select pg_temp.act_as('00000000-0000-0000-0000-0000000d00a1');
-select is((select array_agg(c.hand_id::text || ' ' || c.reason order by c.hand_id) from public.derive_claim(10, '{}') c),
-  array[pg_temp.hid(2)::text || ' pool', pg_temp.hid(3)::text || ' pool'],
-  'the next claim queues A''s other hands with a hero and claims them (P2 will subtract instead)');
+select is((select count(*)::int from public.derive_claim(10, '{}')), 0,
+  'the next claim finds nothing: a delete no longer queues the library');
 select pg_temp.as_postgres();
-select ok(
-  (select pending = 2 from public.derive_pending_counts where owner_id = '00000000-0000-0000-0000-0000000d00a1')
-  and not exists (select 1 from public.derive_recounts where owner_id = '00000000-0000-0000-0000-0000000d00a1'),
-  '... counted, and the mark is gone once the last page is queued');
+select is((select pending from public.derive_pending_counts where owner_id = '00000000-0000-0000-0000-0000000d00a1'),
+  0::bigint, '... and nothing is pending');
+insert into public.derive_queue (hand_id, owner_id, reason) values
+  (pg_temp.hid(2), '00000000-0000-0000-0000-0000000d00a1', 'new'),
+  (pg_temp.hid(3), '00000000-0000-0000-0000-0000000d00a1', 'new');
 delete from public.hands where id = pg_temp.hid(6);
 select is((select pending from public.derive_pending_counts where owner_id = '00000000-0000-0000-0000-0000000d00b1'),
   0::bigint, 'a queued hand deleted takes its row and the counter subtracts it');

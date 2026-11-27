@@ -40,7 +40,12 @@ export const POOL_TYPES: readonly PoolType[] = ["reg", "fish"];
 
 /* ----------------------------------------------------------- filters -- */
 
-/** The groups of the screen's filter the pool follows: the kind or one format, and the rooms. */
+/**
+ * The groups of the screen's filter the pool follows: the field's (docs/POOL.md
+ * P2) - rooms, formats, games, limits, table sizes and stakes. The kind or one
+ * format is sent as well, for the desktop, which reads only that and the
+ * rooms until its own field split (P6).
+ */
 export function poolFiltersOf(query: HandFilter): PoolFilters {
   const filters: PoolFilters = {};
   const formats = query.formats ?? [];
@@ -50,8 +55,19 @@ export function poolFiltersOf(query: HandFilter): PoolFilters {
     if (formats.every((format) => format === "cash")) filters.gameKind = "cash";
     else if (formats.every((format) => format !== "cash" && format !== "")) filters.gameKind = "tournament";
   }
-  const sites = (query.sites ?? []).filter((site) => site !== "");
-  if (sites.length > 0) filters.sites = sites;
+  const groups = {
+    sites: query.sites,
+    formats: query.formats,
+    variants: query.variants,
+    limits: query.limits,
+    sizes: query.sizes,
+    stakes: query.stakes,
+  } as const;
+  for (const [key, values] of Object.entries(groups) as Array<[keyof typeof groups, readonly string[] | undefined]>) {
+    // A room is never ''; the other groups' values are the reports' own.
+    const kept = key === "sites" ? (values ?? []).filter((value) => value !== "") : [...(values ?? [])];
+    if (kept.length > 0) filters[key] = kept;
+  }
   return filters;
 }
 

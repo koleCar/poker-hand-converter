@@ -218,14 +218,36 @@ describe("Pool: the figures", () => {
     expect(youRates(report(0, 0, 0), report(10, 10, null)).regsOnly?.bb100).toBeNull();
   });
 
-  it("the queries reuse the Hands filter's vs type; the pool follows the kind and the rooms", () => {
+  it("the queries reuse the Hands filter's vs type; the pool follows the field's groups (P2)", () => {
     const q = { formats: ["cash"], sites: ["pokerstars", ""], vsTypes: ["unknown"], positions: ["BTN"] };
     expect(youQueries(q).fish.vsTypes).toEqual(["fish"]);
     expect(youQueries(q).regOrFish.vsTypes).toEqual(["reg", "fish"]);
     expect(youQueries(q).fish.positions).toEqual(["BTN"]);
-    expect(poolFiltersOf(q)).toEqual({ gameFormat: "cash", sites: ["pokerstars"] });
-    expect(poolFiltersOf({ formats: ["mtt", "sng"] })).toEqual({ gameKind: "tournament" });
+    expect(poolFiltersOf(q)).toEqual({ gameFormat: "cash", formats: ["cash"], sites: ["pokerstars"] });
+    expect(poolFiltersOf({ formats: ["mtt", "sng"] })).toEqual({ gameKind: "tournament", formats: ["mtt", "sng"] });
     expect(poolFiltersOf({})).toEqual({});
+    // A GG NL50 6-max filter: every field group goes to the server; the
+    // groups the pool has no use for (positions, vs type) do not.
+    expect(
+      poolFiltersOf({
+        sites: ["ggpoker"],
+        formats: ["cash"],
+        variants: ["holdem"],
+        limits: ["nl"],
+        sizes: ["6max"],
+        stakes: ["USD:50"],
+        positions: ["BTN"],
+        vsTypes: ["fish"],
+      }),
+    ).toEqual({
+      gameFormat: "cash",
+      sites: ["ggpoker"],
+      formats: ["cash"],
+      variants: ["holdem"],
+      limits: ["nl"],
+      sizes: ["6max"],
+      stakes: ["USD:50"],
+    });
   });
 });
 
