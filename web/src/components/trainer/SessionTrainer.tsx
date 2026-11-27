@@ -35,6 +35,7 @@ import { AnalyticsBar, GoalPanel } from "./FromAnalytics";
 import { PlayedPlayer } from "./PlayedPlayer";
 import { park, parked } from "./parked";
 import styles from "./trainer.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 export interface SessionTrainerProps {
   session: TrainerSession;
@@ -239,9 +240,9 @@ export function SessionTrainer({
             </div>
           ) : null}
           {blocked ? (
-            <div className={styles.notice}>
+            <Dismissible as="div" className={styles.notice}>
               <p>{blocked === "flop" ? t.unavailable.flop : t.unavailable.set}</p>
-            </div>
+            </Dismissible>
           ) : null}
           {play ? (
             <PlayedPlayer key={`${play.hand}|${play.action}`} played={play} settings={plan?.settings ?? settings} onScored={scored} onAnswer={onAnswer} onDone={() => onPlayed?.()} />

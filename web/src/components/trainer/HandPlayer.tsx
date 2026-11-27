@@ -29,6 +29,7 @@ import { answerMix, cardsText, handDecisionKey, type SessionAnswer } from "./ses
 import { ActionStrip, StatusRow } from "./SpotFelt";
 import { TableBox, TrainerTable, type HeroMove } from "./TrainerTable";
 import styles from "./trainer.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const DEAL_TRIES = 4;
 const AUTO_NEXT_MS = 1600;
@@ -280,12 +281,12 @@ function OneHand({ request, settings, onScored, onAnswer, onHandDone, newHand }:
 
   if (error) {
     return (
-      <div className={styles.notice}>
+      <Dismissible as="div" className={styles.notice}>
         <p>{t.failed(error)}</p>
         <button type="button" className={styles.linkButton} onClick={newHand}>
           {t.retry}
         </button>
-      </div>
+      </Dismissible>
     );
   }
   if (dealing) {
@@ -381,7 +382,7 @@ function OneHand({ request, settings, onScored, onAnswer, onHandDone, newHand }:
               <kbd aria-hidden="true">N</kbd>
             </button>
           </div>
-          {over.reason === "no-reference" ? <p className={styles.notice}>{t.play.noReference}</p> : null}
+          {over.reason === "no-reference" ? <Dismissible className={styles.notice}>{t.play.noReference}</Dismissible> : null}
           {state.approximate ? <p className={styles.muted}>{t.play.approximate}</p> : null}
           {log.length > 0 ? (
             <section className={styles.block} aria-label={t.play.summary}>

@@ -68,6 +68,7 @@ import { ShareHandButton } from "../share/ShareHandButton";
 import { DeleteHandsDialog } from "./DeleteHandsDialog";
 import styles from "./library.module.css";
 import { takePlayerFilter } from "./playerHandoff";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /**
  * How long after a desktop sync the "hands arriving" line stays up. The app
@@ -323,7 +324,7 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
           title={t.heading}
           titleTag="h2"
           status={status}
-          notice={filling > 0 ? <p className="notice notice--info rail-fade" role="status">{ui.hands.effStackFilling(filling)}</p> : null}
+          notice={filling > 0 ? <Dismissible className="notice notice--info rail-fade" role="status" messageKey="filling">{ui.hands.effStackFilling(filling)}</Dismissible> : null}
           emptyText={t.empty}
           reloadToken={refreshToken}
           panelRef={panelRef}
@@ -333,12 +334,15 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
             kind === "loading" ? (
               <RailLoader label={text} centered />
             ) : (
-              <div
-                className={kind === "error" ? "notice notice--error rail-fade" : "empty rail-fade"}
-                role={kind === "error" ? "alert" : "status"}
-              >
-                {text}
-              </div>
+              kind === "error" ? (
+                <Dismissible as="div" className="notice notice--error rail-fade" role="alert">
+                  {text}
+                </Dismissible>
+              ) : (
+                <div className="empty rail-fade" role="status">
+                  {text}
+                </div>
+              )
             )
           }
           renderPanel={(handKey, row) => (
@@ -521,8 +525,8 @@ function ConverterHand({ onHandsSaved }: { onHandsSaved: () => void }) {
   if (!hand) return null;
   return (
     <section className="card card--flush">
-      {notice ? <p className="notice notice--info">{notice}</p> : null}
-      {error ? <p className="notice notice--error">{error}</p> : null}
+      {notice ? <Dismissible className="notice notice--info">{notice}</Dismissible> : null}
+      {error ? <Dismissible className="notice notice--error">{error}</Dismissible> : null}
       <ReplayViewer
         fitToScreen
         phoneTakeover

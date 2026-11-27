@@ -25,6 +25,7 @@ import type { TrainerSettings } from "./settings";
 import { ActionStrip, StatusRow } from "./SpotFelt";
 import { TableBox, TrainerTable, type HeroMove } from "./TrainerTable";
 import styles from "./trainer.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const tone = (option: OptionAnalysis) => (option.allIn ? "allin" : option.action);
 
@@ -174,13 +175,13 @@ export function PlayedPlayer({
   }
   if (!spot || !felt) {
     return (
-      <div className={styles.notice}>
+      <Dismissible as="div" className={styles.notice}>
         <p>{a.playMissing}</p>
         <button type="button" className={styles.next} onClick={onDone}>
           {a.playOn}
           <kbd aria-hidden="true">N</kbd>
         </button>
-      </div>
+      </Dismissible>
     );
   }
 

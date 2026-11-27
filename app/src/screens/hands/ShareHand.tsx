@@ -25,6 +25,7 @@ import { useT } from "../../i18n";
 import { errorText, ipc, type HandShare, type ShareErrorCode } from "../../lib/ipc";
 import styles from "./ShareHand.module.css";
 import { loadShareNamesPreference, saveShareNamesPreference } from "@rail/ui/share/namesPreference";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 type CopyState = "idle" | "copied" | "failed";
 
@@ -197,9 +198,9 @@ export function ShareHand({ handKey, hand }: { handKey: string; hand: PhfHand })
               </>
             ) : null}
             {error ? (
-              <p className={styles.error} role="alert">
+              <Dismissible className={styles.error} role="alert">
                 {error}
-              </p>
+              </Dismissible>
             ) : null}
             {busy || link ? (
               <div className={styles.link}>
@@ -244,9 +245,9 @@ export function ShareHand({ handKey, hand }: { handKey: string; hand: PhfHand })
               </div>
             ) : null}
             {copy === "failed" ? (
-              <p className={styles.warn} role="status">
+              <Dismissible className={styles.warn} role="status">
                 {t.copyFailed}
-              </p>
+              </Dismissible>
             ) : null}
             {/* R4.5: the link hides the players' names unless this is on. */}
             {link ? (

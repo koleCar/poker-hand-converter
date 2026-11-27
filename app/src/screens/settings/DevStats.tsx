@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useT } from "../../i18n";
 import { errorText, ipc, type StatsStatus } from "../../lib/ipc";
 import styles from "./Settings.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 export default function DevStats() {
   const t = useT();
@@ -82,7 +83,7 @@ export default function DevStats() {
         </button>
       </div>
       {note && <p className={styles.hint}>{note}</p>}
-      {(error ?? status?.lastError) && <p className={styles.error}>{error ?? status?.lastError}</p>}
+      {(error ?? status?.lastError) && <Dismissible className={styles.error}>{error ?? status?.lastError}</Dismissible>}
     </section>
   );
 }

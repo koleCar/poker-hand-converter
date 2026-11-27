@@ -51,6 +51,7 @@ import { useUiStrings } from "../i18n";
 import { countIn, dateFormat, numberFormat } from "./format";
 import { WinratePlot, type PlotSeries, type SeriesKey } from "./WinratePlot";
 import "./winrate-graph.css";
+import { Dismissible } from "../notice/Dismissible";
 
 export type { SeriesKey } from "./WinratePlot";
 
@@ -231,7 +232,7 @@ export function WinrateGraph({ graph, unit = "bb", money = null, legend = true, 
   const emptyXs = useMemo(() => Float64Array.from([0, Math.max(EMPTY_HANDS, graph.hands)]), [graph.hands]);
 
   if (graph.mixedUnitKind) {
-    return <p className="notice notice--warn">{t.mixedUnitKind}</p>;
+    return <Dismissible className="notice notice--warn">{t.mixedUnitKind}</Dismissible>;
   }
 
   if (graph.buckets.length < 2) {
@@ -291,7 +292,7 @@ export function WinrateGraph({ graph, unit = "bb", money = null, legend = true, 
         </ul>
       ) : null}
 
-      {graph.mixedCurrency ? <p className="notice notice--info">{t.mixedCurrency}</p> : null}
+      {graph.mixedCurrency ? <Dismissible className="notice notice--info">{t.mixedCurrency}</Dismissible> : null}
     </div>
   );
 }

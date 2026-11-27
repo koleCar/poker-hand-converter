@@ -28,6 +28,7 @@ import {
 } from "../../lib/ipc";
 import { problemText, statLabel } from "./problems";
 import styles from "./HudEditor.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** The table sizes offered: heads-up, 6-max, 9-max. */
 const SIZES = [2, 6, 9];
@@ -257,7 +258,7 @@ export function Preview({
           </button>
         ) : null}
       </div>
-      {error ? <p className={styles.error}>{h.previewFailed(error)}</p> : null}
+      {error ? <Dismissible className={styles.error}>{h.previewFailed(error)}</Dismissible> : null}
       {preview ? (
         <div className={styles.tableWrap}>
           <svg

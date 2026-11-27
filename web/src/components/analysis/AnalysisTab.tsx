@@ -46,6 +46,7 @@ import { POSITION_VALUES, POT_VALUES, listQuery, parseListState, scopeFilters, t
 import { EvHeatmap, HandsList, OverviewHead, TopLeaksMini, TrainMini } from "./overview/OverviewParts";
 import { OverviewSkeleton } from "./overview/OverviewSkeleton";
 import styles from "./ui/an.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** The migration the tab needs, named in the not-installed notice. An identifier, not prose. */
 const ANALYSIS_MIGRATION = "supabase/migrations/20261228090000_analysis.sql";
@@ -174,7 +175,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
     return (
       <div className={styles.page}>
         <AnalysisNav current="overview" />
-        <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>
+        <Dismissible className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</Dismissible>
       </div>
     );
   }
@@ -216,7 +217,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
     return (
       <div className={styles.page}>
         <AnalysisNav current="overview" />
-        <p className="notice notice--error">{message}</p>
+        <Dismissible className="notice notice--error">{message}</Dismissible>
         <button type="button" className="btn" onClick={() => void load()}>
           {t.tab.tryAgain}
         </button>

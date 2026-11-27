@@ -34,6 +34,7 @@ import { useAnalysisKind } from "../analysisKind";
 import { fromSessionQuery, parseSessionQuery, sessionQueryString } from "./sessionQuery";
 import "../../../styles/stats.css";
 import { KindSkeleton, SessionSkeleton, SkStatus } from "../ui/Skeleton";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 interface SessionReviewTabProps {
   initialQuery: Record<string, string | string[] | undefined>;
@@ -77,7 +78,7 @@ export function SessionReviewTab({ initialQuery, refreshToken = 0 }: SessionRevi
   );
 
   if (!isDatabaseConfigured) {
-    return <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>;
+    return <Dismissible className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</Dismissible>;
   }
 
   if (!auth.isSignedIn) {
@@ -133,12 +134,15 @@ export function SessionReviewTab({ initialQuery, refreshToken = 0 }: SessionRevi
             <SessionSkeleton />
           </SkStatus>
         ) : (
-          <div
-            className={kind === "error" ? "notice notice--error" : "card stats-empty"}
-            role={kind === "error" ? "alert" : "status"}
-          >
-            {kind === "error" ? text : <p className="muted">{text}</p>}
-          </div>
+          kind === "error" ? (
+            <Dismissible as="div" className="notice notice--error" role="alert">
+              {text}
+            </Dismissible>
+          ) : (
+            <div className="card stats-empty" role="status">
+              <p className="muted">{text}</p>
+            </div>
+          )
         )
       }
     />

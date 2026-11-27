@@ -24,6 +24,7 @@ import { useDict } from "../../lib/i18n/client";
 import { SettingRow, TipLine } from "@rail/ui/share/SettingRow";
 import { paths } from "../../lib/routes";
 import styles from "./AnalysisShareToggle.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 export function AnalysisShareToggle({
   surface,
@@ -152,15 +153,15 @@ export function AnalysisShareToggle({
       <div id={describedBy} className="stack">
         <p className={styles.text}>{t.explain}</p>
         {poll ? <p className={styles.text}>{t.pollNote}</p> : null}
-        {state.shared && !analysed ? <p className={styles.warn}>{t.notAnalysed}</p> : null}
+        {state.shared && !analysed ? <Dismissible className={styles.warn}>{t.notAnalysed}</Dismissible> : null}
       </div>
       <p className={styles.status} role="status">
         {busy ? t.saving : state.shared ? t.shared : t.private}
       </p>
       {error ? (
-        <p className={styles.error} role="alert">
+        <Dismissible className={styles.error} role="alert">
           {error}
-        </p>
+        </Dismissible>
       ) : null}
     </div>
   );

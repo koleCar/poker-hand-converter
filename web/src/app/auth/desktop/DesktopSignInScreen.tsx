@@ -17,6 +17,7 @@ import {
 import { useDict } from "../../../lib/i18n/client";
 import type { Dict } from "../../../lib/i18n/types";
 import styles from "./desktop.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** Client half of `/auth/desktop`. */
 export function DesktopSignInScreen() {
@@ -86,7 +87,7 @@ function DesktopSignIn() {
     return (
       <section className={`card ${styles.card}`} aria-labelledby="desktop-heading">
         {heading}
-        <p className="notice notice--warn">{d.notConfigured}</p>
+        <Dismissible className="notice notice--warn">{d.notConfigured}</Dismissible>
       </section>
     );
   }
@@ -133,7 +134,7 @@ function DesktopSignIn() {
     return (
       <section className={`card ${styles.card}`} aria-labelledby="desktop-heading">
         {heading}
-        <p className="notice notice--warn">{problem}</p>
+        <Dismissible className="notice notice--warn">{problem}</Dismissible>
       </section>
     );
   }
@@ -197,9 +198,9 @@ function DesktopSignIn() {
       <p className={styles.question}>{d.confirm.question}</p>
       <p className="muted">{d.confirm.detail}</p>
       {failure && (
-        <p className="notice notice--error" role="alert">
+        <Dismissible className="notice notice--error" role="alert">
           {failure}
-        </p>
+        </Dismissible>
       )}
       <div className={styles.actions}>
         <button

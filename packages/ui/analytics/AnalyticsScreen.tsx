@@ -76,6 +76,7 @@ import type { Definition, ReportSource, Units } from "../reports/model";
 import styles from "../reports/Reports.module.css";
 import { useReport } from "../reports/useReport";
 import { WinrateGraph, type WinrateGraphMoney } from "../stats/WinrateGraph";
+import { Dismissible } from "../notice/Dismissible";
 
 export { isAnalyticsView, type AnalyticsView };
 export type { DrillHandLinkProps, DrillNav };
@@ -378,14 +379,14 @@ export function AnalyticsScreen({
         loadFacets={loadFacets}
       />
       {notice}
-      {report?.units.mixedKind ? <p className={styles.warning}>{r.units.mixedKind}</p> : null}
+      {report?.units.mixedKind ? <Dismissible className={styles.warning}>{r.units.mixedKind}</Dismissible> : null}
       {report && !report.units.mixedKind && report.units.mixedCurrency ? (
-        <p className={styles.notice}>{r.units.mixedCurrency}</p>
+        <Dismissible className={styles.notice}>{r.units.mixedCurrency}</Dismissible>
       ) : null}
       {report && report.graph.allInEv.pending > 0 && view === "overview" && !drilling ? (
-        <p className={styles.notice} role="status">
+        <Dismissible className={styles.notice} role="status" messageKey="ev-pending">
           {r.evPending(report.graph.allInEv.pending)}
-        </p>
+        </Dismissible>
       ) : null}
       {drilling ? null : (
         <div className={an.bar}>

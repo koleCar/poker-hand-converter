@@ -37,6 +37,7 @@ import {
 import { formatBrackets, formatCombos, formatRange } from "./ranges";
 import type { PreflopChartsSource } from "./source";
 import styles from "./Charts.module.css";
+import { Dismissible } from "../notice/Dismissible";
 
 type Brush = Record<ChartActionName, number>;
 
@@ -219,7 +220,7 @@ export function ChartEditor({ set, onChange, source, initialKey = null }: ChartE
             />
           </label>
         </div>
-        {stray.length > 0 ? <p className={styles.warning}>{t.game.tableChange(stray.length)}</p> : null}
+        {stray.length > 0 ? <Dismissible className={styles.warning}>{t.game.tableChange(stray.length)}</Dismissible> : null}
       </section>
 
       <section className={styles.card} aria-labelledby="charts-situation">

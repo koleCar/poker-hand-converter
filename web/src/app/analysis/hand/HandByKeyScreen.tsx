@@ -9,6 +9,7 @@ import { findHandId, isDatabaseConfigured } from "../../../lib/db";
 import { useDict } from "../../../lib/i18n/client";
 import { paths } from "../../../lib/routes";
 import styles from "../../../components/analysis/analysis.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** Client half of `/analysis/hand?key=`: find the row, then its analysis page. */
 export function HandByKeyScreen({ handKey, position }: { handKey: string | null; position: string | null }) {
@@ -54,15 +55,15 @@ function ByKey({ handKey, position }: { handKey: string | null; position: string
   if (!handKey) {
     return (
       <div className={styles.handPage}>
-        <p className="notice notice--warn">{t.hand.notFound}</p>
+        <Dismissible className="notice notice--warn">{t.hand.notFound}</Dismissible>
       </div>
     );
   }
   return (
     <div className={styles.handPage}>
       {state === "looking" ? <RailLoader size="page" label={t.hand.loading} showLabel centered /> : null}
-      {state === "missing" ? <p className="notice notice--warn">{t.hand.notSynced}</p> : null}
-      {typeof state === "object" ? <p className="notice notice--error">{state.error}</p> : null}
+      {state === "missing" ? <Dismissible className="notice notice--warn">{t.hand.notSynced}</Dismissible> : null}
+      {typeof state === "object" ? <Dismissible className="notice notice--error">{state.error}</Dismissible> : null}
     </div>
   );
 }

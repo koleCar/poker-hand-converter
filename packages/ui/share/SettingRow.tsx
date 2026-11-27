@@ -14,6 +14,7 @@
 import { useId, type ReactNode } from "react";
 import { Icon, type IconName } from "../icon/Icon";
 import styles from "./SettingRow.module.css";
+import { Dismissible } from "../notice/Dismissible";
 
 export function SettingRow({
   icon,
@@ -79,9 +80,9 @@ export function SettingRow({
         {tip}
       </button>
       {error ? (
-        <p className={styles.error} role="alert">
+        <Dismissible className={styles.error} role="alert">
           {error}
-        </p>
+        </Dismissible>
       ) : null}
     </div>
   );

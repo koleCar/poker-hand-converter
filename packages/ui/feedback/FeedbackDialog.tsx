@@ -5,6 +5,7 @@ import { Icon } from "../icon/Icon";
 import { useUiStrings } from "../i18n";
 import { prepareImage } from "./image";
 import styles from "./Feedback.module.css";
+import { Dismissible } from "../notice/Dismissible";
 
 export type FeedbackKind = "bug" | "feature" | "question";
 const KINDS: readonly FeedbackKind[] = ["bug", "feature", "question"];
@@ -301,9 +302,9 @@ export function FeedbackDialog({
         />
 
         {error ? (
-          <p className={styles.error} role="alert">
+          <Dismissible className={styles.error} role="alert">
             {error}
-          </p>
+          </Dismissible>
         ) : null}
 
         <div className={styles.actions}>

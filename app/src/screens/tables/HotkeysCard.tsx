@@ -12,6 +12,7 @@ import { useT } from "../../i18n";
 import { errorText, ipc, onHotkeysChanged, type HotkeyStatus, type TilingSettings } from "../../lib/ipc";
 import { HOTKEY_ACTIONS, type KnownHotkeyAction, bindingOf, boundElsewhere, keysFromEvent, keysLabel, keysProblem, setBinding } from "./hotkeys";
 import styles from "./Tables.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** How each binding stands with the system; read again when the app says it changed. */
 function useHotkeyStatus(): HotkeyStatus[] {
@@ -130,7 +131,7 @@ export function HotkeysCard({
           );
         })}
       </ul>
-      {problem !== null ? <p className={styles.error}>{problem}</p> : null}
+      {problem !== null ? <Dismissible className={styles.error}>{problem}</Dismissible> : null}
     </section>
   );
 }

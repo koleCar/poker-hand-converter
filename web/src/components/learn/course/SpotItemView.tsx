@@ -32,6 +32,7 @@ import own from "../../analysis/train/train.module.css";
 import { useFormats } from "../controls";
 import type { ItemAnswer } from "./PracticeItems";
 import styles from "./course.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** Seeds tried after the item's own before saying no spot matches; the same on every replay, so a card deals the same spot. */
 const DEAL_TRIES = 3;
@@ -162,12 +163,12 @@ export function SpotItemView({ item, signedIn, onAnswer }: { item: SpotItem; sig
 
   if (dealt?.error) {
     return (
-      <div className="notice notice--error">
+      <Dismissible as="div" className="notice notice--error">
         <p>{c.failed(dealt.error)}</p>
         <button type="button" className="btn btn--sm" onClick={() => setAttempt((value) => value + 1)}>
           {c.retry}
         </button>
-      </div>
+      </Dismissible>
     );
   }
   if (!dealt) {
@@ -176,7 +177,7 @@ export function SpotItemView({ item, signedIn, onAnswer }: { item: SpotItem; sig
     );
   }
   if (!spot || !shownHand) {
-    return <p className="notice notice--warn">{c.noSpot}</p>;
+    return <Dismissible className="notice notice--warn">{c.noSpot}</Dismissible>;
   }
 
   return (
@@ -210,7 +211,7 @@ export function SpotItemView({ item, signedIn, onAnswer }: { item: SpotItem; sig
           <RailLoader size="inline" label={c.grading} showLabel />
         </p>
       ) : null}
-      {answered?.error ? <p className="notice notice--error">{c.failed(answered.error)}</p> : null}
+      {answered?.error ? <Dismissible className="notice notice--error">{c.failed(answered.error)}</Dismissible> : null}
       {graded?.decision ? <AnswerResult decision={graded.decision} hand={graded.hand} chartNode={chartNode} solveTurn={false} flopStudy={graded.study ?? null} /> : null}
     </div>
   );

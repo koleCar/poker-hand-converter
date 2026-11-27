@@ -33,6 +33,7 @@ import { SettingsSheet } from "./SettingsSheet";
 import { settingsFields, targetSettings, type TrainerSettings } from "./settings";
 import type { AnalyticsLink, PlayedRef } from "./analytics";
 import styles from "./trainer.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 type View = { kind: "list" } | { kind: "train"; id: string } | { kind: "review"; id: string };
 type Sort = "recent" | "hands" | "score";
@@ -275,12 +276,12 @@ export function Trainer({ initial, suggest = false, analytics = null }: { initia
   return (
     <>
       {error ? (
-        <p className={styles.notice} role="alert">
+        <Dismissible className={styles.notice} role="alert">
           {t.sessions.failed(error)}{" "}
           <button type="button" className={styles.linkButton} onClick={() => setError(null)}>
             {t.close}
           </button>
-        </p>
+        </Dismissible>
       ) : null}
       {body}
       {sheet ? (

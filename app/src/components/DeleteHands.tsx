@@ -13,6 +13,7 @@ import { useEffect, useId, useState } from "react";
 import { useT } from "../i18n";
 import { errorText, ipc, onHandsDeleteProgress } from "../lib/ipc";
 import styles from "./DeleteHands.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** Confirm, then delete `handKeys`; `onDone` with how many went. */
 export function DeleteHands({
@@ -54,9 +55,9 @@ export function DeleteHands({
         </p>
       ) : null}
       {error !== null ? (
-        <p className={styles.error} role="alert">
+        <Dismissible className={styles.error} role="alert">
           {error}
-        </p>
+        </Dismissible>
       ) : null}
       <div className={styles.actions}>
         <button type="button" className={styles.secondary} disabled={busy} onClick={onClose}>
@@ -144,9 +145,9 @@ export function DeleteAllHands({ onClose, onDone }: { onClose: () => void; onDon
         </form>
       )}
       {error !== null ? (
-        <p className={styles.error} role="alert">
+        <Dismissible className={styles.error} role="alert">
           {error}
-        </p>
+        </Dismissible>
       ) : null}
       <div className={styles.actions}>
         <button type="button" className={styles.secondary} disabled={busy} onClick={onClose}>

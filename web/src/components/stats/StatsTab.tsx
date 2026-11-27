@@ -80,6 +80,7 @@ import { opponentsScope } from "./opponentsScope";
 import { SessionsPanel } from "./SessionsPanel";
 import { StatsNav } from "./StatsNav";
 import "../../styles/stats.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 interface StatsTabProps {
   /** Bumped by the shell after an upload lands, so the numbers follow it. */
@@ -292,7 +293,7 @@ export function StatsTab({ refreshToken = 0, arrival = null, mode = "reports" }:
     return (
       <div className="stats">
         <Header mode={mode} />
-        <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>
+        <Dismissible className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</Dismissible>
       </div>
     );
   }
@@ -353,7 +354,7 @@ export function StatsTab({ refreshToken = 0, arrival = null, mode = "reports" }:
     return (
       <div className="stats">
         <Header mode={mode} />
-        <p className="notice notice--error">{message}</p>
+        <Dismissible className="notice notice--error">{message}</Dismissible>
         <button
           type="button"
           className="btn"
@@ -392,19 +393,18 @@ export function StatsTab({ refreshToken = 0, arrival = null, mode = "reports" }:
             kind === "loading" || (kind === "empty" && rebuild.status === "running") ? (
               <RailLoader label={text} showLabel centered />
             ) : (
-              <div
-                className={kind === "error" ? "notice notice--error rail-fade" : "card stats-empty rail-fade"}
-                role={kind === "error" ? "alert" : "status"}
-              >
-                {kind === "error" ? (
-                  text
-                ) : (
+              kind === "error" ? (
+                <Dismissible as="div" className="notice notice--error rail-fade" role="alert">
+                  {text}
+                </Dismissible>
+              ) : (
+                <div className="card stats-empty rail-fade" role="status">
                   <p className="muted">
                     {text}
                     {action ? <> {action}</> : null}
                   </p>
-                )}
-              </div>
+                </div>
+              )
             )
           }
           checker={webChecker}
@@ -442,12 +442,15 @@ export function StatsTab({ refreshToken = 0, arrival = null, mode = "reports" }:
           kind === "loading" || (kind === "empty" && rebuild.status === "running") ? (
             <RailLoader label={text} showLabel centered />
           ) : (
-            <div
-              className={kind === "error" ? "notice notice--error rail-fade" : "card stats-empty rail-fade"}
-              role={kind === "error" ? "alert" : "status"}
-            >
-              {kind === "error" ? text : <p className="muted">{text}</p>}
-            </div>
+            kind === "error" ? (
+              <Dismissible as="div" className="notice notice--error rail-fade" role="alert">
+                {text}
+              </Dismissible>
+            ) : (
+              <div className="card stats-empty rail-fade" role="status">
+                <p className="muted">{text}</p>
+              </div>
+            )
           )
         }
         // (R6.4) The situation tabs and the footer (sessions, opponents)
@@ -519,22 +522,22 @@ function CoverageBar({
     const text = en.running(target > 0 ? Math.min(done, target) : done, target);
     // The paragraph is the live region; the mark beside it is only the look.
     return (
-      <p className="notice notice--info stats-coverage rail-fade" role="status" aria-live="polite">
+      <Dismissible className="notice notice--info stats-coverage rail-fade" role="status" aria-live="polite" messageKey="rebuilding">
         <span aria-hidden="true">
           <RailLoader size="inline" label={text} delay={0} />
         </span>{" "}
         {text}
-      </p>
+      </Dismissible>
     );
   }
   if (rebuild.status === "error") {
     return (
-      <p className="notice notice--error stats-coverage">
+      <Dismissible className="notice notice--error stats-coverage">
         {en.failedRebuild(rebuild.message)}{" "}
         <button type="button" className="btn btn--sm" onClick={onRebuild}>
           {t.common.tryAgain}
         </button>
-      </p>
+      </Dismissible>
     );
   }
   if (!coverage) {
@@ -546,7 +549,7 @@ function CoverageBar({
     return null;
   }
   return (
-    <p className="notice notice--warn stats-coverage">
+    <Dismissible className="notice notice--warn stats-coverage">
       {behind > 0 ? en.behind(behind, coverage.hands) : null}
       {failed > 0 ? ` ${en.unreadable(failed)}` : null}{" "}
       {behind > 0 ? (
@@ -554,7 +557,7 @@ function CoverageBar({
           {en.rebuild}
         </button>
       ) : null}
-    </p>
+    </Dismissible>
   );
 }
 

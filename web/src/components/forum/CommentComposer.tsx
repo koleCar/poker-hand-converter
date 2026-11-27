@@ -9,6 +9,7 @@ import { useMyProfile } from "../../lib/profile/context";
 import { useSpot } from "./PostDiscussion";
 import styles from "./forum.module.css";
 import { BusyLabel } from "../shell/BusyLabel";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 function scrollWhenPresent(id: string, attempts = 20) {
   const element = document.getElementById(id);
@@ -112,11 +113,11 @@ export function CommentComposer({
         required
         autoFocus={autoFocus}
       />
-      {blocked ? <p className="notice notice--warn">{blocked}</p> : null}
+      {blocked ? <Dismissible className="notice notice--warn">{blocked}</Dismissible> : null}
       {error ? (
-        <p className="notice notice--error" role="alert">
+        <Dismissible className="notice notice--error" role="alert">
           {error}
-        </p>
+        </Dismissible>
       ) : null}
       <div>
         <button type="submit" className="btn btn--primary btn--sm" disabled={busy || !body.trim() || Boolean(blocked)}>

@@ -53,6 +53,7 @@ import { Preview } from "./Preview";
 import { problemText, statLabel } from "./problems";
 import { StatLibrary } from "./StatLibrary";
 import styles from "./HudEditor.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** What is being edited: a preset (as shipped), a saved design, or a new one. */
 type Selection = { kind: "preset"; id: string } | { kind: "user"; id: string } | { kind: "new" };
@@ -361,7 +362,7 @@ export function HudEditor() {
             </ul>
           ) : null}
           {saved && saved.id === null ? (
-            <div className={styles.refusedBox} role="alert">
+            <Dismissible as="div" className={styles.refusedBox} role="alert">
               <p>{h.notSaved}</p>
               <ul className={styles.problemList}>
                 {saved.problems.map((problem, index) => (
@@ -375,7 +376,7 @@ export function HudEditor() {
                   )),
                 )}
               </ul>
-            </div>
+            </Dismissible>
           ) : null}
         </section>
 

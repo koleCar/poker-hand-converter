@@ -33,6 +33,7 @@ import {
 } from "../../lib/ipc";
 import { refreshStatDefinitions } from "../../lib/useStatDefinitions";
 import styles from "./CustomStats.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const GROUPS: readonly StatGroup[] = ["preflop", "postflop", "showdown", "results"];
 const UNITS: readonly StatUnit[] = ["percent", "ratio", "count", "bb", "bb_per_100", "money"];
@@ -608,7 +609,7 @@ function Editor({
         ) : null}
       </div>
 
-      {saveError ? <p className={styles.error}>{f.saveFailed(saveError)}</p> : null}
+      {saveError ? <Dismissible className={styles.error}>{f.saveFailed(saveError)}</Dismissible> : null}
       {!ready ? <p className={styles.hint}>{f.nameMissing}</p> : null}
       <div className={styles.actions}>
         <button
@@ -726,7 +727,7 @@ export function CustomStats() {
       </h2>
       <p className={styles.body}>{c.body}</p>
       <RecomputeNotice status={recompute} className={styles.hint} />
-      {error ? <p className={styles.error}>{c.loadFailed(error)}</p> : null}
+      {error ? <Dismissible className={styles.error}>{c.loadFailed(error)}</Dismissible> : null}
       {list === null && !error ? <p className={styles.hint}><RailLoader size="inline" label={c.loading} showLabel /></p> : null}
       {list && list.stats.length === 0 ? <p className={styles.hint}>{c.empty}</p> : null}
       {list && list.stats.length > 0 ? (
@@ -813,7 +814,7 @@ export function CustomStats() {
       {deleting ? (
         <Dialog title={c.deleteHeading} onClose={() => setDeleting(null)}>
           <p className={styles.body}>{c.deleteBody(deleting.definition.name[locale])}</p>
-          {deleteError ? <p className={styles.error}>{deleteError}</p> : null}
+          {deleteError ? <Dismissible className={styles.error}>{deleteError}</Dismissible> : null}
           <div className={styles.dialogActions}>
             <button type="button" className={styles.secondary} disabled={deleteBusy} onClick={() => setDeleting(null)}>
               {c.form.cancel}

@@ -31,6 +31,7 @@ import { useDict } from "../../lib/i18n/client";
 import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
 import styles from "../../components/forum/forum.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 type Tab = "reports" | "spam" | "users" | "admin";
 
@@ -59,7 +60,7 @@ function ModBody() {
   return (
     <section className="stack">
       <h1 className={styles.postTitle}>{en.moderation.modHeading}</h1>
-      {denied ? <p className="notice notice--warn">{en.moderation.notModerator}</p> : null}
+      {denied ? <Dismissible className="notice notice--warn">{en.moderation.notModerator}</Dismissible> : null}
       <nav className={styles.chips}>
         {tabs.map((value) => (
           <button
@@ -130,7 +131,7 @@ function Reports({ onDenied }: { onDenied: () => void }) {
   if (items === null) return <RailLoader centered label={en.loading.route.mod} />;
   return (
     <div className="stack">
-      {error ? <p className="notice notice--error">{error}</p> : null}
+      {error ? <Dismissible className="notice notice--error">{error}</Dismissible> : null}
       {items.length === 0 ? <p className="muted">{en.moderation.noReports}</p> : null}
       <ol className={`${styles.hits} rail-stagger`}>
         {items.map((item) => {
@@ -210,7 +211,7 @@ function Spam({ onDenied }: { onDenied: () => void }) {
   if (items === null) return <RailLoader centered label={en.loading.route.mod} />;
   return (
     <div className="stack">
-      {error ? <p className="notice notice--error">{error}</p> : null}
+      {error ? <Dismissible className="notice notice--error">{error}</Dismissible> : null}
       {items.length === 0 ? <p className="muted">{en.moderation.noSpam}</p> : null}
       <ol className={`${styles.hits} rail-stagger`}>
         {items.map((item) => (
@@ -288,8 +289,8 @@ function Users() {
           </BusyLabel>
         </button>
       </form>
-      {error ? <p className="notice notice--error">{error}</p> : null}
-      {message ? <p className="notice notice--info">{message}</p> : null}
+      {error ? <Dismissible className="notice notice--error">{error}</Dismissible> : null}
+      {message ? <Dismissible className="notice notice--info">{message}</Dismissible> : null}
       {user ? (
         <div className="card stack rail-dims" aria-busy={looking}>
           <p className={styles.cardTitle}>
@@ -377,8 +378,8 @@ function Admin() {
 
   return (
     <div className="stack">
-      {error ? <p className="notice notice--error">{error}</p> : null}
-      {message ? <p className="notice notice--info">{message}</p> : null}
+      {error ? <Dismissible className="notice notice--error">{error}</Dismissible> : null}
+      {message ? <Dismissible className="notice notice--info">{message}</Dismissible> : null}
       <div className={`card ${styles.composer}`}>
         <strong>{en.moderation.setRole}</strong>
         <div className={styles.row}>

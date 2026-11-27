@@ -29,6 +29,7 @@ import { paths } from "../../lib/routes";
 import { BusyLabel } from "../shell/BusyLabel";
 import styles from "./plan.module.css";
 import pricing from "./pricing.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 export function CheckoutDialog({
   period: initialPeriod,
@@ -105,9 +106,9 @@ export function CheckoutDialog({
         }}
       />
       {error ? (
-        <p className="notice notice--error" role="alert">
+        <Dismissible className="notice notice--error" role="alert">
           {b.errors[error]}
-        </p>
+        </Dismissible>
       ) : null}
       <div className={styles.actions}>
         <button

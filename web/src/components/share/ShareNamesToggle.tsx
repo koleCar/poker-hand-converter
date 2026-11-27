@@ -19,6 +19,7 @@ import { useDict } from "../../lib/i18n/client";
 import styles from "../analysis/AnalysisShareToggle.module.css";
 import { SettingRow, TipLine } from "@rail/ui/share/SettingRow";
 import { saveShareNamesPreference } from "@rail/ui/share/namesPreference";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 export function ShareNamesToggle({
   slug,
@@ -120,9 +121,9 @@ export function ShareNamesToggle({
         {busy ? t.saving : state.showNames ? t.shown : t.hidden}
       </p>
       {error ? (
-        <p className={styles.error} role="alert">
+        <Dismissible className={styles.error} role="alert">
           {error}
-        </p>
+        </Dismissible>
       ) : null}
     </div>
   );

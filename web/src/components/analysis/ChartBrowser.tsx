@@ -20,6 +20,7 @@ import styles from "./analysis.module.css";
 import { ChartGrid } from "./ChartGrid";
 import { SPOT_CATEGORIES, categoriesOf, lineSteps, nodesIn, type SpotCategory } from "./chartSpots";
 import { ChartsSkeleton, SkStatus } from "./ui/Skeleton";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** What the effect last loaded, for which set: another set's result reads as "loading". */
 type Loaded = { id: string } & ({ status: "loading" } | { status: "ready"; charts: ChartSet } | { status: "error"; message: string });
@@ -99,7 +100,7 @@ export function ChartBrowser({ initialSet = null, initialLine, initialHand }: Ch
           <ChartsSkeleton caveat={false} />
         </SkStatus>
       ) : null}
-      {loaded.status === "error" ? <p className="notice notice--error">{t.failed(loaded.message)}</p> : null}
+      {loaded.status === "error" ? <Dismissible className="notice notice--error">{t.failed(loaded.message)}</Dismissible> : null}
 
       {charts && node ? (
         <div className={`${styles.browser} rail-dims`} aria-busy={switching}>

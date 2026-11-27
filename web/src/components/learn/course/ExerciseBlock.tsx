@@ -33,6 +33,7 @@ import { CalcItemView, ClassifyItemView, type ItemAnswer } from "./PracticeItems
 import { SplitItemView } from "./SplitItemView";
 import { SpotItemView, type SpotItem } from "./SpotItemView";
 import styles from "./course.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 interface ExerciseBlockProps {
   meta: LessonMeta;
@@ -80,12 +81,12 @@ function ExerciseBody({ meta, def }: { meta: LessonMeta; def: ExerciseDef }) {
     );
   }
   if (def.kind === "own-hands") return <OwnHandsExercise meta={meta} def={def} />;
-  if (waitsForCharts(def)) return <p className="notice notice--warn">{t.chartsMissing}</p>;
+  if (waitsForCharts(def)) return <Dismissible className="notice notice--warn">{t.chartsMissing}</Dismissible>;
   if (readsFlopLibrary(def) && !FLOP_LIBRARY_LIVE) {
-    return <p className="notice notice--warn">{t.flopOff}</p>;
+    return <Dismissible className="notice notice--warn">{t.flopOff}</Dismissible>;
   }
   if (readsFlopLibrary(def) && !FLOP_DRILLS_AVAILABLE) {
-    return <p className="notice notice--warn">{t.flopUnavailable}</p>;
+    return <Dismissible className="notice notice--warn">{t.flopUnavailable}</Dismissible>;
   }
   return <Session meta={meta} def={def} />;
 }
@@ -232,7 +233,7 @@ export function CardItemView({
   const t = useDict().course.review;
   if (generated?.kind === "calc") return <CalcItemView item={generated.item} onAnswer={onAnswer} />;
   if (generated?.kind === "classify") return <ClassifyItemView item={generated.item} onAnswer={onAnswer} />;
-  if (generated?.kind === "error") return <p className="notice notice--warn">{t.stale}</p>;
+  if (generated?.kind === "error") return <Dismissible className="notice notice--warn">{t.stale}</Dismissible>;
   if (item.k === "split") return <SplitItemView card={item} onAnswer={onAnswer} />;
   if (item.k === "paint") return <PaintItemView card={item} onAnswer={onAnswer} />;
   if (item.k === "lock") return <LockItemView card={item} onAnswer={onAnswer} />;

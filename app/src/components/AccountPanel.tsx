@@ -10,6 +10,7 @@ import type { ReactNode } from "react";
 import { useT } from "../i18n";
 import { ipc, type AccountNotice, type AccountStatus } from "../lib/ipc";
 import styles from "./AccountPanel.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 function minutes(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -35,8 +36,8 @@ export function AccountPanel({
 }) {
   const t = useT();
   const d = t.account;
-  const notice = (n: AccountNotice | null | undefined) => (n ? <p className={styles.notice}>{d.notices[n]}</p> : null);
-  const failure = error ? <p className={styles.error}>{d.failed(error)}</p> : null;
+  const notice = (n: AccountNotice | null | undefined) => (n ? <Dismissible className={styles.notice}>{d.notices[n]}</Dismissible> : null);
+  const failure = error ? <Dismissible className={styles.error}>{d.failed(error)}</Dismissible> : null;
 
   if (account === null) {
     return <p className={styles.muted}>{error ? d.failed(error) : <RailLoader size="inline" label={d.loading} showLabel />}</p>;

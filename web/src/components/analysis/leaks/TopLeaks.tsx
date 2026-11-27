@@ -58,6 +58,7 @@ import { ConfidenceTag } from "./ConfidenceTag";
 import { TrendTag } from "./WhatChanged";
 import { EMPTY_LEAKS_STATE, leaksQuery, scopeFilter } from "./leaksState";
 import styles from "./topLeaks.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** The migration the card needs, named in its not-installed note. An identifier, not prose. */
 const TOP_LEAKS_MIGRATION = "supabase/migrations/20270728090000_leak_summaries.sql";
@@ -186,7 +187,7 @@ export function TopLeaks({ scopeKey, generation, backQuery, initialPeriod = "30d
             {t.notInstalledAfter}
           </p>
         ) : (
-          <p className="notice notice--error">{t.failed(failed.message)}</p>
+          <Dismissible className="notice notice--error">{t.failed(failed.message)}</Dismissible>
         )
       ) : null}
       {loading && !shown ? <RailLoader label={t.loading} showLabel centered /> : null}
@@ -313,7 +314,7 @@ function TopLeakItem({
         {size ? t.how(leak.mistakes, leak.spotDecisions, size.rate, size.rateInterval.low, size.rateInterval.high) : null}{" "}
         <ConfidenceTag leak={leak} />
       </p>
-      {tentative ? <p className="notice notice--warn">{t.tentativeNote}</p> : null}
+      {tentative ? <Dismissible className="notice notice--warn">{t.tentativeNote}</Dismissible> : null}
 
       <p className={styles.line}>
         <strong>{t.target(leak.attrs.best)}</strong>
@@ -373,7 +374,7 @@ function ExampleHands({
   return (
     <div className={styles.examples}>
       <h5 className={styles.examplesHead}>{t.examples}</h5>
-      {error ? <p className="notice notice--error">{t.examplesFailed(error)}</p> : null}
+      {error ? <Dismissible className="notice notice--error">{t.examplesFailed(error)}</Dismissible> : null}
       {loading ? <RailLoader size="small" label={t.examplesLoading} showLabel /> : null}
       {!loading && !error && picked.length === 0 ? <p className="muted">{t.examplesNone}</p> : null}
       {picked.length > 0 ? (

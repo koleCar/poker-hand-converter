@@ -57,6 +57,7 @@ import { paths } from "../../lib/routes";
 import { parkPlayerFilter } from "../library/playerHandoff";
 import { StatsNav } from "../stats/StatsNav";
 import "../../styles/stats.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 interface PlayersTabProps {
   /** Bumped by the shell after an upload lands, so the list follows it. */
@@ -166,7 +167,7 @@ export function PlayersTab({ refreshToken = 0, arrival = null }: PlayersTabProps
     return (
       <div className="stats">
         {header}
-        <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>
+        <Dismissible className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</Dismissible>
       </div>
     );
   }
@@ -220,16 +221,16 @@ export function PlayersTab({ refreshToken = 0, arrival = null }: PlayersTabProps
 
   const status =
     phase.kind === "working" ? (
-      <p className="notice notice--info stats-coverage rail-fade" role="status" aria-live="polite">
+      <Dismissible className="notice notice--info stats-coverage rail-fade" role="status" aria-live="polite" messageKey="working">
         <span aria-hidden="true">
           <RailLoader size="inline" label={t.opponents.reading} delay={0} />
         </span>
         {t.opponents.reading} {phase.done > 0 ? t.common.hands(phase.done) : ""}
-      </p>
+      </Dismissible>
     ) : phase.kind === "error" ? (
-      <p className="notice notice--error" role="alert">
+      <Dismissible className="notice notice--error" role="alert">
         {phase.message}
-      </p>
+      </Dismissible>
     ) : null;
 
   if (!enabled) {
@@ -280,12 +281,15 @@ export function PlayersTab({ refreshToken = 0, arrival = null }: PlayersTabProps
           kind === "loading" || (kind === "empty" && phase.kind === "working") ? (
             <RailLoader label={text} size={compact ? "small" : "section"} showLabel={!compact} centered />
           ) : (
-            <div
-              className={kind === "error" ? "notice notice--error rail-fade" : "card stats-empty rail-fade"}
-              role={kind === "error" ? "alert" : "status"}
-            >
-              {kind === "error" ? text : <p className="muted">{text}</p>}
-            </div>
+            kind === "error" ? (
+              <Dismissible as="div" className="notice notice--error rail-fade" role="alert">
+                {text}
+              </Dismissible>
+            ) : (
+              <div className="card stats-empty rail-fade" role="status">
+                <p className="muted">{text}</p>
+              </div>
+            )
           )
         }
       />

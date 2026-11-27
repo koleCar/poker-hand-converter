@@ -18,6 +18,7 @@ import { downloadText, outputFileName } from "./handoff";
 import { toHandRow } from "./handSummary";
 import { describeProblem, formatBytes, formatCount } from "./inputs";
 import type { SaveState, SourceResult } from "./types";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** Hands shown before the "show more" button; a page of 6 000 rows helps nobody. */
 const HAND_PAGE = 30;
@@ -255,13 +256,13 @@ export function ResultsPanel({
       </header>
 
       {totals.truncated ? (
-        <p className="notice notice--info conv-results__save-error">
+        <Dismissible className="notice notice--info conv-results__save-error">
           <span>{t.notAllKept(totals.kept)}</span>
-        </p>
+        </Dismissible>
       ) : null}
 
       {saveState.status === "error" ? (
-        <p className="notice notice--warn conv-results__save-error">
+        <Dismissible className="notice notice--warn conv-results__save-error">
           <span>{saveState.errors[0] ?? t.writeRefused}</span>
           {upgrade ? (
             <Link href={upgrade.href} className="btn btn--sm">
@@ -271,7 +272,7 @@ export function ResultsPanel({
           <button type="button" className="btn btn--ghost btn--sm" onClick={onRetrySave}>
             {t.retrySave}
           </button>
-        </p>
+        </Dismissible>
       ) : null}
 
       <div className="conv-stats">

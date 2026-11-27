@@ -43,6 +43,7 @@ import { DEFAULT_TRAIN_STATE, trainQuery } from "../train/trainState";
 import styles from "../ui/an.module.css";
 import { HeatSkeleton, LeaksSkeleton, ListSkeleton, Sk } from "./OverviewSkeleton";
 import { useCountUp } from "./useCountUp";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 type Grade = (typeof GRADES)[number];
 const PAGE_SIZE = 25;
@@ -556,7 +557,7 @@ export function HandsList({
         </div>
       ) : null}
 
-      {error ? <p className="notice notice--error">{error}</p> : null}
+      {error ? <Dismissible className="notice notice--error">{error}</Dismissible> : null}
 
       <div className={styles.listHead} aria-hidden="true">
         <span>{ui.cols.hand}</span>

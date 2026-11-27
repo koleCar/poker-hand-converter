@@ -36,6 +36,7 @@ import { useDict } from "../../lib/i18n/client";
 import { getParser } from "../../lib/phf";
 import { emptyMoney, rates } from "../../lib/stats";
 import { countIn, numberFormat, useIntlLocale } from "./format";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const MIN_HANDS_OPTIONS = [1, 10, 50, 200];
 
@@ -194,14 +195,14 @@ export function OpponentsPanel({
 
   const status =
     phase.kind === "working" ? (
-      <p className="notice notice--info stats-coverage rail-fade" role="status" aria-live="polite">
+      <Dismissible className="notice notice--info stats-coverage rail-fade" role="status" aria-live="polite" messageKey="working">
         <span aria-hidden="true">
           <RailLoader size="inline" label={phase.label} delay={0} />
         </span>
         {phase.label} {phase.done > 0 ? t.common.hands(phase.done) : ""}
-      </p>
+      </Dismissible>
     ) : phase.kind === "error" ? (
-      <p className="notice notice--error">{phase.message}</p>
+      <Dismissible className="notice notice--error">{phase.message}</Dismissible>
     ) : null;
 
   if (!enabled) {
@@ -413,7 +414,7 @@ function NoteEditor({
         <span className="field__label">{en.tags}</span>
         <input value={tags} placeholder={en.tagsPlaceholder} onChange={(event) => setTags(event.target.value)} />
       </label>
-      {error ? <p className="notice notice--error">{error}</p> : null}
+      {error ? <Dismissible className="notice notice--error">{error}</Dismissible> : null}
       <div className="stats-note__actions">
         <button type="button" className="btn btn--sm btn--primary" disabled={busy} onClick={() => void save()}>
           {en.save}

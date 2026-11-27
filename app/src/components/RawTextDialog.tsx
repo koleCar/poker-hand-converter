@@ -5,6 +5,7 @@ import { useT } from "../i18n";
 import { errorText, ipc, type RefusedHand } from "../lib/ipc";
 import { Dialog } from "@rail/ui/dialog/Dialog";
 import styles from "./RawTextDialog.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /**
  * A refused hand's raw text (R1.6): the chunk the core could not read, as
@@ -63,7 +64,7 @@ export function RawTextDialog({ hand, onClose }: { hand: RefusedHand; onClose: (
         <dd>{hand.detectedSite ? d.parserVersion(hand.detectedSite, hand.parserVersion) : d.noParser}</dd>
       </dl>
       {text === null && failure === null && <p className={styles.muted}><RailLoader size="inline" label={d.textLoading} showLabel /></p>}
-      {failure !== null && <p className={styles.error}>{failure}</p>}
+      {failure !== null && <Dismissible className={styles.error}>{failure}</Dismissible>}
       {text !== null && (
         <pre className={styles.text} tabIndex={0} aria-label={d.textLabel}>
           {text}
@@ -71,7 +72,7 @@ export function RawTextDialog({ hand, onClose }: { hand: RefusedHand; onClose: (
       )}
       <div aria-live="polite" className={styles.live}>
         {copied === true && <p className={styles.success}>{d.copied}</p>}
-        {copied === false && <p className={styles.error}>{d.copyFailed}</p>}
+        {copied === false && <Dismissible className={styles.error}>{d.copyFailed}</Dismissible>}
       </div>
       <div className={styles.actions}>
         <button type="button" className={styles.secondary} onClick={onClose}>

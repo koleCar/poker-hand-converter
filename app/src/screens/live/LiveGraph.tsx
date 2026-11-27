@@ -23,6 +23,7 @@ import { GRAPH_POINTS } from "../../lib/reportSource";
 import { bigBlinds, signedMoney, unitOf } from "../hands/format";
 import { hasMoney, isChips, moneyUnitOf, useRate, type LiveUnit } from "./units";
 import styles from "./Live.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** The money view's currency, when the session has one. */
 function moneyOf(units: Units): WinrateGraphMoney | null {
@@ -134,8 +135,8 @@ export function LiveGraph({ session, kind, unit, onUnit }: LiveGraphProps) {
           </button>
         </div>
       </div>
-      {session.units.mixedKind ? <p className={styles.notice}>{d.mixedKind}</p> : null}
-      {!session.units.mixedKind && session.units.mixedCurrency ? <p className={styles.notice}>{d.mixedCurrency}</p> : null}
+      {session.units.mixedKind ? <Dismissible className={styles.notice}>{d.mixedKind}</Dismissible> : null}
+      {!session.units.mixedKind && session.units.mixedCurrency ? <Dismissible className={styles.notice}>{d.mixedCurrency}</Dismissible> : null}
       {report ? (
         <WinrateGraph graph={report.graph} unit={inMoney ? "money" : "bb"} money={money} legend={false} hidden={hidden} />
       ) : error !== null ? (

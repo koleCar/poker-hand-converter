@@ -49,6 +49,7 @@ import type { Definition, Report, ReportSource, Units } from "./model";
 import styles from "./Reports.module.css";
 import { ReportStats } from "./ReportStats";
 import { useReport } from "./useReport";
+import { Dismissible } from "../notice/Dismissible";
 
 export { isTab, type Tab };
 
@@ -205,14 +206,14 @@ export function ReportsScreen({
         loadFacets={loadFacets}
       />
       {notice}
-      {report?.units.mixedKind ? <p className={styles.warning}>{r.units.mixedKind}</p> : null}
+      {report?.units.mixedKind ? <Dismissible className={styles.warning}>{r.units.mixedKind}</Dismissible> : null}
       {report && !report.units.mixedKind && report.units.mixedCurrency ? (
-        <p className={styles.notice}>{r.units.mixedCurrency}</p>
+        <Dismissible className={styles.notice}>{r.units.mixedCurrency}</Dismissible>
       ) : null}
       {report && report.graph.allInEv.pending > 0 ? (
-        <p className={styles.notice} role="status">
+        <Dismissible className={styles.notice} role="status" messageKey="ev-pending">
           {r.evPending(report.graph.allInEv.pending)}
-        </p>
+        </Dismissible>
       ) : null}
       <div className={`${styles.results} rail-dims`} aria-busy={refetching}>
       {body}

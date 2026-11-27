@@ -26,6 +26,7 @@ import { LearnLinks } from "../LearnLinks";
 import { RiverStudy } from "../RiverStudy";
 import styles from "../analysis.module.css";
 import own from "./train.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 interface AnswerResultProps {
   decision: DecisionAnalysis;
@@ -78,7 +79,7 @@ export function AnswerResult({ decision, hand, chartNode = null, children, solve
   if (!graded) {
     return (
       <section className={`card ${own.result} rail-enter`} aria-live="polite">
-        <p className="notice notice--warn">{r.notGraded(decision.reason ? (t.reasons[decision.reason] ?? decision.reason) : "—")}</p>
+        <Dismissible className="notice notice--warn">{r.notGraded(decision.reason ? (t.reasons[decision.reason] ?? decision.reason) : "—")}</Dismissible>
         {children}
       </section>
     );

@@ -79,6 +79,7 @@ import {
   type UploadManifest,
 } from "./converter/uploadManifest";
 import "../styles/converter.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const AUTO_SAVE_KEY = "pokerconverter.autoSave";
 
@@ -881,7 +882,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand, onReplay, replay }: Con
       </p>
       {busy && saveLine ? <p className="muted conv-progress__detail">{saveLine}</p> : null}
       {read.done > 0 ? <p className="muted conv-progress__detail">{t.resumed(read.done)}</p> : null}
-      {saveStatus ? <p className="notice notice--warn conv-progress__detail">{saveStatus}</p> : null}
+      {saveStatus ? <Dismissible className="notice notice--warn conv-progress__detail" messageKey={upload?.state}>{saveStatus}</Dismissible> : null}
     </div>
   );
 
@@ -941,11 +942,11 @@ export function ConverterTab({ onHandsSaved, onOpenHand, onReplay, replay }: Con
 
       <section className="conv-notices">
         {!isDatabaseConfigured ? (
-          <p className="notice notice--warn">{t.dbNotConfigured}</p>
+          <Dismissible className="notice notice--warn">{t.dbNotConfigured}</Dismissible>
         ) : null}
 
         {resumable && !busy ? (
-          <div className="notice notice--info conv-signin">
+          <Dismissible as="div" className="notice notice--info conv-signin">
             <span>
               {t.resumeNotice(
                 new Date(resumable.updatedAt).toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" }),
@@ -958,14 +959,14 @@ export function ConverterTab({ onHandsSaved, onOpenHand, onReplay, replay }: Con
                 {t.resumeForget}
               </button>
             </span>
-          </div>
+          </Dismissible>
         ) : null}
 
         {/* The held-results offer. Deliberately phrased around what is already
             done, not what is being asked for: the work exists, it just has
             nowhere to live yet. */}
         {held ? (
-          <div className="notice notice--info conv-signin">
+          <Dismissible as="div" className="notice notice--info conv-signin">
             <span>{held.kind === "hands" ? t.held(held.hands.length) : t.heldTooMany(held.count)}</span>
             <span className="conv-signin__actions">
               <button
@@ -981,17 +982,17 @@ export function ConverterTab({ onHandsSaved, onOpenHand, onReplay, replay }: Con
                 {t.notNow}
               </button>
             </span>
-          </div>
+          </Dismissible>
         ) : null}
 
         {capNotice ? (
-          <p className="notice notice--warn">
+          <Dismissible className="notice notice--warn">
             {capNotice}{" "}
             <Link href={paths.pricing()}>{capText.upgrade}</Link>
-          </p>
+          </Dismissible>
         ) : null}
 
-        {error ? <p className="notice notice--error">{error}</p> : null}
+        {error ? <Dismissible className="notice notice--error">{error}</Dismissible> : null}
       </section>
 
 

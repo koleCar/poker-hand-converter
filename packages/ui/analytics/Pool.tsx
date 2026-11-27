@@ -35,6 +35,7 @@ import {
   type PoolRow,
   type PoolShow,
 } from "./poolView";
+import { Dismissible } from "../notice/Dismissible";
 
 /** An exploit's sentence: the stat's own for its direction, else its words. */
 export function exploitText(stat: CatalogueStat, exploit: PoolExploit, words: AnalyticsStrings): string {
@@ -120,7 +121,7 @@ export function Pool({
     );
   }
   if (sums === null) {
-    if (error !== null) return <p className={styles.quiet} role="alert">{p.error(error)}</p>;
+    if (error !== null) return <Dismissible className={styles.quiet} role="alert">{p.error(error)}</Dismissible>;
     if (loading) return <RailLoader size="small" label={words.screen.stats.loading} showLabel centered />;
     return null;
   }
@@ -170,9 +171,9 @@ export function Pool({
     <section className={styles.pool} aria-label={words.screen.tabs.pool}>
       {status}
       {error !== null ? (
-        <p className={styles.quiet} role="alert">
+        <Dismissible className={styles.quiet} role="alert">
           {p.error(error)}
-        </p>
+        </Dismissible>
       ) : null}
       <dl className={styles.poolFigs} aria-label={p.figures.label}>
         <div className={styles.poolFig}>

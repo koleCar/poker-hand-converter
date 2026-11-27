@@ -15,6 +15,7 @@ import { offeredMarkers, REVIEW, sameMarker, typedMarker } from "../../component
 import { useT } from "../../i18n";
 import { errorText, ipc, onHandAnnotated, type HandAnnotations } from "../../lib/ipc";
 import styles from "./HandNotes.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** How long typing pauses before the note is saved. */
 const NOTE_DEBOUNCE_MS = 700;
@@ -257,9 +258,9 @@ export function HandNotes({ handKey, knownTags, onAnnotated }: HandNotesProps) {
             </label>
             <p className={styles.footnote}>{t.localOnly}</p>
             {error ? (
-              <p className={styles.error} role="alert">
+              <Dismissible className={styles.error} role="alert">
                 {error}
-              </p>
+              </Dismissible>
             ) : null}
           </div>
         </Popover>

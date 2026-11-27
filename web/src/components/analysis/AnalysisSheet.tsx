@@ -44,6 +44,7 @@ import { IcmPanel } from "./IcmPanel";
 import { LearnLinks } from "./LearnLinks";
 import { RiverStudy } from "./RiverStudy";
 import { loudness, toneOf } from "./tone";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const STREETS = ["preflop", "flop", "turn", "river"] as const;
 /** Decoration before a bad move's better option. */
@@ -315,7 +316,7 @@ function Study({ decision }: { decision: DecisionAnalysis }) {
           {t.sheet.openBrowser}
         </Link>
       </div>
-      {open && error ? <p className="notice notice--error">{t.charts.failed(error)}</p> : null}
+      {open && error ? <Dismissible className="notice notice--error">{t.charts.failed(error)}</Dismissible> : null}
       {open && !error && !charts ? <RailLoader size="small" label={t.charts.loading} showLabel /> : null}
       {open && node ? (
         <div className="rail-fade">

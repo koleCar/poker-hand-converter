@@ -20,6 +20,7 @@ import { useSolverDict } from "./host";
 import { flopCards, flopsForPicks, pickedFlop } from "../../lib/solver";
 import { IconButton, Popover, ToolButton } from "./ui";
 import styles from "./solver.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const RANKS = "AKQJT98765432";
 const SUITS: readonly Suit[] = ["s", "h", "d", "c"];
@@ -121,9 +122,9 @@ export function FlopPicker({ onClose, solved, current, onPick, anchor, left = 0 
       </div>
 
       {missing ? (
-        <p className={`notice notice--error ${styles.pickerError}`} role="alert">
+        <Dismissible className={`notice notice--error ${styles.pickerError}`} role="alert">
           {t.missing}
-        </p>
+        </Dismissible>
       ) : null}
 
       <p className={styles.pickerNote}>{picked.length ? t.matching(listed.length, solved.length) : t.solved(solved.length)}</p>

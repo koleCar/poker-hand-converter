@@ -54,6 +54,7 @@ import {
   type Point,
 } from "./slots";
 import styles from "./Tables.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** The tallest the work area is drawn, and the section's padding both sides. */
 const MAX_HEIGHT = 320;
@@ -232,7 +233,7 @@ export function SlotEditor({
       ) : (
         <p className={styles.hint}>{s.hint}</p>
       )}
-      {problem !== null ? <p className={styles.error}>{problem}</p> : null}
+      {problem !== null ? <Dismissible className={styles.error}>{problem}</Dismissible> : null}
     </section>
   );
 }

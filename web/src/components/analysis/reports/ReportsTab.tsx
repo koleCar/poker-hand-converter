@@ -85,6 +85,7 @@ import styles from "./reports.module.css";
 import an from "../ui/an.module.css";
 import "../../../styles/stats.css";
 import { ReportsSkeleton, SkStatus } from "../ui/Skeleton";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** The migration the screen needs, named in the not-installed notice. An identifier, not prose. */
 const REPORTS_MIGRATION = "supabase/migrations/20270111090000_analysis_reports.sql";
@@ -252,7 +253,7 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
     return (
       <div className="stats">
         <Header />
-        <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>
+        <Dismissible className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</Dismissible>
       </div>
     );
   }
@@ -281,7 +282,7 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
     return (
       <div className="stats">
         <Header />
-        <p className="notice notice--error">{message}</p>
+        <Dismissible className="notice notice--error">{message}</Dismissible>
         <TryAgain onClick={() => setAttempt((value) => value + 1)} />
       </div>
     );
@@ -337,7 +338,7 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
         <SetFilter sets={setsWithDecisions} value={activeSet} onChange={updateSet} />
       ) : null}
 
-      {chartsError ? <p className="notice notice--error">{t.chartsFailed(chartsError)}</p> : null}
+      {chartsError ? <Dismissible className="notice notice--error">{t.chartsFailed(chartsError)}</Dismissible> : null}
       {loading ? (
         <p className={styles.busy}>
           <RailLoader size="inline" label={t.loading} showLabel />
@@ -348,7 +349,7 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
           <ReportsSkeleton filters={false} field={false} />
         </SkStatus>
       ) : null}
-      {built && built.unmatched > 0 ? <p className="notice notice--warn">{t.unmatched(built.unmatched)}</p> : null}
+      {built && built.unmatched > 0 ? <Dismissible className="notice notice--warn">{t.unmatched(built.unmatched)}</Dismissible> : null}
 
       {built && report.decisions === 0 ? <p className="card muted">{t.noneInScope}</p> : null}
 
@@ -970,7 +971,7 @@ function NodeHands({ nodes, filters, single = false }: { nodes: string[]; filter
     <div className={styles.hands}>
       <h4 className={styles.subhead}>{t.hands.heading}</h4>
       <p className={styles.muted}>{t.hands.note}</p>
-      {error ? <p className="notice notice--error">{t.hands.failed(error)}</p> : null}
+      {error ? <Dismissible className="notice notice--error">{t.hands.failed(error)}</Dismissible> : null}
       {loading && !data ? <RailLoader size="small" label={t.hands.loading} showLabel /> : null}
       {data && data.rows.length === 0 ? <p className={styles.muted}>{t.hands.empty}</p> : null}
       {data && data.rows.length > 0 ? (
@@ -1062,7 +1063,7 @@ function PostflopSection({ rows }: { rows: PostflopCount[] }) {
         </div>
       </div>
       <p className={styles.muted}>{t.note}</p>
-      <p className={`notice notice--info ${styles.placeholder}`}>{t.placeholder}</p>
+      <Dismissible className={`notice notice--info ${styles.placeholder}`}>{t.placeholder}</Dismissible>
       {any ? (
         <div className="stats-table-wrap">
           <table className={`stats-table ${styles.table}`}>

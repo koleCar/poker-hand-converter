@@ -362,6 +362,8 @@ export interface UiStrings {
   intlLocale: string;
   /** The accessible name of a dialog's close button: "Close <what>". */
   closeNamed: (what: string) => string;
+  /** The accessible name of a notice's × (`notice/Dismissible.tsx`): "Close this message". */
+  dismissNotice: string;
   replayer: ReplayerStrings;
   statTile: StatTileStrings;
   statTable: StatTableStrings;
@@ -382,6 +384,11 @@ const UiStringsContext = createContext<UiStrings | null>(null);
 /** Mount once per surface, above anything from `@rail/ui`, with the reader's language. */
 export function UiStringsProvider({ strings, children }: { strings: UiStrings; children: ReactNode }) {
   return <UiStringsContext.Provider value={strings}>{children}</UiStringsContext.Provider>;
+}
+
+/** The strings, or null where no provider is mounted (a notice may sit outside one). */
+export function useOptionalUiStrings(): UiStrings | null {
+  return useContext(UiStringsContext);
 }
 
 /** The strings, in a component of this package. */

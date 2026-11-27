@@ -24,6 +24,7 @@ import { settledAt } from "../../../lib/learn/progress";
 import { useFormats } from "../controls";
 import { useLearn } from "./LearnStore";
 import styles from "./course.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 type State = { status: "ready"; mastery: Mastery } | { status: "error"; message: string };
 
@@ -72,7 +73,7 @@ export function LessonMastery({ lesson }: { lesson: LessonId }) {
       {!state ? (
         <RailLoader size="small" label={t.loading} showLabel />
       ) : state.status === "error" ? (
-        <p className="notice notice--warn">{t.failed(state.message)}</p>
+        <Dismissible className="notice notice--warn">{t.failed(state.message)}</Dismissible>
       ) : (
         <MasteryBody mastery={state.mastery} />
       )}

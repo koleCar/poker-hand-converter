@@ -15,6 +15,7 @@ import { fromSaved, toSaved, type FilterState } from "./filter";
 import styles from "./FilterBar.module.css";
 import { errorText, type FilterScreen, type SavedFilter, type SavedFiltersSource } from "./model";
 import { Popover } from "./Popover";
+import { Dismissible } from "../notice/Dismissible";
 
 export interface SavedFiltersState {
   list: SavedFilter[];
@@ -197,9 +198,9 @@ export function SaveForm({
         {t.saveButton}
       </button>
       {state.error ? (
-        <p className={styles.error} role="alert">
+        <Dismissible className={styles.error} role="alert">
           {state.error}
-        </p>
+        </Dismissible>
       ) : null}
     </form>
   );
@@ -395,9 +396,9 @@ function EditSaved({
         </button>
       </div>
       {state.error ? (
-        <p className={styles.error} role="alert">
+        <Dismissible className={styles.error} role="alert">
           {state.error}
-        </p>
+        </Dismissible>
       ) : null}
     </form>
   );

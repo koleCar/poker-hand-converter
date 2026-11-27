@@ -29,6 +29,7 @@ import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
 import { sessionFilterOf, sessionQueryString } from "../analysis/session/sessionQuery";
 import { countIn, dateFormat, money, numberFormat, useIntlLocale } from "./format";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const GAPS = [15, 30, 60, 120];
 const SHOWN = 15;
@@ -126,7 +127,7 @@ export function SessionsPanel({ filter, refreshToken }: { filter: HandFilter; re
 
   if (!data || data.sessions.length === 0) {
     if (pending) return <RailLoader label={en.loading} centered />;
-    return error ? <p className="notice notice--error">{error}</p> : null;
+    return error ? <Dismissible className="notice notice--error">{error}</Dismissible> : null;
   }
 
   const rows = all ? data.sessions : data.sessions.slice(0, SHOWN);

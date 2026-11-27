@@ -53,6 +53,7 @@ import {
 } from "./model";
 import { readOpen, writeOpen } from "./persist";
 import styles from "./tree.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 type Node = TreeNode<NodeLockRow, NodeLockFolder>;
 type Loaded = { status: "loading" } | { status: "error" } | { status: "ready"; folders: NodeLockFolder[]; rows: NodeLockRow[] };
@@ -818,9 +819,9 @@ export function NodelockTree({ openId, onHide }: { openId: string | null; onHide
         />
       ) : null}
       {error ? (
-        <p className={styles.error} role="alert">
+        <Dismissible className={styles.error} role="alert">
           {error}
-        </p>
+        </Dismissible>
       ) : null}
       <div
         ref={listRef}

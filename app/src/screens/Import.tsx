@@ -8,6 +8,7 @@ import { useT } from "../i18n";
 import { inApp, ipc, onManualImportChanged, type ManualImportStatus } from "../lib/ipc";
 import { REFUSED, screenHref } from "../lib/router";
 import styles from "./Import.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** The current (or last) import, reloaded on every change the app reports. */
 function useImportStatus(): [ManualImportStatus | null, () => void] {
@@ -128,9 +129,9 @@ export function Import() {
         </div>
       )}
       {error !== null && (
-        <p className={styles.error} role="alert">
+        <Dismissible className={styles.error} role="alert">
           {error}
-        </p>
+        </Dismissible>
       )}
       {!running && status && <Result status={status} />}
     </div>
@@ -186,9 +187,9 @@ function Result({ status }: { status: ManualImportStatus }) {
   if (status.phase === "idle") return null;
   if (status.phase === "failed") {
     return (
-      <p className={styles.error} role="alert">
+      <Dismissible className={styles.error} role="alert">
         {m.failed(status.error ?? "")}
-      </p>
+      </Dismissible>
     );
   }
   if (status.phase === "done" && status.files === 0 && status.errorCount === 0) {

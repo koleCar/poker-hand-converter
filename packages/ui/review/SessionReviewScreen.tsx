@@ -44,6 +44,7 @@ import {
 import styles from "./Review.module.css";
 import table from "./SpotTable.module.css";
 import { bbPer100, minutesBetween, selectWorthALook, type ReviewItem, type ReviewSection } from "./select";
+import { Dismissible } from "../notice/Dismissible";
 
 /** Hands shown per list. */
 export const REVIEW_SHOWN = 6;
@@ -373,7 +374,7 @@ export function SessionReviewView({
       {filtered && !all ? <FilterLine query={query} onQuery={onQuery} /> : null}
 
       {review.ongoing ? (
-        <p className={styles.notice} role="status">
+        <Dismissible className={styles.notice} role="status">
           {r.ongoing.text(time.format(new Date(review.ongoing.startedAt)), time.format(new Date(review.ongoing.endedAt)))}{" "}
           <button
             type="button"
@@ -382,16 +383,16 @@ export function SessionReviewView({
           >
             {r.ongoing.reviewNow}
           </button>
-        </p>
+        </Dismissible>
       ) : null}
-      {!session.finished ? <p className={styles.notice}>{r.notFinished}</p> : null}
+      {!session.finished ? <Dismissible className={styles.notice}>{r.notFinished}</Dismissible> : null}
 
       <Summary review={review} scope={scope} />
 
       {missing > 0 && !all ? (
-        <p className={styles.notice}>
+        <Dismissible className={styles.notice}>
           {r.coverage.missing(missing, review.coverage.hands)} {coverageAction}
-        </p>
+        </Dismissible>
       ) : null}
       {review.coverage.notAnalysed > 0 && layout === "cards" ? <p className={styles.muted}>{r.coverage.notAnalysed(review.coverage.notAnalysed)}</p> : null}
 
@@ -637,7 +638,7 @@ function Summary({ review, scope }: { review: SessionReview; scope: ReviewScope 
           </div>
         ) : null}
       </dl>
-      {session.mixedUnitKind ? <p className={styles.warning}>{r.summary.mixedKind}</p> : null}
+      {session.mixedUnitKind ? <Dismissible className={styles.warning}>{r.summary.mixedKind}</Dismissible> : null}
       {!session.mixedUnitKind && session.mixedCurrency ? <p className={styles.muted}>{r.summary.mixedCurrency}</p> : null}
     </section>
   );

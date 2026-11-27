@@ -19,6 +19,7 @@ import type { EditorTarget } from "./SlotEditor";
 import { MAX_LAYOUTS, MAX_NAME, addLayout, cleanName, deleteLayout, newLayoutName, renameLayout } from "./model";
 import { blankLayout, duplicateLayout, uniqueName } from "./slots";
 import styles from "./Tables.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 export function LayoutAdd({
   settings,
@@ -94,7 +95,7 @@ function AddForm({
         <input className={styles.input} value={name} maxLength={MAX_NAME} onChange={(e) => setName(e.target.value)} />
       </label>
       <p className={styles.hint}>{blocked ?? s.saveHint}</p>
-      {message !== null ? <p className={styles.error}>{message}</p> : null}
+      {message !== null ? <Dismissible className={styles.error}>{message}</Dismissible> : null}
       <div className={styles.formActions}>
         <button type="submit" className="btn btn--sm btn--primary" disabled={blocked !== null || busy || cleanName(name) === null}>
           {busy ? s.saving : s.saveArrangement}
@@ -187,7 +188,7 @@ function LayoutMenuBody({
           {s.save}
         </button>
       </form>
-      {problem !== null ? <p className={styles.error}>{problem}</p> : null}
+      {problem !== null ? <Dismissible className={styles.error}>{problem}</Dismissible> : null}
       <button
         type="button"
         className={`btn btn--sm btn--ghost ${styles.danger}`}

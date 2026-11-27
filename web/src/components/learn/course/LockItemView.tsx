@@ -17,6 +17,7 @@ import type { LabItem } from "../../../lib/training";
 import { LabNumbers, LabQuestionView, LabSpot, LabViews } from "./LabReport";
 import type { ItemAnswer } from "./PracticeItems";
 import styles from "./course.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 export type LockCard = Extract<CardItem, { k: "lock" }>;
 
@@ -55,12 +56,12 @@ export function LockItemView({ card, onAnswer }: { card: LockCard; onAnswer: (an
 
   if (dealt?.error) {
     return (
-      <div className="notice notice--error">
+      <Dismissible as="div" className="notice notice--error">
         <p>{c.failed(dealt.error)}</p>
         <button type="button" className="btn btn--sm" onClick={() => setAttempt((value) => value + 1)}>
           {c.retry}
         </button>
-      </div>
+      </Dismissible>
     );
   }
   if (!dealt) {
@@ -69,7 +70,7 @@ export function LockItemView({ card, onAnswer }: { card: LockCard; onAnswer: (an
     );
   }
   const item = dealt.item;
-  if (!item) return <p className="notice notice--warn">{c.noSpot}</p>;
+  if (!item) return <Dismissible className="notice notice--warn">{c.noSpot}</Dismissible>;
 
   return (
     <div className={styles.item}>

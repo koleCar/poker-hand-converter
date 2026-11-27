@@ -514,6 +514,21 @@
   margin: 0;
 }
 
+/* A closable notice (`@rail/ui/notice/Dismissible`): the × in the top-right
+   corner, the rest down the first column. */
+.notice:has(> [data-notice-close]) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.notice > :not([data-notice-close]) {
+  grid-column: 1;
+}
+
+.notice > [data-notice-close] {
+  grid-area: 1 / 2;
+  margin: 0;
+}
+
 /* ------------------------------------------------------------- session */
 
 .side {

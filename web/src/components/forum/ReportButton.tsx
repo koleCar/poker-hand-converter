@@ -6,6 +6,7 @@ import { forumErrorMessage } from "../../lib/db/forum";
 import { reportContent, type ReportReason, type ReportSubject } from "../../lib/db/moderation";
 import { useDict } from "../../lib/i18n/client";
 import styles from "./forum.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const REASONS: ReportReason[] = ["spam", "harassment", "cheating", "off-topic", "hh-takedown", "other"];
 
@@ -50,7 +51,7 @@ export function ReportButton({ subject, defaultReason = "spam" }: { subject: Rep
   return (
     <div className={styles.reportBox} role="group" aria-label={en.moderation.reportHeading}>
       {message ? (
-        <p className="notice notice--info">{message}</p>
+        <Dismissible className="notice notice--info">{message}</Dismissible>
       ) : (
         <>
           <strong>{en.moderation.reportHeading}</strong>
@@ -64,7 +65,7 @@ export function ReportButton({ subject, defaultReason = "spam" }: { subject: Rep
             <span className="muted">{en.moderation.detailsLabel}</span>
             <textarea value={details} maxLength={1000} rows={2} onChange={(event) => setDetails(event.target.value)} />
           </label>
-          {error ? <p className="notice notice--error">{error}</p> : null}
+          {error ? <Dismissible className="notice notice--error">{error}</Dismissible> : null}
           <div className={styles.row}>
             <button type="button" className="btn btn--sm btn--primary" disabled={busy} onClick={() => void send()}>
               {en.moderation.submitReport}

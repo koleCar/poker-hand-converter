@@ -24,6 +24,7 @@ import { go, replaceParam, useRouteParam } from "../lib/router";
 import { useStatDefinitions } from "../lib/useStatDefinitions";
 import { EMPTY_FILTER, requestFilter } from "./hands/filter";
 import { parsePlayerParam, playerParam } from "./players/param";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** The store's rebuild after an upgrade and its indexing of new opponents, polled while either runs. */
 function useRebuild(): StatsStatus | null {
@@ -74,9 +75,9 @@ export function Players() {
   const notice = recomputing(rebuild) ? (
     <RecomputeNotice status={rebuild} filling={p.rebuilding} className={styles.notice} />
   ) : rebuild && rebuild.playersUnindexed > 0 && rebuild.activity !== "idle" ? (
-    <p className={styles.notice} role="status">
+    <Dismissible className={styles.notice} role="status" messageKey="indexing">
       {p.indexing(rebuild.playersUnindexed)}
-    </p>
+    </Dismissible>
   ) : null;
 
   if (kind === null) return <StateMessage kind="loading">{p.loading}</StateMessage>;

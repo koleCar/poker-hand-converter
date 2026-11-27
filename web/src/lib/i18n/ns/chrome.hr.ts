@@ -11,6 +11,7 @@ export const chromeHr: Dict["chrome"] = {
   intl: "hr-HR",
   close: "Zatvori",
   closeNamed: (what: string) => `Zatvori: ${what.toLowerCase()}`,
+  dismissNotice: "Zatvori ovu poruku",
   auth: {
     titles: { "sign-in": "Prijava", "sign-up": "Napravi račun", reset: "Nova lozinka" },
     submit: { "sign-in": "Prijavi se", "sign-up": "Napravi račun", reset: "Pošalji link" },

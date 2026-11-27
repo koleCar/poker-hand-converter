@@ -40,6 +40,7 @@ import { Icon } from "@rail/ui/icon/Icon";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import forum from "../../../components/forum/forum.module.css";
 import styles from "./PostPreview.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const MODES: PublishMode[] = ["pseudonyms", "positions", "as-imported"];
 
@@ -149,7 +150,7 @@ function PostPreview({ handId, draftId }: { handId: string | null; draftId: stri
     return <RailLoader showLabel label={p.loading} />;
   }
   if (!hand || !shown) {
-    return <p className="notice notice--warn">{p.handGone}</p>;
+    return <Dismissible className="notice notice--warn">{p.handGone}</Dismissible>;
   }
 
   const boardName = boards?.find((entry) => entry.slug === board)?.name ?? "";
@@ -244,11 +245,11 @@ function PostPreview({ handId, draftId }: { handId: string | null; draftId: stri
         </button>
       </div>
 
-      {blocked ? <p className="notice notice--warn">{blocked}</p> : null}
+      {blocked ? <Dismissible className="notice notice--warn">{blocked}</Dismissible> : null}
       {error ? (
-        <p className="notice notice--error" role="alert">
+        <Dismissible className="notice notice--error" role="alert">
           {error}
-        </p>
+        </Dismissible>
       ) : null}
 
       <div className={styles.layout}>

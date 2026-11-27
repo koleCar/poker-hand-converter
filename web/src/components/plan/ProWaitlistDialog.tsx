@@ -23,6 +23,7 @@ import { useDict, useLocale } from "../../lib/i18n/client";
 import { BusyLabel } from "../shell/BusyLabel";
 import styles from "./plan.module.css";
 import p from "./pricing.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 type State = "checking" | "editing" | "sending" | "done" | "already";
 
@@ -144,9 +145,9 @@ export function ProWaitlistDialog({
             <span>{w.consent}</span>
           </label>
           {error ? (
-            <p className="notice notice--error" role="alert">
+            <Dismissible className="notice notice--error" role="alert">
               {w.errors[error]}
-            </p>
+            </Dismissible>
           ) : null}
           <div className={styles.actions}>
             <button

@@ -14,6 +14,7 @@ import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
 import styles from "../../components/forum/forum.module.css";
 import { BusyLabel } from "../../components/shell/BusyLabel";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 interface Attached {
   publicId: string;
@@ -217,11 +218,11 @@ function SubmitForm({
             required={!attached}
           />
         </label>
-        {blocked ? <p className="notice notice--warn">{blocked}</p> : null}
+        {blocked ? <Dismissible className="notice notice--warn">{blocked}</Dismissible> : null}
         {error ? (
-          <p className="notice notice--error" role="alert">
+          <Dismissible className="notice notice--error" role="alert">
             {error}
-          </p>
+          </Dismissible>
         ) : null}
         <div>
           <button type="submit" className="btn btn--primary" disabled={busy || Boolean(blocked)}>

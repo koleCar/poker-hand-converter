@@ -29,6 +29,7 @@ import { principleOf } from "./principles";
 import { CardsText } from "./RangeGrid";
 import type { TrainerSettings } from "./settings";
 import styles from "./trainer.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const GLYPH: Record<string, string> = { perfect: "★", good: "✓", inaccurate: "?!", mistake: "?", blunder: "??" };
 
@@ -253,5 +254,5 @@ export function Brief({
 
 function NotGraded({ decision }: { decision: DecisionAnalysis }) {
   const { t } = useTrainerHost();
-  return <p className={styles.notice}>{t.notGraded(decision.reason ? (t.words.reasons[decision.reason] ?? decision.reason) : "—")}</p>;
+  return <Dismissible className={styles.notice}>{t.notGraded(decision.reason ? (t.words.reasons[decision.reason] ?? decision.reason) : "—")}</Dismissible>;
 }

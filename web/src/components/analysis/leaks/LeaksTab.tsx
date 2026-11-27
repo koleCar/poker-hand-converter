@@ -70,6 +70,7 @@ import styles from "./leaks.module.css";
 import an from "../ui/an.module.css";
 import "../../../styles/stats.css";
 import { LeaksTabSkeleton, SkStatus } from "../ui/Skeleton";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** The migration the screen needs, named in the not-installed notice. An identifier, not prose. */
 const LEAKS_MIGRATION = "supabase/migrations/20270201090000_analysis_leaks.sql";
@@ -184,7 +185,7 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
     return (
       <div className="stats">
         <Header />
-        <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>
+        <Dismissible className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</Dismissible>
       </div>
     );
   }
@@ -213,7 +214,7 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
     return (
       <div className="stats">
         <Header />
-        <p className="notice notice--error">{answer?.message}</p>
+        <Dismissible className="notice notice--error">{answer?.message}</Dismissible>
         <TryAgain onClick={() => setAttempt((value) => value + 1)} />
       </div>
     );
@@ -481,7 +482,7 @@ function LeakDetail({
   const drillId = useId();
   return (
     <div className={styles.detailNew}>
-      {leak.confidence === "low" ? <p className="notice notice--warn">{t.detail.lowNote}</p> : null}
+      {leak.confidence === "low" ? <Dismissible className="notice notice--warn">{t.detail.lowNote}</Dismissible> : null}
       <div className={styles.detailTop}>
         <MixBars you={leak.taken} reference={leak.best} youLabel={t.detail.youDid} refLabel={t.detail.referenceDoes} />
         <div className={an.kpis} style={{ columnGap: 24 }}>
@@ -648,7 +649,7 @@ function LeakHands({ leak, filters }: { leak: Leak; filters: AnalysisFilters }) 
     <div className={reportStyles.hands}>
       <h5 className={reportStyles.subhead}>{t.hands.heading}</h5>
       <p className={reportStyles.muted}>{t.hands.note}</p>
-      {error ? <p className="notice notice--error">{t.hands.failed(error)}</p> : null}
+      {error ? <Dismissible className="notice notice--error">{t.hands.failed(error)}</Dismissible> : null}
       {loading && !data ? <RailLoader size="small" label={t.hands.loading} showLabel /> : null}
       {data && data.rows.length === 0 ? <p className={reportStyles.muted}>{t.hands.empty}</p> : null}
       {data && data.rows.length > 0 ? (

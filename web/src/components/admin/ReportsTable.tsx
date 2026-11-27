@@ -22,6 +22,7 @@ import { KindBadge, StatusBadge } from "./badges";
 import { useAdminFormat } from "./format";
 import { Pager } from "./Pager";
 import styles from "./admin.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const PAGE = 50;
 const STATUSES: readonly FeedbackStatus[] = ["new", "read", "done", "spam"];
@@ -178,9 +179,9 @@ export function ReportsTable() {
       </div>
 
       {saveError ? (
-        <p className={styles.error} role="alert">
+        <Dismissible className={styles.error} role="alert">
           {t.setError}
-        </p>
+        </Dismissible>
       ) : null}
 
       {load.status === "loading" ? (
@@ -284,7 +285,7 @@ function ReportDetail({ row, onStatus }: { row: AdminFeedbackRow; onStatus: (sta
       {images.status === "loading" ? (
         <p className={styles.dim}>{d.imagesLoading}</p>
       ) : images.status === "error" ? (
-        <p className={styles.error}>{d.imagesError}</p>
+        <Dismissible className={styles.error}>{d.imagesError}</Dismissible>
       ) : images.urls.length > 0 ? (
         <div className={styles.shots}>
           {images.urls.map((url, index) => (

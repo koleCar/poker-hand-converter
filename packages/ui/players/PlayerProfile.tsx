@@ -29,6 +29,7 @@ import {
 } from "./model";
 import { PlayerStats } from "./PlayerStats";
 import styles from "./Players.module.css";
+import { Dismissible } from "../notice/Dismissible";
 
 const TABS = ["position", "stake"] as const;
 type Tab = (typeof TABS)[number];
@@ -481,9 +482,9 @@ export function PlayerWords({
       </label>
       {footnote ? <p className={styles.footnote}>{footnote}</p> : null}
       {error ? (
-        <p className={styles.errorText} role="alert">
+        <Dismissible className={styles.errorText} role="alert">
           {error}
-        </p>
+        </Dismissible>
       ) : null}
     </div>
   );
