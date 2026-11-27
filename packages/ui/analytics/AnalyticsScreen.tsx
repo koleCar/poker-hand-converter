@@ -285,7 +285,6 @@ export function AnalyticsScreen({
             loading={checkerLoading}
             error={checked.error}
             partial={partial}
-            filling={checked.filling}
             examples={examples}
             examplesKey={`${JSON.stringify(query)}#${String(reloadToken)}`}
             renderHandLink={renderHandLink}
@@ -305,7 +304,6 @@ export function AnalyticsScreen({
                 loading={checkerLoading}
                 error={checked.error}
                 partial={partial}
-                filling={checked.filling}
                 onView={onView}
                 practiseHref={practiseHref}
               />
@@ -320,7 +318,6 @@ export function AnalyticsScreen({
             loading={checkerLoading}
             error={checked.error}
             partial={partial}
-            filling={checked.filling}
           />
         ) : view === "stats" ? (
           <AllStats
@@ -333,7 +330,6 @@ export function AnalyticsScreen({
             loading={checkerLoading}
             error={checked.error}
             partial={partial}
-            filling={checked.filling}
           />
         ) : view === "pool" && (pool !== undefined || checkerLocked) ? (
           <Pool
@@ -346,7 +342,6 @@ export function AnalyticsScreen({
             lock={lockOf("pool")}
             loading={pooled.loading && !pooled.loaded}
             error={pooled.error}
-            counting={pooled.counting}
             onAllStats={() => onView("stats")}
             off={poolOff}
           />

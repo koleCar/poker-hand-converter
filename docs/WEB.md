@@ -359,7 +359,8 @@ enforces all of it; the page only says it first.
 | `/auth/desktop` | Sign-in on the page | The desktop app signs in through this browser (R1.7): sign in here if needed, confirm, and the page hands the app an encrypted one-time sign-in through a `rail://` link. |
 | **Machine-facing** | | |
 | `/api/oembed` | Public | oEmbed for this site's own `/p/` and `/h/` links only; never fetches the given URL. |
-| `/api/stats/rebuild` | Account | Derives statistics for the caller's hands that have none at the current `stats_version`, as the user (security-invoker RPCs, RLS). |
+| `/api/derive` | Account | Works out the caller's queued hands (statistics, facts, EV, checker rows, pool: docs/POOL.md P1), as the user; the upload calls it. Replaced `/api/stats/rebuild`. |
+| `/api/derive/cron` | `CRON_SECRET` | The scheduled worker: every owner's queued hands, as the derive role (`DERIVE_WORKER_JWT`); does nothing without that variable. |
 | `/og/p/[publicId]`, `/og/post/[publicId]` | Public | Open Graph images for a published hand and a forum thread. |
 | `/icons/[size]`, `/manifest.webmanifest`, `/sitemap.xml`, `/robots.txt`, `/apple-icon` | Public | The PWA's icons and manifest, the sitemap (public, stable pages only) and robots (`/h/` and the private screens disallowed). |
 | `/sites.json`, `/sw.js` | Public (static) | The room list the desktop app keeps current from (R3.10; copied from `config/sites.json` at build) and the service worker that keeps the converter working offline. |

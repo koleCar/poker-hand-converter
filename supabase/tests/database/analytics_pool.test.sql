@@ -12,8 +12,8 @@
 --   * the reader types the opponents by Rail's rule over player_stats (fish
 --     VPIP >= 40, reg VPIP 15-30 and PFR >= 0.6 VPIP, 30+ hands; an untyped
 --     one is out), sums hands, results and their squares, and the rates by
---     type; the filters (kind / format, rooms) narrow it; pending counts the
---     hands not marked;
+--     type; the filters (kind / format, rooms) narrow it; pending is the
+--     derive counter (P1);
 --   * a deleted hand empties the owner's pool (counted again from every hand);
 --     another version replaces the old one;
 --   * one account never reads or writes another's; bad input is refused.
@@ -147,7 +147,10 @@ select is(public.analytics_pool('{"statsVersion":"stats/2"}') -> 'stats',
             {"opp": 2, "made": 1, "stat": "vpip", "type": "reg"},
             {"opp": 1, "made": 1, "stat": "vpip", "type": "fish"}]'::jsonb,
           'the rates by type (an untyped opponent is out)');
-select is((public.analytics_pool('{"statsVersion":"stats/2"}') ->> 'pending')::int, 1, 'one hand still to count');
+-- Since P1 (20271127090000) pending is the derive counter: A's three hands are
+-- still queued (analytics_pool_save does not take them off).
+select is((public.analytics_pool('{"statsVersion":"stats/2"}') ->> 'pending')::int, 3,
+  'pending: A''s hands still being processed (derive_pending)');
 select is((select array_agg(id) from public.analytics_pool_pending('analytics/1')), array[pg_temp.hid(3)],
           '... the third, on the work list');
 select is((public.analytics_pool('{"statsVersion":"stats/2","gameKind":"tournament"}') -> 'reg' ->> 'players')::int, 0,

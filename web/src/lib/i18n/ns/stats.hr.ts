@@ -66,14 +66,8 @@ export const statsHr: Dict["stats"] = {
   },
 
   coverage: {
-    running: (done: number, target: number) =>
-      target > 0 ? `Ažuriram statistiku… ${num(done)} od ${handsGen(target)}` : `Ažuriram statistiku… ${hands(done)}`,
-    failedRebuild: (message: string) => `Statistiku nije bilo moguće ažurirati: ${message}`,
-    behind: (behind: number, total: number) =>
-      `Ove brojke još ne uključuju ${num(behind)} od ${handsGen(total)}.`,
-    unreadable: (count: number) =>
-      `${handsAcc(count)} nije bilo moguće pročitati — to je bug u konverteru, ne u tvojoj datoteci.`,
-    rebuild: "Ponovno izračunaj statistiku",
+    processing: (count: number) =>
+      `${plural(count, "Još se obrađuje", "Još se obrađuju", "Još se obrađuje")} ${hands(count)}.`,
   },
 
   scope: {

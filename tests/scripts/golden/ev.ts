@@ -5,7 +5,7 @@
  *
  * - `row` - the hero's `hand_stats_ev` row exactly as the web writes it:
  *   `handEvRow(hand, hero)` with `hero` the first hero row of
- *   `handStatsRows(hand)` (`app/api/stats/rebuild/route.ts`). A hand without
+ *   `handStatsRows(hand)` (the one pass, `lib/derive/onePass.ts`). A hand without
  *   a hero gets no row (`null`), as on the web. Every hand with a hero has
  *   one, `applicable: false` included (`ev_net = net`).
  * - `analysis` - `analyzeAllIn(hand)` with the default options (the ones

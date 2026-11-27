@@ -12,7 +12,7 @@ import { StatsTab } from "../../../components/stats/StatsTab";
  */
 export function StatsScreen() {
   return (
-    <AppFrame tab="analysis" feature={null} live ownsFactsCatchUp>
+    <AppFrame tab="analysis" feature={null} live>
       {({ refreshToken, arrival }) => <StatsTab mode="analytics" refreshToken={refreshToken} arrival={arrival} />}
     </AppFrame>
   );

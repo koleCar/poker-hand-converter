@@ -284,6 +284,9 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 'save_hand_facts', 'hand_facts_missing',
                 'hand_stats_ev_normalize', 'prune_hand_stats', 'prune_villain_stats', 'refresh_report_summaries',
                 'my_player_notes', 'set_player_note',
+                -- P1 (20271127090000): every hand is worked out on arrival, whatever the plan
+                -- (the Pro readers stay gated); the opponents' statistics switch
+                'derive_claim', 'derive_save', 'derive_fail', 'derive_pending', 'derive_villains', 'derive_villains_set',
                 -- a shared analysis is read by anyone; switching one's own share and pruning stay free
                 'read_shared_analysis', 'analysis_share_state', 'set_analysis_share', 'prune_hand_analysis',
                 -- the desktop app signs in with any plan (it reads its entitlements after)

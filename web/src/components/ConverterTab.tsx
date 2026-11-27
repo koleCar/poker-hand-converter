@@ -47,7 +47,8 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../lib/auth";
 import { handsLeft, handsLeftToday, isFreeEnforced, saveRoom } from "../lib/db/entitlements";
 import { useEntitlements } from "../lib/entitlements/context";
-import { isDatabaseConfigured, rebuildStats, recordConversionFailures } from "../lib/db";
+import { isDatabaseConfigured, recordConversionFailures } from "../lib/db";
+import { deriveNow } from "../lib/db/derive";
 import { currentUserId, requireDb } from "../lib/db/client";
 import { createUploadApi, type UploadClient } from "../lib/db/upload";
 import { useDict, useLocale } from "../lib/i18n/client";
@@ -389,11 +390,13 @@ export function ConverterTab({ onHandsSaved, onOpenHand, onReplay, replay }: Con
   const afterSave = useCallback(
     (progress: SaveProgress) => {
       onHandsSaved?.();
-      // Statistics are derived server-side from what was just stored, and in
-      // the background: a statistics failure must never read as "your upload
-      // failed". The statistics screen picks up anything this misses.
+      // Every product (statistics, facts, EV, the pool) is worked out on the
+      // server from what was just stored (docs/POOL.md P1): this drains the
+      // upload's own hands now, in the background - a failure there must
+      // never read as "your upload failed" - and the scheduled worker picks
+      // up anything it misses.
       if (progress.inserted > 0) {
-        void rebuildStats().catch(() => undefined);
+        void deriveNow().catch(() => undefined);
       }
     },
     [onHandsSaved],

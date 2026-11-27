@@ -623,29 +623,31 @@ everything in it can be rebuilt from the documents, which is why it is the one
 table with a delete path (`prune_hand_stats`, definer, can only remove the
 caller's rows at *other* versions).
 
-**Who writes it.** Nobody in the browser any more. After a save, the client
-calls `POST /api/stats/rebuild`, a route handler that runs **as the user** (anon
-key + their cookie, no service role) and loops:
+**Who writes it.** The one pass (docs/POOL.md P1, `20271127090000`): every
+hand stored with a hero is queued on insert (`derive_queue`, see
+[The derive queue](#the-derive-queue-p1)), and the server works it out once -
+statistics, facts, EV, checker rows and the pool from one parse
+(`web/src/lib/derive/onePass.ts`) - written by `derive_save` through
+`save_hand_stats` / `save_hand_ev` / `save_hand_facts` as the hand's owner.
+`POST /api/derive` drains the caller's own queue **as the user** (anon key +
+cookie, no service role); the upload calls it right after its hands are
+stored. `/api/derive/cron` drains every owner's as the derive role. Pages
+never derive: they read `derive_pending()` ("N hands still being
+processed"). A `STATS_VERSION` bump is now a rollout step
+(`derive_enqueue_backlog`, P7), not something `/stats` starts.
 
-1. `hands_needing_stats(version, after, limit)`: invoker, a keyset page of the
-   caller's hands that have a hero and no row at `version`, with their `phf` (or, for a row stored as text, its `standard_text` and restore columns: `20271114090000`);
-2. derive with `lib/stats` next to the database;
-3. `save_hand_stats(rows)`: invoker, resolves `hand_key` under RLS;
-4. on the last slice, `prune_hand_stats(version)` drops older generations.
-
-Each request works for ~8 s and returns a cursor; the client calls again until
-`done`. "Missing" is computed, not tracked, so an interrupted run resumes by
-being run again, and two concurrent runs are harmless (`on conflict do nothing`).
-The `/stats` screen reads `stats_coverage(version)` and starts a rebuild on its
-own when anything is missing or stale, so a `STATS_VERSION` bump needs no
-migration and no button press.
+*Before P1* (`/api/stats/rebuild`, removed): the page called the route, which
+walked `hands_needing_stats` a keyset page at a time and pruned older
+versions on its last slice; "missing" was computed per request. The readers
+(`hands_needing_stats`, `stats_coverage`, `hand_facts_missing`,
+`stats_ev_missing`) and `prune_hand_stats` are still in the schema, unused
+by the web.
 
 **Every origin goes through it** (R4.4). A desktop row (`ingest_hands` from the
-app) and an upload row (`ingest_hands` from the web source) arrive with the PHF
-only and get their statistics from this rebuild, exactly as a `save_hands` web
-row: the converter starts it after a bulk save, and `/stats` starts it for hands
-synced from the app. `npm run parity` (tests/) holds the rows of the two paths
-equal byte for byte over the corpus.
+app), an upload row (`ingest_hands` from the web source) and a `save_hands`
+web row arrive with the PHF only and enter the queue on insert. `npm run
+parity` (tests/) holds the rows of the two paths equal byte for byte over the
+corpus, both drained through `/api/derive`.
 
 **Seats and refusals** (R4.4's F1, `20270623093000`). A seat is the room's own
 seat number, not an index: Ignition's tournament seats run past 24 (to 1 227 in
@@ -885,6 +887,64 @@ to `report_sessions`' bounds, hands, tables and result under four settings,
 a 1 200-hand session walked across chunks, the summary's money and EV rules,
 the three lists' order, cap and contents, the analysis counts, another and a
 malformed analysis version, another account, anon.
+
+### The derive queue (P1)
+
+docs/POOL.md P1, `20271127090000_derive_queue.sql`. A hand is worked out
+once, on the server, when it arrives; pages only read.
+
+| Table | Key | What it holds |
+| --- | --- | --- |
+| `derive_queue` | `hand_id` | A hand still to be worked out: `owner_id`, `reason` (`new`, `analysis`, `pool`, `villains`, a version such as `stats/3`), `priority` (0 a hand someone waits for, 1 a re-count, 2 a backfill), `enqueued_at`, `claimed_at` / `tries` (a claim lapses after 5 minutes; 5 tries and it is given up), `last_error`. FK to `hands` and `auth.users`, cascading. |
+| `derive_pending_counts` | `owner_id` | The counter: rows the queue holds for the account. Statement triggers on the queue add and subtract (owner order, so two drains never deadlock); `derive_pending()` reads it. |
+| `derive_failures` | `hand_id` | Hands given up on (unreadable, or refused by the database three times), with the error. Not pending. |
+| `derive_options` | `owner_id` | `villains`: the account's opponents' statistics are on (was a browser setting). Set by `derive_villains_set`; filled at migration for every account that had opponent rows. |
+| `derive_recounts` | `owner_id` | An account whose hands are to be queued again (a delete emptied its pool): `derive_claim` queues 5 000 a call from the `after` cursor. P2 replaces it. |
+
+All five: RLS on, owner select only, no client write; `internal` in the
+inventory.
+
+**Filled by** `hands_derive_enqueue` (statement trigger on `hands` insert:
+every hand with a hero, whoever stored it - desktop `ingest_hands`, web
+`save_hands`, the upload), `hand_analysis_derive_enqueue` (a new analysis;
+`analysis_checker_hands_dequeue` takes it out again when the browser writes
+the checker rows itself), `pool_counted_hands_reset` (a delete: marks the
+account in `derive_recounts`), `derive_villains_set(true)` (every hand) and
+`derive_enqueue_backlog(reason, after, limit, owner, priority)` (version
+bumps and the first rollout; granted to nobody, run by hand in batches).
+
+**Drained by** three definer functions, executable by `authenticated` and the
+role `rail_derive` only:
+
+- `derive_claim(limit, versions)` - up to 100 rows, most urgent and oldest
+  first, the caller's own for a user and every owner's for the worker
+  (`derive_caller`: a JWT with role `rail_derive`, or role `authenticated`
+  with no subject and `rail_worker = derive`), `for update skip locked`;
+  returns the stored hand (as `hands_needing_stats` did), the owner's
+  `villains`, and for a hand analysed at `versions.analysis` without checker
+  rows at `versions.membership` its decisions. Also runs one
+  `derive_recount_step`.
+- `derive_save(hands)` - per owner, as that owner (`derive_act_as` sets the
+  request's claims for the call and restores them), through `derive_write`:
+  `save_hand_stats`, `save_hand_ev`, `save_hand_facts` (which now also join
+  `owner_id = auth.uid()`: a definer bypasses RLS), `analytics_rows_save`
+  (when the owner has `analysis`) and `analytics_pool_add` (the pool for
+  every plan; its reader stays Pro). A hand's rows name its own `hand_key`
+  only. A call refused for its data (class 22/23) is retried hand by hand; a
+  hand refused three times goes to `derive_failures`. Saved hands leave the
+  queue.
+- `derive_fail(hands)` - `final` (unreadable) or a third try: given up;
+  otherwise back on the queue.
+
+`rail_derive` holds no table privilege; the migration tries `grant
+rail_derive to authenticator`, which Supabase reserves to a superuser
+(supautils) - see docs/POOL.md P7 for the key and the fallback.
+
+Measured locally (92 616 hands queued for one account): `derive_pending`
+0.1-1.6 ms, `analytics_pool` 4 ms, a 100-hand claim 9-25 ms (350 ms while a
+recount queues its next 5 000), `delete_hands` of one counted hand 31 ms;
+drained 5 000 hands in 18 s through `/api/derive` (three 8 s slices) and in
+18 s in one `/api/derive/cron` call (~280 hands a second, hero rows only).
 
 ## Hand analysis: `hand_analysis`, `decision_analysis`
 
@@ -1316,9 +1376,9 @@ serializer cannot read a room's presentation quirks off the source, so 220 of
 the corpus's 8 422 hands (almost all GG) render with small differences from
 the room's text (trailing space on blank `Dealt to` lines, a replayed header,
 `SHOW DOWN`, fee columns); every one reads back as the same hand. Per-seat
-statistics go through `save_hand_stats` as for web rows; until the Rust
-stats engine (R2.1) the web's `/api/stats/rebuild` derives them from the PHF,
-which works for desktop rows unchanged.
+statistics go through `save_hand_stats` as for web rows: a desktop row enters
+the derive queue on insert like any other, and the web's one pass works it
+out from the PHF (docs/POOL.md P1).
 
 **`hand_sources`.** One row per folder the app watches on one device
 (`kind = 'folder'`; one `web` source per account holds the web's bulk uploads, R4.2, [below](#web-bulk-upload-the-web-source-and-hand-uploads)). The app's
@@ -1518,7 +1578,7 @@ treats a reconnect as a signal (events in the gap are lost), and removes the
 channel on unmount and sign-out. `/library` re-reads the first page in
 place while the reader is at the top of it, or shows "N new hands - show"
 (scrolled down, or past the first page; R4.3); `/stats` re-reads quietly and
-runs `/api/stats/rebuild` for the new hands; the analysis screens (overview,
+reads the pending count again (the server works the new hands out, P1); the analysis screens (overview,
 reports, progress, leaks, plan) are not touched and offer "N new hands
 arrived - refresh" instead (R4.3). "Hands arriving from <device>"
 under the library heading reads `hand_sources.last_ingest_at` (select-own),
@@ -2184,7 +2244,7 @@ standard text alone, `phf` null:
 | Reader | How it gets the hand |
 | --- | --- |
 | `get_hand` → `getHand` (web) | The row; `handOfRow` parses a text-only one with the page's engine. |
-| `hands_needing_stats` → `/api/stats/rebuild` | `phf`, or `standard_text` + `hand_key`, `site`, `parser_version`, `source_filename`, `created_at`; parsed on the server with the TypeScript parsers (`typescriptParser`: no `.wasm` to fetch). |
+| `derive_claim` → `/api/derive`, `/api/derive/cron` (P1) | `phf`, or `standard_text` + `hand_key`, `site`, `parser_version`, `source_filename`, `created_at`; parsed on the server with the TypeScript parsers (`typescriptParser`: no `.wasm` to fetch). (`hands_needing_stats` returns the same; nothing calls it since P1.) |
 | `hands_needing_analysis` (+ `_recent`, `_recent_scan`) → `runAnalysis` (`lib/db/analysis.ts`) | The same columns; the PHF still trimmed in SQL (`analysis_trimmed_phf`), a text parsed in the tab before the pool sees it. |
 | The desktop pull (`GET /rest/v1/hands?select=hand_key,phf,standard_text,site,parser_version,source_filename,source_text,created_at`) | `RemoteHand::into_phf` in Rust; the local store keeps a PHF as before. |
 | `publish_hand`, `create_share` | The client sends its parse as `p_phf`; `hand_phf_matches` (internal) derives the row from it and compares key, site, time, players, winners, cards, hero seat, pot, profit and showdown with the stored row before the usual scrub. A share of a text-only hand keeps `phf_redact_private(p_phf)` in `shares.phf`, which `read_share` (unchanged) falls back to. |

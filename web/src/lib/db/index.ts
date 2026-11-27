@@ -33,14 +33,11 @@ export {
 } from "./client";
 
 export {
-  fetchStatsCoverage,
   fetchStatsOpponents,
   fetchReportSessions,
   myPlayerNotes,
   setPlayerNote,
   pruneVillainStats,
-  rebuildStats,
-  fetchFactsMissing,
   setVillainRowsEnabled,
   handStatsRows,
   saveHandStats,
@@ -52,12 +49,10 @@ export {
   type PlayerNote,
   type StatsSession,
   type StatsSessions,
-  type RebuildProgress,
   type SaveHandStatsResult,
   type StatsFilters,
   type StatsOpponents,
   type StakeVolume,
-  type StatsCoverage,
 } from "./stats";
 
 export {

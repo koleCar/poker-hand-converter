@@ -1398,6 +1398,136 @@ export type Database = {
           },
         ]
       }
+      derive_failures: {
+        Row: {
+          error: string | null
+          failed_at: string
+          hand_id: string
+          owner_id: string
+          reason: string
+          tries: number
+        }
+        Insert: {
+          error?: string | null
+          failed_at?: string
+          hand_id: string
+          owner_id: string
+          reason: string
+          tries?: number
+        }
+        Update: {
+          error?: string | null
+          failed_at?: string
+          hand_id?: string
+          owner_id?: string
+          reason?: string
+          tries?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "derive_failures_hand_id_fkey"
+            columns: ["hand_id"]
+            isOneToOne: true
+            referencedRelation: "hands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      derive_options: {
+        Row: {
+          owner_id: string
+          updated_at: string
+          villains: boolean
+        }
+        Insert: {
+          owner_id: string
+          updated_at?: string
+          villains?: boolean
+        }
+        Update: {
+          owner_id?: string
+          updated_at?: string
+          villains?: boolean
+        }
+        Relationships: []
+      }
+      derive_pending_counts: {
+        Row: {
+          owner_id: string
+          pending: number
+        }
+        Insert: {
+          owner_id: string
+          pending?: number
+        }
+        Update: {
+          owner_id?: string
+          pending?: number
+        }
+        Relationships: []
+      }
+      derive_queue: {
+        Row: {
+          claimed_at: string | null
+          enqueued_at: string
+          hand_id: string
+          last_error: string | null
+          owner_id: string
+          priority: number
+          reason: string
+          tries: number
+        }
+        Insert: {
+          claimed_at?: string | null
+          enqueued_at?: string
+          hand_id: string
+          last_error?: string | null
+          owner_id: string
+          priority?: number
+          reason: string
+          tries?: number
+        }
+        Update: {
+          claimed_at?: string | null
+          enqueued_at?: string
+          hand_id?: string
+          last_error?: string | null
+          owner_id?: string
+          priority?: number
+          reason?: string
+          tries?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "derive_queue_hand_id_fkey"
+            columns: ["hand_id"]
+            isOneToOne: true
+            referencedRelation: "hands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      derive_recounts: {
+        Row: {
+          after: string | null
+          owner_id: string
+          queued_at: string
+          reason: string
+        }
+        Insert: {
+          after?: string | null
+          owner_id: string
+          queued_at?: string
+          reason: string
+        }
+        Update: {
+          after?: string | null
+          owner_id?: string
+          queued_at?: string
+          reason?: string
+        }
+        Relationships: []
+      }
       drill_items: {
         Row: {
           action_index: number
@@ -5344,6 +5474,10 @@ export type Database = {
         Returns: string
       }
       analytics_pool: { Args: { p_filters?: Json }; Returns: Json }
+      analytics_pool_add: {
+        Args: { p_hands: Json; p_owner: string; p_version: string }
+        Returns: Json
+      }
       analytics_pool_pending: {
         Args: { p_after?: string; p_limit?: number; p_version: string }
         Returns: {
@@ -5533,6 +5667,52 @@ export type Database = {
       delete_hands: { Args: { p_ids: string[] }; Returns: Json }
       delete_hands_by_key: { Args: { p_keys: string[] }; Returns: Json }
       delete_post: { Args: { p_public_id: string }; Returns: boolean }
+      derive_act_as: {
+        Args: { p_claims?: string; p_owner: string; p_sub?: string }
+        Returns: string[]
+      }
+      derive_caller: { Args: never; Returns: string }
+      derive_claim: {
+        Args: { p_limit?: number; p_versions?: Json }
+        Returns: {
+          analysis_version: string
+          created_at: string
+          decisions: Json
+          hand_id: string
+          hand_key: string
+          owner_id: string
+          parser_version: string
+          phf: Json
+          reason: string
+          site: string
+          source_filename: string
+          standard_text: string
+          villains: boolean
+        }[]
+      }
+      derive_enqueue_backlog: {
+        Args: {
+          p_after?: string
+          p_limit?: number
+          p_owner?: string
+          p_priority?: number
+          p_reason: string
+        }
+        Returns: Json
+      }
+      derive_fail: { Args: { p_hands: Json }; Returns: Json }
+      derive_pending: { Args: never; Returns: number }
+      derive_recount_step: {
+        Args: { p_limit?: number; p_owner: string }
+        Returns: number
+      }
+      derive_save: { Args: { p_hands: Json }; Returns: Json }
+      derive_villains: { Args: never; Returns: boolean }
+      derive_villains_set: { Args: { p_on: boolean }; Returns: Json }
+      derive_write: {
+        Args: { p_hands: Json; p_owner: string }
+        Returns: undefined
+      }
       drill_due_by_spot: {
         Args: { p_kind?: string; p_until?: string; p_version: string }
         Returns: Json

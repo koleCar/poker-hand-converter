@@ -49,12 +49,11 @@ import {
   deleteHands,
   isDatabaseConfigured,
   latestDesktopSync,
-  rebuildStats,
   saveHand,
   type DesktopSync,
 } from "../../lib/db";
 import { webDataSource } from "../../lib/db/dataSource";
-import { catchUpFacts } from "../../lib/db/factsCatchUp";
+import { deriveNow, fetchDerivePending } from "../../lib/db/derive";
 import { notifyHandsChanged, webHandsSource } from "../../lib/db/handsSource";
 import { useDict, useLocale } from "../../lib/i18n/client";
 import { INTL_LOCALE } from "../../lib/i18n/dictionaries";
@@ -164,28 +163,23 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
 
   const userId = auth.isSignedIn ? (auth.user?.id ?? null) : null;
 
-  // The filter builder's facts (20271116130000): hands stored before them,
-  // synced from the desktop, or stored before a facts version bump get theirs
-  // in the background, once a page load (the shell's catch-up, shared), and
-  // the list counts again. Meanwhile a fact the new version adds (the
-  // Effective stack) is still filling in, and the list says so under its chip.
-  const [factsFilling, setFactsFilling] = useState<{ user: string; missing: number } | null>(null);
+  // The filter builder's facts (20271116130000) are worked out on the server
+  // when a hand arrives (docs/POOL.md P1). While the Effective stack chip is
+  // set and hands are still being processed, the list says so under it: the
+  // count is read, never computed here.
+  const effStackChip = filter.effStacks.length > 0;
+  const [processing, setProcessing] = useState<{ user: string; pending: number } | null>(null);
   useEffect(() => {
-    if (!userId || !isDatabaseConfigured) return;
+    if (!userId || !isDatabaseConfigured || !effStackChip) return;
     let live = true;
-    void catchUpFacts(userId).then(({ missing, done }) => {
-      if (!live || missing === 0) return;
-      setFactsFilling({ user: userId, missing });
-      void done.then(() => {
-        if (live) setFactsFilling(null);
-        notifyHandsChanged();
-      });
+    void fetchDerivePending().then((pending) => {
+      if (live) setProcessing({ user: userId, pending });
     });
     return () => {
       live = false;
     };
-  }, [userId]);
-  const filling = factsFilling !== null && factsFilling.user === userId && filter.effStacks.length > 0 ? factsFilling.missing : 0;
+  }, [userId, effStackChip]);
+  const filling = processing !== null && processing.user === userId && effStackChip ? processing.pending : 0;
 
   const selected = selection !== null && selection.user === userId ? selection.key : null;
   const select = useCallback((key: string) => setSelection({ user: userId, key }), [userId]);
@@ -204,6 +198,9 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
     if (gone && selected !== null && gone.keys.includes(selected)) setSelection(null);
     onHandsSaved();
     notifyHandsChanged();
+    // A delete empties the pool until P2 (docs/POOL.md): the server queues
+    // the library again and this works the caller's queue out now.
+    void deriveNow().catch(() => undefined);
   }, [toDelete, selected, onHandsSaved]);
   // A phone choosing hands (Select, or a long press) has the bar from the
   // first hand - or none, with a hint and Delete waiting.
@@ -503,7 +500,7 @@ function ConverterHand({ onHandsSaved }: { onHandsSaved: () => void }) {
       notifyHandsChanged();
       if (!result.duplicate) {
         // Background, server-side; see ConverterTab.
-        void rebuildStats().catch(() => undefined);
+        void deriveNow().catch(() => undefined);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : en.converter.save.failed);

@@ -140,22 +140,8 @@ export interface AnalyticsChecker {
    * drill-down shows no hands.
    */
   examples?(query: HandFilter, example: CheckerExampleQuery): Promise<CheckerExample[]>;
-  /**
-   * The web (docs/ANALYTICS.md Step 12): derives the rows of the hands
-   * analysed without them (`pending` - analysed before the checker existed,
-   * or at another catalogue version), in the browser, a page at a time,
-   * until done or `signal` aborts; the screen reads the sums again after.
-   * Absent where the surface fills them itself (the desktop's background pass).
-   */
-  backfill?(signal: AbortSignal, onProgress: (progress: CheckerProgress) => void): Promise<CheckerProgress>;
-}
-
-/** How far a browser backfill of the checker rows is. */
-export interface CheckerProgress {
-  /** Hands read from the work list. */
-  processed: number;
-  /** Hands whose rows were saved. */
-  saved: number;
+  // No backfill: every surface fills the rows itself, away from the screen
+  // (the desktop's background pass; the web's server, docs/POOL.md P1).
 }
 
 /* --------------------------------------------------------------- Pool -- */
@@ -198,26 +184,18 @@ export interface PoolStatSums {
 export interface PoolSums {
   /** The catalogue version the rates were counted at (`analytics/1`). */
   version: string;
-  /** Hands not counted for the pool yet (the backfill's work). */
+  /** Hands not counted for the pool yet (the web: its hands still being processed). */
   pending: number;
   reg: PoolTypeSums;
   fish: PoolTypeSums;
   stats: PoolStatSums[];
 }
 
-/** How far a browser backfill is (the web counts the pool in the browser). */
-export interface PoolProgress {
-  processed: number;
-  saved: number;
-}
-
-/** What the Analytics screen asks a surface for on the Pool tab. */
+/**
+ * What the Analytics screen asks a surface for on the Pool tab. The surface
+ * counts the pool itself, away from the screen (the desktop's background
+ * pass; the web's server, docs/POOL.md P1).
+ */
 export interface AnalyticsPool {
   sums(query: HandFilter): Promise<PoolSums | null>;
-  /**
-   * The web: counts the hands the pool has not counted yet, in the browser,
-   * a page at a time, until done or `signal` aborts. Absent where the
-   * surface counts them itself (the desktop's background pass).
-   */
-  backfill?(signal: AbortSignal, onProgress: (progress: PoolProgress) => void): Promise<PoolProgress>;
 }

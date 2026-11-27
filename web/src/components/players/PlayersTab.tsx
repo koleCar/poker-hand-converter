@@ -16,15 +16,16 @@
  *
  * - **The opt-in.** Opponents exist on the web only while opponent
  *   statistics are on (villain rows, about six times the storage of the
- *   hero's own; a setting of this browser, as the Statistics screen's
- *   opponents panel keeps it). Off, the page says what turning them on
- *   costs and does, and turns them on: the setting, then the rebuild that
- *   reads the opponents of the hands already stored.
+ *   hero's own; a setting of the account, `derive_options`, as the
+ *   Statistics screen's opponents panel keeps it). Off, the page says what
+ *   turning them on costs and does, and turns them on: the setting (which
+ *   queues every stored hand on the server), then the server working them
+ *   out (`deriveNow`) with the count shown.
  * - **The states**: no database, signed out, a database without the
  *   readers (PGRST202: "not set up"), an error - each says which.
  * - **Live arrival** (R1.10): hands the desktop app syncs while the page is
- *   open get their statistics derived (opponents included) and the list
- *   reads again; one catch-up at a time.
+ *   open are worked out on the server (docs/POOL.md P1); the list reads
+ *   again.
  * - **Where it sits**: under the Statistics tab (`stats/StatsNav.tsx`), not
  *   in the bar.
  * - **The open player** is page state, and "hands with this player" parks
@@ -35,7 +36,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { PlayerRef } from "@rail/ui/hands/model";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { PlayersScreen } from "@rail/ui/players/PlayersScreen";
@@ -44,10 +45,8 @@ import {
   DATABASE_NOT_CONFIGURED_MESSAGE,
   isDatabaseConfigured,
   isMissingSchemaError,
-  rebuildStats,
-  setVillainRowsEnabled,
-  villainRowsEnabled,
 } from "../../lib/db";
+import { deriveNow, setOpponentStats, useOpponentStats } from "../../lib/db/derive";
 import { webPlayersSource } from "../../lib/db/playersSource";
 import { WEB_DEFINITIONS } from "../../lib/db/reportSource";
 import { useAuth } from "../../lib/auth";
@@ -71,9 +70,6 @@ type Phase =
   | { kind: "working"; done: number }
   | { kind: "error"; message: string };
 
-/** The setting changes in this tab through `turnOn`; nothing to subscribe to. */
-const subscribeNever = () => () => undefined;
-
 /** Identifiers in the "not set up" notice: names, not prose, so not translated. */
 const PLAYERS_MIGRATION = "supabase/migrations/20270714090000_players_screen.sql";
 
@@ -83,9 +79,8 @@ export function PlayersTab({ refreshToken = 0, arrival = null }: PlayersTabProps
   const en = t.players;
   const auth = useAuth();
   const router = useRouter();
-  // The setting lives in this browser's storage, which the server render
-  // cannot see: null until hydrated, so no card flashes in the wrong state.
-  const stored = useSyncExternalStore(subscribeNever, villainRowsEnabled, () => null);
+  // The account's setting: null until read, so no card flashes in the wrong state.
+  const stored = useOpponentStats(auth.isSignedIn ? (auth.user?.id ?? null) : null);
   const [override, setOverride] = useState<boolean | null>(null);
   const enabled = override ?? stored;
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
@@ -108,54 +103,22 @@ export function PlayersTab({ refreshToken = 0, arrival = null }: PlayersTabProps
     [base],
   );
 
-  // Hands without their statistics (uploaded from another browser, where
-  // the setting was off, or arrived from the desktop app) catch up: one
-  // rebuild at a time, rounds that land during one fold into the next.
-  const catchingUp = useRef(false);
-  const catchUpAgain = useRef(false);
-  const catchUp = useCallback(async () => {
-    if (catchingUp.current) {
-      catchUpAgain.current = true;
-      return;
-    }
-    catchingUp.current = true;
-    try {
-      do {
-        catchUpAgain.current = false;
-        await rebuildStats().catch(() => undefined);
-        setGeneration((value) => value + 1);
-      } while (catchUpAgain.current);
-    } finally {
-      catchingUp.current = false;
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isDatabaseConfigured && auth.isSignedIn && stored) void catchUp();
-  }, [auth.isSignedIn, stored, refreshToken, catchUp]);
-
-  const handledArrival = useRef(0);
-  useEffect(() => {
-    if (!arrival || arrival.seq === handledArrival.current) return;
-    handledArrival.current = arrival.seq;
-    if (isDatabaseConfigured && auth.isSignedIn && enabled) void catchUp();
-  }, [arrival, auth.isSignedIn, enabled, catchUp]);
+  // An upload or a live batch: the list reads again (the server works the
+  // hands out; nothing is derived here).
+  const reloadKey = `${generation}|${refreshToken}|${arrival?.seq ?? 0}`;
 
   const turnOn = useCallback(async () => {
-    if (!setVillainRowsEnabled(true)) {
-      setPhase({ kind: "error", message: t.opponents.storageRefused });
-      return;
-    }
-    setOverride(true);
     setPhase({ kind: "working", done: 0 });
     try {
-      await rebuildStats((progress) => setPhase({ kind: "working", done: progress.processed }));
+      await setOpponentStats(true);
+      setOverride(true);
+      await deriveNow((progress) => setPhase({ kind: "working", done: progress.processed }));
       setPhase({ kind: "idle" });
       setGeneration((value) => value + 1);
     } catch (error) {
       setPhase({ kind: "error", message: error instanceof Error ? error.message : String(error) });
     }
-  }, [t]);
+  }, []);
 
   const header = (
     <header className="stats__head">
@@ -275,7 +238,7 @@ export function PlayersTab({ refreshToken = 0, arrival = null }: PlayersTabProps
         notice={status}
         emptyText={phase.kind === "working" ? t.opponents.reading : en.empty}
         notesFootnote={en.notesFootnote}
-        reloadToken={generation}
+        reloadToken={reloadKey}
         renderState={(kind, text, compact) =>
           // Nothing to show while opponents are being read is still loading.
           kind === "loading" || (kind === "empty" && phase.kind === "working") ? (
