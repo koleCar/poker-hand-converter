@@ -313,9 +313,11 @@
 /* Phones and small tablets (the web only: the desktop app's window is never
    under 900 px): a modern two-line row, whatever the list's width - the
    hero's cards, position, marks and the signed result on top; the board,
-   the stakes and the date small under them - 68 px tall, the
-   whole row one tap. The list is not a box: rows on the page, a hairline
-   between them. Choosing hands (`data-choosing`) shows a check on each. */
+   the stakes, the pot and the date small under them (the board is the open
+   hand's to show) - 68 px tall, the whole row one tap. The list is not a box:
+   rows on the page, a hairline between them. The header stays as a sticky
+   strip of sort pills (2026-11-27). Choosing hands (`data-choosing`) shows a
+   check on each. */
 @media (max-width: 899px) {
   .scroll {
     border: 0;
@@ -330,8 +332,71 @@
     min-width: 0;
   }
 
-  .head {
+  /* The header: one row of pills, each a column the list sorts by - the
+     one in force tinted, with its direction. Columns that do not sort
+     (cards, board, marks) are not in it. */
+  .scroll > .head {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    height: auto;
+    min-width: 0;
+    padding: var(--space-2) var(--space-1);
+    overflow-x: auto;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--surface-base);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0;
+    text-transform: none;
+    scrollbar-width: none;
+  }
+
+  .scroll > .head::-webkit-scrollbar {
     display: none;
+  }
+
+  .scroll > .head > span {
+    display: block;
+    flex: none;
+    overflow: visible;
+    font-weight: inherit;
+  }
+
+  .scroll > .head > .cards,
+  .scroll > .head > .board,
+  .scroll > .head > .marks,
+  .scroll > .head > .arrow {
+    display: none;
+  }
+
+  .head .sort {
+    min-height: 32px;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-pill);
+    color: var(--text-secondary);
+  }
+
+  .num .sort {
+    flex-direction: row;
+  }
+
+  .head .sorted {
+    border-color: var(--accent-border);
+    background: var(--accent-subtle);
+    color: var(--accent-fg);
+  }
+
+  .sort .sortMark,
+  .sort:hover .sortMark {
+    display: none;
+  }
+
+  .sort.sorted .sortMark,
+  .sort.sorted:hover .sortMark {
+    display: inline;
+    opacity: 1;
   }
 
   .body > .row {
@@ -385,31 +450,37 @@
     font-weight: var(--font-weight-semibold);
   }
 
-  .body > .row > .board,
   .body > .row > .stakes,
+  .body > .row > .pot,
   .body > .row > .date {
     margin-top: var(--space-1);
     color: var(--text-secondary);
     font-size: var(--font-size-md);
   }
 
-  .body > .row > .board {
-    order: 6;
-    display: flex;
-    flex: none;
-    align-items: center;
-    color: var(--text-tertiary);
-  }
-
   .body > .row > .stakes {
-    order: 7;
-    flex: 1 1 0;
-    min-width: 0;
+    order: 6;
+    flex: none;
+    max-width: 40%;
     flex-direction: row;
     justify-content: flex-start;
     align-items: baseline;
     gap: var(--space-1);
     line-height: inherit;
+  }
+
+  /* The pot (it sorts, so it shows): "Pot 24 bb" after the stakes. */
+  .body > .row > .pot {
+    order: 7;
+    display: block;
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .body > .row > .pot::before {
+    content: attr(data-label) " ";
+    color: var(--text-tertiary);
   }
 
   .body > .row > .date {
@@ -418,13 +489,13 @@
     color: var(--text-tertiary);
   }
 
-  .body > .row > .pot,
+  .body > .row > .board,
   .body > .row > .arrow {
     display: none;
   }
 
-  /* The room is the open hand's to say: the second line is the board,
-     the stakes and the date. */
+  /* The room is the open hand's to say: the second line is the stakes,
+     the pot and the date. */
   .roomName {
     display: none;
   }
@@ -445,18 +516,6 @@
   .cards [class~="pcard__corner--tl"],
   .cards [class~="pcard__suit"] {
     font-size: var(--font-size-base);
-  }
-
-  .board [class~="pcard"] {
-    --card-w: 21px;
-
-    height: 22px;
-    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 14%);
-    animation: none;
-  }
-
-  .board [class~="card-row"] {
-    gap: 2px;
   }
 
   .mark {

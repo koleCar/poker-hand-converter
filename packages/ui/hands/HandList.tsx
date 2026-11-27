@@ -551,7 +551,7 @@ function Row({ row, index, top, selected, current, tabbable, format, unit, onSel
       <span role="gridcell" className={styles.board}>
         {row.board.length > 0 ? <CardRow cards={row.board} size="xs" /> : <span className={styles.dim}>{t.preflop}</span>}
       </span>
-      <span role="gridcell" className={`${styles.num} ${styles.pot}`}>
+      <span role="gridcell" className={`${styles.num} ${styles.pot}`} data-label={t.columns.pot}>
         {pot}
       </span>
       <span role="gridcell" className={`${styles.num} ${styles.result} ${tone}`} title={resultTitle}>
