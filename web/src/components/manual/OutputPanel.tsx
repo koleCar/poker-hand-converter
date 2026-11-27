@@ -9,6 +9,7 @@ import { toStandardText } from "../../lib/phf";
 import { copyToClipboard, downloadText, outputFileName } from "../converter/handoff";
 import { ShareHandButton } from "../share/ShareHandButton";
 import styles from "./manual.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 interface OutputPanelProps {
   built: BuildResult | null;
@@ -79,14 +80,14 @@ export function OutputPanel({ built, stored, onStored, onSaved }: OutputPanelPro
     return (
       <section className="card">
         <h2 className={styles.heading}>{t.heading}</h2>
-        <div className="notice notice--error">
+        <Dismissible as="div" className="notice notice--error">
           <p>{t.refused}</p>
           <ul>
             {built.errors.map((error, i) => (
               <li key={i}>{error.message}</li>
             ))}
           </ul>
-        </div>
+        </Dismissible>
       </section>
     );
   }
@@ -128,16 +129,16 @@ export function OutputPanel({ built, stored, onStored, onSaved }: OutputPanelPro
           </div>
         </div>
         {built.warnings.length > 0 ? (
-          <div className="notice notice--warn">
+          <Dismissible as="div" className="notice notice--warn">
             <p>{t.warnings}</p>
             <ul>
               {built.warnings.map((warning, i) => (
                 <li key={i}>{warning.message}</li>
               ))}
             </ul>
-          </div>
+          </Dismissible>
         ) : null}
-        {notice ? <p className={`notice notice--${notice.kind}`}>{notice.text}</p> : null}
+        {notice ? <Dismissible className={`notice notice--${notice.kind}`}>{notice.text}</Dismissible> : null}
       </section>
 
     </>

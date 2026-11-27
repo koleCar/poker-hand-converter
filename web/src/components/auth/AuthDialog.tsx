@@ -27,6 +27,7 @@ import { useDict, useLocale } from "../../lib/i18n/client";
 import { localizeServerMessage } from "../../lib/i18n/serverErrors";
 import { Turnstile } from "./Turnstile";
 import { BusyLabel } from "../shell/BusyLabel";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 type Mode = "sign-in" | "sign-up" | "reset";
 
@@ -221,14 +222,14 @@ export function AuthDialog() {
           ) : null}
 
           {error ? (
-            <p className="notice notice--error" role="alert">
+            <Dismissible className="notice notice--error" role="alert">
               {error}
-            </p>
+            </Dismissible>
           ) : null}
           {notice ? (
-            <p className="notice notice--info" role="status">
+            <Dismissible className="notice notice--info" role="status">
               {notice}
-            </p>
+            </Dismissible>
           ) : null}
 
           <button type="submit" className="btn btn--primary authdlg__submit" disabled={busy}>

@@ -19,6 +19,7 @@ import { compareChart, type ChartComparison, type Deviation } from "./compare";
 import { CLASS_NAMES, parseNodeKey, restActionOf, type ChartSet } from "./model";
 import { COMPARE_PERIODS, type ComparePeriod, type CompareQuery, type ExampleHand, type PlayedData, type PreflopChartsSource } from "./source";
 import styles from "./Charts.module.css";
+import { Dismissible } from "../notice/Dismissible";
 
 export interface ChartHandLinkProps {
   handId: string;
@@ -104,9 +105,9 @@ export function ChartCompare({ set, source, renderHandLink, onFill, period: peri
       <p className={styles.muted}>{t.compare.scope}</p>
       {loaded.status === "loading" ? <RailLoader size="small" label={t.compare.loading} showLabel centered /> : null}
       {loaded.status === "error" ? (
-        <p className={styles.warning} role="alert">
+        <Dismissible className={styles.warning} role="alert">
           {t.error(loaded.message)}
-        </p>
+        </Dismissible>
       ) : null}
       {loaded.status === "ready" && comparison ? (
         <div className="rail-dims" aria-busy={loaded.key !== key}>
@@ -360,7 +361,7 @@ function NodeDetail({
           <h4 className={styles.subTitle}>
             {t.compare.detail.examples}: {t.compare.detail.examplesFor(CLASS_NAMES[examples.for.cls], t.compare.detail.did[examples.for.action])}
           </h4>
-          {examples.error ? <p className={styles.warning}>{t.error(examples.error)}</p> : null}
+          {examples.error ? <Dismissible className={styles.warning}>{t.error(examples.error)}</Dismissible> : null}
           {examples.hands === null ? <RailLoader size="small" label={t.compare.loading} showLabel /> : null}
           {examples.hands && examples.hands.length === 0 && !examples.error ? (
             <p className={styles.muted}>{t.compare.detail.noExamples}</p>

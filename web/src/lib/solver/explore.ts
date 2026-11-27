@@ -301,3 +301,54 @@ export function pickedFlop(cards: readonly string[]): PickedFlop {
     },
   };
 }
+
+/** The 24 relabellings of the four suits, the identity first. */
+const SUIT_PERMS: readonly string[] = (() => {
+  const out: string[] = [];
+  const grow = (prefix: string, rest: string) => {
+    if (!rest) out.push(prefix);
+    for (let i = 0; i < rest.length; i += 1) grow(prefix + rest[i], rest.slice(0, i) + rest.slice(i + 1));
+  };
+  grow("", "shdc");
+  return out;
+})();
+
+export interface FlopForPicks {
+  /** The canonical key the library files the flop under. */
+  key: string;
+  /** The flop in the suits that show the picked cards where it can (the same solve: suits relabelled). */
+  cards: string[];
+}
+
+/**
+ * The solved flops that hold every picked card's rank, suits aside (a solve
+ * is the same in any suits), each spelt with its suits relabelled so that as
+ * many picked cards as can be appear as picked: picking J♦ lists every solved
+ * flop with a jack, the jack shown as J♦. With no picks, every flop as filed.
+ */
+export function flopsForPicks(solved: readonly string[], picks: readonly string[]): FlopForPicks[] {
+  const out: FlopForPicks[] = [];
+  for (const key of solved) {
+    const cards = [key.slice(0, 2), key.slice(2, 4), key.slice(4, 6)];
+    const ranks = cards.map((card) => card[0]);
+    if (!picks.every((pick) => {
+      const at = ranks.indexOf(pick[0]);
+      if (at < 0) return false;
+      ranks.splice(at, 1);
+      return true;
+    })) continue;
+    let best = cards;
+    let score = -1;
+    for (const perm of SUIT_PERMS) {
+      const spelt = cards.map((card) => card[0] + perm["shdc".indexOf(card[1])]);
+      const hits = picks.filter((pick) => spelt.includes(pick)).length;
+      if (hits > score) {
+        best = spelt;
+        score = hits;
+        if (hits === picks.length) break;
+      }
+    }
+    out.push({ key, cards: best });
+  }
+  return out;
+}

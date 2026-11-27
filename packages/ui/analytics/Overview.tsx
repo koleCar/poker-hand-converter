@@ -21,6 +21,7 @@ import styles from "./Analytics.module.css";
 import { findingHeadline, findingWhy, statName } from "./findings";
 import { PendingLine, pendingOf } from "./States";
 import { overviewOf, practiseQuery, type AnalyticsView } from "./view";
+import { Dismissible } from "../notice/Dismissible";
 
 export interface OverviewProps {
   catalogue: Catalogue;
@@ -79,7 +80,7 @@ export function Overview({
     );
   }
   if (result === null) {
-    if (error !== null) return <p className={styles.quiet} role="alert">{o.error(error)}</p>;
+    if (error !== null) return <Dismissible className={styles.quiet} role="alert">{o.error(error)}</Dismissible>;
     if (loading) return <RailLoader size="small" label={s.stats.loading} showLabel centered />;
     return null;
   }

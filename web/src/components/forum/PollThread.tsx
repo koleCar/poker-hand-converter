@@ -30,6 +30,7 @@ import { PostDiscussion } from "./PostDiscussion";
 import styles from "./forum.module.css";
 import { BusyLabel } from "../shell/BusyLabel";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** Sizes offered for a bet or raise, as a percentage of the pot. */
 const SIZES = [33, 50, 75, 100, 150];
@@ -183,9 +184,9 @@ export function PollThread({
           </div>
         ) : null}
         {error ? (
-          <p className="notice notice--error" role="alert">
+          <Dismissible className="notice notice--error" role="alert">
             {error}
-          </p>
+          </Dismissible>
         ) : null}
         <div>
           {auth.isSignedIn ? (

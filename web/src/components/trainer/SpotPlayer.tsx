@@ -33,6 +33,7 @@ import type { SpotRequest, StreetMode, TrainerSettings } from "./settings";
 import { ActionStrip, StatusRow } from "./SpotFelt";
 import { TableBox, TrainerTable, type HeroMove } from "./TrainerTable";
 import styles from "./trainer.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const DEAL_TRIES = 3;
 /** Seeds tried for a deal Analytics narrowed (a size, hand classes): a board may hold none of the classes. */
@@ -404,12 +405,12 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
 
   if (error) {
     return (
-      <div className={styles.notice}>
+      <Dismissible as="div" className={styles.notice}>
         <p>{t.failed(error)}</p>
         <button type="button" className={styles.linkButton} onClick={next}>
           {t.retry}
         </button>
-      </div>
+      </Dismissible>
     );
   }
   if (!dealt) {
@@ -426,12 +427,12 @@ function OneSpot({ request, mode, settings, keys, compact = false, onScored, onS
   }
   if (!spot || !felt) {
     return (
-      <div className={styles.notice}>
+      <Dismissible as="div" className={styles.notice}>
         <p>{t.noSpot}</p>
         <button type="button" className={styles.linkButton} onClick={next}>
           {t.retry}
         </button>
-      </div>
+      </Dismissible>
     );
   }
 

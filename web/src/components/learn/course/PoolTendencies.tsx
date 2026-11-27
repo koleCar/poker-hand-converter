@@ -29,6 +29,7 @@ import { useFormats } from "../controls";
 import { useAnalysisKind } from "../../analysis/analysisKind";
 import { useLearn } from "./LearnStore";
 import styles from "./course.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** Opponents summed at most (the report's own cap, biggest samples first). */
 const MAX_OPPONENTS = 200;
@@ -72,7 +73,7 @@ export function PoolTendencies({ topic }: { topic: PoolTopic }) {
   else if (store.mode === "loading") body = <RailLoader size="small" label={t.loading} />;
   else if (!signedIn) body = <p className={styles.muted}>{t.signIn}</p>;
   else if (state.kind === "loading") body = <RailLoader size="small" label={t.loading} showLabel />;
-  else if (state.kind === "error") body = <p className="notice notice--warn">{t.failed(state.message)}</p>;
+  else if (state.kind === "error") body = <Dismissible className="notice notice--warn">{t.failed(state.message)}</Dismissible>;
   else if (state.pool.players === 0) {
     body = (
       <>

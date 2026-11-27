@@ -16,10 +16,11 @@ import { FLOP_BET_DATA, FLOP_BET_SPOTS, groupRows, type FlopBetData, type FlopBe
 import { useFormats } from "./controls";
 import "../../styles/stats.css";
 import styles from "./learn.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 export function FlopBets({ line }: { line?: string }) {
   const t = useDict().course.flopBets;
-  if (!FLOP_BET_DATA) return <p className="notice notice--warn">{t.none}</p>;
+  if (!FLOP_BET_DATA) return <Dismissible className="notice notice--warn">{t.none}</Dismissible>;
   return <FlopBetsTable data={FLOP_BET_DATA} initial={line} />;
 }
 

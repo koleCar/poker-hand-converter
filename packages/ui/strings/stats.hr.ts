@@ -69,6 +69,9 @@ export const statsUiHr = {
     ariaLabel: (count: number) =>
       `Kumulativni winrate kroz ${handsAcc(count)}, podijeljen na ukupne big blindove te one dobivene sa showdownom i bez njega.`,
     axisLabel: "Odigrane ruke",
+    legendHide: "Klikni da sakriješ ovu liniju",
+    legendShow: "Klikni da prikažeš ovu liniju",
+    legendLast: "Posljednja prikazana linija ne može se sakriti",
     noDates: "ove ruke nemaju datume",
     noAllIns: "još nema all-ina",
     notComputed: "još nije izračunato",

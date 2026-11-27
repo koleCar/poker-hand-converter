@@ -22,6 +22,7 @@ import { useWatcherStatus } from "../../lib/useWatcherStatus";
 import styles from "./Folders.module.css";
 import s from "./Settings.module.css";
 import { Toggle } from "./Toggle";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 interface Notice {
   text: string;
@@ -204,7 +205,7 @@ export function Folders() {
 
         {failure !== null && (
           <div className={`${s.row} ${s.rowWide}`}>
-            <p className={s.error}>{loadError ? d.loadFailed(failure) : d.notRunning(failure)}</p>
+            <Dismissible className={s.error}>{loadError ? d.loadFailed(failure) : d.notRunning(failure)}</Dismissible>
           </div>
         )}
         {!status && failure === null && (
@@ -253,7 +254,7 @@ export function Folders() {
           )}
           {search.phase === "failed" && (
             <div className={`${s.row} ${s.rowWide}`}>
-              <p className={s.error}>{d.search.failed(search.reason)}</p>
+              <Dismissible className={s.error}>{d.search.failed(search.reason)}</Dismissible>
             </div>
           )}
           {search.phase === "shown" && search.folders.length === 0 && (
@@ -337,7 +338,7 @@ export function Folders() {
               </span>
             </label>
           </fieldset>
-          {dialogError && <p className={styles.error}>{d.addFailed(dialogError)}</p>}
+          {dialogError && <Dismissible className={styles.error}>{d.addFailed(dialogError)}</Dismissible>}
           <div className={styles.dialogActions}>
             <button type="button" className={styles.secondary} disabled={dialogBusy} onClick={closeDialog}>
               {d.cancel}
@@ -364,7 +365,7 @@ export function Folders() {
             onChange={(onlyNew) => setDialog({ ...dialog, onlyNew })}
             disabled={dialogBusy}
           />
-          {dialogError && <p className={styles.error}>{d.actionFailed(dialogError)}</p>}
+          {dialogError && <Dismissible className={styles.error}>{d.actionFailed(dialogError)}</Dismissible>}
           <div className={styles.dialogActions}>
             <button type="button" className={styles.secondary} disabled={dialogBusy} onClick={closeDialog}>
               {d.cancel}
@@ -380,7 +381,7 @@ export function Folders() {
         <Dialog title={d.removeHeading} onClose={closeDialog}>
           <p className={styles.mono}>{dialog.source.path}</p>
           <p className={styles.body}>{d.removeBody(dialog.source.hands)}</p>
-          {dialogError && <p className={styles.error}>{d.actionFailed(dialogError)}</p>}
+          {dialogError && <Dismissible className={styles.error}>{d.actionFailed(dialogError)}</Dismissible>}
           <div className={styles.dialogActions}>
             <button type="button" className={styles.secondary} disabled={dialogBusy} onClick={closeDialog}>
               {d.cancel}

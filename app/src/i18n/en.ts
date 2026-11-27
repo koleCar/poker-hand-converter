@@ -2195,6 +2195,7 @@ export const en = {
   /** The words the shared UI package (`packages/ui`) needs besides the replayer's. */
   ui: {
     closeNamed: (what: string) => `Close ${what.toLowerCase()}`,
+    dismissNotice: "Close this message",
   },
 
   /** Mirrored in `src-tauri/src/strings.rs`; not used by the window. */

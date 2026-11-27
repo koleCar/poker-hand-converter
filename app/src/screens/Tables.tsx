@@ -34,6 +34,7 @@ import { SlotEditor, type EditorTarget } from "./tables/SlotEditor";
 import { activeId, chooseLayout } from "./tables/model";
 import { useTableSettings } from "./tables/useTableSettings";
 import styles from "./tables/Tables.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 export function Tables() {
   const t = useT();
@@ -98,7 +99,7 @@ export function Tables() {
         }
       />
       <div className={styles.view}>
-        {error !== null ? <p className={styles.error}>{s.saveFailed(error)}</p> : null}
+        {error !== null ? <Dismissible className={styles.error}>{s.saveFailed(error)}</Dismissible> : null}
         {editing !== null ? (
           <SlotEditor
             key={`${editing.layout.id}:${String(editing.existing)}`}

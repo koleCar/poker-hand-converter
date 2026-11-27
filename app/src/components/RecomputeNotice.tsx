@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 
 import { useT } from "../i18n";
 import { inApp, ipc, type StatsStatus } from "../lib/ipc";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** A recompute is running (or waiting for open tables or an import). */
 export function recomputing(status: StatsStatus | null): boolean {
@@ -72,9 +73,16 @@ export function RecomputeNotice({
   }
   if (status.activity === "paused-tables") parts.push(r.pausedTables);
   if (status.activity === "paused-backfill") parts.push(r.pausedImport);
+  // The counts move on every tick: closed, it stays closed while the same
+  // jobs run.
+  const jobs = [
+    status.rebuildTotal !== null ? (status.rebuildFills ? "fill" : (status.rebuildJob ?? "rows")) : "",
+    status.evRecomputeTotal !== null ? "ev" : "",
+    status.activity ?? "",
+  ].join("|");
   return (
-    <p className={className} role="status">
+    <Dismissible className={className} role="status" messageKey={jobs}>
       {parts.join(" ")}
-    </p>
+    </Dismissible>
   );
 }

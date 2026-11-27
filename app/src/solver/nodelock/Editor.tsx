@@ -59,6 +59,7 @@ import { RangesStep, usePreflopLine } from "./RangesStep";
 import rangeStyles from "./RangesStep.module.css";
 import { boardText, closeEditor, LOCKS_PARAM, startSolve, useNodelockSession, type EditorOpen, type EditorWithin } from "./session";
 import { lockSpec, lockTarget, suggestContext, type LockAction, type LockTarget } from "./spot";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 type Mode = "hands" | "range" | "classes";
 type View = "range" | "classes" | "combos";
@@ -590,9 +591,9 @@ export function Editor({ open, solverT }: { open: EditorOpen; solverT: SolverDic
           ) : null}
         </div>
         {sizeError ? (
-          <p className={styles.message} role="alert">
+          <Dismissible className={styles.message} role="alert">
             {sizeError}
-          </p>
+          </Dismissible>
         ) : null}
         <p className={styles.hint}>{custom ? t.sizes.customHint : t.rangeHint}</p>
       </>

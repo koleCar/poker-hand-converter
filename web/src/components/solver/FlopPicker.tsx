@@ -5,19 +5,22 @@
  * the flop if the library has solved it on the line (in any suits: the
  * library files flops by their canonical spelling), and says that the flop
  * does not exist otherwise. The solved flops are listed under the deck, so
- * the next pick is one click.
+ * the next pick is one click: once cards are picked, only the flops that
+ * hold their ranks (suits aside: the solve is the same in any suits), each
+ * shown in suits that keep the picked cards as picked.
  */
 
 "use client";
 
 import { Icon } from "@rail/ui/icon/Icon";
-import { useState, type RefObject } from "react";
+import { useMemo, useState, type RefObject } from "react";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { SUIT_SYMBOL, type Suit } from "../../lib/cards";
 import { useSolverDict } from "./host";
-import { flopCards, pickedFlop } from "../../lib/solver";
+import { flopCards, flopsForPicks, pickedFlop } from "../../lib/solver";
 import { IconButton, Popover, ToolButton } from "./ui";
 import styles from "./solver.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const RANKS = "AKQJT98765432";
 const SUITS: readonly Suit[] = ["s", "h", "d", "c"];
@@ -42,6 +45,7 @@ export function FlopPicker({ onClose, solved, current, onPick, anchor, left = 0 
   const [picked, setPicked] = useState<string[]>(current ? [...current] : []);
   const [missing, setMissing] = useState(false);
   const currentKey = current ? pickedFlop(current).key : null;
+  const listed = useMemo(() => flopsForPicks(solved, picked), [solved, picked]);
 
   const choose = (cards: string[]) => {
     setPicked(cards);
@@ -77,7 +81,14 @@ export function FlopPicker({ onClose, solved, current, onPick, anchor, left = 0 
         <ToolButton size="sm" onClick={() => choose([])}>
           {t.clear}
         </ToolButton>
-        <ToolButton size="sm" onClick={() => (solved.length ? choose(flopCards(solved[Math.floor(Math.random() * solved.length)])) : undefined)}>
+        <ToolButton
+          size="sm"
+          onClick={() => {
+            // Among the listed flops (the picked ranks), else among all.
+            const pool = listed.length ? listed.map((flop) => flop.cards) : solved.map(flopCards);
+            if (pool.length) choose(pool[Math.floor(Math.random() * pool.length)]);
+          }}
+        >
           {t.random}
         </ToolButton>
         <IconButton size="sm" label={dict.settings.done} onClick={onClose}>
@@ -111,23 +122,23 @@ export function FlopPicker({ onClose, solved, current, onPick, anchor, left = 0 
       </div>
 
       {missing ? (
-        <p className={`notice notice--error ${styles.pickerError}`} role="alert">
+        <Dismissible className={`notice notice--error ${styles.pickerError}`} role="alert">
           {t.missing}
-        </p>
+        </Dismissible>
       ) : null}
 
-      <p className={styles.pickerNote}>{t.solved(solved.length)}</p>
+      <p className={styles.pickerNote}>{picked.length ? t.matching(listed.length, solved.length) : t.solved(solved.length)}</p>
       <div className={styles.solvedList}>
-        {solved.map((key) => (
+        {listed.map(({ key, cards }) => (
           <button
             key={key}
             type="button"
             className={`${styles.solvedFlop} ${key === currentKey ? styles.solvedFlopOn : ""}`}
-            aria-label={key}
+            aria-label={cards.join("")}
             aria-pressed={key === currentKey}
-            onClick={() => choose(flopCards(key))}
+            onClick={() => choose(cards)}
           >
-            <CardRow cards={flopCards(key)} size="xs" />
+            <CardRow cards={cards} size="xs" />
           </button>
         ))}
       </div>

@@ -41,6 +41,7 @@ import { lastAction } from "../../analysis/train/spotPosition";
 import own from "../../analysis/train/train.module.css";
 import { useLearn } from "./LearnStore";
 import styles from "./course.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 interface Candidate {
   handId: string;
@@ -144,7 +145,7 @@ export function OwnHandsExercise({ meta, def }: { meta: LessonMeta; def: OwnHand
     );
   }
   if (found.status === "loading") return <RailLoader label={t.loading} showLabel centered />;
-  if (found.status === "error") return <p className="notice notice--error">{found.message}</p>;
+  if (found.status === "error") return <Dismissible className="notice notice--error">{found.message}</Dismissible>;
   if (found.items.length === 0) return <p className={styles.muted}>{t.none}</p>;
 
   const item = found.items[at] ?? null;
@@ -261,7 +262,7 @@ function OwnHand({ candidate, onAnswered, onNext }: { candidate: Candidate; onAn
   );
 
   if (loaded.status === "loading") return <RailLoader label={t.loading} showLabel centered />;
-  if (loaded.status === "error") return <p className="notice notice--error">{loaded.message}</p>;
+  if (loaded.status === "error") return <Dismissible className="notice notice--error">{loaded.message}</Dismissible>;
   if (loaded.status === "review") {
     return (
       <div className={styles.item}>

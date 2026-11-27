@@ -63,6 +63,7 @@ import { usePlanWords } from "./planWords";
 import styles from "./plan.module.css";
 import "../../../styles/stats.css";
 import { PlanSkeleton, SkStatus } from "../ui/Skeleton";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** The migration the screen needs, named in the not-installed notice. An identifier, not prose. */
 const PLAN_MIGRATION = "supabase/migrations/20270215090000_analysis_study_plan.sql";
@@ -163,7 +164,7 @@ export function PlanTab({ refreshToken = 0 }: { refreshToken?: number }) {
     return (
       <div className="stats">
         <Header />
-        <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>
+        <Dismissible className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</Dismissible>
       </div>
     );
   }
@@ -188,7 +189,7 @@ export function PlanTab({ refreshToken = 0 }: { refreshToken?: number }) {
     return (
       <div className="stats">
         <Header />
-        <p className="notice notice--error">{t.failed(loaded.message ?? "")}</p>
+        <Dismissible className="notice notice--error">{t.failed(loaded.message ?? "")}</Dismissible>
         <button type="button" className="btn" onClick={retry}>
           {t.tryAgain}
         </button>
@@ -207,7 +208,7 @@ export function PlanTab({ refreshToken = 0 }: { refreshToken?: number }) {
         {kindField}
         {buildError ? (
           <>
-            <p className="notice notice--error">{t.saveFailed(buildError)}</p>
+            <Dismissible className="notice notice--error">{t.saveFailed(buildError)}</Dismissible>
             <button type="button" className="btn" onClick={retry}>
               {t.tryAgain}
             </button>
@@ -226,7 +227,7 @@ export function PlanTab({ refreshToken = 0 }: { refreshToken?: number }) {
       <Header />
       <p className={styles.lede}>{t.intro}</p>
       {kindField}
-      {buildError ? <p className="notice notice--error">{t.saveFailed(buildError)}</p> : null}
+      {buildError ? <Dismissible className="notice notice--error">{t.saveFailed(buildError)}</Dismissible> : null}
       <PlanBody
         plan={plan}
         previous={loaded?.previous ?? null}
@@ -347,7 +348,7 @@ function PlanBody({
         </div>
         <Meter done={progress.done} total={progress.total} share={progress.share} />
         <p className="muted">{t.autoNote}</p>
-        {stale ? <p className="notice notice--warn">{t.staleVersion(plan.analysisVersion, ANALYSIS_VERSION)}</p> : null}
+        {stale ? <Dismissible className="notice notice--warn">{t.staleVersion(plan.analysisVersion, ANALYSIS_VERSION)}</Dismissible> : null}
         <div className={styles.rebuild}>
           <button type="button" className="btn btn--sm" onClick={onRebuild} disabled={rebuilding} aria-describedby="plan-rebuild-note">
             {rebuilding ? <RailLoader size="inline" label={t.rebuilding} showLabel delay={0} /> : t.rebuild}
@@ -356,7 +357,7 @@ function PlanBody({
             {t.builtOn(plan.updatedAt || plan.createdAt)} {t.rebuildNote}
           </span>
         </div>
-        {tickError ? <p className="notice notice--error">{t.tickFailed(tickError)}</p> : null}
+        {tickError ? <Dismissible className="notice notice--error">{t.tickFailed(tickError)}</Dismissible> : null}
       </section>
 
       {plan.kind === "fundamentals" ? (
@@ -488,7 +489,7 @@ function AreaItem({
           <li key={leak.id}>{t.area.leak(en.analysis.leaks.title(leakKind(leak.taken, leak.best), area.where), leak.evLossBb, leak.mistakes)}</li>
         ))}
       </ul>
-      {area.tentative ? <p className="notice notice--warn">{t.area.tentativeNote}</p> : null}
+      {area.tentative ? <Dismissible className="notice notice--warn">{t.area.tentativeNote}</Dismissible> : null}
       <p>
         <Link href={leakHref}>{t.area.openLeak}</Link>
       </p>
@@ -670,7 +671,7 @@ function Retrospective({ plan, previous }: { plan: StoredPlan; previous: StoredP
       ) : (
         <p className="muted">{t.retro.first}</p>
       )}
-      {error ? <p className="notice notice--error">{summary.failed(error)}</p> : null}
+      {error ? <Dismissible className="notice notice--error">{summary.failed(error)}</Dismissible> : null}
       {!ready && !error ? <RailLoader size="small" label={summary.loading} showLabel /> : null}
       {ready && !ready.windows ? <p className="muted">{t.retro.nothing}</p> : null}
       {ready?.windows && ready.current && ready.prior && comparison ? (
@@ -687,7 +688,7 @@ function Retrospective({ plan, previous }: { plan: StoredPlan; previous: StoredP
                 )}{" "}
             {ready.windows.basis === "last-play" ? <span className="muted">{t.retro.anchorNote}</span> : null}
           </p>
-          {ready.current.graded < THIN_PERIOD ? <p className="notice notice--warn">{summary.thin(ready.current.graded)}</p> : null}
+          {ready.current.graded < THIN_PERIOD ? <Dismissible className="notice notice--warn">{summary.thin(ready.current.graded)}</Dismissible> : null}
           {comparison.overall.current.mean !== null && comparison.overall.prior.mean !== null ? (
             <p>
               <strong>{summary.overall(comparison.overall.current.mean, comparison.overall.prior.mean)}</strong>{" "}

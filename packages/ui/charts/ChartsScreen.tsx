@@ -21,6 +21,7 @@ import { exportRailJsonText, importRailJson, type ImportProblem } from "./exchan
 import { LIMITS, newChartSet, validateChartSet, type ChartProblem, type ChartSet } from "./model";
 import type { ChartSummary, ComparePeriod, PreflopChartsSource } from "./source";
 import styles from "./Charts.module.css";
+import { Dismissible } from "../notice/Dismissible";
 
 export type ChartsView = "edit" | "compare";
 /** A new, unsaved set in the address. */
@@ -380,7 +381,7 @@ function Library({
             {t.library.create}
           </button>
         </div>
-        {full ? <p className={styles.warning}>{t.library.limit(LIMITS.sets)}</p> : null}
+        {full ? <Dismissible className={styles.warning}>{t.library.limit(LIMITS.sets)}</Dismissible> : null}
         {list.items.length === 0 ? <p className={styles.muted}>{t.library.empty}</p> : null}
         {list.items.length > 0 ? (
           <ul className={`${styles.sets} rail-stagger`}>

@@ -27,6 +27,7 @@ import { REFUSED, replaceParam, screenHref, useRouteParam } from "../lib/router"
 import { useWatcherStatus } from "../lib/useWatcherStatus";
 import styles from "./Refused.module.css";
 import s from "./settings/Settings.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** Refused hands a page. */
 export const PAGE_SIZE = 50;
@@ -169,7 +170,7 @@ function RefusedHands({ sourceId }: { sourceId: number | null }) {
     setPage(0);
   };
 
-  if (error) return <p className={s.error}>{d.loadFailed(error)}</p>;
+  if (error) return <Dismissible className={s.error}>{d.loadFailed(error)}</Dismissible>;
   if (!summary) return <RailLoader size="inline" label={d.loading} showLabel />;
 
   return (
@@ -222,7 +223,7 @@ function RefusedHands({ sourceId }: { sourceId: number | null }) {
         <div className={s.card}>
           {listError && (
             <div className={`${s.row} ${s.rowWide}`}>
-              <p className={s.error}>{d.loadFailed(listError)}</p>
+              <Dismissible className={s.error}>{d.loadFailed(listError)}</Dismissible>
             </div>
           )}
           {!list && !listError && (

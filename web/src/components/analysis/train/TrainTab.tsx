@@ -38,6 +38,7 @@ import { parseTrainState, trainQuery, type TrainState } from "./trainState";
 import { WebTrainer } from "./WebTrainer";
 import own from "./train.module.css";
 import "../../../styles/stats.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
 
@@ -107,7 +108,7 @@ function DrillsView({ initialQuery }: { initialQuery: Record<string, string | st
       <div className={own.layout}>
         <div className={`${own.main} rail-fade`}>
           {!isDatabaseConfigured ? (
-            <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>
+            <Dismissible className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</Dismissible>
           ) : !auth.isSignedIn ? (
             <div className="card stats-empty">
               <p className="muted">{t.result.signInToKeep}</p>

@@ -32,6 +32,7 @@ import { useFormats } from "../controls";
 import { CardItemView } from "./ExerciseBlock";
 import { useLearn } from "./LearnStore";
 import styles from "./course.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 type OwnExample = Extract<LessonExample, { kind: "own" }>;
 type Found = { status: "loading" } | { status: "ready"; worst: ExampleCandidate | null; perfect: ExampleCandidate | null } | { status: "error"; message: string };
@@ -123,7 +124,7 @@ function OwnExamples({ example }: { example: OwnExample }) {
       ) : found.status === "loading" ? (
         <RailLoader size="small" label={t.loading} showLabel />
       ) : found.status === "error" ? (
-        <p className="notice notice--warn">{t.failed(found.message)}</p>
+        <Dismissible className="notice notice--warn">{t.failed(found.message)}</Dismissible>
       ) : !found.worst && !found.perfect ? (
         <p className={styles.muted}>{t.none}</p>
       ) : (

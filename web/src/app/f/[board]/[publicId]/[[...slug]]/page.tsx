@@ -34,6 +34,7 @@ import { readBoardCounts, readBoards, readComments, readHiddenPostAsViewer, read
 import { AnalysisShareToggle } from "../../../../../components/analysis/AnalysisShareToggle";
 import { NavPending, PendingDims, PendingLoader, PendingScope } from "../../../../../components/shell/NavProgress";
 import styles from "../../../../../components/forum/forum.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /**
  * A thread. `/f/<board>/<public_id>/<slug>`.
@@ -259,9 +260,9 @@ export default async function PostPage({ params, searchParams }: { params: Param
           </header>
 
           {viewerOnly ? (
-            <p className="notice notice--warn" role="status">
+            <Dismissible className="notice notice--warn" role="status">
               {en.forum.post.viewerOnly}
-            </p>
+            </Dismissible>
           ) : null}
 
           <PostText body={post.body} />

@@ -23,6 +23,7 @@ import { CardItemView } from "./ExerciseBlock";
 import { localDeck, saveLocalDeck, useLearn } from "./LearnStore";
 import type { ItemAnswer } from "./PracticeItems";
 import styles from "./course.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const QUEUE_SIZE = 30;
 
@@ -87,7 +88,7 @@ export function ReviewQueue() {
   );
 
   if (queue.status === "loading") return <RailLoader label={t.loading} showLabel centered />;
-  if (queue.status === "error") return <p className="notice notice--error">{queue.message}</p>;
+  if (queue.status === "error") return <Dismissible className="notice notice--error">{queue.message}</Dismissible>;
   if (queue.cards.length === 0) {
     return (
       <div className={`${styles.note} rail-enter`}>

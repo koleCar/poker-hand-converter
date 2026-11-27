@@ -64,6 +64,7 @@ import type { HudCompliance } from "../../lib/useHudCompliance";
 import { GameCards } from "./GameCards";
 import { InfoTip, MoreMenu } from "./popovers";
 import styles from "./HudStatusPanel.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const day = liveDateFormat({ dateStyle: "medium", timeZone: "UTC" });
 /** The policy dates are days (`YYYY-MM-DD`, read as UTC noon); the app's own times are the reader's. */
@@ -482,7 +483,7 @@ function Rooms({
         {shown.map(line)}
         {unfolded ? folded.map(line) : null}
       </ul>
-      {seats.error !== null ? <p className={styles.error}>{s.preferredSeatFailed(seats.error)}</p> : null}
+      {seats.error !== null ? <Dismissible className={styles.error}>{s.preferredSeatFailed(seats.error)}</Dismissible> : null}
       <div className={styles.foot}>
         {folded.length > 0 ? (
           <button

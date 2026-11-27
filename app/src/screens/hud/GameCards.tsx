@@ -28,6 +28,7 @@ import { panelRows } from "./panelRows";
 import { PopoverButton } from "./popovers";
 import { problemText, statLabel } from "./problems";
 import styles from "./HudStatusPanel.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const FORMATS: readonly GameFormat[] = ["cash", "mtt", "spin"];
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -107,7 +108,7 @@ export function GameCards({ state, onChanged }: { state: HudEditorState; onChang
             </div>
           ))
         : null}
-      {r.error ? <p className={styles.error}>{r.error}</p> : null}
+      {r.error ? <Dismissible className={styles.error}>{r.error}</Dismissible> : null}
     </div>
   );
 

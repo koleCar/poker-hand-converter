@@ -28,6 +28,7 @@ import { Icon, type IconName } from "@rail/ui/icon/Icon";
 import { paths } from "../../lib/routes";
 import styles from "./account.module.css";
 import rows from "./rows.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** Set when the account is gone, so the signed-out Settings page can say so. */
 export const ACCOUNT_DELETED_FLAG = "rail.accountDeleted";
@@ -163,14 +164,14 @@ export function DeleteAccountPanel({ username }: { username: string }) {
       </div>
 
       {pending && !working ? (
-        <div className="notice notice--warn">
+        <Dismissible as="div" className="notice notice--warn">
           <p className={rows.text}>{t.resumeNotice}</p>
           <div className={rows.buttons}>
             <button type="button" className={`btn btn--sm ${rows.dangerSolid}`} onClick={() => void finish(null)}>
               {t.resume}
             </button>
           </div>
-        </div>
+        </Dismissible>
       ) : null}
 
       <DeletionExplainer t={t} />

@@ -7,6 +7,7 @@ import { useDict } from "../../lib/i18n/client";
 import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
 import styles from "./forum.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** Edit and delete, on your own post. Decided client-side, after hydration. */
 export function PostActions({
@@ -65,7 +66,7 @@ export function PostActions({
       <div className={styles.composer}>
         <input value={draftTitle} onChange={(event) => setDraftTitle(event.target.value)} maxLength={300} />
         <textarea value={draftBody} onChange={(event) => setDraftBody(event.target.value)} rows={8} maxLength={40000} />
-        {error ? <p className="notice notice--error">{error}</p> : null}
+        {error ? <Dismissible className="notice notice--error">{error}</Dismissible> : null}
         <div className={styles.row}>
           <button type="button" className="btn btn--primary btn--sm" disabled={busy} onClick={() => void save()}>
             {en.forum.post.save}

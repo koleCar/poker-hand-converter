@@ -26,6 +26,7 @@ import { useDict } from "../../../lib/i18n/client";
 import { paths } from "../../../lib/routes";
 import { EMPTY_LEAKS_STATE, leaksQuery, windowState } from "./leaksState";
 import styles from "./leaks.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const PERIODS = [7, 30] as const;
 type Period = (typeof PERIODS)[number];
@@ -119,7 +120,7 @@ export function WhatChanged({ scopeKey, generation }: { scopeKey: string; genera
         </div>
       </div>
 
-      {error ? <p className="notice notice--error">{t.failed(error)}</p> : null}
+      {error ? <Dismissible className="notice notice--error">{t.failed(error)}</Dismissible> : null}
       {loading && !comparison ? <RailLoader label={t.loading} showLabel centered /> : null}
       {comparison && windows ? (
         <div className={`${styles.summaryBody} rail-dims`} aria-busy={loading}>
@@ -168,7 +169,7 @@ function Body({
         {t.window(days, windows.current.from, lastDay, overall.current.n, overall.prior.n)}{" "}
         <span className="muted">{t.anchorNote}</span>
       </p>
-      {overall.current.n < THIN_PERIOD ? <p className="notice notice--warn">{t.thin(overall.current.n)}</p> : null}
+      {overall.current.n < THIN_PERIOD ? <Dismissible className="notice notice--warn">{t.thin(overall.current.n)}</Dismissible> : null}
 
       {overall.current.mean !== null && overall.prior.mean !== null ? (
         <p>

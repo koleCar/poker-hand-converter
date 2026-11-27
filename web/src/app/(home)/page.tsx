@@ -5,6 +5,7 @@ import { ServerFrame } from "../../components/shell/ServerFrame";
 import { getDict } from "../../lib/i18n/server";
 import { paths } from "../../lib/routes";
 import { readBoardCounts, readBoards, readFeed } from "../../lib/server/forum";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /**
  * `/` — the forum, every board.
@@ -44,7 +45,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
 
   return (
     <ServerFrame tab="forum">
-      {params.auth === "failed" ? <p className="notice notice--warn">{en.auth.callbackFailed}</p> : null}
+      {params.auth === "failed" ? <Dismissible className="notice notice--warn">{en.auth.callbackFailed}</Dismissible> : null}
       <ForumLayout
         t={en}
         boards={boards}

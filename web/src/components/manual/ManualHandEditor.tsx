@@ -63,6 +63,7 @@ import { SeatName } from "./SeatName";
 import { OutputPanel } from "./OutputPanel";
 import { ResultPanel } from "./ResultPanel";
 import styles from "./manual.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 interface ManualHandEditorProps {
   onSaved?: () => void;
@@ -264,7 +265,7 @@ export function ManualHandEditor({ onSaved }: ManualHandEditorProps) {
 
   return (
     <div className="stack">
-      {restored ? <p className="notice notice--info">{t.restored}</p> : null}
+      {restored ? <Dismissible className="notice notice--info">{t.restored}</Dismissible> : null}
 
       <div className={styles.settingsBar}>
         <div className={styles.summary}>

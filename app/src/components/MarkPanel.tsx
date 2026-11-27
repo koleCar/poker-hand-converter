@@ -11,6 +11,7 @@ import { useT } from "../i18n";
 import { emitHandAnnotated, errorText, ipc } from "../lib/ipc";
 import styles from "./MarkPanel.module.css";
 import { offeredMarkers, REVIEW, sameMarker, typedMarker } from "./markers";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** The most markers listed at once (the field narrows them). */
 const LISTED = 30;
@@ -125,9 +126,9 @@ export function MarkPanel({ handKeys }: { handKeys: readonly string[] }) {
         {typed !== "" && exact === undefined ? <p className={styles.quiet}>{t.add(typed)} ↵</p> : null}
       </div>
       {error !== null ? (
-        <p className={styles.error} role="alert">
+        <Dismissible className={styles.error} role="alert">
           {error}
-        </p>
+        </Dismissible>
       ) : null}
     </div>
   );

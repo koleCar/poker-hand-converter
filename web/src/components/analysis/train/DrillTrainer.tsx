@@ -49,6 +49,7 @@ import { lastAction } from "./spotPosition";
 import type { TrainState } from "./trainState";
 import own from "./train.module.css";
 import { SkStatus, SpotSkeleton } from "../ui/Skeleton";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** The migration the drills need, named in the not-installed notice. An identifier, not prose. */
 const TRAINING_MIGRATION = "supabase/migrations/20270208090000_analysis_training.sql";
@@ -282,12 +283,12 @@ export function DrillTrainer({ state, kind, onChange, onAnswer, onHelp, onSaved 
   }
   if (deck && deck.key === deckKey && deck.status === "error") {
     return (
-      <div className="notice notice--error">
+      <Dismissible as="div" className="notice notice--error">
         <p>{deck.message}</p>
         <button type="button" className="btn btn--sm" onClick={() => setAttempt((value) => value + 1)}>
           {t.retry}
         </button>
-      </div>
+      </Dismissible>
     );
   }
 
@@ -385,12 +386,12 @@ export function DrillTrainer({ state, kind, onChange, onAnswer, onHelp, onSaved 
             </SkStatus>
           ) : null}
           {current && current.status !== "ready" ? (
-            <div className="notice notice--warn">
+            <Dismissible as="div" className="notice notice--warn">
               <p>{current.status === "gone" ? d.handGone : current.status === "not-analysed" ? d.notAnalysed : current.message}</p>
               <button type="button" className="btn btn--sm" onClick={next}>
                 {d.skip}
               </button>
-            </div>
+            </Dismissible>
           ) : null}
           {spot && shownHand ? (
             <div className={`${own.spotBody} rail-fade`}>
@@ -436,7 +437,7 @@ export function DrillTrainer({ state, kind, onChange, onAnswer, onHelp, onSaved 
           {answer.review ? (
             <p className={own.schedule}>{answer.review.relearn ? d.backSoon : d.backIn(answer.review.intervalDays)}</p>
           ) : null}
-          {answer.error ? <p className="notice notice--error">{answer.error}</p> : null}
+          {answer.error ? <Dismissible className="notice notice--error">{answer.error}</Dismissible> : null}
         </AnswerResult>
       ) : null}
 

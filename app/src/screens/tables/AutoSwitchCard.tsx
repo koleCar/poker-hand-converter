@@ -27,6 +27,7 @@ import {
   sortRules,
 } from "./slots";
 import styles from "./Tables.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** The most tables a rule may name (beyond any real session). */
 const MAX_COUNT = 99;
@@ -127,7 +128,7 @@ export function AutoSwitchCard({
           })}
         </ul>
       ) : null}
-      {problem !== null ? <p className={styles.error}>{problem}</p> : null}
+      {problem !== null ? <Dismissible className={styles.error}>{problem}</Dismissible> : null}
     </section>
   );
 }

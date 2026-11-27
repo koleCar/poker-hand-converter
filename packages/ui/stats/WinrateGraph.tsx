@@ -46,11 +46,12 @@
  * hands". The dates are in the tooltip, where they belong.
  */
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useUiStrings } from "../i18n";
 import { countIn, dateFormat, numberFormat } from "./format";
 import { WinratePlot, type PlotSeries, type SeriesKey } from "./WinratePlot";
 import "./winrate-graph.css";
+import { Dismissible } from "../notice/Dismissible";
 
 export type { SeriesKey } from "./WinratePlot";
 
@@ -141,6 +142,11 @@ export function WinrateGraph({ graph, unit = "bb", money = null, legend = true, 
   const date = dateFormat(locale, { dateStyle: "medium" });
   /** The money view, when asked for and possible. */
   const inMoney = unit === "money" && money !== null ? money : null;
+  /**
+   * Lines switched off by clicking their legend entry, on top of `hidden`.
+   * The last line still drawn cannot be switched off.
+   */
+  const [off, setOff] = useState<ReadonlySet<SeriesKey>>(() => new Set());
   /** A figure as the legend and tooltip print it. */
   const labelled = (value: number) => (inMoney ? inMoney.format(value) : t.bb(bb.format(value)));
 
@@ -183,9 +189,20 @@ export function WinrateGraph({ graph, unit = "bb", money = null, legend = true, 
         values: line((b) => b.cumEvBbMilli, (b) => b.cumEvNet),
       });
     }
-    const shown = hidden ? series.filter((s) => !hidden.has(s.key)) : series;
-    return { xs, series: shown.length > 0 ? shown : series };
-  }, [graph.buckets, graph.allInEv, t, inMoney, hidden]);
+    const shown = series.filter((s) => !hidden?.has(s.key) && !off.has(s.key));
+    return { xs, all: series, series: shown.length > 0 ? shown : series };
+  }, [graph.buckets, graph.allInEv, t, inMoney, hidden, off]);
+
+  const toggle = (key: SeriesKey) =>
+    setOff((now) => {
+      const next = new Set(now);
+      if (next.has(key)) {
+        next.delete(key);
+      } else if (model.series.length > 1) {
+        next.add(key);
+      }
+      return next;
+    });
 
   const tickFormat = useMemo(() => {
     const whole = numberFormat(locale, { maximumFractionDigits: 0 });
@@ -231,7 +248,7 @@ export function WinrateGraph({ graph, unit = "bb", money = null, legend = true, 
   const emptyXs = useMemo(() => Float64Array.from([0, Math.max(EMPTY_HANDS, graph.hands)]), [graph.hands]);
 
   if (graph.mixedUnitKind) {
-    return <p className="notice notice--warn">{t.mixedUnitKind}</p>;
+    return <Dismissible className="notice notice--warn">{t.mixedUnitKind}</Dismissible>;
   }
 
   if (graph.buckets.length < 2) {
@@ -271,18 +288,32 @@ export function WinrateGraph({ graph, unit = "bb", money = null, legend = true, 
           direct end-labels would have said — and which, on three converging
           lines, they would have said on top of each other. What each line
           means is the item's hover tooltip, the way a statistic's definition
-          is its label's. */}
+          is its label's. Clicking an entry hides its line (and its tooltip
+          row); clicking it again brings it back. */}
       {legend ? (
         <ul className="stats-legend">
-          {model.series.map((s) => (
-            <li key={s.key} title={s.hint}>
-              <span className={`stats-key stats-key--${s.key}`} />
-              <span className="stats-legend__label">{s.label}</span>
-              <span className="stats-legend__value">{labelled(end(s))}</span>
-            </li>
-          ))}
-          {model.series.some((s) => s.key === "allInEv") ? null : (
-            <li className="is-pending" title={graph.allInEv ? t.noAllInsHint : t.notComputedHint}>
+          {model.all.map((s) => {
+            const shown = model.series.includes(s);
+            const last = shown && model.series.length === 1;
+            return (
+              <li key={s.key}>
+                <button
+                  type="button"
+                  className={`stats-legend__item stats-legend__toggle${shown ? "" : " is-off"}`}
+                  aria-pressed={shown}
+                  aria-disabled={last || undefined}
+                  title={`${s.hint}\n${shown ? (last ? t.legendLast : t.legendHide) : t.legendShow}`}
+                  onClick={() => toggle(s.key)}
+                >
+                  <span className={`stats-key stats-key--${s.key}`} />
+                  <span className="stats-legend__label">{s.label}</span>
+                  <span className="stats-legend__value">{labelled(end(s))}</span>
+                </button>
+              </li>
+            );
+          })}
+          {model.all.some((s) => s.key === "allInEv") ? null : (
+            <li className="stats-legend__item is-pending" title={graph.allInEv ? t.noAllInsHint : t.notComputedHint}>
               <span className="stats-key stats-key--allInEv" />
               <span className="stats-legend__label">{t.series.allInEv.label}</span>
               <span className="stats-legend__value">{graph.allInEv ? t.noAllIns : t.notComputed}</span>
@@ -291,7 +322,7 @@ export function WinrateGraph({ graph, unit = "bb", money = null, legend = true, 
         </ul>
       ) : null}
 
-      {graph.mixedCurrency ? <p className="notice notice--info">{t.mixedCurrency}</p> : null}
+      {graph.mixedCurrency ? <Dismissible className="notice notice--info">{t.mixedCurrency}</Dismissible> : null}
     </div>
   );
 }

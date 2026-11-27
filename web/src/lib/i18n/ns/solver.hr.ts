@@ -106,6 +106,7 @@ export const solverHr: Dict["solver"] = {
     slot: "Prazno",
     solved: (count: number) =>
       `${num(count)} ${plural(count, "solvani flop", "solvana flopa", "solvanih flopova")} na ovoj liniji`,
+    matching: (count: number, total: number) => `Solvani flopovi s ovim rangovima: ${num(count)} od ${num(total)}`,
     card: (card: string, picked: boolean) => `${card}${picked ? ", odabrana" : ""}`,
   },
 

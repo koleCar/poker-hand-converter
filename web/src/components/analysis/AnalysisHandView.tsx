@@ -38,6 +38,7 @@ import styles from "./analysis.module.css";
 import { ANALYSIS_SHEET_ICON as SHEET_ICON, gradeMarks } from "./SharedAnalysis";
 import { listQuery, parseListState } from "./listState";
 import { cameFromSession, parseSessionQuery, sessionQueryString } from "./session/sessionQuery";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 type Loaded =
   | { status: "loading" }
@@ -104,7 +105,7 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
   );
 
   if (!isDatabaseConfigured) {
-    return <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>;
+    return <Dismissible className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</Dismissible>;
   }
 
   const backLink = (
@@ -133,8 +134,8 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
       <div className={styles.handPage}>
         {backLink}
         {loaded.status === "loading" ? <RailLoader size="page" label={t.hand.loading} showLabel centered /> : null}
-        {loaded.status === "missing" ? <p className="notice notice--warn">{t.hand.notFound}</p> : null}
-        {loaded.status === "error" ? <p className="notice notice--error">{loaded.message}</p> : null}
+        {loaded.status === "missing" ? <Dismissible className="notice notice--warn">{t.hand.notFound}</Dismissible> : null}
+        {loaded.status === "error" ? <Dismissible className="notice notice--error">{loaded.message}</Dismissible> : null}
       </div>
     );
   }

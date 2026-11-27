@@ -2122,6 +2122,7 @@ export const hr: Dict = {
 
   ui: {
     closeNamed: (what) => `Zatvori: ${what.toLowerCase()}`,
+    dismissNotice: "Zatvori ovu poruku",
   },
 
   tray: {

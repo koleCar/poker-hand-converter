@@ -253,12 +253,14 @@ export {
   dealtCards,
   exploreHistory,
   exploreNode,
+  flopsForPicks,
   pickedFlop,
   type ExploreAction,
   type ExploreClass,
   type ExploreCombo,
   type ExploreNode,
   type ExploreStep,
+  type FlopForPicks,
   type PickedFlop,
 } from "./explore";
 export {

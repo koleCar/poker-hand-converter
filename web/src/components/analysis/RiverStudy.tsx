@@ -41,6 +41,7 @@ import type { PhfHand } from "../../lib/phf/types";
 import styles from "./analysis.module.css";
 import own from "./riverStudy.module.css";
 import { GRID_CELLS } from "./chartSpots";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 type Loaded =
   | { status: "idle" }
@@ -160,8 +161,8 @@ export function RiverStudy({ decision, hand, initialOpen = false, street = "rive
         ) : null}
       </div>
       {open && loaded.status === "loading" ? <RailLoader size="small" label={t.loading} showLabel /> : null}
-      {open && loaded.status === "error" ? <p className="notice notice--error">{t.failed(loaded.message)}</p> : null}
-      {open && loaded.status === "missing" ? <p className="notice notice--warn">{t.unavailable}</p> : null}
+      {open && loaded.status === "error" ? <Dismissible className="notice notice--error">{t.failed(loaded.message)}</Dismissible> : null}
+      {open && loaded.status === "missing" ? <Dismissible className="notice notice--warn">{t.unavailable}</Dismissible> : null}
       {open && loaded.status === "ready" ? (
         <div className="rail-fade">
           <StudyBody study={loaded.study} flop={decision.facts.flop ?? null} />

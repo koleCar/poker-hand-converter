@@ -19,6 +19,7 @@ import type { PhfHand } from "../../lib/phf/types";
 import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
 import { ShareHandButton } from "../share/ShareHandButton";
 import { Icon } from "@rail/ui/icon/Icon";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 /** `standard` is our own re-import format, not a room, so it is not a label. */
 function siteLabel(id: string): string | null {
@@ -137,8 +138,8 @@ export function ReplayPanel({ request, onSaved }: ReplayPanelProps) {
 
   return (
     <>
-      {error ? <p className="notice notice--error">{error}</p> : null}
-      {notice ? <p className="notice notice--info">{notice}</p> : null}
+      {error ? <Dismissible className="notice notice--error">{error}</Dismissible> : null}
+      {notice ? <Dismissible className="notice notice--info">{notice}</Dismissible> : null}
 
       {loaded ? (
         <section className="card card--flush">

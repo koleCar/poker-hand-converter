@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useT } from "../../i18n";
 import { errorText, ipc, type ConvertSummary } from "../../lib/ipc";
 import styles from "./Settings.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 export default function DevConvert() {
   const t = useT();
@@ -37,7 +38,7 @@ export default function DevConvert() {
       <button type="button" className={styles.button} disabled={busy} onClick={() => void run()}>
         {busy ? d.running : d.pick}
       </button>
-      {error && <p className={styles.error}>{error}</p>}
+      {error && <Dismissible className={styles.error}>{error}</Dismissible>}
       {summary && (
         <dl className={styles.facts}>
           <dt>{d.file}</dt>
@@ -65,8 +66,8 @@ export default function DevConvert() {
           <dd>{d.millis(summary.millis)}</dd>
         </dl>
       )}
-      {summary?.problem && <p className={styles.error}>{d.problem(summary.problem)}</p>}
-      {summary?.error && <p className={styles.error}>{d.error(summary.error)}</p>}
+      {summary?.problem && <Dismissible className={styles.error}>{d.problem(summary.problem)}</Dismissible>}
+      {summary?.error && <Dismissible className={styles.error}>{d.error(summary.error)}</Dismissible>}
       {summary?.unrecognized && <p className={styles.hint}>{d.unrecognized}</p>}
     </section>
   );

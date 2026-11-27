@@ -18,6 +18,7 @@ import { errorText, inApp, ipc, type Discovery } from "../lib/ipc";
 import { go } from "../lib/router";
 import { useAccount } from "../lib/useAccount";
 import styles from "./FirstRun.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 type Row = FoundRow;
 
@@ -188,7 +189,7 @@ export function FirstRun() {
                   disabled={phase === "adding"}
                 />
               )}
-              {error && <p className={styles.error}>{error}</p>}
+              {error && <Dismissible className={styles.error}>{error}</Dismissible>}
               <div className={styles.actions}>
                 {selected.length > 0 && (
                   <button

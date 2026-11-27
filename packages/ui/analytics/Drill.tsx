@@ -43,6 +43,7 @@ import {
   type DrillClass,
   type DrillSize,
 } from "./view";
+import { Dismissible } from "../notice/Dismissible";
 
 /* ------------------------------------------------------------ links -- */
 
@@ -196,9 +197,9 @@ export function Drill({
           <b className={styles.drillName}>{name}</b>
         </div>
         {error !== null ? (
-          <p className={styles.quiet} role="alert">
+          <Dismissible className={styles.quiet} role="alert">
             {s.error(error)}
-          </p>
+          </Dismissible>
         ) : loading ? (
           <RailLoader size="small" label={s.loading} showLabel centered />
         ) : (
@@ -544,9 +545,9 @@ function HandList({
     body = <RailLoader size="inline" label={d.handsLoading} showLabel />;
   } else if (current.error !== null) {
     body = (
-      <p className={styles.quiet} role="alert">
+      <Dismissible className={styles.quiet} role="alert">
         {d.handsError(current.error)}
-      </p>
+      </Dismissible>
     );
   } else if (rows.length === 0) {
     body = <p className={styles.quiet}>{d.noHands}</p>;

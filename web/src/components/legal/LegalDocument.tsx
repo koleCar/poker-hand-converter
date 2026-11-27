@@ -2,6 +2,7 @@ import { renderMarkdown } from "../../lib/legal/markdown";
 import { LEGAL_TEXTS } from "../../lib/legal/texts.generated";
 import type { Locale } from "../../lib/i18n/types";
 import styles from "./legal.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 export type LegalDocumentId = keyof typeof LEGAL_TEXTS;
 
@@ -19,9 +20,9 @@ export function legalTitle(id: LegalDocumentId, locale: Locale): string {
 export function LegalDocument({ id, locale, draft }: { id: LegalDocumentId; locale: Locale; draft: string }) {
   return (
     <article className={`card ${styles.article}`} lang={locale}>
-      <p className={`notice notice--warn ${styles.draft}`} role="note">
+      <Dismissible className={`notice notice--warn ${styles.draft}`} role="note">
         <strong>{draft}</strong>
-      </p>
+      </Dismissible>
       <h1 className={styles.title}>{legalTitle(id, locale)}</h1>
       <div className={styles.body}>{renderMarkdown(LEGAL_TEXTS[id][locale], { skipTitle: true, tableClass: styles.table })}</div>
     </article>

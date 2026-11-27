@@ -363,7 +363,7 @@
   gap: 6px 16px;
 }
 
-.stats-legend li {
+.stats-legend__item {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
@@ -373,13 +373,53 @@
   cursor: help;
 }
 
-.stats-legend li.is-pending .stats-key {
+/* An entry is a switch: clicking it hides its line, clicking again shows it. */
+.stats-legend__toggle {
+  width: 100%;
+  margin: 0;
+  padding: 2px 4px;
+  margin-inline: -4px;
+  box-sizing: content-box;
+  border: 0;
+  border-radius: var(--radius-1);
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  text-align: start;
+  cursor: pointer;
+}
+
+.stats-legend__toggle:hover {
+  background: var(--surface-hover);
+}
+
+.stats-legend__toggle:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.stats-legend__toggle[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+.stats-legend__toggle.is-off .stats-key {
+  opacity: 0.35;
+}
+
+/* Muted and struck through, never faded (the contrast rule below). */
+.stats-legend__toggle.is-off .stats-legend__label {
+  color: var(--fg-muted);
+  text-decoration: line-through;
+}
+
+.stats-legend__item.is-pending .stats-key {
   /* Fade the swatch, never the text: any opacity on the muted label drops it
      below 4.5:1 in the light theme (#57). */
   opacity: 0.6;
 }
 
-.stats-legend li.is-pending .stats-legend__label {
+.stats-legend__item.is-pending .stats-legend__label {
   color: var(--fg-muted);
 }
 
@@ -429,7 +469,7 @@
     gap: var(--space-3) var(--space-4);
   }
 
-  .stats-legend li {
+  .stats-legend__item {
     grid-template-columns: auto minmax(0, 1fr);
     gap: 2px 8px;
     font-size: var(--font-size-md);

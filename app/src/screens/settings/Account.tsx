@@ -20,6 +20,7 @@ import { useAccount } from "../../lib/useAccount";
 import { useEntitlements } from "../../lib/useEntitlements";
 import { useSync } from "../../lib/useSync";
 import styles from "./Settings.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const DAY = liveDateFormat({ dateStyle: "medium" });
 const CLOCK = liveDateFormat({ hour: "2-digit", minute: "2-digit" });
@@ -275,7 +276,7 @@ function AccountTile({ account, error, busy, run, name }: ReturnType<typeof useA
       {account === null ? (
         <div className={styles.tile}>
           <span className={`${styles.avatar} ${styles.avatarEmpty}`} aria-hidden="true" />
-          {error ? <p className={styles.error}>{d.failed(error)}</p> : <RailLoader size="inline" label={d.loading} showLabel />}
+          {error ? <Dismissible className={styles.error}>{d.failed(error)}</Dismissible> : <RailLoader size="inline" label={d.loading} showLabel />}
         </div>
       ) : (
         <TileBody account={account} busy={busy} run={run} name={name} />

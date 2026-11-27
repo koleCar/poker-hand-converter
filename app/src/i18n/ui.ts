@@ -43,6 +43,7 @@ function uiStrings(
   return {
     intlLocale: INTL_LOCALE[locale],
     closeNamed: dict.ui.closeNamed,
+    dismissNotice: dict.ui.dismissNotice,
     replayer,
     statTile: stats.tile,
     statTable: { ...stats.table, sampleOnly: stats.sampleOnly },

@@ -44,6 +44,7 @@ import {
 import styles from "./Editor.module.css";
 import { rangeChanged, type RangeEdit, type RangeEditAction } from "./editor/ranges";
 import rangeStyles from "./RangesStep.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 type Pair<T> = [T, T];
 
@@ -334,9 +335,9 @@ export function RangesStep({ edit, dispatch, board, shownBoard, players, actor, 
             </ToolButton>
           </div>
           {textError ? (
-            <p className={styles.message} role="alert">
+            <Dismissible className={styles.message} role="alert">
               {textError}
-            </p>
+            </Dismissible>
           ) : null}
         </aside>
       </div>
@@ -350,9 +351,9 @@ export function RangesStep({ edit, dispatch, board, shownBoard, players, actor, 
             </p>
           ))}
           {message ? (
-            <p className={styles.message} role="alert">
+            <Dismissible className={styles.message} role="alert">
               {message}
-            </p>
+            </Dismissible>
           ) : null}
         </div>
         {canSolve ? (

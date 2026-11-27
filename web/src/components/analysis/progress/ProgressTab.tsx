@@ -52,6 +52,7 @@ import { WhatChanged } from "../leaks/WhatChanged";
 import { TrendChart, type TrendChartPoint } from "./TrendChart";
 import "../../../styles/stats.css";
 import { ProgressSkeleton, SkStatus } from "../ui/Skeleton";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 const PROGRESS_MIGRATION = "supabase/migrations/20270201090000_analysis_leaks.sql";
 const DAY = 24 * 60 * 60 * 1000;
@@ -128,7 +129,7 @@ export function ProgressTab({ initialQuery, refreshToken = 0 }: ProgressTabProps
     return (
       <div className="stats">
         <Header />
-        <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>
+        <Dismissible className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</Dismissible>
       </div>
     );
   }
@@ -157,7 +158,7 @@ export function ProgressTab({ initialQuery, refreshToken = 0 }: ProgressTabProps
     return (
       <div className="stats">
         <Header />
-        <p className="notice notice--error">{answer?.message}</p>
+        <Dismissible className="notice notice--error">{answer?.message}</Dismissible>
         <TryAgain onClick={() => setAttempt((value) => value + 1)} />
       </div>
     );
@@ -329,7 +330,7 @@ function Overall({ series, bucket, busy }: { series: TrendSeries | undefined; bu
   const t = useDict().analysis.progress;
   const words = useBucketWords(bucket);
   if (!series || series.points.length < 2) {
-    return <p className="notice notice--info">{t.notEnough}</p>;
+    return <Dismissible className="notice notice--info">{t.notEnough}</Dismissible>;
   }
   return (
     <section className="card stats-group rail-dims" aria-busy={busy}>
@@ -387,7 +388,7 @@ function Multiples({
       <p className={reportStyles.muted}>
         {t.smallMultiplesNote} {hint}.
       </p>
-      {shown.length === 0 ? <p className="notice notice--info">{t.notEnough}</p> : null}
+      {shown.length === 0 ? <Dismissible className="notice notice--info">{t.notEnough}</Dismissible> : null}
       <div key={`${group}|${metric}`} className={`${styles.multiples} rail-stagger`}>
         {shown.map((entry) => (
           <TrendChart

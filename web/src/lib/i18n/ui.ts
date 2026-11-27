@@ -38,6 +38,7 @@ function uiStrings(locale: Locale): UiStrings {
   return {
     intlLocale: INTL_LOCALE[locale],
     closeNamed: dict.chrome.closeNamed,
+    dismissNotice: dict.chrome.dismissNotice,
     replayer: dict.replayer,
     statTile: dict.stats.tile,
     statTable: { ...dict.stats.table, sampleOnly: dict.stats.hud.sample },

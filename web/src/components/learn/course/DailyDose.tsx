@@ -27,6 +27,7 @@ import { localDeck, readLocal, saveLocalDeck, useLearn, writeLocal } from "./Lea
 import type { ItemAnswer } from "./PracticeItems";
 import { useRecommendations } from "./useCourseSignals";
 import styles from "./course.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 // The items' views (the felt, the trainer, the calculators) load when a dose starts, not with the map.
 const MixedSession = dynamic(() => import("./MixedSession").then((m) => m.MixedSession), { ssr: false, loading: SessionLoading });
@@ -149,7 +150,7 @@ export function DailyDose({ recommended }: { recommended: readonly LessonId[] })
             <p>{t.plan(reviews, lesson ? (en.course.titles[lesson] ?? lesson) : null)}</p>
           )}
           {doneDay === today ? <p className={styles.muted}>{t.doneToday}</p> : null}
-          {state.status === "error" ? <p className="notice notice--error">{state.message}</p> : null}
+          {state.status === "error" ? <Dismissible className="notice notice--error">{state.message}</Dismissible> : null}
           {reviews > 0 || lesson ? (
             <div className={styles.panelRow}>
               <button

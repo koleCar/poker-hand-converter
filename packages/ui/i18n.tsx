@@ -178,6 +178,10 @@ export interface ReplayerStrings {
     runTwo: string;
     allIn: string;
     dealerButton: string;
+    /** The tag under a seat that bet: its size as a share of the pot ("B 24%"). */
+    betPotTag: (percent: number) => string;
+    /** The same for a raise, measured the pot-limit way ("R 80%"). */
+    raisePotTag: (percent: number) => string;
   };
   seat: {
     positions: {
@@ -291,6 +295,11 @@ export interface WinrateGraphStrings {
   notEnough: string;
   ariaLabel: (count: number) => string;
   axisLabel: string;
+  /** A legend entry's hover, after what the line means: what a click does. */
+  legendHide: string;
+  legendShow: string;
+  /** ...on the one line still drawn, which stays. */
+  legendLast: string;
   noDates: string;
   noAllIns: string;
   notComputed: string;
@@ -358,6 +367,8 @@ export interface UiStrings {
   intlLocale: string;
   /** The accessible name of a dialog's close button: "Close <what>". */
   closeNamed: (what: string) => string;
+  /** The accessible name of a notice's × (`notice/Dismissible.tsx`): "Close this message". */
+  dismissNotice: string;
   replayer: ReplayerStrings;
   statTile: StatTileStrings;
   statTable: StatTableStrings;
@@ -378,6 +389,11 @@ const UiStringsContext = createContext<UiStrings | null>(null);
 /** Mount once per surface, above anything from `@rail/ui`, with the reader's language. */
 export function UiStringsProvider({ strings, children }: { strings: UiStrings; children: ReactNode }) {
   return <UiStringsContext.Provider value={strings}>{children}</UiStringsContext.Provider>;
+}
+
+/** The strings, or null where no provider is mounted (a notice may sit outside one). */
+export function useOptionalUiStrings(): UiStrings | null {
+  return useContext(UiStringsContext);
 }
 
 /** The strings, in a component of this package. */

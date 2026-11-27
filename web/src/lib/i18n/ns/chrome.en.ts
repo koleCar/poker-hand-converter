@@ -11,6 +11,7 @@ export const chromeEn = {
   intl: "en-GB",
   close: "Close",
   closeNamed: (what: string) => `Close ${what.toLowerCase()}`,
+  dismissNotice: "Close this message",
   auth: {
     titles: { "sign-in": "Sign in", "sign-up": "Create an account", reset: "Reset your password" },
     submit: { "sign-in": "Sign in", "sign-up": "Create account", reset: "Send reset link" },

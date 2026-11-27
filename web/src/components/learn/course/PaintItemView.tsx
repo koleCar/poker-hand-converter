@@ -29,6 +29,7 @@ import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { useFormats } from "../controls";
 import type { ItemAnswer } from "./PracticeItems";
 import styles from "./course.module.css";
+import { Dismissible } from "@rail/ui/notice/Dismissible";
 
 export type PaintCard = Extract<CardItem, { k: "paint" }>;
 
@@ -94,12 +95,12 @@ export function PaintItemView({ card, onAnswer }: { card: PaintCard; onAnswer: (
 
   if (dealt?.error) {
     return (
-      <div className="notice notice--error">
+      <Dismissible as="div" className="notice notice--error">
         <p>{c.failed(dealt.error)}</p>
         <button type="button" className="btn btn--sm" onClick={() => setAttempt((value) => value + 1)}>
           {c.retry}
         </button>
-      </div>
+      </Dismissible>
     );
   }
   if (!dealt) {
@@ -108,7 +109,7 @@ export function PaintItemView({ card, onAnswer }: { card: PaintCard; onAnswer: (
     );
   }
   const item = dealt.item;
-  if (!item) return <p className="notice notice--warn">{c.noSpot}</p>;
+  if (!item) return <Dismissible className="notice notice--warn">{c.noSpot}</Dismissible>;
 
   const set = (k: number, value: boolean) =>
     setPainted((prev) => {
