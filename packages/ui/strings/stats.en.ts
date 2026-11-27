@@ -76,6 +76,9 @@ export const statsUiEn = {
     ariaLabel: (count: number) =>
       `Cumulative win rate over ${hands(count)}, split into total, showdown and non-showdown big blinds won.`,
     axisLabel: "Hands played",
+    legendHide: "Click to hide this line",
+    legendShow: "Click to show this line",
+    legendLast: "The last line shown cannot be hidden",
     noDates: "no dates on these hands",
     noAllIns: "no all-ins yet",
     notComputed: "not yet computed",

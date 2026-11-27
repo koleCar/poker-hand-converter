@@ -295,6 +295,11 @@ export interface WinrateGraphStrings {
   notEnough: string;
   ariaLabel: (count: number) => string;
   axisLabel: string;
+  /** A legend entry's hover, after what the line means: what a click does. */
+  legendHide: string;
+  legendShow: string;
+  /** ...on the one line still drawn, which stays. */
+  legendLast: string;
   noDates: string;
   noAllIns: string;
   notComputed: string;
