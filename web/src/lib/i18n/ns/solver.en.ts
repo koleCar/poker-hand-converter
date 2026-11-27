@@ -107,6 +107,7 @@ export const solverEn = {
     hint: "Pick three cards.",
     slot: "Empty",
     solved: (count: number) => `${num(count)} solved ${count === 1 ? "flop" : "flops"} on this line`,
+    matching: (count: number, total: number) => `Solved flops with these ranks: ${num(count)} of ${num(total)}`,
     card: (card: string, picked: boolean) => `${card}${picked ? ", picked" : ""}`,
   },
 
