@@ -255,6 +255,76 @@ Status: done in 6a53465b (2026-11-27)
 - **Done when:** deleting one hand changes the pool by that hand only, and a
   GG NL50 6-max filter shows that field's regs and fish.
 
+Status: done in 20cc5844 (2026-11-27)
+
+- **As built:**
+  - **Migration `20271127100000_pool_fields.sql`:**
+    - `field_key_of(site, format, variant, limit, max_seats, player_count,
+      currency, big_blind)` (immutable): `room|format|variant|limit|size|stake`,
+      e.g. `ggpoker|cash|holdem|nl|6max|USD:50` (`chips` off the cash
+      tables) - the report segment's rules, so a field equals the hand's
+      `hero_report_rows` segment (checked on every local hand);
+    - `hands.field_key`, set by `hands_normalize` on insert (never the
+      client's); `hands_field_key_backfill(after, limit)` for older rows
+      (nobody's; its updates skip the library counts' rebuild through
+      `rail.field_backfill`); a row without it gets it computed when counted;
+    - `pool_hand_seats` (hand, owner, catalogue version, room, field, seats
+      `[[player, net_bb, {rate: [made, opp]}], ...]`): written by the one
+      pass (`derive_save` → `derive_write` → `analytics_pool_add`), the
+      "already counted" mark; RLS owner-select, `derived` in the inventory;
+    - `pool_players` / `pool_player_stats` keyed by `field_key` (was
+      `game_format`), `seats` count added, results `numeric`; emptied by the
+      migration (they could not be split by field: the first fill counts
+      them again, P7);
+    - **a delete subtracts:** `pool_hand_seats_subtract` (statement trigger
+      on the cascade) takes the hand's seats out at their version and drops
+      emptied rows; skipped in a wipe (`rail.erasing_account`), where
+      `hand_wipe_finish` empties the rollups or rebuilds them from the
+      seats left (`pool_rollups_rebuild`); writers, trigger and rebuild take
+      `pool_lock` (advisory, per owner, in owner order);
+    - dropped: `derive_recounts`, `derive_recount_step`,
+      `pool_counted_hands_reset`, `pool_counted_hands` (and their inventory
+      rows); `derive_claim` without the recount step;
+    - `analytics_pool` reads fields: `sites`, `formats` (else `gameFormat` /
+      `gameKind`), `variants`, `limits`, `sizes`, `stakes`;
+      `analytics_pool_pending` (older clients) anti-joins `pool_hand_seats`.
+  - **Shared / web:** `PoolFilters` gains `formats`, `variants`, `limits`,
+    `sizes`, `stakes`; `poolFiltersOf` sends them (and still the kind or
+    format, which the desktop reads; it ignores the rest until P6). The Hands
+    list no longer drains after a delete.
+  - **Tests:** pgTAP `pool_fields.test.sql` (36), `analytics_pool`,
+    `derive_queue`, `entitlements` updated; vitest `analyticsPool.test.ts`
+    (`poolFiltersOf` with a GG NL50 6-max filter).
+  - **Checked in the web app** (fp-p1, 5 000 hands): the Pool tab with
+    $0.25/$0.50 and 6-max shows that field only (496 reg hands, 440 fish,
+    equal to `analytics_pool` in SQL); one hand deleted from Hand history
+    changed exactly its seven opponents' rows (one seat each) and the tab's
+    totals by that hand (9 500 → 9 499 reg hands, 6 528 → 6 524 fish),
+    nothing queued, no page catching up.
+  - **Measured** on 92 616 hands (opponents on, all counted): `analytics_pool`
+    25 ms unfiltered, 3-10 ms filtered; one hand deleted 36 ms; rebuild 2.1 s
+    (equal to the incremental sums); backfill ~5 s per 20 000 rows; drained
+    97 616 hands by the cron route in 8 min (~200 hands/s).
+- **Deviations:**
+  - **GG has no pool on the web.** GG names are per-session tokens
+    (`opaque-id`): the one pass counts no opponents for them (`poolSeats`,
+    Step 10's rule) and `player_stats` keeps them under '' (no type). So a
+    GG NL50 6-max filter shows an empty pool on real GG hands. The field
+    logic is proven in pgTAP with a synthetic GG NL50 6-max field (named
+    seats and types) and in the app with WePlay NL50 6-max. Whether opaque
+    session ids may be typed and pooled is the owner's call (the desktop
+    pools them).
+  - **`seats` is `json` with arrays**, not `jsonb` with named keys: ~390
+    bytes a hand instead of ~1 KB (36 MB instead of 94 MB of seats for 92k
+    hands). Read back as `seats::jsonb`.
+  - **One seats row for every counted hand**, with no opponents too (the
+    mark `pool_counted_hands` was).
+  - **The types are still read from all of `player_stats`** per request (P3
+    replaces them with `player_types`); fine at 92k hands (25 ms).
+  - **Field size from `hands`**: when `max_seats` is unknown the size comes
+    from `hands.player_count`, which can count one more seat than
+    `hand_stats.player_count` (sitting out); no local hand differs.
+
 ### P3 — Types and the "vs fish" figures precomputed
 
 - `player_types`, `opp_mix` on `hero_report_rows` and its rollups, the
