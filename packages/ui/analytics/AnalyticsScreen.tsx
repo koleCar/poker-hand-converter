@@ -235,7 +235,7 @@ export function AnalyticsScreen({
     [checked.sums, coded],
   );
   const partial = useMemo(() => (checker ? checker.partial(query) : false), [checker, query]);
-  // Pool: the opponents' sums and the player's two reports, read while it is open (never on the Free plan).
+  // Pool: the opponents' sums and the player's two figures, read while it is open (never on the Free plan).
   const pooled = usePool(pool, source, query, !drilling && view === "pool" && !checkerLocked && facetsSeen !== null, reloadToken);
   const examples = useMemo(() => {
     const read = checker?.examples;
@@ -336,8 +336,7 @@ export function AnalyticsScreen({
             catalogue={ANALYTICS}
             result={result}
             sums={pooled.sums}
-            withFish={pooled.withFish}
-            regOrFish={pooled.regOrFish}
+            you={pooled.you}
             show={poolShow}
             lock={lockOf("pool")}
             loading={pooled.loading && !pooled.loaded}

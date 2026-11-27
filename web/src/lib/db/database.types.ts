@@ -2644,6 +2644,57 @@ export type Database = {
         }
         Relationships: []
       }
+      hero_opp_rollups: {
+        Row: {
+          day: string
+          game_format: Database["public"]["Enums"]["game_format"]
+          hands: number
+          kind: number
+          limit_type: string
+          net_bb_milli: number
+          opp_mix: string
+          owner_id: string
+          position: string
+          site_id: string
+          size: string
+          stake: string
+          stats_version: string
+          variant: string
+        }
+        Insert: {
+          day: string
+          game_format: Database["public"]["Enums"]["game_format"]
+          hands?: number
+          kind: number
+          limit_type: string
+          net_bb_milli?: number
+          opp_mix: string
+          owner_id: string
+          position: string
+          site_id: string
+          size: string
+          stake: string
+          stats_version: string
+          variant: string
+        }
+        Update: {
+          day?: string
+          game_format?: Database["public"]["Enums"]["game_format"]
+          hands?: number
+          kind?: number
+          limit_type?: string
+          net_bb_milli?: number
+          opp_mix?: string
+          owner_id?: string
+          position?: string
+          site_id?: string
+          size?: string
+          stake?: string
+          stats_version?: string
+          variant?: string
+        }
+        Relationships: []
+      }
       hero_report_rows: {
         Row: {
           big_blind: number
@@ -2661,6 +2712,7 @@ export type Database = {
           limit_type: string
           net: number
           net_bb_milli: number
+          opp_mix: string | null
           owner_id: string
           pfr: number
           pfr_opp: number
@@ -2708,6 +2760,7 @@ export type Database = {
           limit_type: string
           net: number
           net_bb_milli: number
+          opp_mix?: string | null
           owner_id: string
           pfr: number
           pfr_opp: number
@@ -2755,6 +2808,7 @@ export type Database = {
           limit_type?: string
           net?: number
           net_bb_milli?: number
+          opp_mix?: string | null
           owner_id?: string
           pfr?: number
           pfr_opp?: number
@@ -3676,6 +3730,69 @@ export type Database = {
           wsd_opp?: number
           wtsd?: number
           wtsd_opp?: number
+        }
+        Relationships: []
+      }
+      player_type_changes: {
+        Row: {
+          after_hand: string | null
+          changed_at: string
+          owner_id: string
+          player: string
+          site_id: string
+          stats_version: string
+        }
+        Insert: {
+          after_hand?: string | null
+          changed_at?: string
+          owner_id: string
+          player: string
+          site_id: string
+          stats_version: string
+        }
+        Update: {
+          after_hand?: string | null
+          changed_at?: string
+          owner_id?: string
+          player?: string
+          site_id?: string
+          stats_version?: string
+        }
+        Relationships: []
+      }
+      player_types: {
+        Row: {
+          kind: string
+          n: number
+          owner_id: string
+          pfr: number
+          player: string
+          site_id: string
+          stats_version: string
+          updated_at: string
+          vpip: number
+        }
+        Insert: {
+          kind: string
+          n: number
+          owner_id: string
+          pfr: number
+          player: string
+          site_id: string
+          stats_version: string
+          updated_at?: string
+          vpip: number
+        }
+        Update: {
+          kind?: string
+          n?: number
+          owner_id?: string
+          pfr?: number
+          player?: string
+          site_id?: string
+          stats_version?: string
+          updated_at?: string
+          vpip?: number
         }
         Relationships: []
       }
@@ -5486,6 +5603,7 @@ export type Database = {
         Args: { p_hands: Json; p_version: string }
         Returns: Json
       }
+      analytics_pool_you: { Args: { p_filter?: Json }; Returns: Json }
       analytics_pot_kind_of: { Args: { p_filters: Json }; Returns: string }
       analytics_rows_pending: {
         Args: {
@@ -6068,6 +6186,23 @@ export type Database = {
         Returns: boolean
       }
       has_my_entitlement: { Args: { p_feature: string }; Returns: boolean }
+      hero_opp_mix_backfill: {
+        Args: { p_after?: string; p_limit?: number }
+        Returns: Json
+      }
+      hero_opp_mix_of: {
+        Args: {
+          p_hand: string
+          p_owner: string
+          p_site: string
+          p_version: string
+        }
+        Returns: string
+      }
+      hero_opp_mix_retag_hands: {
+        Args: { p_hands: string[]; p_owner: string; p_version?: string }
+        Returns: number
+      }
       ingest_hands: { Args: { p_rows: Json; p_source: string }; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
       is_board_moderator: { Args: { p_board_id: string }; Returns: boolean }
@@ -6267,6 +6402,10 @@ export type Database = {
         Args: { p_positions: string[] }
         Returns: string[]
       }
+      opp_mix_retag: {
+        Args: { p_budget_ms?: number; p_owner?: string; p_page?: number }
+        Returns: Json
+      }
       phf_format_amount: {
         Args: {
           p_amount: number
@@ -6289,6 +6428,10 @@ export type Database = {
         Returns: Database["public"]["Enums"]["site_anonymization"]
       }
       phf_text_array: { Args: { p_value: Json }; Returns: string[] }
+      player_kind_of: {
+        Args: { p_n: number; p_pfr: number; p_vpip: number }
+        Returns: string
+      }
       player_profile: {
         Args: {
           p_kind?: string
@@ -6299,6 +6442,7 @@ export type Database = {
         Returns: Json
       }
       player_sites: { Args: { p_stats_version?: string }; Returns: Json }
+      player_types_refresh: { Args: { p_keys: Json }; Returns: undefined }
       players_list: { Args: { p_query?: Json }; Returns: Json }
       poll_hides_answer: { Args: { p_post: string }; Returns: boolean }
       poll_phf: {

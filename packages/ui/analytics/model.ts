@@ -204,6 +204,24 @@ export interface PoolSums {
   stats: PoolStatSums[];
 }
 
+/** The player's hands and result over one side of the "vs type" split. */
+export interface PoolYouSums {
+  hands: number;
+  /** Hands whose money counts (an EV cashout's does not, unless the filter takes them in). */
+  moneyHands: number;
+  /** Σ result in milli big blinds; null when chips and cash mix. */
+  netBbMilli: number | null;
+}
+
+/**
+ * The player's results with a fish in the pot, and with regs and no fish
+ * (the Pool tab's two "You" figures, over the screen's whole filter).
+ */
+export interface PoolYou {
+  fish: PoolYouSums;
+  regsOnly: PoolYouSums;
+}
+
 /**
  * What the Analytics screen asks a surface for on the Pool tab. The surface
  * counts the pool itself, away from the screen (the desktop's background
@@ -211,4 +229,10 @@ export interface PoolSums {
  */
 export interface AnalyticsPool {
   sums(query: HandFilter): Promise<PoolSums | null>;
+  /**
+   * The two "You" figures, precomputed by the surface (the web: each hero
+   * hand tagged by its opponents' types, docs/POOL.md P3). Without it the
+   * screen runs two reports over the Hands filter's "vs type" (the desktop).
+   */
+  you?(query: HandFilter): Promise<PoolYou | null>;
 }

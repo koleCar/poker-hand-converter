@@ -235,8 +235,7 @@ describe("Pool's states", () => {
   const base = {
     catalogue: ANALYTICS,
     result: null,
-    withFish: null,
-    regOrFish: null,
+    you: null,
     show: "all" as const,
     onAllStats: () => undefined,
   };

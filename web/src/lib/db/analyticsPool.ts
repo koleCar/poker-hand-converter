@@ -10,18 +10,32 @@
  *   formats, games, limits, table sizes and stakes - `hands.field_key`; the
  *   types read from `player_stats` at this build's statistics version), and
  *   `pending`: the caller's hands still being processed (a counter).
- *   No `backfill`: the browser no longer counts.
+ *   No `backfill`: the browser no longer counts. The types are
+ *   `player_types` (P3: kept on the server as opponents' statistics change).
+ * - **The two "You" figures** ({@link fetchPoolYou}, `analytics_pool_you`):
+ *   the player's results with a fish in the pot and with regs and no fish,
+ *   over the screen's whole filter, from each hero hand's tag (`opp_mix`,
+ *   docs/POOL.md P3) - no `report_open` over the "vs type".
  * - **Writes** happen on the server only: the one pass keeps each hand's
  *   opponents with its field (`pool_hand_seats`) and adds them up; a deleted
  *   hand's seats are taken out again (P2).
  */
 import type { HandFilter } from "@rail/ui/hands/model";
-import type { AnalyticsPool, PoolFilters, PoolStatSums, PoolSums, PoolTypeSums } from "@rail/ui/analytics/model";
+import type {
+  AnalyticsPool,
+  PoolFilters,
+  PoolStatSums,
+  PoolSums,
+  PoolTypeSums,
+  PoolYou,
+  PoolYouSums,
+} from "@rail/ui/analytics/model";
 import { poolFiltersOf } from "@rail/ui/analytics/poolView";
 
 import { ANALYTICS_MEMBERSHIP_VERSION } from "../stats/analytics";
 import { STATS_VERSION } from "../stats/types";
 import { rpc } from "./client";
+import { libraryFilter } from "./handsSource";
 
 /* ---------------------------------------------------------------- reads - */
 
@@ -52,7 +66,27 @@ export async function fetchPool(filters: PoolFilters = {}): Promise<PoolSums | n
   };
 }
 
+function youSide(value: unknown): PoolYouSums {
+  const row = (value && typeof value === "object" ? value : {}) as Row;
+  return {
+    hands: num(row.hands),
+    moneyHands: num(row.moneyHands),
+    netBbMilli: row.netBbMilli === null || row.netBbMilli === undefined ? null : num(row.netBbMilli),
+  };
+}
+
+/**
+ * The player's results with a fish in the pot and with regs and no fish
+ * (`analytics_pool_you`), over the Hands list's filter as the reports read it.
+ */
+export async function fetchPoolYou(query: HandFilter): Promise<PoolYou | null> {
+  const data = await rpc<Row | null>("analytics_pool_you", { p_filter: libraryFilter(query) });
+  if (!data) return null;
+  return { fish: youSide(data.fish), regsOnly: youSide(data.regsOnly) };
+}
+
 /** The web's `AnalyticsPool`. */
 export const webPool: AnalyticsPool = {
   sums: (query: HandFilter) => fetchPool(poolFiltersOf(query)),
+  you: (query: HandFilter) => fetchPoolYou(query),
 };

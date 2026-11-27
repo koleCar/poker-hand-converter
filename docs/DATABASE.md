@@ -985,7 +985,7 @@ inventory.
   rebuild take `pool_lock(owners)` (an advisory lock per owner, in owner
   order).
 - **Read** by `analytics_pool(filters)` (Pro): the opponents typed by Rail's
-  rule over `player_stats` (every segment of the room), their results and
+  rule (`player_types` since P3, below), their results and
   rates summed over the owner's fields that match `sites`, `formats` (else
   `gameFormat` / `gameKind`), `variants`, `limits`, `sizes` and `stakes`.
   `analytics_pool_pending` (older clients) is the hands without a seats row
@@ -997,6 +997,63 @@ deleted (`delete_hands`) 36 ms, changing only that hand's opponents' rows;
 `pool_rollups_rebuild` 2.1 s, equal to the incremental sums;
 `hands_field_key_backfill` ~5 s per 20 000 rows; seats ~390 bytes a hand
 (`pool_hand_seats` 56 MB with its indexes for that account).
+
+### Types and the "vs fish" figures (P3)
+
+docs/POOL.md P3, `20271127110000_pool_types.sql`. The Pool tab no longer
+types the opponents per read nor runs `report_open` over the Hands filter's
+"vs type" (40-50 s on 92k hands); both are kept as the hands arrive.
+
+| Table | Key | What it holds |
+| --- | --- | --- |
+| `player_types` | `(owner_id, stats_version, site_id, player)` | Each named opponent's `kind` by Rail's rule over their `player_stats` (every segment of the room summed): `fish` (30+ hands, VPIP >= 40), `reg` (30+, VPIP 15-30, PFR >= 0.6 VPIP), `other` (30+, neither), `unknown` (under 30); with `n`, `vpip`, `pfr` (percent). Opaque-id rooms (GG: per-session tokens, under '' in `player_stats`) have none. RLS owner select; `derived`. |
+| `player_type_changes` | `(owner_id, stats_version, site_id, player)` | An opponent whose type moved between reg, fish and neither (`changed_at`, the re-tag's place `after_hand`): their hands' hero rows are tagged again. No client grant; `internal`. |
+| `hero_opp_rollups` | `(owner_id, stats_version, opp_mix, day, site_id, game_format, variant, limit_type, size, stake, position, kind)` | The hero's `hands` and `net_bb_milli` at `hero_rollups`' grain, split by `opp_mix`. RLS owner select; `derived`. |
+
+- **`hero_report_rows.opp_mix`** (nullable text): who the hero played
+  against - the facts' `vs_players` (opponents who put money in or saw the
+  flop) by `player_types`: `fish` (one is a fish), `regs` (all regs),
+  `mixed` (a reg and someone untyped or neither, no fish), `unknown` (no reg,
+  no fish; also a hand without facts). Null: not tagged yet (rows from
+  before P3 until `hero_opp_mix_backfill` has run).
+- **Kept by triggers:** `player_stats_types_*` (statement triggers on
+  `player_stats`: insert, update, delete, truncate) type again the players
+  the statement touched (`player_types_refresh(keys)`) and record a change
+  (only for an account that still exists: an account deletion's cascade
+  writes nothing). `hero_report_rows_opp_mix` (before insert, per row)
+  tags a hero row from its hand's newest facts row (`hero_opp_mix_of`); the
+  one pass now writes the facts before the statistics (`derive_write`), and
+  `hand_facts_opp_mix` (after insert on `hand_facts`) tags the hand's rows
+  when the facts come later. `hero_opp_rollups_*` (statement triggers on
+  `hero_report_rows`) add rows in, subtract rows out (update only: no
+  insert from a cascade) and move a re-tagged row; they take the owner's
+  `report_summaries:` lock, as every summaries writer does.
+- **The re-tag:** `opp_mix_retag(budget_ms, owner, page)` (internal) takes the
+  changes account by account in id order, finds the hands each changed
+  player sat in (`hands.player_names`, GIN), a page (2 000) at a time with
+  the player's place kept (`after_hand`), and tags their hero rows again
+  where the tag changed (`hero_opp_mix_retag_hands`). The worker's empty
+  claim (`derive_claim` as `rail_derive`, never a user's) spends up to 2 s
+  on it; pg_cron nightly with a bigger budget is the rollout's (POOL.md P7).
+- **The backfill:** `hero_opp_mix_backfill(after, limit)` (nobody's) tags the
+  hero rows of `limit` hands after `after` (hand id order, every account)
+  where the tag is missing or changed; repeated until `done`.
+- **Readers:** `analytics_pool` joins `player_types` (kind reg / fish) for
+  the opponents' types. `analytics_pool_you(filter)` (Pro, invoker) answers
+  the tab's two figures - hands, money hands and big blinds with a fish in
+  the pot, and with regs and no fish (`regs` + `mixed`) - over the Hands
+  filter with `report_open`'s rules: whole UTC days from `hero_opp_rollups`,
+  partial days and the groups beyond the rollups (`report_hand_ids`) from
+  `hero_report_rows`; EV cashouts out of the money unless included; big
+  blinds null when chips and cash mix. The filter's own `vsTypes` is
+  ignored. pgTAP holds it equal to the two `report_open` calls it replaces.
+
+Measured locally on the 92 616-hand account (opponents on, drained):
+`analytics_pool_you` 2-4 ms (was 38.6 s + 50.7 s for the two reports, the
+same numbers), `analytics_pool` 6-16 ms; the backfill ~3 s per 20 000 hands
+(97 266 hero rows in 15 s); `player_types` 902 rows for the whole stack.
+Tests: `supabase/tests/database/pool_types.test.sql` (49); the gate
+`tests/scripts/pool-perf` (`npm run pool:perf`, a local stack only).
 
 ## Hand analysis: `hand_analysis`, `decision_analysis`
 
