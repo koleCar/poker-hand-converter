@@ -1,0 +1,525 @@
+# Field pool and analytics worked out once
+
+Plan, 2026-11-27. The owner's choices are in [§2](#2-decisions).
+
+## 1. Why
+
+The web works a hand out only after a screen asks for it. Each tab catches up
+while it is open:
+
+- **Pool** counts opponents in the browser while the tab is open ("Counting
+  your opponents: 82,054 hands to go", `backfillPool`).
+  - Deleting one hand empties the owner's whole pool
+    (`pool_counted_hands_reset`), so it starts again.
+  - Every read works out again who is a reg and who is a fish, from all of
+    `player_stats`.
+  - Every read counts the pending hands by an anti-join over `hands`.
+- **"You with a fish in the pot" / "You, regs only"** run `report_open` again
+  with the vs-type filter. On a big account that hits the statement timeout.
+- **Statistics, facts, EV and checker rows** come from `/api/stats/rebuild`,
+  `factsCatchUp` and `backfillAnalyticsRows`. Each is started by the page and
+  walks "what is still missing" (`hands_needing_*`). The walk itself times
+  out ("Statistics could not be brought up to date").
+
+The desktop app already works hands out in its background steps; this plan is
+about the web and the shared server side.
+
+**Goal:**
+- A hand is read **once**, when it arrives (or when a version changes).
+- Every product (statistics, facts, EV, checker rows, the pool) comes from
+  that one read.
+- Pages only read finished sums, never count. While work is pending they show
+  one line, "N hands still being processed", read from a counter rather than
+  computed.
+
+## 2. Decisions
+
+| | Choice |
+|---|---|
+| Whose hands make the pool | **Every Rail user's hands, anonymised**: a population pool per field. The player's own pool stays beside it. |
+| What a field is | **Room · format (cash / MTT / SNG) · game and limit · table size · currency · stake.** Example: GG · cash · NLHE · 6-max · USD · 0.25/0.50. A coarser view (room + stake, room) is a sum of fields. |
+| When a hand is worked out | **On arrival, on the server.** A queue fills on insert. The upload drains its own hands at once, and a scheduled worker drains everything else (desktop sync, old hands, version changes). |
+
+**Still open (the owner's call before step P4):**
+1. **Consent for the shared pool:** on by default with a switch to turn it
+   off (opt-out), or off until the user turns it on (opt-in). Either way the
+   privacy policy (`docs/legal`) needs a paragraph before P4 ships.
+2. **The worker's credential:** a scheduled route can work for every user
+   only through a privileged key. The plan gives the worker no table access:
+   it may call only three definer functions (`derive_claim`, `derive_save`,
+   `derive_fail`) through a dedicated role. The service role is never used.
+3. **Thresholds for showing a field:** default at least 5 contributing
+   accounts, 50 distinct players and 2,000 hands. Below that the field shows
+   "Not enough hands yet".
+4. **Free / Pro:** the player's own pool is Pro (as now). The shared field
+   pool could be Pro too, or a Free teaser showing only the reg : fish ratio.
+
+## 3. Shape
+
+```
+hands insert / version bump
+        │  trigger
+        ▼
+derive_queue (hand_id, owner_id, reason, tries, claimed_at)
+        │  ├─ the uploader's request drains its own rows right away (as the user)
+        │  └─ cron worker drains the rest (derive role, definer functions only)
+        ▼
+one parse ─► hand_stats · hand_facts · hand_ev · checker rows · hero_report_rows
+          └► pool_hand_seats (per hand: field, each named seat's rates + result)
+                    │
+        ┌───────────┴────────────┐
+        ▼                        ▼
+owner rollups per field    field_hands (one row per hand_key, deduplicated
+(pool_players +            across accounts; players as salted hashes)
+ pool_player_stats,                 │  nightly pg_cron
+ field column; a delete             ▼
+ subtracts, never wipes)    field_pool (field × type × stat sums)
+        │                   field_player_types
+        ▼                           │
+player_types (owner)                ▼
+        │                   Pool tab: "Rail field" columns
+        ▼
+Pool tab: "Your pool" columns; "with a fish / regs only" read from
+hero_report_rows.opp_mix
+```
+
+## 4. Data
+
+- **`hands.field_key`:** text, derived by `hands_normalize` from the columns
+  the report segment already uses (room, format, variant, limit, size class,
+  currency, blinds). The same key everywhere: rollups, the picker,
+  `field_hands`.
+- **`derive_queue`:** one row per hand per reason (`new`, `stats/N`,
+  `facts/N`, `analytics/N`). A version bump enqueues by a single `insert …
+  select`, in batches, out of hours. `derive_pending(owner)` reads a counter
+  table kept by the queue's trigger, never `count(*)` over `hands`.
+- **`pool_hand_seats`:** `(hand_id, owner_id, field_key, seats jsonb)`.
+  `seats` holds each named opponent's `[made, opp]` per catalogue rate and
+  its net bb. With it, a deleted hand subtracts its own seats from the
+  owner's rollups instead of emptying them.
+- **Owner rollups:** `pool_players` / `pool_player_stats` get `field_key`
+  instead of `game_format` in the key. The reads sum fields. No more
+  `pool_counted_hands`: the queue is the pending list.
+- **`player_types` (owner):** `(owner_id, site_id, player, kind, n)`.
+  Refreshed by the worker for the players a drained page touched (VPIP / PFR
+  from `player_stats`, the rule `analytics_pool` uses today). The Pool read
+  becomes a join with a small table.
+- **`hero_report_rows.opp_mix`:** `fish` (a fish saw the flop or put money
+  in), `regs` (only typed regs), `mixed` / `unknown`. Set from
+  `player_types` when the row is written, and re-tagged nightly for the
+  owner's players whose type changed. "You with a fish" and "You, regs only"
+  become one more column on the existing rollups, not a second `report_open`.
+- **Shared pool:**
+  - `field_hands (hand_key primary key, field_key, seats jsonb, first_seen)`:
+    each player is `hmac(site || name, pool_salt)`. The salt lives in Vault
+    and is never readable by clients. The first contributor's copy is kept and
+    later uploads of the same `hand_key` add nothing.
+  - `field_contributors (hand_key, owner_id)`: who gave it. When a user
+    deletes the hand or their account, or turns consent off, their link
+    goes. A hand with no links left goes in the nightly job.
+  - `field_pool (field_key, kind, stat, made, opp)` plus
+    `field_pool_results (field_key, kind, players, hands, net_bb, net_bb_sq)`
+    and `field_player_types`: rebuilt nightly by `field_pool_refresh()`
+    (pg_cron, 03:xx UTC) from `field_hands`. A full GROUP BY: at a million
+    hands that is minutes, out of hours, and needs no undo logic.
+  - Clients read only `field_pool_read(field_keys[])`. It refuses fields
+    under the thresholds and never returns a player or a hash.
+- **RLS:** every new table is owner-select only, or no client grant at all
+  for `field_*`. Entitlement gates and `account_data_inventory` rows follow
+  the pattern of `20271122100000`. `field_hands` is listed as `derived,
+  anonymised, not exported`.
+
+## 5. Steps
+
+Each step ends with its tests and a `Status:` block, as in
+`docs/ANALYTICS.md`. Steps are sequential.
+
+### P1 — The queue and one pass
+
+- Migration: `derive_queue`, its counter, the insert trigger,
+  `derive_claim(limit)` / `derive_save(...)` / `derive_fail(...)`.
+- `web/src/lib/derive/onePass.ts`: one parse gives every product
+  (`handDerivation`, EV, `backfillAnalyticsRows`' rows, `poolHand`).
+- `/api/derive` (as the user: their own queue, a time-boxed slice). Called by
+  the upload right after `ingest_hands` / the web upload returns.
+- `/api/derive/cron` (Vercel cron every minute, `CRON_SECRET`, derive role):
+  drains every owner's queue oldest first, capped per run.
+- **Retire the page-driven catch-ups:** `StatsTab`'s automatic rebuild,
+  `factsCatchUp`, `useChecker`'s `filling`, `backfillPool`. They become one
+  "N hands still being processed" line from `derive_pending`.
+- **Done when:** a fresh upload of 5,000 hands shows full Analytics without
+  opening a tab first, and no page calls a `hands_needing_*` reader.
+
+Status: done in 6a53465b (2026-11-27)
+
+- **As built:**
+  - **Migration `20271127090000_derive_queue.sql`:**
+    - tables `derive_queue` (one row per hand: `reason`, `priority`,
+      `claimed_at` / `tries`, `last_error`), `derive_pending_counts` (the
+      counter, kept by statement triggers on the queue), `derive_failures`,
+      `derive_options` (`villains`: opponents' statistics per account, was
+      `localStorage`; on at migration for accounts with opponent rows) and
+      `derive_recounts` (see Deviations); RLS owner-select, no client write,
+      `internal` in the inventory;
+    - triggers: `hands_derive_enqueue` (every hand inserted with a hero, any
+      origin), `hand_analysis_derive_enqueue` (a new analysis: its checker
+      rows) and `analysis_checker_hands_dequeue` (the browser wrote them);
+      `pool_counted_hands_reset` now marks the account for a recount;
+    - the worker's three, definers for `authenticated` and `rail_derive`:
+      `derive_claim(limit, versions)`, `derive_save(hands)`,
+      `derive_fail(hands)`; helpers `derive_caller`, `derive_write`,
+      `derive_act_as`, `derive_recount_step`, `analytics_pool_add` (the body
+      of `analytics_pool_save`, by owner), granted to nobody;
+    - readers / switches for the user: `derive_pending()`,
+      `derive_villains()`, `derive_villains_set(on)`; for the rollout:
+      `derive_enqueue_backlog(reason, after, limit, owner, priority)`
+      (nobody's);
+    - `save_hand_stats`, `save_hand_ev`, `save_hand_facts` also join
+      `owner_id = auth.uid()`; `analytics_pool`'s `pending` is the counter;
+    - role `rail_derive` (no table privilege; the only definer functions it
+      may execute are the three).
+  - **One pass:** `web/src/lib/derive/onePass.ts` (`onePass`, `passPage`:
+    `handDerivation` + `handEvRow` + `analyticsRowsHand` + `poolHand` from
+    one read) and `drain.ts` (claim → pass → save / fail, time-boxed,
+    capped).
+  - **Routes:** `POST /api/derive` (as the user, 8 s slices, answers
+    `{processed, saved, failed, pending, done}`), `GET /api/derive/cron`
+    (`CRON_SECRET`; inert without `DERIVE_WORKER_JWT`; 45 s, 5 000 hands a
+    run). `/api/stats/rebuild` is removed.
+  - **Web:** the upload (`ConverterTab`, `OutputPanel`, `ReplayPanel`,
+    `LibraryHands`) and a hand deletion call `deriveNow()`
+    (`lib/db/derive.ts`); turning opponents' statistics on (Players,
+    Opponents panel) calls `derive_villains_set` then `deriveNow`. Retired:
+    `StatsTab`'s coverage line and automatic rebuild, `factsCatchUp` (shell
+    and Hands), `useChecker`'s `filling` and `usePool`'s `counting` (the
+    `backfill` members are gone from `AnalyticsChecker` / `AnalyticsPool`),
+    `backfillAnalyticsRows` (also at the end of `runAnalysis`),
+    `backfillPool`. Stats and Analytics show one line, "N hands still being
+    processed" / "Još se obrađuje N ruku", from `derive_pending`, read again
+    every 5 s while it is above zero (the numbers at most every 20 s and at
+    zero).
+  - **Tests:** vitest `tests/test/derivePass.test.ts` (14: the pass equals
+    each retired path over the Analytics fixture with opponents on and off,
+    text-only rows, the drain's claims / saves / fails / budget / cap, both
+    routes' refusals); pgTAP `derive_queue.test.sql` (58: RLS and grants, the
+    derive role's surface, the trigger and counter, claim isolation and
+    lapse, the worker and its fallback JWT, save as the owner and
+    idempotency, a refused hand, fail, a delete subtracting from the counter
+    and the recount, the analysis hand-off, opponents on, the pool's pending,
+    the backlog); `analytics_pool` and `entitlements` tests updated;
+    `npm run parity` now drains through `/api/derive`.
+  - **Measured** locally on a 92 616-hand account (all queued):
+    `derive_pending` ≤ 2 ms, `analytics_pool` 4 ms, a claim 9-25 ms, one
+    hand deleted 31 ms; 5 000 hands drained in 18 s by the user's route (3
+    slices) and in 18 s by one cron call (~280 hands/s, hero rows).
+- **Deviations:**
+  - **One queue row per hand**, not per hand and reason: the pass writes
+    every product whatever brought the hand in; `reason` keeps the first
+    cause and `priority` orders the drain (0 new / opponents on, 1 analysis
+    and re-counts, 2 backlog).
+  - **The worker's identity.** Supabase reserves `authenticator`
+    (supautils: "only superusers can modify it"), so `grant rail_derive to
+    authenticator` cannot run from a migration as `postgres`; the migration
+    tries it and goes on. `derive_caller` accepts a JWT with role
+    `rail_derive` (works once a superuser grants the membership) or, as the
+    fallback, role `authenticated` with no `sub` and `rail_worker: derive`
+    (no table it can read: every RLS policy needs a subject). Either is
+    minted with the project's signing key; neither is the service role. See
+    P7.
+  - **A delete still empties the pool** (P2 subtracts). Re-queuing a
+    90k-hand library inside the delete took 5.8 s of the 8 s budget, so the
+    reset marks the account (`derive_recounts`) and each `derive_claim`
+    queues the next 5 000 of its hands; the Hands list calls `deriveNow`
+    after a delete. `pool_counted_hands` stays the pool's idempotency mark.
+  - **The pool is counted for every plan** (`analytics_pool_add`); the
+    reader stays Pro. Checker rows are written only while the owner has
+    `analysis` (they come from an analysis, which is Pro).
+  - **`runAnalysis` still pages `hands_needing_analysis`**: the analysis is
+    a run the user starts, not a product of the pass. No page calls
+    `hands_needing_stats`, `hand_facts_missing`, `stats_coverage`,
+    `analytics_rows_pending` or `analytics_pool_pending` any more; they stay
+    in the schema (older clients during the rollout) and can be dropped
+    later.
+  - **Hands without a hero** (observed tables) are not queued: they have no
+    statistics, facts, EV or pool.
+  - **Nothing prunes an old `stats_version` any more** (the rebuild route
+    did on its last slice); after a bump, `prune_hand_stats` has to be run
+    per account (P7).
+
+### P2 — Fields
+
+- `hands.field_key` + backfill (batched, out of hours). Pool rollups keyed by
+  field. `pool_hand_seats` written by the one pass. A delete subtracts.
+- `analytics_pool` reads fields. The filter's rooms, formats and stakes all
+  apply now, not only the kind and the rooms.
+- **Done when:** deleting one hand changes the pool by that hand only, and a
+  GG NL50 6-max filter shows that field's regs and fish.
+
+Status: done in 20cc5844 (2026-11-27)
+
+- **As built:**
+  - **Migration `20271127100000_pool_fields.sql`:**
+    - `field_key_of(site, format, variant, limit, max_seats, player_count,
+      currency, big_blind)` (immutable): `room|format|variant|limit|size|stake`,
+      e.g. `ggpoker|cash|holdem|nl|6max|USD:50` (`chips` off the cash
+      tables) - the report segment's rules, so a field equals the hand's
+      `hero_report_rows` segment (checked on every local hand);
+    - `hands.field_key`, set by `hands_normalize` on insert (never the
+      client's); `hands_field_key_backfill(after, limit)` for older rows
+      (nobody's; its updates skip the library counts' rebuild through
+      `rail.field_backfill`); a row without it gets it computed when counted;
+    - `pool_hand_seats` (hand, owner, catalogue version, room, field, seats
+      `[[player, net_bb, {rate: [made, opp]}], ...]`): written by the one
+      pass (`derive_save` → `derive_write` → `analytics_pool_add`), the
+      "already counted" mark; RLS owner-select, `derived` in the inventory;
+    - `pool_players` / `pool_player_stats` keyed by `field_key` (was
+      `game_format`), `seats` count added, results `numeric`; emptied by the
+      migration (they could not be split by field: the first fill counts
+      them again, P7);
+    - **a delete subtracts:** `pool_hand_seats_subtract` (statement trigger
+      on the cascade) takes the hand's seats out at their version and drops
+      emptied rows; skipped in a wipe (`rail.erasing_account`), where
+      `hand_wipe_finish` empties the rollups or rebuilds them from the
+      seats left (`pool_rollups_rebuild`); writers, trigger and rebuild take
+      `pool_lock` (advisory, per owner, in owner order);
+    - dropped: `derive_recounts`, `derive_recount_step`,
+      `pool_counted_hands_reset`, `pool_counted_hands` (and their inventory
+      rows); `derive_claim` without the recount step;
+    - `analytics_pool` reads fields: `sites`, `formats` (else `gameFormat` /
+      `gameKind`), `variants`, `limits`, `sizes`, `stakes`;
+      `analytics_pool_pending` (older clients) anti-joins `pool_hand_seats`.
+  - **Shared / web:** `PoolFilters` gains `formats`, `variants`, `limits`,
+    `sizes`, `stakes`; `poolFiltersOf` sends them (and still the kind or
+    format, which the desktop reads; it ignores the rest until P6). The Hands
+    list no longer drains after a delete.
+  - **Tests:** pgTAP `pool_fields.test.sql` (36), `analytics_pool`,
+    `derive_queue`, `entitlements` updated; vitest `analyticsPool.test.ts`
+    (`poolFiltersOf` with a GG NL50 6-max filter).
+  - **Checked in the web app** (fp-p1, 5 000 hands): the Pool tab with
+    $0.25/$0.50 and 6-max shows that field only (496 reg hands, 440 fish,
+    equal to `analytics_pool` in SQL); one hand deleted from Hand history
+    changed exactly its seven opponents' rows (one seat each) and the tab's
+    totals by that hand (9 500 → 9 499 reg hands, 6 528 → 6 524 fish),
+    nothing queued, no page catching up.
+  - **Measured** on 92 616 hands (opponents on, all counted): `analytics_pool`
+    25 ms unfiltered, 3-10 ms filtered; one hand deleted 36 ms; rebuild 2.1 s
+    (equal to the incremental sums); backfill ~5 s per 20 000 rows; drained
+    97 616 hands by the cron route in 8 min (~200 hands/s).
+- **Deviations:**
+  - **GG has no pool on the web.** GG names are per-session tokens
+    (`opaque-id`): the one pass counts no opponents for them (`poolSeats`,
+    Step 10's rule) and `player_stats` keeps them under '' (no type). So a
+    GG NL50 6-max filter shows an empty pool on real GG hands. The field
+    logic is proven in pgTAP with a synthetic GG NL50 6-max field (named
+    seats and types) and in the app with WePlay NL50 6-max. Whether opaque
+    session ids may be typed and pooled is the owner's call (the desktop
+    pools them).
+  - **`seats` is `json` with arrays**, not `jsonb` with named keys: ~390
+    bytes a hand instead of ~1 KB (36 MB instead of 94 MB of seats for 92k
+    hands). Read back as `seats::jsonb`.
+  - **One seats row for every counted hand**, with no opponents too (the
+    mark `pool_counted_hands` was).
+  - **The types are still read from all of `player_stats`** per request (P3
+    replaces them with `player_types`); fine at 92k hands (25 ms).
+  - **Field size from `hands`**: when `max_seats` is unknown the size comes
+    from `hands.player_count`, which can count one more seat than
+    `hand_stats.player_count` (sitting out); no local hand differs.
+
+### P3 — Types and the "vs fish" figures precomputed
+
+- `player_types`, `opp_mix` on `hero_report_rows` and its rollups, the
+  nightly re-tag.
+- The Pool's "You with a fish" / "You, regs only" read the rollups.
+  `report_open` is no longer called by the Pool tab.
+- **Done when:** the Pool tab on the biggest prod account opens in under a
+  second with nothing pending. The perf gate in `tests/` covers it.
+
+Status: done in 089fba55 (2026-11-27)
+
+- **As built:**
+  - **Migration `20271127110000_pool_types.sql`:**
+    - `player_types (owner, stats version, room, player)`: `kind` (`reg`,
+      `fish`, `other`, `unknown` under 30 hands) by the rule the Pool and
+      the Hands filter's "vs type" use, with `n`, `vpip`, `pfr`; filled from
+      `player_stats` by the migration, then kept by statement triggers on
+      `player_stats` (insert / update / delete / truncate) for the players
+      each statement touched - whatever writes it (the one pass, a delete,
+      a rebuild); RLS owner-select, `derived`. Opaque-id rooms stay untyped;
+    - `player_type_changes`: a player whose type moved between reg, fish and
+      neither (no client grant, `internal`);
+    - `hero_report_rows.opp_mix` (`fish` / `regs` / `mixed` / `unknown`,
+      null = not tagged yet): set when the row is written
+      (`hero_report_rows_opp_mix`, from the hand's facts `vs_players` and
+      `player_types`), and again when facts arrive after the statistics
+      (`hand_facts_opp_mix`); `derive_write` now saves the facts first;
+    - `hero_opp_rollups`: the hero's hands and big blinds at `hero_rollups`'
+      grain split by `opp_mix`, kept by statement triggers on
+      `hero_report_rows` (in adds, out subtracts, a re-tag moves); RLS
+      owner-select, `derived`;
+    - the re-tag `opp_mix_retag(budget_ms, owner, page)` (nobody's): the
+      hands of each changed player (`hands.player_names`, GIN) tagged again,
+      2 000 at a time with the player's place kept (a regular's 90 000 hands
+      never hold one call past the statement timeout). The
+      worker's empty claim (`derive_claim` as `rail_derive`) spends up to
+      2 s on it; a user's claim never does; nightly pg_cron is P7's;
+    - the rollout's `hero_opp_mix_backfill(after, limit)` (nobody's);
+    - `analytics_pool` joins `player_types`; `analytics_pool_you(filter)`
+      (Pro, invoker): the two figures over the Hands filter with
+      `report_open`'s rules (whole days from the rollup, partial days and
+      the groups beyond the rollups from the rows).
+  - **Shared / web:** `AnalyticsPool.you?(query)` and `PoolYou` (the two
+    figures as hands, money hands, big blinds); `usePool` reads the surface's
+    `you` when it has one, else the two reports (`youQueries` +
+    `youOfReports`: the desktop, unchanged); `Pool` takes `you`
+    (`youRates(you)`). The web's `webPool.you` = `fetchPoolYou`
+    (`analytics_pool_you` with `libraryFilter`). The Pool tab no longer calls
+    `report_open` over the "vs type" (the screen's own report over the
+    filter, every tab's, stays).
+  - **Tests:** pgTAP `pool_types.test.sql` (49: RLS and grants, the types
+    following `player_stats`, the tags at write and after late facts, GG's
+    opaque opponents, the rollup equal to the rows through writes, re-tags,
+    a delete and the backfill, `analytics_pool_you` equal to the two
+    `report_open` calls for seven filters, the re-tag by the worker's empty
+    claim and not a user's, isolation, an account deletion);
+    `report_summaries` and `entitlements` updated; vitest `poolYou.test.ts`
+    and `analyticsPool.test.ts` (`youOfReports`, `youRates`); the perf gate
+    `tests/scripts/pool-perf` (`npm run pool:perf`).
+  - **Measured** on `fp-p1-big@example.test` (92 616 hands, opponents on,
+    drained, everything tagged), as the user: `analytics_pool_you` 2-4 ms
+    (the two `report_open` calls it replaces: 38.6 s and 50.7 s, the same
+    numbers), `analytics_pool` 6-16 ms, `derive_pending` 0; the whole tab
+    (`report_open`, `report_graph`, `analytics_checker` and the two) under
+    0.5 s in every case of the gate. The backfill: ~3 s per 20 000 hands.
+  - **Checked in the web app** (fp-p1, local stack): 400 new PokerStars
+    hands uploaded were worked out by the upload's own drain (one
+    `/api/derive` call, 3.0 s) without opening a tab; hands written before
+    their opponents reached 30 hands were re-tagged by one cron call (its
+    empty claim); Statistics and Analytics showed no "being processed" line,
+    and the Pool tab read `analytics_pool` + `analytics_pool_you` only (no
+    `report_open` over the "vs type", no `/api/derive`), its figures equal to
+    the two `report_open` calls (2 971 hands with a fish, 1 150 regs only).
+- **Deviations:**
+  - **The figures' rollup is a sibling table** (`hero_opp_rollups`), not
+    more columns on `hero_rollups`: the tag is set after the statistics
+    triggers wrote `hero_rollups` and changes later (a re-tag), so it is
+    kept by `hero_report_rows`' own triggers without touching the summaries'
+    triggers.
+  - **"You, regs only" keeps today's meaning**: a reg and no fish (`regs` +
+    `mixed`), what `["reg", "fish"]` less `["fish"]` counted; `regs` alone
+    (every opponent in the pot a typed reg) is in the data for a later
+    figure.
+  - **`player_types` is keyed by statistics version** too (the types follow
+    the `player_stats` of the version the client reads) and keeps every
+    named opponent (`other`, `unknown` included), not only regs and fish.
+  - **The re-tag is eventually consistent:** a hand is tagged with the
+    types as they are when it is written; a player whose type then moves
+    (often the hand's own statistics tip it) is re-tagged by the worker's
+    next idle claim (cron, every minute once on) or the nightly job. Until
+    then the figures can lag by those hands; `analytics_pool` (the regs and
+    fish columns) is always current.
+  - **The Hands filter's "vs type" still types from `player_stats`** per
+    query (`library_builder_where`); it could join `player_types` too.
+  - **A summaries rebuild re-tags through the queue of changes.**
+    `report_summaries_rebuild` (a wipe that kept hands, the user's repair)
+    empties `player_stats` before it writes the hero rows again, so they are
+    written with no types (`unknown`) and every reg and fish is recorded as
+    changed; the re-tag (worker, nightly) puts the tags back. Rare; until
+    then the two figures read low for that account.
+
+### P4 — The shared field pool (after the consent decision)
+
+- Consent setting (`profiles.share_field_pool`, the Settings switch, HR +
+  EN), privacy policy paragraph.
+- `field_hands`, `field_contributors`, the salt in Vault, the one pass also
+  writing `field_hands` when consent is on, `field_pool_refresh()` on
+  pg_cron, `field_pool_read`.
+- **Done when:** two test accounts that uploaded the same hand count it
+  once. A field under the thresholds says so. Turning consent off removes
+  the account's hands at the next refresh. pgTAP covers that no client role
+  can read `field_hands` or a player hash.
+
+### P5 — The Pool tab
+
+- Canvas first: an Ideas page with the field picker and the columns You ·
+  Your pool (regs / fish) · Rail field (regs / fish). The exploit sentence
+  compares the target with the field when the player's own pool is too
+  small. Code only after the owner picks a design.
+- Same component on web and desktop (`packages/ui/analytics/Pool.tsx`).
+
+### P6 — Desktop
+
+- `rail_store::pool` gets the field split (its background step already
+  counts once).
+- Signed-in Pro reads `field_pool_read` for the Rail field columns. Hands
+  synced from the desktop enter the queue like any other insert, so they are
+  contributed under the same consent.
+
+### P7 — Rollout
+
+- Prod migrations before the main promotion (`CLAUDE.md`).
+- **The derive worker (P1), the owner's step.** Without it hands synced from
+  the desktop are never worked out on the web (only uploads drain their
+  own), so do it at the promotion that brings P1:
+  1. Prefer the dedicated role: ask Supabase support (or run as
+     `supabase_admin`) `grant rail_derive to authenticator;`, then mint a
+     long-lived JWT `{"role": "rail_derive"}` with the project's JWT signing
+     key. If that grant is not possible, mint the fallback
+     `{"role": "authenticated", "rail_worker": "derive"}` (no `sub`). Never
+     the service role key.
+  2. Vercel env (Production only): `DERIVE_WORKER_JWT=<the JWT>` and
+     `CRON_SECRET=<random>`.
+  3. Schedule it: `"crons": [{ "path": "/api/derive/cron", "schedule":
+     "* * * * *" }]` in `web/vercel.json` (every minute needs Vercel Pro;
+     Hobby allows a daily cron only and refuses the deploy otherwise), or
+     pg_cron + pg_net calling the URL with the secret.
+  4. Check: `curl -H "Authorization: Bearer $CRON_SECRET"
+     https://<site>/api/derive/cron` answers `{processed, saved, failed,
+     empty}`, not `{inert: true}`.
+- **The first fill (P1).** Existing hands have no queue rows: queue them out
+  of hours with `select public.derive_enqueue_backlog('backfill', <after>,
+  50000);` repeated from the returned `after` until `done` (as `postgres`;
+  priority 2, so new hands still go first). Saving a hand that already has
+  its rows adds nothing; the pool (82k hands to count on the biggest
+  account) and the checker rows of hands analysed before Step 2 are what it
+  fills. Watch `select count(*) from derive_failures`.
+- **A version bump** (`STATS_VERSION`, `FACTS_VERSION`, `EV_VERSION`,
+  `ANALYTICS_MEMBERSHIP_VERSION`) is the same call with the version as the
+  reason, after the deploy; the old rows are pruned by the writers
+  (`save_hand_facts`) or stay until a `prune_*` run.
+- **The fields (P2), the owner's step, after P2's migration** (it empties the
+  pool rollups: they were summed per room and format and cannot be split by
+  field). As `postgres`, out of hours:
+  1. `select public.hands_field_key_backfill(<after>, 20000);` repeated from
+     the returned `after` until `done` (~5 s a call locally; its updates skip
+     the library counts' rebuild). The pool does not wait for it: a row
+     without `field_key` gets it computed when its hand is counted.
+  2. The first fill above (`derive_enqueue_backlog`) counts every hand into
+     the pool by field (`pool_hand_seats`). Accounts already drained by P1
+     need it too: their pool rows were emptied by the migration.
+  3. Check: `select count(*) from public.hands where field_key is null;` is 0,
+     and no account's `pool_players` has a row with `seats <= 0`.
+- **The types and tags (P3), the owner's step, after P3's migration** (it
+  fills `player_types` from `player_stats`; existing hero rows have no tag,
+  so "You with a fish" / "You, regs only" read low until step 1 is done). As
+  `postgres`:
+  1. `select public.hero_opp_mix_backfill(<after>, 20000);` repeated from
+     the returned `after` until `done` (~3 s a call locally). Run it after
+     the first fill (P1/P2) has drained, or again after it: it tags only rows
+     whose tag is missing or changed.
+  2. The nightly re-tag on pg_cron (the worker's idle claims do 2 s a minute;
+     a big upload can leave more):
+     `select cron.schedule('opp-mix-retag', '30 3 * * *', $$select public.opp_mix_retag(240000)$$);`
+  3. Check: `select count(*) from public.hero_report_rows where opp_mix is
+     null;` is 0 and `select count(*) from public.player_type_changes;` stays
+     small.
+- Version-bump enqueue and `field_key` backfill in batches, out of hours.
+- The first `field_pool_refresh()` by hand, then pg_cron.
+- `docs/DATABASE.md`, `docs/GUIDE.md` (Pool), `docs/ANALYTICS.md` Step 10
+  points here.
+
+## 6. Not in this plan
+
+- Composition stats from shown hands (Step 10 left them out).
+- Per-player reads of the shared pool. They are never offered: the shared
+  pool answers only "how does this field play", never "how does this
+  player play".

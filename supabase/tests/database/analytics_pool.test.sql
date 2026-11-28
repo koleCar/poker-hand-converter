@@ -12,10 +12,11 @@
 --   * the reader types the opponents by Rail's rule over player_stats (fish
 --     VPIP >= 40, reg VPIP 15-30 and PFR >= 0.6 VPIP, 30+ hands; an untyped
 --     one is out), sums hands, results and their squares, and the rates by
---     type; the filters (kind / format, rooms) narrow it; pending counts the
---     hands not marked;
---   * a deleted hand empties the owner's pool (counted again from every hand);
---     another version replaces the old one;
+--     type; the filters (kind / format, rooms) narrow it; pending is the
+--     derive counter (P1);
+--   * another version replaces the old one; a deleted hand takes its own
+--     seats out (P2, `20271127100000_pool_fields.sql`; the full cases are in
+--     pool_fields.test.sql);
 --   * one account never reads or writes another's; bad input is refused.
 
 begin;
@@ -73,17 +74,17 @@ select ok(
   and not has_function_privilege('anon', 'public.analytics_pool_save(text, jsonb)', 'execute')
   and not has_function_privilege('anon', 'public.analytics_pool_pending(text, uuid, integer)', 'execute')
   and not has_function_privilege('anon', 'public.analytics_pool(jsonb)', 'execute')
-  and not has_function_privilege('authenticated', 'public.pool_counted_hands_reset()', 'execute'),
+  and not has_function_privilege('authenticated', 'public.pool_hand_seats_subtract()', 'execute'),
   '... executable by authenticated, not by anon; the trigger function by nobody');
 select ok(
   (select count(*) = 0 from information_schema.role_table_grants
-   where table_schema = 'public' and table_name in ('pool_counted_hands', 'pool_players', 'pool_player_stats')
+   where table_schema = 'public' and table_name in ('pool_hand_seats', 'pool_players', 'pool_player_stats')
      and grantee in ('anon', 'authenticated') and privilege_type <> 'SELECT')
   and (select bool_and(c.relrowsecurity) from pg_class c
-       where c.oid in ('public.pool_counted_hands'::regclass, 'public.pool_players'::regclass,
+       where c.oid in ('public.pool_hand_seats'::regclass, 'public.pool_players'::regclass,
                        'public.pool_player_stats'::regclass))
   and (select count(*) = 3 from public.account_data_inventory
-       where name in ('public.pool_counted_hands', 'public.pool_players', 'public.pool_player_stats')
+       where name in ('public.pool_hand_seats', 'public.pool_players', 'public.pool_player_stats')
          and export = 'derived'),
   'the tables: no client write grant, RLS on, all three in the account inventory');
 
@@ -147,7 +148,10 @@ select is(public.analytics_pool('{"statsVersion":"stats/2"}') -> 'stats',
             {"opp": 2, "made": 1, "stat": "vpip", "type": "reg"},
             {"opp": 1, "made": 1, "stat": "vpip", "type": "fish"}]'::jsonb,
           'the rates by type (an untyped opponent is out)');
-select is((public.analytics_pool('{"statsVersion":"stats/2"}') ->> 'pending')::int, 1, 'one hand still to count');
+-- Since P1 (20271127090000) pending is the derive counter: A's three hands are
+-- still queued (analytics_pool_save does not take them off).
+select is((public.analytics_pool('{"statsVersion":"stats/2"}') ->> 'pending')::int, 3,
+  'pending: A''s hands still being processed (derive_pending)');
 select is((select array_agg(id) from public.analytics_pool_pending('analytics/1')), array[pg_temp.hid(3)],
           '... the third, on the work list');
 select is((public.analytics_pool('{"statsVersion":"stats/2","gameKind":"tournament"}') -> 'reg' ->> 'players')::int, 0,
@@ -183,14 +187,14 @@ select is(public.analytics_pool_save('analytics/2', jsonb_build_array(
 select is((select count(*)::int from public.pool_players where membership_version = 'analytics/1'), 0,
           '... drops the rows of analytics/1');
 
--- A deleted hand empties the owner's pool.
+-- A deleted hand takes its own seats out (P2): hand 3, the only one counted
+-- at analytics/2.
 reset role;
-delete from public.hands where id = pg_temp.hid(2);
-select is((select count(*)::int from public.pool_players where owner_id = '00000000-0000-0000-0000-0000000b00a1')
-          + (select count(*)::int from public.pool_counted_hands where owner_id = '00000000-0000-0000-0000-0000000b00a1'),
-          0, 'a deleted hand empties the owner''s pool and marks');
-select is((select count(*)::int from public.pool_counted_hands where owner_id = '00000000-0000-0000-0000-0000000b00b1'), 0,
-          '... and nobody else''s (B had none)');
+delete from public.hands where id = pg_temp.hid(3);
+select is((select count(*)::int from public.pool_players where owner_id = '00000000-0000-0000-0000-0000000b00a1'),
+          0, 'a deleted hand''s seats are taken out of the owner''s pool (its only row emptied, gone)');
+select is((select count(*)::int from public.pool_hand_seats where owner_id = '00000000-0000-0000-0000-0000000b00a1'), 2,
+          '... and the other hands'' seats stay');
 
 select * from finish();
 rollback;

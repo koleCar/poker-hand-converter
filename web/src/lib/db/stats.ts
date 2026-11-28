@@ -21,19 +21,16 @@
 
 import type { GameKind } from "@rail/ui/hands/gameKind";
 import {
-  FACTS_VERSION,
   STATS_VERSION,
   emptyCounters,
   COUNTER_KEYS,
   type SeatCounters,
 } from "../stats";
-import { EV_VERSION } from "../equity";
 import type { PhfHand } from "../phf/types";
 import type { HandFilter } from "@rail/ui/hands/model";
 import { currentUserId, requireUserId, rpc } from "./client";
 import {
   handDerivation,
-  villainRowsEnabled,
   type DeriveOptions,
   type HandFactsInsert,
   type HandStatsInsert,
@@ -243,30 +240,7 @@ function toCounters(payload: unknown): SeatCounters {
   return counters;
 }
 
-/* -------------------------------------------------------------- rebuild - */
-
-/** How many of the caller's hands the numbers are actually about. */
-export interface StatsCoverage {
-  statsVersion: string;
-  /** Hands that can have hero statistics. */
-  hands: number;
-  /** ... and have them under the current version. */
-  atVersion: number;
-  /** ... have them only under an older version. */
-  stale: number;
-  /** ... have none at all (uploaded before statistics, or a failed write). */
-  missing: number;
-  /** Hands with no hero seat — an observed table. Never counted as missing. */
-  withoutHero: number;
-  /** Rows under older versions, which the next rebuild prunes. */
-  obsoleteRows: number;
-  /** Hands with statistics but no all-in EV evaluation yet. */
-  evMissing: number;
-  /** Hands with a hero and no filter builder facts yet (`hand_facts_missing`). */
-  factsMissing: number;
-  /** The formats and stakes in the library, biggest first. */
-  stakes: StakeVolume[];
-}
+/* ---------------------------------------------------------------- stakes - */
 
 /** One (format, currency, blinds) combination and how many hero hands it has. */
 export interface StakeVolume {
@@ -276,95 +250,6 @@ export interface StakeVolume {
   smallBlind: number | null;
   bigBlind: number | null;
   hands: number;
-}
-
-export async function fetchStatsCoverage(): Promise<StatsCoverage | null> {
-  if (!(await currentUserId())) {
-    return null;
-  }
-  const [payload, evMissing, factsMissing] = await Promise.all([
-    rpc<Row | null>("stats_coverage", { p_version: STATS_VERSION }),
-    // A database without the EV migration simply has nothing to catch up on.
-    rpc<number>("stats_ev_missing", { p_version: STATS_VERSION, p_ev_version: EV_VERSION }).catch(() => 0),
-    // Nor one without the facts' (20271116130000).
-    fetchFactsMissing(),
-  ]);
-  if (!payload) {
-    return null;
-  }
-  return {
-    statsVersion: String(payload.statsVersion ?? STATS_VERSION),
-    hands: num(payload.hands),
-    atVersion: num(payload.atVersion),
-    stale: num(payload.stale),
-    missing: num(payload.missing),
-    withoutHero: num(payload.withoutHero),
-    obsoleteRows: num(payload.obsoleteRows),
-    evMissing: num(evMissing),
-    factsMissing,
-    stakes: (Array.isArray(payload.stakes) ? (payload.stakes as Row[]) : []).map((row) => ({
-      gameFormat: str(row.gameFormat) ?? "cash",
-      currency: str(row.currency) ?? "",
-      currencyMinorUnits: num(row.currencyMinorUnits) || 100,
-      smallBlind: maybeNum(row.smallBlind),
-      bigBlind: maybeNum(row.bigBlind),
-      hands: num(row.hands),
-    })),
-  };
-}
-
-/** The caller's hands with a hero and no filter builder facts at the current version (0 when unknown). */
-export async function fetchFactsMissing(): Promise<number> {
-  return num(await rpc<number>("hand_facts_missing", { p_facts_version: FACTS_VERSION }).catch(() => 0));
-}
-
-export interface RebuildProgress {
-  processed: number;
-  inserted: number;
-  failed: number;
-  pruned: number;
-}
-
-/**
- * Derives statistics for every stored hand that lacks them, server-side.
- *
- * Calls `POST /api/stats/rebuild` slice by slice until it reports `done`. The
- * documents never come to the browser: the route reads them next to the
- * database, as this user, and answers with counts. Safe to run twice at once
- * (after an upload *and* from the statistics screen, say) — every write is
- * `on conflict do nothing`, and "what is missing" is recomputed per slice.
- */
-export async function rebuildStats(
-  onProgress?: (progress: RebuildProgress) => void,
-): Promise<RebuildProgress> {
-  const total: RebuildProgress = { processed: 0, inserted: 0, failed: 0, pruned: 0 };
-  if (!(await currentUserId())) {
-    return total;
-  }
-  let after: string | null = null;
-  // Bounded so a server that never says `done` cannot spin a tab forever:
-  // 2000 slices of 8 s is far beyond any library this app could hold.
-  for (let slice = 0; slice < 2000; slice += 1) {
-    const response = await fetch("/api/stats/rebuild", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ after, includeVillains: villainRowsEnabled() }),
-    });
-    const payload = (await response.json().catch(() => ({}))) as Row;
-    if (!response.ok) {
-      throw new Error(str(payload.error) ?? `Rebuilding statistics failed (${response.status}).`);
-    }
-    total.processed += num(payload.processed);
-    total.inserted += num(payload.inserted);
-    total.failed += num(payload.failed);
-    total.pruned += num(payload.pruned);
-    onProgress?.({ ...total });
-    if (payload.done === true) {
-      break;
-    }
-    after = str(payload.after);
-  }
-  return total;
 }
 
 /* ------------------------------------------------------------ opponents - */

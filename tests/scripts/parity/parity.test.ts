@@ -41,13 +41,13 @@
  * (`on conflict (owner_id, hand_key) do nothing`).
  *
  * **Statistics.** Neither path writes `hand_stats` itself: the app sends the
- * PHF only (R1.8, Q4), and the web's upload stores the PHF and then asks for a
- * rebuild. Both get their rows from the web's rebuild route
- * (`app/api/stats/rebuild/route.ts`: `hands_needing_stats` -> TypeScript
- * `handStatsRows` / `handEvRow` -> `save_hand_stats` / `save_hand_ev`), run
- * here as each user with villain rows on, so every seat is compared -
- * Ignition's tournament seats past 24 included (R4.4's finding F1, fixed by
- * `20270623093000_stats_seats_and_budget.sql`).
+ * PHF only (R1.8, Q4), and the web's upload stores the PHF. Both enter the
+ * derive queue on insert (docs/POOL.md P1) and get their rows from the web's
+ * one pass (`app/api/derive/route.ts`: `derive_claim` -> TypeScript
+ * `onePass` -> `derive_save`, which writes through `save_hand_stats` /
+ * `save_hand_ev`), run here as each user with opponents' statistics on, so
+ * every seat is compared - Ignition's tournament seats past 24 included
+ * (R4.4's finding F1, fixed by `20270623093000_stats_seats_and_budget.sql`).
  *
  * **Compared** (`psql` as `postgres`): every `hands` column but `id`,
  * `owner_id`, `origin` and `created_at`, as jsonb text - byte for byte - with
@@ -93,7 +93,7 @@ import { ROOT, listInputs } from "../golden/emit";
 
 /* ------------------------------------------------------------------ setup - */
 
-/** The rebuild route's Supabase client: the user it is run as. */
+/** The derive route's Supabase client: the user it is run as. */
 const route = vi.hoisted(() => ({ client: null as unknown }));
 vi.mock("../../../web/src/lib/supabase/server", () => ({
   getWritableServerSupabase: async () => route.client,
@@ -566,30 +566,31 @@ describeStack("web/app parity (R4.4)", () => {
     expect(problems, `${problems.length} difference(s)`).toEqual([]);
   });
 
-  it("statistics: the web's rebuild route as each user", async () => {
-    const { POST } = await import("../../../web/src/app/api/stats/rebuild/route");
+  it("statistics: the web's derive route as each user", async () => {
+    const { POST } = await import("../../../web/src/app/api/derive/route");
     const started = Date.now();
-    const stats: Record<string, { processed: number; inserted: number; failed: number }> = {};
+    const stats: Record<string, { processed: number; saved: number; failed: number; pending: number }> = {};
     for (const [name, client] of [["app", appClient], ["web", webClient]] as const) {
       route.client = client;
-      const total = { processed: 0, inserted: 0, failed: 0 };
-      let after: string | null = null;
+      // Opponents' statistics on: every hand is queued (again) for its villain rows.
+      const on = await client.rpc("derive_villains_set", { p_on: true });
+      expect(on.error, `${name}: ${on.error?.message}`).toBeNull();
+      const total = { processed: 0, saved: 0, failed: 0, pending: 0 };
       for (let slice = 0; slice < 2000; slice += 1) {
-        const request = new Request("http://localhost/api/stats/rebuild", {
+        const request = new Request("http://localhost/api/derive", {
           method: "POST",
           headers: { origin: "http://localhost", "content-type": "application/json" },
-          body: JSON.stringify({ after, includeVillains: true }),
         });
         const response = await POST(request as Parameters<typeof POST>[0]);
-        const payload = (await response.json()) as { processed: number; inserted: number; failed: number; after: string | null; done: boolean; error?: string };
+        const payload = (await response.json()) as { processed: number; saved: number; failed: number; pending: number; done: boolean; error?: string };
         expect(response.status, `${name}: ${payload.error}`).toBe(200);
         total.processed += payload.processed;
-        total.inserted += payload.inserted;
+        total.saved += payload.saved;
         total.failed += payload.failed;
-        if (payload.done) {
+        total.pending = payload.pending;
+        if (payload.done || payload.processed === 0) {
           break;
         }
-        after = payload.after;
       }
       stats[name] = total;
     }
@@ -615,6 +616,8 @@ select 'wide ' || jsonb_build_object('owner', owner_id, 'hands', count(distinct 
     expect(stats.app.processed).toBe(stats.web.processed);
     expect(stats.app.failed).toBe(0);
     expect(stats.web.failed).toBe(0);
+    expect(stats.app.pending).toBe(0);
+    expect(stats.web.pending).toBe(0);
   });
 
   it("stored statistics: hand_stats and hand_stats_ev byte for byte", async () => {

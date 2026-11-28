@@ -11,7 +11,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/auth";
-import { isDatabaseConfigured, rebuildStats, saveHand } from "../../lib/db";
+import { isDatabaseConfigured, saveHand } from "../../lib/db";
+import { deriveNow } from "../../lib/db/derive";
 import { useDict } from "../../lib/i18n/client";
 import { getParser, toStandardText } from "../../lib/phf";
 import { conversionEngine } from "../../lib/wasm/engine";
@@ -127,7 +128,7 @@ export function ReplayPanel({ request, onSaved }: ReplayPanelProps) {
       onSaved?.();
       if (!result.duplicate) {
         // Background, server-side; see ConverterTab.
-        void rebuildStats().catch(() => undefined);
+        void deriveNow().catch(() => undefined);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : en.converter.save.failed);

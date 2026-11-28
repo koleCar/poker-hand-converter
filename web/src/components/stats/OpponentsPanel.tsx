@@ -2,10 +2,11 @@
  * Opponents: the HUD you keep on the regulars, and what you make against each.
  *
  * Off by default, because it is not free: a row per opponent per hand is about
- * six times the storage of the hero's own statistics. Switching it on derives
- * rows for the library already stored (server-side, the same rebuild the
- * coverage badge uses); switching it off deletes them again — they are pure
- * functions of the hands, so nothing is lost either way.
+ * six times the storage of the hero's own statistics. A setting of the
+ * account (`derive_options`): switching it on queues the library already
+ * stored and has the server work out its opponents' rows (docs/POOL.md P1);
+ * switching it off deletes them again — they are pure functions of the hands,
+ * so nothing is lost either way.
  *
  * Two kinds of room are never in this list, and the panel says so rather than
  * quietly showing fewer people:
@@ -17,21 +18,20 @@
 
 "use client";
 
-import { Fragment, useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import {
   fetchStatsOpponents,
   myPlayerNotes,
   pruneVillainStats,
-  rebuildStats,
   setPlayerNote,
-  setVillainRowsEnabled,
-  villainRowsEnabled,
   type PlayerNote,
   type OpponentFilters,
   type StatsFilters,
   type StatsOpponents,
 } from "../../lib/db";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
+import { useAuth } from "../../lib/auth";
+import { deriveNow, setOpponentStats, useOpponentStats } from "../../lib/db/derive";
 import { useDict } from "../../lib/i18n/client";
 import { getParser } from "../../lib/phf";
 import { emptyMoney, rates } from "../../lib/stats";
@@ -42,9 +42,6 @@ const MIN_HANDS_OPTIONS = [1, 10, 50, 200];
 
 /** The rate columns, in order; headings and tooltips are `stats.columns`. */
 const COLUMNS = ["vpip", "pfr", "threeBet", "foldToThreeBet", "cbet", "foldToCbet", "af", "wtsd"] as const;
-
-/** Storage changes in this tab come through `setEnabled`; nothing to subscribe to. */
-const subscribeNever = () => () => undefined;
 
 type Phase =
   | { kind: "idle" }
@@ -69,9 +66,9 @@ export function OpponentsPanel({
   const af = numberFormat(locale, { maximumFractionDigits: 1, minimumFractionDigits: 1 });
   const bb = numberFormat(locale, { maximumFractionDigits: 1, signDisplay: "exceptZero" });
   const pct = (value: number | null): string => (value === null ? "—" : percent.format(value));
-  // The setting lives in this browser's storage, which the server render cannot
-  // see: null until hydrated, so neither card flashes in the wrong state.
-  const stored = useSyncExternalStore(subscribeNever, villainRowsEnabled, () => null);
+  // The account's setting: null until read, so neither card flashes in the wrong state.
+  const auth = useAuth();
+  const stored = useOpponentStats(auth.isSignedIn ? (auth.user?.id ?? null) : null);
   const [override, setEnabled] = useState<boolean | null>(null);
   const enabled = override ?? stored;
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
@@ -82,17 +79,6 @@ export function OpponentsPanel({
   // #54: the caller's private notes, keyed `site:player`.
   const [notes, setNotes] = useState<Map<string, PlayerNote>>(new Map());
   const [editing, setEditing] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (stored) {
-      // Catch up on anything uploaded from another browser, where the setting
-      // was off. Cheap when there is nothing to do: one request.
-      void rebuildStats().then(
-        () => setVersion((value) => value + 1),
-        () => undefined,
-      );
-    }
-  }, [stored]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -159,14 +145,11 @@ export function OpponentsPanel({
   }, [enabled, requestKey, search, refreshToken, version]);
 
   const turnOn = useCallback(async () => {
-    if (!setVillainRowsEnabled(true)) {
-      setPhase({ kind: "error", message: en.storageRefused });
-      return;
-    }
-    setEnabled(true);
     setPhase({ kind: "working", label: en.reading, done: 0 });
     try {
-      await rebuildStats((progress) =>
+      await setOpponentStats(true);
+      setEnabled(true);
+      await deriveNow((progress) =>
         setPhase({ kind: "working", label: en.reading, done: progress.processed }),
       );
       setPhase({ kind: "idle" });
@@ -177,11 +160,11 @@ export function OpponentsPanel({
   }, [en]);
 
   const turnOff = useCallback(async () => {
-    setVillainRowsEnabled(false);
     setEnabled(false);
     setData(null);
     setPhase({ kind: "working", label: en.removing, done: 0 });
     try {
+      await setOpponentStats(false);
       await pruneVillainStats();
       setPhase({ kind: "idle" });
     } catch (error) {

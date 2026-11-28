@@ -2,7 +2,8 @@
  * Statistics rows in the shape `save_hand_stats` takes them.
  *
  * Split out of `stats.ts` so the server can use it: that module imports the
- * browser client, and `app/api/stats/rebuild/route.ts` must not. Everything in
+ * browser client, and the one pass (`lib/derive/onePass.ts`, run by
+ * `app/api/derive`) must not. Everything in
  * here is pure -- `lib/stats` for the derivation, `detectAnonymization` for the
  * one property of a room that `lib/stats` has no business knowing.
  */

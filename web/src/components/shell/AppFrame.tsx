@@ -7,7 +7,6 @@ import { hasPendingHand } from "../converter/handoff";
 import { AppShell, type ShellTab } from "./AppShell";
 import { markSignInOffered, useAuth, wasSignInOffered } from "../../lib/auth";
 import { countHands } from "../../lib/db";
-import { catchUpFacts } from "../../lib/db/factsCatchUp";
 import { paths } from "../../lib/routes";
 import { isSupabaseConfigured } from "../../lib/supabase/config";
 import {
@@ -94,12 +93,6 @@ interface AppFrameProps {
   feature?: Feature | null;
   /** Edge to edge (`AppShell.wide`). */
   wide?: boolean;
-  /**
-   * The screen catches the builder facts up itself, with its own progress
-   * line (the statistics screens: Reports at `/stats`, Analytics at
-   * `/analysis/stats`), so the shell's quiet catch-up stays out of its way.
-   */
-  ownsFactsCatchUp?: boolean;
   children: (context: AppFrameContext) => ReactNode;
 }
 
@@ -128,7 +121,6 @@ export function AppFrame({
   live = false,
   feature,
   wide = false,
-  ownsFactsCatchUp = false,
   children,
 }: AppFrameProps) {
   const router = useRouter();
@@ -161,16 +153,6 @@ export function AppFrame({
   }, [countUser]);
 
   useEffect(refreshCount, [refreshCount, refreshToken]);
-
-  // The builder facts' catch-up after a facts version bump, on any page of a
-  // signed-in account with hands, once a page load (docs/ANALYTICS.md Step
-  // 12). The statistics screens run their own, with its progress line.
-  const hasHands = storedCount !== null && storedCount > 0;
-  const quietCatchUp = tab !== "stats" && !ownsFactsCatchUp;
-  useEffect(() => {
-    if (!isSupabaseConfigured || !countUser || !hasHands || !quietCatchUp) return;
-    void catchUpFacts(countUser);
-  }, [countUser, hasHands, quietCatchUp]);
 
   // Hands arriving live move the count and are handed to the screen. Keyed by
   // the account, so a sign-out or a switch drops the subscription and the

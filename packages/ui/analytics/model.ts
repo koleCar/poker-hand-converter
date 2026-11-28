@@ -140,22 +140,8 @@ export interface AnalyticsChecker {
    * drill-down shows no hands.
    */
   examples?(query: HandFilter, example: CheckerExampleQuery): Promise<CheckerExample[]>;
-  /**
-   * The web (docs/ANALYTICS.md Step 12): derives the rows of the hands
-   * analysed without them (`pending` - analysed before the checker existed,
-   * or at another catalogue version), in the browser, a page at a time,
-   * until done or `signal` aborts; the screen reads the sums again after.
-   * Absent where the surface fills them itself (the desktop's background pass).
-   */
-  backfill?(signal: AbortSignal, onProgress: (progress: CheckerProgress) => void): Promise<CheckerProgress>;
-}
-
-/** How far a browser backfill of the checker rows is. */
-export interface CheckerProgress {
-  /** Hands read from the work list. */
-  processed: number;
-  /** Hands whose rows were saved. */
-  saved: number;
+  // No backfill: every surface fills the rows itself, away from the screen
+  // (the desktop's background pass; the web's server, docs/POOL.md P1).
 }
 
 /* --------------------------------------------------------------- Pool -- */
@@ -170,11 +156,24 @@ export interface CheckerProgress {
  */
 export type PoolType = "reg" | "fish";
 
-/** What the pool is read over: the kind or one format, and the rooms. */
+/**
+ * What the pool is read over. The desktop reads the kind or one format and
+ * the rooms (`rail_store::pool`; its field split is docs/POOL.md P6). The
+ * web reads fields (P2): every group below narrows it, each "any" when
+ * absent, with the Hands filter's values.
+ */
 export interface PoolFilters {
   gameFormat?: string;
   gameKind?: string;
   sites?: string[];
+  /** The formats chosen (`cash`, `tournament`, ...); the web prefers it to `gameFormat` / `gameKind`. */
+  formats?: string[];
+  variants?: string[];
+  limits?: string[];
+  /** `hu`, `6max`, `full`. */
+  sizes?: string[];
+  /** `USD:50`, `chips`. */
+  stakes?: string[];
 }
 
 /** One player type's results. */
@@ -198,26 +197,42 @@ export interface PoolStatSums {
 export interface PoolSums {
   /** The catalogue version the rates were counted at (`analytics/1`). */
   version: string;
-  /** Hands not counted for the pool yet (the backfill's work). */
+  /** Hands not counted for the pool yet (the web: its hands still being processed). */
   pending: number;
   reg: PoolTypeSums;
   fish: PoolTypeSums;
   stats: PoolStatSums[];
 }
 
-/** How far a browser backfill is (the web counts the pool in the browser). */
-export interface PoolProgress {
-  processed: number;
-  saved: number;
+/** The player's hands and result over one side of the "vs type" split. */
+export interface PoolYouSums {
+  hands: number;
+  /** Hands whose money counts (an EV cashout's does not, unless the filter takes them in). */
+  moneyHands: number;
+  /** Σ result in milli big blinds; null when chips and cash mix. */
+  netBbMilli: number | null;
 }
 
-/** What the Analytics screen asks a surface for on the Pool tab. */
+/**
+ * The player's results with a fish in the pot, and with regs and no fish
+ * (the Pool tab's two "You" figures, over the screen's whole filter).
+ */
+export interface PoolYou {
+  fish: PoolYouSums;
+  regsOnly: PoolYouSums;
+}
+
+/**
+ * What the Analytics screen asks a surface for on the Pool tab. The surface
+ * counts the pool itself, away from the screen (the desktop's background
+ * pass; the web's server, docs/POOL.md P1).
+ */
 export interface AnalyticsPool {
   sums(query: HandFilter): Promise<PoolSums | null>;
   /**
-   * The web: counts the hands the pool has not counted yet, in the browser,
-   * a page at a time, until done or `signal` aborts. Absent where the
-   * surface counts them itself (the desktop's background pass).
+   * The two "You" figures, precomputed by the surface (the web: each hero
+   * hand tagged by its opponents' types, docs/POOL.md P3). Without it the
+   * screen runs two reports over the Hands filter's "vs type" (the desktop).
    */
-  backfill?(signal: AbortSignal, onProgress: (progress: PoolProgress) => void): Promise<PoolProgress>;
+  you?(query: HandFilter): Promise<PoolYou | null>;
 }

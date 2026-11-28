@@ -37,7 +37,10 @@ describe("stats namespace", () => {
     ]);
   });
   it("puts the count inside the Croatian sentence, in the case the sentence needs", () => {
-    expect(hr.stats.coverage.behind(3, 5)).toBe("Ove brojke još ne uključuju 3 od 5 ruku.");
+    expect([1, 3, 5].map(hr.stats.coverage.processing)).toEqual([
+      "Još se obrađuje 1 ruka.", "Još se obrađuju 3 ruke.", "Još se obrađuje 5 ruku.",
+    ]);
+    expect(en.stats.coverage.processing(82054)).toBe("82,054 hands still being processed.");
     expect(hr.stats.opponents.overHands(1)).toBe("kroz 1 ruku");
     expect(hr.stats.sessions.gap(60)).toBe("1 sata");
   });

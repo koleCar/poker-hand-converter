@@ -2,9 +2,9 @@
  * The statistics screens: Reports at `/stats` (`mode: "reports"`, as it was
  * in 0.12.0) and Analytics at `/analysis/stats` (`mode: "analytics"`,
  * docs/ANALYTICS.md, a section of Analysis since 2026-11-23). Both read the
- * same report source and share this page's states, coverage line, rebuild
- * and live arrivals; Analytics draws the shared Analytics screen
- * (`@rail/ui/analytics/AnalyticsScreen`) under the Analysis tabs.
+ * same report source and share this page's states, the "still being
+ * processed" line and live arrivals; Analytics draws the shared Analytics
+ * screen (`@rail/ui/analytics/AnalyticsScreen`) under the Analysis tabs.
  *
  * Since R4.5c the report itself is the shared Reports screen
  * (`@rail/ui/reports/ReportsScreen`, the desktop app's since R2.7b) over the
@@ -16,8 +16,14 @@
  * desktop's Reports: no visible title (the bar already says Statistics), one
  * header row with the hand count on the left and Cash | Tournaments on the
  * right. Around it, this page's own: the four ways of having nothing to show,
- * the coverage line and its rebuild, live arrivals, and its panels over the
+ * the "still being processed" line, live arrivals, and its panels over the
  * same filter - the sessions and the opponents after the breakdowns.
+ *
+ * **This page never derives or counts** (docs/POOL.md P1). Hands are worked
+ * out on the server when they arrive (`derive_queue`); while some are still
+ * in the queue the page shows one line, "N hands still being processed",
+ * read from a counter (`derive_pending`), and reads it again every few
+ * seconds until it reaches zero, re-reading the numbers as it falls.
  *
  * Four ways of having nothing to show, and one rule running through all of
  * them: **say which nothing it is.** A blank screen is the same pixels
@@ -33,16 +39,15 @@
  * their analysis page at the decision, with a way back to the stat.
  *
  * Live arrival (Rail R1.10): hands synced by the desktop app while the screen
- * is open re-read the numbers in place, and the ones without statistics get
- * them derived (`/api/stats/rebuild`) without a click. One catch-up at a
- * time: batches that land during one fold into a single next round.
+ * is open re-read the numbers and the pending count in place; the server's
+ * worker works them out.
  */
 
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FilterState } from "@rail/ui/hands/filter";
 import type { HandFilter } from "@rail/ui/hands/model";
 import type { AnalyticsChecker } from "@rail/ui/analytics/model";
@@ -54,18 +59,10 @@ import { ReportsScreen, type Tab } from "@rail/ui/reports/ReportsScreen";
 import { encodePosition } from "@rail/ui/replayer/position";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import reportStyles from "@rail/ui/reports/Reports.module.css";
-import {
-  DATABASE_NOT_CONFIGURED_MESSAGE,
-  fetchStatsCoverage,
-  isDatabaseConfigured,
-  isMissingSchemaError,
-  rebuildStats,
-  type RebuildProgress,
-  type StatsCoverage,
-  villainRowsEnabled,
-} from "../../lib/db";
+import { DATABASE_NOT_CONFIGURED_MESSAGE, isDatabaseConfigured, isMissingSchemaError } from "../../lib/db";
 import { webPool } from "../../lib/db/analyticsPool";
-import { backfillAnalyticsRows, checkerSource } from "../../lib/db/analyticsRows";
+import { checkerSource } from "../../lib/db/analyticsRows";
+import { fetchDerivePending, useOpponentStats } from "../../lib/db/derive";
 import { libraryFilter } from "../../lib/db/handsSource";
 import { WEB_DEFINITIONS, webReportSource } from "../../lib/db/reportSource";
 import { useAuth } from "../../lib/auth";
@@ -112,17 +109,17 @@ const webChecker: AnalyticsChecker = {
     const { filters, hands } = checkerFiltersOf(query);
     return checkerSource.examples(hands ? { ...filters, hands: libraryFilter(query) } : filters, example);
   },
-  // Hands analysed before the checker existed (or at another catalogue
-  // version) get their rows here, while a tab that reads them is open
-  // (docs/ANALYTICS.md Step 12), not only at the end of the next analysis run.
-  backfill: (signal, onProgress) => backfillAnalyticsRows(signal, onProgress),
+  // No `backfill`: the server writes the rows of an analysed hand
+  // (docs/POOL.md P1); `pending` counts down as it does.
 };
 
 /** The Analytics lock as one line (the tab's words): the player's own numbers stay. */
 const lockLine = (line: string) => <ProLockLine line={line} />;
 
-/** The opponents' statistics setting lives in this browser's storage; nothing to subscribe to. */
-const subscribeNever = () => () => undefined;
+/** How often the pending count is read again while hands are being processed. */
+const PENDING_POLL_MS = 5_000;
+/** The numbers are read again at most this often while the count falls (and once at zero). */
+const RELOAD_EVERY_MS = 20_000;
 
 /**
  * The drill-down's way in and out (docs/ANALYTICS.md Step 8):
@@ -144,18 +141,16 @@ export function StatsTab({ refreshToken = 0, arrival = null, mode = "reports" }:
   const ui = useUiStrings();
   const t = dict.stats;
   const en = t.tab;
-  // Pool's types come from the opponents' statistics; off, it links to the setting (Players).
-  const opponentsOn = useSyncExternalStore(subscribeNever, villainRowsEnabled, () => true);
   const auth = useAuth();
+  // Pool's types come from the opponents' statistics; off, it links to the setting (Players).
+  const opponentsOn = useOpponentStats(auth.isSignedIn ? (auth.user?.id ?? null) : null) ?? true;
   const { locked, status: planStatus } = useEntitlements();
   const planPending = planStatus === "loading";
   const [status, setStatus] = useState<Status>("ready");
   const [message, setMessage] = useState<string | null>(null);
-  const [coverage, setCoverage] = useState<StatsCoverage | null>(null);
-  const [rebuild, setRebuild] = useState<RebuildState>({ status: "idle" });
-  /** One automatic rebuild per visit; after that it is the button's job. */
-  const autoRebuilt = useRef(false);
-  /** Bumped when the numbers change under the screen (a rebuild, an arrival, an upload): it reads again. */
+  /** The caller's hands still being processed (`derive_pending`); null until read. */
+  const [pending, setPending] = useState<number | null>(null);
+  /** Bumped when the numbers change under the screen (hands processed, an arrival, an upload): it reads again. */
   const [generation, setGeneration] = useState(0);
   const [chosen, setChosen] = useState<FilterState | null>(null);
   const [view, setView] = useState<AnalyticsView>("overview");
@@ -200,94 +195,60 @@ export function StatsTab({ refreshToken = 0, arrival = null, mode = "reports" }:
     [base, fullLocked, dict],
   );
 
-  /** The coverage line: how much of the library the numbers are about. */
-  const load = useCallback(async (): Promise<StatsCoverage | null> => {
-    try {
-      const next = await fetchStatsCoverage();
-      setCoverage(next);
-      return next;
-    } catch (error) {
-      if (isMissingSchemaError(error)) {
-        setStatus("not-installed");
-      } else {
-        setStatus("error");
-        setMessage(error instanceof Error ? error.message : String(error));
-      }
-      return null;
-    }
-  }, []);
+  /** Reads the pending count; a database without the queue says "not set up". */
+  const readPending = useCallback(
+    (): Promise<number | null> =>
+      fetchDerivePending().then(
+        (next) => {
+          setPending(next);
+          return next;
+        },
+        (error: unknown) => {
+          if (isMissingSchemaError(error)) {
+            setStatus("not-installed");
+          } else {
+            setStatus("error");
+            setMessage(error instanceof Error ? error.message : String(error));
+          }
+          return null;
+        },
+      ),
+    [],
+  );
 
-  const runRebuild = useCallback(async () => {
-    setRebuild({
-      status: "running",
-      progress: { processed: 0, inserted: 0, failed: 0, pruned: 0 },
-    });
-    try {
-      const progress = await rebuildStats((next) => setRebuild({ status: "running", progress: next }));
-      setRebuild({ status: "done", progress });
-      await load();
-      setGeneration((value) => value + 1);
-    } catch (error) {
-      setRebuild({
-        status: "error",
-        message: error instanceof Error ? error.message : String(error),
-      });
-    }
-  }, [load]);
-
-  // A library with hands the numbers do not cover yet — uploaded before
-  // statistics existed, or left behind by a version bump — catches up on its
-  // own the first time this screen sees it. It is idempotent and runs next to
-  // the database, so there is nothing to ask permission for.
+  // On sign-in, an upload (`refreshToken`) or a live batch: the numbers
+  // (`reloadKey`) and the count are read again. Nothing is derived here.
+  const arrivalSeq = arrival?.seq ?? 0;
+  const reloadKey = `${generation}|${refreshToken}|${arrivalSeq}`;
   useEffect(() => {
     if (!isDatabaseConfigured || !auth.isSignedIn) {
       return;
     }
-    setGeneration((value) => value + 1);
-    void load().then((loaded) => {
-      if (loaded && loaded.missing + loaded.stale + loaded.evMissing + loaded.factsMissing > 0 && !autoRebuilt.current) {
-        autoRebuilt.current = true;
-        void runRebuild();
-      }
-    });
-  }, [auth.isSignedIn, load, refreshToken, runRebuild]);
+    void readPending();
+  }, [auth.isSignedIn, readPending, refreshToken, arrivalSeq]);
 
-  // Live batches. A batch that lands while a catch-up runs only marks that
-  // another round is needed, so a backfill streaming in costs one re-read
-  // (and one rebuild, when hands lack statistics) per round, never per batch.
-  const catchingUp = useRef(false);
-  const catchUpAgain = useRef(false);
-  const catchUp = useCallback(async () => {
-    if (catchingUp.current) {
-      catchUpAgain.current = true;
-      return;
-    }
-    catchingUp.current = true;
-    try {
-      do {
-        catchUpAgain.current = false;
-        const loaded = await load();
-        if (loaded && loaded.missing + loaded.stale + loaded.evMissing + loaded.factsMissing > 0) {
-          await runRebuild();
-        } else {
+  // While hands are being processed: the count is read again every few
+  // seconds, and the numbers as it falls (at most every RELOAD_EVERY_MS, and
+  // once when it reaches zero).
+  const lastReload = useRef(0);
+  const processing = pending !== null && pending > 0;
+  useEffect(() => {
+    if (!processing) return;
+    let previous: number | null = null;
+    const timer = window.setInterval(() => {
+      void readPending().then((next) => {
+        if (next === null || next === previous) return;
+        const first = previous === null;
+        previous = next;
+        const now = Date.now();
+        if (next === 0 || (!first && now - lastReload.current >= RELOAD_EVERY_MS)) {
+          lastReload.current = now;
           setGeneration((value) => value + 1);
         }
-      } while (catchUpAgain.current);
-    } finally {
-      catchingUp.current = false;
-    }
-  }, [load, runRebuild]);
-
-  const handledArrival = useRef(0);
-  useEffect(() => {
-    if (!arrival || arrival.seq === handledArrival.current) {
-      return;
-    }
-    handledArrival.current = arrival.seq;
-    if (isDatabaseConfigured && auth.isSignedIn) {
-      void catchUp();
-    }
-  }, [arrival, auth.isSignedIn, catchUp]);
+      });
+    }, PENDING_POLL_MS);
+    return () => window.clearInterval(timer);
+  }, [processing, readPending]);
 
   if (!isDatabaseConfigured) {
     return (
@@ -340,7 +301,7 @@ export function StatsTab({ refreshToken = 0, arrival = null, mode = "reports" }:
             className="btn"
             onClick={() => {
               setStatus("ready");
-              void load();
+              void readPending();
             }}
           >
             {t.common.tryAgain}
@@ -360,7 +321,7 @@ export function StatsTab({ refreshToken = 0, arrival = null, mode = "reports" }:
           className="btn"
           onClick={() => {
             setStatus("ready");
-            void load();
+            void readPending();
           }}
         >
           {t.common.tryAgain}
@@ -384,14 +345,14 @@ export function StatsTab({ refreshToken = 0, arrival = null, mode = "reports" }:
           title={dict.analysis.ui.nav.stats}
           titleTag="h2"
           hideTitle
-          notice={<CoverageBar coverage={coverage} rebuild={rebuild} onRebuild={() => void runRebuild()} />}
-          emptyText={rebuild.status === "running" ? en.loading : `${en.emptyHeading}.`}
+          notice={<PendingLine pending={pending} />}
+          emptyText={processing ? en.loading : `${en.emptyHeading}.`}
           emptyLink={<Link href={paths.convert()}>{en.emptyLink}</Link>}
-          reloadToken={generation}
+          reloadToken={reloadKey}
           renderState={(kind, text, action) =>
-            // Nothing to show while a catch-up rebuild runs is still loading.
-            kind === "loading" || (kind === "empty" && rebuild.status === "running") ? (
-              <RailLoader label={text} showLabel centered />
+            // Nothing to show while hands are being processed is still loading.
+            kind === "loading" || (kind === "empty" && processing) ? (
+              <RailLoader label={kind === "empty" ? en.loading : text} showLabel centered />
             ) : (
               kind === "error" ? (
                 <Dismissible as="div" className="notice notice--error rail-fade" role="alert">
@@ -434,13 +395,13 @@ export function StatsTab({ refreshToken = 0, arrival = null, mode = "reports" }:
         title={en.heading}
         titleTag="h2"
         hideTitle
-        notice={<CoverageBar coverage={coverage} rebuild={rebuild} onRebuild={() => void runRebuild()} />}
-        emptyText={rebuild.status === "running" ? en.loading : `${en.emptyHeading}. ${en.emptyBody}`}
-        reloadToken={generation}
+        notice={<PendingLine pending={pending} />}
+        emptyText={processing ? en.loading : `${en.emptyHeading}. ${en.emptyBody}`}
+        reloadToken={reloadKey}
         renderState={(kind, text) =>
-          // Nothing to show while a catch-up rebuild runs is still loading.
-          kind === "loading" || (kind === "empty" && rebuild.status === "running") ? (
-            <RailLoader label={text} showLabel centered />
+          // Nothing to show while hands are being processed is still loading.
+          kind === "loading" || (kind === "empty" && processing) ? (
+            <RailLoader label={kind === "empty" ? en.loading : text} showLabel centered />
           ) : (
             kind === "error" ? (
               <Dismissible as="div" className="notice notice--error rail-fade" role="alert">
@@ -466,8 +427,8 @@ export function StatsTab({ refreshToken = 0, arrival = null, mode = "reports" }:
           const opponents = opponentsScope(query);
           return (
             <>
-              <SessionsPanel filter={query} refreshToken={generation} />
-              <OpponentsPanel filters={opponents.filters} partial={opponents.partial} refreshToken={generation} />
+              <SessionsPanel filter={query} refreshToken={reloadKey} />
+              <OpponentsPanel filters={opponents.filters} partial={opponents.partial} refreshToken={reloadKey} />
             </>
           );
         }}
@@ -493,71 +454,23 @@ function Header({ mode }: { mode: "reports" | "analytics" }) {
   return <h2 className={reportStyles.visuallyHidden}>{dict.stats.tab.heading}</h2>;
 }
 
-type RebuildState =
-  | { status: "idle" }
-  | { status: "running"; progress: RebuildProgress }
-  | { status: "done"; progress: RebuildProgress }
-  | { status: "error"; message: string };
-
 /**
- * The line that says how much of the library the numbers cover.
- *
- * Silent when there is nothing to say — every hand covered, nothing running,
- * nothing failed — because a permanent "100% of your hands" badge is noise.
+ * The one line while hands are being processed: "N hands still being
+ * processed", from the counter. Silent at zero.
  */
-function CoverageBar({
-  coverage,
-  rebuild,
-  onRebuild,
-}: {
-  coverage: StatsCoverage | null;
-  rebuild: RebuildState;
-  onRebuild: () => void;
-}) {
-  const t = useDict().stats;
-  const en = t.coverage;
-  if (rebuild.status === "running") {
-    const target = coverage ? coverage.missing + coverage.stale + coverage.evMissing + coverage.factsMissing : 0;
-    const done = rebuild.progress.processed;
-    const text = en.running(target > 0 ? Math.min(done, target) : done, target);
-    // The paragraph is the live region; the mark beside it is only the look.
-    return (
-      <Dismissible className="notice notice--info stats-coverage rail-fade" role="status" aria-live="polite" messageKey="rebuilding">
-        <span aria-hidden="true">
-          <RailLoader size="inline" label={text} delay={0} />
-        </span>{" "}
-        {text}
-      </Dismissible>
-    );
-  }
-  if (rebuild.status === "error") {
-    return (
-      <Dismissible className="notice notice--error stats-coverage">
-        {en.failedRebuild(rebuild.message)}{" "}
-        <button type="button" className="btn btn--sm" onClick={onRebuild}>
-          {t.common.tryAgain}
-        </button>
-      </Dismissible>
-    );
-  }
-  if (!coverage) {
+function PendingLine({ pending }: { pending: number | null }) {
+  const t = useDict().stats.coverage;
+  if (pending === null || pending <= 0) {
     return null;
   }
-  const behind = coverage.missing + coverage.stale;
-  const failed = rebuild.status === "done" ? rebuild.progress.failed : 0;
-  if (behind === 0 && failed === 0) {
-    return null;
-  }
+  const text = t.processing(pending);
+  // The paragraph is the live region; the mark beside it is only the look.
   return (
-    <Dismissible className="notice notice--warn stats-coverage">
-      {behind > 0 ? en.behind(behind, coverage.hands) : null}
-      {failed > 0 ? ` ${en.unreadable(failed)}` : null}{" "}
-      {behind > 0 ? (
-        <button type="button" className="btn btn--sm" onClick={onRebuild}>
-          {en.rebuild}
-        </button>
-      ) : null}
+    <Dismissible className="notice notice--info stats-coverage rail-fade" role="status" aria-live="polite" messageKey="processing">
+      <span aria-hidden="true">
+        <RailLoader size="inline" label={text} delay={0} />
+      </span>{" "}
+      {text}
     </Dismissible>
   );
 }
-

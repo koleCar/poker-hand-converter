@@ -6,9 +6,9 @@
  * - **Figures.** Regs : fish by their hands with the hero; the regs' win
  *   rate (bb/100) with its standard error from the measured spread of their
  *   results (Σ result², sample variance); the player's win rate with a fish
- *   in the pot (the Hands filter `vsTypes: ["fish"]`) and with regs and no
- *   fish (`["reg", "fish"]` minus `["fish"]`: every hand with a reg or a
- *   fish, less those with a fish).
+ *   in the pot and with regs and no fish (a reg, no fish): the surface's
+ *   `you` (the web's tags, docs/POOL.md P3), else two reports over the Hands
+ *   filter's "vs type" - `["fish"]`, and `["reg", "fish"]` less it.
  * - **Rows**, one per catalogue rate: the player's number and target (the
  *   checker's - the pool's target is the player's own, approximate: the
  *   opponents' cards are mostly unknown, so no hand-adjusted target can be
@@ -34,13 +34,18 @@ import {
   type CheckerResult,
   type CheckerTone,
 } from "../model/checker";
-import type { PoolFilters, PoolSums, PoolType, PoolTypeSums } from "./model";
+import type { PoolFilters, PoolSums, PoolType, PoolTypeSums, PoolYou, PoolYouSums } from "./model";
 
 export const POOL_TYPES: readonly PoolType[] = ["reg", "fish"];
 
 /* ----------------------------------------------------------- filters -- */
 
-/** The groups of the screen's filter the pool follows: the kind or one format, and the rooms. */
+/**
+ * The groups of the screen's filter the pool follows: the field's (docs/POOL.md
+ * P2) - rooms, formats, games, limits, table sizes and stakes. The kind or one
+ * format is sent as well, for the desktop, which reads only that and the
+ * rooms until its own field split (P6).
+ */
 export function poolFiltersOf(query: HandFilter): PoolFilters {
   const filters: PoolFilters = {};
   const formats = query.formats ?? [];
@@ -50,12 +55,27 @@ export function poolFiltersOf(query: HandFilter): PoolFilters {
     if (formats.every((format) => format === "cash")) filters.gameKind = "cash";
     else if (formats.every((format) => format !== "cash" && format !== "")) filters.gameKind = "tournament";
   }
-  const sites = (query.sites ?? []).filter((site) => site !== "");
-  if (sites.length > 0) filters.sites = sites;
+  const groups = {
+    sites: query.sites,
+    formats: query.formats,
+    variants: query.variants,
+    limits: query.limits,
+    sizes: query.sizes,
+    stakes: query.stakes,
+  } as const;
+  for (const [key, values] of Object.entries(groups) as Array<[keyof typeof groups, readonly string[] | undefined]>) {
+    // A room is never ''; the other groups' values are the reports' own.
+    const kept = key === "sites" ? (values ?? []).filter((value) => value !== "") : [...(values ?? [])];
+    if (kept.length > 0) filters[key] = kept;
+  }
   return filters;
 }
 
-/** The two reports' filters: hands with a fish in the pot, and with a reg or a fish. */
+/**
+ * The two reports' filters for a surface that does not precompute the
+ * figures (`AnalyticsPool.you`, the desktop): hands with a fish in the pot,
+ * and with a reg or a fish.
+ */
 export function youQueries(query: HandFilter): { fish: HandFilter; regOrFish: HandFilter } {
   return { fish: { ...query, vsTypes: ["fish"] }, regOrFish: { ...query, vsTypes: ["reg", "fish"] } };
 }
@@ -100,38 +120,41 @@ export function poolFigures(sums: PoolSums): PoolFigures {
   };
 }
 
-/** A report's result in big blinds over its money hands. */
-function resultOf(report: Pick<Report, "summary"> | null): { hands: number; moneyHands: number; netBb: number | null } | null {
-  if (!report) return null;
+/** A report's summary as one side of the split. */
+function sideOf(report: Pick<Report, "summary">): PoolYouSums {
   const { hands, moneyHands, netBbMilli } = report.summary;
-  return { hands, moneyHands, netBb: netBbMilli === null ? null : netBbMilli / 1000 };
+  return { hands, moneyHands, netBbMilli };
 }
 
 /**
- * The player's win rates: with a fish in the pot, and with regs and no fish
- * (the reg-or-fish report less the fish one). Null while a report is missing.
+ * The two figures from the two "vs type" reports (a surface without
+ * `AnalyticsPool.you`, the desktop): with a fish, and the reg-or-fish report
+ * less the fish one. Null while a report is missing.
  */
-export function youRates(
+export function youOfReports(
   withFish: Pick<Report, "summary"> | null,
   regOrFish: Pick<Report, "summary"> | null,
-): { fish: Rate | null; regsOnly: Rate | null } {
-  const fish = resultOf(withFish);
-  const any = resultOf(regOrFish);
-  const rate = (hands: number, money: number, net: number | null): Rate => ({
-    hands,
-    bb100: money > 0 && net !== null ? (net * 100) / money : null,
-  });
+): PoolYou | null {
+  if (!withFish || !regOrFish) return null;
+  const fish = sideOf(withFish);
+  const any = sideOf(regOrFish);
   return {
-    fish: fish ? rate(fish.hands, fish.moneyHands, fish.netBb) : null,
-    regsOnly:
-      fish && any
-        ? rate(
-            Math.max(0, any.hands - fish.hands),
-            Math.max(0, any.moneyHands - fish.moneyHands),
-            any.netBb === null || fish.netBb === null ? null : any.netBb - fish.netBb,
-          )
-        : null,
+    fish,
+    regsOnly: {
+      hands: Math.max(0, any.hands - fish.hands),
+      moneyHands: Math.max(0, any.moneyHands - fish.moneyHands),
+      netBbMilli: any.netBbMilli === null || fish.netBbMilli === null ? null : any.netBbMilli - fish.netBbMilli,
+    },
   };
+}
+
+/** The player's win rates with a fish in the pot and with regs and no fish. Null while they load. */
+export function youRates(you: PoolYou | null): { fish: Rate | null; regsOnly: Rate | null } {
+  const rate = (side: PoolYouSums): Rate => ({
+    hands: side.hands,
+    bb100: side.moneyHands > 0 && side.netBbMilli !== null ? ((side.netBbMilli / 1000) * 100) / side.moneyHands : null,
+  });
+  return { fish: you ? rate(you.fish) : null, regsOnly: you ? rate(you.regsOnly) : null };
 }
 
 /* -------------------------------------------------------------- rows -- */

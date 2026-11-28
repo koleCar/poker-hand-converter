@@ -294,7 +294,9 @@ create function pg_temp.report_rows_scratch() returns setof public.hero_report_r
       when x.starting_stack_bb_tenths < 1500 then '100-150'
       when x.starting_stack_bb_tenths < 2500 then '150-250'
       else '250+' end, coalesce(x.hand_class, ''),
-    x.player_count, coalesce(x.street_reached, ''), x.vpip_opp, x.vpip, x.pfr_opp, x.pfr, x.rfi_opp, x.rfi, x.three_bet_opp, x.three_bet, x.fold_to_three_bet_opp, x.fold_to_three_bet, x.steal_opp, x.steal, x.cbet_flop_opp, x.cbet_flop, x.wtsd_opp, x.wtsd, x.wsd_opp, x.wsd, x.wwsf_opp, x.wwsf
+    x.player_count, coalesce(x.street_reached, ''), x.vpip_opp, x.vpip, x.pfr_opp, x.pfr, x.rfi_opp, x.rfi, x.three_bet_opp, x.three_bet, x.fold_to_three_bet_opp, x.fold_to_three_bet, x.steal_opp, x.steal, x.cbet_flop_opp, x.cbet_flop, x.wtsd_opp, x.wtsd, x.wsd_opp, x.wsd, x.wwsf_opp, x.wwsf,
+    -- P3 (20271127110000): the row's tag, from the hand's facts and the opponents' types
+    public.hero_opp_mix_of(x.owner_id, x.stats_version, x.site_id, x.hand_id)
   from public.hand_stats x where x.is_hero
 $$;
 create function pg_temp.player_scratch() returns table (

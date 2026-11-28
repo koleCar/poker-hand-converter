@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/auth";
-import { isDatabaseConfigured, rebuildStats, saveHand } from "../../lib/db";
+import { isDatabaseConfigured, saveHand } from "../../lib/db";
+import { deriveNow } from "../../lib/db/derive";
 import { useDict } from "../../lib/i18n/client";
 import type { BuildResult } from "../../lib/manual";
 import { toStandardText } from "../../lib/phf";
@@ -50,7 +51,7 @@ export function OutputPanel({ built, stored, onStored, onSaved }: OutputPanelPro
       onStored(result.id);
       setNotice({ kind: "info", text: result.duplicate ? dict.converter.save.alreadySaved : dict.converter.save.saved });
       onSaved?.();
-      if (!result.duplicate) void rebuildStats().catch(() => undefined);
+      if (!result.duplicate) void deriveNow().catch(() => undefined);
     } catch (err) {
       setNotice({ kind: "error", text: err instanceof Error ? err.message : dict.converter.save.failed });
     } finally {

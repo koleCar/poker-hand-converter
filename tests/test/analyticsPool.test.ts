@@ -33,6 +33,7 @@ import {
   poolRows,
   rateOf,
   shownPoolRows,
+  youOfReports,
   youQueries,
   youRates,
   type PoolRow,
@@ -210,22 +211,59 @@ describe("Pool: the figures", () => {
   it("the player's win rate with a fish, and with regs only (reg or fish less fish)", () => {
     const report = (hands: number, moneyHands: number, netBbMilli: number | null) =>
       ({ summary: { hands, moneyHands, net: null, netBbMilli, evNetBbMilli: null, stats: [], ids: [] } }) as unknown as Report;
-    const you = youRates(report(5_000, 5_000, 740_000), report(18_000, 17_900, 792_000));
+    // The desktop: two reports, the reg-or-fish one less the fish one.
+    const fromReports = youOfReports(report(5_000, 5_000, 740_000), report(18_000, 17_900, 792_000));
+    expect(fromReports).toEqual({
+      fish: { hands: 5_000, moneyHands: 5_000, netBbMilli: 740_000 },
+      regsOnly: { hands: 13_000, moneyHands: 12_900, netBbMilli: 52_000 },
+    });
+    const you = youRates(fromReports);
     expect(you.fish).toEqual({ hands: 5_000, bb100: 14.8 });
     expect(you.regsOnly?.hands).toBe(13_000);
     expect(you.regsOnly?.bb100).toBeCloseTo((52 * 100) / 12_900, 9);
-    expect(youRates(null, null)).toEqual({ fish: null, regsOnly: null });
-    expect(youRates(report(0, 0, 0), report(10, 10, null)).regsOnly?.bb100).toBeNull();
+    expect(youOfReports(null, report(1, 1, 1))).toBeNull();
+    expect(youRates(null)).toEqual({ fish: null, regsOnly: null });
+    expect(youRates(youOfReports(report(0, 0, 0), report(10, 10, null))).regsOnly?.bb100).toBeNull();
+    // The web: the surface's own split (docs/POOL.md P3), the same rates.
+    const web = youRates({
+      fish: { hands: 5_000, moneyHands: 5_000, netBbMilli: 740_000 },
+      regsOnly: { hands: 13_000, moneyHands: 12_900, netBbMilli: 52_000 },
+    });
+    expect(web).toEqual(you);
+    expect(youRates({ fish: { hands: 3, moneyHands: 0, netBbMilli: 5 }, regsOnly: { hands: 2, moneyHands: 2, netBbMilli: null } }))
+      .toEqual({ fish: { hands: 3, bb100: null }, regsOnly: { hands: 2, bb100: null } });
   });
 
-  it("the queries reuse the Hands filter's vs type; the pool follows the kind and the rooms", () => {
+  it("the queries reuse the Hands filter's vs type; the pool follows the field's groups (P2)", () => {
     const q = { formats: ["cash"], sites: ["pokerstars", ""], vsTypes: ["unknown"], positions: ["BTN"] };
     expect(youQueries(q).fish.vsTypes).toEqual(["fish"]);
     expect(youQueries(q).regOrFish.vsTypes).toEqual(["reg", "fish"]);
     expect(youQueries(q).fish.positions).toEqual(["BTN"]);
-    expect(poolFiltersOf(q)).toEqual({ gameFormat: "cash", sites: ["pokerstars"] });
-    expect(poolFiltersOf({ formats: ["mtt", "sng"] })).toEqual({ gameKind: "tournament" });
+    expect(poolFiltersOf(q)).toEqual({ gameFormat: "cash", formats: ["cash"], sites: ["pokerstars"] });
+    expect(poolFiltersOf({ formats: ["mtt", "sng"] })).toEqual({ gameKind: "tournament", formats: ["mtt", "sng"] });
     expect(poolFiltersOf({})).toEqual({});
+    // A GG NL50 6-max filter: every field group goes to the server; the
+    // groups the pool has no use for (positions, vs type) do not.
+    expect(
+      poolFiltersOf({
+        sites: ["ggpoker"],
+        formats: ["cash"],
+        variants: ["holdem"],
+        limits: ["nl"],
+        sizes: ["6max"],
+        stakes: ["USD:50"],
+        positions: ["BTN"],
+        vsTypes: ["fish"],
+      }),
+    ).toEqual({
+      gameFormat: "cash",
+      sites: ["ggpoker"],
+      formats: ["cash"],
+      variants: ["holdem"],
+      limits: ["nl"],
+      sizes: ["6max"],
+      stakes: ["USD:50"],
+    });
   });
 });
 
@@ -298,8 +336,7 @@ function render(locale: "en" | "hr", props: Partial<Parameters<typeof Pool>[0]>)
           catalogue: ANALYTICS,
           result: result({ river_fold_vs_bet: { player: 49, target: 46 } }),
           sums: sums([{ stat: "river_fold_vs_bet", type: "reg", made: 620, opp: 1000 }]),
-          withFish: null,
-          regOrFish: null,
+          you: null,
           show: "all",
           ...props,
         }),

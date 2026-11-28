@@ -75,13 +75,8 @@ export const statsEn = {
   },
 
   coverage: {
-    /** `target` is 0 when the size of the job is not known. */
-    running: (done: number, target: number) =>
-      target > 0 ? `Updating statistics… ${num(done)} of ${hands(target)}` : `Updating statistics… ${hands(done)}`,
-    failedRebuild: (message: string) => `Statistics could not be brought up to date: ${message}`,
-    behind: (behind: number, total: number) => `${num(behind)} of ${hands(total)} are not in these numbers yet.`,
-    unreadable: (count: number) => `${num(count)} could not be read — that is a converter bug, not your file.`,
-    rebuild: "Rebuild statistics",
+    /** Hands stored and not worked out yet (docs/POOL.md P1): one line, from a counter. */
+    processing: (count: number) => `${hands(count)} still being processed.`,
   },
 
   scope: {

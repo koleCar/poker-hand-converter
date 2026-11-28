@@ -18,12 +18,11 @@ import { countIn } from "../hands/format";
 import { useUiStrings, type AnalyticsStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
 import type { Catalogue, CatalogueStat, CheckerResult } from "../model/checker";
-import type { Report } from "../reports/model";
 import { fixedIn } from "../stats/format";
 import { TONE, hoverOf, rateIn } from "./AllStats";
 import styles from "./Analytics.module.css";
 import { statName } from "./findings";
-import type { PoolSums } from "./model";
+import type { PoolSums, PoolYou } from "./model";
 import {
   poolEmpty,
   poolFigures,
@@ -75,9 +74,8 @@ export interface PoolProps {
   /** The player's checker result (their numbers and targets); null while it loads. */
   result: CheckerResult | null;
   sums: PoolSums | null;
-  /** The player's reports with a fish in the pot, and with a reg or a fish. */
-  withFish: Report | null;
-  regOrFish: Report | null;
+  /** The player's results with a fish in the pot, and with regs and no fish; null while they load. */
+  you: PoolYou | null;
   show: PoolShow;
   /** The surface's Pro lock: the tab is held back. */
   lock?: ReactNode;
@@ -99,8 +97,7 @@ export function Pool({
   catalogue,
   result,
   sums,
-  withFish,
-  regOrFish,
+  you: youSums,
   show,
   lock,
   loading = false,
@@ -161,7 +158,7 @@ export function Pool({
     );
   }
   const figures = poolFigures(sums);
-  const you = youRates(withFish, regOrFish);
+  const you = youRates(youSums);
   const rows = shownPoolRows(poolRows(catalogue, result, sums), show);
   const one = fixedIn(locale, 1);
   const signed = (value: number | null) => (value === null ? "—" : `${value > 0 ? "+" : value < 0 ? "−" : ""}${one(Math.abs(value))}`);

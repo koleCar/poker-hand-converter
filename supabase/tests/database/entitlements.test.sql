@@ -284,6 +284,11 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 'save_hand_facts', 'hand_facts_missing',
                 'hand_stats_ev_normalize', 'prune_hand_stats', 'prune_villain_stats', 'refresh_report_summaries',
                 'my_player_notes', 'set_player_note',
+                -- P1 (20271127090000): every hand is worked out on arrival, whatever the plan
+                -- (the Pro readers stay gated); the opponents' statistics switch
+                'derive_claim', 'derive_save', 'derive_fail', 'derive_pending', 'derive_villains', 'derive_villains_set',
+                -- P2 (20271127100000): a hand's field, computed on insert by hands_normalize (pure)
+                'field_key_of',
                 -- a shared analysis is read by anyone; switching one's own share and pruning stay free
                 'read_shared_analysis', 'analysis_share_state', 'set_analysis_share', 'prune_hand_analysis',
                 -- the desktop app signs in with any plan (it reads its entitlements after)
@@ -326,8 +331,8 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
 
 select is((select string_agg(feature || ':' || n, ' ' order by feature)
              from (select feature, count(*) as n from public.entitlement_gates group by 1) x),
-  'analysis:60 desktop_sync:3 learn:3 reports_full:6',
-  'the gate list: 60 analysis (20271116090000: the trainer''s sessions; 20271119250000: the Multiway and Bomb pots pages; 20271122090000: the Analytics checker; 20271122100000: the Pool tab), 3 desktop sync, 3 learn, 6 full reports');
+  'analysis:61 desktop_sync:3 learn:3 reports_full:6',
+  'the gate list: 61 analysis (20271116090000: the trainer''s sessions; 20271119250000: the Multiway and Bomb pots pages; 20271122090000: the Analytics checker; 20271122100000: the Pool tab; 20271127110000: its "you" figures), 3 desktop sync, 3 learn, 6 full reports');
 
 -- ---------------------------------------------------------- early users --
 
